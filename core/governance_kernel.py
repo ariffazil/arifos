@@ -500,19 +500,45 @@ class GovernanceKernel:
     @property
     def genius_score(self) -> float:
         """Derived G score: G = (A×P×X×E²) × (1-h)"""
-        from core.shared.physics import GeniusDial
+        from core.enforcement.genius import calculate_genius
+        from core.shared.types import FloorScores
 
-        # Estimate dials from current state
-        akal = round(max(0.0, 1.0 - self.safety_omega), 4)
-        present = round(self.reversibility_score, 4)
-        explore = 0.9  # Default
-        energy = self.current_energy
+        # Map current kernel state to FloorScores
+        # This is a real-time projection of kernel state into the 13-floor manifold
+        floors = FloorScores(
+            f1_amanah=round(self.reversibility_score, 4),
+            f2_truth=round(max(0.0, 1.0 - self.safety_omega), 4),
+            f4_clarity=1.0 if self.governance_state == GovernanceState.ACTIVE else 0.8,
+            f5_peace=round(self.reversibility_score, 4), # Peace derived from reversibility in kernel
+            f7_humility=round(0.04 - (self.safety_omega / 10.0), 4), # Grounded in safety_omega
+            f8_genius=0.8, # Previous state anchor
+            f11_command_auth=self.authority_level != AuthorityLevel.ANALYSIS,
+            f13_sovereign=1.0 if self.human_approval_status == "approved" else 0.7
+        )
+        
+        # Physics budget integration
+        try:
+            from core.physics.thermodynamics_hardened import get_thermodynamic_budget
+            budget = get_thermodynamic_budget(self.session_id)
+            budget_used = budget.consumed
+            budget_max = budget.initial_budget
+        except Exception:
+            budget_used = 1.0 - self.current_energy
+            budget_max = 1.0
 
-        dial = GeniusDial(akal, present, explore, energy, self.hysteresis_penalty)
-        return dial.G()
+        res = calculate_genius(
+            floors=floors,
+            h=self.hysteresis_penalty,
+            compute_budget_used=budget_used,
+            compute_budget_max=budget_max
+        )
+        return res["genius_score"]
 
     def get_current_state(self) -> dict[str, Any]:
         """Compatibility payload for adapters expecting live governance telemetry."""
+        from core.enforcement.genius import calculate_genius, floors_to_dials
+        from core.shared.types import FloorScores
+
         if self.governance_state == GovernanceState.VOID:
             verdict = "VOID"
         elif self.governance_state == GovernanceState.AWAITING_888:
@@ -522,35 +548,60 @@ class GovernanceKernel:
         else:
             verdict = "SEAL"
 
+        # Construct FloorScores for a consistent view
+        floors = FloorScores(
+            f1_amanah=round(self.reversibility_score, 4),
+            f2_truth=round(max(0.0, 1.0 - self.safety_omega), 4),
+            f4_clarity=1.0 if self.governance_state == GovernanceState.ACTIVE else 0.8,
+            f5_peace=round(self.reversibility_score, 4),
+            f7_humility=round(0.04 - (self.safety_omega / 10.0), 4),
+            f11_command_auth=self.authority_level != AuthorityLevel.ANALYSIS,
+            f13_sovereign=1.0 if self.human_approval_status == "approved" else 0.7
+        )
+        
+        try:
+            from core.physics.thermodynamics_hardened import get_thermodynamic_budget
+            budget = get_thermodynamic_budget(self.session_id)
+            budget_used = budget.consumed
+            budget_max = budget.initial_budget
+        except Exception:
+            budget_used = 1.0 - self.current_energy
+            budget_max = 1.0
+
+        genius_res = calculate_genius(floors, self.hysteresis_penalty, budget_used, budget_max)
+        dials = genius_res["dials"]
+
         return {
             "session_id": self.session_id,
             "verdict": verdict,
             "metabolic_stage": 888 if self.escalation_required else 333,
             "qdf": round(max(0.0, 1.0 - self.safety_omega), 4),
             "hysteresis": self.hysteresis_penalty,
-            "genius": self.genius_score,
+            "genius": genius_res["genius_score"],
             "floors": {
-                "F1": round(self.reversibility_score, 4),
-                "F2": round(max(0.0, 1.0 - self.safety_omega), 4),
-                "F3": self.witness.get("consensus", 0.0) if hasattr(self, "witness") else 0.0,
-                "F4": 1.0 if self.current_energy >= self.ENERGY_THRESHOLD else 0.0,
-                "F7": round(max(0.0, 1.0 - abs(self.safety_omega - 0.04)), 4),
-                "F8": self.genius_score,
+                "F1": floors.f1_amanah,
+                "F2": floors.f2_truth,
+                "F4": floors.f4_clarity,
+                "F7": floors.f7_humility,
+                "F8": genius_res["genius_score"],
+                "F11": 1.0 if floors.f11_command_auth else 0.0,
+                "F13": floors.f13_sovereign,
             },
             "witness": {
-                "human": 1.0 if self.human_approval_status == "approved" else 0.7,
-                "ai": round(max(0.0, 1.0 - self.safety_omega), 4),
-                "earth": round(self.current_energy, 4),
-                "shadow": 1.0 - (self.safety_omega * 2.0),  # Adversarial proxy
+                "human": floors.f13_sovereign,
+                "ai": round(dials["A"], 4),
+                "earth": round(dials["P"], 4),
+                "shadow": round(dials["X"], 4),
             },
             "telemetry": {
                 "dS": -0.1 if self.can_proceed() else 0.1,
                 "peace2": round(max(0.0, self.reversibility_score), 4),
-                "kappa_r": round(max(0.0, 1.0 - self.safety_omega), 4),
-                "confidence": round(max(0.0, 1.0 - self.safety_omega), 4),
-                "psi_le": round(max(0.0, self.current_energy), 4),
-                "joules": self.tokens_consumed * 0.0005,  # Energy proxy
+                "kappa_r": round(dials["A"], 4),
+                "confidence": round(genius_res["genius_score"], 4),
+                "psi_le": round(self.current_energy, 4),
+                "joules": self.tokens_consumed * 0.0005,
             },
+            "dials": dials
         }
 
     def to_dict(self) -> dict[str, Any]:

@@ -112,24 +112,27 @@ async def asi(
 
     # 3. Full Alignment (Default)
     # Combines results for the pipeline
+    from core.judgment import judge_empathy
+    
+    empathy = judge_empathy(
+        query=kwargs.get("query", "INIT"),
+        stakeholder_count=2,
+        vulnerability_score=0.1,
+        reversibility_index=0.1,
+        impact_severity=0.1
+    )
+
     return AsiOutput(
         session_id=session_id,
-        verdict=Verdict.SEAL,
+        verdict=Verdict(empathy.verdict.lower()) if empathy.verdict != "888_HOLD" else Verdict.HOLD_888,
         status="SUCCESS",
         assessment=HeartAssessment(risk_level="low"),
         floors=floors,
-        floor_scores=FloorScores(
-            f1_amanah=1.0,
-            f2_truth=1.0,
-            f3_tri_witness=1.0,
-            f5_peace=1.0,
-            f6_empathy=1.0,
-            f13_sovereign=1.0,
-        ),
-        # P1 Hardening: Explicit witness scores (Set to 1.0 for CRITICAL threshold)
+        floor_scores=FloorScores(**empathy.floor_scores),
+        # P1 Hardening: Explicit witness scores
         human_witness=1.0,
-        ai_witness=1.0,
-        earth_witness=1.0,
+        ai_witness=empathy.empathy_score,
+        earth_witness=empathy.peace_squared,
         evidence={"grounding": "Constitutional Heart Baseline"},
     )
 

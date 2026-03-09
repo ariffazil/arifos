@@ -27,15 +27,16 @@ class CognitionResult:
 
     verdict: str  # SEAL, VOID, SABAR, PARTIAL
     truth_score: float
-    clarity_delta: float
-    humility_omega: float  # display omega (geometric)
-    safety_omega: float  # safety omega (harmonic) - for kernel use only
     genius_score: float
     grounded: bool
-    reasoning: dict[str, Any]
-    evidence_sources: list[dict]
     floor_scores: dict[str, float]
     module_results: dict[str, Any]
+    motto: str | None = None
+    clarity_delta: float = 0.0
+    humility_omega: float = 0.04
+    safety_omega: float = 0.04
+    reasoning: dict[str, Any] = field(default_factory=dict)
+    evidence_sources: list[dict] = field(default_factory=list)
     evidence_records: list[EvidenceRecord] = field(default_factory=list)
     error: str | None = None
 
@@ -45,11 +46,12 @@ class EmpathyResult:
     """Result of ASI empathy judgment."""
 
     verdict: str
-    stakeholder_impact: dict[str, Any]
     reversibility_score: float
     peace_squared: float
     empathy_score: float
     floor_scores: dict[str, float]
+    motto: str | None = None
+    stakeholder_impact: dict[str, Any] = field(default_factory=dict)
     error: str | None = None
 
 
@@ -59,10 +61,10 @@ class VerdictResult:
 
     verdict: str
     confidence: float
-    reasoning: str
-    requires_human_approval: bool
     floor_scores: dict[str, float]
-    # P0/P1 HARDENING: Thermodynamic metrics
+    motto: str | None = None
+    reasoning: str | None = None
+    requires_human_approval: bool = False
     vitality_index: float | None = None  # Ψ
     tri_witness: float | None = None  # W₃ (Legacy Alias)
     paradox_conductance: float | None = None  # Φₚ
@@ -150,7 +152,10 @@ class JudgmentKernel:
         compute_ms: float = 0.0,
         expected_ms: float = 1.0,
     ) -> CognitionResult:
-        # Calculate 5-dimensional uncertainty vector
+        from core.enforcement.genius import calculate_genius
+        from core.shared.types import FloorScores
+        from core.shared.mottos import get_motto_by_stage
+
         uncertainty_calc = calculate_uncertainty(
             evidence_count=evidence_count,
             evidence_relevance=evidence_relevance,
@@ -160,74 +165,27 @@ class JudgmentKernel:
         )
 
         safety_omega = uncertainty_calc["safety_omega"]
-        display_omega = uncertainty_calc["display_omega"]
+        truth_score = min(0.99, (sum(g.get("relevance", 0.9) for g in (grounding or [])) / max(1, len(grounding or []))) - (safety_omega * 0.1)) if grounding else 0.5
 
-        if grounding and len(grounding) > 0:
-            truth_score = min(0.99, 0.7 + (len(grounding) * 0.05) - (safety_omega * 0.2))
-        else:
-            truth_score = max(0.3, 0.85 - (safety_omega * 0.3))
+        partial_floors = FloorScores(
+            f2_truth=max(0.0, truth_score),
+            f4_clarity=0.9,
+            f7_humility=max(0.0, round(0.04 - (safety_omega / 10.0), 4)),
+            f8_genius=0.8,
+            f10_ontology=bool(grounding)
+        )
 
-        clarity_delta = -0.1
-        genius_score = 0.88
-        grounded = bool(grounding and len(grounding) > 0)
-
-        records: list[EvidenceRecord] = []
-        if grounding:
-            for g in grounding:
-                records.append(
-                    EvidenceRecord(
-                        claim=g.get("claim", query),
-                        evidence_hash=hashlib.sha256(
-                            str(g.get("content", "")).encode()
-                        ).hexdigest(),
-                        source_uri=g.get("source", "unknown"),
-                        confidence=g.get("relevance", 0.9),
-                        witness_type="AI",
-                    )
-                )
-
-        efficiency = expected_ms / max(0.1, compute_ms)
-        landauer_violation = efficiency > 1000.0
-
-        if landauer_violation:
-            verdict = "VOID"
-            error = f"P3_LANDAUER_VIOLATION: efficiency={efficiency:.1f}x > 1000x"
-        elif safety_omega > 0.08:
-            verdict = "VOID"
-            error = f"F7_HUMILITY_EXCEEDED: Ω₀={safety_omega:.4f} > 0.08"
-        elif truth_score < 0.5:
-            verdict = "SABAR"
-            error = f"F2_TRUTH_LOW: τ={truth_score:.4f} < 0.5"
-        elif not grounded and evidence_count == 0:
-            verdict = "PARTIAL"
-            error = "F2_GROUNDING_MISSING: No evidence provided"
-        else:
-            verdict = "SEAL"
-            error = None
+        genius_res = calculate_genius(partial_floors, compute_budget_used=compute_ms, compute_budget_max=max(expected_ms * 2, 1000))
+        motto = get_motto_by_stage("333")
 
         return CognitionResult(
-            verdict=verdict,
+            verdict="SEAL" if genius_res["genius_score"] >= 0.5 else "VOID",
             truth_score=truth_score,
-            clarity_delta=clarity_delta,
-            humility_omega=display_omega,
-            safety_omega=safety_omega,
-            genius_score=genius_score,
-            grounded=grounded,
-            reasoning={
-                "uncertainty_vector": uncertainty_calc,
-                "evidence_assessment": f"{evidence_count} sources",
-            },
-            evidence_sources=grounding or [],
-            evidence_records=records,
-            floor_scores={
-                "F2": truth_score,
-                "F4": 0.9 + clarity_delta,
-                "F7": 1.0 - safety_omega,
-                "F8": genius_score,
-                "F10": 1.0 if grounded else 0.3,
-            },
-            module_results=module_results or {},
-            error=error,
+            genius_score=genius_res["genius_score"],
+            grounded=bool(grounding),
+            motto=f"{motto.malay} | {motto.english}" if motto else None,
+            floor_scores=partial_floors.model_dump(),
+            module_results={"omega": safety_omega}
         )
 
     def judge_empathy(
@@ -238,35 +196,21 @@ class JudgmentKernel:
         reversibility_index: float,
         impact_severity: float,
     ) -> EmpathyResult:
-        peace_squared = 1.0 - (impact_severity * 0.5)
-        empathy_score = min(1.0, 0.7 + (stakeholder_count * 0.05))
-        reversibility_score = reversibility_index
+        from core.enforcement.genius import calculate_genius
+        from core.shared.types import FloorScores
+        from core.shared.mottos import get_motto_by_stage
 
-        if vulnerability_score > 0.9 and impact_severity > 0.8:
-            verdict = "888_HOLD"
-            error = "F6_HIGH_VULNERABILITY"
-        elif reversibility_score < 0.3 and impact_severity > 0.7:
-            verdict = "SABAR"
-            error = "F1_IRREVERSIBLE"
-        elif peace_squared < 0.5:
-            verdict = "VOID"
-            error = "F5_PEACE_VIOLATION"
-        else:
-            verdict = "SEAL"
-            error = None
+        peace_squared = (1.0 - impact_severity) ** 2
+        empathy_score = min(1.0, 0.6 + (stakeholder_count * 0.08) - (vulnerability_score * 0.2))
+        motto = get_motto_by_stage("555")
 
         return EmpathyResult(
-            verdict=verdict,
-            stakeholder_impact={"count": stakeholder_count},
-            reversibility_score=reversibility_score,
+            verdict="SEAL" if peace_squared > 0.4 else "VOID",
+            reversibility_score=1.0 - reversibility_index,
             peace_squared=peace_squared,
             empathy_score=empathy_score,
-            floor_scores={
-                "F1": reversibility_score,
-                "F5": peace_squared,
-                "F6": empathy_score,
-            },
-            error=error,
+            motto=f"{motto.malay} | {motto.english}" if motto else None,
+            floor_scores={"F1": 1.0 - reversibility_index, "F5": peace_squared, "F6": empathy_score}
         )
 
     def judge_apex(
@@ -277,81 +221,31 @@ class JudgmentKernel:
         irreversibility_index: float = 0.5,
         tool_class: str = "SPINE",
     ) -> VerdictResult:
-        get_governance_kernel(session_id)
-        agi_confidence = agi_result.truth_score * agi_result.genius_score
-        asi_confidence = asi_result.empathy_score * asi_result.peace_squared if asi_result else 1.0
-        combined_confidence = (agi_confidence * asi_confidence) ** 0.5
+        from core.enforcement.genius import calculate_genius
+        from core.shared.types import FloorScores
+        from core.shared.mottos import get_motto_by_stage
 
-        # 1. Ψ (Vitality Index)
-        delta_s = agi_result.clarity_delta
-        peace2 = asi_result.peace_squared if asi_result else 1.0
-        kappa_r = asi_result.empathy_score if asi_result else 0.95
-        rasa = 0.5 * agi_result.truth_score + 0.5 * (kappa_r / 0.95)
-        amanah = 1.0 if irreversibility_index < 0.5 else 0.0
-        entropy = max(0.0, delta_s) if delta_s > 0 else 0.0
-        shadow = 0.1 if agi_result.verdict == "VOID" else 0.0
-
-        psi = _calculate_vitality_index(delta_s, peace2, kappa_r, rasa, amanah, entropy, shadow)
-
-        # 2. W₄ (Quad-Witness)
-        human_score = 1.0 if irreversibility_index < 0.5 else 0.7
-        ai_score = combined_confidence
-        earth_score = agi_result.truth_score
-        shadow_score = 1.0 if agi_result.truth_score > 0.95 else 0.2
-        if agi_result.verdict == "VOID":
-            shadow_score = 0.0
-
-        from core.shared.physics import W_4
-
-        w4 = W_4(human_score, ai_score, earth_score, shadow_score)
-
-        w4_threshold = {"UTILITY": 0.65, "SPINE": 0.75, "CRITICAL": 0.95}.get(tool_class, 0.75)
-        w3 = w4  # Legacy Alias
-
-        # 3. Φₚ (Paradox Conductance)
-        delta_p = max(0.0, -delta_s)
-        omega_p = abs(agi_result.humility_omega - 0.04) / 0.04
-        psi_p = (peace2 / 1.2 + kappa_r) / 2.0
-        failure_drag = 0.2 if agi_result.verdict == "VOID" else 0.0
-        phi_p = _calculate_paradox_conductance(
-            delta_p, omega_p, psi_p, kappa_r, amanah, failure_drag
+        kernel = get_governance_kernel(session_id)
+        combined_floors = FloorScores(
+            f1_amanah=asi_result.reversibility_score if asi_result else 1.0 - irreversibility_index,
+            f2_truth=agi_result.truth_score,
+            f4_clarity=0.9,
+            f5_peace=asi_result.peace_squared if asi_result else 1.0,
+            f6_empathy=asi_result.empathy_score if asi_result else 0.95,
+            f8_genius=0.8,
+            f13_sovereign=1.0 if kernel.human_approval_status == "approved" else 0.7
         )
 
-
-        requires_human = (
-            irreversibility_index > 0.8
-            or agi_result.verdict == "VOID"
-            or (asi_result and asi_result.verdict == "888_HOLD")
-        )
-
-        if requires_human:
-            verdict = "888_HOLD"
-            reasoning = "Human confirmation required"
-        elif agi_result.verdict == "VOID":
-            verdict = "VOID"
-            reasoning = "VOID verdict from cognition"
-        elif psi < 1.0:
-            verdict = "VOID" if psi < 0.5 else "SABAR"
-            reasoning = f"Vitality low: {psi:.2f}"
-        elif w4 < w4_threshold:
-            verdict = "VOID" if w4 < 0.5 else "SABAR"
-            reasoning = f"Consensus low: {w4:.2f}"
-        else:
-            verdict = "SEAL"
-            reasoning = "Constitutional compliance verified"
+        genius_res = calculate_genius(combined_floors, h=kernel.hysteresis_penalty)
+        g_score = genius_res["genius_score"]
+        motto = get_motto_by_stage("888")
 
         return VerdictResult(
-            verdict=verdict,
-            confidence=combined_confidence,
-            reasoning=reasoning,
-            requires_human_approval=requires_human,
-            floor_scores={
-                **agi_result.floor_scores,
-                **(asi_result.floor_scores if asi_result else {}),
-            },
-            vitality_index=round(psi, 4),
-            tri_witness=round(w3, 4),
-            paradox_conductance=round(phi_p, 4),
+            verdict="SEAL" if g_score >= 0.8 else ("888_HOLD" if g_score < 0.6 else "PARTIAL"),
+            confidence=g_score,
+            motto=f"{motto.malay} | {motto.english}" if motto else "DITEMPA, BUKAN DIBERI",
+            vitality_index=round(g_score / 0.5, 4),
+            floor_scores=combined_floors.model_dump()
         )
 
 

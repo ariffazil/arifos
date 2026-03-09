@@ -95,8 +95,13 @@ async def judge(
     Rule: MONOTONE-SAFE. Cannot upgrade a weaker candidate.
     Discipline: APEX Theorem Gate (G† = G* · η)
     """
-    from core.physics.thermodynamics_hardened import check_landauer_before_seal, consume_tool_energy
-    from core.shared.physics import GeniusDial
+    from core.physics.thermodynamics_hardened import (
+        check_landauer_before_seal,
+        consume_tool_energy,
+        get_thermodynamic_budget,
+    )
+    from core.enforcement.genius import calculate_genius
+    from core.shared.types import FloorScores, Verdict
 
     consume_tool_energy(session_id, n_calls=1)
 
@@ -106,37 +111,57 @@ async def judge(
     except ValueError:
         candidate = Verdict.VOID
 
-    # 2. Monotone Safety Check
+    # 2. Extract or Build Floor Scores
+    floor_scores = kwargs.get("floor_scores")
+    if not isinstance(floor_scores, FloorScores):
+        # Map kwargs to FloorScores with defaults
+        floor_scores = FloorScores(
+            f1_amanah=kwargs.get("f1_amanah", kwargs.get("f1", 1.0)),
+            f2_truth=kwargs.get("f2_truth", kwargs.get("f2", kwargs.get("akal", 0.99))),
+            f3_tri_witness=kwargs.get("f3_tri_witness", kwargs.get("f3", 0.95)),
+            f4_clarity=kwargs.get("f4_clarity", kwargs.get("f4", 1.0)),
+            f5_peace=kwargs.get("f5_peace", kwargs.get("f5", 1.0)),
+            f6_empathy=kwargs.get("f6_empathy", kwargs.get("f6", 0.95)),
+            f7_humility=kwargs.get("f7_humility", kwargs.get("f7", 0.04)),
+            f8_genius=kwargs.get("f8_genius", kwargs.get("f8", 0.80)),
+            f9_anti_hantu=kwargs.get("f9_anti_hantu", kwargs.get("f9", 0.0)),
+            f10_ontology=kwargs.get("f10_ontology", kwargs.get("f10", True)),
+            f11_command_auth=kwargs.get("f11_command_auth", kwargs.get("f11", True)),
+            f12_injection=kwargs.get("f12_injection", kwargs.get("f12", 0.0)),
+            f13_sovereign=kwargs.get("f13_sovereign", kwargs.get("f13", 1.0)),
+        )
+
+    # 3. Monotone Safety Check
     violations = kwargs.get("violations", [])
     if violations and candidate == Verdict.SEAL:
         candidate = Verdict.PARTIAL
 
-    # 3. APEX Theorem Calculation (The Discipline Layer)
-    # Extract factors from context or use defaults
-    dial = GeniusDial(
-        A=kwargs.get("akal", 0.95),
-        P=kwargs.get("peace2", 1.0),
-        X=kwargs.get("exploration", 0.9),
-        E=kwargs.get("energy", 0.9),
-        architecture=kwargs.get("architecture", 1.0),
-        parameters=kwargs.get("parameters", 1.0),
-        data_quality=kwargs.get("data_quality", 0.95),
-        effort=kwargs.get("effort", 1.0),
-        compute_cost=kwargs.get("tokens", 1.0),
-        entropy_reduction=abs(min(0.0, kwargs.get("delta_s", -0.2))),
+    # 4. Real Genius Calculation (The Discipline Layer)
+    try:
+        budget = get_thermodynamic_budget(session_id)
+        budget_used = budget.consumed
+        budget_max = budget.initial_budget
+    except Exception:
+        budget_used = 0.5
+        budget_max = 1.0
+
+    genius_result = calculate_genius(
+        floors=floor_scores,
+        h=kwargs.get("hysteresis", 0.0),
+        compute_budget_used=budget_used,
+        compute_budget_max=budget_max,
     )
 
-    g_star = dial.G_star()
-    eta = dial.eta()
-    g_dagger = dial.G_dagger()
+    g_score = genius_result["genius_score"]
+    dials = genius_result["dials"]
 
-    # 4. G† Sovereignty Gate
-    if candidate == Verdict.SEAL and g_dagger < 0.80:
-        logger.info(f"arifOS APEX Discipline Check: G† ({g_dagger:.4f}) < 0.80. Downgrading to PARTIAL.")
+    # 5. G Sovereignty Gate
+    if candidate == Verdict.SEAL and g_score < 0.80:
+        logger.info(f"arifOS APEX Discipline Check: G ({g_score:.4f}) < 0.80. Downgrading to PARTIAL.")
         candidate = Verdict.PARTIAL
-        reason_summary = (reason_summary or "") + f" [APEX Gate: G†={g_dagger:.4f} < 0.80]"
+        reason_summary = (reason_summary or "") + f" [APEX Gate: G={g_score:.4f} < 0.80]"
 
-    # 5. Landauer Physics Check (Mandatory before SEAL)
+    # 6. Landauer Physics Check (Mandatory before SEAL)
     if candidate == Verdict.SEAL:
         try:
             check_landauer_before_seal(
@@ -150,34 +175,38 @@ async def judge(
             candidate = Verdict.SABAR
             reason_summary = f"Physics Law Violation: {str(e)}"
 
-    # 6. Build Rationale
+    # 7. Build Rationale
     rationale = JudgmentRationale(
         summary=reason_summary or f"Judgment finalized for session {session_id}.",
-        tri_witness={"human": 1.0, "ai": 1.0, "earth": 1.0},
-        omega_0=0.04,
+        tri_witness={"human": dials["E"], "ai": dials["A"], "earth": dials["P"]},
+        omega_0=floor_scores.f7_humility,
     )
 
-    floors = {"F3": "pass", "F8": "pass", "F9": "pass", "F11": "pass", "F13": "pass"}
-    if g_dagger < 0.80:
-        floors["F8"] = "partial"
+    # Update floor statuses for output
+    floors_status = {f"F{i}": "pass" for i in range(1, 14)}
+    if g_score < 0.80:
+        floors_status["F8"] = "partial"
+    if floor_scores.f2_truth < 0.99:
+        floors_status["F2"] = "fail"
 
-    # 7. Construct Output
+    # 8. Construct Output
     return ApexOutput(
         session_id=session_id,
         verdict=candidate,
         final_verdict=candidate,
         reasoning=rationale,
-        floors=floors,
+        floors=floors_status,
         metrics={
-            "G_star": round(g_star, 4),
-            "eta": round(eta, 6),
-            "G_dagger": round(g_dagger, 4),
-            "akal": dial.A,
-            "effort": dial.effort,
+            "G": g_score,
+            "akal": round(dials["A"], 4),
+            "presence": round(dials["P"], 4),
+            "exploration": round(dials["X"], 4),
+            "energy": round(dials["E"], 4),
         },
-        human_witness=1.0,
-        ai_witness=1.0,
-        earth_witness=1.0,
+        floor_scores=floor_scores,
+        human_witness=dials["E"],
+        ai_witness=dials["A"],
+        earth_witness=dials["P"],
         human_approve=True,  # Satisfy F13
         evidence={"grounding": "Constitutional Apex Consensus"},  # Satisfy F2
     )

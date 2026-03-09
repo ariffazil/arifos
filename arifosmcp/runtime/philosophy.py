@@ -218,34 +218,53 @@ PHILOSOPHY_REGISTRY: list[Quote] = [
 ]
 
 
-def get_quote_for_tool(tool_name: str, verdict: str = "") -> Quote | None:
-    """Select a quote deterministically for a given tool/verdict."""
-    if verdict == "VOID":
-        return next(q for q in PHILOSOPHY_REGISTRY if q["category"] == "void" and q["id"] == "V2")
+def get_philosophical_anchor(
+    stage: str, 
+    g_score: float, 
+    failed_floors: list[str],
+    session_id: str = "global"
+) -> Quote:
+    """
+    Selects a philosophical anchor from the 33-quote registry based on:
+    1. Metabolic Stage (000-999)
+    2. G-Score (Vitality level)
+    3. Failed Floors (Constitutional relation)
+    """
+    # 1. Handle Critical/Void states first
+    if "F2" in failed_floors: # Truth failure
+        return next(q for q in PHILOSOPHY_REGISTRY if q["id"] == "W8") # Carl Sagan
+    if "F7" in failed_floors: # Humility failure
+        return next(q for q in PHILOSOPHY_REGISTRY if q["id"] == "W1") # Socrates
+    if g_score < 0.5:
+        return next(q for q in PHILOSOPHY_REGISTRY if q["id"] == "V2") # Wittgenstein (Silent)
+    
+    # 2. Stage-based Category Mapping
+    # Logic: 
+    # 000-222: Wisdom (Foundations)
+    # 333-555: Paradox (Reasoning/Memory)
+    # 666-888: Power/Paradox (Action/Judgment)
+    # 999: Seal
+    
+    try:
+        stage_num = int("".join(filter(str.isdigit, stage)) or "444")
+    except ValueError:
+        stage_num = 444
 
-    # Mapping: Tool -> Category
-    category_map = {
-        "init_anchor_state": "wisdom",
-        "integrate_analyze_reflect": "wisdom",
-        "reason_mind_synthesis": "paradox",
-        "metabolic_loop_router": "paradox",
-        "vector_memory_store": "wisdom",
-        "assess_heart_impact": "paradox",
-        "critique_thought_audit": "paradox",
-        "quantum_eureka_forge": "power",
-        "apex_judge_verdict": "paradox",
-        "seal_vault_commit": "seal",
-    }
+    if stage_num >= 999:
+        return next(q for q in PHILOSOPHY_REGISTRY if q["id"] == "S1")
+    
+    category = "wisdom"
+    if 300 <= stage_num <= 600:
+        category = "paradox"
+    elif 600 < stage_num <= 900:
+        category = "power" if g_score > 0.85 else "paradox"
 
-    target_category = category_map.get(tool_name, "wisdom")
+    options = [q for q in PHILOSOPHY_REGISTRY if q["category"] == category]
+    
+    # 3. Deterministic selection via session hash
+    seed = hashlib.sha256(f"{session_id}:{stage}:{g_score}".encode()).hexdigest()
+    idx = int(seed, 16) % len(options)
+    
+    return options[idx]
 
-    # Filter registry for category
-    options = [q for q in PHILOSOPHY_REGISTRY if q["category"] == target_category]
-    if not options:
-        return None
-
-    # Use a simple hash or random for now
-    # In a real system, we might use hash(session_id) % len(options)
-    return random.choice(options)
-    # In a real system, we might use hash(session_id) % len(options)
-    return random.choice(options)
+import hashlib

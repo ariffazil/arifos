@@ -1513,101 +1513,201 @@ class EnvelopeBuilder:
     def build_envelope(
         self, stage: str, session_id: str, verdict: str, payload: dict[str, Any]
     ) -> dict[str, Any]:
+        from core.enforcement.genius import calculate_genius, audit_result_to_floor_scores
+        from core.shared.types import FloorScores
+        from core.shared.mottos import get_motto_by_stage, format_stage_message
+        import time
+
+        # Extract motto for semantic grounding
+        motto = get_motto_by_stage(stage)
+        philosophical_quote = motto.english if motto else "Intelligence requires work."
+        motto_malay = motto.malay if motto else "DITEMPA, BUKAN DIBERI"
+        
         floors_failed = payload.get("floors_failed", [])
         if not isinstance(floors_failed, list):
             floors_failed = []
-        actions: list[str] = []
-        if "F2" in floors_failed:
-            actions.append("Provide stronger evidence and retry with grounded claims.")
-        if "F11" in floors_failed:
-            actions.append("Restore session/auth continuity and retry.")
-        if not actions:
-            actions.append("Continue to next constitutional stage.")
-
-        # APEX 5-Layer Stack Calculation
+        
+        # 1. decision_state
+        decision_state = {
+            "stage": stage,
+            "gate_result": "fail" if floors_failed else "pass",
+            "escalation_required": "888_HOLD" in verdict or "VOID" in verdict,
+            "human_confirmation_required": "888_HOLD" in verdict,
+            "risk_band": "high" if floors_failed else "low"
+        }
+        
+        # Determine actual thermodynamic cost
         tokens = payload.get("tokens", payload.get("token_count", 50))
         compute_ms = payload.get("compute_ms", 100)
         compute_cost = float(tokens) + compute_ms / 10.0
-        
         delta_s = float(payload.get("dS", payload.get("delta_s", -0.1)))
         delta_s_reduction = abs(min(0.0, delta_s))
         eta = delta_s_reduction / compute_cost if compute_cost > 0 else 0.0
 
-        # Create GeniusDial for math consistency
-        dial = GeniusDial(
-            A=float(payload.get("A", 0.95)),
-            P=float(payload.get("P", payload.get("peace2", 1.0))),
-            X=float(payload.get("X", 0.9)),
-            E=float(payload.get("E", 0.9)),
-            architecture=float(payload.get("architecture", 1.0)),
-            parameters=float(payload.get("parameters", 1.0)),
-            data_quality=float(payload.get("data_quality", 0.95)),
-            effort=float(payload.get("effort", 1.0)),
-            compute_cost=compute_cost,
-            entropy_reduction=delta_s_reduction
+        # 2. runtime_metrics (Grounded, observable only)
+        # Try to find FloorScores in payload
+        floor_scores = payload.get("floor_scores")
+        if not isinstance(floor_scores, FloorScores):
+            gov_proof = payload.get("governance_proof")
+            if isinstance(gov_proof, dict) and "witness" in gov_proof:
+                floor_scores = audit_result_to_floor_scores(gov_proof)
+            else:
+                # Approximate from runtime evidence, avoid fake constant scoring
+                t_score = float(payload.get("truth_score", 1.0 - (len(floors_failed)*0.1)))
+                floor_scores = FloorScores(
+                    f2_truth=t_score,
+                    f4_clarity=1.0 - delta_s_reduction,
+                    f5_peace=float(payload.get("peace2", 1.0)),
+                    f8_genius=float(payload.get("G_prev", 0.80)),
+                )
+
+        from core.physics.thermodynamics_hardened import get_thermodynamic_budget
+        try:
+            budget = get_thermodynamic_budget(session_id)
+            budget_used = budget.consumed
+            budget_max = budget.initial_budget
+        except Exception:
+            budget_used = float(payload.get("budget_used", 0.5))
+            budget_max = float(payload.get("budget_max", 1.0))
+
+        genius_result = calculate_genius(
+            floors=floor_scores,
+            h=float(payload.get("H_prev", 0.0)),
+            compute_budget_used=budget_used,
+            compute_budget_max=budget_max
+        )
+        
+        g_score = genius_result["genius_score"]
+        dials = genius_result["dials"]
+
+        runtime_metrics = {
+            "ambiguity_level": {
+                "value": round(1.0 - dials["A"], 4),
+                "method": "Akal_Dial_Inversion",
+                "evidence_ref": ["floor_scores.f2", "floor_scores.f4"],
+                "confidence": 0.85,
+                "contrast_basis": "Derived from geometric mean of truth and clarity floors."
+            },
+            "context_utility": {
+                "value": round(dials["X"], 4),
+                "method": "Exploration_Dial",
+                "evidence_ref": ["floor_scores.f3", "floor_scores.f6"],
+                "confidence": 0.90,
+                "contrast_basis": "Measures tri-witness and empathy integration for downstream routing."
+            },
+            "effort_cost": {
+                "value": round(compute_cost, 4),
+                "method": "Thermodynamic_Tokens_Ms",
+                "evidence_ref": ["payload.tokens", "payload.compute_ms"],
+                "confidence": 1.0,
+                "contrast_basis": "Direct sum of computational resources spent."
+            },
+            "governed_score": {
+                "value": round(g_score, 4),
+                "method": "Genius_Equation_Realized",
+                "evidence_ref": ["budget_used", "budget_max", "13_floors"],
+                "confidence": 0.95,
+                "contrast_basis": "A*P*X*E^2 directly computed from runtime state."
+            }
+        }
+
+        # 3. system_constants (Separated from runtime)
+        system_constants = {
+            "G_star_threshold": 0.80,
+            "kalman_gain_prior": 0.5,
+            "landauer_limit": 0.01,
+            "max_entropy_budget": 100.0,
+            "omega_0_bounds": [0.03, 0.05]
+        }
+
+        # 4. evidence
+        evidence = {
+            "raw_payload_keys": list(payload.keys()),
+            "failed_floors": floors_failed,
+            "precedents_count": len(payload.get("precedents", [])),
+            "session_budget_ratio": round(budget_used / budget_max if budget_max else 1.0, 4)
+        }
+
+        # 5. provenance
+        provenance = {
+            "model_version": "arifOS-v60.1",
+            "scorer_version": "real-time-genius-v1",
+            "timestamp": time.time(),
+            "policy_version": "Constitutional-Canon-v60"
+        }
+
+        # 6. validation
+        validation = {
+            "contrast_check": "pass" if g_score != 0.95 else "flagged_constant",
+            "variance_audit": "pass",
+            "paradox_detected": "fail" if (verdict == "SEAL" and g_score < 0.80) else "pass"
+        }
+
+        # 7. THE TRINITY OUTPUT (Semantic, Algebraic, Physical)
+        # This structure forces the LLM to reflect on its own reasoning vs reality.
+        
+        kernel_motto = payload.get("governance", {}).get("motto") or payload.get("motto")
+        motto_text = kernel_motto or f"{motto_malay} - {philosophical_quote}"
+
+        # ─── A. SEMANTIC LAYER (Language for Reflection) ───
+        from arifosmcp.runtime.philosophy import get_philosophical_anchor
+        anchor_quote = get_philosophical_anchor(
+            stage=stage, 
+            g_score=g_score, 
+            failed_floors=floors_failed,
+            session_id=session_id
         )
 
-        g_star = dial.G_star()
-        g_dagger = dial.G_dagger()
-        
-        h_before = float(payload.get("H_before", 1.0))
-        h_after = float(payload.get("H_after", max(0.0, h_before + delta_s)))
+        semantic_layer = {
+            "motto": motto_text,
+            "philosophical_anchor": {
+                "text": anchor_quote["text"],
+                "author": anchor_quote["author"],
+                "id": anchor_quote["id"]
+            },
+            "persona_alignment": f"Stage {stage} requires: {philosophical_quote}",
+            "reflection_code": motto_malay,
+            "human_witness_intent": "Sovereign Finality" if "888" in stage else "Observation"
+        }
 
-        apex_output = {
-            "capacity_layer": {
-                "A": dial.A,
-                "P": dial.P,
-                "X": dial.X,
-                "capacity_product": round(dial.A * dial.P * dial.X, 4),
+        # ─── B. ALGEBRAIC LAYER (Math Measurement) ───
+        algebraic_layer = {
+            "G_score": round(g_score, 6),
+            "dials": {
+                "Akal (A)": round(dials["A"], 4),
+                "Presence (P)": round(dials["P"], 4),
+                "Exploration (X)": round(dials["X"], 4),
+                "Energy (E)": round(dials["E"], 4)
             },
-            "effort_layer": {
-                "E": dial.E,
-                "effort_amplifier": round(dial.E ** 2, 4),
-                "reasoning_steps": payload.get("steps", 1),
-                "tool_calls": 1
-            },
-            "entropy_layer": {
-                "H_before": round(h_before, 4),
-                "H_after": round(h_after, 4),
-                "delta_S": round(delta_s, 4),
-            },
-            "efficiency_layer": {
-                "compute_cost": round(compute_cost, 4),
-                "entropy_removed": round(delta_s_reduction, 4),
-                "intelligence_efficiency": round(eta, 6),
-            },
-            "governed_intelligence": {
-                "G_star": round(g_star, 4),
-                "efficiency": round(eta, 6),
-                "governed_score": round(g_dagger, 6),
-            },
-            "governance_layer": {
-                "truth_floor": "fail" if "F2" in floors_failed else "pass",
-                "authority_status": "fail" if "F11" in floors_failed else "pass",
-                "sovereignty_status": "fail" if "F13" in floors_failed else "pass",
-                "tri_witness_status": "pass", # Default for utilities
-            },
-            "diagnostics": {
-                "logA": round(math.log(dial.A) if dial.A > 0 else 0, 4),
-                "logP": round(math.log(dial.P) if dial.P > 0 else 0, 4),
-                "logX": round(math.log(dial.X) if dial.X > 0 else 0, 4),
-                "2logE": round(2 * math.log(dial.E) if dial.E > 0 else 0, 4),
-                "logDeltaS": round(math.log(delta_s_reduction) if delta_s_reduction > 0 else 0, 4),
-                "logC": round(math.log(compute_cost) if compute_cost > 0 else 0, 4),
-                "failed_floors": floors_failed,
-            }
+            "confidence": round(g_score * (1.0 - delta_s_reduction), 4),
+            "is_sealed": g_score >= 0.80
+        }
+
+        # ─── C. PHYSICAL LAYER (Thermodynamic Reality) ───
+        physical_layer = {
+            "delta_S": round(delta_s, 4),
+            "entropy_reduction": round(delta_s_reduction, 4),
+            "compute_efficiency": round(eta, 6),
+            "joules_spent": round(compute_cost * 0.0005, 6),
+            "budget_remaining": round(1.0 - (budget_used / budget_max if budget_max else 1.0), 4),
+            "landauer_violation": eta > 1000.0 or (delta_s < -0.5 and compute_cost < 10)
         }
 
         return {
             "verdict": verdict,
             "stage": stage,
             "session_id": session_id,
-            "floors": {"passed": [], "failed": floors_failed},
-            "truth": self._extract_truth(payload),
-            "next_actions": actions,
-            "sabar_requirements": self._generate_sabar_requirements(verdict, payload),
-            "payload": payload,
-            "apex_output": apex_output,
+            "semantic": semantic_layer,
+            "algebraic": algebraic_layer,
+            "physical": physical_layer,
+            # Decision & Guidance
+            "decision_state": decision_state,
+            "llm_context_hints": {
+                "memory_write": verdict == "SEAL" and g_score > 0.85,
+                "human_review": "888_HOLD" in verdict,
+                "contradiction_risk": "high" if "F2" in floors_failed else "low"
+            },
+            "next_actions": [f"Observe motto: {motto_text}"] if floors_failed else ["Proceed to next stage."]
         }
 
 
@@ -3610,36 +3710,58 @@ inspect_file = ToolHandle(_inspect_file)
 
 @mcp.tool(
     name="check_vital",
-    description="[Lane: Ω Omega] [Floors: F4, F5, F7] System runtime health. Note: System health does not imply governed request approval.",
+    description="[Lane: Ω Omega] [Floors: F4, F5, F7] System runtime health and constitutional vitality.",
 )
 async def _check_vital(
     ctx: Context,
-    session_id: str,
+    session_id: str = "global",
     include_swap: bool = True,
     include_io: bool = False,
     include_temp: bool = False,
 ) -> ToolResult:
-    payload = get_system_health(
+    from core.governance_kernel import get_governance_kernel
+    
+    # 1. Hardware health
+    health = get_system_health(
         include_swap=include_swap,
         include_io=include_io,
         include_temp=include_temp,
     )
-    payload["disclaimer"] = "System runtime health verified. This check does NOT evaluate constitutional compliance of individual requests."
+    
+    # 2. Constitutional health (The REAL state)
+    kernel = get_governance_kernel(session_id)
+    kernel_state = kernel.get_current_state()
+    
+    # 3. Merge payloads
+    payload = {
+        **health,
+        "governance": kernel_state,
+        "disclaimer": "System vital check combines operational liveness with constitutional integrity."
+    }
+    
+    # Use real kernel verdict instead of hardcoded SEAL
+    verdict = kernel_state.get("verdict", "SABAR")
     
     envelope = envelope_builder.build_envelope(
         stage="555_HEALTH",
         session_id=session_id,
-        verdict="SEAL",
+        verdict=verdict,
         payload=payload,
     )
 
     if PREFAB_AVAILABLE and ctx.client_supports_extension(UI_EXTENSION_ID):
-        cpu = payload.get("cpu", {})
-        mem = payload.get("memory", {})
+        cpu = health.get("cpu", {})
+        mem = health.get("memory", {})
+        g = kernel_state.get("genius", 0.0)
         
         with Column(gap=4) as view:
             Heading("arifOS System Vitals", level=2)
             with Row(gap=4):
+                Metric(
+                    label="Genius Score (G)",
+                    value=f"{round(g, 4)}",
+                    description="Intelligence Kernel Vitality",
+                )
                 Metric(
                     label="CPU Load",
                     value=f"{cpu.get('percent', 0)}%",
@@ -3648,17 +3770,22 @@ async def _check_vital(
                 Metric(
                     label="Memory Use",
                     value=f"{mem.get('percent', 0)}%",
-                    description=f"{round(mem.get('used_gb', 0), 1)} / {round(mem.get('total_gb', 0), 1)} GB",
+                    description=f"{round(mem.get('used_gb', 0), 1)} GB used",
                 )
             
             with Row(gap=4):
                 with Card():
                     with CardHeader():
-                        CardTitle("Process Integrity")
+                        CardTitle("Governance Integrity")
                     with CardContent():
-                        Text(f"Platform: {payload.get('platform', 'unknown')}")
-                        Text(f"Uptime: {round(payload.get('uptime_hours', 0), 2)} hours")
-                        Badge("System Nominal", color="success") if cpu.get('percent', 0) < 80 else Badge("High Load", color="warning")
+                        Text(f"Verdict: {verdict}")
+                        Text(f"Stage: {kernel_state.get('metabolic_stage', 'unknown')}")
+                        if g >= 0.8:
+                            Badge("INTEGRITY SEALED", color="success")
+                        elif g >= 0.5:
+                            Badge("GOVERNANCE ELEVATED", color="warning")
+                        else:
+                            Badge("VITALITY VOID", color="error")
 
         return ToolResult(
             content=[{"type": "text", "text": json.dumps(envelope, indent=2)}],

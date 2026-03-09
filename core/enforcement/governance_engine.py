@@ -91,34 +91,57 @@ def _safe_float(p: dict[str, Any], key: str, default: float) -> float:
 
 
 def _derive_apex_dials(tool: str, payload: dict[str, Any]) -> dict[str, Any]:
-    """Derive A/P/X/E and governed genius G* for each tool call."""
-    tool_cfg = TOOL_DIALS_MAP.get("tools", {}).get(tool, {})
-    weights = tool_cfg.get("weights", {})
+    """
+    Derive A/P/X/E and governed genius G* for each tool call.
+    Grounds dials in real constitutional manifold (F1-F13).
+    """
+    from core.enforcement.genius import calculate_genius, audit_result_to_floor_scores
+    from core.shared.types import FloorScores
 
-    truth_score = _safe_float(
-        payload.get("truth", {}), "score", _safe_float(payload, "truth_score", 0.8)
-    )
-    peace2 = _safe_float(payload, "peace2", 1.0)
-    kappa_r = _safe_float(payload, "kappa_r", 0.95)
-    omega0 = _safe_float(payload, "omega0", 0.04)
-    energy_hint = _safe_float(payload, "energy", 0.75)
+    # 1. Reconstruct FloorScores from payload or defaults
+    floor_scores = payload.get("floor_scores")
+    if not isinstance(floor_scores, FloorScores):
+        # Fallback: extract from payload keys if available
+        truth = _safe_float(payload.get("truth", {}), "score", _safe_float(payload, "truth_score", 0.8))
+        ds = _safe_float(payload, "dS", -0.1)
+        peace2 = _safe_float(payload, "peace2", 1.0)
+        
+        floor_scores = FloorScores(
+            f2_truth=truth,
+            f4_clarity=1.0 - abs(min(0.0, ds)),
+            f5_peace=peace2,
+            f8_genius=_safe_float(payload, "G_prev", 0.8)
+        )
 
-    a = _clamp(0.7 * truth_score + 0.3 * float(weights.get("A", 0.7)))
-    p = _clamp(
-        0.5 * _clamp(peace2 / 1.2) + 0.3 * _clamp(kappa_r) + 0.2 * float(weights.get("P", 0.7))
+    # 2. Integrate with Physics Budget
+    session_id = str(payload.get("session_id", "global"))
+    try:
+        from core.physics.thermodynamics_hardened import get_thermodynamic_budget
+        budget = get_thermodynamic_budget(session_id)
+        budget_used = budget.consumed
+        budget_max = budget.initial_budget
+    except Exception:
+        budget_used = 0.5
+        budget_max = 1.0
+
+    # 3. Final Genius Intelligence Kernel Calculation
+    res = calculate_genius(
+        floors=floor_scores,
+        h=_safe_float(payload, "hysteresis", 0.0),
+        compute_budget_used=budget_used,
+        compute_budget_max=budget_max
     )
-    x = _clamp(float(weights.get("X", 0.4)))
-    e = _clamp(0.6 * energy_hint + 0.4 * float(weights.get("E", 0.6)))
-    g_star = _clamp(a * p * x * (e**2))
+    
+    dials = res["dials"]
     return {
-        "A": round(a, 4),
-        "P": round(p, 4),
-        "X": round(x, 4),
-        "E": round(e, 4),
-        "G_star": round(g_star, 4),
-        "omega0": round(omega0, 4),
-        "model": TOOL_DIALS_MAP.get("model", "APEX_G"),
-        "formula": TOOL_DIALS_MAP.get("formula", "G_star ~= A * P * X * E^2"),
+        "A": round(dials["A"], 4),
+        "P": round(dials["P"], 4),
+        "X": round(dials["X"], 4),
+        "E": round(dials["E"], 4),
+        "G_star": round(res["genius_score"], 4),
+        "omega0": round(_safe_float(payload, "omega0", 0.04), 4),
+        "model": "REAL_INTELLIGENCE_KERNEL",
+        "formula": "G = A * P * X * E^2 (Constitutional Projection)",
     }
 
 
@@ -797,13 +820,14 @@ def wrap_tool_output(tool: str, payload: dict[str, Any]) -> dict[str, Any]:
     if failure_origin == "AUTH" and verdict == "VOID":
         final_verdict = "AUTH_FAIL"
 
-    # Score Deltas (P3)
+    # Score Deltas (P3) — REAL MEASUREMENTS (no more templates)
     score_delta = {
-        "truth": round(a_val - 0.8, 4),
-        "clarity": round(-delta_s - 0.1, 4),
+        "truth": round(a_val, 4),
+        "clarity": round(delta_s_reduction, 4),
         "authority": round(1.0 if auth_state == "verified" else (0.5 if auth_state == "anonymous" else 0.0), 4),
-        "peace": round(p_val - 0.7, 4),
-        "genius": round(g_star - 0.5, 4),
+        "peace": round(p_val, 4),
+        "genius": round(g_star, 4),
+        "vitality": round(psi_score, 4)
     }
 
     return {

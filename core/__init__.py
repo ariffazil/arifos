@@ -19,9 +19,10 @@ aaa_mcp/ = transport only (no decisions)
 __version__ = "2026.02.27-PROTOCOL-NEGOTIATION"
 
 # Expose kernel components for import
-from . import governance_kernel, judgment, organs, telemetry, uncertainty_engine
+from . import enforcement, governance_kernel, judgment, organs, telemetry, uncertainty_engine
 
 __all__ = [
+    "enforcement",
     "uncertainty_engine",
     "governance_kernel",
     "telemetry",
