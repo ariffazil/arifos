@@ -29,7 +29,7 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/run/docker.sock:/var/run/docker.sock:ro
       - /usr/bin/docker:/usr/bin/docker:ro
       - /usr/libexec/docker:/usr/libexec/docker:ro
       - /var/scripts/restart_openclaw.sh:/var/scripts/restart_openclaw.sh:ro
@@ -132,25 +132,21 @@ services:
       - /opt/arifos/data/openclaw/npm-global:/root/.npm-global
       - /srv/arifOS:/mnt/arifos:rw
       - /opt/arifos/APEX-THEORY:/mnt/apex:rw
-      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/run/docker.sock:/var/run/docker.sock:ro
       - /usr/bin/docker:/usr/bin/docker:ro
       - /usr/libexec/docker:/usr/libexec/docker:ro
       - /opt/arifos/data/openclaw/models:/home/node/.node-llama-cpp/models
-      # Host CLI tools for coding-agent skill
-      - /home/ariffazil/.local/bin:/host/bin:ro
-      - /home/ariffazil/.local/share:/host/share:ro
-      - /home/ariffazil/.local/lib:/host/lib:ro
       - /usr/local/bin/opencode:/usr/local/bin/opencode:ro
       - /usr/local/lib/node_modules/opencode-ai:/usr/local/lib/node_modules/opencode-ai:ro
       - /opt/arifos/data/openclaw/bin-wrappers:/host/clis:ro
     environment:
-      - OPENCLAW_GATEWAY_TOKEN=${OPENCLAW_GATEWAY_TOKEN:-8eb24ba06e138bf7affe6f128fdecc2e80a9290d107d83585540ae6ba541ae54}
+      - OPENCLAW_GATEWAY_TOKEN=${OPENCLAW_GATEWAY_TOKEN}
       - OLLAMA_URL=http://ollama:11434
       - REDIS_URL=redis://redis:6379
       - KIMI_API_KEY=${KIMI_API_KEY}
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
-      - VENICE_API_KEY=${VENICE_API_KEY:-VENICE-ADMIN-KEY-XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX}
-      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY:-}
+      - VENICE_API_KEY=${VENICE_API_KEY}
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
       - NODE_OPTIONS=--max-old-space-size=1536
       # PATH includes custom CLI tools: gh, op, mcporter
       - PATH=/root/.local/bin:/root/.npm-global/bin:/host/clis:/host/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
@@ -160,13 +156,8 @@ services:
       - APIFY_API_TOKEN=${APIFY_API_TOKEN:-}
       - BROWSERLESS_URL=http://headless_browser:3000
       # AI Model Provider Keys (from .env)
-      - KIMI_API_KEY=${KIMI_API_KEY:-}
       - GEMINI_API_KEY=${GEMINI_API_KEY:-}
       - GOOGLE_API_KEY=${GOOGLE_API_KEY:-}
-      - GOOGLE_API_KEY=${GOOGLE_API_KEY:-}
-      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
-      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY:-}
-      - VENICE_API_KEY=${VENICE_API_KEY:-}
       - OPENAI_API_KEY=${OPENAI_API_KEY:-}
     networks:
       - arifos_trinity
@@ -284,7 +275,7 @@ services:
     init: true
     environment:
       GF_SECURITY_ADMIN_USER: admin
-      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-arifos_grafana}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD}
       GF_SERVER_ROOT_URL: https://monitor.arifosmcp.arif-fazil.com
       GF_SERVER_DOMAIN: monitor.arifosmcp.arif-fazil.com
     volumes:
@@ -342,15 +333,15 @@ services:
       - /srv/arifOS/deployment/hooks.json:/etc/webhook/hooks.json:ro
       - /srv/arifOS/infrastructure/deploy_from_git.sh:/var/scripts/deploy_from_git.sh:ro
       - /srv/arifOS:/usr/src/app:rw
-      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/run/docker.sock:/var/run/docker.sock:ro
       - /usr/bin/docker:/usr/bin/docker:ro
       - /usr/libexec/docker:/usr/libexec/docker:ro
       - /var/scripts/restart_openclaw.sh:/var/scripts/restart_openclaw.sh:ro
       - /opt/arifos/data/triggers:/shared/triggers
       - /opt/arifos/data/openclaw/models:/home/node/.node-llama-cpp/models
     environment:
-      - WEBHOOK_SECRET=${WEBHOOK_SECRET:-changeme}
-      - OPENCLAW_RESTART_TOKEN=${OPENCLAW_RESTART_TOKEN:-openclaw-restart-888}
+      - WEBHOOK_SECRET=${WEBHOOK_SECRET}
+      - OPENCLAW_RESTART_TOKEN=${OPENCLAW_RESTART_TOKEN}
     networks:
       - arifos_trinity
     labels:

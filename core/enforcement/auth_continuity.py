@@ -39,6 +39,8 @@ def _load_governance_token_secret() -> str:
 
 
 _GOVERNANCE_TOKEN_SECRET = _load_governance_token_secret()
+_AUTH_VERIFY_CACHE_TTL_SECONDS = 60
+_auth_verify_cache: dict[str, tuple[bool, str, float, str]] = {}
 
 
 def sign_auth_context(unsigned_context: dict[str, Any]) -> str:
@@ -108,3 +110,45 @@ def verify_auth_context(session_id: str, auth_context: dict[str, Any]) -> tuple[
         return False, "signature mismatch"
 
     return True, ""
+
+
+def _auth_cache_key(session_id: str, auth_context: dict[str, Any]) -> str:
+    signature = str(auth_context.get("signature", ""))
+    expires_at = str(auth_context.get("exp", ""))
+    fingerprint = str(auth_context.get("token_fingerprint", ""))
+    payload = f"{session_id}:{signature}:{expires_at}:{fingerprint}"
+    return hashlib.sha256(payload.encode("utf-8")).hexdigest()
+
+
+def verify_auth_context_cached(session_id: str, auth_context: dict[str, Any]) -> tuple[bool, str]:
+    now = time.time()
+    cache_key = _auth_cache_key(session_id, auth_context)
+    cached = _auth_verify_cache.get(cache_key)
+    if cached and (now - cached[2]) <= _AUTH_VERIFY_CACHE_TTL_SECONDS:
+        return cached[0], cached[1]
+
+    result = verify_auth_context(session_id, auth_context)
+    _auth_verify_cache[cache_key] = (result[0], result[1], now, session_id)
+
+    if len(_auth_verify_cache) > 2048:
+        stale_keys = [
+            key
+            for key, (_, _, ts, _) in _auth_verify_cache.items()
+            if (now - ts) > _AUTH_VERIFY_CACHE_TTL_SECONDS
+        ]
+        for key in stale_keys:
+            _auth_verify_cache.pop(key, None)
+
+    return result
+
+
+def clear_auth_context_cache(session_id: str | None = None) -> None:
+    if session_id is None:
+        _auth_verify_cache.clear()
+        return
+
+    keys_to_remove = [
+        key for key, (_, _, _, sid) in _auth_verify_cache.items() if sid == session_id
+    ]
+    for key in keys_to_remove:
+        _auth_verify_cache.pop(key, None)

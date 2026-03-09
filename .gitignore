@@ -321,6 +321,7 @@ Hey.*
 
 # Docker compose backups
 docker-compose.yml.backup.*
+docker-compose.override.yml
 
 # Local app directories not in scope
 333_APPS/
