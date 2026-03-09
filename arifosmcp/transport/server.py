@@ -12,23 +12,71 @@ Contract — 13 canonical tools with UX verb names:
 All tools must be async and must not write to stdout (stdio transport safety).
 """
 
-from __future__ import annotations
-
 import asyncio
 import base64
 import hashlib
 import hmac as _hmac
 import json
 import logging
+import math
 import os
 import secrets
+import shlex
 import sys
 import time
+import traceback
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Optional
+
+from cryptography.exceptions import InvalidSignature
+from cryptography.hazmat.primitives.asymmetric import ed25519
+from fastmcp import Context, FastMCP
+from fastmcp.resources.template import ResourceTemplate
+from fastmcp.server.apps import UI_EXTENSION_ID, AppConfig, ResourceCSP
+from fastmcp.tools import ToolResult
 from pydantic import BaseModel, Field
+
+from arifosmcp.intelligence.embeddings import embed, get_embedder
+from arifosmcp.intelligence.tools.fs_inspector import fs_inspect
+from arifosmcp.intelligence.tools.system_monitor import get_system_health
+from arifosmcp.intelligence.triad import (
+    align,
+    anchor,
+    audit,
+    forge,
+    integrate,
+    reason,
+    respond,
+    seal,
+    think,
+    validate,
+)
+from arifosmcp.runtime.resources import (
+    APEX_DASHBOARD_RESOURCE_DOMAINS,
+    APEX_DASHBOARD_URI,
+    apex_dashboard_html_content,
+    build_open_apex_dashboard_result,
+)
+from arifosmcp.transport.external_gateways.brave_client import BraveSearchClient
+from arifosmcp.transport.external_gateways.headless_browser_client import HeadlessBrowserClient
+from arifosmcp.transport.external_gateways.jina_reader_client import JinaReaderClient
+from arifosmcp.transport.external_gateways.perplexity_client import PerplexitySearchClient
+from arifosmcp.transport.integrations.openclaw_gateway_client import (
+    openclaw_get_health,
+    openclaw_get_status,
+)
+from arifosmcp.transport.protocol import CANONICAL_TOOL_INPUT_SCHEMAS, CANONICAL_TOOL_OUTPUT_SCHEMAS
+from arifosmcp.transport.protocol.l0_kernel_prompt import inject_l0_into_session
+from arifosmcp.transport.protocol.public_surface import PUBLIC_PROMPT_NAMES, PUBLIC_RESOURCE_URIS
+from arifosmcp.transport.protocol.tool_registry import export_full_context_pack
+from arifosmcp.transport.sessions.session_ledger import get_ledger
+from core.judgment import CognitionResult, EmpathyResult, judge_apex, judge_cognition
+from core.risk_engine import risk_engine
+from core.shared.physics import GeniusDial
+from core.shared.types import ActorIdentity
+from core.state.session_manager import session_manager
 
 # ─── Runtime Envelope Standard (Repair Directive Priority 4) ────────────────
 class RuntimeEnvelope(BaseModel):
@@ -38,36 +86,63 @@ class RuntimeEnvelope(BaseModel):
     governance_token: Optional[str] = None
     continuity_token: Optional[str] = None
 
-from cryptography.exceptions import InvalidSignature
-from cryptography.hazmat.primitives.asymmetric import ed25519
+_ACTOR_IDENTITIES: dict[str, ActorIdentity] = {}
+_ACTOR_SESSION_MAP: dict[str, str] = {}  # session_id -> actor_id
+_ACTIVE_SESSION_ID: str | None = None
 
-from core.judgment import CognitionResult, EmpathyResult, judge_apex, judge_cognition
-from core.risk_engine import risk_engine
-from core.shared.types import ActorIdentity
 
-MANIFEST_VERSION = "2026.03.07"
+def _resolve_session_id(provided_id: str | None) -> str | None:
+    """Resolve session_id from provided input or last active session."""
+    if provided_id and str(provided_id).strip():
+        return provided_id
+    return _ACTIVE_SESSION_ID
 
-# Setup logger early for BGE integration logging
-logger = logging.getLogger(__name__)
 
-# BGE Embeddings Integration from arifosmcp.intelligence (Senses Layer - STATIC)
+def _hydrate_envelope(session_id: str, actor_id: str = "anonymous", authority: str = "anonymous") -> RuntimeEnvelope:
+    """Standardized hydration of a Runtime Envelope from current state."""
+    state = _SESSION_CONTINUITY_STATE.get(session_id, {})
+    return RuntimeEnvelope(
+        session_id=session_id,
+        actor=state.get("actor_id", actor_id),
+        authority=authority,
+        governance_token=state.get("last_signature"), # Using signature as token
+        continuity_token=secrets.token_hex(16)
+    )
 
-from core.state.session_manager import session_manager
 
-# Set portable root path (3 levels up from transport/server.py)
-root_path = str(Path(__file__).resolve().parent.parent.parent)
-if root_path not in sys.path:
-    sys.path.insert(0, root_path)
+# ─── Human Command Adapter (Repair Directive Priority 2) ───────────────────
+def _adapt_human_command(query: str) -> str:
+    """Maps natural language human commands to internal stage queries."""
+    mapping = {
+        "start arifos": "INIT_ANCHOR_SESSION",
+        "run boot chain": "EXECUTE_BOOT_CHAIN_000_TO_999",
+        "bind identity": "BIND_IDENTITY_AUTH",
+        "forge intelligence": "FORGE_INTELLIGENCE_333",
+        "start runtime": "OPEN_RUNTIME_OPERATIONS_100",
+    }
+    return mapping.get(query.lower().strip(), query)
+
 try:
-    from arifosmcp.intelligence.embeddings import embed, get_embedder
+    from prefab_ui.app import PrefabApp
+    from prefab_ui.components import (
+        Badge,
+        Card,
+        CardContent,
+        CardHeader,
+        CardTitle,
+        Column,
+        DataTable,
+        DataTableColumn,
+        Heading,
+        Metric,
+        Row,
+        Text,
+    )
+    from prefab_ui.components.charts import BarChart, ChartSeries
 
-    BGE_AVAILABLE = True
-    logger.info("BGE embeddings loaded from arifosmcp.intelligence")
-except ImportError as e:
-    BGE_AVAILABLE = False
-    logger.warning(f"BGE not available: {e}")
-
-import traceback
+    PREFAB_AVAILABLE = True
+except ImportError:
+    PREFAB_AVAILABLE = False
 
 # ─── Amanah Handshake — Governance Token ────────────────────────────────────
 # HMAC signs the judge's final verdict so seal_vault can verify it without
@@ -126,6 +201,31 @@ def _resolve_session_id(provided_id: str | None) -> str | None:
     if provided_id and str(provided_id).strip():
         return provided_id
     return _ACTIVE_SESSION_ID
+
+
+def _hydrate_envelope(session_id: str, actor_id: str = "anonymous", authority: str = "anonymous") -> RuntimeEnvelope:
+    """Standardized hydration of a Runtime Envelope from current state."""
+    state = _SESSION_CONTINUITY_STATE.get(session_id, {})
+    return RuntimeEnvelope(
+        session_id=session_id,
+        actor=state.get("actor_id", actor_id),
+        authority=authority,
+        governance_token=state.get("last_signature"), # Using signature as token
+        continuity_token=secrets.token_hex(16)
+    )
+
+
+# ─── Human Command Adapter (Repair Directive Priority 2) ───────────────────
+def _adapt_human_command(query: str) -> str:
+    """Maps natural language human commands to internal stage queries."""
+    mapping = {
+        "start arifos": "INIT_ANCHOR_SESSION",
+        "run boot chain": "EXECUTE_BOOT_CHAIN_000_TO_999",
+        "bind identity": "BIND_IDENTITY_AUTH",
+        "forge intelligence": "FORGE_INTELLIGENCE_333",
+        "start runtime": "OPEN_RUNTIME_OPERATIONS_100",
+    }
+    return mapping.get(query.lower().strip(), query)
 
 
 def _verify_actor_signature(public_key_hex: str, signature_hex: str, message: bytes) -> bool:
@@ -1809,20 +1909,26 @@ async def _agi_cognition(
     description="[Lane: Δ Delta] [Floors: F2, F4, F7] Stage 111 framing and problem decomposition.",
 )
 async def _integrate_analyze_reflect(
-    session_id: str,
     query: str,
-    auth_context: dict[str, Any],
+    session_id: str | None = None,
+    auth_context: dict[str, Any] | None = None,
     max_subquestions: int = 3,
 ) -> dict[str, Any]:
     """
     Stage 111: Integrative analysis and problem framing.
     """
     try:
+        session_id = _resolve_session_id(session_id)
+        if not session_id:
+            return _build_floor_block("111_FRAMING", "Missing session_id (Authentication continuity failed)")
+
+        envelope = _hydrate_envelope(session_id, authority="333_ANALYSIS")
+
         continuity_binding, continuity_error = _enforce_auth_continuity(
             tool_name="integrate_analyze_reflect",
             stage="111_FRAMING",
             session_id=session_id,
-            actor_id="anonymous",
+            actor_id=envelope.actor,
             auth_token=None,
             auth_context=auth_context,
             critical=False,
@@ -1838,6 +1944,7 @@ async def _integrate_analyze_reflect(
             "stage": "111_FRAMING",
             "framing": r.get("framing", {}),
             "sub_questions": r.get("sub_questions", [])[:max_subquestions],
+            "envelope": envelope.model_dump(),
         }
         result.update(
             envelope_builder.build_envelope(
@@ -1859,8 +1966,8 @@ integrate_analyze_reflect = ToolHandle(_integrate_analyze_reflect)
     description="[Lane: Δ Delta] [Floors: F2, F4, F7, F8] Stage 333 AGI cognition & Eureka synthesis.",
 )
 async def _reason_mind_synthesis(
-    session_id: str,
     query: str,
+    session_id: str | None = None,
     auth_context: dict[str, Any] | None = None,
     reason_mode: str = "default",
     max_steps: int = 7,
@@ -1958,6 +2065,7 @@ vector_memory = vector_memory_store
 
 
 async def _phoenix_recall_deprecated(
+    ctx: Context,
     query: str | None = None,
     session_id: str | None = None,
     current_thought_vector: str | None = None,
@@ -1965,13 +2073,14 @@ async def _phoenix_recall_deprecated(
     depth: int = 3,
     domain: str = "canon",
     debug: bool = False,
-) -> dict[str, Any]:
-    return await _phoenix_recall(
+) -> ToolResult:
+    return await _vector_memory_store(
+        ctx=ctx,
         query=(query or current_thought_vector or ""),
         session_id=(session_id or session_token or ""),
-        depth=depth,
-        domain=domain,
-        debug=debug,
+        operation="recall",
+        auth_context={},
+        top_k=depth,
     )
 
 
@@ -1981,7 +2090,7 @@ async def _phoenix_recall_deprecated(
 )
 async def _asi_empathy(
     query: str,
-    session_id: str,
+    session_id: str | None = None,
     stakeholders: list[str] | None = None,
     capability_modules: list[str] | None = None,
     debug: bool = False,
@@ -1992,8 +2101,12 @@ async def _asi_empathy(
     risk_mode: str = "medium",
 ) -> dict[str, Any]:
     try:
+        session_id = _resolve_session_id(session_id)
         if not session_id:
-            return _build_floor_block("555-666", "Missing session_id")
+            return _build_floor_block("555-666", "Missing session_id (Authentication continuity failed)")
+
+        envelope = _hydrate_envelope(session_id, authority="666_HEART")
+
         continuity_binding, continuity_error = _enforce_auth_continuity(
             tool_name="simulate_heart",
             stage="555-666",
@@ -2033,6 +2146,7 @@ async def _asi_empathy(
             "auth_context": {},
             "risk_mode": risk_mode,
             "debug": debug,
+            "envelope": envelope.model_dump(),
             "data": {"validate": v, "align": a} if debug else {},
         }
         result.update(
@@ -2059,8 +2173,8 @@ simulate_heart = assess_heart_impact
     app=AppConfig(resource_uri=APEX_DASHBOARD_URI),
 )
 async def _apex_verdict(
-    session_id: str,
     query: str,
+    session_id: str | None = None,
     agi_result: dict[str, Any] | None = None,
     asi_result: dict[str, Any] | None = None,
     capability_modules: list[str] | None = None,
@@ -2076,8 +2190,12 @@ async def _apex_verdict(
     approval_bundle: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     try:
+        session_id = _resolve_session_id(session_id)
         if not session_id:
-            return _build_floor_block("777-888", "Missing session_id")
+            return _build_floor_block("777-888", "Missing session_id (Authentication continuity failed)")
+
+        envelope = _hydrate_envelope(session_id, authority="888_JUDGE")
+
         revoked = _revocation_reason(actor_id=actor_id, session_id=session_id)
         if revoked:
             return _revocation_void("777-888", session_id, revoked)
@@ -2239,6 +2357,7 @@ async def _apex_verdict(
             "auth_context": {},
             "risk_mode": risk_mode,
             "debug": debug,
+            "envelope": envelope.model_dump(),
             "data": {"forge": forged, "audit": judged} if debug else {},
         }
         result.update(
@@ -2289,6 +2408,9 @@ async def _metabolic_loop_router(
     """
     Stage 444: Governed metabolic loop orchestrator.
     """
+    # Apply Human Command Adapter (Repair Directive Priority 2)
+    query = _adapt_human_command(query)
+
     trace = {}
     try:
         # 1. 000_BOOT: Anchor (Auto-init)
@@ -2303,7 +2425,7 @@ async def _metabolic_loop_router(
                 "stakes_class": "A" if risk_tier == "high" else "C",
             },
         }
-        anchor_res = await init_anchor_state(**anchor_payload)
+        anchor_res = await _init_anchor_state(**anchor_payload)
         trace["000_INIT"] = anchor_res.get("verdict")
         if anchor_res.get("verdict") == "VOID":
             return {
@@ -2422,15 +2544,16 @@ metabolicloop = metabolic_loop_router
     description="[Lane: Ψ Psi] [Floors: F5, F6, F7, F9] Stage 777 discovery actuator.",
 )
 async def _quantum_eureka_forge(
-    session_id: str,
-    intent: str,
-    auth_context: dict[str, Any],
+    session_id: str | None = None,
+    intent: str = "",
+    auth_context: dict[str, Any] | None = None,
     eureka_type: str = "concept",
     materiality: str = "idea_only",
 ) -> dict[str, Any]:
     """
     Stage 777: Sandboxed discovery actuator (Eureka Forge).
     """
+    session_id = _resolve_session_id(session_id)
     # Map intent to a shell command for legacy Forge logic
     command = f"echo 'Forging {eureka_type} for: {intent}'"
 
@@ -2451,8 +2574,8 @@ eureka_forge = quantum_eureka_forge
     description="[Lane: Ψ Psi] [Floors: F5, F6, F7, F9] Execute shell commands with audit logging and confirmation for dangerous operations.",
 )
 async def _sovereign_actuator(
-    session_id: str,
     command: str,
+    session_id: str | None = None,
     working_dir: str = "/root",
     timeout: int = 60,
     confirm_dangerous: bool = False,
@@ -2478,8 +2601,12 @@ async def _sovereign_actuator(
 
     start_time = datetime.now(timezone.utc)
 
+    session_id = _resolve_session_id(session_id)
     if not session_id:
-        return _build_floor_block("888_FORGE", "Missing session_id")
+        return _build_floor_block("888_FORGE", "Missing session_id (Authentication continuity failed)")
+
+    envelope = _hydrate_envelope(session_id, authority="888_FORGE")
+
     revoked = _revocation_reason(actor_id=actor_id, session_id=session_id)
     if revoked:
         return _revocation_void("888_FORGE", session_id, revoked)
@@ -2532,7 +2659,7 @@ async def _sovereign_actuator(
 
     # Check for moderately risky patterns
     if risk_level == "LOW":
-        MODERATE_PATTERNS = [
+        moderate_patterns = [
             "docker rm",
             "docker stop",
             "docker kill",
@@ -2548,7 +2675,7 @@ async def _sovereign_actuator(
             "| sh",
             "| bash",
         ]
-        for pattern in MODERATE_PATTERNS:
+        for pattern in moderate_patterns:
             if pattern in command.lower():
                 risk_level = "MODERATE"
                 break
@@ -2675,6 +2802,7 @@ async def _sovereign_actuator(
                 "risk_level": risk_level,
                 "duration_ms": duration_ms,
                 "execution_log": execution_log,
+                "envelope": envelope.model_dump(),
             },
         )
         return _attach_rotated_auth_context(
@@ -2731,9 +2859,9 @@ eureka_forge = ToolHandle(_sovereign_actuator)
     description="[Lane: Ψ Psi] [Floors: F1, F3, F10] Immutable ledger persistence.",
 )
 async def _vault_seal(
-    session_id: str,
     summary: str,
     governance_token: str,
+    session_id: str | None = None,
     thermodynamic_statement: dict[str, Any] | None = None,
     actor_id: str = "anonymous",
     auth_token: str | None = None,
@@ -2747,8 +2875,12 @@ async def _vault_seal(
     No token → no entry. Tampered token → VOID, no entry.
     """
     try:
+        session_id = _resolve_session_id(session_id)
         if not session_id:
-            return _build_floor_block("999_VAULT", "Missing session_id")
+            return _build_floor_block("999_VAULT", "Missing session_id (Authentication continuity failed)")
+
+        envelope = _hydrate_envelope(session_id, authority="999_VAULT")
+
         revoked = _revocation_reason(actor_id=actor_id, session_id=session_id)
         if revoked:
             return _revocation_void("999_VAULT", session_id, revoked)
@@ -2846,6 +2978,7 @@ async def _vault_seal(
         if thermodynamic_statement is not None:
             result["thermodynamic_statement"] = thermodynamic_statement
         result["authority_lineage"] = lineage_payload
+        result["envelope"] = envelope.model_dump()
         result.update(
             envelope_builder.build_envelope(
                 stage="999_VAULT", session_id=session_id, verdict=verified_verdict, payload=res

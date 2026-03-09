@@ -26,8 +26,6 @@ import json
 import subprocess
 import sys
 from dataclasses import dataclass
-from typing import Any
-
 
 CONTAINER_NAME = "openclaw_gateway"
 

@@ -128,7 +128,7 @@ class APEXBundle(BaseModel):
     judgment: APEXJudgment = Field(default_factory=APEXJudgment)
 
 
-def derive_apex(envelope: "RuntimeEnvelope", opex: OPEXBundle) -> APEXBundle:
+def derive_apex(envelope: RuntimeEnvelope, opex: OPEXBundle) -> APEXBundle:
     """Derive APEX governance bundle from envelope telemetry + OPEX fields."""
     # akal.coherence: passes if verdict is not VOID or SABAR
     coherence = "passes" if envelope.verdict not in (Verdict.VOID, Verdict.SABAR) else "fails"
