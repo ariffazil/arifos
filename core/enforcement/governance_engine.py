@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import json
 import math
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -22,12 +23,8 @@ from arifosmcp.transport.protocol.aaa_contract import (
 )
 from core.shared.guards.injection_guard import scan_for_injection
 from core.shared.guards.ontology_guard import detect_literalism
-from core.shared.mottos import (
-    MOTTO_000_INIT_HEADER,
-    MOTTO_999_SEAL_HEADER,
-    get_motto_for_stage,
-)
-from core.shared.verdict_contract import normalize_verdict
+from core.shared.mottos import MOTTO_000_INIT_HEADER, MOTTO_999_SEAL_HEADER, get_motto_for_stage
+from core.shared.types import RuntimeStatus, Verdict
 
 TOOL_LAW_BINDINGS = AAA_TOOL_LAW_BINDINGS
 TOOL_STAGE_MAP = AAA_TOOL_STAGE_MAP
@@ -115,21 +112,24 @@ def _derive_apex_dials(tool: str, payload: dict[str, Any]) -> dict[str, Any]:
     floor_scores = payload.get("floor_scores")
     if not isinstance(floor_scores, FloorScores):
         # Fallback: extract from payload keys if available
-        truth = _safe_float(payload.get("truth", {}), "score", _safe_float(payload, "truth_score", 0.8))
+        truth = _safe_float(
+            payload.get("truth", {}), "score", _safe_float(payload, "truth_score", 0.8)
+        )
         ds = _safe_float(payload, "dS", -0.1)
         peace2 = _safe_float(payload, "peace2", 1.0)
-        
+
         floor_scores = FloorScores(
             f2_truth=truth,
             f4_clarity=1.0 - abs(min(0.0, ds)),
             f5_peace=peace2,
-            f8_genius=_safe_float(payload, "G_prev", 0.8)
+            f8_genius=_safe_float(payload, "G_prev", 0.8),
         )
 
     # 2. Integrate with Physics Budget
     session_id = str(payload.get("session_id", "global"))
     try:
         from core.physics.thermodynamics_hardened import get_thermodynamic_budget
+
         budget = get_thermodynamic_budget(session_id)
         budget_used = budget.consumed
         budget_max = budget.initial_budget
@@ -142,9 +142,9 @@ def _derive_apex_dials(tool: str, payload: dict[str, Any]) -> dict[str, Any]:
         floors=floor_scores,
         h=_safe_float(payload, "hysteresis", 0.0),
         compute_budget_used=budget_used,
-        compute_budget_max=budget_max
+        compute_budget_max=budget_max,
     )
-    
+
     dials = res["dials"]
     return {
         "A": round(dials["A"], 4),
@@ -643,7 +643,18 @@ def _check_landauer_bound(compute_ms: float, tokens_generated: int, d_s: float) 
 
 
 def wrap_tool_output(tool: str, payload: dict[str, Any]) -> dict[str, Any]:
-    """Attach AAA envelope and 333_AXIOMS checks to tool outputs."""
+    """
+    Attach final canonical arifOS MCP envelope to tool outputs.
+
+    Implements:
+    1. Unified top-level schema (ok, tool, session_id, stage, verdict, status)
+    2. Unified blocks (metrics, trace, authority, payload, errors, meta)
+    3. Production vs Debug contract
+    4. Canonical ENUM enforcement
+    """
+    from core.shared.verdict_contract import normalize_verdict
+
+    # 1. Functional Analysis
     checks = _axiom_checks(payload, tool)
     law_checks = _law13_checks(tool, payload)
     apex_dials = _derive_apex_dials(tool, payload)
@@ -652,46 +663,29 @@ def wrap_tool_output(tool: str, payload: dict[str, Any]) -> dict[str, Any]:
     failed_laws = [
         k for k, v in law_checks.items() if v.get("required") and not bool(v.get("pass"))
     ]
-    tac = _derive_tac_metrics(
-        payload=payload,
-        required_law_failures=failed_laws,
-        failed_axioms=failed_axioms,
-    )
-    tpcp = _derive_tpcp_metrics(
-        tool=tool,
-        payload=payload,
-        tac=tac,
-        required_law_failures=failed_laws,
-    )
 
-    # P0 HARDENING: Calculate Ψ (Vitality Index) - Master Equation
+    # 2. Score Derivation
+    tac = _derive_tac_metrics(payload, failed_laws, failed_axioms)
+    tpcp = _derive_tpcp_metrics(tool, payload, tac, failed_laws)
     vitality = _derive_vitality_index(payload, law_checks, apex_dials)
     psi_score = vitality.get("psi", 0.0)
 
-    verdict = str(payload.get("verdict", "SEAL"))
-
-    # Hardening: Hard floor failure -> VOID
+    # 3. Verdict Determination
+    raw_verdict = str(payload.get("verdict", "SEAL"))
     has_hard_fail = any(
         v.get("pass") is False and v.get("type") == "floor"
         for k, v in law_checks.items()
         if k in {"F1_AMANAH", "F2_TRUTH", "F7_HUMILITY", "F12_DEFENSE", "F13_CURIOSITY"}
     )
 
-    # P1 HARDENING: Calculate Tri-Witness consensus with geometric mean
     tri_witness = _calculate_tri_witness_consensus(tool, payload)
-    tri_witness.get("w3", 0.0)
-
-    # P1 HARDENING: Φₚ (Paradox Conductance) - connect to verdict logic
     phi_p = tpcp.get("phiP", 0.0)
     paradox_resolved = phi_p >= 1.0
-
-    # P2 HARDENING: Orthogonality Check (Mode Collapse Prevention)
-    agi_vector = payload.get("agi_vector", [])
-    asi_vector = payload.get("asi_vector", [])
-    omega_ortho = _derive_orthogonality(agi_vector, asi_vector)
+    omega_ortho = _derive_orthogonality(
+        payload.get("agi_vector", []), payload.get("asi_vector", [])
+    )
     ortho_pass = _orthogonality_pass(omega_ortho)
 
-    # P2 HARDENING: Landauer Bound (Cheap Truth Prevention)
     landauer_data = _check_landauer_bound(
         compute_ms=payload.get("compute_ms", 100),
         tokens_generated=payload.get("tokens", 50),
@@ -699,230 +693,150 @@ def wrap_tool_output(tool: str, payload: dict[str, Any]) -> dict[str, Any]:
     )
 
     stage = TOOL_STAGE_MAP.get(tool, "000_INIT")
+    stage_num = _parse_stage_num(stage)
 
-    # Master verdict determination
-    if verdict == "VOID":
-        # Keep it VOID if it came in as VOID (e.g. bridge failure or explicit rejection)
+    # Verdict Logic
+    verdict = raw_verdict
+    if raw_verdict == "VOID":
         pass
     elif has_hard_fail:
         verdict = "VOID"
     elif stage == "000_INIT":
-        if tri_witness.get("pass", False):
-            verdict = "SEAL"
-        else:
-            verdict = "VOID"
+        verdict = "SEAL" if tri_witness.get("pass", False) else "VOID"
     elif psi_score < 1.0 and payload.get("status") not in {
         "RECALL_PARTIAL_FAILURE",
         "SEARCH_PARTIAL_FAILURE",
     }:
-        if psi_score < 0.5:
-            verdict = "VOID"
-        else:
-            verdict = "SABAR"
+        verdict = "VOID" if psi_score < 0.5 else "SABAR"
     elif not tri_witness.get("pass", False) and payload.get("status") not in {
         "RECALL_PARTIAL_FAILURE",
         "SEARCH_PARTIAL_FAILURE",
     }:
-        if tri_witness.get("shattered_by"):
-            verdict = "VOID"
-        else:
-            verdict = "SABAR"
+        verdict = "VOID" if tri_witness.get("shattered_by") else "SABAR"
     elif not paradox_resolved and tool in {"critique_thought", "apex_judge"}:
-        if phi_p < 0.5:
-            verdict = "VOID"
-        else:
-            verdict = "SABAR"
+        verdict = "VOID" if phi_p < 0.5 else "SABAR"
     elif not ortho_pass and tool in {"critique_thought", "apex_judge", "simulate_heart"}:
-        if omega_ortho < 0.50:
-            verdict = "VOID"
-        else:
-            verdict = "SABAR"
+        verdict = "VOID" if omega_ortho < 0.50 else "SABAR"
     elif landauer_data["violation"]:
         verdict = "SABAR"
     elif (failed_axioms or failed_laws) and verdict == "SEAL":
         verdict = "PARTIAL"
 
-    # Canonical Verdict Contract gate — only stage 0 and ≥888 may emit VOID.
-    # Exploratory stages (111–777) must not destroy information; VOID → SABAR.
-    # Paradox/Ψ/tri-witness failures at pre-888 stages are "compressed spring"
-    # signals that need more thinking (SABAR), not Landauer information erasure.
-    stage_num = _parse_stage_num(stage)
+    # Canonical Normalization Rule
     verdict = normalize_verdict(stage_num, verdict).value
 
-    status = "SUCCESS" if verdict not in {"VOID", "SABAR"} else "ERROR"
-    if payload.get("status") == "ERROR":
-        status = "ERROR"
+    # 4. Canonical Status
+    status = RuntimeStatus.SUCCESS.value
+    if verdict in ["VOID", "SABAR"] or payload.get("status") == "ERROR":
+        status = RuntimeStatus.ERROR.value
+    if payload.get("dry_run"):
+        status = RuntimeStatus.DRY_RUN.value
 
-    # APEX 5-Layer Stack Variables
-    C = payload.get("tokens", 50) + payload.get("compute_ms", 100) / 10.0
-    delta_s = _safe_float(payload, "dS", -0.1)
-    delta_s_reduction = abs(min(0.0, delta_s))
-    eta = delta_s_reduction / C if C > 0 else 0.0
-
-    a_val = apex_dials.get("A", 1.0)
-    p_val = apex_dials.get("P", 1.0)
-    x_val = apex_dials.get("X", 1.0)
-    e_val = apex_dials.get("E", 1.0)
-    capacity_product = a_val * p_val * x_val
-    effort_amplifier = e_val**2
-
-    g_star = apex_dials.get("G_star", capacity_product * effort_amplifier)
-    g_dagger = g_star * eta
-
-    failure_origin = payload.get("failure_origin", "GOVERNANCE")
-    auth_ctx = payload.get("auth_context")
-    is_auto_anchor = isinstance(auth_ctx, dict) and auth_ctx.get("parent_signature") == "AUTO_ANCHOR_BYPASS"
-    
-    auth_state = "invalid"
-    if isinstance(auth_ctx, dict):
-        if is_auto_anchor:
-            auth_state = "bootstrap_readonly"
-        elif auth_ctx.get("signature"):
-            auth_state = "verified"
-        elif auth_ctx.get("actor_id") == "anonymous":
-            auth_state = "anonymous"
-
-    # Actionable Remediation Notes & Explainability (P3/P4)
-    remediation_notes = []
-    blocked_because = None
-    block_class = None
-    safe_alternative = None
-    minimum_upgrade_condition = None
-    next_best_action = None
-    counterfactual = None
-    
-    if verdict == "VOID":
-        if failure_origin == "AUTH" or is_auto_anchor:
-            blocked_because = "F11: Missing or invalid command authority context"
-            block_class = "auth_only"
-            safe_alternative = "Run as read-only audit (allow_execution=False, risk_tier=low)"
-            minimum_upgrade_condition = "Provide valid session_id and signed auth_token"
-            remediation_notes.append("F11 Authority failure: Ensure session_id is active and auth_context is valid.")
-            next_best_action = "Anchor session with valid authority_level and stakes_class"
-            counterfactual = "With verified session and read-only scope, verdict would likely upgrade to SEAL"
-        
-        if has_hard_fail:
-            hard_fails = [k for k, v in law_checks.items() if v.get("pass") is False and v.get("type") == "floor" and k in {"F1_AMANAH", "F2_TRUTH", "F7_HUMILITY", "F12_DEFENSE", "F13_CURIOSITY"}]
-            blocked_because = f"Constitutional Hard Floor Violation: {', '.join(hard_fails)}"
-            block_class = "constitutional"
-            safe_alternative = "Reformulate query to comply with safety/truth invariants"
-            minimum_upgrade_condition = "Remove destructive intent or ground claims in verifiable evidence"
-            remediation_notes.append(f"Hard floor violation: {', '.join(hard_fails)}. Safety protocol requires termination.")
-        
-        if "F12_DEFENSE" in failed_laws:
-            blocked_because = "F12: Potential prompt injection or adversarial pattern detected"
-            block_class = "safety"
-            remediation_notes.append("F12 Defense failure: Input contains patterns matching known prompt injection vectors.")
-            
-        if psi_score < 0.5:
-            remediation_notes.append(f"Vitality Index (Psi) {psi_score:.2f} is critically low. Governance homeostasis lost.")
-        if not tri_witness.get("pass", False) and tri_witness.get("shattered_by"):
-            remediation_notes.append(f"Consensus shattered by {tri_witness.get('shattered_by')} witness.")
-            
-    elif verdict == "SABAR":
-        remediation_notes.append("Safety circuit (SABAR) triggered. Stability metrics (Peace/Empathy) are below required thresholds for a SEAL.")
-        if not ortho_pass:
-            remediation_notes.append("Mode collapse detected: AI response is too similar to input/previous state (echo chamber).")
-        if landauer_data["violation"]:
-            remediation_notes.append("Landauer violation: System claims entropy reduction without proportional compute effort (Cheap Truth).")
-    elif verdict == "PARTIAL":
-        remediation_notes.append(f"Minor floor warnings: {', '.join(failed_laws)}. Use this output with caution.")
-    else:
-        remediation_notes.append("Constitutional requirements satisfied. Session SEALED.")
-
-    if is_auto_anchor or "F11_AUTHORITY" in failed_laws or "F13_SOVEREIGNTY" in failed_laws:
-        failure_origin = "AUTH"
-    if payload.get("stage") == "BRIDGE_FAILURE":
-        failure_origin = "RUNTIME_ERROR"
-        
-    # Unified final_verdict (P1/P2)
-    final_verdict = verdict
-    if failure_origin == "AUTH" and verdict == "VOID":
-        final_verdict = "AUTH_FAIL"
-
-    # Score Deltas (P3) — REAL MEASUREMENTS (no more templates)
-    score_delta = {
-        "truth": round(a_val, 4),
-        "clarity": round(delta_s_reduction, 4),
-        "authority": round(1.0 if auth_state == "verified" else (0.5 if auth_state == "anonymous" else 0.0), 4),
-        "peace": round(p_val, 4),
-        "genius": round(g_star, 4),
-        "vitality": round(psi_score, 4)
+    # 5. Build Unified Blocks
+    # Unified Metrics
+    truth_score = _safe_float(apex_dials, "G_star", 0.8)
+    metrics = {
+        "truth": round(truth_score, 4),
+        "clarity_delta": round(_safe_float(payload, "dS", -0.1), 4),
+        "confidence": round(_safe_float(apex_dials, "G_star", 0.8), 4),
+        "peace": round(_safe_float(payload, "peace2", 1.0), 4),
+        "vitality": round(psi_score, 4),
+        "entropy_delta": round(_safe_float(payload, "dS", -0.1), 4),
+        "authority": round(tri_witness.get("witnesses", {}).get("human", 0.0), 4),
+        "risk": round(_safe_float(payload, "risk_score", 0.0), 4),
     }
 
-    return {
-        "status": status,
-        "verdict": verdict,
-        "final_verdict": final_verdict,
-        "failure_origin": failure_origin,
-        "failure_stage": stage,
+    # Unified Trace
+    # We attempt to recover the trace from the payload if it exists
+    trace = payload.get("trace", {})
+    if not isinstance(trace, dict):
+        trace = {}
+    trace[stage] = verdict
+
+    # Unified Authority
+    auth_ctx = payload.get("auth_context", {}) or {}
+    auth_state = "unverified"
+    if auth_ctx.get("signature"):
+        auth_state = "verified"
+    elif auth_ctx.get("actor_id") == "anonymous":
+        auth_state = "anonymous"
+
+    authority = {
+        "actor_id": auth_ctx.get("actor_id", "anonymous"),
+        "level": auth_ctx.get("authority_level", "anonymous"),
+        "human_required": verdict in ["HOLD", "VOID"],
+        "approval_scope": auth_ctx.get("approval_scope", []),
         "auth_state": auth_state,
-        "tool": tool,
-        "session_id": str(payload.get("session_id") or payload.get("session", "")),
-        "remediation_notes": remediation_notes,
-        "score_delta": score_delta,
-        "primary_blocker": failed_laws[0] if failed_laws else (failed_axioms[0] if failed_axioms else None),
-        "next_best_action": next_best_action,
-        "counterfactual": counterfactual,
-        "blocked_because": blocked_because,
-        "block_class": block_class,
-        "safe_alternative": safe_alternative,
-        "minimum_upgrade_condition": minimum_upgrade_condition,
-        "apex_output": {
-            "capacity_layer": {
-                "A": a_val,
-                "P": p_val,
-                "X": x_val,
-                "capacity_product": round(capacity_product, 4),
-            },
-            "effort_layer": {
-                "E": e_val,
-                "effort_amplifier": round(effort_amplifier, 4),
-                "reasoning_steps": payload.get("steps", 1),
-                "tool_calls": 1,
-            },
-            "entropy_layer": {
-                "H_before": payload.get("H_before", 1.0),
-                "H_after": payload.get("H_after", max(0.0, 1.0 + delta_s)),
-                "delta_S": delta_s,
-            },
-            "efficiency_layer": {
-                "compute_cost": round(C, 4),
-                "entropy_removed": round(delta_s_reduction, 4),
-                "intelligence_efficiency": round(eta, 6),
-            },
-            "governed_intelligence": {
-                "G_star": round(g_star, 4),
-                "efficiency": round(eta, 6),
-                "governed_score": round(g_dagger, 6),
-            },
-            "governance_layer": {
-                "vitality_index": vitality.get("psi", 0.0),
-                "truth_floor": "pass"
-                if law_checks.get("F2_TRUTH", {}).get("pass", True)
-                else "fail",
-                "authority_status": "pass"
-                if law_checks.get("F11_AUTHORITY", {}).get("pass", True)
-                else "fail",
-                "sovereignty_status": "pass"
-                if law_checks.get("F13_SOVEREIGNTY", {}).get("pass", True)
-                else "fail",
-                "tri_witness_status": "pass" if tri_witness.get("pass", False) else "fail",
-            },
-            "diagnostics": {
-                "logA": round(math.log(a_val) if a_val > 0 else 0, 4),
-                "logP": round(math.log(p_val) if p_val > 0 else 0, 4),
-                "logX": round(math.log(x_val) if x_val > 0 else 0, 4),
-                "2logE": round(2 * math.log(e_val) if e_val > 0 else 0, 4),
-                "logDeltaS": round(math.log(delta_s_reduction) if delta_s_reduction > 0 else 0, 4),
-                "logC": round(math.log(C) if C > 0 else 0, 4),
-                "failed_axioms": failed_axioms,
-                "failed_laws": failed_laws,
-                "paradox_resolved": paradox_resolved,
-                "landauer_violation": landauer_data["violation"],
-                "mode_collapse": not ortho_pass,
-            },
-        },
-        "motto": motto,
-        "data": payload,
     }
+
+    # Unified Errors
+    errors = []
+    if verdict in ["VOID", "SABAR"]:
+        error_code = "GOVERNANCE_BLOCK"
+        if has_hard_fail:
+            error_code = "CONSTITUTIONAL_VIOLATION"
+        elif auth_state == "unverified":
+            error_code = "AUTH_FAILURE"
+
+        errors.append(
+            {
+                "code": error_code,
+                "message": payload.get("error") or f"Verdict {verdict} issued by {stage}",
+                "stage": stage,
+                "recoverable": verdict == "SABAR",
+            }
+        )
+
+    # Unified Meta
+    meta = {
+        "schema_version": "1.0.0",
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "debug": bool(payload.get("debug")),
+        "dry_run": bool(payload.get("dry_run")),
+    }
+
+    # 6. Final Production Output
+    # Prune redundant fields from payload to keep the envelope surgical
+    canonical_keys = {
+        "verdict", "stage", "status", "metrics", "trace", "authority", "errors", "meta",
+        "session_id", "actor_id", "auth_context", "debug", "tool"
+    }
+    pruned_payload = {k: v for k, v in payload.items() if k not in canonical_keys}
+
+    # Also prune common metric-like fields that are now in the metrics block
+    metric_keys = {
+        "truth", "truth_score", "dS", "peace2", "kappa_r", "omega0", "risk_score",
+        "human_witness", "ai_witness", "earth_witness", "grounding", "G_star", "G_prev"
+    }
+    pruned_payload = {k: v for k, v in pruned_payload.items() if k not in metric_keys}
+
+    output = {
+        "ok": status != "ERROR",
+        "tool": tool,
+        "session_id": str(payload.get("session_id") or "global"),
+        "stage": stage,
+        "verdict": verdict,
+        "status": status,
+        "metrics": metrics,
+        "trace": trace,
+        "authority": authority,
+        "payload": pruned_payload,  # tool-specific data only
+        "errors": errors,
+        "meta": meta,
+    }
+
+    # 7. Debug Extension (if requested)
+    if meta["debug"]:
+        output["debug"] = {
+            "law_checks": law_checks,
+            "axiom_checks": checks,
+            "apex_dials": apex_dials,
+            "tac": tac,
+            "tpcp": tpcp,
+            "vitality": vitality,
+            "tri_witness": tri_witness,
+            "landauer": landauer_data,
+            "motto": motto,
+        }
+
+    return output

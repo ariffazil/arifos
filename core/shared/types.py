@@ -171,18 +171,17 @@ class Verdict(str, Enum):
     """
     Constitutional verdict outcomes.
 
-    Only these 6 canonical verdicts exist system-wide:
-    - SEAL       (non-terminal): stage successful
-    - PROVISIONAL(non-terminal): exploratory result
-    - PARTIAL    (non-terminal): incomplete but usable
-    - SABAR      (non-terminal): pause / needs more context
-    - HOLD       (non-terminal): waiting for authority/human
-    - VOID       (TERMINAL):     hard rejection / invalid state — must be extremely rare
+    Only these 7 canonical verdicts exist system-wide:
+    - SEAL        (non-terminal): stage successful
+    - PROVISIONAL (non-terminal): exploratory result
+    - PARTIAL     (non-terminal): incomplete but usable
+    - SABAR       (non-terminal): pause / needs more context
+    - HOLD        (non-terminal): waiting for authority/human
+    - HOLD_888    (non-terminal): specific high-stakes human gating
+    - VOID        (TERMINAL):     hard rejection / invalid state — must be extremely rare
 
     Normalization rule (enforced by verdict_contract.normalize_verdict):
         if stage < 888 and verdict == VOID: verdict = SABAR
-
-    HOLD_888 is a legacy alias for HOLD kept for backward compatibility.
     """
 
     SEAL = "SEAL"
@@ -190,9 +189,19 @@ class Verdict(str, Enum):
     PARTIAL = "PARTIAL"
     SABAR = "SABAR"
     HOLD = "HOLD"
+    HOLD_888 = "HOLD_888"
     VOID = "VOID"
-    # Legacy alias — normalizes to HOLD in verdict_contract layer
-    HOLD_888 = "888_HOLD"
+
+
+class RuntimeStatus(str, Enum):
+    """
+    Transport/runtime state only.
+    """
+
+    SUCCESS = "SUCCESS"
+    ERROR = "ERROR"
+    TIMEOUT = "TIMEOUT"
+    DRY_RUN = "DRY_RUN"
 
 
 # ============================================================================

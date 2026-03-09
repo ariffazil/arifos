@@ -7,17 +7,7 @@ from fastmcp import Context, FastMCP
 from fastmcp.tools import ToolResult
 
 from arifosmcp.bridge import call_kernel
-from arifosmcp.runtime.models import (
-    APEXBundle,
-    AuthContext,
-    OPEXBundle,
-    RuntimeEnvelope,
-    Stage,
-    Telemetry,
-    Verdict,
-    Witness,
-    derive_apex,
-)
+from arifosmcp.runtime.models import RuntimeEnvelope, Stage
 from arifosmcp.runtime.resources import build_open_apex_dashboard_result
 from arifosmcp.runtime.sessions import _resolve_session_id, set_active_session
 from core.state.session_manager import session_manager
@@ -40,114 +30,11 @@ def _normalize_session_id(session_id: str | None) -> str:
 
 
 def _normalize_verdict(verdict: Any) -> str:
-    verdict_str = str(verdict or "UNSET")
-    if verdict_str == "888_HOLD":
-        return Verdict.HOLD_888.value
-    return verdict_str
+    verdict_str = str(verdict or "VOID")
+    # Mapping legacy or human strings to canonical enum
+    from core.shared.verdict_contract import normalize_verdict
 
-
-def _normalize_auth_context(raw_auth_context: Any) -> dict[str, Any]:
-    if isinstance(raw_auth_context, AuthContext):
-        return raw_auth_context.model_dump(exclude_none=True)
-    if isinstance(raw_auth_context, dict):
-        return raw_auth_context
-    return {}
-
-
-def _build_opex(
-    tool_name: str, kernel_res: dict[str, Any], envelope: RuntimeEnvelope
-) -> OPEXBundle:
-    """Extract OPEX epistemic fields from the kernel result, keyed by tool name."""
-    data = kernel_res.get("payload", kernel_res)
-    conf = envelope.telemetry.confidence
-
-    if tool_name == "init_anchor_state":
-        return OPEXBundle(
-            output_candidate=str(data.get("mode", "session_init")),
-            probability=conf,
-            evidence=["auth_token validated", "F11 auth passed", "F12 injection clean"],
-            uncertainty=(["grounding_required"] if data.get("grounding_required") else []),
-        )
-    elif tool_name == "integrate_analyze_reflect":
-        subqs = data.get("subquestions", [])
-        return OPEXBundle(
-            output_candidate=str(data.get("framing_notes", "")),
-            probability=conf,
-            evidence=[str(q) for q in subqs],
-            uncertainty=(["further sub-analysis required"] if len(subqs) < 2 else []),
-        )
-    elif tool_name == "reason_mind_synthesis":
-        steps = data.get("steps", [])
-        low_conf_steps = [
-            s.get("thought", "") for s in steps if float(s.get("confidence", 1.0)) < 0.7
-        ]
-        return OPEXBundle(
-            output_candidate=str(data.get("eureka_insight", "")),
-            probability=float(data.get("genius_score", conf)),
-            evidence=[s.get("thought", "") for s in steps],
-            uncertainty=low_conf_steps,
-        )
-    elif tool_name == "metabolic_loop_router":
-        trace = data.get("trace", {})
-        return OPEXBundle(
-            output_candidate=f"Pipeline verdict: {envelope.verdict.value}",
-            probability=conf,
-            evidence=[f"{stage}: {v}" for stage, v in trace.items()],
-            uncertainty=[
-                f"{s}: requires review" for s, v in trace.items() if v in ("SABAR", "VOID")
-            ],
-        )
-    elif tool_name == "vector_memory_store":
-        mems = data.get("memories", [])
-        return OPEXBundle(
-            output_candidate="Memory operation completed",
-            probability=conf,
-            evidence=[str(m) for m in mems[:5]],
-            uncertainty=(["memory gaps detected"] if not mems else []),
-        )
-    elif tool_name == "assess_heart_impact":
-        risk = float(data.get("risk_score", 0.0))
-        return OPEXBundle(
-            output_candidate=f"Risk score: {risk:.2f}",
-            probability=max(0.0, 1.0 - risk),
-            evidence=[str(data.get("vulnerable_stakeholder_analysis", ""))],
-            uncertainty=["complex multi-stakeholder scenarios may be unmodeled"],
-        )
-    elif tool_name == "critique_thought_audit":
-        issues = data.get("issues", [])
-        risk = float(data.get("risk_score", 0.0))
-        return OPEXBundle(
-            output_candidate=str(data.get("recommendation", "")),
-            probability=max(0.0, 1.0 - risk),
-            evidence=[str(i) for i in issues],
-            uncertainty=["logical edge cases may remain"],
-        )
-    elif tool_name == "quantum_eureka_forge":
-        return OPEXBundle(
-            output_candidate=str(data.get("eureka_proposal", "")),
-            probability=float(data.get("confidence", conf)),
-            evidence=[f"materiality={data.get('materiality', 'idea_only')}"],
-            uncertainty=["sandboxed proposal — not verified for deployment"],
-        )
-    elif tool_name == "apex_judge_verdict":
-        w = envelope.witness
-        tri = (w.human * w.ai * w.earth) ** (1 / 3)
-        return OPEXBundle(
-            output_candidate=str(data.get("governance_token", envelope.verdict.value)),
-            probability=tri,
-            evidence=[f"human={w.human:.2f}", f"ai={w.ai:.2f}", f"earth={w.earth:.2f}"],
-            uncertainty=([str(data.get("reasoning", ""))] if tri < 0.95 else []),
-        )
-    elif tool_name == "seal_vault_commit":
-        sealed = bool(data.get("sealed", False))
-        return OPEXBundle(
-            output_candidate=str(data.get("entry_id", "")),
-            probability=1.0 if sealed else 0.0,
-            evidence=[f"merkle_root={data.get('merkle_root', '')}"],
-            uncertainty=[],
-        )
-    else:
-        return OPEXBundle(probability=conf)
+    return normalize_verdict(333, verdict_str).value
 
 
 async def _wrap_call(
@@ -160,108 +47,57 @@ async def _wrap_call(
     """Call the bridge and normalize the result into a RuntimeEnvelope."""
 
     session_id = _normalize_session_id(session_id)
-    input_auth_ctx = _normalize_auth_context(payload.get("auth_context"))
+    # Ensure payload has session_id and routing metadata
+    payload["session_id"] = session_id
+    payload["tool"] = tool_name
 
     try:
+        # call_kernel now returns a dictionary matching the Canonical Schema
         kernel_res = await call_kernel(tool_name, session_id, payload)
 
-        verdict_str = _normalize_verdict(kernel_res.get("verdict", "UNSET"))
-        try:
-            verdict = Verdict(verdict_str)
-        except ValueError:
-            verdict = Verdict.UNSET
+        # Merge additional runtime metadata if not already present
+        if "meta" not in kernel_res:
+            from datetime import datetime, timezone
 
-        auth_context = AuthContext(**input_auth_ctx)
+            kernel_res["meta"] = {
+                "schema_version": "1.0.0",
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "debug": bool(payload.get("debug")),
+                "dry_run": bool(payload.get("dry_run")),
+            }
 
-        extracted_data = kernel_res.get("data", {})
-        if not extracted_data:
-            extracted_data = kernel_res.get("payload", kernel_res)
-
-        effective_session_id = str(
-            kernel_res.get("session_id")
-            or (extracted_data.get("session_id") if isinstance(extracted_data, dict) else None)
-            or session_id
-        )
-
-        # Inject Philosophy Anchor (33-quote primary, 99-embedding secondary)
-        from arifosmcp.runtime.philosophy import get_philosophical_anchor
-
-        g_score = kernel_res.get("telemetry", {}).get("confidence", 0.9)
-        failed_floors = []
-        if verdict_str in ["VOID", "HOLD-888"]:
-            failed_floors.append("F2")
-
-        # Primary: 33-quote deterministic registry
-        anchor = get_philosophical_anchor(
-            stage=stage.value,
-            g_score=g_score,
-            failed_floors=failed_floors,
-            session_id=effective_session_id,
-        )
-
-        envelope = RuntimeEnvelope(
-            verdict=verdict,
-            stage=stage,
-            session_id=effective_session_id,
-            final_verdict=kernel_res.get("final_verdict", verdict_str),
-            status=kernel_res.get("status", "SUCCESS"),
-            failure_origin=kernel_res.get("failure_origin"),
-            failure_stage=kernel_res.get("failure_stage"),
-            auth_state=kernel_res.get("auth_state", "anonymous"),
-            score_delta=kernel_res.get("score_delta", {}),
-            primary_blocker=kernel_res.get("primary_blocker"),
-            secondary_blockers=kernel_res.get("secondary_blockers", []),
-            next_best_action=kernel_res.get("next_best_action"),
-            counterfactual=kernel_res.get("counterfactual"),
-            remediation_notes=kernel_res.get("remediation_notes", []),
-            blocked_because=kernel_res.get("blocked_because"),
-            block_class=kernel_res.get("block_class"),
-            safe_alternative=kernel_res.get("safe_alternative"),
-            minimum_upgrade_condition=kernel_res.get("minimum_upgrade_condition"),
-            telemetry=Telemetry(
-                dS=kernel_res.get("telemetry", {}).get("dS", -0.7),
-                peace2=kernel_res.get("telemetry", {}).get("peace2", 1.1),
-                confidence=g_score,
-                verdict=kernel_res.get("telemetry", {}).get("verdict", "Alive"),
-            ),
-            witness=Witness(
-                human=kernel_res.get("witness", {}).get("human", 0.0),
-                ai=kernel_res.get("witness", {}).get("ai", 0.0),
-                earth=kernel_res.get("witness", {}).get("earth", 0.0),
-            ),
-            auth_context=auth_context,
-            philosophy={
-                "quote_id": anchor["id"],
-                "quote": anchor["text"],
-                "author": anchor["author"],
-                "category": anchor["category"],
-            },
-            data=extracted_data if isinstance(extracted_data, dict) else {"raw": extracted_data},
-        )
-
-        # Attach OPEX (epistemic) + APEX (governance) schema layers
-        opex = _build_opex(tool_name, kernel_res, envelope)
-        envelope.opex = opex
-        envelope.apex = derive_apex(envelope, opex)
+        # Initialize the envelope model (v1.0.0 Schema)
+        envelope = RuntimeEnvelope(**kernel_res)
 
     except Exception as e:
+        # Fallback for bridge or validation failure
+        from arifosmcp.runtime.models import CanonicalError, CanonicalMeta, RuntimeStatus, Verdict
+
         envelope = RuntimeEnvelope(
-            verdict=Verdict.VOID,
-            stage=stage,
+            ok=False,
+            tool=tool_name,
             session_id=session_id,
-            telemetry=Telemetry(
-                dS=0.0,
-                peace2=0.0,
-                confidence=0.0,
-                verdict="Fractured",
-            ),
-            data={"error": str(e), "stage": "BRIDGE_FAILURE"},
-            opex=OPEXBundle(),
-            apex=APEXBundle(),
+            stage=stage.value,
+            verdict=Verdict.SABAR,
+            status=RuntimeStatus.ERROR,
+            errors=[
+                CanonicalError(
+                    code="RUNTIME_FAILURE",
+                    message=str(e),
+                    stage=stage.value,
+                    recoverable=True,
+                )
+            ],
+            meta=CanonicalMeta(debug=bool(payload.get("debug"))),
         )
 
     if ctx:
-        await ctx.info(f"arifOS_telemetry {envelope.model_dump_json()}")
+        # Filter down for UX telemetry (remove raw payload in logs)
+        log_data = envelope.model_dump(exclude_none=True)
+        if not payload.get("debug"):
+            log_data.pop("payload", None)
+            log_data.pop("debug", None)
+        await ctx.info(f"arifOS_telemetry {log_data}")
 
     return envelope
 
@@ -281,7 +117,7 @@ async def init_anchor_state(
         "governance": governance,
         "auth_token": auth_token,
     }
-    return await _wrap_call("init_anchor_state", Stage.INIT, session_id, payload, ctx)
+    return await _wrap_call("init_anchor_state", Stage.INIT_000, session_id, payload, ctx)
 
 
 async def integrate_analyze_reflect(
@@ -297,7 +133,7 @@ async def integrate_analyze_reflect(
         "auth_context": auth_context,
         "max_subquestions": max_subquestions,
     }
-    return await _wrap_call("integrate_analyze_reflect", Stage.MIND_111, session_id, payload, ctx)
+    return await _wrap_call("integrate_analyze_reflect", Stage.SENSE_111, session_id, payload, ctx)
 
 
 async def reason_mind_synthesis(
@@ -345,7 +181,7 @@ async def metabolic_loop_router(
         "debug": debug,
         "dry_run": dry_run,
     }
-    return await _wrap_call("arifOS.kernel", Stage.ROUTER, session_id, payload, ctx)
+    return await _wrap_call("arifOS.kernel", Stage.ROUTER_444, session_id, payload, ctx)
 
 
 async def session_memory(
@@ -365,7 +201,7 @@ async def session_memory(
         "top_k": top_k,
         "auth_context": auth_context or {},
     }
-    return await _wrap_call("session_memory", Stage.MEMORY, session_id, payload, ctx)
+    return await _wrap_call("vector_memory_store", Stage.MEMORY_555, session_id, payload, ctx)
 
 
 async def assess_heart_impact(
@@ -377,7 +213,7 @@ async def assess_heart_impact(
 ) -> RuntimeEnvelope:
     """666A HEART - Impact assessment. Evaluate empathy, care, and stakeholder harm."""
     payload = {"scenario": scenario, "focus": heart_mode, "auth_context": auth_context}
-    return await _wrap_call("assess_heart_impact", Stage.HEART, session_id, payload, ctx)
+    return await _wrap_call("assess_heart_impact", Stage.HEART_666, session_id, payload, ctx)
 
 
 async def critique_thought_audit(
@@ -393,7 +229,7 @@ async def critique_thought_audit(
         "critique_focus": critique_mode,
         "auth_context": auth_context,
     }
-    return await _wrap_call("critique_thought_audit", Stage.HEART, session_id, payload, ctx)
+    return await _wrap_call("critique_thought_audit", Stage.HEART_666, session_id, payload, ctx)
 
 
 async def quantum_eureka_forge(
@@ -411,7 +247,7 @@ async def quantum_eureka_forge(
         "materiality": materiality,
         "auth_context": auth_context,
     }
-    return await _wrap_call("quantum_eureka_forge", Stage.APEX, session_id, payload, ctx)
+    return await _wrap_call("quantum_eureka_forge", Stage.FORGE_777, session_id, payload, ctx)
 
 
 async def apex_judge_verdict(
@@ -427,7 +263,7 @@ async def apex_judge_verdict(
         "reason_summary": reason_summary,
         "auth_context": auth_context,
     }
-    return await _wrap_call("apex_judge_verdict", Stage.JUDGE, session_id, payload, ctx)
+    return await _wrap_call("apex_judge_verdict", Stage.JUDGE_888, session_id, payload, ctx)
 
 
 async def seal_vault_commit(
@@ -448,27 +284,27 @@ async def seal_vault_commit(
         "telemetry": telemetry,
         "auth_context": auth_context,
     }
-    return await _wrap_call("seal_vault_commit", Stage.VAULT, session_id, payload, ctx)
+    return await _wrap_call("seal_vault_commit", Stage.VAULT_999, session_id, payload, ctx)
 
 
 async def search_reality(query: str, ctx: Context | None = None) -> RuntimeEnvelope:
     """External knowledge discovery. Finds real-world sources and evidence before reasoning."""
-    return await _wrap_call("search_reality", Stage.INIT, "global", {"query": query}, ctx)
+    return await _wrap_call("search_reality", Stage.SENSE_111, "global", {"query": query}, ctx)
 
 
 async def ingest_evidence(url: str, ctx: Context | None = None) -> RuntimeEnvelope:
     """Evidence ingestion. Loads URLs, documents, and datasets into context."""
-    return await _wrap_call("ingest_evidence", Stage.INIT, "global", {"source_url": url}, ctx)
+    return await _wrap_call("ingest_evidence", Stage.REALITY_222, "global", {"source_url": url}, ctx)
 
 
 async def audit_rules(session_id: str = "global", ctx: Context | None = None) -> RuntimeEnvelope:
     """Constitutional audit. Inspects governance floors and system rules logic."""
-    return await _wrap_call("audit_rules", Stage.INIT, session_id, {}, ctx)
+    return await _wrap_call("audit_rules", Stage.MIND_333, session_id, {}, ctx)
 
 
 async def check_vital(session_id: str = "global", ctx: Context | None = None) -> RuntimeEnvelope:
     """Kernel health monitor. Reports system health, metrics, and constitutional vitality."""
-    return await _wrap_call("check_vital", Stage.INIT, session_id, {}, ctx)
+    return await _wrap_call("check_vital", Stage.INIT_000, session_id, {}, ctx)
 
 
 async def open_apex_dashboard(
@@ -479,53 +315,7 @@ async def open_apex_dashboard(
     if res:
         return res
     # Fallback if Prefab not available
-    return await _wrap_call("open_apex_dashboard", Stage.VAULT, session_id, {}, ctx)
-
-
-def select_wisdom_manifold(
-    stage: str = "444",
-    delta_s: float = 0.0,
-    p2: float = 1.0,
-    g_score: float = 0.85,
-    psi: float = 0.5,
-    kappa_r: float = 0.5,
-    active_floors: str = "",
-) -> dict[str, Any]:
-    """
-    APEX-G Wisdom Manifold. Selects a constitutional wisdom quote by geometric
-    proximity in 6D APEX-G space (τ, ΔS, P², G, Ψ, κᵣ).
-
-    Args:
-        stage:         AClip stage (e.g. "666_HEART" or "999").
-        delta_s:       Entropy delta ΔS ∈ [-1, 1].
-        p2:            Peace squared P² ∈ [0, 2].
-        g_score:       Governance score G = A×P×X×E² ∈ [0, 1].
-        psi:           Epistemic depth Ψ ∈ [0, 1].
-        kappa_r:       Empathy coefficient κᵣ ∈ [0, 1].
-        active_floors: Comma-separated active floors (e.g. "F6,F7,F1").
-
-    Returns:
-        Dict with the selected quote, its APEX-G coordinates, score, and provenance.
-    """
-    try:
-        from core.philosophy.manifold import select_wisdom
-
-        floors = [f.strip() for f in active_floors.split(",") if f.strip()]
-        result = select_wisdom(
-            stage=stage,
-            delta_s=delta_s,
-            p2=p2,
-            g_score=g_score,
-            psi=psi,
-            kappa_r=kappa_r,
-            active_floors=floors,
-        )
-        return result.to_dict()
-    except Exception as exc:  # pragma: no cover
-        return {
-            "error": f"Manifold selection failed: {exc}",
-            "fallback_text": "The only true wisdom is in knowing you know nothing. — Socrates",
-        }
+    return await _wrap_call("open_apex_dashboard", Stage.VAULT_999, session_id, {}, ctx)
 
 
 def register_tools(mcp: FastMCP, profile: str = "full") -> None:
@@ -580,16 +370,6 @@ def register_tools(mcp: FastMCP, profile: str = "full") -> None:
         description="Read-only system health snapshot, reporting diagnostics and vitality signals.",
     )(check_vital)
 
-    # 7. select_wisdom_manifold — Philosophy
-    mcp.tool(
-        name="select_wisdom_manifold",
-        description=(
-            "APEX-G Wisdom Manifold. Selects a constitutional wisdom quote by geometric "
-            "proximity in 6D space (τ, ΔS, P², G, Ψ, κᵣ). Provide current session state "
-            "to receive the most resonant wisdom from the 99-quote corpus."
-        ),
-    )(select_wisdom_manifold)
-
     # Legacy tools preserved for internal orchestration
     if normalized_profile != "chatgpt":
         mcp.tool(description="000 INIT - Session anchor.")(init_anchor_state)
@@ -613,6 +393,5 @@ __all__ = [
     "register_tools",
     "seal_vault_commit",
     "search_reality",
-    "select_wisdom_manifold",
     "session_memory",
 ]

@@ -3,7 +3,7 @@ arifosmcp/runtime/philosophy.py — The arifOS Philosophical Lattice
 
 Unified wisdom system:
 - 33 deterministic quotes for floor failures and stage alignment
-- 99 semantic quotes for context-aware retrieval (Qdrant + BGE-M3)
+- Minimal, zero-dependency implementation for 1.0.0
 
 DITEMPA, BUKAN DIBERI.
 """
@@ -11,15 +11,7 @@ DITEMPA, BUKAN DIBERI.
 from __future__ import annotations
 
 import hashlib
-import os
-from typing import Literal, TypedDict
-
-try:
-    from arifosmcp.intelligence.tools.wisdom_quotes import retrieve_wisdom
-
-    SEMANTIC_WISDOM_AVAILABLE = True
-except ImportError:
-    SEMANTIC_WISDOM_AVAILABLE = False
+from typing import TypedDict
 
 
 class Quote(TypedDict):
@@ -249,12 +241,6 @@ def get_philosophical_anchor(
         return next(q for q in PHILOSOPHY_REGISTRY if q["id"] == "V2")  # Wittgenstein (Silent)
 
     # 2. Stage-based Category Mapping
-    # Logic:
-    # 000-222: Wisdom (Foundations)
-    # 333-555: Paradox (Reasoning/Memory)
-    # 666-888: Power/Paradox (Action/Judgment)
-    # 999: Seal
-
     try:
         stage_num = int("".join(filter(str.isdigit, stage)) or "444")
     except ValueError:
@@ -278,95 +264,17 @@ def get_philosophical_anchor(
     return options[idx]
 
 
-def get_semantic_wisdom(
-    query: str,
-    category: Literal[
-        "scar", "triumph", "paradox", "wisdom", "power", "love", "seal", "all"
-    ] = "all",
-    n_results: int = 3,
-) -> list[Quote]:
-    """
-    Retrieve semantically relevant quotes from the 99-quote corpus.
-
-    Uses BGE-M3 embeddings for multilingual support.
-    Falls back to PHILOSOPHY_REGISTRY if Qdrant unavailable.
-
-    Args:
-        query: Natural language query
-        category: Filter by category
-        n_results: Number of quotes to return
-
-    Returns:
-        List of Quote objects with semantic scores
-    """
-    if not SEMANTIC_WISDOM_AVAILABLE:
-        return _fallback_to_registry(category, n_results)
-
-    result = retrieve_wisdom(query, category=category, n_results=n_results)
-
-    if result.get("status") != "ok":
-        return _fallback_to_registry(category, n_results)
-
-    return [
-        Quote(
-            id=str(q["id"]),
-            category=q["category"],
-            author=q["author"],
-            text=q["text"],
-        )
-        for q in result.get("quotes", [])
-    ]
-
-
-def _fallback_to_registry(category: str, n: int) -> list[Quote]:
-    """Fallback to PHILOSOPHY_REGISTRY when semantic search unavailable."""
-    if category == "all":
-        options = PHILOSOPHY_REGISTRY
-    else:
-        options = [q for q in PHILOSOPHY_REGISTRY if q["category"] == category]
-    return options[:n]
-
-
 def get_wisdom_for_context(
     context: str,
     stage: str = "444",
     g_score: float = 0.9,
     failed_floors: list[str] | None = None,
-    use_semantic: bool = True,
 ) -> Quote:
     """
-    Unified wisdom retrieval combining deterministic and semantic approaches.
-
-    Priority:
-    1. Floor failures → deterministic quote (PHILOSOPHY_REGISTRY)
-    2. Semantic match → 99-quote corpus (if available)
-    3. Stage-based → deterministic quote (PHILOSOPHY_REGISTRY)
-
-    Args:
-        context: Current situation/query for semantic matching
-        stage: Metabolic stage (000-999)
-        g_score: Vitality score
-        failed_floors: List of failed constitutional floors
-        use_semantic: Whether to use semantic retrieval
-
-    Returns:
-        Single most relevant Quote
+    Simplified wisdom retrieval for 1.0.0.
+    Falls back to stage-based deterministic selection.
     """
     failed_floors = failed_floors or []
-
-    # 1. Critical floor failures always use deterministic quotes
-    if "F2" in failed_floors:
-        return next(q for q in PHILOSOPHY_REGISTRY if q["id"] == "W8")
-    if "F7" in failed_floors:
-        return next(q for q in PHILOSOPHY_REGISTRY if q["id"] == "W1")
-
-    # 2. Try semantic retrieval if available and requested
-    if use_semantic and SEMANTIC_WISDOM_AVAILABLE and context:
-        semantic_quotes = get_semantic_wisdom(context, n_results=1)
-        if semantic_quotes:
-            return semantic_quotes[0]
-
-    # 3. Fallback to stage-based deterministic selection
     return get_philosophical_anchor(stage, g_score, failed_floors)
 
 
@@ -374,6 +282,5 @@ __all__ = [
     "Quote",
     "PHILOSOPHY_REGISTRY",
     "get_philosophical_anchor",
-    "get_semantic_wisdom",
     "get_wisdom_for_context",
 ]

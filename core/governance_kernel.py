@@ -567,7 +567,7 @@ class GovernanceKernel:
 
     def get_current_state(self) -> dict[str, Any]:
         """Compatibility payload for adapters expecting live governance telemetry."""
-        from core.enforcement.genius import calculate_genius, floors_to_dials
+        from core.enforcement.genius import calculate_genius
         from core.shared.types import FloorScores, Verdict
 
         if self.governance_state == GovernanceState.VOID:
@@ -811,6 +811,49 @@ def clear_governance_kernel(session_id: str | None = None) -> None:
     _governance_kernels.pop(session_id, None)
 
 
+def route_pipeline(query: str, context: dict | None = None) -> list[str]:
+    """
+    Minimal metabolic router.
+    Returns ordered stage plan for the kernel.
+    Ensures exploration vs. commitment stages are properly sequenced.
+    """
+    q = (query or "").lower()
+    plan = ["111_SENSE", "333_MIND", "666_CRITIQUE"]
+
+    grounding = ("search", "evidence", "source", "verify", "ground", "data")
+    safety = ("risk", "harm", "danger", "safe", "ethic", "impact")
+    execute = ("run", "execute", "command", "shell", "delete", "write", "deploy")
+    govern = ("law", "constitution", "authority", "approve", "judge")
+
+    if any(k in q for k in grounding):
+        plan.insert(1, "222_REALITY")
+
+    if any(k in q for k in safety):
+        if "555_HEART" not in plan:
+            plan.insert(-1, "555_HEART")
+
+    if any(k in q for k in execute):
+        if "777_FORGE" not in plan:
+            plan.append("777_FORGE")
+
+    if any(k in q for k in govern):
+        if "888_JUDGE" not in plan:
+            plan.append("888_JUDGE")
+
+    if "777_FORGE" in plan and "888_JUDGE" not in plan:
+        plan.append("888_JUDGE")
+
+    if context and context.get("force_grounding"):
+        if "222_REALITY" not in plan:
+            plan.insert(1, "222_REALITY")
+
+    if context and context.get("human_required"):
+        if "888_JUDGE" not in plan:
+            plan.append("888_JUDGE")
+
+    return plan
+
+
 __all__ = [
     "AuthorityLevel",
     "GovernanceState",
@@ -826,4 +869,5 @@ __all__ = [
     "FloorManifesto",
     "AppManifesto",
     "AppRegistry",
+    "route_pipeline",
 ]

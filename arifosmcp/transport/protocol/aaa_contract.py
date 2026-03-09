@@ -211,19 +211,19 @@ AAA_TOOL_LAW_BINDINGS: dict[str, list[str]] = {
 
 AAA_TOOL_STAGE_MAP: dict[str, str] = {
     "anchor_session": "000_INIT",
-    "reason_mind": "333_REASON",
-    "vector_memory": "444_SYNC",
-    "simulate_heart": "555_EMPATHY",
-    "critique_thought": "666_ALIGN",
+    "reason_mind": "333_MIND",
+    "vector_memory": "555_MEMORY",
+    "simulate_heart": "666_HEART",
+    "critique_thought": "666_HEART",
+    "eureka_forge": "777_FORGE",
     "apex_judge": "888_JUDGE",
     "judge_soul": "888_JUDGE",
-    "eureka_forge": "777_FORGE",
-    "seal_vault": "999_SEAL",
+    "seal_vault": "999_VAULT",
     "search_reality": "111_SENSE",
-    "ingest_evidence": "111_SENSE",
-    "audit_rules": "333_REASON",
-    "check_vital": "555_EMPATHY",
-    "metabolic_loop": "000_999_LOOP",
+    "ingest_evidence": "222_REALITY",
+    "audit_rules": "333_MIND",
+    "check_vital": "000_INIT",
+    "metabolic_loop": "444_ROUTER",
 }
 
 READ_ONLY_TOOLS: set[str] = {

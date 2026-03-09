@@ -60,7 +60,7 @@ async def call_kernel(
                     "error": (
                         "F11: Missing auth_context for continuity. Run init_anchor_state first."
                     ),
-                    "stage": "INIT",
+                    "stage": "000_INIT",
                 },
             )
 
@@ -71,16 +71,18 @@ async def call_kernel(
                 {
                     "verdict": "VOID",
                     "error": f"F11: Authentication continuity failed: {reason}",
-                    "stage": "INIT",
+                    "stage": "000_INIT",
                 },
             )
 
     # 1.5. Early Exit for Grounding Utilities
     if canonical_name == "search_reality":
         query = payload.get("query", "")
-        return await reality_check(query=query)
+        res = await reality_check(query=query)
+        return wrap_tool_output(canonical_name, res)
     if canonical_name == "ingest_evidence":
-        return await open_web_page(url=payload.get("source_url", ""))
+        res = await open_web_page(url=payload.get("source_url", ""))
+        return wrap_tool_output(canonical_name, res)
     if canonical_name == "trace_replay":
         limit = payload.get("limit", 20)
         try:
@@ -89,13 +91,16 @@ async def call_kernel(
             max_entries = 20
 
         if not DEFAULT_VAULT_PATH.exists():
-            return {
-                "status": "NO_DATA",
-                "session_id": session_id,
-                "trace_count": 0,
-                "message": "No vault ledger found for replay.",
-                "entries": [],
-            }
+            return wrap_tool_output(
+                canonical_name,
+                {
+                    "status": "NO_DATA",
+                    "session_id": session_id,
+                    "trace_count": 0,
+                    "message": "No vault ledger found for replay.",
+                    "entries": [],
+                },
+            )
 
         replay_entries: list[dict[str, Any]] = []
         try:
@@ -127,21 +132,27 @@ async def call_kernel(
                     )
         except OSError as exc:
             logger.warning("trace_replay failed reading vault: %s", exc)
-            return {
-                "status": "ERROR",
-                "session_id": session_id,
-                "trace_count": 0,
-                "message": f"Vault read failed: {exc}",
-                "entries": [],
-            }
+            return wrap_tool_output(
+                canonical_name,
+                {
+                    "status": "ERROR",
+                    "session_id": session_id,
+                    "trace_count": 0,
+                    "message": f"Vault read failed: {exc}",
+                    "entries": [],
+                },
+            )
 
         replay_entries = replay_entries[-max_entries:]
-        return {
-            "status": "SUCCESS",
-            "session_id": session_id,
-            "trace_count": len(replay_entries),
-            "entries": replay_entries,
-        }
+        return wrap_tool_output(
+            canonical_name,
+            {
+                "status": "SUCCESS",
+                "session_id": session_id,
+                "trace_count": len(replay_entries),
+                "entries": replay_entries,
+            },
+        )
 
     # 2. Kernel Execution Logic
     try:
