@@ -328,6 +328,41 @@ def _build_uvicorn_config() -> dict[str, Any]:
     return config
 
 
+class _HealthEndpointMiddleware:
+    """ASGI middleware that adds health endpoint only.
+    
+    Root / is handled by FastMCP custom routes (WELCOME_HTML).
+    This middleware only handles /health for Traefik compatibility.
+    """
+
+    def __init__(self, app: ASGIApp) -> None:
+        self.app = app
+
+    async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
+        if scope.get("type") != "http":
+            await self.app(scope, receive, send)
+            return
+
+        path = scope.get("path", "")
+        method = scope.get("method", "GET")
+
+        # Only handle /health - let all other routes pass through to FastMCP custom routes
+        if path == "/health" and method == "GET":
+            response = JSONResponse(
+                {
+                    "status": "healthy",
+                    "service": "arifos-mcp",
+                    "version": os.getenv("ARIFOS_VERSION", "2026.03.08"),
+                },
+                status_code=200,
+            )
+            await response(scope, receive, send)
+            return
+
+        # All other requests go to the MCP app (including custom routes)
+        await self.app(scope, receive, send)
+
+
 def run_server(mcp: Any, mode: str, host: str, port: int) -> None:
     """Run FastMCP server by transport mode."""
     normalized = (mode or "sse").strip().lower()
@@ -350,6 +385,10 @@ def run_server(mcp: Any, mode: str, host: str, port: int) -> None:
         return
     if normalized in ("http", "streamable-http"):
         mcp_path = _normalize_path(os.getenv("ARIFOS_MCP_PATH"), "/mcp")
+        # Add health endpoint middleware at the start of middleware chain
+        health_middleware = Middleware(_HealthEndpointMiddleware)
+        middleware.insert(0, health_middleware)
+
         mcp.run(
             transport="http",
             host=host,

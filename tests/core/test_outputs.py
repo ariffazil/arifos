@@ -1,8 +1,6 @@
-import asyncio
-from typing import Any, Dict, List
-
 import pytest
 
+from arifosmcp.runtime.governance import wrap_tool_output
 from core.organs._0_init import init
 from core.organs._1_agi import agi
 from core.organs._2_asi import asi
@@ -19,7 +17,6 @@ from core.shared.types import (
     AgiOutput,
     ApexOutput,
     AsiOutput,
-    FloorScores,
     InitOutput,
     VaultOutput,
     Verdict,
@@ -56,27 +53,77 @@ async def test_agi_output_standardization():
 
 @pytest.mark.asyncio
 async def test_asi_output_standardization():
-    agi_tensor = create_mock_tensor()
-    res = await asi("empathize", agi_tensor, "test-sid", query="test query")
+    res = await asi(action="full", session_id="test-sid", scenario="test query")
     assert isinstance(res, AsiOutput)
     assert res.status == "SUCCESS"
 
 
 @pytest.mark.asyncio
 async def test_apex_output_standardization():
-    # Mock data
-    agi_tensor = create_mock_tensor()
-    asi_output = {"floor_scores": {"f6_empathy": 0.8, "f5_peace": 1.0}}
-    res = await apex(agi_tensor, asi_output, "test-sid", action="full")
+    res = await apex(action="full", session_id="test-sid", verdict_candidate="SEAL")
     assert isinstance(res, ApexOutput)
     assert res.status == "SUCCESS"
 
 
 @pytest.mark.asyncio
 async def test_vault_output_standardization():
-    agi_tensor = create_mock_tensor()
-    judge_out = {"verdict": "SEAL", "W_4": 0.98, "genius_G": 0.85}
-    asi_out = {"peace_squared": 1.0}
-    res = await vault("seal", judge_out, agi_tensor, asi_out, "test-sid", "test query")
+    res = await vault(
+        operation="seal",
+        session_id="test-sid",
+        summary="test query",
+        verdict="SEAL",
+    )
     assert isinstance(res, VaultOutput)
     assert res.status == "SUCCESS"
+
+
+def test_governance_apex_output_math_and_meaning_are_aligned():
+    payload = {
+        "session_id": "s1",
+        "verdict": "SEAL",
+        "dS": -0.25,
+        "peace2": 1.05,
+        "kappa_r": 0.96,
+        "omega0": 0.04,
+        "truth": {"score": 0.98},
+        "energy": 0.8,
+        "tokens": 240,
+        "compute_ms": 180,
+        "steps": 3,
+        "tool_calls": 2,
+        "evidence": ["a"],
+        "actor": "user",
+        "auth": "token",
+        "human_witness": 0.98,
+        "ai_witness": 0.97,
+        "earth_witness": 0.96,
+    }
+    apex_output = wrap_tool_output("reason_mind", payload)["apex_output"]
+    capacity = apex_output["capacity_layer"]
+    effort = apex_output["effort_layer"]
+    entropy = apex_output["entropy_layer"]
+    efficiency = apex_output["efficiency_layer"]
+    governed = apex_output["governed_intelligence"]
+    governance = apex_output["governance_layer"]
+    diagnostics = apex_output["diagnostics"]
+
+    assert capacity["capacity_product"] == pytest.approx(
+        capacity["A"] * capacity["P"] * capacity["X"], abs=1e-4
+    )
+    assert effort["effort_amplifier"] == pytest.approx(effort["E"] ** 2, abs=1e-4)
+    assert entropy["delta_S"] == pytest.approx(entropy["H_before"] - entropy["H_after"], abs=1e-4)
+    assert efficiency["eta"] == pytest.approx(
+        efficiency["entropy_removed"] / efficiency["C"], abs=1e-6
+    )
+    assert governed["G_dagger"] == pytest.approx(
+        governed["G_star"] * efficiency["eta"], abs=1e-4
+    )
+
+    assert governance["status"] == "attested"
+    assert diagnostics["primary_constraint"] == "effort"
+    assert "Structural headroom is strong" in capacity["meaning"]
+    assert "Very little reasoning effort" in effort["meaning"]
+    assert "Entropy fell" in entropy["meaning"]
+    assert "Compute spend is outpacing clarity gain" in efficiency["meaning"]
+    assert "Governance is aligned" in governance["meaning"]
+    assert "governance is attested" in diagnostics["runtime_story"]

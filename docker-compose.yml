@@ -33,7 +33,7 @@ services:
       - /usr/libexec/docker:/usr/libexec/docker:ro
       - /var/scripts/restart_openclaw.sh:/var/scripts/restart_openclaw.sh:ro
       - /opt/arifos/data/triggers:/shared/triggers
-      - /opt/arifos/data/openclaw/models:/home/node/.node-llama-cpp/models
+      - /opt/arifos/data/openclaw/models:/root/.node-llama-cpp/models
       - /opt/arifos/traefik/acme.json:/letsencrypt/acme.json
     networks:
       - arifos_trinity
@@ -126,9 +126,9 @@ services:
     init: true
     user: root  # AGI-level executive power
     volumes:
-      - /opt/arifos/data/openclaw:/home/node/.openclaw
-      - /opt/arifos/data/openclaw/bin:/home/node/.local/bin
-      - /opt/arifos/data/openclaw/npm-global:/home/node/.npm-global
+      - /opt/arifos/data/openclaw:/root/.openclaw
+      - /opt/arifos/data/openclaw/bin:/root/.local/bin
+      - /opt/arifos/data/openclaw/npm-global:/root/.npm-global
       - /srv/arifOS:/mnt/arifos:rw
       - /opt/arifos/APEX-THEORY:/mnt/apex:rw
       - /var/run/docker.sock:/var/run/docker.sock
@@ -148,16 +148,25 @@ services:
       - REDIS_URL=redis://redis:6379
       - KIMI_API_KEY=${KIMI_API_KEY}
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
-      - VENICE_API_KEY=${VENICE_API_KEY:-}
+      - VENICE_API_KEY=${VENICE_API_KEY:-VENICE-ADMIN-KEY-XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX}
       - OPENROUTER_API_KEY=${OPENROUTER_API_KEY:-}
       - NODE_OPTIONS=--max-old-space-size=1536
       # PATH includes custom CLI tools: gh, op, mcporter
-      - PATH=/home/node/.local/bin:/home/node/.npm-global/bin:/host/clis:/host/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+      - PATH=/root/.local/bin:/root/.npm-global/bin:/host/clis:/host/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
       - GH_TOKEN=${GITHUB_TOKEN:-}
       - FIRECRAWL_API_KEY=${FIRECRAWL_API_KEY:-}
       - X_BEARER_TOKEN=${X_BEARER_TOKEN:-}
       - APIFY_API_TOKEN=${APIFY_API_TOKEN:-}
       - BROWSERLESS_URL=http://headless_browser:3000
+      # AI Model Provider Keys (from .env)
+      - KIMI_API_KEY=${KIMI_API_KEY:-}
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY:-}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY:-}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY:-}
+      - VENICE_API_KEY=${VENICE_API_KEY:-}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
     networks:
       - arifos_trinity
     ports:
@@ -214,7 +223,6 @@ services:
         required: false
     volumes:
       - /opt/arifos/data/core:/usr/src/app/data
-      - /srv/arifOS/333_APPS/L2_OPERATION/TOOLS/constitutional-visualizer/dist:/usr/src/app/static/dashboard:ro
       - /srv/arifOS/arifosmcp.transport:/usr/src/app/arifosmcp.transport:ro
     environment:
       PYTHONUNBUFFERED: 1
@@ -239,14 +247,10 @@ services:
       - "traefik.http.routers.arifosmcp.entrypoints=websecure"
       - "traefik.http.routers.arifosmcp.tls.certresolver=letsencrypt"
       - "traefik.http.services.arifosmcp.loadbalancer.server.port=8080"
-      - "traefik.http.routers.dashboard.rule=Host(`dashboard.arifosmcp.arif-fazil.com`)"
-      - "traefik.http.routers.dashboard.entrypoints=websecure"
-      - "traefik.http.routers.dashboard.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.dashboard.service=arifosmcp"
     deploy:
       resources:
         limits:
-          memory: 3072M
+          memory: 2048M
     restart: unless-stopped
 
   # --- Monitoring Stack ---
@@ -281,7 +285,6 @@ services:
     volumes:
       - /opt/arifos/data/grafana:/var/lib/grafana
       - /srv/arifOS/deployment/grafana/datasources/prometheus.yml:/etc/grafana/provisioning/datasources/prometheus.yml:ro
-      - /srv/arifOS/deployment/grafana/dashboards/arifos.yaml:/etc/grafana/provisioning/dashboards/arifos.yaml:ro
     networks:
       - arifos_trinity
     labels:

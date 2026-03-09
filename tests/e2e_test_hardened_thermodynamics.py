@@ -164,7 +164,7 @@ class TestKernelToToolsIntegration:
         # Initialize session with high-entropy query (complex/repetitive)
         init_result = await init(
             query="AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",  # High entropy (repetitive = actually low entropy, let's use varied)
-            actor_id="test_user"
+            actor_id="test_user",
         )
         session_id = init_result.session_id
 
@@ -431,12 +431,14 @@ class TestFloorEnforcement:
         f4 = F4_Clarity()
 
         # Valid: entropy reduction
-        result = f4.check({
-            "query": "low entropy input that is very repetitive and predictable",
-            "response": "Output with reduced entropy by removing unnecessary complexity and repetition",
-            "entropy_input": 0.8,
-            "entropy_output": 0.6,
-        })
+        result = f4.check(
+            {
+                "query": "low entropy input that is very repetitive and predictable",
+                "response": "Output with reduced entropy by removing unnecessary complexity and repetition",
+                "entropy_input": 0.8,
+                "entropy_output": 0.6,
+            }
+        )
 
         # Should pass or report properly
         assert result.floor_id == "F4_Clarity"
@@ -448,13 +450,15 @@ class TestFloorEnforcement:
         f2 = F2_Truth()
 
         # Check with compute metrics
-        result = f2.check({
-            "query": "Test query",
-            "truth_score": 0.995,
-            "entropy_delta": -0.5,
-            "compute_time_ms": 1000,
-            "tokens_generated": 500,
-        })
+        result = f2.check(
+            {
+                "query": "Test query",
+                "truth_score": 0.995,
+                "entropy_delta": -0.5,
+                "compute_time_ms": 1000,
+                "tokens_generated": 500,
+            }
+        )
 
         assert result.floor_id == "F2_Truth"
         assert result.score >= 0.0

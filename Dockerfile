@@ -94,7 +94,7 @@ HEALTHCHECK --interval=20s --timeout=5s --start-period=30s --retries=3 \
 # Metadata Labels
 LABEL io.modelcontextprotocol.server.name="io.github.ariffazil/arifos-mcp"
 LABEL io.modelcontextprotocol.server.version="2026.03.08-SEAL"
-LABEL io.modelcontextprotocol.server.description="Constitutional AI governance server with 13-tool surface and F1-F13 floor enforcement."
+LABEL io.modelcontextprotocol.server.description="Constitutional AI governance server with a 10-tool APEX-G core stack plus legacy Phase 2 capability tools."
 
 # Execute consolidated entrypoint
-CMD ["python", "-m", "arifosmcp.runtime", "http"]
+CMD ["uvicorn", "arifosmcp.runtime.server:app", "--host", "0.0.0.0", "--port", "8080"]

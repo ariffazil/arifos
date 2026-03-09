@@ -108,7 +108,7 @@ async def quick(
         }
 
     agi_out = await agi(query, token.session_id, action="full")
-    
+
     # Handle both AgiOutput and dict
     if hasattr(agi_out, "model_dump"):
         agi_data = agi_out.model_dump()
@@ -211,7 +211,7 @@ async def forge(
             emd.decision.confidence = agi_out.tensor.truth_score
         else:
             emd.metabolism.delta_s = 0.0
-            emd.decision.confidence = 0.85 # Improved default
+            emd.decision.confidence = 0.85  # Improved default
 
         return ForgeResult(
             verdict="SEAL",
@@ -268,16 +268,20 @@ async def forge(
         )
 
     # 444-666: ASI
-    asi_out = await asi(action="full", agi_tensor=agi_tensor, session_id=token.session_id, query=query)
-    
+    asi_out = await asi(
+        action="full", agi_tensor=agi_tensor, session_id=token.session_id, query=query
+    )
+
     # Update EMD
     if hasattr(asi_out, "floor_scores"):
         emd.metabolism.kappa_r = asi_out.floor_scores.f6_empathy
         emd.metabolism.peace2 = asi_out.floor_scores.f5_peace
 
     # 777-888: APEX
-    objective_state = {"drift": 0.0, "threshold": 0.45} # Placeholder
-    apex_out = await apex(agi_tensor, asi_out, token.session_id, action="full", objective_contract=objective_state)
+    objective_state = {"drift": 0.0, "threshold": 0.45}  # Placeholder
+    apex_out = await apex(
+        agi_tensor, asi_out, token.session_id, action="full", objective_contract=objective_state
+    )
 
     # 999: VAULT
     apex_dict = apex_out.model_dump() if hasattr(apex_out, "model_dump") else apex_out
@@ -318,17 +322,24 @@ async def forge(
 # I will keep the rest of the file as is, but since I am using write_file I must provide full content.
 # I'll provide a simplified version of the remaining parts to ensure it works.
 
+
 async def forge_with_nudge(query: str, actor_id: str = "user", **kwargs) -> dict:
     res = await forge(query, actor_id)
     return res.model_dump()
 
+
 async def forge_formatted(query: str, actor_id: str = "user", **kwargs) -> dict:
     res = await forge(query, actor_id)
-    return {"response": res.agi.get("output", "") if isinstance(res.agi, dict) else "", "verdict": res.verdict}
+    return {
+        "response": res.agi.get("output", "") if isinstance(res.agi, dict) else "",
+        "verdict": res.verdict,
+    }
+
 
 class FloorType(Enum):
     HARD = "hard"
     SOFT = "soft"
+
 
 class AppVerdict(Enum):
     SEAL = "SEAL"
@@ -336,10 +347,12 @@ class AppVerdict(Enum):
     VOID = "VOID"
     HOLD_888 = "888_HOLD"
 
+
 class FloorRequirement(BaseModel):
     floor_id: str
     floor_type: FloorType
     description: str = ""
+
 
 class Telemetry(BaseModel):
     timestamp: float = Field(default_factory=time.time)
@@ -347,18 +360,38 @@ class Telemetry(BaseModel):
     peace2: float = 1.0
     kappa_r: float = 1.0
 
+
 class AppResult(BaseModel):
     verdict: AppVerdict
     output: Any
     telemetry: Telemetry
 
+
 class Metabolizer(ABC):
-    def __init__(self, app_name: str): self.app_name = app_name
-    @abstractmethod
-    def required_floors(self): pass
-    @abstractmethod
-    async def metabolize(self, input_data): pass
+    def __init__(self, app_name: str):
+        self.app_name = app_name
 
-def require_metabolizer(app_class): return app_class
+    @abstractmethod
+    def required_floors(self):
+        pass
 
-__all__ = ["ForgeResult", "forge", "quick", "quick_check", "forge_with_nudge", "forge_formatted", "Metabolizer", "AppResult", "AppVerdict"]
+    @abstractmethod
+    async def metabolize(self, input_data):
+        pass
+
+
+def require_metabolizer(app_class):
+    return app_class
+
+
+__all__ = [
+    "ForgeResult",
+    "forge",
+    "quick",
+    "quick_check",
+    "forge_with_nudge",
+    "forge_formatted",
+    "Metabolizer",
+    "AppResult",
+    "AppVerdict",
+]
