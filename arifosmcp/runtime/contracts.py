@@ -20,6 +20,7 @@ REQUIRES_SESSION: set[str] = {
 
 
 TOOL_INPUT_CONTRACTS: dict[str, dict[str, str]] = {
+    "arifOS.kernel": {"query": "str"},
     "anchor_session": {"query": "str", "actor_id": "str", "session_id": "str"},
     "reason_mind": {"query": "str", "session_id": "str"},
     "vector_memory": {"query": "str", "session_id": "str"},
@@ -34,10 +35,11 @@ TOOL_INPUT_CONTRACTS: dict[str, dict[str, str]] = {
     "search_reality": {
         # Flexible contract: accepts (query OR grounding_query) AND (session_id OR session_token)
     },
-    "ingest_evidence": {"source_type": "str", "target": "str"},
-    "audit_rules": {"audit_scope": "str", "session_id": "str"},
+    "ingest_evidence": {"source_url": "str"},
+    "audit_rules": {},
     "check_vital": {},
-    "session_memory": {},
+    "session_memory": {"operation": "str"},
+    "open_apex_dashboard": {},
     "trace_replay": {},
     "metabolic_loop": {"query": "str", "allow_execution": "bool", "dry_run": "bool"},
 }

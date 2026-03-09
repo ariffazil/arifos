@@ -26,6 +26,7 @@ TOOL_MAP = {
     "init_anchor_state": "anchor_session",
     "integrate_analyze_reflect": "reason_mind",
     "reason_mind_synthesis": "reason_mind",
+    "arifOS.kernel": "metabolic_loop",
     "metabolic_loop_router": "metabolic_loop",
     "vector_memory_store": "vector_memory",
     "assess_heart_impact": "simulate_heart",

@@ -4,6 +4,7 @@ import uuid
 from typing import Any
 
 from fastmcp import Context, FastMCP
+from fastmcp.tools import ToolResult
 
 from arifosmcp.bridge import call_kernel
 from arifosmcp.runtime.models import (
@@ -17,6 +18,7 @@ from arifosmcp.runtime.models import (
     Witness,
     derive_apex,
 )
+from arifosmcp.runtime.resources import build_open_apex_dashboard_result
 from arifosmcp.runtime.sessions import _resolve_session_id, set_active_session
 from core.state.session_manager import session_manager
 
@@ -323,27 +325,27 @@ async def metabolic_loop_router(
         "debug": debug,
         "dry_run": dry_run,
     }
-    return await _wrap_call("metabolic_loop_router", Stage.ROUTER, session_id, payload, ctx)
+    return await _wrap_call("arifOS.kernel", Stage.ROUTER, session_id, payload, ctx)
 
 
-async def vector_memory_store(
+async def session_memory(
     session_id: str,
     operation: str,
-    auth_context: dict[str, Any],
+    auth_context: dict[str, Any] | None = None,
     content: str | None = None,
     memory_ids: list[str] | None = None,
     top_k: int = 5,
     ctx: Context | None = None,
 ) -> RuntimeEnvelope:
-    """555 MEMORY - Vector memory store. Store, recall, search, or forget BBB memory."""
+    """Session memory for conversation state, vector recall, and reasoning artifacts."""
     payload = {
         "operation": operation,
         "content": content,
         "memory_ids": memory_ids,
         "top_k": top_k,
-        "auth_context": auth_context,
+        "auth_context": auth_context or {},
     }
-    return await _wrap_call("vector_memory_store", Stage.MEMORY, session_id, payload, ctx)
+    return await _wrap_call("session_memory", Stage.MEMORY, session_id, payload, ctx)
 
 
 async def assess_heart_impact(
@@ -429,101 +431,112 @@ async def seal_vault_commit(
     return await _wrap_call("seal_vault_commit", Stage.VAULT, session_id, payload, ctx)
 
 
+async def search_reality(query: str, ctx: Context | None = None) -> RuntimeEnvelope:
+    """External knowledge discovery. Finds real-world sources and evidence before reasoning."""
+    return await _wrap_call("search_reality", Stage.INIT, "global", {"query": query}, ctx)
+
+
+async def ingest_evidence(url: str, ctx: Context | None = None) -> RuntimeEnvelope:
+    """Evidence ingestion. Loads URLs, documents, and datasets into context."""
+    return await _wrap_call("ingest_evidence", Stage.INIT, "global", {"source_url": url}, ctx)
+
+
+async def audit_rules(session_id: str = "global", ctx: Context | None = None) -> RuntimeEnvelope:
+    """Constitutional audit. Inspects governance floors and system rules logic."""
+    return await _wrap_call("audit_rules", Stage.INIT, session_id, {}, ctx)
+
+
+async def check_vital(session_id: str = "global", ctx: Context | None = None) -> RuntimeEnvelope:
+    """Kernel health monitor. Reports system health, metrics, and constitutional vitality."""
+    return await _wrap_call("check_vital", Stage.INIT, session_id, {}, ctx)
+
+
+async def open_apex_dashboard(
+    session_id: str = "global", ctx: Context | None = None
+) -> ToolResult | RuntimeEnvelope:
+    """Sovereign monitoring interface. UI dashboard for live metrics and trace visibility."""
+    res = build_open_apex_dashboard_result(session_id)
+    if res:
+        return res
+    # Fallback if Prefab not available
+    return await _wrap_call("open_apex_dashboard", Stage.VAULT, session_id, {}, ctx)
+
+
 def register_tools(mcp: FastMCP, profile: str = "full") -> None:
-    """Register all 10 APEX-G tools."""
+    """Register the core runtime tools; the dashboard app tool is added in resources."""
 
     normalized_profile = profile.strip().lower() or "full"
 
-    if normalized_profile == "chatgpt":
-        mcp.tool(
-            description=(
-                "Use this when you want the full arifOS governed evaluation in one tool call. "
-                "This is the preferred entrypoint for ChatGPT, Developer Mode, and remote MCP "
-                "clients because it manages session continuity internally."
-            )
-        )(metabolic_loop_router)
-        return
-
+    # 1. arifOS.kernel — Core execution
     mcp.tool(
+        name="arifOS.kernel",
         description=(
-            "Use this only when you need to manually start a governed arifOS session and "
-            "chain lower-level tools yourself. For ChatGPT and remote MCP clients, prefer "
-            "`metabolic_loop_router` for one-call execution."
-        )
-    )(init_anchor_state)
-    mcp.tool(
-        description=(
-            "Use this only when continuing an existing arifOS session with a valid "
-            "`auth_context` from `init_anchor_state`. For ChatGPT and remote MCP clients, "
-            "prefer `metabolic_loop_router`."
-        )
-    )(integrate_analyze_reflect)
-    mcp.tool(
-        description=(
-            "Use this only when continuing an existing governed session with `auth_context`. "
-            "For ChatGPT and remote MCP clients, prefer `metabolic_loop_router`."
-        )
-    )(reason_mind_synthesis)
-    mcp.tool(
-        description=(
-            "Use this when you want the full arifOS governed evaluation in one tool call. "
-            "This is the preferred entrypoint for ChatGPT, Developer Mode, and remote MCP "
-            "clients because it manages session continuity internally."
-        )
+            "The arifOS Intelligence Kernel. Runs the full constitutional reasoning pipeline. "
+            "Use this as the primary entrypoint for non-trivial intelligence tasks."
+        ),
     )(metabolic_loop_router)
+
+    # Legacy alias
     mcp.tool(
+        name="metabolic_loop_router",
         description=(
-            "Use this only when continuing an existing session with `auth_context` for "
-            "explicit memory operations. For ChatGPT and remote MCP clients, prefer "
-            "`metabolic_loop_router` unless you need manual control."
-        )
-    )(vector_memory_store)
+            "[Legacy Alias] Use arifOS.kernel instead. "
+            "Governed metabolic loop orchestrator."
+        ),
+    )(metabolic_loop_router)
+
+    # 2. search_reality — Discovery
     mcp.tool(
-        description=(
-            "Use this only when continuing an existing session with `auth_context` for a "
-            "targeted heart-impact check. For ChatGPT and remote MCP clients, prefer "
-            "`metabolic_loop_router`."
-        )
-    )(assess_heart_impact)
+        name="search_reality",
+        description="Find real-world sources and factual grounding before reasoning.",
+    )(search_reality)
+
+    # 3. ingest_evidence — Intake
     mcp.tool(
-        description=(
-            "Use this only when continuing an existing session with `auth_context` for a "
-            "targeted critique pass. For ChatGPT and remote MCP clients, prefer "
-            "`metabolic_loop_router`."
-        )
-    )(critique_thought_audit)
+        name="ingest_evidence",
+        description="Fetch or extract evidence from a URL, document, or file path.",
+    )(ingest_evidence)
+
+    # 4. session_memory — Context
     mcp.tool(
-        description=(
-            "Use this only when continuing an existing session with `auth_context` for a "
-            "sandboxed forge step. For ChatGPT and remote MCP clients, prefer "
-            "`metabolic_loop_router`."
-        )
-    )(quantum_eureka_forge)
+        name="session_memory",
+        description="Store, retrieve, or forget session context and reasoning artifacts.",
+    )(session_memory)
+
+    # 5. audit_rules — Governance
     mcp.tool(
-        description=(
-            "Use this only when continuing an existing session with `auth_context` to render "
-            "a final constitutional verdict. For ChatGPT and remote MCP clients, prefer "
-            "`metabolic_loop_router`."
-        )
-    )(apex_judge_verdict)
+        name="audit_rules",
+        description="Inspect the 13 constitutional floors and verify governance logic.",
+    )(audit_rules)
+
+    # 6. check_vital — Health
     mcp.tool(
-        description=(
-            "Use this only when you intentionally want to append an immutable vault entry for "
-            "an existing governed session. This is not a first-choice tool for ChatGPT."
-        )
-    )(seal_vault_commit)
+        name="check_vital",
+        description="Read-only system health snapshot, reporting diagnostics and vitality signals.",
+    )(check_vital)
+
+    # Legacy tools preserved for internal orchestration
+    if normalized_profile != "chatgpt":
+        mcp.tool(description="000 INIT - Session anchor.")(init_anchor_state)
+        mcp.tool(description="111 FRAME - Problem framing.")(integrate_analyze_reflect)
+        mcp.tool(description="333 REASON - Mind synthesis.")(reason_mind_synthesis)
+        mcp.tool(description="666A HEART - Impact assessment.")(assess_heart_impact)
+        mcp.tool(description="666B CRITIQUE - Thought audit.")(critique_thought_audit)
+        mcp.tool(description="777 FORGE - Eureka proposal.")(quantum_eureka_forge)
+        mcp.tool(description="888 JUDGE - APEX verdict.")(apex_judge_verdict)
+        mcp.tool(description="999 SEAL - Vault commit.")(seal_vault_commit)
 
 
 __all__ = [
-    "apex_judge_verdict",
-    "assess_heart_impact",
-    "critique_thought_audit",
-    "init_anchor_state",
-    "integrate_analyze_reflect",
+    "audit_rules",
+    "check_vital",
+    "ingest_evidence",
     "metabolic_loop_router",
+    "open_apex_dashboard",
     "quantum_eureka_forge",
     "reason_mind_synthesis",
     "register_tools",
     "seal_vault_commit",
-    "vector_memory_store",
+    "search_reality",
+    "session_memory",
 ]

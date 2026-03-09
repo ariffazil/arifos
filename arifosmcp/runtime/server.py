@@ -5,7 +5,7 @@ CANONICAL EXTERNAL ENTRYPOINT for the arifOS MCP surface.
 
 Phase split:
   - Core constitutional stack (7 tools): the only tools used by the new
-    APEX-G metabolic loop and deploy validation.
+    constitutional kernel surface and deploy validation.
   - External capability tools (Phase 2 integration): legacy capability
     tools such as ACLIP sensors, reality search, evidence ingest.
     They stay enabled for compatibility.
@@ -31,21 +31,18 @@ from arifosmcp.runtime.prompts import register_prompts
 from arifosmcp.runtime.resources import register_resources
 from arifosmcp.runtime.rest_routes import register_rest_routes
 from arifosmcp.runtime.tools import (
-    apex_judge_verdict,
-    assess_heart_impact,
-    critique_thought_audit,
-    init_anchor_state,
-    integrate_analyze_reflect,
+    audit_rules,
+    check_vital,
+    ingest_evidence,
     metabolic_loop_router,
-    quantum_eureka_forge,
-    reason_mind_synthesis,
+    open_apex_dashboard,
     register_tools,
-    seal_vault_commit,
+    search_reality,
     session_memory,
 )
 
 # ---------------------------------------------------------------------------
-# Phase 1 — Core Constitutional Stack (10 tools)
+# Phase 1 — Canonical 7-Tool arifOS Stack
 # ---------------------------------------------------------------------------
 
 mcp = FastMCP("arifOS-APEX-G", version="2026.03.10-SEAL")
@@ -74,16 +71,13 @@ register_resources(mcp)
 register_prompts(mcp)
 
 CORE_TOOL_REGISTRY = {
-    "init_anchor_state": init_anchor_state,
-    "integrate_analyze_reflect": integrate_analyze_reflect,
-    "reason_mind_synthesis": reason_mind_synthesis,
-    "metabolic_loop_router": metabolic_loop_router,
+    "arifOS.kernel": metabolic_loop_router,
+    "search_reality": search_reality,
+    "ingest_evidence": ingest_evidence,
     "session_memory": session_memory,
-    "assess_heart_impact": assess_heart_impact,
-    "critique_thought_audit": critique_thought_audit,
-    "quantum_eureka_forge": quantum_eureka_forge,
-    "apex_judge_verdict": apex_judge_verdict,
-    "seal_vault_commit": seal_vault_commit,
+    "audit_rules": audit_rules,
+    "check_vital": check_vital,
+    "open_apex_dashboard": open_apex_dashboard,
 }
 
 register_rest_routes(mcp, CORE_TOOL_REGISTRY)
@@ -123,19 +117,17 @@ def create_aaa_mcp_server() -> FastMCP:
 __all__ = [
     "HTTP_PATH",
     "app",
-    "apex_judge_verdict",
-    "assess_heart_impact",
+    "audit_rules",
+    "check_vital",
     "create_aaa_mcp_server",
-    "critique_thought_audit",
-    "init_anchor_state",
-    "integrate_analyze_reflect",
+    "ingest_evidence",
     "mcp",
     "metabolic_loop",
     "metabolic_loop_router",
+    "open_apex_dashboard",
     "PUBLIC_TOOL_PROFILE",
-    "quantum_eureka_forge",
-    "reason_mind_synthesis",
-    "seal_vault_commit",
+    "register_tools",
+    "search_reality",
     "session_memory",
 ]
 

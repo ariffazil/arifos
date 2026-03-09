@@ -129,7 +129,7 @@ WELCOME_HTML = """\
 </head>
 <body>
   <h1>arifOS MCP</h1>
-  <h2>APEX-G Constitutional Intelligence Kernel</h2>
+  <h2>arifOS Constitutional Kernel</h2>
   <div class="pill">&#9679; ONLINE</div>
 
   <div class="nav">
@@ -143,9 +143,9 @@ WELCOME_HTML = """\
   </div>
 
   <section>
-    <h3>10-Tool APEX-G Stack (Phase 1 Core)</h3>
+    <h3>7-Tool arifOS Stack (Canonical Core)</h3>
     <table>
-      <tr><th>Stage</th><th>Runtime Tool</th><th>Canonical Handle</th><th>Label</th><th>Role</th></tr>
+      <tr><th>Tool Name</th><th>Layer</th><th>Role</th></tr>
       __APEX_HTML_ROWS__
     </table>
   </section>
@@ -195,12 +195,12 @@ Sitemap: https://arifosmcp.arif-fazil.com/llms.txt
 LLMS_TXT = """\
 # arifOS MCP Server
 
-> APEX-G Constitutional Intelligence Kernel — a governed Model Context Protocol (MCP) server.
+> arifOS Constitutional Kernel — a governed Model Context Protocol (MCP) server.
 > Motto: DITEMPA BUKAN DIBERI — Forged, not given.
 
 ## What this server does
 
-arifOS is an MCP server exposing a 10-tool constitutional AI pipeline.
+arifOS is an MCP server exposing a canonical 7-tool constitutional AI pipeline.
 Every tool call passes through 13 governance floors (F1-F13) and returns
 a structured RuntimeEnvelope with verdict, telemetry, and Tri-Witness scores.
 
@@ -211,7 +211,7 @@ a structured RuntimeEnvelope with verdict, telemetry, and Tri-Witness scores.
 - Tool listing: GET /tools
 - Single call: POST /checkpoint
 
-## The 10-tool APEX-G stack
+## The 7-tool arifOS stack
 
 __APEX_MD_TABLE__
 
@@ -220,7 +220,7 @@ __APEX_MD_TABLE__
 ```json
 {
   "verdict": "SEAL | PARTIAL | SABAR | VOID | HOLD-888 | UNSET",
-  "stage": "000_INIT | 111_MIND | 333_MIND | 444_ROUTER | 555_MEMORY | 666_HEART | 777_APEX | 888_JUDGE | 999_VAULT",
+  "stage": "INIT | MIND | MEMORY | HEART | APEX | JUDGE | VAULT",
   "session_id": "string",
   "telemetry": { "dS": -0.7, "peace2": 1.1, "confidence": 0.9, "verdict": "Alive" },
   "witness": { "human": 0.0, "ai": 0.0, "earth": 0.0 },

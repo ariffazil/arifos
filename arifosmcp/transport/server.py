@@ -7,7 +7,7 @@ Contract — 13 canonical tools with UX verb names:
   Governance (8):  anchor_session, reason_mind, vector_memory, simulate_heart,
                    critique_thought, apex_judge, eureka_forge, seal_vault
   Utilities (4):   search_reality, ingest_evidence, audit_rules, check_vital
-  Orchestration (1): metabolic_loop
+  Orchestration (1): arifOS.kernel
 
 All tools must be async and must not write to stdout (stdio transport safety).
 """
@@ -2391,10 +2391,10 @@ open_apex_dashboard = ToolHandle(_open_dashboard)
 
 
 @mcp.tool(
-    name="metabolic_loop_router",
-    description="[Lane: Δ Delta] [Floors: F1-F13] The arifOS Sovereign Kernel loop router. Supports dry_run explainability.",
+    name="arifOS.kernel",
+    description="[Lane: Δ Delta] [Floors: F1-F13] The arifOS Sovereign Constitutional Intelligence Engine. The primary execution tool for non-trivial reasoning.",
 )
-async def _metabolic_loop_router(
+async def _arifos_kernel(
     query: str,
     context: str = "",
     risk_tier: str = "medium",
@@ -2407,7 +2407,7 @@ async def _metabolic_loop_router(
     dry_run: bool = False,
 ) -> dict[str, Any]:
     """
-    Stage 444: Governed metabolic loop orchestrator.
+    Stage 444: Governed metabolic loop orchestrator (arifOS.kernel).
     Delegates to arifosmcp.runtime.orchestrator for unified logic.
     """
     from arifosmcp.runtime.orchestrator import metabolic_loop
@@ -2435,10 +2435,42 @@ async def _metabolic_loop_router(
         return result
 
     except Exception as e:
-        return _fracture_response("METABOLIC_LOOP_ROUTER", e, session_id)
+        return _fracture_response("ARIFOS_KERNEL", e, session_id)
 
 
-metabolic_loop_router = ToolHandle(_metabolic_loop_router)
+@mcp.tool(
+    name="metabolic_loop_router",
+    description="[Legacy Alias] Use arifOS.kernel instead. The arifOS Sovereign Kernel loop router.",
+)
+async def _metabolic_loop_router(
+    query: str,
+    context: str = "",
+    risk_tier: str = "medium",
+    actor_id: str = "anonymous",
+    use_memory: bool = True,
+    use_heart: bool = True,
+    use_critique: bool = True,
+    allow_execution: bool = False,
+    debug: bool = False,
+    dry_run: bool = False,
+) -> dict[str, Any]:
+    """Legacy alias for arifOS.kernel."""
+    return await _arifos_kernel(
+        query=query,
+        context=context,
+        risk_tier=risk_tier,
+        actor_id=actor_id,
+        use_memory=use_memory,
+        use_heart=use_heart,
+        use_critique=use_critique,
+        allow_execution=allow_execution,
+        debug=debug,
+        dry_run=dry_run,
+    )
+
+
+arifos_kernel = ToolHandle(_arifos_kernel)
+metabolic_loop_router = ToolHandle(_arifos_kernel)
 metabolic_loop = metabolic_loop_router
 metabolicloop = metabolic_loop_router
 

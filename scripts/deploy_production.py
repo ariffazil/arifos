@@ -37,7 +37,7 @@ CORE_CONSTITUTIONAL_TOOLS = (
     "init_anchor_state",
     "integrate_analyze_reflect",
     "reason_mind_synthesis",
-    "metabolic_loop_router",
+    "arifOS.kernel",
     "vector_memory_store",
     "assess_heart_impact",
     "critique_thought_audit",
@@ -49,7 +49,7 @@ CHATGPT_PUBLIC_TOOLS = (
     "audit_rules",
     "check_vital",
     "ingest_evidence",
-    "metabolic_loop_router",
+    "arifOS.kernel",
     "open_apex_dashboard",
     "search_reality",
 )

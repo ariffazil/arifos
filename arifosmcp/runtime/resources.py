@@ -2,7 +2,7 @@
 arifosmcp/runtime/resources.py — arifOS FastMCP Resource Layer
 
 Read-only, structured views of the arifOS canon, governance floors,
-metabolic workflows, tool schemas (input + output), vault, and telemetry.
+kernel workflows, tool schemas (input + output), vault, and telemetry.
 
 Register via register_resources(mcp).
 
@@ -44,7 +44,9 @@ except ImportError:
 # ---------------------------------------------------------------------------
 
 _VAULT_PATH = Path(__file__).resolve().parent.parent.parent / "core" / "vault"
-_DASHBOARD_HTML = Path(__file__).resolve().parent.parent / "sites" / "apex-dashboard" / "dashboard.html"
+_DASHBOARD_HTML = (
+    Path(__file__).resolve().parent.parent / "sites" / "apex-dashboard" / "dashboard.html"
+)
 
 APEX_DASHBOARD_URI = "ui://apex/dashboard.html"
 APEX_DASHBOARD_RESOURCE_DOMAINS = [
@@ -82,84 +84,39 @@ def _read_vault_entries(n: int = 5) -> list[dict[str, Any]]:
 
 _TOOLS = [
     {
-        "stage": "000",
-        "name": "init_anchor_state",
-        "canonical": "anchor_session",
-        "lane": "Delta",
-        "label": "000 INIT - Session anchor",
-        "role": "Governed session bootstrap",
+        "name": "arifOS.kernel",
+        "role": "Core intelligence engine. Runs the full constitutional reasoning pipeline.",
+        "type": "Execution",
     },
     {
-        "stage": "111",
-        "name": "integrate_analyze_reflect",
-        "canonical": "reason_mind",
-        "lane": "Delta",
-        "label": "111 FRAME - Integrate, analyze, reflect",
-        "role": "Problem framing & integrative analysis",
+        "name": "search_reality",
+        "role": "External knowledge discovery. Finds real-world sources before reasoning.",
+        "type": "Cognitive Input",
     },
     {
-        "stage": "333",
-        "name": "reason_mind_synthesis",
-        "canonical": "reason_mind",
-        "lane": "Delta",
-        "label": "333 REASON - Mind synthesis",
-        "role": "Multi-step reasoning + Eureka synthesis",
+        "name": "ingest_evidence",
+        "role": "Evidence ingestion. Loads URLs, documents, and datasets.",
+        "type": "Cognitive Input",
     },
     {
-        "stage": "444",
-        "name": "metabolic_loop_router",
-        "canonical": "metabolic_loop",
-        "lane": "ALL",
-        "label": "444 ROUTE - Metabolic loop router",
-        "role": "Full 000-999 pipeline orchestrator",
+        "name": "session_memory",
+        "role": "Conversation state + vector memory. Stores and retrieves session context.",
+        "type": "Session",
     },
     {
-        "stage": "555",
-        "name": "vector_memory_store",
-        "canonical": "vector_memory",
-        "lane": "Omega",
-        "label": "555 MEMORY - Vector memory store",
-        "role": "BBB associative vector memory",
+        "name": "audit_rules",
+        "role": "Constitutional audit. Inspects governance floors and system rules.",
+        "type": "Governance",
     },
     {
-        "stage": "666A",
-        "name": "assess_heart_impact",
-        "canonical": "simulate_heart",
-        "lane": "Omega",
-        "label": "666A HEART - Impact assessment",
-        "role": "Empathy & ethical safety engine",
+        "name": "check_vital",
+        "role": "Kernel health monitor. Reports G★, η, and entropy deltas.",
+        "type": "Governance",
     },
     {
-        "stage": "666B",
-        "name": "critique_thought_audit",
-        "canonical": "critique_thought",
-        "lane": "Omega",
-        "label": "666B CRITIQUE - Thought audit",
-        "role": "Adversarial internal thought audit",
-    },
-    {
-        "stage": "777",
-        "name": "quantum_eureka_forge",
-        "canonical": "eureka_forge",
-        "lane": "Psi",
-        "label": "777 FORGE - Eureka proposal",
-        "role": "Sandboxed discovery actuator",
-    },
-    {
-        "stage": "888",
-        "name": "apex_judge_verdict",
-        "canonical": "apex_judge",
-        "lane": "Psi",
-        "label": "888 JUDGE - APEX verdict",
-        "role": "Constitutional judgment verdict",
-    },
-    {
-        "stage": "999",
-        "name": "seal_vault_commit",
-        "canonical": "seal_vault",
-        "lane": "Psi",
-        "label": "999 SEAL - Vault commit",
-        "role": "Immutable VAULT999 ledger sealing",
+        "name": "open_apex_dashboard",
+        "role": "Sovereign monitoring interface. UI dashboard for live metrics.",
+        "type": "Observability",
     },
 ]
 
@@ -167,34 +124,21 @@ APEX_CORE_TOOLS: tuple[dict[str, str], ...] = tuple(_TOOLS)
 
 
 def apex_tools_html_rows() -> str:
-    """Return HTML table rows for the canonical 10-tool APEX-G stack."""
+    """Return HTML table rows for the canonical 7-tool arifOS stack."""
     rows: list[str] = []
     for tool in APEX_CORE_TOOLS:
         rows.append(
-            
-                f'<tr><td><span class="stage">{tool["stage"]}</span></td>'
-                f'<td class="name">{tool["name"]}</td>'
-                f'<td class="name">{tool["canonical"]}</td>'
-                f'<td class="role">{tool["label"]}</td>'
-                f'<td class="role">{tool["role"]}</td></tr>'
-            
+            f'<tr><td><span class="name">{tool["name"]}</span></td>'
+            f'<td class="role">{tool["type"]}</td>'
+            f'<td class="role">{tool["role"]}</td></tr>'
         )
     return "\n".join(rows)
 
 
 def apex_tools_markdown_table() -> str:
-    """Return the canonical 10-tool APEX-G stack as a Markdown table."""
-    header = (
-        "| Stage | Runtime Tool | Canonical Handle | Label | Role |\n"
-        "|-------|--------------|------------------|-------|------|"
-    )
-    rows = [
-        (
-            f'| {tool["stage"]} | {tool["name"]} | {tool["canonical"]} | '
-            f'{tool["label"]} | {tool["role"]} |'
-        )
-        for tool in APEX_CORE_TOOLS
-    ]
+    """Return the canonical 7-tool arifOS stack as a Markdown table."""
+    header = "| Tool Name | Layer | Role |\n" "|-----------|-------|------|"
+    rows = [(f'| {tool["name"]} | {tool["type"]} | {tool["role"]} |') for tool in APEX_CORE_TOOLS]
     return "\n".join([header, *rows])
 
 
@@ -212,10 +156,9 @@ def build_apex_dashboard_prefab(session_id: str = "global") -> Any | None:
 
     tool_rows = [
         {
-            "stage": tool["stage"],
-            "runtime_tool": tool["name"],
-            "canonical_handle": tool["canonical"],
-            "lane": tool["lane"],
+            "name": tool["name"],
+            "type": tool["type"],
+            "role": tool["role"],
         }
         for tool in APEX_CORE_TOOLS
     ]
@@ -250,10 +193,9 @@ def build_apex_dashboard_prefab(session_id: str = "global") -> Any | None:
                 Text(f"Fallback HTML resource: {APEX_DASHBOARD_URI}")
 
         with DataTable(data=tool_rows):
-            DataTableColumn("stage", label="Stage")
-            DataTableColumn("runtime_tool", label="Runtime Tool")
-            DataTableColumn("canonical_handle", label="Canonical Handle")
-            DataTableColumn("lane", label="Lane")
+            DataTableColumn("name", label="Tool Name")
+            DataTableColumn("type", label="Layer")
+            DataTableColumn("role", label="Role")
 
     return PrefabApp(
         view=view,
@@ -291,6 +233,7 @@ def build_open_apex_dashboard_result(
         return ToolResult(content=content)
 
     return ToolResult(content=content, structured_content=prefab_app)
+
 
 _FLOORS = [
     {
@@ -453,7 +396,7 @@ def register_resources(mcp: FastMCP) -> None:
 
     @mcp.resource("canon://tools")
     def canon_tools() -> str:
-        """APEX-G 10-tool stack overview (stage, name, canonical name, role)."""
+        """Canonical public tool surface for the arifOS kernel and companion tools."""
         return json.dumps({"tools": _TOOLS}, ensure_ascii=False)
 
     @mcp.resource("canon://floors")
@@ -463,10 +406,12 @@ def register_resources(mcp: FastMCP) -> None:
 
     @mcp.resource("canon://metabolic-loop")
     def canon_metabolic_loop() -> str:
-        """Prose explanation of the 000 to 999 metabolic loop."""
+        """Prose explanation of the public kernel flow and internal execution stages."""
         return (
-            "# arifOS Metabolic Loop\n\n"
-            "The loop is a ten-stage constitutional pipeline:\n\n"
+            "# arifOS Kernel Flow\n\n"
+            "Public execution flow:\n\n"
+            "User -> arifOS.kernel -> judgment/verdict -> vault/trace\n\n"
+            "Internal execution stages:\n\n"
             f"{apex_tools_markdown_table()}\n\n"
             "Every action passes F12 then F11 guards first, then AGI floors "
             "(F1,F2,F4,F7), then ASI floors (F5,F6,F9,F13), then Mirrors (F3,F8). "
@@ -524,7 +469,7 @@ def register_resources(mcp: FastMCP) -> None:
 
     @mcp.resource("schema://tools/input")
     def schema_tools_input() -> str:
-        """Canonical JSON Schema input specs for all 10 arifOS tools."""
+        """Canonical JSON Schema input specs for public and legacy arifOS tools."""
         schemas = {
             "init_anchor_state": {
                 "required": ["intent"],
@@ -636,6 +581,25 @@ def register_resources(mcp: FastMCP) -> None:
                 },
                 "additionalProperties": False,
             },
+            "arifOS.kernel": {
+                "required": ["query"],
+                "properties": {
+                    "query": {"type": "string"},
+                    "context": {"type": "string", "default": ""},
+                    "risk_tier": {
+                        "type": "string",
+                        "enum": ["low", "medium", "high", "critical"],
+                        "default": "medium",
+                    },
+                    "actor_id": {"type": "string", "default": "anonymous"},
+                    "use_memory": {"type": "boolean", "default": True},
+                    "use_heart": {"type": "boolean", "default": True},
+                    "use_critique": {"type": "boolean", "default": True},
+                    "allow_execution": {"type": "boolean", "default": False},
+                    "debug": {"type": "boolean", "default": False},
+                },
+                "additionalProperties": False,
+            },
             "metabolic_loop_router": {
                 "required": ["query"],
                 "properties": {
@@ -655,6 +619,35 @@ def register_resources(mcp: FastMCP) -> None:
                 },
                 "additionalProperties": False,
             },
+            "search_reality": {
+                "required": ["query"],
+                "properties": {
+                    "query": {"type": "string"},
+                },
+                "additionalProperties": False,
+            },
+            "ingest_evidence": {
+                "required": ["source_url"],
+                "properties": {
+                    "source_url": {"type": "string", "format": "uri"},
+                },
+                "additionalProperties": False,
+            },
+            "session_memory": {
+                "required": ["session_id", "operation"],
+                "properties": {
+                    "session_id": {"type": "string"},
+                    "operation": {
+                        "type": "string",
+                        "enum": ["store", "retrieve", "recall", "search", "forget"],
+                    },
+                    "auth_context": {"type": "object", "additionalProperties": True},
+                    "content": {"anyOf": [{"type": "string"}, {"type": "null"}], "default": None},
+                    "memory_ids": {"type": "array", "items": {"type": "string"}},
+                    "top_k": {"type": "integer", "minimum": 1, "maximum": 20, "default": 5},
+                },
+                "additionalProperties": False,
+            },
             "vector_memory_store": {
                 "required": ["session_id", "operation", "auth_context"],
                 "properties": {
@@ -667,6 +660,24 @@ def register_resources(mcp: FastMCP) -> None:
                     "content": {"anyOf": [{"type": "string"}, {"type": "null"}], "default": None},
                     "memory_ids": {"type": "array", "items": {"type": "string"}},
                     "top_k": {"type": "integer", "minimum": 1, "maximum": 20, "default": 5},
+                },
+                "additionalProperties": False,
+            },
+            "audit_rules": {
+                "properties": {
+                    "session_id": {"type": "string", "default": "global"},
+                },
+                "additionalProperties": False,
+            },
+            "check_vital": {
+                "properties": {
+                    "session_id": {"type": "string", "default": "global"},
+                },
+                "additionalProperties": False,
+            },
+            "open_apex_dashboard": {
+                "properties": {
+                    "session_id": {"type": "string", "default": "global"},
                 },
                 "additionalProperties": False,
             },
@@ -857,7 +868,7 @@ def register_resources(mcp: FastMCP) -> None:
 
     @mcp.resource("schema://opex")
     def schema_opex() -> str:
-        """OPEX Operational Epistemics schema — epistemic intake layer attached to every tool response."""
+        """OPEX schema for the epistemic intake layer on each tool response."""
         schema = {
             "schema": "OPEX v1.0",
             "description": (
@@ -894,7 +905,7 @@ def register_resources(mcp: FastMCP) -> None:
 
     @mcp.resource("schema://apex")
     def schema_apex() -> str:
-        """APEX Applied Prudential EXecution schema — governance output layer attached to every tool response."""
+        """APEX schema for the governance output layer on each tool response."""
         schema = {
             "schema": "APEX v1.0",
             "description": (
