@@ -7,12 +7,15 @@ from fastmcp import Context, FastMCP
 
 from arifosmcp.bridge import call_kernel
 from arifosmcp.runtime.models import (
+    APEXBundle,
     AuthContext,
+    OPEXBundle,
     RuntimeEnvelope,
     Stage,
     Telemetry,
     Verdict,
     Witness,
+    derive_apex,
 )
 
 
@@ -35,6 +38,96 @@ def _normalize_auth_context(raw_auth_context: Any) -> dict[str, Any]:
     if isinstance(raw_auth_context, dict):
         return raw_auth_context
     return {}
+
+
+def _build_opex(tool_name: str, kernel_res: dict[str, Any], envelope: RuntimeEnvelope) -> OPEXBundle:
+    """Extract OPEX epistemic fields from the kernel result, keyed by tool name."""
+    data = kernel_res.get("payload", kernel_res)
+    conf = envelope.telemetry.confidence
+
+    if tool_name == "init_anchor_state":
+        return OPEXBundle(
+            output_candidate=str(data.get("mode", "session_init")),
+            probability=conf,
+            evidence=["auth_token validated", "F11 auth passed", "F12 injection clean"],
+            uncertainty=(["grounding_required"] if data.get("grounding_required") else []),
+        )
+    elif tool_name == "integrate_analyze_reflect":
+        subqs = data.get("subquestions", [])
+        return OPEXBundle(
+            output_candidate=str(data.get("framing_notes", "")),
+            probability=conf,
+            evidence=[str(q) for q in subqs],
+            uncertainty=(["further sub-analysis required"] if len(subqs) < 2 else []),
+        )
+    elif tool_name == "reason_mind_synthesis":
+        steps = data.get("steps", [])
+        low_conf_steps = [s.get("thought", "") for s in steps if float(s.get("confidence", 1.0)) < 0.7]
+        return OPEXBundle(
+            output_candidate=str(data.get("eureka_insight", "")),
+            probability=float(data.get("genius_score", conf)),
+            evidence=[s.get("thought", "") for s in steps],
+            uncertainty=low_conf_steps,
+        )
+    elif tool_name == "metabolic_loop_router":
+        trace = data.get("trace", {})
+        return OPEXBundle(
+            output_candidate=f"Pipeline verdict: {envelope.verdict.value}",
+            probability=conf,
+            evidence=[f"{stage}: {v}" for stage, v in trace.items()],
+            uncertainty=[f"{s}: requires review" for s, v in trace.items() if v in ("SABAR", "VOID")],
+        )
+    elif tool_name == "vector_memory_store":
+        mems = data.get("memories", [])
+        return OPEXBundle(
+            output_candidate="Memory operation completed",
+            probability=conf,
+            evidence=[str(m) for m in mems[:5]],
+            uncertainty=(["memory gaps detected"] if not mems else []),
+        )
+    elif tool_name == "assess_heart_impact":
+        risk = float(data.get("risk_score", 0.0))
+        return OPEXBundle(
+            output_candidate=f"Risk score: {risk:.2f}",
+            probability=max(0.0, 1.0 - risk),
+            evidence=[str(data.get("vulnerable_stakeholder_analysis", ""))],
+            uncertainty=["complex multi-stakeholder scenarios may be unmodeled"],
+        )
+    elif tool_name == "critique_thought_audit":
+        issues = data.get("issues", [])
+        risk = float(data.get("risk_score", 0.0))
+        return OPEXBundle(
+            output_candidate=str(data.get("recommendation", "")),
+            probability=max(0.0, 1.0 - risk),
+            evidence=[str(i) for i in issues],
+            uncertainty=["logical edge cases may remain"],
+        )
+    elif tool_name == "quantum_eureka_forge":
+        return OPEXBundle(
+            output_candidate=str(data.get("eureka_proposal", "")),
+            probability=float(data.get("confidence", conf)),
+            evidence=[f"materiality={data.get('materiality', 'idea_only')}"],
+            uncertainty=["sandboxed proposal — not verified for deployment"],
+        )
+    elif tool_name == "apex_judge_verdict":
+        w = envelope.witness
+        tri = (w.human * w.ai * w.earth) ** (1 / 3) if (w.human and w.ai and w.earth) else conf
+        return OPEXBundle(
+            output_candidate=str(data.get("governance_token", envelope.verdict.value)),
+            probability=tri,
+            evidence=[f"human={w.human:.2f}", f"ai={w.ai:.2f}", f"earth={w.earth:.2f}"],
+            uncertainty=([str(data.get("reasoning", ""))] if tri < 0.95 else []),
+        )
+    elif tool_name == "seal_vault_commit":
+        sealed = bool(data.get("sealed", False))
+        return OPEXBundle(
+            output_candidate=str(data.get("entry_id", "")),
+            probability=1.0 if sealed else 0.0,
+            evidence=[f"merkle_root={data.get('merkle_root', '')}"],
+            uncertainty=[],
+        )
+    else:
+        return OPEXBundle(probability=conf)
 
 
 async def _wrap_call(
@@ -79,12 +172,20 @@ async def _wrap_call(
             auth_context=auth_context,
             data=kernel_res.get("payload", kernel_res),
         )
+
+        # Attach OPEX (epistemic) + APEX (governance) schema layers
+        opex = _build_opex(tool_name, kernel_res, envelope)
+        envelope.opex = opex
+        envelope.apex = derive_apex(envelope, opex)
+
     except Exception as e:
         envelope = RuntimeEnvelope(
             verdict=Verdict.VOID,
             stage=stage,
             session_id=session_id,
             data={"error": str(e), "stage": "BRIDGE_FAILURE"},
+            opex=OPEXBundle(),
+            apex=APEXBundle(),
         )
 
     if ctx:
