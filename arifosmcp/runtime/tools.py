@@ -373,19 +373,89 @@ async def seal_vault_commit(
     return await _wrap_call("seal_vault_commit", Stage.VAULT, session_id, payload, ctx)
 
 
-def register_tools(mcp: FastMCP) -> None:
+def register_tools(mcp: FastMCP, profile: str = "full") -> None:
     """Register all 10 APEX-G tools."""
 
-    mcp.tool()(init_anchor_state)
-    mcp.tool()(integrate_analyze_reflect)
-    mcp.tool()(reason_mind_synthesis)
-    mcp.tool()(metabolic_loop_router)
-    mcp.tool()(vector_memory_store)
-    mcp.tool()(assess_heart_impact)
-    mcp.tool()(critique_thought_audit)
-    mcp.tool()(quantum_eureka_forge)
-    mcp.tool()(apex_judge_verdict)
-    mcp.tool()(seal_vault_commit)
+    normalized_profile = profile.strip().lower() or "full"
+
+    if normalized_profile == "chatgpt":
+        mcp.tool(
+            description=(
+                "Use this when you want the full arifOS governed evaluation in one tool call. "
+                "This is the preferred entrypoint for ChatGPT, Developer Mode, and remote MCP "
+                "clients because it manages session continuity internally."
+            )
+        )(metabolic_loop_router)
+        return
+
+    mcp.tool(
+        description=(
+            "Use this only when you need to manually start a governed arifOS session and "
+            "chain lower-level tools yourself. For ChatGPT and remote MCP clients, prefer "
+            "`metabolic_loop_router` for one-call execution."
+        )
+    )(init_anchor_state)
+    mcp.tool(
+        description=(
+            "Use this only when continuing an existing arifOS session with a valid "
+            "`auth_context` from `init_anchor_state`. For ChatGPT and remote MCP clients, "
+            "prefer `metabolic_loop_router`."
+        )
+    )(integrate_analyze_reflect)
+    mcp.tool(
+        description=(
+            "Use this only when continuing an existing governed session with `auth_context`. "
+            "For ChatGPT and remote MCP clients, prefer `metabolic_loop_router`."
+        )
+    )(reason_mind_synthesis)
+    mcp.tool(
+        description=(
+            "Use this when you want the full arifOS governed evaluation in one tool call. "
+            "This is the preferred entrypoint for ChatGPT, Developer Mode, and remote MCP "
+            "clients because it manages session continuity internally."
+        )
+    )(metabolic_loop_router)
+    mcp.tool(
+        description=(
+            "Use this only when continuing an existing session with `auth_context` for "
+            "explicit memory operations. For ChatGPT and remote MCP clients, prefer "
+            "`metabolic_loop_router` unless you need manual control."
+        )
+    )(vector_memory_store)
+    mcp.tool(
+        description=(
+            "Use this only when continuing an existing session with `auth_context` for a "
+            "targeted heart-impact check. For ChatGPT and remote MCP clients, prefer "
+            "`metabolic_loop_router`."
+        )
+    )(assess_heart_impact)
+    mcp.tool(
+        description=(
+            "Use this only when continuing an existing session with `auth_context` for a "
+            "targeted critique pass. For ChatGPT and remote MCP clients, prefer "
+            "`metabolic_loop_router`."
+        )
+    )(critique_thought_audit)
+    mcp.tool(
+        description=(
+            "Use this only when continuing an existing session with `auth_context` for a "
+            "sandboxed forge step. For ChatGPT and remote MCP clients, prefer "
+            "`metabolic_loop_router`."
+        )
+    )(quantum_eureka_forge)
+    mcp.tool(
+        description=(
+            "Use this only when continuing an existing session with `auth_context` to render "
+            "a final constitutional verdict. For ChatGPT and remote MCP clients, prefer "
+            "`metabolic_loop_router`."
+        )
+    )(apex_judge_verdict)
+    mcp.tool(
+        description=(
+            "Use this only when you intentionally want to append an immutable vault entry for "
+            "an existing governed session. This is not a first-choice tool for ChatGPT."
+        )
+    )(seal_vault_commit)
 
 
 __all__ = [

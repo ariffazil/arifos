@@ -319,9 +319,9 @@ Eight prompt templates guide LLMs to call the correct tool with valid parameters
 | `GET` | `/` | Human-readable landing page |
 | `GET` | `/health` | Health check (`{"status": "healthy", ...}`) |
 | `GET` | `/version` | Build info (version, commit, date) |
-| `GET/POST` | `/mcp` | MCP 2025-11-25 Streamable HTTP + JSON-RPC endpoint |
+| `GET/POST` | `/mcp` | MCP 2025-11-25 Streamable HTTP + JSON-RPC endpoint. This is the ChatGPT/remote MCP URL. |
 | `GET` | `/tools` | List all registered tools (REST) |
-| `POST` | `/tools/{name}` | Call any tool over HTTP (ChatGPT Actions adapter) |
+| `POST` | `/tools/{name}` | Call any tool over HTTP for REST clients only. Not the ChatGPT MCP transport. |
 | `POST` | `/checkpoint` | Single-call constitutional evaluation (000→888 pipeline) |
 | `GET` | `/dashboard/` | APEX Sovereign Dashboard (self-contained React UI) |
 | `GET` | `/api/governance-status` | Live governance telemetry (floors, witness, telemetry, QDF) |
@@ -578,3 +578,4 @@ Human final authority is permanent (F13). It cannot be revoked, overridden, or d
 - [Live server](https://arifosmcp.arif-fazil.com)
 - [LLM-readable docs](https://arifosmcp.arif-fazil.com/llms.txt)
 - [Crawler policy](https://arifosmcp.arif-fazil.com/robots.txt)
+For multi-worker or multi-instance deployment, set `ARIFOS_GOVERNANCE_SECRET` to a stable shared value so `auth_context` signatures survive restarts and replica hops. To expose a narrower ChatGPT-safe MCP surface, set `ARIFOS_PUBLIC_TOOL_PROFILE=chatgpt`.

@@ -43,12 +43,44 @@ async def metabolic_loop(session_id: str = "global") -> dict[str, Any]:
     return await call_kernel("metabolic_loop", session_id, {})
 
 
-def _register_local_phase2_tools(mcp: FastMCP) -> None:
-    mcp.tool()(search_reality)
-    mcp.tool()(ingest_evidence)
-    mcp.tool()(audit_rules)
-    mcp.tool()(check_vital)
-    mcp.tool()(metabolic_loop)
+def _register_local_phase2_tools(mcp: FastMCP, profile: str = "full") -> None:
+    normalized_profile = profile.strip().lower() or "full"
+
+    mcp.tool(
+        description=(
+            "Use this when you need web grounding or source discovery before making claims. "
+            "This tool is read-only."
+        ),
+        annotations={"readOnlyHint": True},
+    )(search_reality)
+    mcp.tool(
+        description=(
+            "Use this when you need to fetch or inspect evidence from a URL or file path "
+            "without mutating state. This tool is read-only."
+        ),
+        annotations={"readOnlyHint": True},
+    )(ingest_evidence)
+    mcp.tool(
+        description=(
+            "Use this when you need a read-only governance or floor audit. This tool is "
+            "read-only."
+        ),
+        annotations={"readOnlyHint": True},
+    )(audit_rules)
+    mcp.tool(
+        description=(
+            "Use this when you need a read-only system health snapshot. This tool is "
+            "read-only."
+        ),
+        annotations={"readOnlyHint": True},
+    )(check_vital)
+    if normalized_profile != "chatgpt":
+        mcp.tool(
+            description=(
+                "Use this only for legacy compatibility. For ChatGPT and remote MCP clients, "
+                "prefer `metabolic_loop_router` from the core runtime tool surface."
+            ),
+        )(metabolic_loop)
 
 
 def _register_aclip_tools(mcp: FastMCP) -> None:
@@ -60,10 +92,12 @@ def _register_aclip_tools(mcp: FastMCP) -> None:
         logger.warning("Phase 2 ACLIP tools unavailable: %s", exc)
 
 
-def register_phase2_tools(mcp: FastMCP) -> None:
+def register_phase2_tools(mcp: FastMCP, profile: str = "full") -> None:
     """Register legacy capability tools without wiring them into the new loop."""
-    _register_local_phase2_tools(mcp)
-    _register_aclip_tools(mcp)
+    normalized_profile = profile.strip().lower() or "full"
+    _register_local_phase2_tools(mcp, profile=normalized_profile)
+    if normalized_profile != "chatgpt":
+        _register_aclip_tools(mcp)
 
 
 __all__ = [

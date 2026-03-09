@@ -1,6 +1,6 @@
 """
-AAA MCP REST Bridge — HTTP REST API for OpenAI Tool Adapter
-Maps HTTP POST /tools/{name} → MCP tool calls
+AAA MCP REST Bridge — legacy HTTP convenience adapter.
+Maps HTTP POST /tools/{name} → tool calls for non-MCP clients only.
 
 Endpoints:
   GET  /                    → Service info (JSON) / landing page (HTML)
@@ -11,17 +11,17 @@ Endpoints:
   GET  /tools               → List available tools with schemas
   POST /tools/{tool_name}   → Call tool with JSON body (canonical + aliases)
   POST /apex_judge          → Full pipeline wrapper (000→333→666→888→999)
-  GET/POST /mcp             → Unified Sovereign Connector alias
+  GET/POST /mcp             → Deprecated. Returns guidance to use runtime MCP.
 
 Usage:
   python -m arifosmcp.transport rest
+  Do not connect ChatGPT or other MCP clients to this process.
 
 DITEMPA BUKAN DIBERI — Forged, Not Given
 """
 
 import asyncio
 import inspect
-import json
 import os
 import secrets
 import sys
@@ -517,12 +517,25 @@ async def metrics_endpoint(request: Request):
     return JSONResponse({"requests_total": metrics.requests_total, "errors": metrics.errors})
 
 
+def _deprecated_mcp_transport_response(path: str) -> JSONResponse:
+    return JSONResponse(
+        {
+            "error": "deprecated_transport_surface",
+            "path": path,
+            "message": (
+                "This process is the legacy REST bridge, not a compliant MCP transport. "
+                "Use `python -m arifosmcp.runtime http` and connect ChatGPT to the "
+                "streamable HTTP endpoint at `/mcp` on that runtime server."
+            ),
+            "recommended_runtime": "python -m arifosmcp.runtime http",
+            "recommended_endpoint": "/mcp",
+        },
+        status_code=410,
+    )
+
+
 async def well_known_mcp_server_json(request: Request):
-    root_path = os.path.join(os.path.dirname(__file__), "..", "server.json")
-    if os.path.exists(root_path):
-        with open(root_path) as f:
-            return JSONResponse(json.load(f))
-    return JSONResponse({"error": "server.json not found"}, status_code=404)
+    return _deprecated_mcp_transport_response("/.well-known/mcp/server.json")
 
 
 async def list_tools(request: Request):
@@ -551,11 +564,11 @@ async def call_tool(request: Request):
 
 
 async def sse_endpoint(request: Request):
-    return JSONResponse({"error": "SSE_NOT_ENABLED"}, status_code=501)
+    return _deprecated_mcp_transport_response("/sse")
 
 
 async def messages_endpoint(request: Request):
-    return JSONResponse({"error": "MESSAGES_NOT_ENABLED"}, status_code=501)
+    return _deprecated_mcp_transport_response("/messages")
 
 
 async def apex_judge_wrapper(request: Request):
@@ -602,9 +615,7 @@ async def apex_judge_wrapper(request: Request):
 
 
 async def mcp_alias(request: Request):
-    if request.method == "GET":
-        return await list_tools(request)
-    return await call_tool(request)
+    return _deprecated_mcp_transport_response("/mcp")
 
 
 routes = [

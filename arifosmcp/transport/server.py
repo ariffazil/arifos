@@ -877,6 +877,12 @@ from arifosmcp.intelligence.triad import (
     think,
     validate,
 )
+from arifosmcp.runtime.resources import (
+    APEX_DASHBOARD_RESOURCE_DOMAINS,
+    APEX_DASHBOARD_URI,
+    apex_dashboard_html_content,
+    build_open_apex_dashboard_result,
+)
 
 # Isolated FastMCP instance — canonical 13-tool surface ONLY.
 # Previously shared arifosmcp.intelligence's instance which leaked triad_*/sense_* tools.
@@ -890,27 +896,17 @@ mcp = FastMCP(
     ),
 )
 
-APEX_DASHBOARD_URI = "ui://apex-dashboard/view.html"
-
 @mcp.resource(
     APEX_DASHBOARD_URI,
     app=AppConfig(
         csp=ResourceCSP(
-            resource_domains=[
-                "https://unpkg.com",
-                "https://fonts.googleapis.com",
-                "https://fonts.gstatic.com",
-            ]
+            resource_domains=APEX_DASHBOARD_RESOURCE_DOMAINS,
         )
     ),
 )
 def apex_dashboard_view() -> str:
     """Interactive APEX Sovereign Dashboard."""
-    path = Path(__file__).parent.parent / "sites" / "apex-dashboard" / "dashboard.html"
-    try:
-        return path.read_text(encoding="utf-8")
-    except Exception as e:
-        return f"<html><body>Error loading dashboard: {e}</body></html>"
+    return apex_dashboard_html_content()
 
 from fastmcp.resources.template import ResourceTemplate
 
@@ -2215,9 +2211,9 @@ judge_soul = apex_judge
     description="[Lane: Ψ Psi] Open the APEX Sovereign Dashboard for intelligence observability.",
     app=AppConfig(resource_uri=APEX_DASHBOARD_URI),
 )
-async def _open_dashboard() -> str:
-    """Open the APEX Sovereign Dashboard."""
-    return "APEX Dashboard ready. See interactive UI."
+async def _open_dashboard(ctx: Context, session_id: str = "global") -> ToolResult:
+    """Open the unified APEX Sovereign Dashboard surface."""
+    return build_open_apex_dashboard_result(session_id=session_id, ctx=ctx)
 
 
 open_apex_dashboard = ToolHandle(_open_dashboard)

@@ -21,7 +21,11 @@ import os
 from fastmcp import FastMCP
 from starlette.staticfiles import StaticFiles
 
-from arifosmcp.runtime.fastmcp_ext.transports import _build_http_middleware, run_server
+from arifosmcp.runtime.fastmcp_ext.transports import (
+    _build_http_middleware,
+    _normalize_path,
+    run_server,
+)
 from arifosmcp.runtime.orchestrator import metabolic_loop
 from arifosmcp.runtime.phase2_tools import register_phase2_tools
 from arifosmcp.runtime.prompts import register_prompts
@@ -46,8 +50,9 @@ from arifosmcp.runtime.tools import (
 # ---------------------------------------------------------------------------
 
 mcp = FastMCP("arifOS-APEX-G", version="2026.03.08-SEAL")
+PUBLIC_TOOL_PROFILE = os.getenv("ARIFOS_PUBLIC_TOOL_PROFILE", "full").strip().lower() or "full"
 
-register_tools(mcp)
+register_tools(mcp, profile=PUBLIC_TOOL_PROFILE)
 register_resources(mcp)
 register_prompts(mcp)
 
@@ -71,19 +76,20 @@ register_rest_routes(mcp, CORE_TOOL_REGISTRY)
 # Phase 2 — External Capability Tools (legacy-enabled, not in new loop)
 # ---------------------------------------------------------------------------
 
-register_phase2_tools(mcp)
+register_phase2_tools(mcp, profile=PUBLIC_TOOL_PROFILE)
 
 
 # ---------------------------------------------------------------------------
 # ASGI export for uvicorn/platform HTTP deployment
 # ---------------------------------------------------------------------------
 
-HTTP_PATH = os.getenv("ARIFOS_MCP_PATH", "/mcp/")
-# Enable stateless HTTP for Cloudflare compatibility (no session persistence needed)
+HTTP_PATH = _normalize_path(os.getenv("ARIFOS_MCP_PATH"), "/mcp")
+# Enable stateless HTTP + JSON responses for ChatGPT/remote MCP compatibility.
 app = mcp.http_app(
-    path=HTTP_PATH, 
+    path=HTTP_PATH,
+    json_response=True,
     middleware=_build_http_middleware(),
-    stateless_http=True
+    stateless_http=True,
 )
 
 # Mount APEX dashboard static files
@@ -109,6 +115,7 @@ __all__ = [
     "mcp",
     "metabolic_loop",
     "metabolic_loop_router",
+    "PUBLIC_TOOL_PROFILE",
     "quantum_eureka_forge",
     "reason_mind_synthesis",
     "seal_vault_commit",

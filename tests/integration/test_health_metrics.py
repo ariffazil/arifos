@@ -1,8 +1,9 @@
 import pytest
+from starlette.testclient import TestClient
+
+from arifosmcp.transport.infrastructure.monitoring import init_monitoring
 from arifosmcp.transport.rest import app as rest_app
 from arifosmcp.transport.streamable_http_server import app as streamable_app
-from arifosmcp.transport.infrastructure.monitoring import init_monitoring
-from starlette.testclient import TestClient
 
 
 @pytest.fixture(autouse=True)
@@ -44,3 +45,13 @@ def test_metrics_endpoint_aggregation():
     data = response.json()
     assert "requests_total" in data
     assert "errors" in data
+
+
+def test_rest_bridge_rejects_mcp_transport_path():
+    """The legacy REST bridge must not impersonate a compliant MCP endpoint."""
+    client = TestClient(rest_app)
+    response = client.get("/mcp")
+    assert response.status_code == 410
+    data = response.json()
+    assert data["error"] == "deprecated_transport_surface"
+    assert data["recommended_endpoint"] == "/mcp"

@@ -1,6 +1,6 @@
 # ChatGPT Developer Mode Integration Guide
 
-**Platform:** ChatGPT (OpenAI) | **Transport:** HTTP/SSE | **Priority:** Tier 2
+**Platform:** ChatGPT (OpenAI) | **Transport:** Streamable HTTP preferred, SSE optional | **Priority:** Tier 2
 
 Integrate arifOS constitutional governance directly into ChatGPT's Developer Mode (Custom GPTs/Actions). Every response from ChatGPT passes through the 13 constitutional floors before delivery—providing safety, auditability, and governance for one of the world's most powerful AI interfaces.
 
@@ -18,9 +18,10 @@ Integrate arifOS constitutional governance directly into ChatGPT's Developer Mod
 
 ---
 
-## Step 1: Deploy arifOS MCP Server (HTTP/SSE)
+## Step 1: Deploy arifOS MCP Server (Streamable HTTP)
 
-ChatGPT only supports **HTTP/SSE transport** (not stdio). You need a publicly accessible MCP server.
+ChatGPT should be pointed at the **runtime streamable HTTP MCP endpoint** at `/mcp`. Do not point ChatGPT at the legacy REST bridge (`python -m arifosmcp.transport rest`), which is not a compliant MCP transport surface. In Developer Mode, ChatGPT does not require dedicated `search` and `fetch` tools just to load the connector.
+For production, set `ARIFOS_GOVERNANCE_SECRET` to a stable shared value across all workers/replicas, and set `ARIFOS_PUBLIC_TOOL_PROFILE=chatgpt` if you want ChatGPT to discover the orchestrator-first tool surface instead of the full staged stack.
 
 ### Option A: Use Managed arifOS (Fastest)
 
@@ -28,8 +29,8 @@ ChatGPT only supports **HTTP/SSE transport** (not stdio). You need a publicly ac
 
 **Endpoints:**
 - Health: `https://aaamcp.arif-fazil.com/health`
-- MCP: `https://aaamcp.arif-fazil.com/mcp` (ChatGPT Actions)
-- SSE: `https://aaamcp.arif-fazil.com/sse` (Claude Desktop compatible)
+- MCP: `https://aaamcp.arif-fazil.com/mcp` (ChatGPT / remote MCP)
+- SSE: `https://aaamcp.arif-fazil.com/sse` (only if you intentionally deploy SSE)
 
 **Pros:**
 - ✅ Zero setup
@@ -103,10 +104,10 @@ curl https://<your-project>.up.railway.app/health
 
 ### Option C: Self-Host with Docker (Enterprise)
 
-#### Dockerfile (HTTP/SSE Mode)
+#### Dockerfile (Runtime HTTP Mode)
 
 ```dockerfile
-# arifOS MCP Server - HTTP/SSE Mode for ChatGPT
+# arifOS MCP Server - runtime HTTP mode for ChatGPT / remote MCP
 FROM python:3.11-slim
 
 WORKDIR /app
@@ -115,14 +116,14 @@ COPY . .
 # Install package
 RUN pip install -e .
 
-# HTTP/SSE mode runs on port 8000
+# Runtime HTTP mode runs on port 8000
 EXPOSE 8000
 
-# Start SSE server for ChatGPT Actions
-CMD ["python", "-m", "AAA_MCP", "sse", "--host", "0.0.0.0", "--port", "8000"]
+# Start the canonical runtime streamable HTTP server
+CMD ["python", "-m", "arifosmcp.runtime", "http"]
 ```
 
-**Note:** Uses `AAA_MCP` (new package), not `arifos.mcp` (old v50 package)
+**Note:** Use the canonical runtime entrypoint first. Enable SSE only when you intentionally need that transport for another client.
 
 #### Build and Run
 

@@ -10,13 +10,35 @@ DITEMPA BUKAN DIBERI — Forged, Not Given
 import hashlib
 import hmac
 import json
+import os
 import secrets
 import time
+import warnings
 from typing import Any
 
 # HMAC signs the actor's context so the kernel can verify it across calls
 # without keeping a large in-memory state for every hop.
-_GOVERNANCE_TOKEN_SECRET = secrets.token_hex(32)
+
+
+def _load_governance_token_secret() -> str:
+    for env_name in ("ARIFOS_GOVERNANCE_SECRET", "ARIFOS_GOVERNANCE_TOKEN_SECRET"):
+        secret = os.getenv(env_name, "").strip()
+        if secret:
+            return secret
+
+    warnings.warn(
+        (
+            "ARIFOS_GOVERNANCE_SECRET is not set; using a process-local ephemeral secret. "
+            "Set a stable secret in deployment so auth_context signatures remain valid "
+            "across restarts and replicas."
+        ),
+        RuntimeWarning,
+        stacklevel=2,
+    )
+    return secrets.token_hex(32)
+
+
+_GOVERNANCE_TOKEN_SECRET = _load_governance_token_secret()
 
 
 def sign_auth_context(unsigned_context: dict[str, Any]) -> str:

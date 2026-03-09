@@ -28,7 +28,7 @@ def test_fastmcp_json_has_required_sections() -> None:
 
     deployment = config.get("deployment", {})
     assert deployment.get("transport") == "http"
-    assert deployment.get("path") == "/mcp/"
+    assert deployment.get("path") == "/mcp"
     assert int(deployment.get("port")) == 8080
 
 

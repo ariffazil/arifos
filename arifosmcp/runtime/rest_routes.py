@@ -321,11 +321,12 @@ def _openapi_schema(base_url: str) -> dict[str, Any]:
     return {
         "openapi": "3.1.0",
         "info": {
-            "title": "arifOS ChatGPT Actions API",
+            "title": "arifOS Checkpoint REST API",
             "version": BUILD_INFO["version"],
             "description": (
-                "Minimal ChatGPT Actions surface for arifOS constitutional evaluation. "
-                "Primary endpoint: POST /checkpoint."
+                "Minimal REST/OpenAPI compatibility surface for arifOS constitutional "
+                "evaluation. Primary endpoint: POST /checkpoint. This is not the MCP "
+                "transport; remote MCP clients should connect to `/mcp`."
             ),
         },
         "servers": [{"url": base_url}],
@@ -765,14 +766,14 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
             )
 
     # ═══════════════════════════════════════════════════════
-    # CHATGPT ACTIONS — Custom GPT Integration
+    # CHECKPOINT REST COMPATIBILITY — OpenAPI / action-style integration
     # ═══════════════════════════════════════════════════════
 
     @mcp.custom_route("/checkpoint", methods=["POST"])
     async def checkpoint_endpoint(request: Request) -> Response:
         """
-        ChatGPT Actions entry point for constitutional validation.
-        Simplified 000→888 pipeline for Custom GPTs.
+        REST/OpenAPI compatibility entry point for constitutional validation.
+        Simplified 000→888 pipeline for non-MCP clients.
         """
         if err := _auth_error_response(request):
             return err
@@ -914,7 +915,7 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
 
     @mcp.custom_route("/openapi.yaml", methods=["GET"])
     async def openapi_schema(request: Request) -> Response:
-        """Serve OpenAPI schema for ChatGPT Actions."""
+        """Serve OpenAPI schema for the REST compatibility surface."""
         schema_path = os.path.join(
             os.path.dirname(os.path.dirname(__file__)),
             "333_APPS",

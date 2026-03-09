@@ -4,6 +4,7 @@
 
 # --- Web / Transport ---
 fastmcp==3.0.2
+prefab-ui==0.8.0
 fastapi>=0.104.1
 uvicorn[standard]>=0.24.0
 starlette>=0.30.0

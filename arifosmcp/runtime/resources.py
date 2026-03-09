@@ -15,14 +15,44 @@ import json
 from pathlib import Path
 from typing import Any
 
-from fastmcp import FastMCP
-from fastmcp.server.apps import AppConfig, ResourceCSP
+from fastmcp import Context, FastMCP
+from fastmcp.server.apps import UI_EXTENSION_ID, AppConfig, ResourceCSP
+from fastmcp.tools import ToolResult
+
+try:
+    from prefab_ui.app import PrefabApp
+    from prefab_ui.components import (
+        Card,
+        CardContent,
+        CardHeader,
+        CardTitle,
+        Column,
+        DataTable,
+        DataTableColumn,
+        Heading,
+        Metric,
+        Row,
+        Text,
+    )
+
+    PREFAB_AVAILABLE = True
+except ImportError:
+    PREFAB_AVAILABLE = False
 
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
 
 _VAULT_PATH = Path(__file__).resolve().parent.parent.parent / "core" / "vault"
+_DASHBOARD_HTML = Path(__file__).resolve().parent.parent / "sites" / "apex-dashboard" / "dashboard.html"
+
+APEX_DASHBOARD_URI = "ui://apex/dashboard.html"
+APEX_DASHBOARD_RESOURCE_DOMAINS = [
+    "https://unpkg.com",
+    "https://fonts.googleapis.com",
+    "https://fonts.gstatic.com",
+]
+APEX_DASHBOARD_DEFAULT_ENDPOINT = "https://arifosmcp.arif-fazil.com/api/governance-status"
 
 
 def _read_vault_entries(n: int = 5) -> list[dict[str, Any]]:
@@ -166,6 +196,101 @@ def apex_tools_markdown_table() -> str:
         for tool in APEX_CORE_TOOLS
     ]
     return "\n".join([header, *rows])
+
+
+def apex_dashboard_html_content() -> str:
+    """Return the packaged HTML fallback for the dashboard resource."""
+    if _DASHBOARD_HTML.exists():
+        return _DASHBOARD_HTML.read_text(encoding="utf-8")
+    return "<html><body>Dashboard not found.</body></html>"
+
+
+def build_apex_dashboard_prefab(session_id: str = "global") -> Any | None:
+    """Build the canonical Prefab dashboard view when Prefab is installed."""
+    if not PREFAB_AVAILABLE:
+        return None
+
+    tool_rows = [
+        {
+            "stage": tool["stage"],
+            "runtime_tool": tool["name"],
+            "canonical_handle": tool["canonical"],
+            "lane": tool["lane"],
+        }
+        for tool in APEX_CORE_TOOLS
+    ]
+
+    with Column(gap=4, css_class="p-6") as view:
+        Heading("APEX Sovereign Dashboard", level=2)
+        Text("Unified Prefab app surface for the canonical runtime and legacy transport.")
+
+        with Row(gap=4):
+            Metric(
+                label="Session",
+                value=session_id,
+                description="Governed session scope for this dashboard view.",
+            )
+            Metric(
+                label="Core Tools",
+                value=str(len(APEX_CORE_TOOLS)),
+                description="Canonical APEX-G runtime tools.",
+            )
+            Metric(
+                label="Floors",
+                value=str(len(_FLOORS)),
+                description="Constitutional enforcement floors.",
+            )
+
+        with Card():
+            with CardHeader():
+                CardTitle("Live Sources")
+            with CardContent():
+                Text(f"Default telemetry endpoint: {APEX_DASHBOARD_DEFAULT_ENDPOINT}")
+                Text("Deployed static dashboard: /dashboard/")
+                Text(f"Fallback HTML resource: {APEX_DASHBOARD_URI}")
+
+        with DataTable(data=tool_rows):
+            DataTableColumn("stage", label="Stage")
+            DataTableColumn("runtime_tool", label="Runtime Tool")
+            DataTableColumn("canonical_handle", label="Canonical Handle")
+            DataTableColumn("lane", label="Lane")
+
+    return PrefabApp(
+        view=view,
+        state={
+            "session_id": session_id,
+            "default_endpoint": APEX_DASHBOARD_DEFAULT_ENDPOINT,
+        },
+    )
+
+
+def build_open_apex_dashboard_result(
+    session_id: str = "global",
+    ctx: Context | None = None,
+) -> ToolResult:
+    """Return a unified dashboard tool result with Prefab when supported."""
+    payload = {
+        "session_id": session_id,
+        "dashboard": APEX_DASHBOARD_URI,
+        "default_endpoint": APEX_DASHBOARD_DEFAULT_ENDPOINT,
+        "note": (
+            "Unified Prefab dashboard ready. Use /api/governance-status for live telemetry "
+            "or /dashboard/ for the deployed HTML surface."
+        ),
+    }
+    content = [{"type": "text", "text": json.dumps(payload, ensure_ascii=False)}]
+
+    supports_prefab = bool(
+        ctx and PREFAB_AVAILABLE and ctx.client_supports_extension(UI_EXTENSION_ID)
+    )
+    if not supports_prefab:
+        return ToolResult(content=content)
+
+    prefab_app = build_apex_dashboard_prefab(session_id=session_id)
+    if prefab_app is None:
+        return ToolResult(content=content)
+
+    return ToolResult(content=content, structured_content=prefab_app)
 
 _FLOORS = [
     {
@@ -889,41 +1014,23 @@ def register_resources(mcp: FastMCP) -> None:
     # APEX Dashboard — MCP App (HTML iframe embedded in host client)
     # ------------------------------------------------------------------
 
-    _DASHBOARD_HTML = (
-        Path(__file__).resolve().parent.parent / "sites" / "apex-dashboard" / "dashboard.html"
-    )
-
-    @mcp.tool(app=AppConfig(resource_uri="ui://apex/dashboard.html"))
-    def open_apex_dashboard(session_id: str = "global") -> str:
+    @mcp.tool(app=AppConfig(resource_uri=APEX_DASHBOARD_URI))
+    def open_apex_dashboard(ctx: Context, session_id: str = "global") -> ToolResult:
         """Open the APEX Sovereign Dashboard showing live governed-intelligence metrics.
 
-        Opens the dashboard iframe in compatible MCP clients. The dashboard supports
-        three modes: Static Demo (instant), Live Fetch (poll your MCP endpoint), and
-        MCP Mode (receives pushed apex_output from tool calls via ext-apps SDK).
-
-        To feed live data, enable Live Fetch in the dashboard and point it at your
-        MCP server's /health or /mcp/ endpoint, or wire apex_judge to push results.
+        Prefers the unified Prefab app surface in compatible MCP hosts and exposes
+        the packaged HTML dashboard as the stable fallback asset for deployment.
         """
-        return json.dumps({
-            "session_id": session_id,
-            "dashboard": "ui://apex/dashboard.html",
-            "note": "Dashboard open. Use Live Fetch mode or call apex_judge to push metrics.",
-        })
+        return build_open_apex_dashboard_result(session_id=session_id, ctx=ctx)
 
     @mcp.resource(
-        "ui://apex/dashboard.html",
+        APEX_DASHBOARD_URI,
         app=AppConfig(
             csp=ResourceCSP(
-                resource_domains=[
-                    "https://unpkg.com",
-                    "https://fonts.googleapis.com",
-                    "https://fonts.gstatic.com",
-                ]
+                resource_domains=APEX_DASHBOARD_RESOURCE_DOMAINS,
             )
         ),
     )
     def apex_dashboard_html() -> str:
         """APEX Sovereign Dashboard — self-contained HTML with React + Recharts."""
-        if _DASHBOARD_HTML.exists():
-            return _DASHBOARD_HTML.read_text(encoding="utf-8")
-        return "<html><body>Dashboard not found.</body></html>"
+        return apex_dashboard_html_content()

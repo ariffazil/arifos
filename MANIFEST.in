@@ -1,4 +1,5 @@
 recursive-include spec *.json *.yaml *.md
+recursive-include arifosmcp/sites *.html *.css *.js *.json *.txt
 recursive-include arifos *.py *.json *.yaml *.md
 recursive-include codebase *.py *.json *.yaml *.md
 recursive-include aaa_mcp *.py *.json *.yaml *.md
