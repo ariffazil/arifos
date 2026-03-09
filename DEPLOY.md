@@ -208,6 +208,38 @@ So this is expected:
 
 If you switch to the internal `full` profile, additional compatibility and ACLIP tools may be registered, but that is not the intended public ChatGPT surface.
 
+## 8.5) Wisdom Quotes System
+
+arifOS includes a dual-layer wisdom injection system:
+
+### 33-Quote Deterministic Registry (Primary)
+- Floor F2 failure → Carl Sagan: "Extraordinary claims require extraordinary evidence."
+- Floor F7 failure → Socrates: "The only true wisdom is in knowing you know nothing."
+- Stage 999 SEAL → "DITEMPA, BUKAN DIBERI."
+
+### 99-Quote Semantic Corpus (Secondary)
+- Collection: `arifos_wisdom_quotes` (Qdrant)
+- Model: BAAI/bge-m3 (1024-dim, multilingual)
+- Categories: scar(20), triumph(20), paradox(20), wisdom(15), power(10), love(10), seal(4)
+- Access: `retrieve_wisdom(query, category, n_results)`
+- Embed script: `python scripts/embed_wisdom_quotes.py`
+
+### Integration
+Every `arifOS.kernel` response includes:
+```json
+"philosophy": {
+  "quote_id": "W8",
+  "quote": "Extraordinary claims require extraordinary evidence.",
+  "author": "Carl Sagan",
+  "category": "wisdom"
+}
+```
+
+To re-embed wisdom corpus after updates:
+```bash
+docker exec arifosmcp_server python3 scripts/embed_wisdom_quotes.py
+```
+
 ## 9) Answers To Deployment Blockers
 
 ### Q1: What is the intended MCP transport architecture?
