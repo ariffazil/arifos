@@ -30,4 +30,7 @@ def test_dev_and_prod_transports() -> None:
     assert dev.get("deployment", {}).get("log_level") == "DEBUG"
 
     assert prod.get("deployment", {}).get("transport") == "http"
-    assert prod.get("deployment", {}).get("path") == "/mcp/"
+    assert prod.get("deployment", {}).get("path") == "/mcp"
+    assert prod.get("deployment", {}).get("env", {}).get("ARIFOS_PUBLIC_TOOL_PROFILE") == (
+        "${ARIFOS_PUBLIC_TOOL_PROFILE:-chatgpt}"
+    )

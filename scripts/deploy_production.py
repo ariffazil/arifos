@@ -45,6 +45,14 @@ CORE_CONSTITUTIONAL_TOOLS = (
     "apex_judge_verdict",
     "seal_vault_commit",
 )
+CHATGPT_PUBLIC_TOOLS = (
+    "audit_rules",
+    "check_vital",
+    "ingest_evidence",
+    "metabolic_loop_router",
+    "open_apex_dashboard",
+    "search_reality",
+)
 
 
 class Colors:
@@ -108,6 +116,14 @@ def build_overlay_image_tag(version: str, git_sha: str, base_repo: str = "arifos
     return f"{base_repo}:{normalize_release_version(version)}-{git_sha[:8]}"
 
 
+def deployment_tool_contract(public_profile: str) -> tuple[int, tuple[str, ...]]:
+    """Return the minimum public tool contract for a deployment profile."""
+    normalized = public_profile.strip().lower() or "full"
+    if normalized == "chatgpt":
+        return len(CHATGPT_PUBLIC_TOOLS), CHATGPT_PUBLIC_TOOLS
+    return len(CORE_CONSTITUTIONAL_TOOLS), CORE_CONSTITUTIONAL_TOOLS
+
+
 def build_vps_overlay_script(
     *,
     host: str,
@@ -122,7 +138,8 @@ def build_vps_overlay_script(
     env_file: str,
     prod_bind: str,
     public_base_url: str,
-    expected_tools: int = 10,
+    expected_tools: int,
+    required_tools: tuple[str, ...],
 ) -> str:
     """Render the remote bash script for immutable VPS image deployment."""
     public_health_url = f"{public_base_url.rstrip('/')}/health"
@@ -184,7 +201,7 @@ def build_vps_overlay_script(
         data = json.loads(Path("/tmp/arifos_candidate_tools.json").read_text())
         names = {{tool["name"] for tool in data["tools"] if "name" in tool}}
         count = len(names)
-        missing = sorted(set({CORE_CONSTITUTIONAL_TOOLS!r}) - names)
+        missing = sorted(set({required_tools!r}) - names)
         if count < {expected_tools}:
             raise SystemExit(f"candidate tool count too low: {{count}} < {expected_tools}")
         if missing:
@@ -217,7 +234,7 @@ def build_vps_overlay_script(
         public_tools = json.loads(Path("/tmp/arifos_public_tools.json").read_text())
         names = {{tool["name"] for tool in public_tools["tools"] if "name" in tool}}
         count = len(names)
-        missing = sorted(set({CORE_CONSTITUTIONAL_TOOLS!r}) - names)
+        missing = sorted(set({required_tools!r}) - names)
         if count < {expected_tools}:
             raise SystemExit(f"public tool count too low: {{count}} < {expected_tools}")
         if missing:
@@ -375,6 +392,8 @@ def deploy_railway() -> bool:
         "HOST": "0.0.0.0",
         "AAA_MCP_TRANSPORT": "http",
         "ARIFOS_CONSTITUTIONAL_MODE": "AAA",
+        "ARIFOS_MCP_PATH": "/mcp",
+        "ARIFOS_PUBLIC_TOOL_PROFILE": "chatgpt",
     }
 
     for key, default in env_vars.items():
@@ -447,6 +466,10 @@ def deploy_docker() -> bool:
             "HOST=0.0.0.0",
             "-e",
             "AAA_MCP_TRANSPORT=http",
+            "-e",
+            "ARIFOS_MCP_PATH=/mcp",
+            "-e",
+            "ARIFOS_PUBLIC_TOOL_PROFILE=chatgpt",
             "--name",
             "arifos-mcp",
             "arifos-mcp:latest",
@@ -461,6 +484,8 @@ def deploy_vps_overlay(args: argparse.Namespace) -> bool:
     version = normalize_release_version(read_project_version(ROOT))
     git_sha = read_git_sha(ROOT)
     image_tag = args.image_tag or build_overlay_image_tag(version, git_sha, args.image_repo)
+    contract_tool_count, required_tools = deployment_tool_contract(args.public_profile)
+    expected_tools = args.expected_tools or contract_tool_count
     script = build_vps_overlay_script(
         host=args.host,
         app_dir=args.app_dir,
@@ -474,7 +499,8 @@ def deploy_vps_overlay(args: argparse.Namespace) -> bool:
         env_file=args.env_file,
         prod_bind=args.prod_bind,
         public_base_url=args.public_base_url,
-        expected_tools=args.expected_tools,
+        expected_tools=expected_tools,
+        required_tools=required_tools,
     )
 
     if args.dry_run:
@@ -511,6 +537,8 @@ def generate_railway_template() -> None:
             "HOST": "0.0.0.0",
             "AAA_MCP_TRANSPORT": "http",
             "ARIFOS_CONSTITUTIONAL_MODE": "AAA",
+            "ARIFOS_MCP_PATH": "/mcp",
+            "ARIFOS_PUBLIC_TOOL_PROFILE": "chatgpt",
         },
     }
 
@@ -550,6 +578,12 @@ def main() -> None:
     parser.add_argument("--env-file", default=".env.docker", help="Remote env file path")
     parser.add_argument("--prod-bind", default="127.0.0.1:8088:8080", help="Prod bind mapping")
     parser.add_argument(
+        "--public-profile",
+        choices=["full", "chatgpt"],
+        default="chatgpt",
+        help="Expected public tool profile exposed by the runtime server",
+    )
+    parser.add_argument(
         "--public-base-url",
         default=DEFAULT_PUBLIC_BASE_URL,
         help="Public base URL used for post-deploy verification",
@@ -557,8 +591,8 @@ def main() -> None:
     parser.add_argument(
         "--expected-tools",
         type=int,
-        default=10,
-        help="Minimum public tool count; core stack presence is also enforced",
+        default=0,
+        help="Override minimum public tool count; defaults to the selected public profile contract",
     )
     parser.add_argument("--dry-run", action="store_true", help="Print remote script and exit")
 

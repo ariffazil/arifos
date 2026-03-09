@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-
 ROOT = Path(__file__).resolve().parents[1]
 
 
@@ -11,3 +10,22 @@ def test_runtime_dockerfile_installs_playwright_browser_deterministically():
 
     assert "ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright" in dockerfile
     assert "python -m playwright install --with-deps chromium" in dockerfile
+
+
+def test_canonical_vps_compose_uses_runtime_http_profile():
+    compose = (ROOT / "docker-compose.yml").read_text(encoding="utf-8")
+
+    assert "dockerfile: Dockerfile" in compose
+    assert "ARIFOS_PUBLIC_TOOL_PROFILE: ${ARIFOS_PUBLIC_TOOL_PROFILE:-chatgpt}" in compose
+    assert "ARIFOS_MCP_PATH: ${ARIFOS_MCP_PATH:-/mcp}" in compose
+    assert "/srv/arifOS/infrastructure/prometheus/prometheus.yml" in compose
+    assert "/srv/arifOS/infrastructure/deploy_from_git.sh" in compose
+    assert "/srv/arifOS/arifosmcp.transport" not in compose
+
+
+def test_canonical_vps_env_template_declares_public_profile_and_governance_secret():
+    env_template = (ROOT / ".env.docker.example").read_text(encoding="utf-8")
+
+    assert "ARIFOS_GOVERNANCE_SECRET=CHANGE_ME_TO_A_LONG_RANDOM_SECRET" in env_template
+    assert "ARIFOS_PUBLIC_TOOL_PROFILE=chatgpt" in env_template
+    assert "ARIFOS_MCP_PATH=/mcp" in env_template

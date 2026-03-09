@@ -2,7 +2,7 @@
   "$schema": "https://gofastmcp.com/public/schemas/fastmcp.json/v1.json",
   "name": "arifos-mcp",
   "version": "2026.03.08",
-  "description": "arifOS Constitutional AI Governance MCP Server — prod profile (HTTP, /mcp/ path)",
+  "description": "arifOS Constitutional AI Governance MCP Server — prod profile (HTTP runtime, /mcp path)",
   "source": {
     "type": "filesystem",
     "path": "arifosmcp/runtime/server.py",
@@ -26,11 +26,13 @@
     "transport": "http",
     "host": "${HOST:-0.0.0.0}",
     "port": 8080,
-    "path": "/mcp/",
+    "path": "/mcp",
     "log_level": "INFO",
     "env": {
       "HOST": "${HOST:-0.0.0.0}",
-      "PORT": "${PORT:-8080}"
+      "PORT": "${PORT:-8080}",
+      "ARIFOS_MCP_PATH": "${ARIFOS_MCP_PATH:-/mcp}",
+      "ARIFOS_PUBLIC_TOOL_PROFILE": "${ARIFOS_PUBLIC_TOOL_PROFILE:-chatgpt}"
     }
   },
   "tools": {

@@ -5,3 +5,128 @@ rootdir: C:\arifosmcp
 configfile: pyproject.toml
 plugins: anyio-4.11.0, asyncio-1.3.0, cov-7.0.0
 asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 43 items / 36 deselected / 7 selected
+
+tests/test_fastmcp_server.py::TestAuditRules::test_audit_rules_returns_verdict FAILED [ 14%]
+tests/test_fastmcp_server.py::TestAuditRules::test_audit_rules_has_scope FAILED [ 28%]
+tests/test_fastmcp_server.py::TestAuditRules::test_audit_rules_no_floor_verify FAILED [ 42%]
+tests/test_fastmcp_server.py::TestAuditRules::test_audit_rules_floors_loaded FAILED [ 57%]
+tests/test_fastmcp_server.py::TestCheckVital::test_check_vital_returns_seal FAILED [ 71%]
+tests/test_fastmcp_server.py::TestCheckVital::test_check_vital_has_session_id FAILED [ 85%]
+tests/test_fastmcp_server.py::TestCheckVital::test_check_vital_with_swap FAILED [100%]
+
+================================== FAILURES ===================================
+_______________ TestAuditRules.test_audit_rules_returns_verdict _______________
+
+self = <tests.test_fastmcp_server.TestAuditRules object at 0x000002209F149D10>
+arifos_server = FastMCP('arifOS_AAA_MCP')
+
+    async def test_audit_rules_returns_verdict(self, arifos_server):
+        async with Client(arifos_server) as client:
+            result = await client.call_tool("audit_rules", {})
+        data = result.data if hasattr(result, "data") else {}
+>       assert data.get("verdict") in ("SEAL", "PARTIAL", "VOID")
+               ^^^^^^^^
+E       AttributeError: 'NoneType' object has no attribute 'get'
+
+tests\test_fastmcp_server.py:94: AttributeError
+__________________ TestAuditRules.test_audit_rules_has_scope __________________
+
+self = <tests.test_fastmcp_server.TestAuditRules object at 0x000002209F149F90>
+arifos_server = FastMCP('arifOS_AAA_MCP')
+
+    async def test_audit_rules_has_scope(self, arifos_server):
+        async with Client(arifos_server) as client:
+            result = await client.call_tool("audit_rules", {"audit_scope": "quick"})
+        data = result.data if hasattr(result, "data") else {}
+>       assert "scope" in data
+               ^^^^^^^^^^^^^^^
+E       TypeError: argument of type 'NoneType' is not a container or iterable
+
+tests\test_fastmcp_server.py:100: TypeError
+_______________ TestAuditRules.test_audit_rules_no_floor_verify _______________
+
+self = <tests.test_fastmcp_server.TestAuditRules object at 0x000002209F16A2C0>
+arifos_server = FastMCP('arifOS_AAA_MCP')
+
+    async def test_audit_rules_no_floor_verify(self, arifos_server):
+        async with Client(arifos_server) as client:
+            result = await client.call_tool("audit_rules", {"verify_floors": False})
+        data = result.data if hasattr(result, "data") else {}
+>       assert "verdict" in data
+               ^^^^^^^^^^^^^^^^^
+E       TypeError: argument of type 'NoneType' is not a container or iterable
+
+tests\test_fastmcp_server.py:106: TypeError
+________________ TestAuditRules.test_audit_rules_floors_loaded ________________
+
+self = <tests.test_fastmcp_server.TestAuditRules object at 0x000002209F16A3F0>
+arifos_server = FastMCP('arifOS_AAA_MCP')
+
+    async def test_audit_rules_floors_loaded(self, arifos_server):
+        async with Client(arifos_server) as client:
+            result = await client.call_tool("audit_rules", {"verify_floors": True})
+        data = result.data if hasattr(result, "data") else {}
+>       details = data.get("details", {})
+                  ^^^^^^^^
+E       AttributeError: 'NoneType' object has no attribute 'get'
+
+tests\test_fastmcp_server.py:112: AttributeError
+________________ TestCheckVital.test_check_vital_returns_seal _________________
+
+self = <tests.test_fastmcp_server.TestCheckVital object at 0x000002209F14A850>
+arifos_server = FastMCP('arifOS_AAA_MCP')
+
+    async def test_check_vital_returns_seal(self, arifos_server):
+        async with Client(arifos_server) as client:
+            result = await client.call_tool("check_vital", {"session_id": "test-vital-001"})
+        data = result.data if hasattr(result, "data") else {}
+>       assert data.get("verdict") in ("SEAL", "PARTIAL", "VOID", "SABAR")
+               ^^^^^^^^
+E       AttributeError: 'NoneType' object has no attribute 'get'
+
+tests\test_fastmcp_server.py:126: AttributeError
+_______________ TestCheckVital.test_check_vital_has_session_id ________________
+
+self = <tests.test_fastmcp_server.TestCheckVital object at 0x000002209F14A990>
+arifos_server = FastMCP('arifOS_AAA_MCP')
+
+    async def test_check_vital_has_session_id(self, arifos_server):
+        async with Client(arifos_server) as client:
+            result = await client.call_tool("check_vital", {"session_id": "vital-sess"})
+        data = result.data if hasattr(result, "data") else {}
+>       assert "session_id" in data
+               ^^^^^^^^^^^^^^^^^^^^
+E       TypeError: argument of type 'NoneType' is not a container or iterable
+
+tests\test_fastmcp_server.py:132: TypeError
+__________________ TestCheckVital.test_check_vital_with_swap __________________
+
+self = <tests.test_fastmcp_server.TestCheckVital object at 0x000002209F16AD70>
+arifos_server = FastMCP('arifOS_AAA_MCP')
+
+    async def test_check_vital_with_swap(self, arifos_server):
+        async with Client(arifos_server) as client:
+            result = await client.call_tool(
+                "check_vital",
+                {
+                    "session_id": "vital-sess-2",
+                    "include_swap": True,
+                    "include_io": False,
+                },
+            )
+        data = result.data if hasattr(result, "data") else {}
+>       assert "verdict" in data
+               ^^^^^^^^^^^^^^^^^
+E       TypeError: argument of type 'NoneType' is not a container or iterable
+
+tests\test_fastmcp_server.py:145: TypeError
+=========================== short test summary info ===========================
+FAILED tests/test_fastmcp_server.py::TestAuditRules::test_audit_rules_returns_verdict
+FAILED tests/test_fastmcp_server.py::TestAuditRules::test_audit_rules_has_scope
+FAILED tests/test_fastmcp_server.py::TestAuditRules::test_audit_rules_no_floor_verify
+FAILED tests/test_fastmcp_server.py::TestAuditRules::test_audit_rules_floors_loaded
+FAILED tests/test_fastmcp_server.py::TestCheckVital::test_check_vital_returns_seal
+FAILED tests/test_fastmcp_server.py::TestCheckVital::test_check_vital_has_session_id
+FAILED tests/test_fastmcp_server.py::TestCheckVital::test_check_vital_with_swap
+================= 7 failed, 36 deselected in 92.93s (0:01:32) =================

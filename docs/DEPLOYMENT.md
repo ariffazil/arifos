@@ -50,7 +50,7 @@ The recommended production stack uses **Docker Compose** with **Traefik** as a r
 
 1. Clone the repository to `/srv/arifOS`.
 2. Configure your `.env.docker` (see [Environment Variables](#-environment-variables)).
-3. Start the stack:
+3. Start the canonical production stack:
 
    ```bash
    docker compose up -d --build
@@ -59,11 +59,11 @@ The recommended production stack uses **Docker Compose** with **Traefik** as a r
 ### service: arifosmcp
 
 - Internal Port: `8080`
-- Transport: `streamable-http` (SSE/HTTP)
+- Transport: `streamable-http` on `/mcp`
 - Custom Routes:
   - `/health`: Live health status
   - `/tools`: Tool discovery
-  - `/dashboard`: Constitutional Visualizer
+  - `/dashboard/`: Constitutional Visualizer
 
 ---
 
@@ -72,6 +72,8 @@ The recommended production stack uses **Docker Compose** with **Traefik** as a r
 | Variable | Description | Default |
 | :--- | :--- | :--- |
 | `ARIFOS_GOVERNANCE_SECRET` | Used for HMAC signing of verdicts. | *Required* |
+| `ARIFOS_PUBLIC_TOOL_PROFILE` | Public MCP surface profile. Use `chatgpt` for the narrow remote profile. | `chatgpt` |
+| `ARIFOS_MCP_PATH` | Public MCP route. | `/mcp` |
 | `ANTHROPIC_API_KEY` | For Claude/Reasoning tasks. | - |
 | `OPENCLAW_URL` | OpenClaw gateway endpoint. | `http://openclaw:18789` |
 | `OLLAMA_URL` | Local LLM engine. | `http://ollama:11434` |

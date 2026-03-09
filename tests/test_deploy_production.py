@@ -3,7 +3,6 @@ from __future__ import annotations
 import importlib.util
 from pathlib import Path
 
-
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPT_PATH = ROOT / "scripts" / "deploy_production.py"
 
@@ -44,16 +43,27 @@ def test_build_vps_overlay_script_contains_full_build_and_mount_check():
         env_file=".env.docker",
         prod_bind="127.0.0.1:8088:8080",
         public_base_url="https://arifosmcp.arif-fazil.com",
+        expected_tools=6,
+        required_tools=module.CHATGPT_PUBLIC_TOOLS,
     )
 
     assert "docker build \\" in script
     assert '-t "$IMAGE_TAG" \\' in script
     assert '--build-arg ARIFOS_VERSION="$VERSION" \\' in script
     assert 'docker inspect "$CONTAINER_NAME" --format' in script
-    assert "candidate tool count mismatch" in script
-    assert "public tool count mismatch" in script
+    assert "candidate tool count too low" in script
+    assert "public tool count too low" in script
     assert 'curl -fsS "$PUBLIC_HEALTH_URL"' in script
     assert "Dockerfile.deploy-overlay" not in script
+
+
+def test_deployment_tool_contract_matches_chatgpt_runtime_surface():
+    module = _load_module()
+
+    count, tools = module.deployment_tool_contract("chatgpt")
+
+    assert count == 6
+    assert tools == module.CHATGPT_PUBLIC_TOOLS
 
 
 def test_run_remote_bash_normalizes_crlf_and_uses_bytes(monkeypatch):

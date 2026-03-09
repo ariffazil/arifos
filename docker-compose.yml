@@ -1,8 +1,9 @@
 # ── arifOS AI-First Unified Trinity Stack ──────────────────────────
-# Replaces fragmented networks and deprecated GUI abstractions.
+# Canonical VPS deployment compose for Git-pull agents.
+# Use this file for production. `docker-compose.override.yml` is dev-only.
 # All components run on the 'arifos_trinity' network.
 # Traefik acts as the dynamic edge router.
-# Hardened for v62.5-STEEL Production ($15 VPS / 4GB RAM)
+# Hardened for a single-port runtime MCP surface at /mcp.
 # ─────────────────────────────────────────────────────────────────
 
 services:
@@ -214,7 +215,9 @@ services:
 
   # --- Constitutional Kernel ---
   arifosmcp:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     image: arifos/arifosmcp:latest
     container_name: arifosmcp_server
     init: true
@@ -223,7 +226,6 @@ services:
         required: false
     volumes:
       - /opt/arifos/data/core:/usr/src/app/data
-      - /srv/arifOS/arifosmcp.transport:/usr/src/app/arifosmcp.transport:ro
     environment:
       PYTHONUNBUFFERED: 1
       PYTHONDONTWRITEBYTECODE: 1
@@ -237,6 +239,9 @@ services:
       AGENT_ZERO_URL: http://agent-zero:80
       DASHBOARD_ENABLED: "true"
       AAA_MCP_TRANSPORT: http
+      ARIFOS_GOVERNANCE_SECRET: ${ARIFOS_GOVERNANCE_SECRET}
+      ARIFOS_PUBLIC_TOOL_PROFILE: ${ARIFOS_PUBLIC_TOOL_PROFILE:-chatgpt}
+      ARIFOS_MCP_PATH: ${ARIFOS_MCP_PATH:-/mcp}
     ports:
       - "127.0.0.1:8080:8080"
     networks:
@@ -263,7 +268,7 @@ services:
       - '--storage.tsdb.path=/prometheus'
       - '--storage.tsdb.retention.time=30d'
     volumes:
-      - /srv/arifOS/deployment/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - /srv/arifOS/infrastructure/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - /opt/arifos/data/prometheus:/prometheus
     networks:
       - arifos_trinity
@@ -284,7 +289,7 @@ services:
       GF_SERVER_DOMAIN: monitor.arifosmcp.arif-fazil.com
     volumes:
       - /opt/arifos/data/grafana:/var/lib/grafana
-      - /srv/arifOS/deployment/grafana/datasources/prometheus.yml:/etc/grafana/provisioning/datasources/prometheus.yml:ro
+      - /srv/arifOS/infrastructure/grafana/datasources/prometheus.yml:/etc/grafana/provisioning/datasources/prometheus.yml:ro
     networks:
       - arifos_trinity
     labels:
@@ -335,7 +340,7 @@ services:
     command: ["-verbose", "-hooks=/etc/webhook/hooks.json", "-hotreload"]
     volumes:
       - /srv/arifOS/deployment/hooks.json:/etc/webhook/hooks.json:ro
-      - /srv/arifOS/deployment/deploy_from_git.sh:/var/scripts/deploy_from_git.sh:ro
+      - /srv/arifOS/infrastructure/deploy_from_git.sh:/var/scripts/deploy_from_git.sh:ro
       - /srv/arifOS:/usr/src/app:rw
       - /var/run/docker.sock:/var/run/docker.sock
       - /usr/bin/docker:/usr/bin/docker:ro
