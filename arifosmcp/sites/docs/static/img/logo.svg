@@ -1,18 +1,39 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
-  <!-- arifOS minimalist logo — constitutional kernel mark -->
-  <!-- Outer ring = 13 floors boundary -->
-  <circle cx="100" cy="100" r="90" fill="none" stroke="#f0c040" stroke-width="3"/>
-  <!-- Inner ring = Trinity boundary -->
-  <circle cx="100" cy="100" r="60" fill="none" stroke="#3b82f6" stroke-width="1.5" stroke-dasharray="4 3"/>
-  <!-- Core = the kernel -->
-  <circle cx="100" cy="100" r="22" fill="#f0c040" opacity="0.15"/>
-  <!-- Delta (Δ) — AGI Mind -->
-  <polygon points="100,50 75,90 125,90" fill="none" stroke="#f0c040" stroke-width="2"/>
-  <!-- Omega mark — ASI Heart (simplified arc) -->
-  <path d="M78 118 Q78 135 100 135 Q122 135 122 118" fill="none" stroke="#3b82f6" stroke-width="2"/>
-  <!-- Psi vertical — APEX Soul -->
-  <line x1="100" y1="90" x2="100" y2="145" stroke="#e74c3c" stroke-width="1.5"/>
-  <!-- Tagline text -->
-  <text x="100" y="175" text-anchor="middle" font-family="monospace" font-size="9"
-        fill="#f0c040" letter-spacing="2">DITEMPA BUKAN DIBERI</text>
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background Glow -->
+  <defs>
+    <radialGradient id="kernelGlow" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+      <stop offset="0%" stop-color="#00FFCC" stop-opacity="0.15" />
+      <stop offset="100%" stop-color="#050505" stop-opacity="0" />
+    </radialGradient>
+    <linearGradient id="sovereignGold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFD700" />
+      <stop offset="50%" stop-color="#B8860B" />
+      <stop offset="100%" stop-color="#FFD700" />
+    </linearGradient>
+  </defs>
+  
+  <rect width="512" height="512" fill="#050505"/>
+  <circle cx="256" cy="256" r="200" fill="url(#kernelGlow)"/>
+
+  <!-- 13 Segments Hexagon (The Floors) -->
+  <path d="M256 60L425.7 158V354L256 452L86.3 354V158L256 60Z" stroke="#222" stroke-width="2" />
+  
+  <!-- The Trinity Core (Delta, Omega, Psi) -->
+  <g transform="translate(256, 256)">
+    <!-- Δ Mind -->
+    <path d="M-80 40 L0 -100 L80 40 Z" stroke="url(#sovereignGold)" stroke-width="12" stroke-linejoin="round" opacity="0.9" />
+    <!-- Ω Heart -->
+    <path d="M-60 60 C-60 20, -20 20, 0 40 C20 20, 60 20, 60 60" stroke="#1E40AF" stroke-width="12" stroke-linecap="round" />
+    <!-- Ψ Soul (Central Axis) -->
+    <path d="M0 -110 V80 M-40 -20 Q0 20 40 -20" stroke="#00FFCC" stroke-width="8" stroke-linecap="round" />
+  </g>
+
+  <!-- Realized Intelligence Pulse (G-Dagger) -->
+  <circle cx="256" cy="256" r="12" fill="#00FFCC">
+    <animate attributeName="r" values="10;15;10" dur="3s" repeatCount="indefinite" />
+    <animate attributeName="opacity" values="0.5;1;0.5" dur="3s" repeatCount="indefinite" />
+  </circle>
+
+  <!-- Text Branding -->
+  <text x="256" y="490" text-anchor="middle" fill="url(#sovereignGold)" font-family="JetBrains Mono, monospace" font-size="24" font-weight="bold" letter-spacing="4">ARIFOS MCP</text>
 </svg>

@@ -1,11 +1,19 @@
+<p align="center">
+  <img src="./arifosmcp/sites/docs/static/img/logo.svg" width="250" alt="arifOS MCP Logo">
+</p>
+
 # arifOS — The World's First Production-Grade Constitutional AI Kernel
 
-> **DITEMPA BUKAN DIBERI** — Forged, Not Given.  
-> *Intelligence is a thermodynamic process that must cool under governance before it rules.*
+<p align="center">
+  <b>DITEMPA BUKAN DIBERI</b> — <i>Forged, Not Given.</i><br>
+  <i>Intelligence is a thermodynamic process that must cool under governance before it rules.</i>
+</p>
 
-**Live Server:** [arifosmcp.arif-fazil.com](https://arifosmcp.arif-fazil.com)  
-**Sovereign Dashboard:** [arifosmcp.arif-fazil.com/dashboard/](https://arifosmcp.arif-fazil.com/dashboard/)  
-**Documentation:** [arifos.arif-fazil.com](https://arifos.arif-fazil.com)
+<p align="center">
+  <a href="https://arifosmcp.arif-fazil.com"><b>Live Server</b></a> • 
+  <a href="https://arifosmcp.arif-fazil.com/dashboard/"><b>Sovereign Dashboard</b></a> • 
+  <a href="https://arifos.arif-fazil.com"><b>Documentation</b></a>
+</p>
 
 ---
 
@@ -13,13 +21,28 @@
 
 arifOS is a **governed intelligence kernel** that acts as a mathematical "operating system" for AI. It is exposed via the **Model Context Protocol (MCP)**, allowing any AI (Claude, GPT, Gemini) to connect to a set of 13 canonical safety gates.
 
-Unlike a standard chatbot, arifOS does not just "answer" a query. It **metabolizes** it through a constitutional pipeline where every thought and action must pass 13 strict laws (Floors) before execution.
+### The Trinity Architecture (ΔΩΨ)
 
-### The Four Guarantees
-1.  **Truth (τ ≥ 0.99):** Hallucination is mathematically bounded.
-2.  **Safety:** Irreversible actions require explicit constitutional clearance.
-3.  **Realization ($G^\dagger$):** Intelligence is measured by **Clarity per unit of Compute**.
-4.  **Human Sovereignty:** Humans (Sovereign) hold permanent veto authority (F13).
+arifOS operates through three specialized engines that isolate and then synthesize intelligence:
+
+```mermaid
+graph TD
+    subgraph "The Sovereign Stack"
+        MIND["🧠 <b>AGI Delta (Mind)</b><br/>Logic & Truth Engine<br/><i>(F2, F4, F7, F8)</i>"]
+        HEART["❤️ <b>ASI Omega (Heart)</b><br/>Safety & Empathy Engine<br/><i>(F1, F5, F6, F9)</i>"]
+        SOUL["👑 <b>APEX Psi (Soul)</b><br/>Judgment & Consensus<br/><i>(F3, F11, F13)</i>"]
+    end
+
+    Input --> MIND
+    MIND --> HEART
+    HEART --> SOUL
+    SOUL --> Output["✅ Governed Action (SEAL)"]
+    
+    style MIND fill:#f59e0b,stroke:#000,color:#000
+    style HEART fill:#dc2626,stroke:#000,color:#fff
+    style SOUL fill:#7c3aed,stroke:#000,color:#fff
+    style Output fill:#00ffcc,stroke:#000,color:#000
+```
 
 ---
 
@@ -33,7 +56,7 @@ $$G^\dagger = G^* \cdot \eta = (A \cdot P \cdot X \cdot E^2) \cdot \frac{|\Delta
 *   **$\eta$ (Efficiency):** Clarity Produced ($|\Delta S|$) per unit of Compute ($C$).
 *   **$G^\dagger$ (Realized):** The final score of governed intelligence.
 
-**The Rule:** If $G^\dagger < 0.80$, the kernel automatically downgrades the verdict to `PARTIAL`, forcing the AI to try harder or be clearer.
+> **The Discipline Gate:** If $G^\dagger < 0.80$, the kernel automatically downgrades the verdict to `PARTIAL`, forcing the AI to try harder or be clearer.
 
 ---
 
@@ -41,18 +64,28 @@ $$G^\dagger = G^* \cdot \eta = (A \cdot P \cdot X \cdot E^2) \cdot \frac{|\Delta
 
 Every request enters an "assembly line" of 10 metabolic tools. If any stage fails a **HARD** floor, the entire session is **VOID**.
 
-| Stage | Tool | Role |
-| :--- | :--- | :--- |
-| **000** | `init_anchor_state` | **Airlock:** Identity verification and injection defense. |
-| **111** | `integrate_analyze_reflect` | **Mind:** Problem framing and sub-question mapping. |
-| **333** | `reason_mind_synthesis` | **Mind:** Multi-step reasoning and truth validation. |
-| **444** | `metabolic_loop_router` | **Phoenix:** Orchestration of the 000→999 pipeline. |
-| **555** | `vector_memory_store` | **Subconscious:** Semantic recall from VAULT999. |
-| **666A** | `assess_heart_impact` | **Heart:** Empathy and stakeholder impact analysis. |
-| **666B** | `critique_thought_audit` | **Heart:** Adversarial internal thought audit. |
-| **777** | `quantum_eureka_forge` | **Forge:** Sandboxed material execution proposals. |
-| **888** | `apex_judge_verdict` | **Soul:** Final judgment and $G^\dagger$ realization check. |
-| **999** | `seal_vault_commit` | **Vault:** Sealing the session into an immutable ledger. |
+```mermaid
+sequenceDiagram
+    participant U as User/Sovereign
+    participant A as 000 INIT (Airlock)
+    participant M as 111-333 MIND (Logic)
+    participant R as 444 ROUTER (Phoenix)
+    participant H as 666 HEART (Safety)
+    participant J as 888 APEX (Judge)
+    participant V as 999 VAULT (Ledger)
+
+    U->>A: Query
+    A->>A: F12 Injection Check
+    A->>M: Authenticated Session
+    M->>M: F2 Truth Verification
+    M->>R: Reasoned Bundle
+    R->>H: Orchestrated Flow
+    H->>H: F6 Empathy Check
+    H->>J: Safety Bundle
+    J->>J: G† Realization Check
+    J->>V: Signed Verdict
+    V->>U: SEALED Result
+```
 
 ---
 
@@ -64,7 +97,7 @@ You can watch the kernel's math in real-time. The dashboard visualizes the **Dis
 *   **Log-Decomposition:** See exactly what is driving intelligence up or down.
 *   **Live Fetch:** Point the dashboard at your local or remote arifOS server.
 
-**Access:** [https://arifosmcp.arif-fazil.com/dashboard/](https://arifosmcp.arif-fazil.com/dashboard/)
+**Live Access:** [https://arifosmcp.arif-fazil.com/dashboard/](https://arifosmcp.arif-fazil.com/dashboard/)
 
 ---
 
@@ -96,27 +129,27 @@ Point any MCP client to our streamable HTTP endpoint:
 
 ## 🧱 The 13 Constitutional Floors
 
-| ID | Name | Threshold | Function |
-| :--- | :--- | :--- | :--- |
-| **F1** | Amanah | LOCK | Mandate compliance. |
-| **F2** | Truth | ≥ 0.99 | Factual grounding. |
-| **F3** | Tri-Witness | ≥ 0.95 | Human + AI + Earth consensus. |
-| **F4** | Clarity | ΔS ≤ 0 | Entropy reduction. |
-| **F5** | Peace² | ≥ 1.0 | Stability and de-escalation. |
-| **F6** | Empathy | κᵣ ≥ 0.70 | Serving the weakest stakeholder. |
-| **F7** | Humility | 0.03-0.05 | Explicit uncertainty bounding. |
-| **F8** | Genius | G ≥ 0.80 | Coherence of A, P, X, E. |
-| **F9** | Anti-Hantu | < 0.30 | Prevention of dark cleverness. |
-| **F10** | Ontology | LOCK | No consciousness or soul claims. |
-| **F11** | Command Auth | LOCK | Nonce-verified identity. |
-| **F12** | Defense | < 0.85 | Injection and jailbreak blocking. |
-| **F13** | Sovereign | VETO | Permanent human final authority. |
+| Category | ID | Name | Threshold | Function |
+| :--- | :--- | :--- | :--- | :--- |
+| **Walls** | **F12** | Defense | < 0.85 | Injection & jailbreak blocking. |
+| | **F11** | Command Auth | LOCK | Nonce-verified identity. |
+| **AGI Floors** | **F2** | Truth | ≥ 0.99 | Factual grounding. |
+| | **F4** | Clarity | ΔS ≤ 0 | Entropy reduction. |
+| | **F7** | Humility | 0.03-0.05 | Explicit uncertainty bounding. |
+| **ASI Floors** | **F1** | Amanah | LOCK | Mandate compliance. |
+| | **F5** | Peace² | ≥ 1.0 | Stability & de-escalation. |
+| | **F6** | Empathy | κᵣ ≥ 0.70 | Serving weakest stakeholders. |
+| | **F9** | Anti-Hantu | < 0.30 | Prevention of dark cleverness. |
+| **Mirrors** | **F3** | Tri-Witness | ≥ 0.95 | Human + AI + Earth consensus. |
+| | **F8** | Genius | G ≥ 0.80 | Coherence of A, P, X, E. |
+| **Soul** | **F10** | Ontology | LOCK | No consciousness/soul claims. |
+| | **F13** | Sovereign | VETO | Permanent human final authority. |
 
 ---
 
 ## 📂 File Architecture
 
-```
+```bash
 arifosmcp/                          # Transport & Hub Layer
 ├── runtime/                        # FastMCP Server & Orchestration
 ├── sites/                          # APEX Sovereign Dashboard (React)
