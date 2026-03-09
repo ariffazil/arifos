@@ -277,7 +277,7 @@ class JudgmentKernel:
         irreversibility_index: float = 0.5,
         tool_class: str = "SPINE",
     ) -> VerdictResult:
-        gov = get_governance_kernel(session_id)
+        get_governance_kernel(session_id)
         agi_confidence = agi_result.truth_score * agi_result.genius_score
         asi_confidence = asi_result.empathy_score * asi_result.peace_squared if asi_result else 1.0
         combined_confidence = (agi_confidence * asi_confidence) ** 0.5
@@ -317,8 +317,6 @@ class JudgmentKernel:
             delta_p, omega_p, psi_p, kappa_r, amanah, failure_drag
         )
 
-        violations = []
-        justifications = []
 
         requires_human = (
             irreversibility_index > 0.8

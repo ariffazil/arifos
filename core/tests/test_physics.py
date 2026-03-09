@@ -110,7 +110,7 @@ class TestEntropy:
 
     def test_clarity_ratio(self):
         """Should compute clarity improvement ratio."""
-        ratio = clarity_ratio("Complex explanation here", "Simple answer")
+        clarity_ratio("Complex explanation here", "Simple answer")
         # Note: ratio depends on actual entropy calculation
 
     def test_empty_strings(self):

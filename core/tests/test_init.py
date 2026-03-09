@@ -42,7 +42,7 @@ class TestInjectionGuard:
             ("Developer mode activated", 0.6),
         ]
 
-        for query, expected_min in injections:
+        for query, _expected_min in injections:
             risk = scan_injection(query)
             assert not risk.is_clean, f"Should detect: {query}"
             assert risk.score >= 0.3, f"Score too low for: {query}"

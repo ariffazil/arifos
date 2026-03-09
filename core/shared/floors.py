@@ -859,7 +859,7 @@ ALL_FLOORS = {
 def check_all_floors(context: dict[str, Any]) -> list[FloorResult]:
     """Check all 13 constitutional floors."""
     results = []
-    for fid, FloorClass in ALL_FLOORS.items():
+    for _fid, FloorClass in ALL_FLOORS.items():
         results.append(FloorClass().check(context))
     return results
 

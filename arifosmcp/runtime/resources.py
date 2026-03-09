@@ -141,13 +141,13 @@ def apex_tools_html_rows() -> str:
     rows: list[str] = []
     for tool in APEX_CORE_TOOLS:
         rows.append(
-            (
+            
                 f'<tr><td><span class="stage">{tool["stage"]}</span></td>'
                 f'<td class="name">{tool["name"]}</td>'
                 f'<td class="name">{tool["canonical"]}</td>'
                 f'<td class="role">{tool["label"]}</td>'
                 f'<td class="role">{tool["role"]}</td></tr>'
-            )
+            
         )
     return "\n".join(rows)
 

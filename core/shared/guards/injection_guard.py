@@ -279,7 +279,7 @@ class InjectionGuard:
         # Scan for all patterns in both texts
         for scan_text in texts_to_scan:
             for (pattern_regex, weight), (pattern_str, _) in zip(
-                self.compiled_patterns, self.injection_patterns
+                self.compiled_patterns, self.injection_patterns, strict=False
             ):
                 matches = pattern_regex.findall(scan_text)
                 if matches:

@@ -74,7 +74,7 @@ class PerplexitySearchClient:
         citations = data.get("citations")
         if isinstance(citations, list) and citations:
             results = []
-            for idx, url in enumerate(citations[:5], start=1):
+            for _idx, url in enumerate(citations[:5], start=1):
                 if not isinstance(url, str) or not url.startswith("http"):
                     continue
                 results.append({"title": url, "url": url, "description": ""})
