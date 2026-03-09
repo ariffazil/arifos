@@ -113,7 +113,7 @@ Add this to your `claude_desktop_config.json`:
       "command": "python",
       "args": ["-m", "arifosmcp.runtime", "http"],
       "env": {
-        "ARIFOS_GOVERNANCE_SECRET": "your-secret-here"
+        "arifOS_GOVERNANCE_SECRET": "your-secret-here"
       }
     }
   }

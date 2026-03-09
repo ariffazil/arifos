@@ -43,6 +43,6 @@
   </circle>
 
   <!-- Title -->
-  <text x="256" y="480" text-anchor="middle" fill="#FFFFFF" font-family="JetBrains Mono, monospace" font-size="28" font-weight="bold" letter-spacing="6">ARIFOS MCP</text>
+  <text x="256" y="480" text-anchor="middle" fill="#FFFFFF" font-family="JetBrains Mono, monospace" font-size="28" font-weight="bold" letter-spacing="6">arifOS MCP</text>
   <text x="256" y="500" text-anchor="middle" fill="#666666" font-family="JetBrains Mono, monospace" font-size="10" letter-spacing="2">DITEMPA BUKAN DIBERI</text>
 </svg>
