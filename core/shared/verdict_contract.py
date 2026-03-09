@@ -36,7 +36,7 @@ DITEMPA BUKAN DIBERI — Forged, not given.
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from core.shared.types import Verdict

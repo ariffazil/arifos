@@ -90,7 +90,7 @@ class ForgeResult(BaseModel):
                 msg += f" {self.remediation}"
             return msg
 
-        elif self.verdict == "HOLD":
+        elif self.verdict in ("HOLD", "888_HOLD"):
             return "Requires human sovereign review."
 
         return "Unknown verdict."

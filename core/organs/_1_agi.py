@@ -118,7 +118,7 @@ async def agi(
         reasoning_consistency=0.95,
         knowledge_gaps=[],
         model_logits_confidence=confidence,
-        grounding=evidence.get("sources", []),
+        grounding=[],  # No external sources at this stage; grounded via session context
         compute_ms=50.0,  # Simulated
         expected_ms=100.0,
     )
@@ -130,9 +130,11 @@ async def agi(
     )
 
     # 9. Construct Output
+    # Stage 333 MIND contract: VOID → SABAR (lab must be allowed to think wrong)
+    _organ_verdict = normalize_verdict(333, cognition.verdict)
     return AgiOutput(
         session_id=session_id,
-        verdict=Verdict(cognition.verdict),
+        verdict=_organ_verdict,
         stage="333",
         steps=steps,
         eureka=eureka,
