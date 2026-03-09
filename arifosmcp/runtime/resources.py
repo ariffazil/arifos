@@ -711,6 +711,20 @@ def register_resources(mcp: FastMCP) -> None:
                     "type": "object",
                     "description": "Tool-specific payload. Contents vary per stage.",
                 },
+                "opex": {
+                    "$ref": "schema://opex",
+                    "description": (
+                        "Optional OPEX epistemic layer. "
+                        "Declares output_candidate, probability, evidence, and uncertainty."
+                    ),
+                },
+                "apex": {
+                    "$ref": "schema://apex",
+                    "description": (
+                        "Optional APEX governance layer. "
+                        "Derived from RuntimeEnvelope telemetry + OPEX fields."
+                    ),
+                },
             },
             "additionalProperties": False,
         }
