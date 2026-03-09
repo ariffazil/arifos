@@ -8,7 +8,6 @@ from fastmcp.tools import ToolResult
 
 from arifosmcp.bridge import call_kernel
 from arifosmcp.runtime.models import (
-
     APEXBundle,
     AuthContext,
     OPEXBundle,
@@ -184,30 +183,20 @@ async def _wrap_call(
             or session_id
         )
 
-        # Inject Philosophy Anchor with semantic context
-        from arifosmcp.runtime.philosophy import get_wisdom_for_context
+        # Inject Philosophy Anchor (33-quote primary, 99-embedding secondary)
+        from arifosmcp.runtime.philosophy import get_philosophical_anchor
 
         g_score = kernel_res.get("telemetry", {}).get("confidence", 0.9)
         failed_floors = []
         if verdict_str in ["VOID", "HOLD-888"]:
             failed_floors.append("F2")
 
-        # Extract query/context from payload for semantic matching
-        query_text = ""
-        if isinstance(payload, dict):
-            query_text = (
-                payload.get("query", "")
-                or payload.get("task", "")
-                or payload.get("question", "")
-            )
-
-        # Use unified wisdom retrieval (combines deterministic + semantic)
-        anchor = get_wisdom_for_context(
-            context=query_text,
+        # Primary: 33-quote deterministic registry
+        anchor = get_philosophical_anchor(
             stage=stage.value,
             g_score=g_score,
             failed_floors=failed_floors,
-            use_semantic=True,
+            session_id=effective_session_id,
         )
 
         envelope = RuntimeEnvelope(

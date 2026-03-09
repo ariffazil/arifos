@@ -2618,7 +2618,7 @@
       "source": "arifOS Constitutional Theory (2024)",
       "human_cost": "99 humans paid with their lives for these floors",
       "apex_g": {
-        "tau": 1.0,
+        "tau": 0.99,
         "delta_s": -0.8933,
         "p2": 1.98,
         "g": 0.9614,

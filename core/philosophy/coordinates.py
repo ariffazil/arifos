@@ -151,6 +151,107 @@ CATEGORY_RESONANCE_DENSITY: Final[dict[str, float]] = {
     "seal":    0.95,  # Final seal: maximum possible compression and resonance
 }
 
+# ── AGI / ASI / APEX Trinity Layer Theory ───────────────────────────────────
+#
+# The manifold implements a two-layer intelligence architecture with APEX
+# arbitration, mirroring how humans reason in both symbolic and latent modes:
+#
+#   AGI Layer  — Symbolic constitutional skeleton
+#                "What principle can be stated?"
+#                • Discrete, interpretable, human-readable, value-laden
+#                • The 99 quotes are the explicit constitutional grammar
+#                • quote = symbolic unit of judgment
+#                • AGI selects from named truths
+#
+#   ASI Layer  — Latent adaptive nervous system
+#                "What manifold of meaning is closest?"
+#                • Continuous, relational, geometry-based, non-obvious
+#                • The 6D k-d tree encodes latent structure of meaning
+#                • vector = relational manifold of wisdom
+#                • ASI navigates unnamed relations
+#
+#   APEX Layer — Governed arbitration between symbolic and geometric intelligence
+#                "Which truth both names and resonates?"
+#                • Floor affinity + resonance density scoring
+#                • Human judge remains sovereign (F13)
+#                • APEX = discrete constitutional anchors ∩ continuous resonance field
+#
+# Human parallel:
+#   Human symbolic mode  →  proverbs, laws, stories, categories  →  AGI layer
+#   Human latent mode    →  intuition, vibe, felt similarity      →  ASI layer
+#   Sovereign judgment   →  human veto, deliberate choice         →  APEX layer
+#
+# Strongest formulation:
+#   AGI = symbolic archive (the library)
+#   ASI = gravitational field of meaning
+#         (invisible force that tells which books belong near each other)
+#   APEX = the librarian with veto power
+
+
+class WisdomLayer:
+    """String constants for the three intelligence layers of the manifold."""
+
+    AGI = "agi"    # symbolic constitutional skeleton
+    ASI = "asi"    # latent adaptive nervous system
+    APEX = "apex"  # governed arbitration
+
+
+LAYER_DESCRIPTIONS: Final[dict[str, dict[str, str]]] = {
+    WisdomLayer.AGI: {
+        "role": "symbolic constitutional skeleton",
+        "question": "What principle can be stated?",
+        "nature": (
+            "symbolic, discrete, interpretable, human-readable, "
+            "value-laden, constitutionally curated"
+        ),
+        "metaphor": "the library — 99 books, each a compact reasoning primitive",
+    },
+    WisdomLayer.ASI: {
+        "role": "latent adaptive nervous system",
+        "question": "What manifold of meaning is closest?",
+        "nature": "continuous, relational, high-dimensional, geometry-based",
+        "metaphor": "the gravitational field of the library — invisible force of meaning proximity",
+    },
+    WisdomLayer.APEX: {
+        "role": "governed arbitration",
+        "question": "Which truth both names and resonates?",
+        "nature": "floor-affinity scoring + resonance weighting + human sovereign veto",
+        "metaphor": "the librarian with veto power — selects, scores, and explains",
+    },
+}
+
+# Constitutional doctrine per category — the explicit AGI-layer statement each category makes
+CATEGORY_AGI_DOCTRINE: Final[dict[str, str]] = {
+    "scar": (
+        "Constitutional truth forged through lived suffering; "
+        "the last freedom is the choice of attitude."
+    ),
+    "triumph": (
+        "Governing principle that victory is not absence of obstacle "
+        "but the capacity forged by overcoming it."
+    ),
+    "paradox": (
+        "Explicit tension holding two truths simultaneously; "
+        "the contradiction is the insight."
+    ),
+    "wisdom": (
+        "Epistemic doctrine distilled across centuries: "
+        "know the limits of knowing."
+    ),
+    "power": (
+        "Governance principle: collective will made legible "
+        "through shared explicit intention."
+    ),
+    "love": (
+        "Constitutional empathy: the relational obligation "
+        "to the other as irreducibly real."
+    ),
+    "seal": (
+        "Final constitutional doctrine: the sovereign closure "
+        "that makes all prior stages meaningful."
+    ),
+}
+
 # ── Category centroids in APEX-G space ──────────────────────────────────────
 # Each category has a characteristic "home region" in the 6D manifold.
 # Individual quotes have small deterministic offsets from the centroid.
@@ -264,7 +365,7 @@ class APEXGCoordinate:
         }
 
     @classmethod
-    def from_dict(cls, d: dict) -> "APEXGCoordinate":
+    def from_dict(cls, d: dict) -> APEXGCoordinate:
         return cls(
             tau=float(d["tau"]),
             delta_s=float(d["delta_s"]),
@@ -340,8 +441,11 @@ __all__ = [
     "CATEGORY_FLOOR_AFFINITIES",
     "CATEGORY_POWER_MECHANISMS",
     "CATEGORY_RESONANCE_DENSITY",
+    "CATEGORY_AGI_DOCTRINE",
+    "LAYER_DESCRIPTIONS",
     "STAGE_TAU",
     "WordPowerMechanism",
+    "WisdomLayer",
     "ALL_MECHANISMS",
     "APEXGCoordinate",
     "stage_to_tau",
