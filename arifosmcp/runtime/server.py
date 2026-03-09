@@ -96,17 +96,38 @@ register_phase2_tools(mcp, profile=PUBLIC_TOOL_PROFILE)
 
 HTTP_PATH = _normalize_path(os.getenv("ARIFOS_MCP_PATH"), "/mcp")
 # Enable stateless HTTP + JSON responses for ChatGPT/remote MCP compatibility.
-app = mcp.http_app(
+_mcp_app = mcp.http_app(
     path=HTTP_PATH,
     json_response=True,
     middleware=_build_http_middleware(),
     stateless_http=True,
 )
 
+
+# ASGI wrapper to add default Accept header for ChatGPT compatibility
+class ChatGPTCompatMiddleware:
+    """Add Accept header if missing for ChatGPT MCP client compatibility."""
+
+    def __init__(self, app):
+        self.app = app
+
+    async def __call__(self, scope, receive, send):
+        if scope.get("type") == "http":
+            headers = scope.get("headers", [])
+            accept_found = any(h[0].lower() == b"accept" for h in headers)
+            if not accept_found:
+                headers = list(headers)
+                headers.append((b"accept", b"application/json"))
+                scope["headers"] = headers
+        await self.app(scope, receive, send)
+
+
+app = ChatGPTCompatMiddleware(_mcp_app)
+
 # Mount APEX dashboard static files
 _dashboard_dir = os.path.join(os.path.dirname(__file__), "..", "sites", "apex-dashboard")
 if os.path.isdir(_dashboard_dir):
-    app.mount("/dashboard", StaticFiles(directory=_dashboard_dir, html=True), name="dashboard")
+    _mcp_app.mount("/dashboard", StaticFiles(directory=_dashboard_dir, html=True), name="dashboard")
 
 
 def create_aaa_mcp_server() -> FastMCP:
