@@ -277,6 +277,8 @@ def _f11_continuity_failure(
     if critical:
         actions.append("Critical tool blocked until F11 continuity is valid.")
     return {
+        "status": "ERROR",
+        "error_code": "F11_CONTINUITY_FAILURE",
         "verdict": "VOID",
         "stage": stage,
         "session_id": session_id,
@@ -950,6 +952,10 @@ class ToolHandle:
         else:
             self.fn = fn
 
+    def __call__(self, *args, **kwargs):
+        """Allow direct calling of the tool function."""
+        return self.fn(*args, **kwargs)
+
 
 def _fold_verdict(verdicts: list[str]) -> str:
     if any(v.upper() == "VOID" for v in verdicts):
@@ -964,6 +970,8 @@ def _fold_verdict(verdicts: list[str]) -> str:
 def _build_floor_block(stage: str, reason: str) -> dict[str, Any]:
     """Standardized F11 block for missing session/auth continuity."""
     return {
+        "status": "ERROR",
+        "error_code": "FLOOR_BLOCK",
         "verdict": "VOID",
         "stage": stage,
         "session_id": "",
@@ -986,8 +994,9 @@ def _build_floor_block(stage: str, reason: str) -> dict[str, Any]:
 def _fracture_response(stage: str, e: Exception, session_id: str | None = None) -> dict[str, Any]:
     """Standardized SABAR envelope for unhandled internal exceptions (kernel fractures)."""
     result: dict[str, Any] = {
+        "status": "ERROR",
+        "error_code": "INTERNAL_FRACTURE",
         "verdict": "SABAR",
-        "status": "partial",
         "holding_reason": "Internal Engine Fracture",
         "error_class": e.__class__.__name__,
         "blast_radius": "kernel",
@@ -997,6 +1006,8 @@ def _fracture_response(stage: str, e: Exception, session_id: str | None = None) 
     }
     if session_id:
         result["session_id"] = session_id
+    else:
+        result["session_id"] = "unknown"
     return result
 
 
@@ -1497,7 +1508,10 @@ async def _init_anchor_state(
         if not session_id:
             session_id = f"session-{uuid.uuid4().hex[:8]}"
 
-        query = intent.get("query", "INIT")
+        query = intent.get("query")
+        if not query:
+            return _fracture_response("000_INIT", ValueError("intent.query field is required"), session_id)
+
         actor_id = (governance or {}).get("actor_id", "anonymous")
 
         # Integrate with core SessionManager
@@ -1521,6 +1535,7 @@ async def _init_anchor_state(
         continuity_context = _rotate_auth_context(effective_session, initial_binding)
 
         result = {
+            "status": "SUCCESS",
             "verdict": verdict,
             "session_id": effective_session,
             "stage": "000_INIT",
@@ -2239,7 +2254,7 @@ async def _metabolic_loop_router(
     """
     trace = {}
     try:
-        # 1. 000_BOOT: Anchor
+        # 1. 000_BOOT: Anchor (Auto-init)
         anchor_payload = {
             "intent": {
                 "query": query,
@@ -2254,7 +2269,14 @@ async def _metabolic_loop_router(
         anchor_res = await init_anchor_state(**anchor_payload)
         trace["000_INIT"] = anchor_res.get("verdict")
         if anchor_res.get("verdict") == "VOID":
-            return {"verdict": "VOID", "stage": "000_INIT", "trace": trace, "details": anchor_res}
+            return {
+                "status": "ERROR",
+                "error_code": "GOVERNANCE_VOID",
+                "verdict": "VOID",
+                "stage": "000_INIT",
+                "trace": trace,
+                "details": anchor_res,
+            }
 
         session_id = anchor_res.get("session_id")
         auth_ctx = anchor_res.get("auth_context")
@@ -2276,16 +2298,18 @@ async def _metabolic_loop_router(
         # 4. 666_AUDIT: Heart + Critique
         heart_res = {"verdict": "SEAL"}
         if use_heart:
-            heart_res = await assess_heart_impact(
-                session_id=session_id, scenario=query, auth_context=auth_ctx
+            heart_res = await simulate_heart(
+                session_id=session_id, query=query, auth_context=auth_ctx
             )
             trace["666_HEART"] = heart_res.get("verdict")
             auth_ctx = heart_res.get("auth_context")
 
         critique_res = {"verdict": "SEAL"}
         if use_critique:
-            critique_res = await critique_thought_audit(
-                session_id=session_id, thought_id="final_mind_answer", auth_context=auth_ctx
+            critique_res = await critique_thought(
+                session_id=session_id,
+                plan=mind_res.get("data", {}).get("respond", {"query": query}),
+                auth_context=auth_ctx,
             )
             trace["666_CRITIQUE"] = critique_res.get("verdict")
             auth_ctx = critique_res.get("auth_context")
@@ -2315,27 +2339,36 @@ async def _metabolic_loop_router(
         else:
             final_candidate = "SEAL"
 
-        judge_res = await apex_judge_verdict(
-            session_id=session_id, verdict_candidate=final_candidate, auth_context=auth_ctx
+        judge_res = await apex_judge(
+            session_id=session_id,
+            query=query,
+            proposed_verdict=final_candidate,
+            auth_context=auth_ctx,
         )
         verdict = judge_res.get("verdict")
         trace["888_JUDGE"] = verdict
         auth_ctx = judge_res.get("auth_context")
 
         # 7. 999_SEAL: Vault commit
-        seal_res = await seal_vault_commit(
-            session_id=session_id, verdict=verdict, auth_context=auth_ctx
+        seal_res = await seal_vault(
+            session_id=session_id,
+            summary=f"Metabolic loop completed: {query}",
+            governance_token=judge_res.get("governance_token", ""),
+            auth_context=auth_ctx,
         )
         trace["999_VAULT"] = seal_res.get("verdict")
 
         return {
+            "status": "SUCCESS",
             "verdict": verdict,
             "session_id": session_id,
+            "message": f"Metabolic loop completed with verdict: {verdict}",
             "trace": trace,
-            "summary": f"Metabolic loop completed with verdict: {verdict}",
+            "summary": f"Loop summary: {query}",
             "ledger_id": seal_res.get("payload", {}).get("ledger_id"),
             "next_actions": judge_res.get("payload", {}).get("next_actions", []),
             "floors_state": judge_res.get("floors", {}),
+            "auth_context": auth_ctx,
         }
 
     except Exception as e:
