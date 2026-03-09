@@ -227,7 +227,7 @@ def log_tool_call(logger: logging.Logger):
 
         @wraps(func)
         def sync_wrapper(*args, **kwargs):
-            cid = get_correlation_id() or str(uuid.uuid4())[:8]
+            get_correlation_id() or str(uuid.uuid4())[:8]
             start = time.perf_counter()
 
             logger.info(f"Tool call started: {func.__name__}", extra={"tool": func.__name__})

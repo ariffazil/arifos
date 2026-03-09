@@ -5,8 +5,8 @@ This module implements the Stage 444 logic, coordinating the 10-tool APEX-G kern
 DITEMPA BUKAN DIBERI — Forged, Not Given
 """
 
-import os
 import logging
+import os
 from typing import Any
 
 from arifosmcp.runtime.models import RuntimeEnvelope, Verdict

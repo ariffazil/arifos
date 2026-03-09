@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -50,10 +50,10 @@ class AuthContext(BaseModel):
     nonce: str | None = None
     iat: int | None = None
     exp: int | None = None
-    approval_scope: List[str] = Field(default_factory=list)
+    approval_scope: list[str] = Field(default_factory=list)
     parent_signature: str | None = None
     signature: str | None = None
-    math: Dict[str, float] | None = None
+    math: dict[str, float] | None = None
 
     model_config = ConfigDict(extra="allow")
 
@@ -85,5 +85,5 @@ class RuntimeEnvelope(BaseModel):
     telemetry: Telemetry = Field(default_factory=Telemetry)
     witness: Witness = Field(default_factory=Witness)
     auth_context: AuthContext = Field(default_factory=AuthContext)
-    philosophy: Optional[Philosophy] = None
-    data: Dict[str, Any] = Field(default_factory=dict)
+    philosophy: Philosophy | None = None
+    data: dict[str, Any] = Field(default_factory=dict)

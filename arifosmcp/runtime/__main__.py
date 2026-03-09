@@ -27,6 +27,7 @@ def main() -> None:
     # For HTTP mode, use the pre-configured app from server.py (includes dashboard)
     if mode in ("http", "streamable-http"):
         import uvicorn
+
         from .server import app
 
         uvicorn.run(app, host=host, port=port, log_level="info")

@@ -192,9 +192,9 @@ class HardenedAnomalousContrastEngine:
         # Compute Jaccard similarity with historical queries
         # Jaccard = |A ∩ B| / |A ∪ B|
         similarities = []
-        query_len = len(query_ngrams)
+        len(query_ngrams)
 
-        for hist_fingerprint, hist_ngrams in list(self._history_ngrams.items())[-100:]:
+        for _hist_fingerprint, hist_ngrams in list(self._history_ngrams.items())[-100:]:
             intersection = len(query_ngrams & hist_ngrams)
             union = len(query_ngrams | hist_ngrams)
 

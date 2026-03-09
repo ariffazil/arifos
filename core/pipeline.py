@@ -161,8 +161,8 @@ async def forge(
     f2_threshold = token.f2_threshold
     query_type_value = token.query_type
     token_metrics = getattr(token, "metrics", {}) or {}
-    objective_contract = token_metrics.get("objective_contract", {})
-    stage_motto_000 = get_motto_for_stage("000_INIT")
+    token_metrics.get("objective_contract", {})
+    get_motto_for_stage("000_INIT")
 
     # Connect to the Governance Kernel (Ψ)
     kernel = session_manager.get_kernel(token.session_id)
@@ -237,8 +237,7 @@ async def forge(
     emd.metabolism.delta_s = agi_tensor.entropy_delta if agi_tensor else 0.0
     emd.decision.confidence = agi_tensor.truth_score if agi_tensor else 0.5
 
-    bits_erased = max(0.0, -emd.metabolism.delta_s * 1000)
-    l_risk = 0.0
+    max(0.0, -emd.metabolism.delta_s * 1000)
 
     floors_violated = []
     if emd.decision.confidence < f2_threshold:

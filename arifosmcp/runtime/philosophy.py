@@ -6,7 +6,7 @@ Deterministic quote selection for the 33 internal quotes.
 from __future__ import annotations
 
 import random
-from typing import List, TypedDict
+from typing import TypedDict
 
 
 class Quote(TypedDict):
@@ -16,7 +16,7 @@ class Quote(TypedDict):
     text: str
 
 
-PHILOSOPHY_REGISTRY: List[Quote] = [
+PHILOSOPHY_REGISTRY: list[Quote] = [
     # 1-10: WISDOM (Humility / Knowledge)
     {
         "id": "W1",

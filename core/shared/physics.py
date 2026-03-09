@@ -794,7 +794,7 @@ def kl_divergence(p: list[float], q: list[float]) -> float:
     q_norm = [max(1e-10, x / sum_q) for x in q]
 
     kl = 0.0
-    for pi_val, qi_val in zip(p_norm, q_norm):
+    for pi_val, qi_val in zip(p_norm, q_norm, strict=False):
         kl += pi_val * math.log(pi_val / qi_val)
 
     return max(0.0, kl)
