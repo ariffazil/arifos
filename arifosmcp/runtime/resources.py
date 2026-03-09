@@ -317,6 +317,8 @@ def register_resources(mcp: FastMCP) -> None:
                     "eval://floors-thresholds",
                     "schema://tools/input",
                     "schema://tools/output",
+                    "schema://opex",
+                    "schema://apex",
                     "vault://latest",
                     "telemetry://summary",
                 ],
@@ -711,6 +713,129 @@ def register_resources(mcp: FastMCP) -> None:
                 },
             },
             "additionalProperties": False,
+        }
+        return json.dumps(schema, ensure_ascii=False)
+
+    @mcp.resource("schema://opex")
+    def schema_opex() -> str:
+        """OPEX Operational Epistemics schema — epistemic intake layer attached to every tool response."""
+        schema = {
+            "schema": "OPEX v1.0",
+            "description": (
+                "Epistemic intake schema. Forces every tool response to declare: "
+                "what it thinks (output_candidate), how confident (probability), "
+                "why (evidence), and what it doesn't know (uncertainty)."
+            ),
+            "type": "object",
+            "properties": {
+                "output_candidate": {
+                    "type": "string",
+                    "description": "The proposed result or answer this tool is asserting.",
+                },
+                "probability": {
+                    "type": "number",
+                    "minimum": 0.0,
+                    "maximum": 1.0,
+                    "description": "Confidence in the output_candidate [0-1].",
+                },
+                "evidence": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "description": "Supporting evidence items grounding the output_candidate.",
+                },
+                "uncertainty": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "description": "Known unknowns, open questions, or boundary conditions.",
+                },
+            },
+            "motto": "OPEX asks: What is true enough to say?",
+        }
+        return json.dumps(schema, ensure_ascii=False)
+
+    @mcp.resource("schema://apex")
+    def schema_apex() -> str:
+        """APEX Applied Prudential EXecution schema — governance output layer attached to every tool response."""
+        schema = {
+            "schema": "APEX v1.0",
+            "description": (
+                "Governance output schema. Evaluates whether a tool result is "
+                "fit to present, act on, or escalate. Derived automatically from "
+                "RuntimeEnvelope telemetry + OPEX fields."
+            ),
+            "type": "object",
+            "properties": {
+                "akal": {
+                    "type": "object",
+                    "description": "Reasoning coherence check (F2 Truth + F4 Clarity).",
+                    "properties": {
+                        "coherence": {
+                            "type": "string",
+                            "enum": ["passes", "fails", "unknown"],
+                        },
+                        "contradiction": {"type": "string"},
+                    },
+                },
+                "present": {
+                    "type": "object",
+                    "description": "Context relevance check (F1 Amanah mandate fit).",
+                    "properties": {
+                        "context_fit": {
+                            "type": "string",
+                            "enum": ["high", "medium", "low", "unknown"],
+                        },
+                        "user_intent_match": {
+                            "type": "string",
+                            "enum": ["high", "medium", "low", "unknown"],
+                        },
+                    },
+                },
+                "energy": {
+                    "type": "object",
+                    "description": "Cost/risk assessment (F5 Peace² stability).",
+                    "properties": {
+                        "effort_to_verify": {
+                            "type": "string",
+                            "enum": ["low", "medium", "high"],
+                        },
+                        "entropy_if_wrong": {
+                            "type": "string",
+                            "enum": ["low", "medium", "high"],
+                        },
+                    },
+                },
+                "exploration_amanah": {
+                    "type": "object",
+                    "description": "Discovery breadth + trust boundary (F9 C_dark + F7 Humility).",
+                    "properties": {
+                        "explored_alternatives": {"type": "integer", "minimum": 0},
+                        "trust_boundary": {
+                            "type": "string",
+                            "enum": ["do not overclaim", "cleared"],
+                        },
+                    },
+                },
+                "judgment": {
+                    "type": "object",
+                    "description": "Final governance call (F13 Sovereign + F3 Tri-Witness).",
+                    "properties": {
+                        "recommendation": {
+                            "type": "string",
+                            "enum": ["Approved", "Partial", "Pause", "Hold", "Void"],
+                        },
+                        "human_decision_required": {"type": "boolean"},
+                    },
+                },
+            },
+            "verdict_mapping": {
+                "SEAL": "Approved",
+                "PARTIAL": "Partial",
+                "SABAR": "Pause",
+                "VOID": "Void",
+                "HOLD-888": "Hold",
+                "UNSET": "Pause",
+            },
+            "motto": "APEX asks: What is responsible enough to release?",
         }
         return json.dumps(schema, ensure_ascii=False)
 
