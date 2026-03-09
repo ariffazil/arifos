@@ -1,13 +1,17 @@
 from __future__ import annotations
 
+import logging
+import time
 from datetime import datetime, timezone
 from typing import Any
 
-from aaa_mcp.services.constitutional_metrics import get_last_seal_hash, store_stage_result
+from arifosmcp.services.constitutional_metrics import get_last_seal_hash, store_stage_result
+
+logger = logging.getLogger(__name__)
 
 # Import precedent memory (F8 Genius - institutional memory)
 try:
-    from aaa_mcp.vault.precedent_memory import embed_vault_entry
+    from arifosmcp.vault.precedent_memory import embed_vault_entry
     PRECEDENT_MEMORY_AVAILABLE = True
 except ImportError:
     PRECEDENT_MEMORY_AVAILABLE = False
@@ -26,7 +30,7 @@ async def vault_seal(
 
     Persists the final decision and payload to the session ledger.
     Optionally embeds governance explanation to precedent memory (F8 Genius).
-    
+
     Args:
         session_id: Constitutional session identifier
         verdict: Final verdict (SEAL, VOID, SABAR, 888_HOLD, PARTIAL)
@@ -69,15 +73,29 @@ async def vault_seal(
         },
     )
 
+    # Wire OTel span attributes after persist
+    from arifosmcp.telemetry import OTEL_AVAILABLE
+    if OTEL_AVAILABLE:
+        from opentelemetry import trace
+        span = trace.get_current_span()
+        if span and span.is_recording():
+            span.set_attribute("vault.seal_id", vault_entry["seal_id"])
+            span.set_attribute("vault.verdict", verdict)
+            span.set_attribute("vault.eureka_score", governance_context.get("eureka_score", 0.0))
+            span.set_attribute("vault.merkle_root", "")  # populated after actual seal
+            span.set_attribute("vault.stage", "999_SEAL")
+            span.set_attribute("vault.session_id", session_id)
+            span.set_attribute("arifos.metabolic_stage", "999_SEAL")
+
     # F8 Genius: Embed to precedent memory (semantic interpretation)
     precedent_id = None
     if PRECEDENT_MEMORY_AVAILABLE:
         try:
             precedent_id = await embed_vault_entry(vault_entry)
-            print(f"[999_SEAL] Precedent memory updated: {precedent_id}")
+            logger.info("[999_SEAL] Precedent memory updated: %s", precedent_id)
         except Exception as e:
             # F1 Amanah: Don't fail seal if precedent embedding fails
-            print(f"[999_SEAL] Precedent embedding skipped: {e}")
+            logger.info("[999_SEAL] Precedent embedding skipped: %s", e)
 
     return {
         "status": "SEALED",

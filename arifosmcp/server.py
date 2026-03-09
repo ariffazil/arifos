@@ -116,12 +116,15 @@ async def execute_forge(verdict_token: str, session_id: str) -> dict[str, Any]:
 @mcp.tool()
 async def seal_vault(verdict: dict[str, Any], session_id: str) -> dict[str, Any]:
     """999 - VAULT: Immutable ledger seal. Enforces Merkle persistence."""
-    return {
-        "verdict": "SEALED",
-        "stage": "999_VAULT",
-        "session_id": session_id,
-        "receipt_hash": "SHA256:...",
-    }
+    from arifosmcp.tools.vault_seal import vault_seal as _vault_seal
+    result = await _vault_seal(
+        session_id=session_id,
+        verdict=verdict.get("verdict", "UNKNOWN"),
+        payload=verdict,
+        metadata={},
+        governance_context=verdict,
+    )
+    return result
 
 @mcp.tool()
 async def metabolic_loop() -> dict[str, Any]:
