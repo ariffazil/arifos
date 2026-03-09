@@ -415,7 +415,7 @@ def derive_orthogonality(agi_vector: list[float], asi_vector: list[float]) -> fl
     if not agi_vector or not asi_vector or len(agi_vector) != len(asi_vector):
         return 1.0  # Fail-open: assume independent if data missing
 
-    dot_product = sum(a * b for a, b in zip(agi_vector, asi_vector))
+    dot_product = sum(a * b for a, b in zip(agi_vector, asi_vector, strict=False))
     norm_a = math.sqrt(sum(a * a for a in agi_vector))
     norm_b = math.sqrt(sum(b * b for b in asi_vector))
 

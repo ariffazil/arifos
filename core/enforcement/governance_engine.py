@@ -11,17 +11,14 @@ from __future__ import annotations
 
 import json
 import math
-import time
 from pathlib import Path
 from typing import Any
 
 from arifosmcp.transport.protocol.aaa_contract import (
     AAA_TOOL_LAW_BINDINGS,
     AAA_TOOL_STAGE_MAP,
-    AXIOMS_333,
     LAW_13_CATALOG,
     READ_ONLY_TOOLS,
-    TRINITY_BY_TOOL,
 )
 from core.shared.guards.injection_guard import scan_for_injection
 from core.shared.guards.ontology_guard import detect_literalism
@@ -543,7 +540,7 @@ def _derive_orthogonality(agi_vector: list[float], asi_vector: list[float]) -> f
     if not agi_vector or not asi_vector or len(agi_vector) != len(asi_vector):
         return 1.0  # Default to independent if vectors unavailable (fail-open for missing data)
 
-    dot_product = sum(a * b for a, b in zip(agi_vector, asi_vector))
+    dot_product = sum(a * b for a, b in zip(agi_vector, asi_vector, strict=False))
     norm_a = math.sqrt(sum(a * a for a in agi_vector))
     norm_b = math.sqrt(sum(b * b for b in asi_vector))
 
@@ -646,7 +643,7 @@ def wrap_tool_output(tool: str, payload: dict[str, Any]) -> dict[str, Any]:
 
     # P1 HARDENING: Calculate Tri-Witness consensus with geometric mean
     tri_witness = _calculate_tri_witness_consensus(tool, payload)
-    w3_score = tri_witness.get("w3", 0.0)
+    tri_witness.get("w3", 0.0)
 
     # P1 HARDENING: Φₚ (Paradox Conductance) - connect to verdict logic
     phi_p = tpcp.get("phiP", 0.0)

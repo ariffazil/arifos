@@ -37,7 +37,7 @@ class TestSkippedStageProgression:
 
     def test_cannot_skip_required_stage(self):
         """000-INIT cannot be skipped."""
-        runner = GovernanceRunner()
+        GovernanceRunner()
         config = WorkflowConfig()
 
         # Try to go from non-existent to 100-EXPLORE without 000-INIT
@@ -241,7 +241,7 @@ class TestPrototypeRestrictions:
 
     def test_prototype_cannot_deploy_to_production(self):
         """700-PROTOTYPE cannot transition directly to 999-VAULT."""
-        runner = GovernanceRunner()
+        GovernanceRunner()
         config = WorkflowConfig()
 
         # Check that 999-vault is not in allowed transitions from 700-prototype

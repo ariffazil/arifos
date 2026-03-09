@@ -358,7 +358,7 @@ class SelfOpsDiagnostics:
                 latency = (time.time() - start) * 1000
 
                 if response.status_code == 200:
-                    data = response.json()
+                    response.json()
                     return HealthCheckResult(
                         name="well_known_endpoint",
                         status="healthy",

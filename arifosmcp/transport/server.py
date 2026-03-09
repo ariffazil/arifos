@@ -837,8 +837,8 @@ async def _verify_approval_bundle(
     }, None
 
 
-from fastmcp import FastMCP, Context
-from fastmcp.server.apps import AppConfig, ResourceCSP, UI_EXTENSION_ID
+from fastmcp import Context, FastMCP
+from fastmcp.server.apps import UI_EXTENSION_ID, AppConfig, ResourceCSP
 from fastmcp.tools import ToolResult
 
 try:
@@ -1317,7 +1317,9 @@ def apply_governance_gate(
 
 
 import math
+
 from core.shared.physics import GeniusDial
+
 
 class EnvelopeBuilder:
     def __init__(self):
@@ -1887,7 +1889,7 @@ async def _vector_memory_store(
                 Heading("Associative Memory Recall", level=2)
                 Text(f"Retrieved {len(mem_data)} high-affinity vectors for session {effective_session}.")
                 
-                with DataTable(data=mem_data) as table:
+                with DataTable(data=mem_data):
                     DataTableColumn("score", label="Affinity")
                     DataTableColumn("source", label="Source")
                     DataTableColumn("preview", label="Snippet")
@@ -3128,7 +3130,7 @@ async def _search(
                     "snippet": (r.get("content") or r.get("description", ""))[:150] + "..."
                 })
             
-            with DataTable(data=table_data) as table:
+            with DataTable(data=table_data):
                 DataTableColumn("title", label="Source Title")
                 DataTableColumn("url", label="URL")
                 DataTableColumn("snippet", label="Snippet")
@@ -3332,7 +3334,7 @@ async def _system_audit(
                 Heading(f"Constitutional Audit: {audit_scope.upper()}", level=2)
                 Text("Verification of the 13 Constitutional Floors and governance invariants.")
                 
-                with DataTable(data=floor_data) as table:
+                with DataTable(data=floor_data):
                     DataTableColumn("id", label="Floor ID")
                     DataTableColumn("name", label="Floor Name")
                     DataTableColumn("severity", label="Severity")

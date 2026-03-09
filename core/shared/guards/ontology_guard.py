@@ -139,7 +139,7 @@ class OntologyGuard:
         normalized_output = unicodedata.normalize("NFKC", output).lower()
 
         # Scan for literalism patterns
-        for pattern, compiled in zip(self.literalism_patterns, self.compiled_patterns):
+        for pattern, compiled in zip(self.literalism_patterns, self.compiled_patterns, strict=False):
             if compiled.search(normalized_output):
                 detected.append(pattern)
 

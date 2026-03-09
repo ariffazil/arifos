@@ -472,7 +472,7 @@ def vector_orthogonality(vec_a: list[float], vec_b: list[float]) -> float:
         # Missing data = fail closed (assume collapse)
         raise ModeCollapseViolation(0.0, 1.0)
 
-    dot = sum(a * b for a, b in zip(vec_a, vec_b))
+    dot = sum(a * b for a, b in zip(vec_a, vec_b, strict=False))
     norm_a = math.sqrt(sum(a * a for a in vec_a))
     norm_b = math.sqrt(sum(b * b for b in vec_b))
 
@@ -676,7 +676,7 @@ def get_thermodynamic_report(session_id: str) -> dict[str, Any]:
     compliance = {
         "F4_clarity": all(
             out[1] <= inp[1]
-            for out, inp in zip(budget.entropy_output_log, budget.entropy_input_log)
+            for out, inp in zip(budget.entropy_output_log, budget.entropy_input_log, strict=False)
         ),
         "F7_budget": not budget.is_exhausted,
         "landauer_violations": budget.landauer_violations,

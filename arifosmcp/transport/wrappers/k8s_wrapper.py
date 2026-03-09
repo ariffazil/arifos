@@ -157,7 +157,7 @@ class ManifestParser:
         ]
 
         # Security context
-        security_context = template_spec.get("securityContext", {})
+        template_spec.get("securityContext", {})
         container_sc = [c.get("securityContext", {}) for c in containers]
 
         privileged = any(sc.get("privileged", False) for sc in container_sc)
