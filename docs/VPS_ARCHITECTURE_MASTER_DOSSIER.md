@@ -1,12 +1,21 @@
 # arifOS VPS Architecture - Master Dossier
 ## Complete Reference for Future Agents
 
-**Version:** 2026.03.07-OPENCLAW-EXECUTIVE-SEALED
+**Version:** 2026.03.08-UNIFIED-SERVICE-ARCHITECTURE
 **Classification:** TRINITY SEALED - Agent Reference
-**Authority:** Claude (Ω) Trinity + Codex (Ψ) Auditor
+**Authority:** Claude (Ω) Trinity + Codex (Ψ) Auditor + Kimi (Δ) Executor
 **Motto:** *Ditempa Bukan Diberi* — Forged, Not Given
 
-**What's New (2026-03-07, rev OPENCLAW-EXECUTIVE):**
+**What's New (2026-03-08, rev UNIFIED-ARCHITECTURE):**
+- ✅ **Complete Service Connection Map** — All 13 services, IPs, ports, dependencies documented
+- ✅ **Unified Network Architecture** — Single arifos_trinity network (10.0.10.0/24) consolidation
+- ✅ **OpenClaw v2026.3.7** — Updated to latest with Venice AI (9 models including Grok)
+- ✅ **arifOS MCP Health Endpoints** — Fixed /health and / for Traefik compatibility
+- ✅ **Fast Deployment Optimizations** — Dockerfile.optimized, Makefile, 30-60s rebuilds
+- ✅ **VPS Performance Tuning** — BBR TCP, 77GB disk reclaimed, sysctl optimizations
+- ✅ **Root User Config Fix** — OpenClaw volumes corrected (/root/.openclaw)
+
+**Previous (2026-03-07, rev OPENCLAW-EXECUTIVE):**
 - ✅ **OpenClaw Docker Executive Power** — Root user + Docker socket mount, full container management capability
 - ✅ **OpenClaw Telegram Bot Fixed** — @arifOS_bot now running via polling, config symlinked to persisted volume
 - ✅ **OpenClaw Non-Redundant Config** — `/root/.openclaw → /home/node/.openclaw` symlink prevents split-brain
@@ -1251,3 +1260,317 @@ Verdict: 888_HOLD → Human confirmation required
 *This dossier is the accumulated wisdom of the arifOS VPS deployment. Future agents: learn from our discoveries, respect the architecture, and forge onward.*
 
 **DITEMPA BUKAN DIBERI**
+## 🏗️ UNIFIED SERVICE ARCHITECTURE (2026.03.08-SEAL)
+
+**What's New:** Complete service connection map, network consolidation, and component dependency matrix.
+
+---
+
+### 🌐 Network Topology: Unified Trinity Network
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                    arifos_trinity (10.0.10.0/24)                        │
+│                     Unified Constitutional Mesh                          │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                         │
+│   ┌─────────────────────────────────────────────────────────────────┐  │
+│   │                        TRAEFIK (10.0.10.8)                       │  │
+│   │                    Edge Router / TLS Termination                  │  │
+│   │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐              │  │
+│   │  │  :80 → :443 │  │  Let's Enc  │  │  Dashboard  │              │  │
+│   │  │  Redirect   │  │  TLS certs  │  │  (disabled) │              │  │
+│   │  └─────────────┘  └─────────────┘  └─────────────┘              │  │
+│   └────────┬────────────────────────────────────────────────────────┘  │
+│            │                                                            │
+│            ▼ Routes to services                                         │
+│   ┌─────────────────────────────────────────────────────────────────┐  │
+│   │                      SERVICE MESH                                │  │
+│   │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐             │  │
+│   │  │ arifosmcp   │  │  openclaw   │  │   agent-    │             │  │
+│   │  │  :8080      │  │   :18789    │  │   zero      │             │  │
+│   │  │  /health    │  │  /control   │  │   :80       │             │  │
+│   │  └─────────────┘  └─────────────┘  └─────────────┘             │  │
+│   │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐             │  │
+│   │  │  grafana    │  │ prometheus  │  │     n8n     │             │  │
+│   │  │   :3000     │  │   :9090     │  │   :5678     │             │  │
+│   │  └─────────────┘  └─────────────┘  └─────────────┘             │  │
+│   └─────────────────────────────────────────────────────────────────┘  │
+│                                                                         │
+│   ┌─────────────────────────────────────────────────────────────────┐  │
+│   │                     DATA & MEMORY LAYER                          │  │
+│   │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐             │  │
+│   │  │  postgres   │  │    redis    │  │   qdrant    │             │  │
+│   │  │   :5432*    │  │   :6379*    │  │   :6333*    │             │  │
+│   │  │  VAULT-999  │  │  TownSquare │  │ Embeddings  │             │  │
+│   │  └─────────────┘  └─────────────┘  └─────────────┘             │  │
+│   │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐             │  │
+│   │  │   ollama    │  │  headless   │  │   webhook   │             │  │
+│   │  │   :11434*   │  │  browser    │  │   :9000     │             │  │
+│   │  │ LLM Engine  │  │   :3000*    │  │   CI/CD     │             │  │
+│   │  │ qwen2.5:14b │  │ DOM Extract │  │  triggers   │             │  │
+│   │  └─────────────┘  └─────────────┘  └─────────────┘             │  │
+│   └─────────────────────────────────────────────────────────────────┘  │
+│                                                                         │
+│   * = Internal only (not exposed through Traefik)                      │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+### 🔌 Complete Service Connection Matrix
+
+| Service | IP:Port | Exposed | Depends On | Used By | Purpose |
+|---------|---------|---------|------------|---------|---------|
+| **traefik** | 10.0.10.8:80/443 | ✅ External | - | All web services | Edge router, TLS |
+| **arifosmcp** | 10.0.10.4:8080 | ✅ /health | postgres, redis, qdrant | openclaw | Constitutional kernel |
+| **openclaw** | 10.0.10.3:18789 | ✅ /gateway | arifosmcp, ollama | Telegram, UI | AGI Gateway |
+| **agent-zero** | 10.0.10.12:80 | ⏸️ Stopped | - | - | Reasoning engine |
+| **postgres** | 10.0.10.14:5432 | ❌ Internal | - | arifosmcp | VAULT-999 persistence |
+| **redis** | 10.0.10.13:6379 | ❌ Internal | - | arifosmcp, openclaw | CIV Town Square bus |
+| **qdrant** | 10.0.10.6:6333 | ❌ Internal | - | arifosmcp | Vector memory |
+| **ollama** | 10.0.10.9:11434 | ❌ Internal | - | openclaw | Local LLM inference |
+| **headless** | 10.0.10.11:3000 | ❌ Internal | - | arifosmcp | DOM reality extraction |
+| **webhook** | 10.0.10.10:9000 | ✅ /hooks | - | GitHub, CI/CD | Deployment triggers |
+| **n8n** | 10.0.10.5:5678 | ⏸️ Internal | postgres | Workflows | Automation flows |
+| **grafana** | 10.0.10.2:3000 | ⏸️ Internal | prometheus | Monitoring | Dashboards |
+| **prometheus** | 10.0.10.7:9090 | ⏸️ Internal | All services | grafana | Metrics collection |
+
+---
+
+### 🔄 Service Dependency Flow
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                    EXTERNAL REQUEST FLOW                                 │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                         │
+│   User/Browser                                                          │
+│      │                                                                  │
+│      ▼                                                                  │
+│   ┌──────────────┐    HTTPS (443)    ┌──────────────┐                  │
+│   │   Internet   │ ────────────────> │   Traefik    │                  │
+│   └──────────────┘                   │   (Router)   │                  │
+│                                      └──────┬───────┘                  │
+│                                             │                           │
+│                    ┌────────────────────────┼────────────────┐         │
+│                    │                        │                │         │
+│                    ▼                        ▼                ▼         │
+│              ┌─────────┐           ┌──────────┐      ┌──────────┐     │
+│              │arifosmcp│           │ openclaw │      │  grafana │     │
+│              │  :8080  │           │ :18789   │      │  :3000   │     │
+│              └────┬────┘           └────┬─────┘      └──────────┘     │
+│                   │                     │                               │
+│                   ▼                     ▼                               │
+│         ┌─────────────────┐   ┌─────────────────┐                      │
+│         │  PostgreSQL     │   │    Ollama       │                      │
+│         │  (VAULT-999)    │   │  qwen2.5:14b    │                      │
+│         └─────────────────┘   └─────────────────┘                      │
+│                                                                         │
+└─────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────┐
+│                    INTERNAL SERVICE MESH                                 │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                         │
+│   arifosmcp_server ───────────────────────────────────────────────┐     │
+│      │                                                            │     │
+│      ├───▶ postgres:5432 ───▶ VAULT-999 persistence              │     │
+│      ├───▶ redis:6379 ──────▶ CIV event bus                      │     │
+│      ├───▶ qdrant:6333 ─────▶ Vector memory (RAG)                │     │
+│      └───▶ headless:3000 ───▶ DOM extraction                     │     │
+│                                                                  │     │
+│   openclaw_gateway ──────────────────────────────────────────────┤     │
+│      │                                                            │     │
+│      ├───▶ arifosmcp:8080 ──▶ Constitutional validation          │     │
+│      ├───▶ ollama:11434 ────▶ Local LLM inference                │     │
+│      ├───▶ redis:6379 ──────▶ Session cache                      │     │
+│      └───▶ Telegram API ────▶ @arifOS_bot                        │     │
+│                                                                  │     │
+│   prometheus ────────────────────────────────────────────────────┤     │
+│      │                                                            │     │
+│      ├───▶ All containers ──▶ Metrics scraping                   │     │
+│      └───▶ grafana:3000 ────▶ Dashboard visualization            │     │
+│                                                                  │     │
+│   webhook ───────────────────────────────────────────────────────┘     │
+│      │                                                                  │
+│      └───▶ Docker socket ───▶ Container management                   │
+│                                                                         │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+### 🏛️ Constitutional Component Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                    ARIFOS MCP SERVER (arifosmcp_server)                  │
+│                    10.0.10.4:8080 - Constitutional Kernel                │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                         │
+│   ┌─────────────────────────────────────────────────────────────────┐  │
+│   │  L0 - GOVERNANCE KERNEL (core/governance_kernel.py)              │  │
+│   │  ├── Psi State Machine (Stages 000-999)                         │  │
+│   │  ├── Thermodynamic Budgeting (P3)                               │  │
+│   │  └── F1-F13 Floor Enforcement                                   │  │
+│   └─────────────────────────────────────────────────────────────────┘  │
+│                              │                                          │
+│                              ▼                                          │
+│   ┌─────────────────────────────────────────────────────────────────┐  │
+│   │  L1 - ORGANS (core/organs/)                                      │  │
+│   │  ├── _0_init.py ───────▶ Stage 000: Session ignition            │  │
+│   │  ├── _1_agi.py ────────▶ Δ Delta: Logical analysis (111-333)    │  │
+│   │  ├── _2_asi.py ────────▶ Ω Omega: Empathy simulation (444-666)  │  │
+│   │  ├── _3_apex.py ───────▶ Ψ Psi: Sovereign judgment (777-888)    │  │
+│   │  └── _4_vault.py ──────▶ 999: Immutable ledger sealing          │  │
+│   └─────────────────────────────────────────────────────────────────┘  │
+│                              │                                          │
+│                              ▼                                          │
+│   ┌─────────────────────────────────────────────────────────────────┐  │
+│   │  L2 - TOOLS (arifosmcp/runtime/server.py)                        │  │
+│   │  ├── anchor_session ───▶ Stage 000: Authentication              │  │
+│   │  ├── reason_mind ──────▶ Stage 111-333: Δ AGI analysis          │  │
+│   │  ├── vector_memory ────▶ Stage 555: RAG retrieval               │  │
+│   │  ├── simulate_heart ───▶ Stage 666: Ω ASI empathy               │  │
+│   │  ├── critique_thought ─▶ Stage 666: Internal audit              │  │
+│   │  ├── eureka_forge ─────▶ Stage 777: Sandboxed execution         │  │
+│   │  ├── apex_judge ───────▶ Stage 888: Final verdict               │  │
+│   │  └── seal_vault ───────▶ Stage 999: Ledger sealing              │  │
+│   └─────────────────────────────────────────────────────────────────┘  │
+│                                                                         │
+│   EXTERNAL CONNECTIONS:                                                 │
+│   ├── PostgreSQL (10.0.10.14:5432) ──▶ Session & VAULT-999 storage    │
+│   ├── Redis (10.0.10.13:6379) ───────▶ CIV event bus & cache          │
+│   ├── Qdrant (10.0.10.6:6333) ───────▶ Vector embeddings (BGE-M3)     │
+│   └── Headless (10.0.10.11:3000) ────▶ DOM reality extraction         │
+│                                                                         │
+└─────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────┐
+│                    OPENCLAW GATEWAY (openclaw_gateway)                   │
+│                    10.0.10.3:18789 - AGI Bridge                          │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                         │
+│   ┌─────────────────────────────────────────────────────────────────┐  │
+│   │  OpenClaw Control UI                                             │  │
+│   │  ├── Web Dashboard (https://claw.arifosmcp.arif-fazil.com)      │  │
+│   │  ├── Device Pairing & Approval                                   │  │
+│   │  └── Gateway Token Authentication                                │  │
+│   └─────────────────────────────────────────────────────────────────┘  │
+│                              │                                          │
+│                              ▼                                          │
+│   ┌─────────────────────────────────────────────────────────────────┐  │
+│   │  arifOS Bridge Tool                                              │  │
+│   │  ├── Calls arifosmcp:8080/health ──▶ Health checks              │  │
+│   │  ├── Calls arifosmcp:8080/mcp ─────▶ Tool execution             │  │
+│   │  └── Routes through F1-F13 enforcement                          │  │
+│   └─────────────────────────────────────────────────────────────────┘  │
+│                              │                                          │
+│                              ▼                                          │
+│   ┌─────────────────────────────────────────────────────────────────┐  │
+│   │  Model Provider Stack                                            │  │
+│   │  ├── Kimi (kimi-k2.5) ────────────────▶ PRIMARY                 │  │
+│   │  ├── Claude (claude-opus-4-6) ────────▶ Fallback 1              │  │
+│   │  ├── Gemini (gemini-2.5-pro) ─────────▶ Fallback 2              │  │
+│   │  ├── Venice (9 models) ───────────────▶ Fallback 3              │  │
+│   │  └── Ollama (qwen2.5:14b/3b) ─────────▶ Local fallback          │  │
+│   └─────────────────────────────────────────────────────────────────┘  │
+│                                                                         │
+│   EXTERNAL CONNECTIONS:                                                 │
+│   ├── arifosmcp:8080 ────────▶ Constitutional validation              │
+│   ├── Ollama:11434 ──────────▶ Local LLM inference                    │
+│   ├── Redis:6379 ────────────▶ Session state                          │
+│   ├── Telegram API ──────────▶ @arifOS_bot                            │
+│   └── Venice AI API ─────────▶ 9 models (incl. Grok)                  │
+│                                                                         │
+│   VOLUME MOUNTS (Root Access):                                          │
+│   ├── /var/run/docker.sock ──▶ Docker container management            │
+│   ├── /opt/arifos ───────────▶ arifOS data access                     │
+│   └── /root/.openclaw ───────▶ Config persistence                     │
+│                                                                         │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+### 🔐 Security Boundaries & Network Isolation
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                    SECURITY ZONES                                        │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                         │
+│   ZONE 1: PUBLIC (Traefik-exposed)                                      │
+│   ├── https://arifosmcp.arif-fazil.com    ──▶ arifosmcp:8080          │
+│   ├── https://claw.arifosmcp.arif-fazil.com ──▶ openclaw:18789        │
+│   └── All traffic TLS-terminated by Traefik (Let's Encrypt)            │
+│                                                                         │
+│   ZONE 2: CONSTITUTIONAL (Internal only)                                │
+│   ├── arifosmcp ↔ postgres (VAULT-999)                                │
+│   ├── arifosmcp ↔ qdrant (embeddings)                                 │
+│   ├── arifosmcp ↔ redis (CIV bus)                                     │
+│   └── openclaw ↔ ollama (local LLM)                                   │
+│                                                                         │
+│   ZONE 3: EXECUTIVE (Docker socket access)                              │
+│   └── openclaw (root) ──▶ /var/run/docker.sock                        │
+│       ⚠️  AGI-level power - container lifecycle management            │
+│                                                                         │
+│   ZONE 4: OBSERVABILITY (Internal dashboards)                           │
+│   ├── prometheus ──▶ all containers (metrics)                         │
+│   └── grafana ──▶ prometheus (visualization)                          │
+│       ⏸️  Currently internal-only (no external exposure)              │
+│                                                                         │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+### 📊 Resource Allocation Matrix (Optimized 2026.03.08)
+
+| Service | Memory Limit | CPU | Priority | Notes |
+|---------|--------------|-----|----------|-------|
+| arifosmcp | 3 GiB | 1.0 | HIGH | Constitutional kernel |
+| openclaw | 2 GiB | 1.0 | HIGH | AGI Gateway |
+| ollama | 1.5 GiB | 2.0 | MEDIUM | LLM inference (spikes to 12GB) |
+| qdrant | 1 GiB | 0.5 | MEDIUM | Vector DB |
+| postgres | 1 GiB | 0.5 | HIGH | VAULT-999 persistence |
+| traefik | 128 MiB | 0.2 | HIGH | Edge router |
+| redis | 512 MiB | 0.2 | MEDIUM | Cache & CIV bus |
+| headless | 1 GiB | 0.5 | LOW | Browser automation |
+| n8n | 1 GiB | 0.5 | LOW | Workflows |
+| grafana | 1 GiB | 0.2 | LOW | Dashboards |
+| prometheus | 1 GiB | 0.2 | LOW | Metrics |
+| webhook | 128 MiB | 0.1 | LOW | CI/CD triggers |
+| **TOTAL** | **~13.8 GiB** | - | - | Leaves ~2GB headroom |
+
+---
+
+### 🛠️ Operational Commands
+
+```bash
+# Check all service health
+docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+
+# View network connections
+docker network inspect arifos_arifos_trinity --format '{{range .Containers}}{{.Name}}: {{.IPv4Address}}{{println}}{{end}}'
+
+# Test inter-service connectivity
+docker exec arifosmcp_server curl -s http://10.0.10.14:5432/health  # postgres
+docker exec arifosmcp_server curl -s http://10.0.10.6:6333/healthz  # qdrant
+docker exec openclaw_gateway curl -s http://10.0.10.9:11434/api/tags  # ollama
+
+# View service logs
+docker logs -f arifosmcp_server   # Constitutional kernel
+docker logs -f openclaw_gateway   # AGI Gateway
+docker logs -f traefik_router     # Edge router
+
+# Restart specific service
+docker compose restart arifosmcp
+docker compose restart openclaw
+```
+
+---
+
+*Last Updated: 2026.03.08-SEAL by Kimi Code (ΔΩΨ Trinity)*
+*DITEMPA BUKAN DIBERI — Forged, Not Given*

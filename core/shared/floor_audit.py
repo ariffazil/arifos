@@ -309,7 +309,7 @@ class FloorAuditor:
                 # e.g. map F1_Amanah to F1
                 short_id = floor_id.split("_")[0]
                 threshold = thresholds.get(short_id, threshold)
-            
+
             result.passed = result.score >= threshold
 
         pass_count = sum(1 for r in results.values() if r.passed)
@@ -519,10 +519,14 @@ class FloorAuditor:
         passed = score >= threshold
 
         reasons = []
-        if not has_human: reasons.append("Missing H")
-        if not has_ai: reasons.append("Missing A")
-        if not has_earth: reasons.append("Missing E")
-        if not has_verifier: reasons.append("Missing V (Shadow)")
+        if not has_human:
+            reasons.append("Missing H")
+        if not has_ai:
+            reasons.append("Missing A")
+        if not has_earth:
+            reasons.append("Missing E")
+        if not has_verifier:
+            reasons.append("Missing V (Shadow)")
 
         return FloorResult("F3", passed, score, "; ".join(reasons) if reasons else None)
 
@@ -803,7 +807,7 @@ class FloorAuditor:
     def _load_thresholds(self, config_path: str | None) -> dict[str, float]:
         # Start with hardcoded defaults
         thresholds = self._DEFAULT_THRESHOLDS.copy()
-        
+
         # Override with calibrated GLOBAL_THRESHOLDS from floors.py
         for fid, spec in GLOBAL_THRESHOLDS.items():
             short_id = fid.split("_")[0]

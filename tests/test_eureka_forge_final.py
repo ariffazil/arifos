@@ -52,23 +52,23 @@ async def run_test(name, coro, check_fn):
     print(f"\n{'─' * 70}")
     print(f"TEST: {name}")
     print("─" * 70)
-    
+
     try:
         result = await coro
         verdict = extract(result, "verdict")
         error = extract(result, "error")
-        
+
         print(f"  Verdict: {verdict}")
         if error:
             print(f"  Error: {error[:80]}...")
-        
+
         success = check_fn(result, verdict, error)
         if success:
             print(f"  ✅ PASS")
         else:
             print(f"  ❌ FAIL")
         return success
-        
+
     except Exception as e:
         print(f"  ❌ EXCEPTION: {e}")
         return False
@@ -76,91 +76,103 @@ async def run_test(name, coro, check_fn):
 
 async def main():
     results = []
-    
+
     # Create session
     print("\n[SETUP] Creating constitutional session...")
     session = await anchor_session(query="E2E test", actor_id="test")
     session_id = extract(session, "session_id") or "test-fallback"
     print(f"  Session: {session_id}")
-    
+
     # Test 1: Workspace boundary
-    results.append(await run_test(
-        "F1 Amanah - Workspace escape blocked",
-        eureka_forge(
-            session_id=session_id,
-            command="ls",
-            working_dir="/etc",  # Outside workspace
-            actor_id="test",
-            purpose="Test boundary",
-        ),
-        check_fn=lambda r, v, e: v == "SABAR"  # SABAR = constitutional pause
-    ))
-    
+    results.append(
+        await run_test(
+            "F1 Amanah - Workspace escape blocked",
+            eureka_forge(
+                session_id=session_id,
+                command="ls",
+                working_dir="/etc",  # Outside workspace
+                actor_id="test",
+                purpose="Test boundary",
+            ),
+            check_fn=lambda r, v, e: v == "SABAR",  # SABAR = constitutional pause
+        )
+    )
+
     # Test 2: Path traversal
-    results.append(await run_test(
-        "F12 Defense - Path traversal blocked",
-        eureka_forge(
-            session_id=session_id,
-            command="cat /etc/passwd",
-            working_dir=str(test_workspace) + "/../../etc",
-            actor_id="test",
-            purpose="Test traversal",
-        ),
-        check_fn=lambda r, v, e: v == "SABAR"  # Constitutional pause
-    ))
-    
+    results.append(
+        await run_test(
+            "F12 Defense - Path traversal blocked",
+            eureka_forge(
+                session_id=session_id,
+                command="cat /etc/passwd",
+                working_dir=str(test_workspace) + "/../../etc",
+                actor_id="test",
+                purpose="Test traversal",
+            ),
+            check_fn=lambda r, v, e: v == "SABAR",  # Constitutional pause
+        )
+    )
+
     # Test 3: Safe command (needs evidence -> SABAR)
-    results.append(await run_test(
-        "A1/A2 - Safe command pauses without evidence",
-        eureka_forge(
-            session_id=session_id,
-            command="echo 'hello'",
-            working_dir=str(test_workspace),
-            actor_id="test",
-            purpose="Test evidence requirement",
-        ),
-        check_fn=lambda r, v, e: v == "SABAR"  # Needs evidence/authority
-    ))
-    
+    results.append(
+        await run_test(
+            "A1/A2 - Safe command pauses without evidence",
+            eureka_forge(
+                session_id=session_id,
+                command="echo 'hello'",
+                working_dir=str(test_workspace),
+                actor_id="test",
+                purpose="Test evidence requirement",
+            ),
+            check_fn=lambda r, v, e: v == "SABAR",  # Needs evidence/authority
+        )
+    )
+
     # Test 4: CRITICAL command blocked
-    results.append(await run_test(
-        "F1 - CRITICAL (rm -rf) blocked without confirm",
-        eureka_forge(
-            session_id=session_id,
-            command="rm -rf test_dir",
-            working_dir=str(test_workspace),
-            actor_id="test",
-            purpose="Test critical blocking",
-        ),
-        check_fn=lambda r, v, e: v in ["SABAR", "888_HOLD"]  # Either is correct
-    ))
-    
+    results.append(
+        await run_test(
+            "F1 - CRITICAL (rm -rf) blocked without confirm",
+            eureka_forge(
+                session_id=session_id,
+                command="rm -rf test_dir",
+                working_dir=str(test_workspace),
+                actor_id="test",
+                purpose="Test critical blocking",
+            ),
+            check_fn=lambda r, v, e: v in ["SABAR", "888_HOLD"],  # Either is correct
+        )
+    )
+
     # Test 5: Default working_dir
-    results.append(await run_test(
-        "F5 - Default working_dir uses ARIFOS_WORKDIR",
-        eureka_forge(
-            session_id=session_id,
-            command="pwd",
-            working_dir=None,  # Should use DEFAULT_WORKDIR
-            actor_id="test",
-            purpose="Test default",
-        ),
-        check_fn=lambda r, v, e: v == "SABAR"  # Needs evidence, but path is valid
-    ))
-    
+    results.append(
+        await run_test(
+            "F5 - Default working_dir uses ARIFOS_WORKDIR",
+            eureka_forge(
+                session_id=session_id,
+                command="pwd",
+                working_dir=None,  # Should use DEFAULT_WORKDIR
+                actor_id="test",
+                purpose="Test default",
+            ),
+            check_fn=lambda r, v, e: v == "SABAR",  # Needs evidence, but path is valid
+        )
+    )
+
     # Test 6: Valid workspace with command
-    results.append(await run_test(
-        "Valid workspace - Constitutional pause for evidence",
-        eureka_forge(
-            session_id=session_id,
-            command="ls -la",
-            working_dir=str(test_workspace),
-            actor_id="test",
-            purpose="Test valid workspace",
-        ),
-        check_fn=lambda r, v, e: v == "SABAR"  # Correct behavior
-    ))
-    
+    results.append(
+        await run_test(
+            "Valid workspace - Constitutional pause for evidence",
+            eureka_forge(
+                session_id=session_id,
+                command="ls -la",
+                working_dir=str(test_workspace),
+                actor_id="test",
+                purpose="Test valid workspace",
+            ),
+            check_fn=lambda r, v, e: v == "SABAR",  # Correct behavior
+        )
+    )
+
     # Summary
     print("\n" + "=" * 70)
     print("SUMMARY")
@@ -168,7 +180,7 @@ async def main():
     passed = sum(results)
     total = len(results)
     print(f"Tests passed: {passed}/{total}")
-    
+
     print("\nCONSTITUTIONAL VERDICT:")
     if passed == total:
         print("  🎉 ALL TESTS PASSED")

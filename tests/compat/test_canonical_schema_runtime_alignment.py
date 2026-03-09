@@ -66,9 +66,9 @@ def test_canonical_schema_covers_full_runtime_signature() -> None:
         schema = CANONICAL_TOOL_INPUT_SCHEMAS[tool_name]
         schema_props = set(schema.get("properties", {}).keys())
         runtime_params = set(_runtime_param_names(tool_name))
-        assert runtime_params.issubset(schema_props), (
-            f"Schema for {tool_name} missing params: {sorted(runtime_params - schema_props)}"
-        )
+        assert runtime_params.issubset(
+            schema_props
+        ), f"Schema for {tool_name} missing params: {sorted(runtime_params - schema_props)}"
 
 
 def test_canonical_schema_required_matches_runtime_required() -> None:

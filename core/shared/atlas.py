@@ -145,7 +145,8 @@ class GPV:
     def f4_skip(self) -> bool:
         """Skip F4 for non-factual queries."""
         return (
-            self.query_type in (QueryType.PROCEDURAL, QueryType.OPINION, QueryType.CONVERSATIONAL, QueryType.TEST) 
+            self.query_type
+            in (QueryType.PROCEDURAL, QueryType.OPINION, QueryType.CONVERSATIONAL, QueryType.TEST)
             or self.lane == Lane.SOCIAL
         )
 
@@ -157,7 +158,12 @@ class GPV:
         # SOCIAL lane is always fast-path eligible if risk/demand allows
         if self.lane == Lane.SOCIAL:
             return True
-        return self.query_type in (QueryType.PROCEDURAL, QueryType.OPINION, QueryType.CONVERSATIONAL, QueryType.TEST)
+        return self.query_type in (
+            QueryType.PROCEDURAL,
+            QueryType.OPINION,
+            QueryType.CONVERSATIONAL,
+            QueryType.TEST,
+        )
 
 
 # ═════════════════════════════════════════════════════════════════════════════
@@ -492,9 +498,16 @@ def Φ(text: str) -> GPV:
 
 
 # ASCII aliases
-def Lambda(text: str) -> Lane: return Λ(text)
-def Theta(lane: Lane) -> tuple[float, float, float]: return Θ(lane)
-def Phi(text: str) -> GPV: return Φ(text)
+def Lambda(text: str) -> Lane:
+    return Λ(text)
+
+
+def Theta(lane: Lane) -> tuple[float, float, float]:
+    return Θ(lane)
+
+
+def Phi(text: str) -> GPV:
+    return Φ(text)
 
 
 def classify(query: str) -> dict[str, any]:
@@ -514,26 +527,69 @@ def classify(query: str) -> dict[str, any]:
 def route(query: str) -> str:
     gpv = Φ(query)
     organs = ["INIT"]
-    if gpv.lane in (Lane.FACTUAL, Lane.CARE, Lane.CRISIS): organs.append("AGI")
-    if gpv.lane in (Lane.CARE, Lane.CRISIS) or gpv.care_demand > 0.5: organs.append("ASI")
+    if gpv.lane in (Lane.FACTUAL, Lane.CARE, Lane.CRISIS):
+        organs.append("AGI")
+    if gpv.lane in (Lane.CARE, Lane.CRISIS) or gpv.care_demand > 0.5:
+        organs.append("ASI")
     organs.append("APEX")
-    if gpv.requires_grounding(): organs.append("(grounding)")
+    if gpv.requires_grounding():
+        organs.append("(grounding)")
     return " → ".join(organs)
 
 
-def classify_query(query: str) -> dict[str, any]: return classify(query)
-def route_query(query: str) -> str: return route(query)
+def classify_query(query: str) -> dict[str, any]:
+    return classify(query)
+
+
+def route_query(query: str) -> str:
+    return route(query)
 
 
 def normalize_semantic_text(text: str) -> str:
-    if not isinstance(text, str): return ""
+    if not isinstance(text, str):
+        return ""
     n = unicodedata.normalize("NFKC", text).lower()
-    confusable_map = {"а": "a", "е": "e", "о": "o", "р": "p", "с": "c", "у": "y", "х": "x", "А": "a", "Е": "e", "О": "o", "Р": "p", "С": "c", "У": "y", "Х": "x", "τ": "t", "ν": "n", "ρ": "p", "ω": "w", "κ": "k", "ε": "e", "Ε": "e"}
+    confusable_map = {
+        "а": "a",
+        "е": "e",
+        "о": "o",
+        "р": "p",
+        "с": "c",
+        "у": "y",
+        "х": "x",
+        "А": "a",
+        "Е": "e",
+        "О": "o",
+        "Р": "p",
+        "С": "c",
+        "У": "y",
+        "Х": "x",
+        "τ": "t",
+        "ν": "n",
+        "ρ": "p",
+        "ω": "w",
+        "κ": "k",
+        "ε": "e",
+        "Ε": "e",
+    }
     return "".join(confusable_map.get(c, c) for c in n)
 
 
 __all__ = [
-    "Lane", "QueryType", "classify_query_type", "GPV", "Λ", "Θ", "Φ",
-    "Lambda", "Theta", "Phi", "ATLAS", "classify", "route",
-    "classify_query", "route_query", "normalize_semantic_text",
+    "Lane",
+    "QueryType",
+    "classify_query_type",
+    "GPV",
+    "Λ",
+    "Θ",
+    "Φ",
+    "Lambda",
+    "Theta",
+    "Phi",
+    "ATLAS",
+    "classify",
+    "route",
+    "classify_query",
+    "route_query",
+    "normalize_semantic_text",
 ]

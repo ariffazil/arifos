@@ -140,5 +140,9 @@ def cost_estimator(
                 "cost_score": cost_score,
                 "risk_band": risk_band,
             },
+            "apex_input": {
+                "tokens": token_count or 0,
+                "tool_calls": api_calls or 0,
+            },
         }
     )

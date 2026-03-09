@@ -29,6 +29,7 @@ from starlette.requests import Request
 from starlette.responses import HTMLResponse, JSONResponse, Response
 from starlette.staticfiles import StaticFiles
 
+from arifosmcp.runtime.resources import apex_tools_html_rows, apex_tools_markdown_table
 from arifosmcp.transport.build_info import get_build_info
 from arifosmcp.transport.protocol.aaa_contract import AAA_TOOL_STAGE_MAP, TRINITY_BY_TOOL
 from arifosmcp.transport.protocol.public_surface import PUBLIC_TOOL_ALIASES
@@ -91,48 +92,176 @@ _DEFAULT_METABOLIC_STAGE: int = 333
 
 WELCOME_HTML = """\
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>arifOS MCP Server</title>
-    <style>
-        body {
-            background: #050505; color: #e6c25d;
-            font-family: 'JetBrains Mono', monospace; padding: 4rem; text-align: center;
-        }
-        .box {
-            border: 1px solid #e6c25d33; padding: 2rem; display: inline-block;
-            border-radius: 8px; background: #0a0a0a;
-        }
-        h1 {
-            font-weight: 900; letter-spacing: -0.1rem;
-            border-bottom: 2px solid #e6c25d; display: inline-block; padding-bottom: 0.5rem;
-        }
-        p { color: #888; max-width: 400px; margin: 1rem auto; }
-        .status {
-            color: #00ff88; font-weight: bold; margin-top: 2rem;
-            border: 1px solid #00ff8833; padding: 0.5rem 1rem;
-            border-radius: 50px; display: inline-block;
-        }
-        a { color: #00a2ff; text-decoration: none; }
-        a:hover { text-decoration: underline; }
-    </style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>arifOS MCP Server</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{background:#0d0d0d;color:#d4d4d4;font-family:ui-monospace,monospace;
+         font-size:14px;line-height:1.6;padding:2rem 1rem;max-width:860px;margin:auto}
+    h1{color:#e6c25d;font-size:1.5rem;margin-bottom:.25rem}
+    h2{color:#aaa;font-size:.85rem;font-weight:normal;margin-bottom:2rem;
+       letter-spacing:.08em;text-transform:uppercase}
+    .pill{display:inline-block;background:#00ff8822;color:#00ff88;
+          border:1px solid #00ff8855;border-radius:99px;
+          padding:.1rem .75rem;font-size:.75rem;margin-bottom:2rem}
+    section{margin-bottom:2.5rem}
+    h3{color:#e6c25d;font-size:.8rem;letter-spacing:.1em;text-transform:uppercase;
+       border-bottom:1px solid #333;padding-bottom:.4rem;margin-bottom:.75rem}
+    table{width:100%;border-collapse:collapse}
+    td,th{padding:.4rem .6rem;text-align:left}
+    th{color:#888;font-weight:normal;font-size:.75rem;text-transform:uppercase}
+    tr:nth-child(odd){background:#ffffff06}
+    .stage{color:#e6c25d;font-size:.75rem;min-width:3.5rem;display:inline-block}
+    .name{color:#7dd3fc}
+    .role{color:#aaa}
+    .url{color:#7dd3fc}
+    a{color:#7dd3fc;text-decoration:none}
+    a:hover{text-decoration:underline}
+    .nav{display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:2rem}
+    .nav a{background:#1a1a1a;border:1px solid #333;padding:.3rem .8rem;
+           border-radius:4px;font-size:.8rem;color:#aaa}
+    .nav a:hover{border-color:#7dd3fc;color:#7dd3fc}
+    .motto{color:#555;font-size:.75rem;margin-top:2rem;text-align:center}
+  </style>
 </head>
 <body>
-    <div class="box">
-        <h1>arifOS MCP</h1>
-        <p>This is a live <strong>Model Context Protocol</strong> server.
-           It is optimized for machine intelligence, but humans are welcome.</p>
-        <div class="status">ONLINE</div>
-        <div style="margin-top: 2rem;">
-            <a href="/tools">/tools</a> &nbsp;|&nbsp;
-            <a href="/health">/health</a> &nbsp;|&nbsp;
-            <a href="/mcp">/mcp</a> &nbsp;|&nbsp;
-            <a href="https://arifos.arif-fazil.com">docs</a>
-        </div>
-    </div>
+  <h1>arifOS MCP</h1>
+  <h2>APEX-G Constitutional Intelligence Kernel</h2>
+  <div class="pill">&#9679; ONLINE</div>
+
+  <div class="nav">
+    <a href="/tools">/tools</a>
+    <a href="/health">/health</a>
+    <a href="/version">/version</a>
+    <a href="/openapi.json">/openapi.json</a>
+    <a href="/llms.txt">/llms.txt</a>
+    <a href="/.well-known/mcp/server.json">/.well-known/mcp/server.json</a>
+    <a href="https://arifos.arif-fazil.com" target="_blank">docs</a>
+  </div>
+
+  <section>
+    <h3>10-Tool APEX-G Stack (Phase 1 Core)</h3>
+    <table>
+      <tr><th>Stage</th><th>Runtime Tool</th><th>Canonical Handle</th><th>Label</th><th>Role</th></tr>
+      __APEX_HTML_ROWS__
+    </table>
+  </section>
+
+  <section>
+    <h3>Endpoints</h3>
+    <table>
+      <tr><th>Method</th><th>Path</th><th>Description</th></tr>
+      <tr><td>GET</td><td class="url">/mcp</td><td>MCP protocol endpoint (SSE / JSON-RPC)</td></tr>
+      <tr><td>GET</td><td class="url">/tools</td><td>Tool listing (REST)</td></tr>
+      <tr><td>POST</td><td class="url">/tools/{name}</td><td>Call a tool via HTTP</td></tr>
+      <tr><td>POST</td><td class="url">/checkpoint</td><td>Single-call constitutional evaluation</td></tr>
+      <tr><td>GET</td><td class="url">/health</td><td>Docker / uptime health check</td></tr>
+      <tr><td>GET</td><td class="url">/openapi.json</td><td>OpenAPI 3.1 schema</td></tr>
+      <tr><td>GET</td><td class="url">/llms.txt</td><td>LLM-readable server description</td></tr>
+      <tr><td>GET</td><td class="url">/.well-known/mcp/server.json</td><td>MCP registry discovery</td></tr>
+    </table>
+  </section>
+
+  <section>
+    <h3>Governance</h3>
+    <p style="color:#888">
+      Every tool call passes through 13 constitutional floors (F1&ndash;F13).<br>
+      Verdicts: <strong style="color:#00ff88">SEAL</strong> &nbsp;
+                <strong style="color:#e6c25d">PARTIAL</strong> &nbsp;
+                <strong style="color:#ff8800">HOLD-888</strong> &nbsp;
+                <strong style="color:#ff4444">VOID</strong> &nbsp;
+                <strong style="color:#ff4444">SABAR</strong><br>
+      Protocol: <a href="https://modelcontextprotocol.io" target="_blank">MCP 2025-11-25</a>
+    </p>
+  </section>
+
+  <div class="motto">DITEMPA BUKAN DIBERI &mdash; Forged, not given.</div>
 </body>
 </html>
 """
+
+ROBOTS_TXT = """\
+User-agent: *
+Allow: /
+
+# LLM-readable description of this service
+# See: https://llmstxt.org
+Sitemap: https://arifosmcp.arif-fazil.com/llms.txt
+"""
+
+LLMS_TXT = """\
+# arifOS MCP Server
+
+> APEX-G Constitutional Intelligence Kernel — a governed Model Context Protocol (MCP) server.
+> Motto: DITEMPA BUKAN DIBERI — Forged, not given.
+
+## What this server does
+
+arifOS is an MCP server exposing a 10-tool constitutional AI pipeline.
+Every tool call passes through 13 governance floors (F1-F13) and returns
+a structured RuntimeEnvelope with verdict, telemetry, and Tri-Witness scores.
+
+## MCP connection
+
+- Protocol: Model Context Protocol (MCP) 2025-11-25
+- Endpoint: /mcp  (SSE + JSON-RPC)
+- Tool listing: GET /tools
+- Single call: POST /checkpoint
+
+## The 10-tool APEX-G stack
+
+__APEX_MD_TABLE__
+
+## Common RuntimeEnvelope (returned by every tool)
+
+```json
+{
+  "verdict": "SEAL | PARTIAL | SABAR | VOID | HOLD-888 | UNSET",
+  "stage": "000_INIT | 111_MIND | 333_MIND | 444_ROUTER | 555_MEMORY | 666_HEART | 777_APEX | 888_JUDGE | 999_VAULT",
+  "session_id": "string",
+  "telemetry": { "dS": -0.7, "peace2": 1.1, "confidence": 0.9, "verdict": "Alive" },
+  "witness": { "human": 0.0, "ai": 0.0, "earth": 0.0 },
+  "auth_context": { "actor_id": "string", "authority_level": "human|agent|system|anonymous", "stakes_class": "A|B|C|UNKNOWN" },
+  "data": {}
+}
+```
+
+## Governance floors summary
+
+- Hard floors (fail -> VOID): F1 Amanah, F2 Truth, F4 Clarity, F7 Humility, F9 Anti-dark, F10 Ontology, F11 Command Auth, F12 Injection Defense
+- Soft floors (fail -> PARTIAL): F3 Tri-Witness, F5 Peace, F6 Empathy, F8 Genius
+- Veto: F13 Sovereign — human final authority
+
+## Key endpoints
+
+- GET  /tools                        — list all tools with schemas
+- POST /tools/{tool_name}            — call a tool via REST
+- POST /checkpoint                   — single-call constitutional evaluation
+- GET  /health                       — health check
+- GET  /openapi.json                 — OpenAPI 3.1 schema
+- GET  /.well-known/mcp/server.json  — MCP registry discovery
+- GET  /llms.txt                     — this file
+
+## Optional: quick test
+
+```
+POST /checkpoint
+Content-Type: application/json
+
+{ "query": "Should I deploy this to production?", "risk_tier": "high" }
+```
+
+## Links
+
+- Docs: https://arifos.arif-fazil.com
+- Protocol: https://modelcontextprotocol.io
+"""
+
+WELCOME_HTML = WELCOME_HTML.replace("__APEX_HTML_ROWS__", apex_tools_html_rows())
+LLMS_TXT = LLMS_TXT.replace("__APEX_MD_TABLE__", apex_tools_markdown_table())
 
 CHECKPOINT_MODES = {"quick", "full", "audit_only"}
 RISK_TIER_BY_MODE = {
@@ -469,6 +598,17 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
             )
 
         latency_ms = (time.time() - start_time) * 1000
+        
+        # Handle RuntimeEnvelope and other Pydantic models serialization
+        if hasattr(result, "model_dump"):
+            # Pydantic v2
+            result_dict = result.model_dump()
+        elif hasattr(result, "dict"):
+            # Pydantic v1
+            result_dict = result.dict()
+        else:
+            result_dict = result
+        
         return JSONResponse(
             {
                 "status": "success",
@@ -476,7 +616,7 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
                 "canonical": canonical_name,
                 "request_id": request_id,
                 "latency_ms": round(latency_ms, 2),
-                "result": result,
+                "result": result_dict,
             }
         )
 
@@ -657,11 +797,11 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
         start_time = time.time()
 
         try:
-            # Get tools from registry
-            anchor_tool = tool_registry.get("anchor_session")
-            reason_tool = tool_registry.get("reason_mind")
-            heart_tool = tool_registry.get("simulate_heart")
-            judge_tool = tool_registry.get("apex_judge")
+            # Get tools from registry (using canonical APEX-G tool names)
+            anchor_tool = tool_registry.get("init_anchor_state")
+            reason_tool = tool_registry.get("reason_mind_synthesis")
+            heart_tool = tool_registry.get("assess_heart_impact")
+            judge_tool = tool_registry.get("apex_judge_verdict")
 
             if not all([anchor_tool, reason_tool, heart_tool, judge_tool]):
                 return JSONResponse(
@@ -670,26 +810,70 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
 
             # 000_INIT
             anchor_fn = getattr(anchor_tool, "fn", anchor_tool)
-            anchor_res = await anchor_fn(query=query, actor_id=actor_id, mode="conscience")
-            cid = anchor_res.get("session_id", session_id)
+            anchor_res = await anchor_fn(
+                intent={"query": query, "purpose": "checkpoint", "actor_id": actor_id}
+            )
+            anchor_data = anchor_res.model_dump() if hasattr(anchor_res, "model_dump") else anchor_res
+            cid = anchor_data.get("session_id", session_id)
 
             # 111-444_AGI
             reason_fn = getattr(reason_tool, "fn", reason_tool)
-            reason_res = await reason_fn(query=query, session_id=cid)
+            reason_res = await reason_fn(
+                query=query, 
+                session_id=cid,
+                auth_context={"actor_id": actor_id, "authority_level": "agent"}
+            )
 
             # 555-666_ASI
             heart_fn = getattr(heart_tool, "fn", heart_tool)
-            heart_res = await heart_fn(query=query, session_id=cid, stakeholders=stakeholders)
+            heart_res = await heart_fn(
+                scenario=query, 
+                session_id=cid,
+                auth_context={"actor_id": actor_id, "authority_level": "agent"}
+            )
 
             # 777-888_APEX
             judge_fn = getattr(judge_tool, "fn", judge_tool)
             judge_res = await judge_fn(
-                session_id=cid, query=query, agi_result=reason_res, asi_result=heart_res
+                session_id=cid, 
+                verdict_candidate="checkpoint_evaluation",
+                reason_summary=query,
+                auth_context={"actor_id": actor_id, "authority_level": "agent"}
             )
 
-            verdict = judge_res.get("verdict", "VOID")
-            floors = judge_res.get("floors", {})
-            truth = judge_res.get("truth", {})
+            # Extract data from RuntimeEnvelope responses
+            judge_data = judge_res.model_dump() if hasattr(judge_res, "model_dump") else judge_res
+            verdict = judge_data.get("verdict", "VOID")
+            
+            # Extract floors from nested data structure
+            floors_passed = []
+            floors_failed = []
+            truth_score = None
+            truth_threshold = None
+            
+            if "data" in judge_data and isinstance(judge_data["data"], dict):
+                data = judge_data["data"]
+                # Try nested apex_output structure
+                if "apex_output" in data:
+                    apex = data["apex_output"]
+                    if "governance_layer" in apex:
+                        gov = apex["governance_layer"]
+                        floors_passed = [k for k, v in gov.items() if v == "pass"]
+                        floors_failed = [k for k, v in gov.items() if v != "pass" and k != "vitality_index"]
+                    if "governed_intelligence" in apex:
+                        gi = apex["governed_intelligence"]
+                        truth_score = gi.get("G_star")
+                        truth_threshold = 0.5
+                # Also check for direct floors/truth
+                if not floors_passed and not floors_failed:
+                    floors_passed = data.get("floors", {}).get("passed", [])
+                    floors_failed = data.get("floors", {}).get("failed", [])
+                if truth_score is None:
+                    truth_score = data.get("truth", {}).get("score")
+                    truth_threshold = data.get("truth", {}).get("threshold", 0.5)
+            
+            floors = {"passed": floors_passed, "failed": floors_failed}
+            truth = {"score": truth_score, "threshold": truth_threshold}
 
             # Build human-readable summary
             if verdict == "SEAL":
@@ -697,8 +881,10 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
             elif verdict == "PARTIAL":
                 summary = "⚠ Soft floor warning. Proceed with caution."
             elif verdict == "VOID":
-                failed = floors.get("failed", [])
-                summary = f"✗ Constitutional violation: {', '.join(failed[:3])}. Action blocked."
+                if floors_failed:
+                    summary = f"✗ Constitutional violation: {', '.join(floors_failed[:3])}. Action blocked."
+                else:
+                    summary = "✗ Constitutional evaluation returned VOID. Action blocked."
             elif verdict == "888_HOLD":
                 summary = "⏸ High-stakes decision. Requires explicit human confirmation."
             else:
@@ -741,12 +927,19 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
             return Response(content, media_type="application/yaml")
         return JSONResponse({"error": "Schema not found"}, status_code=404)
 
-    # Serve the standalone dashboard static files
+    @mcp.custom_route("/robots.txt", methods=["GET"])
+    async def robots_txt(_request: Request) -> Response:
+        return Response(ROBOTS_TXT, media_type="text/plain")
+
+    @mcp.custom_route("/llms.txt", methods=["GET"])
+    async def llms_txt(_request: Request) -> Response:
+        return Response(LLMS_TXT, media_type="text/plain")
+
+    # Serve the APEX Sovereign Dashboard at /dashboard/
     dashboard_dir = os.path.join(
         os.path.dirname(os.path.dirname(__file__)),
-        "333_APPS",
-        "constitutional-visualizer",
-        "dist-web",
+        "sites",
+        "apex-dashboard",
     )
     if os.path.exists(dashboard_dir) and hasattr(mcp, "_app"):
         mcp._app.mount(

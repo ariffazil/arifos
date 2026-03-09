@@ -24,6 +24,7 @@ class TestMCPDeploymentBasics:
         """Test that MCP server modules are importable."""
         try:
             from arifosmcp.runtime.server import create_aaa_mcp_server
+
             assert callable(create_aaa_mcp_server)
         except ImportError as e:
             pytest.skip(f"arifosmcp.runtime not available: {e}")
@@ -32,6 +33,7 @@ class TestMCPDeploymentBasics:
         """Test that MCP server exposes exactly 13 canonical tools."""
         try:
             from arifosmcp.transport.server import mcp
+
             tools = list(mcp._tools.keys()) if hasattr(mcp, "_tools") else []
             # Should have at least the 13 canonical tools
             expected_tools = [
@@ -50,7 +52,9 @@ class TestMCPDeploymentBasics:
                 "metabolic_loop",
             ]
             for tool in expected_tools:
-                assert tool in tools or any(t.startswith(tool) for t in tools), f"Missing tool: {tool}"
+                assert tool in tools or any(t.startswith(tool) for t in tools), (
+                    f"Missing tool: {tool}"
+                )
         except ImportError:
             pytest.skip("arifosmcp.transport not available")
 
@@ -281,6 +285,7 @@ class TestThermodynamicsHardeningInMCP:
                 compute_ms=1,
                 tokens_generated=10,
                 entropy_reduction=-10.0,  # Claims massive clarity
+                actual_joules=1e-30,  # Force physically impossible energy ratio
             )
 
         assert "Landauer" in str(exc_info.value) or "cheap truth" in str(exc_info.value).lower()

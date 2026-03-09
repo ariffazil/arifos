@@ -20,9 +20,17 @@ def _bootstrap_environment() -> None:
 def main() -> None:
     _bootstrap_environment()
 
-    mode = (sys.argv[1] if len(sys.argv) > 1 else os.getenv("AAA_MCP_TRANSPORT", "http")).lower()
+    mode = (sys.argv[1] if len(sys.argv) > 1 else os.getenv("AAA_MCP_TRANSPORT", "stdio")).lower()
     host = os.getenv("HOST", "0.0.0.0")
     port = int(os.getenv("PORT", "8080"))
+
+    # For HTTP mode, use the pre-configured app from server.py (includes dashboard)
+    if mode in ("http", "streamable-http"):
+        import uvicorn
+        from .server import app
+
+        uvicorn.run(app, host=host, port=port, log_level="info")
+        return
 
     from .server import create_aaa_mcp_server
 
