@@ -111,9 +111,9 @@ Add this to your `claude_desktop_config.json`:
   "mcpServers": {
     "arifos": {
       "command": "python",
-      "args": ["-m", "arifosmcp.runtime", "http"],
+      "args": ["-m", "arifosmcp.runtime", "stdio"],
       "env": {
-        "arifOS_GOVERNANCE_SECRET": "your-secret-here"
+        "ARIFOS_GOVERNANCE_SECRET": "your-secret-here"
       }
     }
   }

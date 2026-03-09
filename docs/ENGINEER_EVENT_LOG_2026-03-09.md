@@ -68,3 +68,13 @@
   - Security/performance refactors applied.
   - Audit folder fully removed.
   - Verification completed with noted mypy baseline debt.
+
+- 23 PATCH: Synced deployment webhook policy and removed hardcoded restart token in:
+  - `deployment/hooks.json`
+  - `infrastructure/hooks.json`
+  - `infrastructure/deployment/hooks.json`
+- 24 PATCH: Bumped release versions:
+  - Python: `pyproject.toml` -> `2026.03.09.post1`
+  - NPM: `arifosmcp/packages/npm/arifos-mcp/package.json` -> `0.3.1`
+- 25 DOCS: Rebuilt `DEPLOY.md` as canonical VPS + stdio + HTTP + SSE operator guide.
+- 26 DOCS: Updated `README.md` MCP config snippet to use stdio and corrected `ARIFOS_GOVERNANCE_SECRET` key casing.
