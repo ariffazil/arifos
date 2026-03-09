@@ -3,9 +3,8 @@ DEPRECATED: This legacy transport module is deprecated.
 
 arifosmcp/runtime/server.py and FastMCP are the canonical deployment paths
 for modern, agnostic MCP clients.
-"""
-"""Shared AAA contract constants.
 
+Shared AAA contract constants.
 This module is the single source of truth for the active AAA MCP public
 surface and its governance metadata. Public routers, internal routers, and
 governance wrappers should import these constants instead of duplicating them.

@@ -68,13 +68,21 @@ async def metabolic_loop(
 
     actor_id = auth_coerced["value"]
     effective_risk_tier = stakes_coerced["value"]
+    authority_level = {
+        "user": "human",
+        "agent": "agent",
+        "system": "system",
+        "anonymous": "anonymous",
+        "operator": "operator",
+        "sovereign": "sovereign",
+    }.get(actor_id, "anonymous")
 
     # 1. Stage 000: INIT (Auto-Anchor for low-risk)
     init_res: RuntimeEnvelope = await init_anchor_state(
         intent={"query": query, "task_type": "ask"},
         governance={
             "actor_id": actor_id,
-            "authority_level": actor_id,  # Schema alignment
+            "authority_level": authority_level,
             "stakes_class": effective_risk_tier,
         },
         session_id=effective_session_id,

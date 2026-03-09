@@ -3,8 +3,8 @@ DEPRECATED: This legacy transport module is deprecated.
 
 arifosmcp/runtime/server.py and FastMCP are the canonical deployment paths
 for modern, agnostic MCP clients.
-"""
-"""Transport adapters for kernel stage orchestration.
+
+Transport adapters for kernel stage orchestration.
 
 This module keeps legacy import paths stable while delegating all stage logic
 to `core.kernel.stage_orchestrator`.

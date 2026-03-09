@@ -3,9 +3,8 @@ DEPRECATED: This legacy transport module is deprecated.
 
 arifosmcp/runtime/server.py and FastMCP are the canonical deployment paths
 for modern, agnostic MCP clients.
-"""
-"""arifosmcp.transport.external_gateways.perplexity_client
 
+arifosmcp.transport.external_gateways.perplexity_client
 Perplexity search client.
 
 This is an optional search provider used by the arifOS AAA MCP surface. Secrets

@@ -3,10 +3,8 @@ DEPRECATED: This legacy transport module is deprecated.
 
 arifosmcp/runtime/server.py and FastMCP are the canonical deployment paths
 for modern, agnostic MCP clients.
-"""
-"""
-arifosmcp.transport/external_gateways/jina_reader_client.py — Jina Reader Search Client
 
+arifosmcp.transport/external_gateways/jina_reader_client.py — Jina Reader Search Client
 Jina Reader is an AI-powered web reader that provides:
 - Web search with extracted content (s.jina.ai)
 - URL to clean Markdown (r.jina.ai)
