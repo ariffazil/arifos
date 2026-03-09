@@ -106,7 +106,23 @@ async def seal(
     if telemetry is not None:
         telemetry["physics_final"] = final_report
 
-    # 7. Construct Output
+    # 7. EUREKA Layer 6: Register decision in the Reality Feedback Ledger
+    # The ledger records the expected outcome so that post-action results can
+    # be reconciled later via OutcomeLedger.resolve_outcome().
+    try:
+        from core.recovery.rollback_engine import outcome_ledger
+
+        outcome_ledger.record_outcome(
+            decision_id=ledger_id,
+            session_id=session_id,
+            verdict_issued=verdict,
+            expected_outcome=summary,
+            reversible=seal_mode != "final",
+        )
+    except Exception as _oe:
+        logger.warning("OutcomeLedger hook failed (Layer 6 reality feedback degraded): %s", _oe)
+
+    # 8. Construct Output
     return VaultOutput(
         session_id=session_id,
         verdict=Verdict.SEAL,
