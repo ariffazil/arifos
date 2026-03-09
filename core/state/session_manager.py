@@ -42,12 +42,19 @@ class SessionManager:
                 cls._instance._sessions = {}
             return cls._instance
 
-    def create_session(self, owner: str, actor_identity: ActorIdentity | None = None) -> str:
+    def create_session(
+        self,
+        owner: str,
+        actor_identity: ActorIdentity | None = None,
+        session_id: str | None = None,
+    ) -> str:
         """
         Ignite a new governance session.
         F11: Establishes a unique authority boundary.
         """
-        session_id = str(uuid.uuid4())
+        if not session_id:
+            session_id = str(uuid.uuid4())
+
         metadata = SessionMetadata(
             session_id=session_id, owner=owner, actor_identity=actor_identity
         )

@@ -154,10 +154,21 @@ async def _wrap_call(
         returned_auth_ctx = kernel_res.get("auth_context", input_auth_ctx)
         auth_context = AuthContext(**_normalize_auth_context(returned_auth_ctx))
 
+        # Flatten nested data if bridge wrapped it
+        extracted_data = kernel_res.get("data")
+        if not extracted_data:
+            extracted_data = kernel_res.get("payload", kernel_res)
+
+        effective_session_id = str(
+            kernel_res.get("session_id")
+            or (extracted_data.get("session_id") if isinstance(extracted_data, dict) else None)
+            or session_id
+        )
+
         envelope = RuntimeEnvelope(
             verdict=verdict,
             stage=stage,
-            session_id=str(kernel_res.get("session_id", session_id)),
+            session_id=effective_session_id,
             telemetry=Telemetry(
                 dS=kernel_res.get("telemetry", {}).get("dS", -0.7),
                 peace2=kernel_res.get("telemetry", {}).get("peace2", 1.1),
@@ -170,7 +181,7 @@ async def _wrap_call(
                 earth=kernel_res.get("witness", {}).get("earth", 0.0),
             ),
             auth_context=auth_context,
-            data=kernel_res.get("payload", kernel_res),
+            data=extracted_data if isinstance(extracted_data, dict) else {"raw": extracted_data},
         )
 
         # Attach OPEX (epistemic) + APEX (governance) schema layers

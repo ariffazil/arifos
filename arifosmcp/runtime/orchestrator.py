@@ -45,54 +45,60 @@ async def metabolic_loop(
         intent={"query": query, "task_type": "ask"},
         governance={"actor_id": actor_id, "stakes_class": "C"},
     )
-    trace["000_INIT"] = init_res.verdict
+    trace["000_INIT"] = init_res.verdict.value
     if init_res.verdict == Verdict.VOID:
-        output = init_res.model_dump()
+        output = init_res.model_dump(mode="json")
         output["trace"] = trace
+        output["status"] = "ERROR"
         return output
 
     session_id = init_res.session_id
-    auth_ctx = init_res.auth_context.model_dump()
+    if not session_id or session_id == "global":
+        # Critical failure: session ID not minted
+        return {
+            "status": "ERROR",
+            "verdict": "VOID",
+            "error": "F11: Session ID generation failed during anchor.",
+            "trace": trace,
+        }
+
+    auth_ctx = init_res.auth_context.model_dump(exclude_none=True)
 
     # 2. Stage 111: FRAMING
     frame_res: RuntimeEnvelope = await integrate_analyze_reflect(
         session_id=session_id, query=query, auth_context=auth_ctx
     )
-    trace["111_MIND"] = frame_res.verdict
-    auth_ctx = frame_res.auth_context.model_dump()
+    trace["111_MIND"] = frame_res.verdict.value
+    auth_ctx = frame_res.auth_context.model_dump(exclude_none=True)
 
     # 3. Stage 333: REASONING
     mind_res: RuntimeEnvelope = await reason_mind_synthesis(
         session_id=session_id, query=query, auth_context=auth_ctx
     )
-    trace["333_MIND"] = mind_res.verdict
-    auth_ctx = mind_res.auth_context.model_dump()
+    trace["333_MIND"] = mind_res.verdict.value
+    auth_ctx = mind_res.auth_context.model_dump(exclude_none=True)
 
     # 4. Stage 666A & 666B: HEART & AUDIT
     heart_res: RuntimeEnvelope = await assess_heart_impact(
         session_id=session_id, scenario=query, auth_context=auth_ctx
     )
-    trace["666A_HEART"] = heart_res.verdict
-    auth_ctx = heart_res.auth_context.model_dump()
+    trace["666A_HEART"] = heart_res.verdict.value
+    auth_ctx = heart_res.auth_context.model_dump(exclude_none=True)
 
     critique_res: RuntimeEnvelope = await critique_thought_audit(
         session_id=session_id, thought_id="current_thought", auth_context=auth_ctx
     )
-    trace["666B_HEART"] = critique_res.verdict
-    auth_ctx = critique_res.auth_context.model_dump()
+    trace["666B_HEART"] = critique_res.verdict.value
+    auth_ctx = critique_res.auth_context.model_dump(exclude_none=True)
 
     # 5. Stage 777: FORGE (Discovery)
-    # Phase 2 hooks are intentionally not dispatched here yet. Future work may
-    # allow 777/888 to invoke search_reality / ingest_evidence behind stricter
-    # Floors and HOLD-888 gating.
     forge_res: RuntimeEnvelope = await quantum_eureka_forge(
         session_id=session_id, intent=query, auth_context=auth_ctx
     )
-    trace["777_APEX"] = forge_res.verdict
-    auth_ctx = forge_res.auth_context.model_dump()
+    trace["777_APEX"] = forge_res.verdict.value
+    auth_ctx = forge_res.auth_context.model_dump(exclude_none=True)
 
     # 6. Stage 888: JUDGE
-    # Aggregate verdicts for the candidate
     verdicts = [
         init_res.verdict,
         frame_res.verdict,
@@ -114,18 +120,21 @@ async def metabolic_loop(
         auth_context=auth_ctx,
         reason_summary=f"Metabolic loop synthesis for: {query[:50]}...",
     )
-    trace["888_JUDGE"] = judge_res.verdict
-    auth_ctx = judge_res.auth_context.model_dump()
+    trace["888_JUDGE"] = judge_res.verdict.value
+    auth_ctx = judge_res.auth_context.model_dump(exclude_none=True)
 
     # 7. Stage 999: VAULT
     vault_res: RuntimeEnvelope = await seal_vault_commit(
         session_id=session_id, verdict=judge_res.verdict.value, auth_context=auth_ctx
     )
-    trace["999_VAULT"] = vault_res.verdict
+    trace["999_VAULT"] = vault_res.verdict.value
 
     # Final result construction
-    final_output = judge_res.model_dump()
+    final_output = judge_res.model_dump(mode="json")
+    final_output["status"] = "SUCCESS" if judge_res.verdict != Verdict.VOID else "ERROR"
     final_output["trace"] = trace
+    final_output["session_id"] = session_id
     final_output["vault_seal"] = vault_res.verdict == Verdict.SEAL
+    final_output["auth_context"] = auth_ctx
 
     return final_output

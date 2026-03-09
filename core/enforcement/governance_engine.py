@@ -664,12 +664,10 @@ def wrap_tool_output(tool: str, payload: dict[str, Any]) -> dict[str, Any]:
 
     stage = TOOL_STAGE_MAP.get(tool, "000_INIT")
 
-    # P0/P1/P2 HARDENING: Master verdict determination cascade
-    # Priority: Hard Fail → Ψ → W₃ → Φₚ → Ω_ortho → Landauer → Partial
+    # Master verdict determination
     if has_hard_fail:
         verdict = "VOID"
     elif stage == "000_INIT":
-        # Anchor is allowed to SEAL if no hard fails and consensus held
         if tri_witness.get("pass", False):
             verdict = "SEAL"
         else:
@@ -678,7 +676,6 @@ def wrap_tool_output(tool: str, payload: dict[str, Any]) -> dict[str, Any]:
         "RECALL_PARTIAL_FAILURE",
         "SEARCH_PARTIAL_FAILURE",
     }:
-        # System lacks vitality - cannot SEAL
         if psi_score < 0.5:
             verdict = "VOID"
         else:
@@ -687,28 +684,28 @@ def wrap_tool_output(tool: str, payload: dict[str, Any]) -> dict[str, Any]:
         "RECALL_PARTIAL_FAILURE",
         "SEARCH_PARTIAL_FAILURE",
     }:
-        # P1: Tri-Witness consensus failed
         if tri_witness.get("shattered_by"):
-            verdict = "VOID"  # Witness shattered
+            verdict = "VOID"
         else:
-            verdict = "SABAR"  # Below threshold but not shattered
+            verdict = "SABAR"
     elif not paradox_resolved and tool in {"critique_thought", "apex_judge"}:
-        # P1: Paradox not resolved for high-cognition tools
         if phi_p < 0.5:
             verdict = "VOID"
         else:
             verdict = "SABAR"
     elif not ortho_pass and tool in {"critique_thought", "apex_judge", "simulate_heart"}:
-        # P2: AGI/ASI mode collapse detected
         if omega_ortho < 0.50:
             verdict = "VOID"
         else:
             verdict = "SABAR"
     elif landauer_data["violation"]:
-        # P2: Landauer bound violation - cheap truth detected
-        verdict = "SABAR"  # Demote to SABAR to force recalculation
+        verdict = "SABAR"
     elif (failed_axioms or failed_laws) and verdict == "SEAL":
         verdict = "PARTIAL"
+
+    status = "SUCCESS" if verdict not in {"VOID", "SABAR"} else "ERROR"
+    if payload.get("status") == "ERROR":
+        status = "ERROR"
 
     # APEX 5-Layer Stack Variables
     C = payload.get("tokens", 50) + payload.get("compute_ms", 100) / 10.0
@@ -721,15 +718,16 @@ def wrap_tool_output(tool: str, payload: dict[str, Any]) -> dict[str, Any]:
     x_val = apex_dials.get("X", 1.0)
     e_val = apex_dials.get("E", 1.0)
     capacity_product = a_val * p_val * x_val
-    effort_amplifier = e_val ** 2
-    
+    effort_amplifier = e_val**2
+
     g_star = apex_dials.get("G_star", capacity_product * effort_amplifier)
     g_dagger = g_star * eta
 
     return {
+        "status": status,
         "verdict": verdict,
         "tool": tool,
-        "session_id": payload.get("session_id", ""),
+        "session_id": str(payload.get("session_id") or payload.get("session", "")),
         "apex_output": {
             "capacity_layer": {
                 "A": a_val,
@@ -741,7 +739,7 @@ def wrap_tool_output(tool: str, payload: dict[str, Any]) -> dict[str, Any]:
                 "E": e_val,
                 "effort_amplifier": round(effort_amplifier, 4),
                 "reasoning_steps": payload.get("steps", 1),
-                "tool_calls": 1
+                "tool_calls": 1,
             },
             "entropy_layer": {
                 "H_before": payload.get("H_before", 1.0),
@@ -760,9 +758,15 @@ def wrap_tool_output(tool: str, payload: dict[str, Any]) -> dict[str, Any]:
             },
             "governance_layer": {
                 "vitality_index": vitality.get("psi", 0.0),
-                "truth_floor": "pass" if law_checks.get("F2_TRUTH", {}).get("pass", True) else "fail",
-                "authority_status": "pass" if law_checks.get("F11_AUTHORITY", {}).get("pass", True) else "fail",
-                "sovereignty_status": "pass" if law_checks.get("F13_SOVEREIGNTY", {}).get("pass", True) else "fail",
+                "truth_floor": "pass"
+                if law_checks.get("F2_TRUTH", {}).get("pass", True)
+                else "fail",
+                "authority_status": "pass"
+                if law_checks.get("F11_AUTHORITY", {}).get("pass", True)
+                else "fail",
+                "sovereignty_status": "pass"
+                if law_checks.get("F13_SOVEREIGNTY", {}).get("pass", True)
+                else "fail",
                 "tri_witness_status": "pass" if tri_witness.get("pass", False) else "fail",
             },
             "diagnostics": {
@@ -776,8 +780,8 @@ def wrap_tool_output(tool: str, payload: dict[str, Any]) -> dict[str, Any]:
                 "failed_laws": failed_laws,
                 "paradox_resolved": paradox_resolved,
                 "landauer_violation": landauer_data["violation"],
-                "mode_collapse": not ortho_pass
-            }
+                "mode_collapse": not ortho_pass,
+            },
         },
         "motto": motto,
         "data": payload,
