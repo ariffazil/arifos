@@ -12,7 +12,7 @@ from typing import Any
 
 from arifosmcp.intelligence.tools.reality_grounding import open_web_page, reality_check
 from arifosmcp.runtime.contracts import REQUIRES_SESSION
-from core.enforcement.auth_continuity import mint_auth_context, verify_auth_context
+from core.enforcement.auth_continuity import mint_auth_context, verify_auth_context_cached
 from core.enforcement.governance_engine import wrap_tool_output
 from core.organs import Verdict, agi, apex, asi, init, vault
 
@@ -52,12 +52,14 @@ async def call_kernel(
                 canonical_name,
                 {
                     "verdict": "VOID",
-                    "error": "F11: Missing auth_context for continuity. Run init_anchor_state first.",
+                    "error": (
+                        "F11: Missing auth_context for continuity. Run init_anchor_state first."
+                    ),
                     "stage": "INIT",
                 },
             )
 
-        valid, reason = verify_auth_context(session_id, auth_ctx)
+        valid, reason = verify_auth_context_cached(session_id, auth_ctx)
         if not valid:
             return wrap_tool_output(
                 canonical_name,

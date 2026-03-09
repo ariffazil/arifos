@@ -22,13 +22,14 @@ import os
 import re
 import uuid
 from dataclasses import dataclass
+from datetime import datetime
 
 from qdrant_client import QdrantClient
 from qdrant_client.models import FieldCondition, Filter, MatchValue, PointStruct
 from sentence_transformers import SentenceTransformer
 
 QDRANT_URL = os.environ.get("QDRANT_URL", "http://localhost:6333")
-QDRANT_API_KEY = os.environ.get("QDRANT_API_KEY", "arifos_qdrant_2026")
+QDRANT_API_KEY = os.environ.get("QDRANT_API_KEY")
 COLLECTION_NAME = os.environ.get("RAG_COLLECTION", "arifos_constitutional")
 EMBEDDING_MODEL = os.environ.get("RAG_EMBEDDING_MODEL", "BAAI/bge-m3")
 DEFAULT_TOP_K = int(os.environ.get("RAG_TOP_K", "5"))
@@ -58,10 +59,12 @@ class ConstitutionalRAG:
     def __init__(
         self,
         qdrant_url: str = QDRANT_URL,
-        qdrant_api_key: str = QDRANT_API_KEY,
+        qdrant_api_key: str | None = QDRANT_API_KEY,
         collection_name: str = COLLECTION_NAME,
         embedding_model: str = EMBEDDING_MODEL,
     ):
+        if not qdrant_api_key:
+            raise ValueError("QDRANT_API_KEY environment variable is required")
         self.client = QdrantClient(url=qdrant_url, api_key=qdrant_api_key)
         self.collection = collection_name
         self.model = SentenceTransformer(embedding_model)
@@ -269,9 +272,6 @@ Answer based on the context above, citing sources when appropriate."""
                 "embedding_model": self.model_name,
             }
 
-
-# Add datetime import for index_memory
-from datetime import datetime
 
 rag = ConstitutionalRAG()
 

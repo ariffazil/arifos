@@ -51,6 +51,24 @@ from arifosmcp.runtime.tools import (
 
 mcp = FastMCP("arifOS-APEX-G", version="2026.03.09-SEAL")
 PUBLIC_TOOL_PROFILE = os.getenv("ARIFOS_PUBLIC_TOOL_PROFILE", "full").strip().lower() or "full"
+VALID_TRANSPORT_MODES = {"stdio", "http", "sse", "streamable-http"}
+
+
+def _validate_transport_mode(mode: str) -> str:
+    normalized = mode.strip().lower()
+    if normalized not in VALID_TRANSPORT_MODES:
+        raise ValueError(
+            f"Invalid AAA_MCP_TRANSPORT '{mode}'. Allowed: {sorted(VALID_TRANSPORT_MODES)}"
+        )
+    return normalized
+
+
+def _parse_port(raw_port: str) -> int:
+    port = int(raw_port)
+    if port < 1024 or port > 65535:
+        raise ValueError(f"PORT out of range (1024-65535): {port}")
+    return port
+
 
 register_tools(mcp, profile=PUBLIC_TOOL_PROFILE)
 register_resources(mcp)
@@ -124,7 +142,7 @@ __all__ = [
 
 
 if __name__ == "__main__":
-    mode = os.getenv("AAA_MCP_TRANSPORT", "stdio")
+    mode = _validate_transport_mode(os.getenv("AAA_MCP_TRANSPORT", "stdio"))
     host = os.getenv("HOST", "0.0.0.0")
-    port = int(os.getenv("PORT", "8080"))
+    port = _parse_port(os.getenv("PORT", "8080"))
     run_server(mcp, mode=mode, host=host, port=port)

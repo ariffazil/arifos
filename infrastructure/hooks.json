@@ -37,7 +37,7 @@
     "trigger-rule": {
       "match": {
         "type": "value",
-        "value": "openclaw-restart-888",
+        "value": "{{ getenv \"OPENCLAW_RESTART_TOKEN\" }}",
         "parameter": {
           "source": "header",
           "name": "X-Restart-Token"

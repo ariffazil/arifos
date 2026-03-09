@@ -9,6 +9,7 @@ DITEMPA BUKAN DIBERI — Forged, Not Given
 
 from __future__ import annotations
 
+import asyncio
 import hashlib
 import json
 import logging
@@ -23,6 +24,12 @@ logger = logging.getLogger(__name__)
 
 # Default storage
 DEFAULT_VAULT_PATH = Path("VAULT999/vault999.jsonl")
+
+
+def _append_vault_record(path: Path, payload: dict[str, Any]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, "a", encoding="utf-8") as file_handle:
+        file_handle.write(json.dumps(payload, ensure_ascii=False) + "\n")
 
 
 async def seal(
@@ -86,17 +93,13 @@ async def seal(
 
     # 5. Persist to VAULT999
     try:
-        DEFAULT_VAULT_PATH.parent.mkdir(parents=True, exist_ok=True)
-        with open(DEFAULT_VAULT_PATH, "a", encoding="utf-8") as f:
-            f.write(
-                json.dumps(
-                    {**entry_data, "seal_hash": entry_hash, "chain": chain.model_dump()},
-                    ensure_ascii=False,
-                )
-                + "\n"
-            )
+        await asyncio.to_thread(
+            _append_vault_record,
+            DEFAULT_VAULT_PATH,
+            {**entry_data, "seal_hash": entry_hash, "chain": chain.model_dump()},
+        )
     except Exception as e:
-        logger.error(f"Vault persistence failure: {e}")
+        logger.error("Vault persistence failure: %s", e)
 
     # 6. Thermodynamic Cleanup
     final_report = cleanup_thermodynamic_budget(session_id)

@@ -5,6 +5,7 @@ This module implements the Stage 444 logic, coordinating the 10-tool APEX-G kern
 DITEMPA BUKAN DIBERI — Forged, Not Given
 """
 
+import asyncio
 import logging
 import os
 from typing import Any
@@ -27,6 +28,7 @@ async def metabolic_loop(
     This function acts as the internal logic for the Stage 444 metabolic_loop_router.
     """
     from arifosmcp.runtime.tools import (
+        _normalize_session_id,
         apex_judge_verdict,
         assess_heart_impact,
         critique_thought_audit,
@@ -35,7 +37,6 @@ async def metabolic_loop(
         quantum_eureka_forge,
         reason_mind_synthesis,
         seal_vault_commit,
-        _normalize_session_id,
     )
     from arifosmcp.transport.server import _adapt_human_command
 
@@ -46,16 +47,17 @@ async def metabolic_loop(
         "search_reality": os.getenv("ARIFOS_ENABLE_PHASE2_SEARCH", "0") == "1",
         "ingest_evidence": os.getenv("ARIFOS_ENABLE_PHASE2_INGEST", "0") == "1",
     }
-    trace = {"phase2_hooks": phase2_hooks}
+    trace: dict[str, Any] = {"phase2_hooks": phase2_hooks}
 
     # Resolve/Mint Session (Repair Directive Priority 1 & 3)
     effective_session_id = _normalize_session_id(session_id)
 
     # P5: Improved Ergonomics (Coercion)
     from core.organs._0_init import coerce_authority_level, coerce_stakes_class
+
     auth_coerced = coerce_authority_level(actor_id)
     stakes_coerced = coerce_stakes_class(risk_tier)
-    
+
     actor_id = auth_coerced["value"]
     effective_risk_tier = stakes_coerced["value"]
 
@@ -70,30 +72,31 @@ async def metabolic_loop(
         session_id=effective_session_id,
     )
     trace["000_INIT"] = init_res.verdict.value
-    
+
     # SHADOW EVALUATION & AUTO-ANCHOR (P0):
     init_failed = init_res.verdict == Verdict.VOID
     auth_ctx = init_res.auth_context.model_dump(exclude_none=True)
-    
+
     auth_state = init_res.auth_state
-    
+
     if init_failed and effective_risk_tier == "C" and not allow_execution:
         # F11 Auto-Anchor Bypass for low-risk reads (P0)
         from core.enforcement.auth_continuity import mint_auth_context
+
         logger.info(f"[arifOS] Auto-anchoring low-risk read-only session: {effective_session_id}")
-        
+
         # Mint a guest context so subsequent tools can pass the bridge
         guest_ctx = mint_auth_context(
             session_id=effective_session_id,
             actor_id="anonymous",
             token_fingerprint="guest-auto-anchor",
             approval_scope=["reason_mind", "simulate_heart", "critique_thought"],
-            parent_signature="AUTO_ANCHOR_BYPASS"
+            parent_signature="AUTO_ANCHOR_BYPASS",
         )
         auth_ctx = guest_ctx
         auth_state = "bootstrap_readonly"
         trace["000_INIT"] = "AUTO_ANCHOR"
-    
+
     # Invariant: Maintain consistency for shadow evaluation
     if not (init_failed and trace["000_INIT"] == "AUTO_ANCHOR"):
         session_id = init_res.session_id
@@ -115,15 +118,44 @@ async def metabolic_loop(
     auth_ctx = mind_res.auth_context.model_dump(exclude_none=True)
 
     # 4. Stage 666A & 666B: HEART & AUDIT
-    heart_res: RuntimeEnvelope = await assess_heart_impact(
-        session_id=session_id, scenario=query, auth_context=auth_ctx
-    )
-    trace["666A_HEART"] = heart_res.verdict.value
-    auth_ctx = heart_res.auth_context.model_dump(exclude_none=True)
+    # Run in parallel from the same authenticated context, then continue with
+    # a deterministic merged context for downstream stages.
+    parallel_timeout_seconds = float(os.getenv("ARIFOS_PARALLEL_STAGE_TIMEOUT", "30"))
+    parallel_failed = False
+    heart_res: RuntimeEnvelope | None = None
+    critique_res: RuntimeEnvelope | None = None
+    try:
+        heart_res, critique_res = await asyncio.wait_for(
+            asyncio.gather(
+                assess_heart_impact(session_id=session_id, scenario=query, auth_context=auth_ctx),
+                critique_thought_audit(
+                    session_id=session_id,
+                    thought_id="current_thought",
+                    auth_context=auth_ctx,
+                ),
+            ),
+            timeout=parallel_timeout_seconds,
+        )
+    except Exception as exc:
+        parallel_failed = True
+        logger.warning("[arifOS] Parallel 666 stages failed, falling back to sequential: %s", exc)
 
-    critique_res: RuntimeEnvelope = await critique_thought_audit(
-        session_id=session_id, thought_id="current_thought", auth_context=auth_ctx
-    )
+    if parallel_failed:
+        heart_res = await assess_heart_impact(
+            session_id=session_id, scenario=query, auth_context=auth_ctx
+        )
+        critique_res = await critique_thought_audit(
+            session_id=session_id,
+            thought_id="current_thought",
+            auth_context=heart_res.auth_context.model_dump(exclude_none=True),
+        )
+
+    if heart_res is None or critique_res is None:
+        raise RuntimeError(
+            "Stage 666 parallel/sequential execution did not produce required results"
+        )
+
+    trace["666A_HEART"] = heart_res.verdict.value
     trace["666B_HEART"] = critique_res.verdict.value
     auth_ctx = critique_res.auth_context.model_dump(exclude_none=True)
 
@@ -142,7 +174,7 @@ async def metabolic_loop(
         heart_res.verdict,
         critique_res.verdict,
     ]
-    
+
     if dry_run:
         # P4: Dry-run support. Return state without judgment or commit.
         return {
@@ -152,10 +184,12 @@ async def metabolic_loop(
             "auth_state": auth_state,
             "session_id": session_id,
             "trace": trace,
-            "remediation_notes": ["Constitutional dry-run completed. No judgment or vault commit performed."],
+            "remediation_notes": [
+                "Constitutional dry-run completed. No judgment or vault commit performed."
+            ],
             "next_best_action": "Set dry_run=False to execute formal governance judgment.",
         }
-    
+
     # Final Verdict Gating
     if init_failed:
         # Auth failed, loop continues for visibility, but JUDGE must BLOCK.
@@ -186,20 +220,24 @@ async def metabolic_loop(
 
     # Final result construction
     final_output = judge_res.model_dump(mode="json")
-    
+
     # P1/P2 Unification
     final_output["final_verdict"] = "AUTH_FAIL" if init_failed else judge_res.verdict.value
-    final_output["status"] = "SUCCESS" if judge_res.verdict not in (Verdict.VOID, Verdict.SABAR) else "ERROR"
+    final_output["status"] = (
+        "SUCCESS" if judge_res.verdict not in (Verdict.VOID, Verdict.SABAR) else "ERROR"
+    )
     final_output["auth_state"] = auth_state
-    
+
     if init_failed:
         final_output["failure_origin"] = "AUTH"
         final_output["failure_stage"] = "000_INIT"
         final_output["blocked_because"] = "F11: Command Authority failure during session bootstrap"
         final_output["block_class"] = "auth_only"
-        final_output["safe_alternative"] = "Use allow_execution=False and risk_tier=low for auto-anchor"
+        final_output["safe_alternative"] = (
+            "Use allow_execution=False and risk_tier=low for auto-anchor"
+        )
         final_output["next_best_action"] = "Anchor session with valid actor_id and auth_token"
-        
+
     final_output["trace"] = trace
     final_output["session_id"] = session_id
     final_output["vault_seal"] = vault_res.verdict == Verdict.SEAL

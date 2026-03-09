@@ -1,6 +1,6 @@
 [project]
 name = "arifos"
-version = "2026.03.09"
+version = "2026.03.09.post1"
 # T000 Versioning: YYYY.MM.DD — see T000_VERSIONING.md and CHANGELOG.md for full history
 # 2026.03.07 — Architectural Formalization Seal
 #   Formalized 4-layer taxonomy (L0-L3), Metabolic Scheduler (Ω), Triple-Hash Merkle Vault, and Phoenix Recovery.
