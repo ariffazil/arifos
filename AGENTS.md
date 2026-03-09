@@ -120,7 +120,7 @@ Naming:
 - Functions/variables: `snake_case`.
 - Constants: `UPPER_SNAKE_CASE`.
 - Internal helpers: `_leading_underscore`.
-- Use honest names; avoid deceptive/euphemistic naming.
+- Use honest names; avoid deceptive/euphemistic naming (F9 compliance).
 
 Error handling:
 - Do not swallow exceptions.
@@ -140,6 +140,23 @@ Testing:
 - Use `require_postgres`/`require_redis` fixtures for service-dependent tests.
 - Do not re-enable `tests/archive` or `tests/legacy` unless explicitly asked.
 
+## 888 HOLD Discipline
+
+**Mandatory hold gate** for high-stakes operations:
+- Database operations (DROP, TRUNCATE, DELETE without WHERE)
+- Production deployments
+- Mass file changes (>10 files)
+- Credential/secret handling
+- Git history modification (rebase, force push)
+- Evidence conflicts across source tiers
+- User corrections to constitutional claims
+
+When triggered:
+1. Declare: "888 HOLD — [trigger type] detected"
+2. List conflicts showing PRIMARY vs SECONDARY vs TERTIARY sources
+3. Re-read PRIMARY sources (spec JSON or SEALED canon)
+4. Await explicit human approval before proceeding
+
 ## Copilot Guidance Included
 
 From `.github/copilot-instructions.md`:
@@ -152,6 +169,8 @@ From `.github/copilot-instructions.md`:
 - Use lazy imports for optional dependencies.
 - Human authority is final for high-stakes operations.
 
+v46 canonical sources: `AGENTS.md` (root), `spec/v46/*`, `L2_GOVERNANCE/skills/ARIFOS_SKILLS_REGISTRY.md`. Stages: `000 → 444 → 666 → 888 → 999`. Run 000 before any action, 999 before handoff.
+
 If guidance conflicts, trust actual code + `pyproject.toml` + this file.
 
 ## Pre-Handoff Checklist
@@ -162,4 +181,4 @@ If guidance conflicts, trust actual code + `pyproject.toml` + this file.
 4. Summarize changed files and rationale.
 5. Call out any checks you could not run and how to run them.
 
-Last updated: 2026-03-08
+Last updated: 2026-03-09
