@@ -238,40 +238,6 @@ async def _wrap_call(
             data=extracted_data if isinstance(extracted_data, dict) else {"raw": extracted_data},
         )
 
-        envelope = RuntimeEnvelope(
-            verdict=verdict,
-            stage=stage,
-            session_id=effective_session_id,
-            final_verdict=kernel_res.get("final_verdict", verdict_str),
-            status=kernel_res.get("status", "SUCCESS"),
-            failure_origin=kernel_res.get("failure_origin"),
-            failure_stage=kernel_res.get("failure_stage"),
-            auth_state=kernel_res.get("auth_state", "anonymous"),
-            score_delta=kernel_res.get("score_delta", {}),
-            primary_blocker=kernel_res.get("primary_blocker"),
-            secondary_blockers=kernel_res.get("secondary_blockers", []),
-            next_best_action=kernel_res.get("next_best_action"),
-            counterfactual=kernel_res.get("counterfactual"),
-            remediation_notes=kernel_res.get("remediation_notes", []),
-            blocked_because=kernel_res.get("blocked_because"),
-            block_class=kernel_res.get("block_class"),
-            safe_alternative=kernel_res.get("safe_alternative"),
-            minimum_upgrade_condition=kernel_res.get("minimum_upgrade_condition"),
-            telemetry=Telemetry(
-                dS=kernel_res.get("telemetry", {}).get("dS", -0.7),
-                peace2=kernel_res.get("telemetry", {}).get("peace2", 1.1),
-                confidence=kernel_res.get("telemetry", {}).get("confidence", 0.9),
-                verdict=kernel_res.get("telemetry", {}).get("verdict", "Alive"),
-            ),
-            witness=Witness(
-                human=kernel_res.get("witness", {}).get("human", 0.0),
-                ai=kernel_res.get("witness", {}).get("ai", 0.0),
-                earth=kernel_res.get("witness", {}).get("earth", 0.0),
-            ),
-            auth_context=auth_context,
-            data=extracted_data if isinstance(extracted_data, dict) else {"raw": extracted_data},
-        )
-
         # Attach OPEX (epistemic) + APEX (governance) schema layers
         opex = _build_opex(tool_name, kernel_res, envelope)
         envelope.opex = opex
