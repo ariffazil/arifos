@@ -209,6 +209,8 @@ gha-creds-*.json
 *.db
 *.sqlite
 *.sqlite3
+# Literal unexpanded env-var placeholder (artefact from misconfigured shell expansion)
+${SQLITE_DB_PATH}
 
 # Local environment overrides
 .env.local
