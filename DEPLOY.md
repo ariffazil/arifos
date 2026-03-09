@@ -17,6 +17,30 @@ The following artifacts have been forged for the **Immutable Docker Overlay** fl
 2. **SSH Public Key**: Local machine authorized for `root` or a deployment user.
 3. **App Dir**: Repository cloned at `/root/arifOS` (Standard remote location).
 
+### ⚠️ Cloudflare Proxy REQUIRED for ChatGPT MCP
+
+**For ChatGPT/External MCP clients:** You MUST enable Cloudflare proxy (orange cloud) on your domain.
+
+**Why:** ChatGPT servers (US/EU based) often cannot reach Asian VPS locations directly due to:
+- Geographic latency/timeouts (>200ms causes "upstream connect error")
+- ISP routing issues
+- Firewall blocks
+
+**Enable Cloudflare Proxy:**
+1. https://dash.cloudflare.com → Your domain → DNS
+2. Find `arifosmcp.yourdomain.com` → Toggle 🌥️ to **ORANGE** (Proxied)
+3. Wait 60 seconds, verify: `curl -sI https://yourdomain.com | grep cf-ray`
+
+**Verify it's working:**
+```bash
+# Should see Cloudflare headers
+curl -sI https://arifosmcp.arif-fazil.com/ | grep -E "cf-ray|cloudflare"
+# cf-ray: 9d962c570bb0fd16-SIN
+# server: cloudflare
+```
+
+**Without Cloudflare proxy:** ChatGPT will get `502: Upstream connect error` or timeout.
+
 ---
 
 ## 🔐 2. Configuration (The Amanah Handshake)
@@ -65,6 +89,18 @@ curl -i http://YOUR_VPS_IP:8088/mcp/
 # Tool Registry (core stack must be present; legacy Phase 2 tools may also appear)
 curl -fsS http://YOUR_VPS_IP:8088/tools
 ```
+
+### 🌥️ Verify Cloudflare Proxy (REQUIRED for ChatGPT)
+
+```bash
+# Run automatic check
+./scripts/verify_cloudflare_proxy.sh arifosmcp.yourdomain.com
+
+# Or manual check - should see Cloudflare headers
+curl -sI https://arifosmcp.yourdomain.com/ | grep -E "cf-ray|cloudflare"
+```
+
+**If NOT proxied:** ChatGPT will fail with `502: Upstream connect error`
 
 ## 🧭 5. Runtime Split
 
