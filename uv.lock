@@ -168,7 +168,7 @@ wheels = [
 
 [[package]]
 name = "arifos"
-version = "2026.3.8"
+version = "2026.3.10"
 source = { editable = "." }
 dependencies = [
     { name = "anyio" },
@@ -183,6 +183,7 @@ dependencies = [
     { name = "numpy" },
     { name = "openapi-pydantic" },
     { name = "playwright" },
+    { name = "prefab-ui" },
     { name = "prometheus-client" },
     { name = "psutil" },
     { name = "pydantic" },
@@ -303,6 +304,7 @@ requires-dist = [
     { name = "pandas", marker = "extra == 'all'", specifier = ">=2.1.0" },
     { name = "pandas", marker = "extra == 'viz'", specifier = ">=2.1.0" },
     { name = "playwright", specifier = ">=1.40.0" },
+    { name = "prefab-ui", specifier = "==0.8.0" },
     { name = "prometheus-client", specifier = ">=0.19.0" },
     { name = "prometheus-client", marker = "extra == 'all'", specifier = ">=0.19.0" },
     { name = "prometheus-client", marker = "extra == 'observability'", specifier = ">=0.19.0" },
@@ -3201,6 +3203,20 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/48/20/60ae67bb9d82f00427946218d49e2e7e80fb41c15dc5019482289ec9ce8d/posthog-5.4.0.tar.gz", hash = "sha256:701669261b8d07cdde0276e5bc096b87f9e200e3b9589c5ebff14df658c5893c", size = 88076, upload-time = "2025-06-20T23:19:23.485Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/4f/98/e480cab9a08d1c09b1c59a93dade92c1bb7544826684ff2acbfd10fcfbd4/posthog-5.4.0-py3-none-any.whl", hash = "sha256:284dfa302f64353484420b52d4ad81ff5c2c2d1d607c4e2db602ac72761831bd", size = 105364, upload-time = "2025-06-20T23:19:22.001Z" },
+]
+
+[[package]]
+name = "prefab-ui"
+version = "0.8.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "cyclopts" },
+    { name = "pydantic" },
+    { name = "rich" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/9e/b6/36166ce41d301e70f99172c77ad0ab818e1adb48c31cd5872aa9ba143f8a/prefab_ui-0.8.0.tar.gz", hash = "sha256:355f7c9d2ac30b5871833b505557b8747e1e9b847cfe983dc3f43eacc5e46cb3", size = 2746948, upload-time = "2026-02-25T21:48:00.392Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/54/24/fd8b0463cdaf99c3cc01b6589fa1b9773c84de0a49613b3b4c9ce1a37c71/prefab_ui-0.8.0-py3-none-any.whl", hash = "sha256:0c285eb3828a0e8c525b271741902bbe16d3aeef19fe9bcdd3b3a7df8950a29f", size = 803853, upload-time = "2026-02-25T21:47:57.756Z" },
 ]
 
 [[package]]

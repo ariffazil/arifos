@@ -1,49 +1,34 @@
 # AGENTS.md
 
-Operational guide for coding agents in this repository.
+Operational guide for coding agents operating in this repository.
 
 ## Source Priority
 
 1. This file.
-2. `pyproject.toml` tool configs.
-3. `.github/copilot-instructions.md` (included below).
+2. `pyproject.toml` configs.
+3. `.github/copilot-instructions.md`.
 
-Rule discovery:
-- Cursor rules not found (`.cursor/rules/` and `.cursorrules` are absent).
-- Copilot rules found at `.github/copilot-instructions.md`.
+*Note: Cursor rules (`.cursorrules`, `.cursor/rules/`) are absent. Fallback to Copilot guidance.*
 
-## Setup
+## Setup & Environment
 
-```bash
-pip install -e ".[dev]"
-pre-commit install
-```
+- **Python**: `>=3.12` (formatting targets `py310`).
+- **Dependencies**: `pip install -e ".[dev]"`
+- **Hooks**: `pre-commit install`
 
-Environment notes:
-- Runtime Python: `>=3.12`.
-- Black/Ruff/Mypy configs target py310 compatibility syntax.
+## Build & Run
 
-## Build and Run
-
-Use canonical runtime entrypoints first:
-
+Canonical runtime entrypoints:
 ```bash
 python -m arifosmcp.runtime stdio
 python -m arifosmcp.runtime sse
 python -m arifosmcp.runtime http
 ```
+Legacy transport (for specific docs/tests): `python -m arifosmcp.transport`
 
-Legacy/compat transport entrypoint (still valid in some docs/tests):
-
-```bash
-python -m arifosmcp.transport
-python -m arifosmcp.transport sse
-```
-
-## Lint/Format/Type/Security
+## Lint, Format & Type Checks
 
 ```bash
-ruff check .
 ruff check . --fix
 black .
 mypy core arifosmcp
@@ -53,132 +38,71 @@ pre-commit run --all-files
 
 ## Test Commands
 
-Defaults from `tests/conftest.py`:
-- `ARIFOS_PHYSICS_DISABLED=1`
-- `ARIFOS_ALLOW_LEGACY_SPEC=1`
-- `pytest` async mode is `auto`
+**Crucial:** Agent handoffs must include targeted testing. Defaults: `pytest` async mode is `auto`.
 
-Run all tests:
+- **All tests**: `pytest tests -v`
+- **Single file**: `pytest tests/canonical/test_runtime_server.py -v`
+- **Exact test (Node ID)**: `pytest tests/canonical/test_runtime_server.py::test_server_starts -v`
+- **Keyword**: `pytest -k "anchor_session" -v`
+- **Full physics**: `ARIFOS_PHYSICS_DISABLED=0 pytest tests/core -v`
+- **Coverage**: `pytest --cov=arifosmcp --cov=core --cov-report=term-missing`
 
-```bash
-pytest
-pytest tests -v
-```
+## Code Style & Conventions
 
-Run a single file:
-
-```bash
-pytest tests/canonical/test_runtime_server.py -v
-```
-
-Run one exact test (node id):
-
-```bash
-pytest tests/canonical/test_runtime_server.py::test_server_starts -v
-```
-
-Run by keyword or marker:
-
-```bash
-pytest -k "anchor_session and not slow" -v
-pytest -m "constitutional" -v
-```
-
-Coverage:
-
-```bash
-pytest --cov=arifosmcp --cov=core --cov-report=term-missing
-```
-
-Enable full physics when needed:
-
-```bash
-# PowerShell
-$env:ARIFOS_PHYSICS_DISABLED="0"; pytest tests/core -v
-
-# bash/zsh
-ARIFOS_PHYSICS_DISABLED=0 pytest tests/core -v
-```
-
-## Code Style Rules
-
-Formatting/imports:
-- Line length `100` (Black + Ruff).
-- Ruff lint set: `E,F,I,UP,N,B`.
-- Import order: standard lib, third-party, local (`core`, `arifosmcp`).
-- Use double quotes.
-- File/module names use `snake_case.py`.
-
-Types:
-- Add type hints in new/edited production code.
-- Stricter typing applies in `core.governance_kernel`, `core.organs.*`, `core.shared.*`.
-- Use explicit optionals (`X | None`), avoid implicit optional patterns.
-- Never invent values to satisfy type checks.
-
-Naming:
-- Classes: `PascalCase`.
-- Functions/variables: `snake_case`.
-- Constants: `UPPER_SNAKE_CASE`.
-- Internal helpers: `_leading_underscore`.
-- Use honest names; avoid deceptive/euphemistic naming (F9 compliance).
-
-Error handling:
-- Do not swallow exceptions.
-- Catch only when adding context or recovering safely.
-- Preserve causality (`raise NewError(...) from e`).
-- Prefer safe defaults and guard checks for risky paths.
-
-Architecture:
-- Runtime API surface: `arifosmcp/runtime/server.py`.
-- Bridge/routing: `arifosmcp/bridge.py`.
-- Governance/kernel logic belongs in `core/`, not thin transport wrappers.
-- Keep state transitions explicit and immutable-friendly.
-
-Testing:
-- Place tests under `tests/` and name files `test_*.py`.
-- Add focused unit tests plus integration coverage for behavior changes.
-- Use `require_postgres`/`require_redis` fixtures for service-dependent tests.
-- Do not re-enable `tests/archive` or `tests/legacy` unless explicitly asked.
+- **Formatting**: Line length 100 (Black + Ruff). Use double quotes. File names `snake_case.py`.
+- **Imports**: Group std lib, third-party, local (`core`, `arifosmcp`). Lazy import optional dependencies. Avoid shadowing the external `mcp` SDK with local files.
+- **Types**: Explicit optionals (`X | None`). Stricter typing in `core.governance_kernel`, `core.organs.*`. Never invent values to satisfy types.
+- **Naming**: `PascalCase` classes, `snake_case` functions/vars, `UPPER_SNAKE_CASE` constants. Use honest names; deceptive naming violates F9.
+- **Error Handling**: Do not swallow exceptions. Catch only when adding context/recovering safely. Preserve causality (`raise NewError(...) from e`).
+- **Architecture**: Transport/Runtime API surface lives in `arifosmcp/`. Governance/kernel logic belongs in `core/`. (Legacy `codebase/` and `arifos/` dirs have been removed).
+- **Tooling**: Tool decorators require outer `@mcp.tool()` and inner `@constitutional_floor()`.
 
 ## 888 HOLD Discipline
 
-**Mandatory hold gate** for high-stakes operations:
-- Database operations (DROP, TRUNCATE, DELETE without WHERE)
-- Production deployments
-- Mass file changes (>10 files)
-- Credential/secret handling
-- Git history modification (rebase, force push)
-- Evidence conflicts across source tiers
-- User corrections to constitutional claims
+**Mandatory HOLD** for high-stakes operations or evidence failures:
+- DB drops, mass file changes (>10), credential handling, git history mods.
+- User correction to constitutional claims, conflicting evidence (PRIMARY vs SECONDARY), or contradicting `grep` results.
 
-When triggered:
+**Action Sequence**:
 1. Declare: "888 HOLD — [trigger type] detected"
-2. List conflicts showing PRIMARY vs SECONDARY vs TERTIARY sources
-3. Re-read PRIMARY sources (spec JSON or SEALED canon)
-4. Await explicit human approval before proceeding
+2. List conflicts (PRIMARY vs SECONDARY).
+3. Re-read PRIMARY sources (`spec JSON` or SEALED canon).
+4. Await explicit human approval before proceeding.
 
-## Copilot Guidance Included
+## AClip Stage & Session Protocol (v46)
 
-From `.github/copilot-instructions.md`:
-- Prefer local `arifosmcp.transport` imports when editing transport subsystem code.
-- External SDK import is `mcp`; do not shadow it with local modules.
-- Transport tool decorators: outer `@mcp.tool()`, inner governance decorator.
-- Verify active tool definitions before edits:
-  - `arifosmcp.transport.server`
-  - `codebase/mcp/core/tool_registry.py` (if present in current branch)
-- Use lazy imports for optional dependencies.
-- Human authority is final for high-stakes operations.
+Canonical Stages: `000 → 444 → 666 → 888 → 999`
+- Run `000` (ARCHITECT) before planning/action.
+- Run `999` (SEAL/VOID) before handoff.
 
-v46 canonical sources: `AGENTS.md` (root), `spec/v46/*`, `L2_GOVERNANCE/skills/ARIFOS_SKILLS_REGISTRY.md`. Stages: `000 → 444 → 666 → 888 → 999`. Run 000 before any action, 999 before handoff.
+**Output Format** (Always display progress):
+```text
+[STAGE NNN] Stage Name
+Status: [IN_PROGRESS | COMPLETE]
+Floor Scores: F1=X F2=X ... F12=X
+Verdict: [SEAL | PARTIAL | SABAR | VOID | 888_HOLD]
+```
 
-If guidance conflicts, trust actual code + `pyproject.toml` + this file.
+**Session Data Contract**:
+Only include steps that *actually executed*. No fabricated steps.
+```python
+# CORRECT: Honest session structure
+session_data = {"id": "uuid", "task": "...", "status": "mcp_direct", "steps": []}
+```
+
+## Floor Violations (Quick Fixes)
+
+- **F1 Truth**: Mutates input, hidden side effects → Pure functions, explicit returns.
+- **F2 Clarity**: Fabricated data, fake metrics → Empty/null when unknown.
+- **F3 Stability**: Contract mismatch, type lies → Use canonical interfaces.
+- **F5 Quality**: Destructive defaults, no backup → Safe defaults, preserve state.
+- **F6 Empathy**: Only happy path, cryptic errors → Handle edge cases, clear messages.
+- **F8 Tri-Witness**: Bypasses governance, invents patterns → Use established systems.
+- **F9 Anti-Hantu**: Deceptive naming, hidden behavior → Honest names, transparent logic.
 
 ## Pre-Handoff Checklist
 
-1. Run targeted tests (include at least one exact node-id test command).
-2. Run lint + format checks.
-3. Run mypy when type-sensitive files changed.
-4. Summarize changed files and rationale.
-5. Call out any checks you could not run and how to run them.
-
-Last updated: 2026-03-09
+1. Run targeted exact node-id test commands.
+2. Run `ruff` + `black`.
+3. Run `mypy` for type-sensitive files.
+4. Summarize changed files, rationale, and justify stage verdict.
