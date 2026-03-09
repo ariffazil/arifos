@@ -5,6 +5,47 @@ All changes follow [T000 versioning](T000_VERSIONING.md): `YYYY.MM.DD-PHASE-STAT
 
 ---
 
+## [2026.3.8-APEX-SOVEREIGN-SEAL] — 2026-03-08 — APEX-SOVEREIGN-SEAL
+
+**T000:** 2026.03.08-APEX-SOVEREIGN-SEAL  
+**Theme:** Architectural formalization of the APEX Theorem, 5-Layer intelligence stack, and Sovereign Dashboard launch.
+
+### Added
+- **APEX Sovereign Dashboard** (`arifosmcp/sites/apex-dashboard/`):
+  - Self-contained React + Recharts dashboard visualizing the "Discipline Layer".
+  - Radar geometry for Capacity (APX), Effort (E²), and Efficiency (η).
+  - Log-decomposition waterfall view for diagnostic clarity.
+  - Native FastMCP Custom HTML App integration (`ui://apex-dashboard/view.html`).
+- **`open_apex_dashboard` tool**: Direct entry point for interactive observability.
+- **APEX Theorem Physics** (`core/shared/physics.py`):
+  - Native `G_dagger` (Realized Intelligence) and `eta` (Efficiency) methods in `GeniusDial`.
+  - Formalized equation: $G^\dagger = G^* \cdot \eta$.
+
+### Changed
+- **5-Layer Intelligence Schema**:
+  - Completely refactored `wrap_tool_output` to remove chaotic telemetry.
+  - New output structure: `capacity_layer`, `effort_layer`, `entropy_layer`, `efficiency_layer`, `governed_intelligence`.
+- **APEX Discipline Gate**:
+  - Updated `core/organs/_3_apex.py` to enforce $G^\dagger \ge 0.80$ for `SEAL` verdicts.
+  - Sessions failing the realization gate are automatically downgraded to `PARTIAL`.
+- **Prefab UI Integration**:
+  - Refactored `check_vital`, `audit_rules`, `vector_memory`, and `search_reality` to use FastMCP Prefab UI components (Metrics, DataTables, Badges).
+- **Documentation Sync**:
+  - Comprehensive rewrite of `README.md` for zero-context clarity.
+  - Aligned `mcp-server.md`, `trinity-metabolic-loop.md`, and `intro.md` with the 10-tool metabolic stack.
+
+### Fixed
+- **Stage 000 Init Bugs**: `InitOutput` now correctly populates `floors_failed` upon failure.
+- **Circular Import Fix**: Resolved dependency loop in `eval/suite.py` by moving triad imports to local scopes.
+- **Deployment Pipeline**: Updated `run_evals.py` and `deploy-cloudflare.yml` to support the new dashboard sub-route.
+
+### Verification
+- **Constitutional Core**: 63/63 PASSED (including new $G^\dagger$ unit tests).
+- **APEX Gate**: Verified via reproduction script (High Cost + Low Clarity = Downgrade).
+- **Dashboard**: Verified live rendering across both internal and runtime-wrapped tools.
+
+---
+
 ## [2026.3.8-APEX-METRICS-HARDENING-SEAL] — 2026-03-08 — APEX-METRICS-HARDENING-SEAL
 
 **T000:** 2026.03.08-APEX-METRICS-HARDENING-SEAL  
