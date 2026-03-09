@@ -41,6 +41,27 @@ def _normalize_path(raw: str | None, default: str) -> str:
     return value
 
 
+def _ensure_json_accept_header(
+    headers: list[tuple[bytes, bytes]] | tuple[tuple[bytes, bytes], ...],
+) -> list[tuple[bytes, bytes]]:
+    """Ensure Accept advertises application/json for JSON-only Streamable HTTP."""
+    normalized_headers = list(headers)
+    for index, (name, value) in enumerate(normalized_headers):
+        if name.lower() != b"accept":
+            continue
+
+        accept_value = value.decode("latin-1").lower()
+        if "application/json" in accept_value:
+            return normalized_headers
+
+        suffix = b", application/json" if value.strip() else b"application/json"
+        normalized_headers[index] = (name, value + suffix)
+        return normalized_headers
+
+    normalized_headers.append((b"accept", b"application/json"))
+    return normalized_headers
+
+
 class SecurityHeadersMiddleware:
     """Attach baseline HTTP hardening headers to every HTTP response."""
 
@@ -68,10 +89,10 @@ class SecurityHeadersMiddleware:
 
 
 class DefaultAcceptMiddleware:
-    """Add default Accept header for ChatGPT MCP compatibility.
+    """Ensure Accept includes application/json for ChatGPT MCP compatibility.
 
-    ChatGPT MCP client doesn't send Accept header, causing 406 errors.
-    This middleware adds 'application/json' as default Accept.
+    Some MCP clients omit Accept entirely; others send wildcard values like */*.
+    The upstream SDK's JSON-only mode still requires application/json to appear.
     """
 
     def __init__(self, app: ASGIApp) -> None:
@@ -82,18 +103,7 @@ class DefaultAcceptMiddleware:
             await self.app(scope, receive, send)
             return
 
-        # Check if Accept header is missing
-        headers = scope.get("headers", [])
-        accept_found = False
-        for name, value in headers:
-            if name.lower() == b"accept":
-                accept_found = True
-                break
-
-        if not accept_found:
-            # Add default Accept header
-            headers.append((b"accept", b"application/json"))
-            scope["headers"] = headers
+        scope["headers"] = _ensure_json_accept_header(scope.get("headers", []))
 
         await self.app(scope, receive, send)
 

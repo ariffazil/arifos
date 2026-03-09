@@ -22,6 +22,7 @@ from starlette.staticfiles import StaticFiles
 
 from arifosmcp.runtime.fastmcp_ext.transports import (
     _build_http_middleware,
+    _ensure_json_accept_header,
     _normalize_path,
     run_server,
 )
@@ -106,19 +107,14 @@ _mcp_app = mcp.http_app(
 
 # ASGI wrapper to add default Accept header for ChatGPT compatibility
 class ChatGPTCompatMiddleware:
-    """Add Accept header if missing for ChatGPT MCP client compatibility."""
+    """Ensure Accept includes application/json before FastMCP handles the request."""
 
     def __init__(self, app):
         self.app = app
 
     async def __call__(self, scope, receive, send):
         if scope.get("type") == "http":
-            headers = scope.get("headers", [])
-            accept_found = any(h[0].lower() == b"accept" for h in headers)
-            if not accept_found:
-                headers = list(headers)
-                headers.append((b"accept", b"application/json"))
-                scope["headers"] = headers
+            scope["headers"] = _ensure_json_accept_header(scope.get("headers", []))
         await self.app(scope, receive, send)
 
 

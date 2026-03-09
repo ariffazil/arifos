@@ -1,151 +1,296 @@
-# arifOS Deployment Guide (VPS + HTTP + SSE + stdio)
+# arifOS Deployment Guide
 
-This is the canonical operator guide for deploying and running arifosmcp.
+This is the canonical operator guide for deploying `arifosmcp` on a VPS and connecting it to ChatGPT.
 
-It supports:
-- VPS production deployment (Docker Compose)
-- Direct Python runtime over HTTP, SSE, and stdio
-- MCP client integration for local stdio and remote HTTP
+## 1) Canonical Architecture
 
-## 1) Deployment Modes
+Production in this repo is:
 
-- VPS recommended production: docker-compose.yml plus reverse proxy
-- Local server: python -m arifosmcp.runtime http or sse
-- Local stdio: python -m arifosmcp.runtime stdio
+- `docker-compose.yml` as the canonical VPS stack
+- Traefik as the edge router and TLS terminator
+- `arifosmcp.runtime.server:app` as the canonical MCP ASGI app
+- Streamable HTTP on `/mcp`
+- Health and operator routes on the same host:
+  - `/health`
+  - `/.well-known/mcp/server.json`
+  - `/dashboard/`
 
-Yes, arifosmcp is stdio capable.
+The canonical public surfaces are:
 
-## 2) Prerequisites
+- MCP endpoint: `https://arifosmcp.arif-fazil.com/mcp`
+- Health: `https://arifosmcp.arif-fazil.com/health`
+- Discovery manifest: `https://arifosmcp.arif-fazil.com/.well-known/mcp/server.json`
+- Dashboard: `https://arifosmcp.arif-fazil.com/dashboard/`
+- Docs: `https://arifos.arif-fazil.com`
 
-- Python >=3.12
-- Docker Engine and Docker Compose for VPS mode
-- Git
-- Domain and TLS termination for public HTTP endpoint
+## 2) Blessed Runtime Path
 
-## 3) Required Secrets and Environment
+Use one of these two paths only:
 
-Use .env.docker.example as template and create .env.docker.
-
-Minimum required for hardened deployment:
-- ARIFOS_GOVERNANCE_SECRET
-- POSTGRES_PASSWORD
-- GRAFANA_PASSWORD
-- WEBHOOK_SECRET
-- OPENCLAW_RESTART_TOKEN
-- OPENCLAW_GATEWAY_TOKEN
-
-Provider keys are optional unless workload requires them:
-- OPENAI_API_KEY, ANTHROPIC_API_KEY, GOOGLE_API_KEY, OPENROUTER_API_KEY, VENICE_API_KEY
-
-## 4) VPS Deployment (Docker Compose)
-
-1. Clone repository on VPS.
-2. Create .env.docker from .env.docker.example.
-3. Start services.
+### VPS production
 
 ```bash
+docker compose pull
+docker compose up -d --build
+```
+
+This starts Traefik, Postgres, Redis, Qdrant, Ollama, OpenClaw, monitoring, and the public `arifosmcp` service.
+
+### Direct runtime without Docker
+
+```bash
+python -m arifosmcp.runtime http
+```
+
+Legacy compatibility entrypoints under `arifosmcp.transport` still exist, but they are not the recommended public ChatGPT deployment path.
+
+## 3) Required Environment
+
+Start from `.env.docker.example` and create `.env.docker`.
+
+Minimum production values:
+
+```env
+PORT=8080
+HOST=0.0.0.0
+AAA_MCP_TRANSPORT=http
+ARIFOS_MCP_PATH=/mcp
+ARIFOS_PUBLIC_TOOL_PROFILE=chatgpt
+ARIFOS_PUBLIC_BASE_URL=https://arifosmcp.arif-fazil.com
+ARIFOS_WIDGET_DOMAIN=https://arifosmcp.arif-fazil.com
+ARIFOS_GOVERNANCE_SECRET=CHANGE_ME_TO_A_LONG_RANDOM_SECRET
+POSTGRES_PASSWORD=CHANGE_ME_POSTGRES_PASSWORD
+GRAFANA_PASSWORD=CHANGE_ME_GRAFANA_PASSWORD
+WEBHOOK_SECRET=CHANGE_ME_WEBHOOK_SECRET
+OPENCLAW_RESTART_TOKEN=CHANGE_ME_OPENCLAW_RESTART_TOKEN
+OPENCLAW_GATEWAY_TOKEN=CHANGE_ME_OPENCLAW_GATEWAY_TOKEN
+```
+
+Notes:
+
+- `ARIFOS_PUBLIC_TOOL_PROFILE=chatgpt` is the intended public surface.
+- `ARIFOS_PUBLIC_BASE_URL` and `ARIFOS_WIDGET_DOMAIN` should be the root origin only, not `/mcp` and not `/dashboard/`.
+- Provider API keys are optional unless your workload actually uses them.
+
+## 4) VPS Deployment
+
+### Prerequisites
+
+- Ubuntu VPS with Docker Engine and Docker Compose
+- DNS for `arifosmcp.arif-fazil.com`
+- Ports `80` and `443` open
+- Repository cloned on VPS
+
+### Deploy
+
+```bash
+git pull --ff-only origin main
 cp .env.docker.example .env.docker
 docker compose pull
 docker compose up -d --build
 ```
 
-4. Verify services.
+### Check containers
 
 ```bash
 docker compose ps
 docker compose logs --tail=100 arifosmcp
+docker compose logs --tail=100 traefik
+```
+
+### Local verification on VPS
+
+```bash
 curl -fsS http://127.0.0.1:8080/health
-curl -i http://127.0.0.1:8080/mcp
+curl -i http://127.0.0.1:8080/.well-known/mcp/server.json
+curl -i -X POST http://127.0.0.1:8080/mcp \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json" \
+  --data '{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}'
 ```
 
-Notes:
-- Compose requires explicit secrets with no insecure fallback defaults.
-- Webhook definitions are aligned in deployment/hooks.json, infrastructure/hooks.json, and infrastructure/deployment/hooks.json.
+## 5) Traefik and DNS
 
-## 5) Direct Runtime Entrypoints (No Docker)
+`docker-compose.yml` already contains the public router for:
 
-Canonical runtime commands:
+- `Host(\`arifosmcp.arif-fazil.com\`)`
+
+This repo’s canonical public deployment uses Traefik labels in Compose, not a separate production Coolify compose file.
+
+Cloudflare:
+
+- `Proxied` can work for the public host.
+- If you are debugging SSE or transport behavior, temporarily switch to DNS-only to remove Cloudflare from the path.
+- A `406 Not Acceptable` from `/mcp` is an application-layer issue, not a TLS or DNS issue.
+
+## 6) ChatGPT Connector Setup
+
+Official OpenAI guidance for ChatGPT Apps and Developer Mode is:
+
+- Create the connector with the HTTPS URL plus `/mcp`
+- ChatGPT supports either Streamable HTTP or HTTP/SSE transports
+
+For this repo, use:
+
+- Connector URL: `https://arifosmcp.arif-fazil.com/mcp`
+
+Do not use:
+
+- `https://arifosmcp.arif-fazil.com`
+- `https://arifosmcp.arif-fazil.com/dashboard/`
+- `https://arifosmcp.arif-fazil.com/mcp/extra`
+
+Widget domain for app resources is the root origin:
+
+- `https://arifosmcp.arif-fazil.com`
+
+## 7) Accept Header Compatibility
+
+The public runtime uses:
+
+```python
+mcp.http_app(
+    path="/mcp",
+    json_response=True,
+    stateless_http=True,
+)
+```
+
+That means the upstream MCP SDK is in JSON-only Streamable HTTP mode, which requires `application/json` in the request `Accept` header.
+
+Important:
+
+- If the client sends `Accept: application/json`, `/mcp` works.
+- If the client omits `Accept`, the compatibility middleware now injects `application/json`.
+- If the client sends a wildcard like `Accept: */*`, the compatibility middleware now appends `application/json`.
+
+This closes the 406 gap that still appeared on the live VPS when the client did not explicitly advertise JSON.
+
+### Live diagnostic
+
+If you see this:
 
 ```bash
-python -m arifosmcp.runtime stdio
-python -m arifosmcp.runtime sse
-python -m arifosmcp.runtime http
+curl -X POST https://arifosmcp.arif-fazil.com/mcp \
+  -H "Content-Type: application/json" \
+  --data '{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}'
 ```
 
-Legacy compatibility entrypoint:
+and receive `406 Not Acceptable`, then one of these is true:
+
+1. The VPS is still running an older image that predates the Accept compatibility fix.
+2. The reverse proxy is not forwarding to the current runtime.
+3. The client is sending an incompatible `Accept` header and the new build is not yet deployed.
+
+## 8) Tool Surface and Health Output
+
+`/health` intentionally reports the canonical public tool registry, not every internal or legacy registration point.
+
+With:
+
+```env
+ARIFOS_PUBLIC_TOOL_PROFILE=chatgpt
+```
+
+the expected public surface is the stable 7-tool operator set:
+
+- `arifOS.kernel`
+- `search_reality`
+- `ingest_evidence`
+- `session_memory`
+- `audit_rules`
+- `check_vital`
+- `open_apex_dashboard`
+
+So this is expected:
+
+- `/health` reports `tools_loaded: 7`
+
+If you switch to the internal `full` profile, additional compatibility and ACLIP tools may be registered, but that is not the intended public ChatGPT surface.
+
+## 9) Answers To Deployment Blockers
+
+### Q1: What is the intended MCP transport architecture?
+
+Use `arifosmcp.runtime.server:app` and `python -m arifosmcp.runtime http`.
+
+- `FastMCP` is the canonical transport layer.
+- `/mcp` is the canonical public protocol endpoint.
+- `arifosmcp.transport.*` contains compatibility and older transport surfaces, not the preferred public deployment target.
+
+### Q2: How to disable SDK-level Accept validation?
+
+Do not bypass the SDK by monkey-patching it first.
+
+The correct first-line configuration is already:
+
+- `json_response=True`
+
+That maps through FastMCP into the SDK’s JSON-only mode. The remaining operational issue is making sure the request `Accept` header includes `application/json`. This repo now handles missing and wildcard Accept values before the SDK validates them.
+
+### Q3: What is the canonical deployment method?
+
+For production:
+
+- `docker-compose.yml`
+- Traefik
+- `uvicorn arifosmcp.runtime.server:app`
+
+For local/manual use:
+
+- `python -m arifosmcp.runtime http`
+
+### Q4: How to properly expose the MCP endpoint for ChatGPT?
+
+Expose:
+
+- `https://arifosmcp.arif-fazil.com/mcp`
+
+ChatGPT connector setup should point exactly there. Keep `/health`, discovery, and `/dashboard/` on the same origin.
+
+### Q5: Does `json_response=True` actually configure the underlying SDK transport?
+
+Yes.
+
+In the installed FastMCP codepath, `FastMCP.http_app(..., json_response=True)` flows into `create_streamable_http_app(..., json_response=True)`, which configures the underlying session manager and SDK transport for JSON-only mode.
+
+The remaining 406 problem was not that `json_response=True` was ignored; it was that the incoming request still needed to advertise JSON in `Accept`.
+
+## 10) Validation Checklist
+
+Run these after every deploy:
 
 ```bash
-python -m arifosmcp.transport
-python -m arifosmcp.transport sse
+curl -fsS https://arifosmcp.arif-fazil.com/health
+curl -fsS https://arifosmcp.arif-fazil.com/.well-known/mcp/server.json
+curl -i https://arifosmcp.arif-fazil.com/dashboard/
+curl -i -X POST https://arifosmcp.arif-fazil.com/mcp \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json" \
+  --data '{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}'
 ```
 
-Environment example:
+Expected:
+
+- `/health` returns `200`
+- discovery manifest returns `200`
+- `/dashboard/` returns `200`
+- `POST /mcp` returns `200`
+
+`GET /mcp` may return `405` in stateless HTTP mode. That alone is not a deployment failure.
+
+## 11) Targeted Local Checks
 
 ```bash
-export ARIFOS_GOVERNANCE_SECRET="your-secret"
-export AAA_MCP_TRANSPORT="stdio"
-python -m arifosmcp.runtime stdio
+ruff check arifosmcp/runtime/fastmcp_ext/transports.py arifosmcp/runtime/server.py
+pytest tests/test_http_accept_compat.py::test_appends_json_accept_to_wildcard -q
+pytest tests/test_dockerfile_runtime.py::test_canonical_vps_env_template_declares_public_profile_and_governance_secret -q
 ```
 
-## 6) MCP Client Configuration
+## 12) Sources
 
-Local stdio example:
-
-```json
-{
-  "mcpServers": {
-    "arifos": {
-      "command": "python",
-      "args": ["-m", "arifosmcp.runtime", "stdio"],
-      "env": {
-        "ARIFOS_GOVERNANCE_SECRET": "your-secret"
-      }
-    }
-  }
-}
-```
-
-Remote HTTP example:
-- URL: https://your-domain/mcp
-- Transport: http
-
-Public profile tools (ARIFOS_PUBLIC_TOOL_PROFILE=chatgpt):
-- arifOS.kernel
-- search_reality
-- ingest_evidence
-- audit_rules
-- check_vital
-- open_apex_dashboard
-
-Internal full profile keeps the full staged 000->999 surface and legacy compatibility tooling.
-Legacy alias: metabolic_loop_router maps to arifOS.kernel.
-
-## 7) Operational Verification Checklist
-
-- Health endpoint returns success at /health
-- MCP endpoint is reachable at /mcp
-- Core tools are discoverable
-- Logs show no missing required secret errors
-
-Recommended checks:
-
-```bash
-ruff check .
-pytest tests/test_e2e.py::test_full_arifos_metabolic_loop -v
-pytest tests/test_canonical_tool_integration.py::test_vault_seal_integration -v
-```
-
-## 8) Troubleshooting
-
-- Invalid AAA_MCP_TRANSPORT: set one of stdio, http, sse, streamable-http
-- PORT out of range: use 1024 to 65535
-- QDRANT_API_KEY environment variable is required: set QDRANT_API_KEY before using RAG module
-- Signature and webhook failures: ensure WEBHOOK_SECRET and OPENCLAW_RESTART_TOKEN match runtime env
-
-## 9) Release Sync Notes
-
-- Python package version: pyproject.toml (arifos)
-- NPM package version: arifosmcp/packages/npm/arifos-mcp/package.json (@arifos/mcp)
-- Keep both in sync for cross ecosystem releases
+- OpenAI Apps SDK quickstart: add your connector with HTTPS + `/mcp`
+- OpenAI Apps SDK build guide: MCP server must be publicly reachable over HTTPS
+- OpenAI MCP/connectors guide: remote MCP servers work with Streamable HTTP or HTTP/SSE
 
 Forged, not given.
