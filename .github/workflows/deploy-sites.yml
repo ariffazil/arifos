@@ -31,33 +31,33 @@ jobs:
         with:
           node-version: 20
           cache: npm
-          cache-dependency-path: sites/docs/package-lock.json
+          cache-dependency-path: arifosmcp/sites/docs/package-lock.json
 
       - name: Install dependencies
         run: npm ci
-        working-directory: sites/docs
+        working-directory: arifosmcp/sites/docs
 
       - name: Validate canonical docs source
         run: |
-          test -f sites/docs/docs/intro.md
-          test -f sites/docs/docs/architecture.md
-          test -f sites/docs/docs/governance.md
-          echo "✅ Canonical docs source is present at sites/docs/docs"
+          test -f arifosmcp/sites/docs/docs/intro.md
+          test -f arifosmcp/sites/docs/docs/architecture.md
+          test -f arifosmcp/sites/docs/docs/governance.md
+          echo "✅ Canonical docs source is present at arifosmcp/sites/docs/docs"
 
       - name: Build docs
         run: npm run build
-        working-directory: sites/docs
+        working-directory: arifosmcp/sites/docs
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
       - name: Add custom domain
-        run: echo "arifos.arif-fazil.com" > sites/docs/build/CNAME
+        run: echo "arifos.arif-fazil.com" > arifosmcp/sites/docs/build/CNAME
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v4
         with:
-          path: sites/docs/build
+          path: arifosmcp/sites/docs/build
 
   deploy:
     name: Deploy to GitHub Pages

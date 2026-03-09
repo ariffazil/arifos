@@ -92,7 +92,7 @@ export default function Home() {
 
           <div style={{ marginTop: '1rem', fontSize: '0.9rem', opacity: 0.8 }}>
             <span style={{ marginRight: '8px' }}>🔍 How do we prove it is safe?</span>
-            <a href="https://arifosmcp-truth-claim.pages.dev" target="_blank" rel="noopener noreferrer" style={{ color: '#3b82f6', textDecoration: 'underline' }}>
+            <a href="https://arifosmcp.arif-fazil.com/dashboard/" target="_blank" rel="noopener noreferrer" style={{ color: '#3b82f6', textDecoration: 'underline' }}>
               View the Live Constitutional Audit Dashboard
             </a>
           </div>
