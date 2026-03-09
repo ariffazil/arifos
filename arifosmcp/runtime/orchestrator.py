@@ -18,6 +18,7 @@ async def metabolic_loop(
     query: str,
     risk_tier: str = "medium",
     actor_id: str = "anonymous",
+    session_id: str | None = None,
 ) -> dict[str, Any]:
     """
     Orchestrate the 10-tool constitutional loop (000-999).
@@ -32,7 +33,12 @@ async def metabolic_loop(
         quantum_eureka_forge,
         reason_mind_synthesis,
         seal_vault_commit,
+        _normalize_session_id,
     )
+    from arifosmcp.transport.server import _adapt_human_command
+
+    # Apply Human Command Adapter (Repair Directive Priority 2)
+    query = _adapt_human_command(query)
 
     phase2_hooks = {
         "search_reality": os.getenv("ARIFOS_ENABLE_PHASE2_SEARCH", "0") == "1",
@@ -40,28 +46,28 @@ async def metabolic_loop(
     }
     trace = {"phase2_hooks": phase2_hooks}
 
-    # 1. Stage 000: INIT
+    # Resolve/Mint Session (Repair Directive Priority 1 & 3)
+    effective_session_id = _normalize_session_id(session_id)
+
+    # 1. Stage 000: INIT (Auto-Anchor for low-risk)
     init_res: RuntimeEnvelope = await init_anchor_state(
         intent={"query": query, "task_type": "ask"},
-        governance={"actor_id": actor_id, "stakes_class": "C"},
+        governance={
+            "actor_id": actor_id,
+            "authority_level": "human",  # Schema alignment
+            "stakes_class": "C",         # Low stakes default
+        },
+        session_id=effective_session_id,
     )
     trace["000_INIT"] = init_res.verdict.value
-    if init_res.verdict == Verdict.VOID:
-        output = init_res.model_dump(mode="json")
-        output["trace"] = trace
-        output["status"] = "ERROR"
-        return output
-
+    
+    # SHADOW EVALUATION (Reforce): 
+    # If INIT failed (e.g. F11 Auth), we continue the loop to get MIND/HEART scores,
+    # but the final verdict will remain VOID.
+    init_failed = init_res.verdict == Verdict.VOID
+    
+    # Invariant: effective_session_id must match init_res.session_id
     session_id = init_res.session_id
-    if not session_id or session_id == "global":
-        # Critical failure: session ID not minted
-        return {
-            "status": "ERROR",
-            "verdict": "VOID",
-            "error": "F11: Session ID generation failed during anchor.",
-            "trace": trace,
-        }
-
     auth_ctx = init_res.auth_context.model_dump(exclude_none=True)
 
     # 2. Stage 111: FRAMING
@@ -106,13 +112,19 @@ async def metabolic_loop(
         heart_res.verdict,
         critique_res.verdict,
     ]
-    candidate = Verdict.SEAL
-    if Verdict.VOID in verdicts:
+    
+    # Final Verdict Gating
+    if init_failed:
+        # Auth failed, loop continues for visibility, but JUDGE must BLOCK.
+        candidate = Verdict.VOID
+    elif Verdict.VOID in verdicts:
         candidate = Verdict.VOID
     elif Verdict.HOLD_888 in verdicts:
         candidate = Verdict.HOLD_888
     elif Verdict.SABAR in verdicts:
         candidate = Verdict.SABAR
+    else:
+        candidate = Verdict.SEAL
 
     judge_res: RuntimeEnvelope = await apex_judge_verdict(
         session_id=session_id,

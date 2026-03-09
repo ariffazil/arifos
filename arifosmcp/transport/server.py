@@ -2407,131 +2407,30 @@ async def _metabolic_loop_router(
 ) -> dict[str, Any]:
     """
     Stage 444: Governed metabolic loop orchestrator.
+    Delegates to arifosmcp.runtime.orchestrator for unified logic.
     """
-    # Apply Human Command Adapter (Repair Directive Priority 2)
-    query = _adapt_human_command(query)
+    from arifosmcp.runtime.orchestrator import metabolic_loop
 
-    trace = {}
+    session_id = _resolve_session_id(None)
+
     try:
-        # 1. 000_BOOT: Anchor (Auto-init)
-        anchor_payload = {
-            "intent": {
-                "query": query,
-                "task_type": "execute" if allow_execution else "ask",
-                "reversibility": "irreversible" if risk_tier == "high" else "reversible",
-            },
-            "governance": {
-                "actor_id": actor_id,
-                "stakes_class": "A" if risk_tier == "high" else "C",
-            },
-        }
-        anchor_res = await _init_anchor_state(**anchor_payload)
-        trace["000_INIT"] = anchor_res.get("verdict")
-        if anchor_res.get("verdict") == "VOID":
-            return {
-                "status": "ERROR",
-                "error_code": "GOVERNANCE_VOID",
-                "verdict": "VOID",
-                "stage": "000_INIT",
-                "trace": trace,
-                "details": anchor_res,
-            }
-
-        session_id = anchor_res.get("session_id")
-        auth_ctx = anchor_res.get("auth_context")
-
-        # 2. 111_FRAMING: Integrate/Analyze/Reflect
-        frame_res = await integrate_analyze_reflect(
-            session_id=session_id, query=query, auth_context=auth_ctx
-        )
-        trace["111_FRAMING"] = frame_res.get("verdict")
-        auth_ctx = frame_res.get("auth_context")
-
-        # 3. 333_REASON: Mind Synthesis
-        mind_res = await reason_mind_synthesis(
-            session_id=session_id, query=query, auth_context=auth_ctx
-        )
-        trace["333_MIND"] = mind_res.get("verdict")
-        auth_ctx = mind_res.get("auth_context")
-
-        # 4. 666_AUDIT: Heart + Critique
-        heart_res = {"verdict": "SEAL"}
-        if use_heart:
-            heart_res = await simulate_heart(
-                session_id=session_id, query=query, auth_context=auth_ctx
-            )
-            trace["666_HEART"] = heart_res.get("verdict")
-            auth_ctx = heart_res.get("auth_context")
-
-        critique_res = {"verdict": "SEAL"}
-        if use_critique:
-            critique_res = await critique_thought(
-                session_id=session_id,
-                plan=mind_res.get("data", {}).get("respond", {"query": query}),
-                auth_context=auth_ctx,
-            )
-            trace["666_CRITIQUE"] = critique_res.get("verdict")
-            auth_ctx = critique_res.get("auth_context")
-
-        # 5. 777_FORGE: Discovery
-        forge_res = await quantum_eureka_forge(
-            session_id=session_id, intent=query, auth_context=auth_ctx
-        )
-        trace["777_FORGE"] = forge_res.get("verdict")
-        auth_ctx = forge_res.get("auth_context")
-
-        # 6. 888_JUDGE: Final Verdict
-        candidate_verdicts = [
-            anchor_res.get("verdict"),
-            frame_res.get("verdict"),
-            mind_res.get("verdict"),
-            heart_res.get("verdict"),
-            critique_res.get("verdict"),
-        ]
-
-        if "VOID" in candidate_verdicts:
-            final_candidate = "VOID"
-        elif "888_HOLD" in candidate_verdicts:
-            final_candidate = "888_HOLD"
-        elif "SABAR" in candidate_verdicts:
-            final_candidate = "SABAR"
-        else:
-            final_candidate = "SEAL"
-
-        judge_res = await apex_judge(
-            session_id=session_id,
+        # The runtime orchestrator now handles Human Command Adapter and session logic
+        result = await metabolic_loop(
             query=query,
-            proposed_verdict=final_candidate,
-            auth_context=auth_ctx,
-        )
-        verdict = judge_res.get("verdict")
-        trace["888_JUDGE"] = verdict
-        auth_ctx = judge_res.get("auth_context")
-
-        # 7. 999_SEAL: Vault commit
-        seal_res = await seal_vault(
+            risk_tier=risk_tier,
+            actor_id=actor_id,
             session_id=session_id,
-            summary=f"Metabolic loop completed: {query}",
-            governance_token=judge_res.get("governance_token", ""),
-            auth_context=auth_ctx,
         )
-        trace["999_VAULT"] = seal_res.get("verdict")
 
-        return {
-            "status": "SUCCESS",
-            "verdict": verdict,
-            "session_id": session_id,
-            "message": f"Metabolic loop completed with verdict: {verdict}",
-            "trace": trace,
-            "summary": f"Loop summary: {query}",
-            "ledger_id": seal_res.get("payload", {}).get("ledger_id"),
-            "next_actions": judge_res.get("payload", {}).get("next_actions", []),
-            "floors_state": judge_res.get("floors", {}),
-            "auth_context": auth_ctx,
-        }
+        # Update global active session if the loop minted a new one
+        global _ACTIVE_SESSION_ID
+        if not _ACTIVE_SESSION_ID and result.get("session_id"):
+            _ACTIVE_SESSION_ID = result["session_id"]
+
+        return result
 
     except Exception as e:
-        return _fracture_response("METABOLIC_LOOP_ROUTER", e)
+        return _fracture_response("METABOLIC_LOOP_ROUTER", e, session_id)
 
 
 metabolic_loop_router = ToolHandle(_metabolic_loop_router)

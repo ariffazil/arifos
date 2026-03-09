@@ -19,10 +19,23 @@ from arifosmcp.runtime.models import (
 )
 
 
-def _normalize_session_id(session_id: str) -> str:
-    if not session_id or session_id == "global":
-        return f"session-{uuid.uuid4().hex[:8]}"
-    return session_id
+from arifosmcp.runtime.sessions import _resolve_session_id, set_active_session
+from core.state.session_manager import session_manager
+
+def _normalize_session_id(session_id: str | None) -> str:
+    """
+    Resolve session_id using the centralized registry.
+    F11: Ensures identity and authority boundaries are preserved.
+    """
+    resolved = _resolve_session_id(session_id)
+    if not resolved:
+        resolved = f"session-{uuid.uuid4().hex[:8]}"
+        # Register with core manager to prevent null context in kernel
+        session_manager.create_session(owner="anonymous", session_id=resolved)
+        # Update active session pointer
+        set_active_session(resolved)
+        
+    return resolved
 
 
 def _normalize_verdict(verdict: Any) -> str:
@@ -194,6 +207,12 @@ async def _wrap_call(
             verdict=Verdict.VOID,
             stage=stage,
             session_id=session_id,
+            telemetry=Telemetry(
+                dS=0.0,
+                peace2=0.0,
+                confidence=0.0,
+                verdict="Fractured",
+            ),
             data={"error": str(e), "stage": "BRIDGE_FAILURE"},
             opex=OPEXBundle(),
             apex=APEXBundle(),
@@ -210,6 +229,7 @@ async def init_anchor_state(
     math: dict[str, Any] | None = None,
     governance: dict[str, Any] | None = None,
     auth_token: str | None = None,
+    session_id: str = "global",
     ctx: Context | None = None,
 ) -> RuntimeEnvelope:
     """000 INIT - Session anchor. Bootstrap a governed session and mint continuity context."""
@@ -219,7 +239,7 @@ async def init_anchor_state(
         "governance": governance,
         "auth_token": auth_token,
     }
-    return await _wrap_call("init_anchor_state", Stage.INIT, "global", payload, ctx)
+    return await _wrap_call("init_anchor_state", Stage.INIT, session_id, payload, ctx)
 
 
 async def integrate_analyze_reflect(

@@ -240,10 +240,13 @@ async def call_kernel(
 
         elif canonical_name == "metabolic_loop":
             # Stage 444: Orchestrator
-            from arifosmcp.runtime.server import metabolic_loop
+            from arifosmcp.runtime.orchestrator import metabolic_loop
 
             result = await metabolic_loop(
-                query=query_input, risk_tier=payload.get("risk_tier", "medium"), actor_id=actor_id
+                query=query_input, 
+                risk_tier=payload.get("risk_tier", "medium"), 
+                actor_id=actor_id,
+                session_id=session_id
             )
 
         else:
