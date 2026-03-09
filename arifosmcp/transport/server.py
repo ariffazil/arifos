@@ -54,8 +54,10 @@ from arifosmcp.intelligence.triad import (
     validate,
 )
 from arifosmcp.runtime.resources import (
+    APEX_DASHBOARD_CONNECT_DOMAINS,
     APEX_DASHBOARD_RESOURCE_DOMAINS,
     APEX_DASHBOARD_URI,
+    APEX_DASHBOARD_WIDGET_DOMAIN,
     apex_dashboard_html_content,
     build_open_apex_dashboard_result,
 )
@@ -1018,7 +1020,10 @@ mcp = FastMCP(
 @mcp.resource(
     APEX_DASHBOARD_URI,
     app=AppConfig(
+        domain=APEX_DASHBOARD_WIDGET_DOMAIN,
+        prefers_border=True,
         csp=ResourceCSP(
+            connect_domains=APEX_DASHBOARD_CONNECT_DOMAINS,
             resource_domains=APEX_DASHBOARD_RESOURCE_DOMAINS,
         )
     ),

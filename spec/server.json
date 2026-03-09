@@ -1,6 +1,6 @@
 {
   "name": "io.github.ariffazil/arifos-mcp",
-  "version": "2026.03.09-SEAL",
+  "version": "2026.03.10-SEAL",
   "description": "Constitutional AI governance server — 15 MCP tools (10 APEX-G + 5 Phase 2) with F1-F13 floor enforcement, Quad-Witness BFT consensus (W4 = H×A×E×V, n=4 f=1), Ψ-Shadow adversarial verifier, P3 thermodynamic enforcement, Trinity architecture (ΔΩΨ), and VAULT999 immutable ledger.",
   "vendor": {
     "name": "Muhammad Arif bin Fazil",

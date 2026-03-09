@@ -90,13 +90,19 @@ The server exposes read-only resources for LLM and human inspection:
 | `schema://tools/output` | RuntimeEnvelope output schema |
 | `vault://latest` | Last 5 sealed VAULT999 entries |
 | `telemetry://summary` | Live telemetry shape |
-| `ui://apex-dashboard/view.html` | APEX Sovereign Dashboard HTML (MCP App) |
+| `ui://apex/dashboard-v2.html` | APEX Sovereign Dashboard HTML template (MCP App) |
 
 ## APEX Sovereign Dashboard
 
 The APEX Sovereign Dashboard visualises the **APEX Theorem** ($G^\dagger = A \cdot P \cdot X \cdot E^2 \cdot \frac{\Delta S}{C}$) in real time.
 
 **Live:** [arifosmcp.arif-fazil.com/dashboard/](https://arifosmcp.arif-fazil.com/dashboard/)
+
+URL mapping:
+- **Widget domain / app origin**: `https://arifosmcp.arif-fazil.com`
+- **MCP endpoint**: `https://arifosmcp.arif-fazil.com/mcp`
+- **Dashboard page**: `https://arifosmcp.arif-fazil.com/dashboard/`
+- **Dashboard telemetry API**: `https://arifosmcp.arif-fazil.com/api/governance-status`
 
 ## Deployment files to keep aligned
 

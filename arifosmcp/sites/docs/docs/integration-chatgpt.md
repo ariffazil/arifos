@@ -78,10 +78,17 @@ ngrok http 8080
 1. In **Settings** → **Connectors**, click **Create**
 2. Enter details:
    * **Name**: arifOS Constitutional AI
-   * **Server URL**: `https://your-server.com/mcp/` (include trailing slash)
+   * **Server URL**: `https://your-server.com/mcp`
 3. Check **I trust this provider**
 4. Add authentication if needed (see below)
 5. Click **Create**
+
+Use the three URLs deliberately:
+- **Widget domain / app origin**: `https://your-server.com`
+- **MCP connector URL**: `https://your-server.com/mcp`
+- **Dashboard page**: `https://your-server.com/dashboard/`
+
+Do not put `/mcp` or `/dashboard/` inside the widget domain field. The widget domain is the origin only.
 
 ### Step 3: Use in Chat
 
