@@ -27,6 +27,7 @@ from core.shared.mottos import (
     MOTTO_999_SEAL_HEADER,
     get_motto_for_stage,
 )
+from core.shared.verdict_contract import normalize_verdict
 
 TOOL_LAW_BINDINGS = AAA_TOOL_LAW_BINDINGS
 TOOL_STAGE_MAP = AAA_TOOL_STAGE_MAP
@@ -65,6 +66,18 @@ def _clamp(value: float, low: float = 0.0, high: float = 1.0) -> float:
     return max(low, min(high, value))
 
 
+def _parse_stage_num(stage_str: str) -> int:
+    """Extract numeric prefix from a stage string like '666_ALIGN' → 666.
+
+    '000_999_LOOP' → 0 (treated as init-tier for contract enforcement).
+    Unknown or missing strings → 0.
+    """
+    try:
+        return int(stage_str.split("_")[0])
+    except (ValueError, IndexError, AttributeError):
+        return 0
+
+
 def _safe_float(p: dict[str, Any], key: str, default: float) -> float:
     """Safely extract and convert a float metric from nested payload structure."""
     if not isinstance(p, dict):
@@ -95,7 +108,7 @@ def _derive_apex_dials(tool: str, payload: dict[str, Any]) -> dict[str, Any]:
     Derive A/P/X/E and governed genius G* for each tool call.
     Grounds dials in real constitutional manifold (F1-F13).
     """
-    from core.enforcement.genius import calculate_genius, audit_result_to_floor_scores
+    from core.enforcement.genius import audit_result_to_floor_scores, calculate_genius
     from core.shared.types import FloorScores
 
     # 1. Reconstruct FloorScores from payload or defaults
@@ -728,6 +741,13 @@ def wrap_tool_output(tool: str, payload: dict[str, Any]) -> dict[str, Any]:
         verdict = "SABAR"
     elif (failed_axioms or failed_laws) and verdict == "SEAL":
         verdict = "PARTIAL"
+
+    # Canonical Verdict Contract gate — only stage 0 and ≥888 may emit VOID.
+    # Exploratory stages (111–777) must not destroy information; VOID → SABAR.
+    # Paradox/Ψ/tri-witness failures at pre-888 stages are "compressed spring"
+    # signals that need more thinking (SABAR), not Landauer information erasure.
+    stage_num = _parse_stage_num(stage)
+    verdict = normalize_verdict(stage_num, verdict).value
 
     status = "SUCCESS" if verdict not in {"VOID", "SABAR"} else "ERROR"
     if payload.get("status") == "ERROR":
