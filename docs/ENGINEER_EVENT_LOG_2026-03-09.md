@@ -78,3 +78,16 @@
   - NPM: `arifosmcp/packages/npm/arifos-mcp/package.json` -> `0.3.1`
 - 25 DOCS: Rebuilt `DEPLOY.md` as canonical VPS + stdio + HTTP + SSE operator guide.
 - 26 DOCS: Updated `README.md` MCP config snippet to use stdio and corrected `ARIFOS_GOVERNANCE_SECRET` key casing.
+
+- 27 PATCH: Added Stage `222_REALITY` in `arifosmcp/runtime/orchestrator.py` with risk-tier-aware grounding policy (`ARIFOS_REALITY_REQUIRED_TIERS`, `ARIFOS_REALITY_TIMEOUT_SECONDS`).
+- 28 PATCH: Added grounded scoring summary and fed it into `888_JUDGE` reason synthesis.
+- 29 PATCH: Sealed trace + grounding snapshot into vault telemetry by extending `seal_vault_commit` telemetry payload.
+- 30 PATCH: Updated `trace_replay` parser to read `telemetry.trace` and include `telemetry.reality` in replay output.
+- 31 TEST: Added `tests/test_trace_replay.py` to validate sealed telemetry replay behavior.
+- 32 VERIFY: Passed exact node-id tests:
+  - `tests/test_trace_replay.py::test_trace_replay_reads_trace_from_vault_telemetry`
+  - `tests/test_e2e.py::test_full_arifos_metabolic_loop`
+
+- SEAL-6 (Reality Verification + Replay Hardening): COMPLETE
+  - Scope: 222 grounding stage, F2 evidence flow into judge summary, and vault-backed trace replay.
+  - Status: Complete and regression-tested.

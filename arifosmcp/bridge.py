@@ -108,7 +108,8 @@ async def call_kernel(
                         continue
                     if parsed.get("session_id") != session_id:
                         continue
-                    trace = parsed.get("trace")
+                    telemetry = parsed.get("telemetry", {})
+                    trace = telemetry.get("trace") if isinstance(telemetry, dict) else None
                     if not isinstance(trace, dict):
                         continue
                     replay_entries.append(
@@ -117,6 +118,7 @@ async def call_kernel(
                             "verdict": parsed.get("verdict"),
                             "summary": parsed.get("summary"),
                             "timestamp": parsed.get("timestamp"),
+                            "reality": telemetry.get("reality", {}),
                             "trace": trace,
                             "seal_hash": parsed.get("seal_hash"),
                         }

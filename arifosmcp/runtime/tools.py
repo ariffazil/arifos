@@ -17,10 +17,9 @@ from arifosmcp.runtime.models import (
     Witness,
     derive_apex,
 )
-
-
 from arifosmcp.runtime.sessions import _resolve_session_id, set_active_session
 from core.state.session_manager import session_manager
+
 
 def _normalize_session_id(session_id: str | None) -> str:
     """
@@ -34,7 +33,7 @@ def _normalize_session_id(session_id: str | None) -> str:
         session_manager.create_session(owner="anonymous", session_id=resolved)
         # Update active session pointer
         set_active_session(resolved)
-        
+
     return resolved
 
 
@@ -53,7 +52,9 @@ def _normalize_auth_context(raw_auth_context: Any) -> dict[str, Any]:
     return {}
 
 
-def _build_opex(tool_name: str, kernel_res: dict[str, Any], envelope: RuntimeEnvelope) -> OPEXBundle:
+def _build_opex(
+    tool_name: str, kernel_res: dict[str, Any], envelope: RuntimeEnvelope
+) -> OPEXBundle:
     """Extract OPEX epistemic fields from the kernel result, keyed by tool name."""
     data = kernel_res.get("payload", kernel_res)
     conf = envelope.telemetry.confidence
@@ -75,7 +76,9 @@ def _build_opex(tool_name: str, kernel_res: dict[str, Any], envelope: RuntimeEnv
         )
     elif tool_name == "reason_mind_synthesis":
         steps = data.get("steps", [])
-        low_conf_steps = [s.get("thought", "") for s in steps if float(s.get("confidence", 1.0)) < 0.7]
+        low_conf_steps = [
+            s.get("thought", "") for s in steps if float(s.get("confidence", 1.0)) < 0.7
+        ]
         return OPEXBundle(
             output_candidate=str(data.get("eureka_insight", "")),
             probability=float(data.get("genius_score", conf)),
@@ -88,7 +91,9 @@ def _build_opex(tool_name: str, kernel_res: dict[str, Any], envelope: RuntimeEnv
             output_candidate=f"Pipeline verdict: {envelope.verdict.value}",
             probability=conf,
             evidence=[f"{stage}: {v}" for stage, v in trace.items()],
-            uncertainty=[f"{s}: requires review" for s, v in trace.items() if v in ("SABAR", "VOID")],
+            uncertainty=[
+                f"{s}: requires review" for s, v in trace.items() if v in ("SABAR", "VOID")
+            ],
         )
     elif tool_name == "vector_memory_store":
         mems = data.get("memories", [])
@@ -290,6 +295,7 @@ async def reason_mind_synthesis(
     }
     return await _wrap_call("reason_mind_synthesis", Stage.MIND_333, session_id, payload, ctx)
 
+
 async def metabolic_loop_router(
     query: str,
     context: str = "",
@@ -318,7 +324,6 @@ async def metabolic_loop_router(
         "dry_run": dry_run,
     }
     return await _wrap_call("metabolic_loop_router", Stage.ROUTER, session_id, payload, ctx)
-
 
 
 async def vector_memory_store(
@@ -360,7 +365,7 @@ async def critique_thought_audit(
     critique_mode: str = "overall",
     ctx: Context | None = None,
 ) -> RuntimeEnvelope:
-    """666B CRITIQUE - Thought audit. Run adversarial critique against a prior reasoning artifact."""
+    """666B CRITIQUE - Thought audit against a prior reasoning artifact."""
     payload = {
         "thought_id": thought_id,
         "critique_focus": critique_mode,
@@ -409,6 +414,7 @@ async def seal_vault_commit(
     verdict: str = "SEAL",
     payload_ref: str | None = None,
     payload_hash: str | None = None,
+    telemetry: dict[str, Any] | None = None,
     ctx: Context | None = None,
 ) -> RuntimeEnvelope:
     """999 SEAL - Vault commit. Append an immutable session verdict to VAULT999."""
@@ -417,6 +423,7 @@ async def seal_vault_commit(
         "verdict": verdict,
         "payload_ref": payload_ref,
         "payload_hash": payload_hash,
+        "telemetry": telemetry,
         "auth_context": auth_context,
     }
     return await _wrap_call("seal_vault_commit", Stage.VAULT, session_id, payload, ctx)

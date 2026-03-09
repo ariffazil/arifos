@@ -48,6 +48,14 @@ async def metabolic_loop(
         "ingest_evidence": os.getenv("ARIFOS_ENABLE_PHASE2_INGEST", "0") == "1",
     }
     trace: dict[str, Any] = {"phase2_hooks": phase2_hooks}
+    reality_summary: dict[str, Any] = {
+        "required": False,
+        "executed": False,
+        "status": "SKIPPED",
+        "score": 0.0,
+        "results_count": 0,
+        "needs_check": False,
+    }
 
     # Resolve/Mint Session (Repair Directive Priority 1 & 3)
     effective_session_id = _normalize_session_id(session_id)
@@ -117,6 +125,78 @@ async def metabolic_loop(
     trace["333_MIND"] = mind_res.verdict.value
     auth_ctx = mind_res.auth_context.model_dump(exclude_none=True)
 
+    # 3.5 Stage 222: REALITY VERIFICATION (Epistemic grounding)
+    reality_gate_verdict = Verdict.SEAL
+    reality_required_tiers = {
+        token.strip().upper()
+        for token in os.getenv("ARIFOS_REALITY_REQUIRED_TIERS", "A,B").split(",")
+        if token.strip()
+    }
+    reality_required = effective_risk_tier in reality_required_tiers
+    reality_summary["required"] = reality_required
+
+    if phase2_hooks["search_reality"] or reality_required:
+        from arifosmcp.intelligence.tools.reality_grounding import (
+            reality_check,
+            should_reality_check,
+        )
+
+        needs_check, check_reason = should_reality_check(query)
+        reality_summary["needs_check"] = needs_check
+        reality_summary["check_reason"] = check_reason
+        reality_timeout = float(os.getenv("ARIFOS_REALITY_TIMEOUT_SECONDS", "20"))
+
+        try:
+            reality_res = await asyncio.wait_for(
+                reality_check(query=query, max_results=5, fetch_sources=False),
+                timeout=reality_timeout,
+            )
+            results_count = int(reality_res.get("results_count", 0))
+            uncertainty = float(reality_res.get("uncertainty_aggregate", 1.0))
+            status = str(reality_res.get("status", "UNKNOWN"))
+
+            score = (
+                min(results_count, 5) / 5.0 * 0.5
+                + max(0.0, 1.0 - min(1.0, uncertainty)) * 0.3
+                + (0.2 if status.upper() == "OK" else 0.0)
+            )
+            score = max(0.0, min(1.0, score))
+
+            reality_summary.update(
+                {
+                    "executed": True,
+                    "status": status,
+                    "score": score,
+                    "results_count": results_count,
+                    "uncertainty": uncertainty,
+                    "engines_used": reality_res.get("engines_used", []),
+                    "engines_failed": reality_res.get("engines_failed", []),
+                }
+            )
+
+            if reality_required and (results_count == 0 or score < 0.40):
+                reality_gate_verdict = Verdict.PARTIAL
+                reality_summary["gate_reason"] = "insufficient_grounding"
+        except Exception as exc:
+            reality_gate_verdict = Verdict.PARTIAL if reality_required else Verdict.SEAL
+            reality_summary.update(
+                {
+                    "executed": True,
+                    "status": "ERROR",
+                    "score": 0.0,
+                    "gate_reason": "reality_stage_error",
+                    "error": str(exc),
+                }
+            )
+
+    trace["222_REALITY"] = {
+        "required": reality_summary["required"],
+        "status": reality_summary["status"],
+        "score": reality_summary["score"],
+        "results_count": reality_summary["results_count"],
+        "gate_verdict": reality_gate_verdict.value,
+    }
+
     # 4. Stage 666A & 666B: HEART & AUDIT
     # Run in parallel from the same authenticated context, then continue with
     # a deterministic merged context for downstream stages.
@@ -171,6 +251,7 @@ async def metabolic_loop(
         init_res.verdict,
         frame_res.verdict,
         mind_res.verdict,
+        reality_gate_verdict,
         heart_res.verdict,
         critique_res.verdict,
     ]
@@ -207,14 +288,22 @@ async def metabolic_loop(
         session_id=session_id,
         verdict_candidate=candidate.value,
         auth_context=auth_ctx,
-        reason_summary=f"Metabolic loop synthesis for: {query[:50]}...",
+        reason_summary=(
+            f"Metabolic loop synthesis for: {query[:50]}... | "
+            f"reality_status={reality_summary['status']} "
+            f"score={reality_summary['score']:.2f} "
+            f"results={reality_summary['results_count']}"
+        ),
     )
     trace["888_JUDGE"] = judge_res.verdict.value
     auth_ctx = judge_res.auth_context.model_dump(exclude_none=True)
 
     # 7. Stage 999: VAULT
     vault_res: RuntimeEnvelope = await seal_vault_commit(
-        session_id=session_id, verdict=judge_res.verdict.value, auth_context=auth_ctx
+        session_id=session_id,
+        verdict=judge_res.verdict.value,
+        auth_context=auth_ctx,
+        telemetry={"trace": trace, "reality": reality_summary},
     )
     trace["999_VAULT"] = vault_res.verdict.value
 
@@ -227,6 +316,7 @@ async def metabolic_loop(
         "SUCCESS" if judge_res.verdict not in (Verdict.VOID, Verdict.SABAR) else "ERROR"
     )
     final_output["auth_state"] = auth_state
+    final_output["grounding"] = reality_summary
 
     if init_failed:
         final_output["failure_origin"] = "AUTH"
