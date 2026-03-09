@@ -394,7 +394,7 @@ class GovernanceMetadata(BaseModel):
     """G in APEX-G: Identity and stakes."""
 
     actor_id: str = "anonymous"
-    authority_level: Literal["human", "agent", "system", "anonymous"] = "anonymous"
+    authority_level: Literal["human", "agent", "system", "anonymous", "operator", "sovereign"] = "anonymous"
     stakes_class: Literal["A", "B", "C", "UNKNOWN"] = "UNKNOWN"
     tri_witness: dict[str, float] = Field(
         default_factory=lambda: {"human": 0.0, "ai": 0.0, "earth": 0.0}

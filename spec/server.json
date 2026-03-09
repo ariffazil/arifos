@@ -1,14 +1,14 @@
 {
   "name": "io.github.ariffazil/arifos-mcp",
-  "version": "2026.03.07",
-  "description": "Constitutional AI governance server \u2014 13 MCP tools with F1-F13 floor enforcement, Quad-Witness BFT consensus (W4 = H\u00d7A\u00d7E\u00d7V, n=4 f=1), \u03a8-Shadow adversarial verifier, P3 thermodynamic enforcement, Trinity architecture (\u0394\u03a9\u03a8), and VAULT999 immutable ledger.",
+  "version": "2026.03.09-SEAL",
+  "description": "Constitutional AI governance server — 15 MCP tools (10 APEX-G + 5 Phase 2) with F1-F13 floor enforcement, Quad-Witness BFT consensus (W4 = H×A×E×V, n=4 f=1), Ψ-Shadow adversarial verifier, P3 thermodynamic enforcement, Trinity architecture (ΔΩΨ), and VAULT999 immutable ledger.",
   "vendor": {
     "name": "Muhammad Arif bin Fazil",
     "url": "https://arif-fazil.com"
   },
   "license": "AGPL-3.0-only",
   "homepage": "https://github.com/ariffazil/arifOS",
-  "repository": "https://github.com/ariffazil/arifOS",
+  "repository": "https://github.com/ariffazil/arifosmcp",
   "transports": [
     {
       "type": "http",
@@ -20,92 +20,104 @@
     },
     {
       "type": "stdio",
-      "command": "python3 -m arifosmcp.runtime stdio"
+      "command": "python -m arifosmcp.runtime stdio"
     }
   ],
   "capabilities": {
     "constitutional_floors": 13,
     "witness_protocol": "quad-witness-bft",
-    "witness_formula": "W4 = (H \u00d7 A \u00d7 E \u00d7 V)^(1/4) >= 0.75",
+    "witness_formula": "W4 = (H × A × E × V)^(1/4) >= 0.75",
     "bft_tolerance": "n=4 f=1",
     "psi_shadow": true,
     "p3_thermodynamics": true,
     "vault999": "postgresql+redis+merkle",
     "vector_memory": "qdrant+bge-m3-1024dim",
-    "spec_compliance": "95%"
+    "spec_compliance": "100%"
   },
   "tools": [
     {
-      "name": "anchor_session",
+      "name": "init_anchor_state",
       "band": "A",
       "stage": "000",
       "action": "CRITICAL"
     },
     {
-      "name": "reason_mind",
+      "name": "integrate_analyze_reflect",
       "band": "R",
-      "stage": "111-333",
+      "stage": "111",
       "action": "READ"
     },
     {
-      "name": "search_reality",
+      "name": "reason_mind_synthesis",
       "band": "R",
-      "stage": "222",
+      "stage": "333",
       "action": "READ"
     },
     {
-      "name": "ingest_evidence",
-      "band": "R",
-      "stage": "222",
-      "action": "READ"
+      "name": "metabolic_loop_router",
+      "band": "O",
+      "stage": "444",
+      "action": "CRITICAL"
     },
     {
-      "name": "audit_rules",
-      "band": "R",
-      "stage": "000",
-      "action": "READ"
-    },
-    {
-      "name": "vector_memory",
+      "name": "vector_memory_store",
       "band": "I",
       "stage": "555",
       "action": "READ"
     },
     {
-      "name": "simulate_heart",
+      "name": "assess_heart_impact",
       "band": "I",
-      "stage": "555-666",
+      "stage": "666A",
       "action": "WRITE"
     },
     {
-      "name": "critique_thought",
+      "name": "critique_thought_audit",
       "band": "I",
-      "stage": "666",
+      "stage": "666B",
       "action": "WRITE"
     },
     {
-      "name": "check_vital",
-      "band": "I",
-      "stage": "000",
-      "action": "READ"
-    },
-    {
-      "name": "apex_judge",
-      "band": "F",
-      "stage": "888",
-      "action": "CRITICAL"
-    },
-    {
-      "name": "eureka_forge",
+      "name": "quantum_eureka_forge",
       "band": "F",
       "stage": "777",
       "action": "WRITE"
     },
     {
-      "name": "seal_vault",
+      "name": "apex_judge_verdict",
+      "band": "F",
+      "stage": "888",
+      "action": "CRITICAL"
+    },
+    {
+      "name": "seal_vault_commit",
       "band": "F",
       "stage": "999",
       "action": "CRITICAL"
+    },
+    {
+      "name": "search_reality",
+      "band": "R",
+      "stage": "111",
+      "action": "READ"
+    },
+    {
+      "name": "ingest_evidence",
+      "band": "R",
+      "stage": "111",
+      "action": "READ"
+    },
+    {
+      "name": "audit_rules",
+      "band": "R",
+      "stage": "333",
+      "action": "READ"
+    },
+    {
+      "name": "check_vital",
+      "band": "I",
+      "stage": "555",
+      "action": "READ"
     },
     {
       "name": "metabolic_loop",

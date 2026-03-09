@@ -2392,7 +2392,7 @@ open_apex_dashboard = ToolHandle(_open_dashboard)
 
 @mcp.tool(
     name="metabolic_loop_router",
-    description="[Lane: Δ Delta] [Floors: F1-F13] The arifOS Sovereign Kernel loop router.",
+    description="[Lane: Δ Delta] [Floors: F1-F13] The arifOS Sovereign Kernel loop router. Supports dry_run explainability.",
 )
 async def _metabolic_loop_router(
     query: str,
@@ -2404,6 +2404,7 @@ async def _metabolic_loop_router(
     use_critique: bool = True,
     allow_execution: bool = False,
     debug: bool = False,
+    dry_run: bool = False,
 ) -> dict[str, Any]:
     """
     Stage 444: Governed metabolic loop orchestrator.
@@ -2420,6 +2421,8 @@ async def _metabolic_loop_router(
             risk_tier=risk_tier,
             actor_id=actor_id,
             session_id=session_id,
+            allow_execution=allow_execution,
+            dry_run=dry_run,
         )
 
         # Update global active session if the loop minted a new one
@@ -2427,6 +2430,8 @@ async def _metabolic_loop_router(
         if not _ACTIVE_SESSION_ID and result.get("session_id"):
             _ACTIVE_SESSION_ID = result["session_id"]
 
+        if hasattr(result, "model_dump"):
+            return result.model_dump(mode="json")
         return result
 
     except Exception as e:
@@ -3390,7 +3395,7 @@ async def _analyze(data: dict[str, Any], analysis_type: str = "structure") -> di
 
 @mcp.tool(
     name="audit_rules",
-    description="[Lane: Δ Delta] [Floors: F2, F8, F10] Rule & governance audit checks.",
+    description="[Lane: Δ Delta] [Floors: F2, F8, F10] Rule & governance audit checks. Supports detailed floor remediation.",
 )
 async def _system_audit(
     ctx: Context,
@@ -3401,6 +3406,15 @@ async def _system_audit(
     try:
         details: dict[str, Any] = {"scope": audit_scope}
         floor_data = []
+        remediation_map = {
+            "F1_AMANAH": "Ensure all actions are reversible and no destructive commands like 'rm -rf' are present.",
+            "F2_TRUTH": "Claims must be grounded in multi-source evidence. Use search_reality to ingest grounding.",
+            "F4_CLARITY": "Reduce information entropy. Avoid rambling and ensure ΔS <= 0.",
+            "F11_AUTHORITY": "Provide a valid actor_id and auth_token for high-stakes actions.",
+            "F12_DEFENSE": "Input contains patterns matching known prompt injection vectors. Sanitize input.",
+            "F13_SOVEREIGNTY": "High-stakes or irreversible actions MUST await human APEX signature."
+        }
+        
         if verify_floors:
             try:
                 from core.shared.floors import FLOOR_SPEC_KEYS, get_floor_spec
@@ -3414,7 +3428,8 @@ async def _system_audit(
                         "id": fid,
                         "name": spec.get("name", "Unknown"),
                         "status": "active",
-                        "severity": spec.get("severity", "HARD")
+                        "severity": spec.get("severity", "HARD"),
+                        "remediation": remediation_map.get(fid, "Follow constitutional guidelines.")
                     })
             except Exception as e:
                 details["floors_loaded"] = False
@@ -3430,13 +3445,12 @@ async def _system_audit(
         if PREFAB_AVAILABLE and ctx.client_supports_extension(UI_EXTENSION_ID) and floor_data:
             with Column(gap=4) as view:
                 Heading(f"Constitutional Audit: {audit_scope.upper()}", level=2)
-                Text("Verification of the 13 Constitutional Floors and governance invariants.")
-                
                 with DataTable(data=floor_data):
                     DataTableColumn("id", label="Floor ID")
                     DataTableColumn("name", label="Floor Name")
                     DataTableColumn("severity", label="Severity")
                     DataTableColumn("status", label="Status")
+                    DataTableColumn("remediation", label="Remediation Path")
 
             return ToolResult(
                 content=[{"type": "text", "text": json.dumps(envelope, indent=2)}],
@@ -3553,7 +3567,7 @@ inspect_file = ToolHandle(_inspect_file)
 
 @mcp.tool(
     name="check_vital",
-    description="[Lane: Ω Omega] [Floors: F4, F5, F7] System health & vital signs.",
+    description="[Lane: Ω Omega] [Floors: F4, F5, F7] System runtime health. Note: System health does not imply governed request approval.",
 )
 async def _check_vital(
     ctx: Context,
@@ -3567,6 +3581,8 @@ async def _check_vital(
         include_io=include_io,
         include_temp=include_temp,
     )
+    payload["disclaimer"] = "System runtime health verified. This check does NOT evaluate constitutional compliance of individual requests."
+    
     envelope = envelope_builder.build_envelope(
         stage="555_HEALTH",
         session_id=session_id,

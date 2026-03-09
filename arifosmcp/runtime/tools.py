@@ -182,8 +182,21 @@ async def _wrap_call(
             verdict=verdict,
             stage=stage,
             session_id=effective_session_id,
+            final_verdict=kernel_res.get("final_verdict", verdict_str),
+            status=kernel_res.get("status", "SUCCESS"),
             failure_origin=kernel_res.get("failure_origin"),
+            failure_stage=kernel_res.get("failure_stage"),
+            auth_state=kernel_res.get("auth_state", "anonymous"),
+            score_delta=kernel_res.get("score_delta", {}),
+            primary_blocker=kernel_res.get("primary_blocker"),
+            secondary_blockers=kernel_res.get("secondary_blockers", []),
+            next_best_action=kernel_res.get("next_best_action"),
+            counterfactual=kernel_res.get("counterfactual"),
             remediation_notes=kernel_res.get("remediation_notes", []),
+            blocked_because=kernel_res.get("blocked_because"),
+            block_class=kernel_res.get("block_class"),
+            safe_alternative=kernel_res.get("safe_alternative"),
+            minimum_upgrade_condition=kernel_res.get("minimum_upgrade_condition"),
             telemetry=Telemetry(
                 dS=kernel_res.get("telemetry", {}).get("dS", -0.7),
                 peace2=kernel_res.get("telemetry", {}).get("peace2", 1.1),
@@ -277,7 +290,6 @@ async def reason_mind_synthesis(
     }
     return await _wrap_call("reason_mind_synthesis", Stage.MIND_333, session_id, payload, ctx)
 
-
 async def metabolic_loop_router(
     query: str,
     context: str = "",
@@ -288,9 +300,11 @@ async def metabolic_loop_router(
     use_critique: bool = True,
     allow_execution: bool = False,
     debug: bool = False,
+    dry_run: bool = False,
     ctx: Context | None = None,
 ) -> RuntimeEnvelope:
-    """444 ROUTE - Metabolic loop router. Orchestrate the full 000-999 APEX-G pipeline."""
+    """Stage 444 ROUTER - Metabolic Loop. The all-in-one arifOS Sovereign evaluation."""
+    session_id = _resolve_session_id(None)
     payload = {
         "query": query,
         "context": context,
@@ -301,8 +315,10 @@ async def metabolic_loop_router(
         "use_critique": use_critique,
         "allow_execution": allow_execution,
         "debug": debug,
+        "dry_run": dry_run,
     }
-    return await _wrap_call("metabolic_loop_router", Stage.ROUTER, "global", payload, ctx)
+    return await _wrap_call("metabolic_loop_router", Stage.ROUTER, session_id, payload, ctx)
+
 
 
 async def vector_memory_store(

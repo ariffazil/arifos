@@ -1,9 +1,9 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.ariffazil/arifos-mcp",
-  "version": "2026.3.1",
+  "version": "2026.03.09-SEAL",
   "title": "arifOS Sovereign Governance MCP",
-  "description": "Constitutional AI governance server with 13-tool surface, Trinity engines (ΔΩΨ), and F1-F13 floor enforcement.",
+  "description": "Constitutional AI governance server with 15-tool surface (10 APEX-G + 5 Phase 2), Trinity engines (ΔΩΨ), and F1-F13 floor enforcement.",
   "websiteUrl": "https://arifos.arif-fazil.com/",
   "vendor": {
     "name": "arifOS",
@@ -11,7 +11,7 @@
   },
   "license": "AGPL-3.0-only",
   "repository": {
-    "url": "https://github.com/ariffazil/arifOS",
+    "url": "https://github.com/ariffazil/arifosmcp",
     "source": "github"
   },
   "runtime": {
@@ -30,12 +30,12 @@
     {
       "registryType": "pypi",
       "identifier": "arifos",
-      "version": "2026.3.1",
+      "version": "2026.03.09-SEAL",
       "transport": { "type": "stdio" }
     },
     {
       "registryType": "oci",
-      "identifier": "docker.io/arifazil/arifosmcp:forge-777",
+      "identifier": "docker.io/arifazil/arifosmcp:forge-20260309",
       "transport": {
         "type": "streamable-http",
         "url": "https://arifosmcp.arif-fazil.com/mcp"
@@ -50,12 +50,6 @@
       "headers": { "Authorization": "Bearer ${JINA_API_KEY}" }
     },
     {
-      "name": "context7",
-      "type": "remote",
-      "url": "https://mcp.context7.com/mcp",
-      "headers": { "Authorization": "Bearer ${CONTEXT7_API_KEY}" }
-    },
-    {
       "type": "sse",
       "url": "https://arifosmcp.arif-fazil.com/sse"
     },
@@ -66,92 +60,104 @@
     }
   ],
   "tools": {
-    "anchor_session": {
+    "init_anchor_state": {
       "stage": "000",
       "trinity": "Δ Delta",
       "floors": ["F11", "F12", "F13"],
-      "description": "Session ignition & injection defense"
+      "description": "000 INIT - Session anchor. Bootstrap a governed session and mint continuity context."
     },
-    "reason_mind": {
+    "integrate_analyze_reflect": {
+      "stage": "111",
+      "trinity": "Δ Delta",
+      "floors": ["F2", "F4", "F10"],
+      "description": "111 FRAME - Integrate, analyze, reflect. Frame the problem before deep reasoning."
+    },
+    "reason_mind_synthesis": {
       "stage": "333",
       "trinity": "Δ Delta",
       "floors": ["F2", "F4", "F7", "F8"],
-      "description": "AGI cognition & logic grounding"
+      "description": "333 REASON - Mind synthesis. Run multi-step governed reasoning for the active session."
     },
-    "vector_memory": {
+    "metabolic_loop_router": {
       "stage": "444",
-      "trinity": "Ω Omega",
-      "floors": ["F4", "F7", "F13"],
-      "description": "Associative memory traces via EUREKA sieve"
+      "trinity": "ALL",
+      "floors": ["F1-F13"],
+      "description": "Stage 444 ROUTER - Metabolic Loop. The all-in-one arifOS Sovereign evaluation."
     },
-    "simulate_heart": {
+    "vector_memory_store": {
       "stage": "555",
       "trinity": "Ω Omega",
-      "floors": ["F4", "F5", "F6"],
-      "description": "Stakeholder impact & care constraints"
+      "floors": ["F4", "F7", "F13"],
+      "description": "555 MEMORY - Vector memory store. Store, recall, search, or forget BBB memory."
     },
-    "critique_thought": {
-      "stage": "666",
+    "assess_heart_impact": {
+      "stage": "666A",
+      "trinity": "Ω Omega",
+      "floors": ["F4", "F5", "F6"],
+      "description": "666A HEART - Impact assessment. Evaluate empathy, care, and stakeholder harm."
+    },
+    "critique_thought_audit": {
+      "stage": "666B",
       "trinity": "Ω Omega",
       "floors": ["F4", "F7", "F8"],
-      "description": "7-model bias critique & alignment check"
+      "description": "666B CRITIQUE - Thought audit. Run adversarial critique against a prior reasoning artifact."
     },
-    "apex_judge": {
-      "stage": "888",
-      "trinity": "Ψ Psi",
-      "floors": ["F1-F13"],
-      "description": "Sovereign verdict synthesis + governance_token"
-    },
-    "eureka_forge": {
+    "quantum_eureka_forge": {
       "stage": "777",
       "trinity": "Ψ Psi",
       "floors": ["F1", "F11", "F12"],
-      "description": "Sandboxed action execution with risk classification"
+      "description": "777 FORGE - Eureka proposal. Forge a sandboxed discovery or implementation proposal."
     },
-    "seal_vault": {
+    "apex_judge_verdict": {
+      "stage": "888",
+      "trinity": "Ψ Psi",
+      "floors": ["F1-F13"],
+      "description": "888 JUDGE - APEX verdict. Render the sovereign constitutional judgment for a session."
+    },
+    "seal_vault_commit": {
       "stage": "999",
       "trinity": "Ψ Psi",
-      "floors": ["F1", "F3", "F10"],
-      "description": "Immutable ledger persistence (token-locked)"
+      "floors": ["F1", "F3", "F10", "F11"],
+      "description": "999 SEAL - Vault commit. Append an immutable session verdict to VAULT999."
     },
     "search_reality": {
       "stage": "111",
       "trinity": "Δ Delta",
-      "floors": ["F2", "F4", "F12"],
-      "description": "Web grounding (Perplexity/Brave)",
+      "floors": ["F2", "F12"],
+      "description": "Legacy external capability: web grounding before making claims.",
       "readonly": true
     },
     "ingest_evidence": {
       "stage": "111",
       "trinity": "Δ Delta",
-      "floors": ["F1", "F2", "F4", "F11", "F12"],
-      "description": "Content retrieval & filesystem inspection (URL/file)",
+      "floors": ["F2", "F11", "F12"],
+      "description": "Legacy external capability: extract evidence from a source URL.",
       "readonly": true
-    },
-    "metabolic_loop": {
-      "stage": "000-999",
-      "trinity": "ALL",
-      "floors": ["F1-F13"],
-      "description": "The arifOS Sovereign Kernel loop. Mandatory safety wrapper."
     },
     "audit_rules": {
       "stage": "333",
       "trinity": "Δ Delta",
       "floors": ["F2", "F8", "F10"],
-      "description": "Constitutional rule audit checks",
+      "description": "Legacy external capability: verify current state against the Floors.",
       "readonly": true
     },
     "check_vital": {
       "stage": "555",
       "trinity": "Ω Omega",
       "floors": ["F4", "F5", "F7"],
-      "description": "System health & vital signs",
+      "description": "Legacy external capability: system health and constitutional vitality.",
       "readonly": true
+    },
+    "metabolic_loop": {
+      "stage": "000-999",
+      "trinity": "ALL",
+      "floors": ["F1-F13"],
+      "description": "Legacy orchestration tool preserved for compatibility only."
     }
   },
   "trinity": {
     "delta": { "symbol": "Δ", "name": "Mind", "role": "AGI Reasoning", "stages": ["000", "111", "333"], "floors": ["F2", "F4", "F7", "F8"] },
-    "omega": { "symbol": "Ω", "name": "Heart", "role": "ASI Safety", "stages": ["444", "555", "666"], "floors": ["F5", "F6", "F9"] },
-    "psi": { "symbol": "Ψ", "name": "Soul", "role": "APEX Judgment", "stages": ["777", "888", "999"], "floors": ["F1", "F10", "F11", "F12", "F13"] }
+    "omega": { "symbol": "Ω", "name": "Heart", "role": "ASI Safety", "stages": ["555", "666"], "floors": ["F5", "F6", "F9"] },
+    "psi": { "symbol": "Ψ", "name": "Soul", "role": "APEX Judgment", "stages": ["777", "888", "999"], "floors": ["F1", "F3", "F10", "F11", "F12", "F13"] }
   }
 }
