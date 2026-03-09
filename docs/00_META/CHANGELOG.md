@@ -5,6 +5,27 @@ All changes follow [T000 versioning](T000_VERSIONING.md): `YYYY.MM.DD-PHASE-STAT
 
 ---
 
+## [2026.3.8-APEX-METRICS-HARDENING-SEAL] — 2026-03-08 — APEX-METRICS-HARDENING-SEAL
+
+**T000:** 2026.03.08-APEX-METRICS-HARDENING-SEAL  
+**Theme:** APEX thermodynamic math hardening, dashboard runtime recovery, and deployment truth alignment
+
+### Changed
+- `arifosmcp/intelligence/core/thermo_budget.py` now caps entropy removal to the entropy baseline actually available in-session.
+- `arifosmcp/sites/apex-dashboard/index.html` now posts `SystemCall` bodies for live polling and normalizes both thermo and telemetry envelopes into one UI schema.
+- Dashboard rendering now uses canonical fields (`G_dagger`, `eta`, `C`) rather than stale aliases that only existed in older demo payloads.
+
+### Fixed
+- JSX inline CSS variable usage no longer throws before dashboard mount.
+- Live APEX payloads from thermo snapshots no longer crash on missing `governed_score` / `intelligence_efficiency`.
+- `eta` and `G_dagger` can no longer be inflated by cumulative `delta_s` exceeding the configured entropy baseline.
+
+### Verification
+- `pytest tests/aclip_cai/test_thermo.py -q` -> pass
+- `pytest tests/core/test_outputs.py -q` -> pass
+
+---
+
 ## [2026.2.27] — 2026-02-27 — FORGE-PROTOCOL-NEGOTIATION-CONSISTENCY-SEAL
 
 **T000:** 2026.02.27-FORGE-PROTOCOL-NEGOTIATION-CONSISTENCY-SEAL  

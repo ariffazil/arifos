@@ -1,7 +1,7 @@
 {
   "$schema": "https://gofastmcp.com/public/schemas/fastmcp.json/v1.json",
   "name": "arifos-mcp",
-  "version": "2026.03.07",
+  "version": "2026.03.08",
   "description": "arifOS Constitutional AI Governance MCP Server — dev profile (stdio, DEBUG logging)",
   "source": {
     "type": "filesystem",
@@ -19,16 +19,18 @@
       "anthropic>=0.39.0",
       "httpx>=0.27.0",
       "pydantic>=2.9.0"
-    ]
+    ],
+    "editable": ["."]
   },
   "deployment": {
     "transport": "stdio",
     "log_level": "DEBUG"
   },
   "tools": {
-    "count": 13,
+    "core_constitutional_stack": 10,
+    "phase2_legacy_tools_enabled": true,
     "governance": true,
-    "description": "13 canonical tools with 13-Floor thermodynamic governance"
+    "description": "10-tool core constitutional stack plus legacy external capability tools kept enabled outside the new metabolic loop"
   },
   "metadata": {
     "author": "Arif Fazil",

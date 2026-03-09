@@ -37,7 +37,9 @@ def find_imports():
     # e.g., "import arifosmcp.transport.server", "from arifosmcp.transport.rest import"
 
     patterns = {
-        "arifosmcp.transport/streamable_http_server.py": [r"arifosmcp.transport\.streamable_http_server"],
+        "arifosmcp.transport/streamable_http_server.py": [
+            r"arifosmcp.transport\.streamable_http_server"
+        ],
         "arifosmcp.transport/rest.py": [r"arifosmcp.transport\.rest"],
         "arifosmcp.transport/server.py": [r"arifosmcp.transport\.server"],
         "core/shared/floors.py": [r"core\.shared\.floors"],

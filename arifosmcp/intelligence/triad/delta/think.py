@@ -460,8 +460,12 @@ async def _think_with_kernel(
         4,
     )
 
-    # Update thermodynamic budget
-    kernel.thermo.update_budget(session_id=session_id, delta_s=avg_delta_s)
+    # Update thermodynamic budget (accumulate 3 reasoning paths as tool_calls)
+    thermo_snap = kernel.thermo.update_budget(
+        session_id=session_id,
+        delta_s=avg_delta_s,
+        tool_calls=3,
+    )
 
     # Log to Vault
     kernel.vault.log_witness(
@@ -509,4 +513,5 @@ async def _think_with_kernel(
             "weighted_confidence": reasoning_tree["weighted_confidence"],
             "paths_run": 3,
         },
+        "apex_output": thermo_snap.as_apex_output() if thermo_snap else None,
     }

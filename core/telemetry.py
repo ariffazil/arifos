@@ -207,11 +207,11 @@ class TelemetryStore:
                         try:
                             data = json.loads(line.strip())
                             counts = data.get("verdict_counts", {})
-                            
+
                             # Weighting: VOID is a deep scar, SABAR is a bruise
                             v_count = counts.get("void", 0)
                             s_count = counts.get("sabar", 0)
-                            
+
                             total_penalty += (v_count * 0.15 + s_count * 0.03) * decay
                         except (json.JSONDecodeError, KeyError):
                             continue
@@ -284,8 +284,8 @@ def check_adaptation_status() -> dict:
     return telemetry_store.can_adapt()
 
 
-
 # ... (rest of imports)
+
 
 def get_current_hysteresis() -> float:
     """Retrieve the current hysteresis penalty score."""
@@ -310,7 +310,7 @@ def get_actual_joules(duration_ms: float) -> float:
         # Assuming ~30% load for LLM inference on CPU
         load_factor = 0.35
         actual_watts = IDLE_POWER + (BASE_TDP - IDLE_POWER) * load_factor
-        
+
         # 3. Energy = Power * Time
         joules = actual_watts * (duration_ms / 1000.0)
         return round(joules, 6)

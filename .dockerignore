@@ -80,3 +80,42 @@ logs/
 # Temporary files
 tmp/
 temp/
+
+# Large directories not needed for build
+VAULT999/
+.vault/
+data/
+models/
+*.jsonl
+*.jsonl.gz
+
+# Test files
+tests/
+test_*.py
+*_test.py
+.pytest_cache/
+
+# Documentation (not needed in image)
+*.md
+CHANGELOG*
+LICENSE
+
+# Git
+.git/
+.github/
+.gitignore
+
+# CI/CD
+.github/workflows/
+
+# Archives
+*.tar.gz
+*.zip
+*.rar
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store

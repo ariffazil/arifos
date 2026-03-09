@@ -39,7 +39,7 @@ scp .env.docker root@YOUR_VPS_IP:/root/arifOS/.env.docker
 
 ## 🚀 3. Deployment (Zero-Downtime Overlay)
 
-Run the deployment engine from your local machine. This protocol performs a remote build, verifies the 13-tool surface, and performs an atomic swap.
+Run the deployment engine from your local machine. This protocol performs a remote build, verifies the 10-tool core constitutional stack, and performs an atomic swap while allowing legacy Phase 2 capability tools to remain enabled.
 
 ```bash
 # A. Verify local integrity
@@ -53,15 +53,93 @@ python scripts/deploy_production.py --platform vps-overlay --host root@YOUR_VPS_
 
 ## 🏥 4. Verification & Health
 
-The server will be reachable on port **8088** (Production Bind). Verify the 22-tool unified surface:
+The server will be reachable on port **8088** (Production Bind). Verify the HTTP deployment surface at `/mcp/` and confirm the core stack is present:
 
 ```bash
 # Health Check (Constitutional Seal)
 curl -fsS http://YOUR_VPS_IP:8088/health
 
-# Tool Registry (Canonical 13 + Sensory 9)
+# MCP endpoint
+curl -i http://YOUR_VPS_IP:8088/mcp/
+
+# Tool Registry (core stack must be present; legacy Phase 2 tools may also appear)
 curl -fsS http://YOUR_VPS_IP:8088/tools
 ```
+
+## 🧭 5. Runtime Split
+
+- Core constitutional stack (10 tools): `init_anchor_state`, `integrate_analyze_reflect`, `reason_mind_synthesis`, `metabolic_loop_router`, `vector_memory_store`, `assess_heart_impact`, `critique_thought_audit`, `quantum_eureka_forge`, `apex_judge_verdict`, `seal_vault_commit`
+- External capability tools (Phase 2 integration): `aclip_*`, `search_reality`, `ingest_evidence`, `audit_rules`, `check_vital`, legacy `metabolic_loop`
+- The new APEX-G metabolic loop only calls the 10 core tools. Phase 2 power tools stay enabled for compatibility but are not wired into Stage 444 yet.
+
+## 🧪 6. FastMCP CLI Validation
+
+FastMCP 3.x treats `fastmcp.json` as the local run/install truth source. The recommended production serving path is the exported ASGI app:
+
+```bash
+# Inspect manifest and server metadata
+fastmcp inspect fastmcp.json
+
+# Run locally over HTTP from the declarative config
+fastmcp run fastmcp.json --transport http --host 0.0.0.0 --port 8080
+
+# Recommended production path
+uvicorn arifosmcp.runtime.server:app --host 0.0.0.0 --port 8080
+```
+
+## 🧩 7. APEX Dashboard Runtime Split
+
+The repository currently has **two different HTTP surfaces** that operators should not confuse:
+
+- **Canonical public server:** `arifosmcp.runtime.server:app`
+  - deploy this to the VPS
+  - public MCP endpoint: `/mcp`
+  - health endpoint: `/health`
+  - this is the production arifosmcp server
+- **Internal-only intelligence bridge:** `arifosmcp.intelligence.core.mcp_server:app`
+  - only needed if you want the standalone APEX dashboard live polling path
+  - exposes legacy diagnostic routes like `POST /mcp/anchor` and `POST /mcp/reason`
+  - do **not** document or expose this as the public transport surface
+
+If you need the standalone APEX dashboard to poll live data, run the bridge on loopback only:
+
+```bash
+uvicorn arifosmcp.intelligence.core.mcp_server:app --host 127.0.0.1 --port 8889
+```
+
+### Live Poll Contract
+
+The APEX dashboard live mode no longer works with a bare `GET`. It now sends a `POST` body matching the bridge `SystemCall` model:
+
+```json
+{
+  "name": "anchor",
+  "session_id": "apex-dashboard-live",
+  "arguments": {
+    "user_id": "apex-dashboard",
+    "jurisdiction": "MY",
+    "context": "APEX dashboard live poll"
+  }
+}
+```
+
+You can verify the bridge manually before wiring the dashboard:
+
+```bash
+curl -fsS http://127.0.0.1:8889/mcp/anchor \
+  -H "Content-Type: application/json" \
+  -d '{"name":"anchor","session_id":"apex-dashboard-live","arguments":{"user_id":"apex-dashboard","jurisdiction":"MY","context":"APEX dashboard live poll"}}'
+
+curl -fsS http://127.0.0.1:8889/mcp/reason \
+  -H "Content-Type: application/json" \
+  -d '{"name":"reason","session_id":"apex-dashboard-live","arguments":{"query":"APEX dashboard live poll"}}'
+```
+
+### Operator Note
+
+- Public reverse proxy / firewall rules should point users to the canonical runtime server only.
+- If the bridge is enabled for operator diagnostics, bind it to `127.0.0.1` or an internal interface.
+- The dashboard now tolerates both canonical `apex_output` envelopes and legacy `telemetry` envelopes, but the transport split remains intentional.
 
 **Ditempa Bukan Diberi — Forged, Not Given.**
 *Status: [SEAL CANDIDATE]*

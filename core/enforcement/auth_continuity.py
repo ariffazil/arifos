@@ -78,7 +78,9 @@ def verify_auth_context(session_id: str, auth_context: dict[str, Any]) -> tuple[
     if exp <= int(time.time()):
         return False, "auth_context expired"
 
-    unsigned_context = {k: auth_context[k] for k in auth_context if k != "signature"}
+    unsigned_context = {
+        field: auth_context[field] for field in required_fields if field != "signature"
+    }
     expected_sig = sign_auth_context(unsigned_context)
     if not hmac.compare_digest(auth_context.get("signature", ""), expected_sig):
         return False, "signature mismatch"

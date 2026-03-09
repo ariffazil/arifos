@@ -4,7 +4,7 @@ The single source of truth for arifOS governance.
 """
 
 from .amendment import AmendmentChain
-from .eval_suite import EvalSuite
+from .eval.suite import ConstitutionalEvalSuite as EvalSuite
 from .federation import FederationCoordinator
 from .floor_audit import FloorAuditor
 from .lifecycle import LifecycleManager

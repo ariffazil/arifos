@@ -14,7 +14,13 @@ Exports the 8 kernel modules:
   amendment     — Phoenix-72 cooldown protocol
 """
 
+from .amendment import AmendmentChain, AmendmentRecord
+from .eval.suite import ConstitutionalEvalSuite as EvalSuite
+from .federation import FederationCoordinator
+from .floor_audit import AuditResult, FloorAuditor, FloorResult, Verdict
 from .lifecycle import KernelState, LifecycleManager, Session
+from .thermo_budget import ThermoBudget, ThermoSnapshot
+from .vault_logger import VaultLogger, WitnessRecord
 
 __all__ = [
     "LifecycleManager",
@@ -33,37 +39,3 @@ __all__ = [
     "AmendmentChain",
     "AmendmentRecord",
 ]
-
-
-def __getattr__(name: str):
-    """Keep lifecycle imports light; load the rest of core on demand."""
-    if name in {"FloorAuditor", "FloorResult", "AuditResult", "Verdict"}:
-        from .floor_audit import AuditResult, FloorAuditor, FloorResult, Verdict
-
-        return {
-            "FloorAuditor": FloorAuditor,
-            "FloorResult": FloorResult,
-            "AuditResult": AuditResult,
-            "Verdict": Verdict,
-        }[name]
-    if name in {"ThermoBudget", "ThermoSnapshot"}:
-        from .thermo_budget import ThermoBudget, ThermoSnapshot
-
-        return {"ThermoBudget": ThermoBudget, "ThermoSnapshot": ThermoSnapshot}[name]
-    if name in {"VaultLogger", "WitnessRecord"}:
-        from .vault_logger import VaultLogger, WitnessRecord
-
-        return {"VaultLogger": VaultLogger, "WitnessRecord": WitnessRecord}[name]
-    if name == "FederationCoordinator":
-        from .federation import FederationCoordinator
-
-        return FederationCoordinator
-    if name == "EvalSuite":
-        from .eval_suite import EvalSuite
-
-        return EvalSuite
-    if name in {"AmendmentChain", "AmendmentRecord"}:
-        from .amendment import AmendmentChain, AmendmentRecord
-
-        return {"AmendmentChain": AmendmentChain, "AmendmentRecord": AmendmentRecord}[name]
-    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

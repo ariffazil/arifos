@@ -256,6 +256,7 @@ class ThermodynamicBudget:
         # 1. Hardware Grounding Driver
         try:
             from core.telemetry import get_actual_joules
+
             actual_joules = get_actual_joules(compute_ms)
         except ImportError:
             actual_joules = None
@@ -265,16 +266,14 @@ class ThermodynamicBudget:
             compute_ms=compute_ms,
             tokens_generated=tokens,
             entropy_reduction=delta_s,
-            actual_joules=actual_joules
+            actual_joules=actual_joules,
         )
 
         if not result["passed"]:
             self.landauer_violations += 1
             if self.landauer_violations >= self.max_violations:
                 raise LandauerViolation(
-                    result["efficiency_ratio"], 
-                    delta_s, 
-                    result["actual_joules"]
+                    result["efficiency_ratio"], delta_s, result["actual_joules"]
                 )
 
         return {
@@ -674,20 +673,23 @@ def check_landauer_before_seal(
 def get_thermodynamic_report(session_id: str) -> dict[str, Any]:
     """Get full thermodynamic report for session."""
     budget = get_thermodynamic_budget(session_id)
+    compliance = {
+        "F4_clarity": all(
+            out[1] <= inp[1]
+            for out, inp in zip(budget.entropy_output_log, budget.entropy_input_log)
+        ),
+        "F7_budget": not budget.is_exhausted,
+        "landauer_violations": budget.landauer_violations,
+    }
     return {
         "budget": budget.to_dict(),
         "entropy_log": {
             "inputs": budget.entropy_input_log,
             "outputs": budget.entropy_output_log,
         },
-        "constitutional_compliance": {
-            "F4_clarity": all(
-                out[1] <= inp[1]
-                for out, inp in zip(budget.entropy_output_log, budget.entropy_input_log)
-            ),
-            "F7_budget": not budget.is_exhausted,
-            "landauer_violations": budget.landauer_violations,
-        },
+        "constitutional_compliance": compliance,
+        # Backward-compat alias for older deployment/e2e suites.
+        "compliance": compliance,
     }
 
 

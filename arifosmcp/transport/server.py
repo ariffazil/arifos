@@ -42,7 +42,6 @@ MANIFEST_VERSION = "2026.03.07"
 logger = logging.getLogger(__name__)
 
 # BGE Embeddings Integration from arifosmcp.intelligence (Senses Layer - STATIC)
-from pathlib import Path
 
 from core.state.session_manager import session_manager
 
@@ -838,7 +837,31 @@ async def _verify_approval_bundle(
     }, None
 
 
-from fastmcp import FastMCP
+from fastmcp import FastMCP, Context
+from fastmcp.server.apps import AppConfig, ResourceCSP, UI_EXTENSION_ID
+from fastmcp.tools import ToolResult
+
+try:
+    from prefab_ui.app import PrefabApp
+    from prefab_ui.components import (
+        Badge,
+        Card,
+        CardContent,
+        CardHeader,
+        CardTitle,
+        Column,
+        DataTable,
+        DataTableColumn,
+        Heading,
+        Metric,
+        Row,
+        Text,
+    )
+    from prefab_ui.components.charts import BarChart, ChartSeries
+
+    PREFAB_AVAILABLE = True
+except ImportError:
+    PREFAB_AVAILABLE = False
 
 from arifosmcp.intelligence.tools.fs_inspector import fs_inspect
 from arifosmcp.intelligence.tools.system_monitor import get_system_health
@@ -866,6 +889,28 @@ mcp = FastMCP(
         "not a public tool. All tools return {verdict, stage, session_id} envelope."
     ),
 )
+
+APEX_DASHBOARD_URI = "ui://apex-dashboard/view.html"
+
+@mcp.resource(
+    APEX_DASHBOARD_URI,
+    app=AppConfig(
+        csp=ResourceCSP(
+            resource_domains=[
+                "https://unpkg.com",
+                "https://fonts.googleapis.com",
+                "https://fonts.gstatic.com",
+            ]
+        )
+    ),
+)
+def apex_dashboard_view() -> str:
+    """Interactive APEX Sovereign Dashboard."""
+    path = Path(__file__).parent.parent / "sites" / "apex-dashboard" / "dashboard.html"
+    try:
+        return path.read_text(encoding="utf-8")
+    except Exception as e:
+        return f"<html><body>Error loading dashboard: {e}</body></html>"
 
 from fastmcp.resources.template import ResourceTemplate
 
@@ -1271,6 +1316,9 @@ def apply_governance_gate(
     return governance_proof
 
 
+import math
+from core.shared.physics import GeniusDial
+
 class EnvelopeBuilder:
     def __init__(self):
         pass
@@ -1338,6 +1386,81 @@ class EnvelopeBuilder:
             actions.append("Restore session/auth continuity and retry.")
         if not actions:
             actions.append("Continue to next constitutional stage.")
+
+        # APEX 5-Layer Stack Calculation
+        tokens = payload.get("tokens", payload.get("token_count", 50))
+        compute_ms = payload.get("compute_ms", 100)
+        compute_cost = float(tokens) + compute_ms / 10.0
+        
+        delta_s = float(payload.get("dS", payload.get("delta_s", -0.1)))
+        delta_s_reduction = abs(min(0.0, delta_s))
+        eta = delta_s_reduction / compute_cost if compute_cost > 0 else 0.0
+
+        # Create GeniusDial for math consistency
+        dial = GeniusDial(
+            A=float(payload.get("A", 0.95)),
+            P=float(payload.get("P", payload.get("peace2", 1.0))),
+            X=float(payload.get("X", 0.9)),
+            E=float(payload.get("E", 0.9)),
+            architecture=float(payload.get("architecture", 1.0)),
+            parameters=float(payload.get("parameters", 1.0)),
+            data_quality=float(payload.get("data_quality", 0.95)),
+            effort=float(payload.get("effort", 1.0)),
+            compute_cost=compute_cost,
+            entropy_reduction=delta_s_reduction
+        )
+
+        g_star = dial.G_star()
+        g_dagger = dial.G_dagger()
+        
+        h_before = float(payload.get("H_before", 1.0))
+        h_after = float(payload.get("H_after", max(0.0, h_before + delta_s)))
+
+        apex_output = {
+            "capacity_layer": {
+                "A": dial.A,
+                "P": dial.P,
+                "X": dial.X,
+                "capacity_product": round(dial.A * dial.P * dial.X, 4),
+            },
+            "effort_layer": {
+                "E": dial.E,
+                "effort_amplifier": round(dial.E ** 2, 4),
+                "reasoning_steps": payload.get("steps", 1),
+                "tool_calls": 1
+            },
+            "entropy_layer": {
+                "H_before": round(h_before, 4),
+                "H_after": round(h_after, 4),
+                "delta_S": round(delta_s, 4),
+            },
+            "efficiency_layer": {
+                "compute_cost": round(compute_cost, 4),
+                "entropy_removed": round(delta_s_reduction, 4),
+                "intelligence_efficiency": round(eta, 6),
+            },
+            "governed_intelligence": {
+                "G_star": round(g_star, 4),
+                "efficiency": round(eta, 6),
+                "governed_score": round(g_dagger, 6),
+            },
+            "governance_layer": {
+                "truth_floor": "fail" if "F2" in floors_failed else "pass",
+                "authority_status": "fail" if "F11" in floors_failed else "pass",
+                "sovereignty_status": "fail" if "F13" in floors_failed else "pass",
+                "tri_witness_status": "pass", # Default for utilities
+            },
+            "diagnostics": {
+                "logA": round(math.log(dial.A) if dial.A > 0 else 0, 4),
+                "logP": round(math.log(dial.P) if dial.P > 0 else 0, 4),
+                "logX": round(math.log(dial.X) if dial.X > 0 else 0, 4),
+                "2logE": round(2 * math.log(dial.E) if dial.E > 0 else 0, 4),
+                "logDeltaS": round(math.log(delta_s_reduction) if delta_s_reduction > 0 else 0, 4),
+                "logC": round(math.log(compute_cost) if compute_cost > 0 else 0, 4),
+                "failed_floors": floors_failed,
+            }
+        }
+
         return {
             "verdict": verdict,
             "stage": stage,
@@ -1347,6 +1470,7 @@ class EnvelopeBuilder:
             "next_actions": actions,
             "sabar_requirements": self._generate_sabar_requirements(verdict, payload),
             "payload": payload,
+            "apex_output": apex_output,
         }
 
 
@@ -1358,68 +1482,38 @@ envelope_builder = EnvelopeBuilder()
 
 
 @mcp.tool(
-    name="anchor_session",
-    description="[Lane: Δ Delta] [Floors: F11, F12, F13] Session ignition & injection defense.",
+    name="init_anchor_state",
+    description="[Lane: Δ Delta] [Floors: F11, F12, F13] Stage 000 bootstrap & injection defense.",
 )
-async def _init_session(
-    query: str,
-    actor_id: str = "anonymous",
+async def _init_anchor_state(
+    intent: dict[str, Any],
+    math: dict[str, Any] | None = None,
+    governance: dict[str, Any] | None = None,
     auth_token: str | None = None,
-    mode: str = "conscience",
-    grounding_required: bool = True,
-    debug: bool = False,
-    inject_kernel: bool = True,
-    compact_kernel: bool = False,
-    template_id: str = "arifos.full_context.v1",
-    auth_context: dict[str, Any] | None = None,
     session_id: str | None = None,
-    identity_bundle: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """
-    Initialize a new constitutional session with L0 Kernel enforcement.
-
-    Args:
-        query: User's initial query
-        actor_id: Authenticated actor identifier
-        auth_token: Optional authentication token
-        mode: Session mode (conscience, exploration, etc.)
-        grounding_required: Whether to require source grounding
-        debug: Include detailed internal data
-        inject_kernel: Inject L0 constitutional prompt (default: True)
-        compact_kernel: Use compact L0 prompt to save tokens (default: False)
-
-    Returns:
-        Session data with constitutional system prompt
+    Stage 000: Initialize a governed AI session shell.
     """
     try:
         if not session_id:
-            session_id = f"{actor_id}-{uuid.uuid4().hex[:8]}"
+            session_id = f"session-{uuid.uuid4().hex[:8]}"
 
-        # PKI Identity Verification
-        bound_identity = None
-        if identity_bundle:
-            try:
-                ident = ActorIdentity(**identity_bundle)
-                # If a signature is provided for the initial query, verify it
-                intent_sig = identity_bundle.get("initial_intent_signature")
-                if intent_sig:
-                    msg = f"anchor_session:{session_id}:{query}".encode()
-                    if not _verify_actor_signature(ident.public_key, intent_sig, msg):
-                        return _build_floor_block("000_INIT", "Invalid initial intent signature")
-                bound_identity = ident
-                actor_id = ident.actor_id
-            except Exception as e:
-                return _build_floor_block("000_INIT", f"Identity bundle malformed: {e}")
+        query = intent.get("query", "INIT")
+        actor_id = (governance or {}).get("actor_id", "anonymous")
 
         # Integrate with core SessionManager
-        session_manager.create_session(owner=actor_id, actor_identity=bound_identity)
+        session_manager.create_session(owner=actor_id)
 
         revoked = _revocation_reason(actor_id=actor_id, session_id=session_id)
         if revoked:
             return _revocation_void("000_INIT", session_id, revoked)
+
+        # Call kernel init (anchor)
         anch = await anchor(session_id=session_id, user_id=actor_id, context=query)
         effective_session = str(anch.get("session_id", session_id))
         verdict = str(anch.get("verdict", "SEAL"))
+
         initial_binding = {
             "actor_id": actor_id,
             "token_fingerprint": _token_fingerprint(auth_token),
@@ -1432,15 +1526,10 @@ async def _init_session(
             "verdict": verdict,
             "session_id": effective_session,
             "stage": "000_INIT",
-            "template_id": template_id,
-            "mode": mode,
-            "grounding_required": grounding_required,
-            "token_status": _token_status(auth_token),
-            "auth": {"present": bool(auth_token)},
             "auth_context": continuity_context,
-            "actor_identity": bound_identity.model_dump() if bound_identity else None,
-            "debug": debug,
-            "data": {"anchor": anch} if debug else {},
+            "intent": intent,
+            "math": math or {"akal": 0.6, "present": 0.8, "energy": 0.6, "exploration": 0.4},
+            "governance": governance or {"actor_id": actor_id, "stakes_class": "UNKNOWN"},
         }
 
         result.update(
@@ -1453,8 +1542,7 @@ async def _init_session(
         )
 
         # 🔥 CONSTITUTIONAL INJECTION: Embed L0 Kernel prompt
-        if inject_kernel:
-            result = inject_l0_into_session(result, compact=compact_kernel)
+        result = inject_l0_into_session(result, compact=False)
 
         return result
 
@@ -1462,6 +1550,25 @@ async def _init_session(
         return _fracture_response("000_INIT", e)
 
 
+@mcp.tool(
+    name="anchor_session",
+    description="[Compat] Stage 000 session bootstrap with query/actor_id inputs.",
+)
+async def _init_session(
+    query: str,
+    actor_id: str = "anonymous",
+    session_id: str | None = None,
+    auth_token: str | None = None,
+) -> dict[str, Any]:
+    return await _init_anchor_state(
+        intent={"query": query},
+        governance={"actor_id": actor_id},
+        auth_token=auth_token,
+        session_id=session_id,
+    )
+
+
+init_anchor_state = ToolHandle(_init_anchor_state)
 anchor_session = ToolHandle(_init_session)
 
 
@@ -1647,132 +1754,157 @@ async def _agi_cognition(
         return _fracture_response("111-444", e, session_id)
 
 
-reason_mind = ToolHandle(_agi_cognition)
-
-
 @mcp.tool(
-    name="vector_memory",
-    description="[Lane: Ω] [Floors: F3, F7] BBB Vector Memory (VM) – semantic retrieval (BGE + Qdrant). Searches constitutional corpus AND Google Drive (if synced). Domains: canon, manifesto, gdrive, all.",
+    name="integrate_analyze_reflect",
+    description="[Lane: Δ Delta] [Floors: F2, F4, F7] Stage 111 framing and problem decomposition.",
 )
-async def _phoenix_recall(
-    query: str,
+async def _integrate_analyze_reflect(
     session_id: str,
-    depth: int = 3,
-    domain: str = "canon",
-    debug: bool = False,
+    query: str,
+    auth_context: dict[str, Any],
+    max_subquestions: int = 3,
 ) -> dict[str, Any]:
     """
-    Organ 5: PHOENIX. Associative memory retrieval via EUREKA sieve.
+    Stage 111: Integrative analysis and problem framing.
     """
     try:
-        effective_query = query.strip()
-        effective_session = session_id.strip()
-
-        if not effective_query:
-            return _build_floor_block("555_RECALL", "Missing query")
-        if not effective_session:
-            return _build_floor_block("555_RECALL", "Missing session_id")
-
-        source_filter_map = {
-            "canon": "000_THEORY",
-            "manifesto": "APEX-THEORY",
-            "docs": "docs",
-            "gdrive": "gdrive",
-            "all": None,
-        }
-        source_filter = source_filter_map.get(domain, "000_THEORY")
-
-        contexts = []
-        gdrive_results = []
-
-        # Search constitutional corpus (unless gdrive-only)
-        if domain != "gdrive":
-            try:
-                rag = _ensure_rag()
-                contexts = rag.retrieve(
-                    query=effective_query,
-                    top_k=max(1, min(int(depth), 10)),
-                    source_filter=source_filter,
-                    min_score=0.15,
-                )
-            except Exception:
-                contexts = []
-
-        # Search Google Drive (if domain is "all", "gdrive", or "docs")
-        if domain in ("all", "gdrive", "docs"):
-            try:
-                from arifosmcp.transport.unified_memory import get_unified_memory
-
-                unified = get_unified_memory()
-                gdrive_results = unified.search_gdrive(effective_query, top_k=min(int(depth), 5))
-                # Convert to same format as contexts
-                for r in gdrive_results:
-                    contexts.append(
-                        type(
-                            "obj",
-                            (object,),
-                            {
-                                "source": "gdrive",
-                                "path": r.path,
-                                "content": r.content,
-                                "score": r.score,
-                                "metadata": r.metadata,
-                            },
-                        )()
-                    )
-            except Exception:
-                pass
-
-        result_state = "MATCH_FOUND" if contexts else "NO_MATCHES"
-        jaccard_max = (
-            max([ctx.metadata.get("jaccard_score", 0.0) for ctx in contexts]) if contexts else 0.0
+        continuity_binding, continuity_error = _enforce_auth_continuity(
+            tool_name="integrate_analyze_reflect",
+            stage="111_FRAMING",
+            session_id=session_id,
+            actor_id="anonymous",
+            auth_token=None,
+            auth_context=auth_context,
+            critical=False,
         )
+        if continuity_error:
+            return continuity_error
 
-        # Build BGE metrics
-        metrics = {
-            "memory_count": len(contexts),
-            "similarity_max": round(jaccard_max, 4),
-            "bge_available": BGE_AVAILABLE,
-            "bge_used": BGE_AVAILABLE and len(contexts) > 0,
-            "embedding_dims": 768 if BGE_AVAILABLE else None,
-            "semantic_search_active": BGE_AVAILABLE and len(contexts) > 0,
-            "delta_s_actual": 0.0,
-            "w_scar_applied": 0.5,
-        }
-
+        r = await reason(session_id=session_id, hypothesis=query, action="framing")
+        verdict = str(r.get("verdict", "SEAL"))
         result = {
-            "status": "RECALL_SUCCESS",
-            "result_state": result_state,
-            "memories": [
-                {
-                    "source": f"{ctx.source}/{ctx.path}",
-                    "score": round(ctx.score, 4),
-                    "content": ctx.content[:800],
-                    "metadata": ctx.metadata,
-                }
-                for ctx in contexts
-            ],
-            "domain": domain,
-            "metrics": metrics,
+            "verdict": verdict,
+            "session_id": session_id,
+            "stage": "111_FRAMING",
+            "framing": r.get("framing", {}),
+            "sub_questions": r.get("sub_questions", [])[:max_subquestions],
         }
         result.update(
             envelope_builder.build_envelope(
-                stage="555_RECALL",
-                session_id=effective_session,
-                verdict="SEAL",  # Normal search success even if 0 results
-                payload={
-                    "memory_count": len(contexts),
-                    "domain": domain,
-                    "result_state": result_state,
-                },
+                stage="111_FRAMING", session_id=session_id, verdict=verdict, payload=r
             )
         )
+        if continuity_binding:
+            result["auth_context"] = _rotate_auth_context(session_id, continuity_binding)
         return result
     except Exception as e:
-        return _fracture_response("555_RECALL", e, effective_session)
+        return _fracture_response("111_FRAMING", e, session_id)
 
 
-vector_memory = ToolHandle(_phoenix_recall)
+integrate_analyze_reflect = ToolHandle(_integrate_analyze_reflect)
+
+
+@mcp.tool(
+    name="reason_mind_synthesis",
+    description="[Lane: Δ Delta] [Floors: F2, F4, F7, F8] Stage 333 AGI cognition & Eureka synthesis.",
+)
+async def _reason_mind_synthesis(
+    session_id: str,
+    query: str,
+    auth_context: dict[str, Any] | None = None,
+    reason_mode: str = "default",
+    max_steps: int = 7,
+) -> dict[str, Any]:
+    """
+    Stage 333: Multi-step reasoning and Eureka synthesis.
+    """
+    return await _agi_cognition(
+        query=query,
+        session_id=session_id,
+        auth_context=auth_context,
+        risk_mode=reason_mode,
+        inference_budget=max_steps // 4,
+    )
+
+
+reason_mind_synthesis = ToolHandle(_reason_mind_synthesis)
+reason_mind = reason_mind_synthesis
+
+
+@mcp.tool(
+    name="vector_memory_store",
+    description="[Lane: Ω] [Floors: F3, F7] BBB Vector Memory – semantic storage and retrieval.",
+)
+async def _vector_memory_store(
+    ctx: Context,
+    session_id: str,
+    operation: str,
+    auth_context: dict[str, Any],
+    content: str | None = None,
+    memory_ids: list[str] | None = None,
+    top_k: int = 5,
+) -> ToolResult:
+    """
+    Stage 555: BBB Associative vector memory.
+    """
+    try:
+        effective_query = content or ""
+        effective_session = session_id.strip()
+
+        if not effective_session:
+            error_env = _build_floor_block("555_RECALL", "Missing session_id")
+            return ToolResult(content=[{"type": "text", "text": json.dumps(error_env, indent=2)}])
+
+        contexts = []
+        try:
+            rag = _ensure_rag()
+            contexts = rag.retrieve(
+                query=effective_query,
+                top_k=max(1, min(int(top_k), 10)),
+                min_score=0.15,
+            )
+        except Exception:
+            contexts = []
+
+        mem_data = [
+            {
+                "source": f"{ctx.source}/{ctx.path}",
+                "score": round(ctx.score, 4),
+                "preview": ctx.content[:200] + "...",
+            }
+            for ctx in contexts
+        ]
+
+        envelope = envelope_builder.build_envelope(
+            stage="555_RECALL",
+            session_id=effective_session,
+            verdict="SEAL",
+            payload={"memory_count": len(contexts), "memories": mem_data},
+        )
+
+        if PREFAB_AVAILABLE and ctx.client_supports_extension(UI_EXTENSION_ID) and mem_data:
+            with Column(gap=4) as view:
+                Heading("Associative Memory Recall", level=2)
+                Text(f"Retrieved {len(mem_data)} high-affinity vectors for session {effective_session}.")
+                
+                with DataTable(data=mem_data) as table:
+                    DataTableColumn("score", label="Affinity")
+                    DataTableColumn("source", label="Source")
+                    DataTableColumn("preview", label="Snippet")
+
+            return ToolResult(
+                content=[{"type": "text", "text": json.dumps(envelope, indent=2)}],
+                structured_content=PrefabApp(view=view),
+            )
+
+        return ToolResult(content=[{"type": "text", "text": json.dumps(envelope, indent=2)}])
+    except Exception as e:
+        error_res = _fracture_response("555_RECALL", e, session_id)
+        return ToolResult(content=[{"type": "text", "text": json.dumps(error_res, indent=2)}])
+
+
+vector_memory_store = ToolHandle(_vector_memory_store)
+vector_memory = vector_memory_store
 
 
 async def _phoenix_recall_deprecated(
@@ -1865,11 +1997,16 @@ async def _asi_empathy(
         return _fracture_response("555-666", e, session_id)
 
 
-simulate_heart = ToolHandle(_asi_empathy)
+# Backward-compat alias used by older e2e/tool names
+_assess_heart_impact = _asi_empathy
+assess_heart_impact = ToolHandle(_assess_heart_impact)
+simulate_heart = assess_heart_impact
 
 
 @mcp.tool(
-    name="apex_judge", description="[Lane: Ψ Psi] [Floors: F1-F13] Sovereign verdict synthesis."
+    name="apex_judge",
+    description="[Lane: Ψ Psi] [Floors: F1-F13] Sovereign verdict synthesis.",
+    app=AppConfig(resource_uri=APEX_DASHBOARD_URI),
 )
 async def _apex_verdict(
     session_id: str,
@@ -2072,97 +2209,173 @@ judge_soul = apex_judge
 
 
 @mcp.tool(
-    name="metabolic_loop",
-    description="[Lane: Δ Delta] [Floors: F1-F13] The arifOS Sovereign Kernel loop. Mandatory safety wrapper before any material state mutation.",
+    name="open_apex_dashboard",
+    description="[Lane: Ψ Psi] Open the APEX Sovereign Dashboard for intelligence observability.",
+    app=AppConfig(resource_uri=APEX_DASHBOARD_URI),
 )
-async def _metabolic_loop(
+async def _open_dashboard() -> str:
+    """Open the APEX Sovereign Dashboard."""
+    return "APEX Dashboard ready. See interactive UI."
+
+
+open_apex_dashboard = ToolHandle(_open_dashboard)
+
+
+@mcp.tool(
+    name="metabolic_loop_router",
+    description="[Lane: Δ Delta] [Floors: F1-F13] The arifOS Sovereign Kernel loop router.",
+)
+async def _metabolic_loop_router(
     query: str,
-    risktier: str = "high",
-    actor_id: str = "antigravity-agent",
-    proposed_verdict: str = "SEAL",
+    context: str = "",
+    risk_tier: str = "medium",
+    actor_id: str = "anonymous",
+    use_memory: bool = True,
+    use_heart: bool = True,
+    use_critique: bool = True,
+    allow_execution: bool = False,
+    debug: bool = False,
 ) -> dict[str, Any]:
     """
-    Execute the full 000-999 metabolic pipeline for Antigravity alignment.
-    Forces agents to clear F1-F13 floors before executing terminal/file mutations.
+    Stage 444: Governed metabolic loop orchestrator.
     """
+    trace = {}
     try:
-        # 1. Anchor (000_INIT)
-        anchor_res = await _init_session(query=query, actor_id=actor_id)
+        # 1. 000_BOOT: Anchor
+        anchor_payload = {
+            "intent": {
+                "query": query,
+                "task_type": "execute" if allow_execution else "ask",
+                "reversibility": "irreversible" if risk_tier == "high" else "reversible",
+            },
+            "governance": {
+                "actor_id": actor_id,
+                "stakes_class": "A" if risk_tier == "high" else "C",
+            },
+        }
+        anchor_res = await init_anchor_state(**anchor_payload)
+        trace["000_INIT"] = anchor_res.get("verdict")
         if anchor_res.get("verdict") == "VOID":
-            return {"verdict": "VOID", "stage": "000_INIT", "details": anchor_res}
+            return {"verdict": "VOID", "stage": "000_INIT", "trace": trace, "details": anchor_res}
 
-        session_id = anchor_res.get("session_id", "unknown")
-        current_auth_context = (
-            anchor_res.get("auth_context") if isinstance(anchor_res, dict) else None
+        session_id = anchor_res.get("session_id")
+        auth_ctx = anchor_res.get("auth_context")
+
+        # 2. 111_FRAMING: Integrate/Analyze/Reflect
+        frame_res = await integrate_analyze_reflect(
+            session_id=session_id, query=query, auth_context=auth_ctx
         )
+        trace["111_FRAMING"] = frame_res.get("verdict")
+        auth_ctx = frame_res.get("auth_context")
 
-        # 2. Reason (111-444_MIND)
-        mind_res = await _agi_cognition(
-            query=query,
-            session_id=session_id,
-            actor_id=actor_id,
-            auth_context=current_auth_context if isinstance(current_auth_context, dict) else None,
+        # 3. 333_REASON: Mind Synthesis
+        mind_res = await reason_mind_synthesis(
+            session_id=session_id, query=query, auth_context=auth_ctx
         )
-        if mind_res.get("verdict") == "VOID":
-            return {"verdict": "VOID", "stage": "111-444_MIND", "details": mind_res}
-        current_auth_context = mind_res.get("auth_context") if isinstance(mind_res, dict) else None
+        trace["333_MIND"] = mind_res.get("verdict")
+        auth_ctx = mind_res.get("auth_context")
 
-        # 3. Empathy (555-666_HEART)
-        heart_res = await _asi_empathy(
-            query=query,
-            session_id=session_id,
-            actor_id=actor_id,
-            auth_context=current_auth_context if isinstance(current_auth_context, dict) else None,
+        # 4. 666_AUDIT: Heart + Critique
+        heart_res = {"verdict": "SEAL"}
+        if use_heart:
+            heart_res = await assess_heart_impact(
+                session_id=session_id, scenario=query, auth_context=auth_ctx
+            )
+            trace["666_HEART"] = heart_res.get("verdict")
+            auth_ctx = heart_res.get("auth_context")
+
+        critique_res = {"verdict": "SEAL"}
+        if use_critique:
+            critique_res = await critique_thought_audit(
+                session_id=session_id, thought_id="final_mind_answer", auth_context=auth_ctx
+            )
+            trace["666_CRITIQUE"] = critique_res.get("verdict")
+            auth_ctx = critique_res.get("auth_context")
+
+        # 5. 777_FORGE: Discovery
+        forge_res = await quantum_eureka_forge(
+            session_id=session_id, intent=query, auth_context=auth_ctx
         )
-        if heart_res.get("verdict") == "VOID":
-            return {"verdict": "VOID", "stage": "555-666_HEART", "details": heart_res}
-        current_auth_context = (
-            heart_res.get("auth_context") if isinstance(heart_res, dict) else None
+        trace["777_FORGE"] = forge_res.get("verdict")
+        auth_ctx = forge_res.get("auth_context")
+
+        # 6. 888_JUDGE: Final Verdict
+        candidate_verdicts = [
+            anchor_res.get("verdict"),
+            frame_res.get("verdict"),
+            mind_res.get("verdict"),
+            heart_res.get("verdict"),
+            critique_res.get("verdict"),
+        ]
+
+        if "VOID" in candidate_verdicts:
+            final_candidate = "VOID"
+        elif "888_HOLD" in candidate_verdicts:
+            final_candidate = "888_HOLD"
+        elif "SABAR" in candidate_verdicts:
+            final_candidate = "SABAR"
+        else:
+            final_candidate = "SEAL"
+
+        judge_res = await apex_judge_verdict(
+            session_id=session_id, verdict_candidate=final_candidate, auth_context=auth_ctx
         )
+        verdict = judge_res.get("verdict")
+        trace["888_JUDGE"] = verdict
+        auth_ctx = judge_res.get("auth_context")
 
-        # 4. Judge (777-888_SOUL)
-        # For risktier="high", we default to 888_HOLD unless overridden.
-        human_approve = False
-        if risktier.lower() == "high":
-            proposed_verdict = "888_HOLD"
-
-        judge_res = await _apex_verdict(
-            session_id=session_id,
-            query=query,
-            agi_result=mind_res,
-            asi_result=heart_res,
-            proposed_verdict=proposed_verdict,
-            human_approve=human_approve,
-            actor_id=actor_id,
-            auth_context=current_auth_context if isinstance(current_auth_context, dict) else None,
+        # 7. 999_SEAL: Vault commit
+        seal_res = await seal_vault_commit(
+            session_id=session_id, verdict=verdict, auth_context=auth_ctx
         )
-
-        verdict = str(judge_res.get("verdict", "VOID"))
+        trace["999_VAULT"] = seal_res.get("verdict")
 
         return {
             "verdict": verdict,
             "session_id": session_id,
-            "risktier": risktier,
-            "governance_token": judge_res.get("governance_token"),
-            "next_actions": judge_res.get("next_actions", []),
-            "floors_state": judge_res.get("floors", {}),
+            "trace": trace,
             "summary": f"Metabolic loop completed with verdict: {verdict}",
-            "guidance": "If verdict is 888_HOLD, use notify_user to request human approval. If SEAL, proceed with executing the command. If VOID or SABAR, halt execution immediately.",
-            "trace": {
-                "000_INIT": anchor_res.get("verdict"),
-                "111-444_MIND": mind_res.get("verdict"),
-                "555-666_HEART": heart_res.get("verdict"),
-                "777-888_SOUL": verdict,
-            },
+            "ledger_id": seal_res.get("payload", {}).get("ledger_id"),
+            "next_actions": judge_res.get("payload", {}).get("next_actions", []),
+            "floors_state": judge_res.get("floors", {}),
         }
 
     except Exception as e:
-        return _fracture_response("METABOLIC_LOOP", e)
+        return _fracture_response("METABOLIC_LOOP_ROUTER", e)
 
 
-metabolic_loop = ToolHandle(_metabolic_loop)
-# Backward-compat alias for legacy callers (non-canonical).
-metabolicloop = metabolic_loop
+metabolic_loop_router = ToolHandle(_metabolic_loop_router)
+metabolic_loop = metabolic_loop_router
+metabolicloop = metabolic_loop_router
+
+
+@mcp.tool(
+    name="quantum_eureka_forge",
+    description="[Lane: Ψ Psi] [Floors: F5, F6, F7, F9] Stage 777 discovery actuator.",
+)
+async def _quantum_eureka_forge(
+    session_id: str,
+    intent: str,
+    auth_context: dict[str, Any],
+    eureka_type: str = "concept",
+    materiality: str = "idea_only",
+) -> dict[str, Any]:
+    """
+    Stage 777: Sandboxed discovery actuator (Eureka Forge).
+    """
+    # Map intent to a shell command for legacy Forge logic
+    command = f"echo 'Forging {eureka_type} for: {intent}'"
+
+    return await _sovereign_actuator(
+        session_id=session_id,
+        command=command,
+        purpose=f"Quantum Eureka Forge: {eureka_type}",
+        auth_context=auth_context,
+    )
+
+
+quantum_eureka_forge = ToolHandle(_quantum_eureka_forge)
+eureka_forge = quantum_eureka_forge
 
 
 @mcp.tool(
@@ -2613,34 +2826,15 @@ seal_vault = ToolHandle(_vault_seal)
     description="[Lane: Δ Delta] [Floors: F2, F3, F4, F12] Web grounding via smart hybrid routing (Jina/Headless/Perplexity/Brave) with F3 consensus merge.",
 )
 async def _search(
+    ctx: Context,
     query: str,
     intent: str = "general",
     session_id: str = "",
     force_source: str = "auto",  # auto, headless, jina, perplexity, brave, all
     min_content_quality: float = 0.5,  # Threshold for content acceptance
-) -> dict[str, Any]:
+) -> ToolResult:
     """
     search_reality — External Evidence Discovery with Smart Hybrid Routing
-
-    Architecture (SMART HYBRID — No Empty Returns):
-    - ROUTER: Analyzes query to select optimal primary source
-    - TIER 1 (Fast APIs): Jina Reader → Perplexity → Brave
-    - TIER 2 (DOM Render): Headless Browser for JS-heavy content
-    - MERGE: F3 Tri-Witness consensus when sources disagree
-    - GUARANTEE: Always returns meaningful reality (never empty)
-
-    Smart Routing Rules:
-    - SPAs/JS sites (github.io, vercel.app) → Headless PRIMARY
-    - News/docs (clean markup) → Jina PRIMARY
-    - Research/deep queries → Perplexity PRIMARY
-    - General discovery → Brave PRIMARY
-    - Low content quality → Auto-fallback to next tier
-
-    Constitutional Guarantees:
-    - F2 Truth: Multi-source verification, content hashing
-    - F3 Tri-Witness: Consensus scoring across sources
-    - F4 Clarity: Cleanest source selected by entropy reduction
-    - F12 Defense: All external content F12-enveloped
     """
     from datetime import datetime, timezone
 
@@ -2901,7 +3095,7 @@ async def _search(
     # Build comprehensive response
     elapsed_ms = int((datetime.now(timezone.utc) - start_time).total_seconds() * 1000)
 
-    response = {
+    envelope = {
         "query": query,
         "intent": intent,
         "query_type": query_type,
@@ -2921,14 +3115,30 @@ async def _search(
         "taint_lineage": final.get("taint_lineage", {"source": "search_reality"}),
     }
 
-    # Backward-compat: legacy callers expect `ids` for follow-up fetch_content calls.
-    response["ids"] = [r.get("url") for r in response["results"] if r.get("url")]
+    if PREFAB_AVAILABLE and ctx.client_supports_extension(UI_EXTENSION_ID) and envelope["results"]:
+        with Column(gap=4) as view:
+            Heading(f"Reality Grounding: {query}", level=2)
+            Text(f"Primary source: {envelope['primary_source'].upper()} ({elapsed_ms}ms)")
+            
+            table_data = []
+            for r in envelope["results"]:
+                table_data.append({
+                    "title": r.get("title", "No Title"),
+                    "url": r.get("url", ""),
+                    "snippet": (r.get("content") or r.get("description", ""))[:150] + "..."
+                })
+            
+            with DataTable(data=table_data) as table:
+                DataTableColumn("title", label="Source Title")
+                DataTableColumn("url", label="URL")
+                DataTableColumn("snippet", label="Snippet")
 
-    # Include alternative views if consensus was low
-    if "alternative_results" in final:
-        response["alternative_views"] = final["alternative_results"]
+        return ToolResult(
+            content=[{"type": "text", "text": json.dumps(envelope, indent=2)}],
+            structured_content=PrefabApp(view=view),
+        )
 
-    return response
+    return ToolResult(content=[{"type": "text", "text": json.dumps(envelope, indent=2)}])
 
 
 search_reality = ToolHandle(_search)
@@ -3083,34 +3293,61 @@ async def _analyze(data: dict[str, Any], analysis_type: str = "structure") -> di
     description="[Lane: Δ Delta] [Floors: F2, F8, F10] Rule & governance audit checks.",
 )
 async def _system_audit(
+    ctx: Context,
     audit_scope: str = "quick",
     verify_floors: bool = True,
     session_id: str | None = None,
-) -> dict[str, Any]:
+) -> ToolResult:
     try:
         details: dict[str, Any] = {"scope": audit_scope}
+        floor_data = []
         if verify_floors:
             try:
-                from arifosmcp.transport.core.constitutional_decorator import FLOOR_ENFORCEMENT
+                from core.shared.floors import FLOOR_SPEC_KEYS, get_floor_spec
 
-                details["floors_loaded"] = bool(FLOOR_ENFORCEMENT)
-                details["floor_tool_count"] = len(FLOOR_ENFORCEMENT)
+                details["floors_loaded"] = True
+                details["floor_tool_count"] = len(FLOOR_SPEC_KEYS)
+                
+                for fid in FLOOR_SPEC_KEYS:
+                    spec = get_floor_spec(fid)
+                    floor_data.append({
+                        "id": fid,
+                        "name": spec.get("name", "Unknown"),
+                        "status": "active",
+                        "severity": spec.get("severity", "HARD")
+                    })
             except Exception as e:
                 details["floors_loaded"] = False
                 details["floor_error"] = str(e)
-        result = {
-            "verdict": "SEAL" if details.get("floors_loaded", True) else "PARTIAL",
-            "scope": audit_scope,
-            "details": details,
-        }
-        if session_id:
-            result["session_id"] = session_id
-        return result
+
+        envelope = envelope_builder.build_envelope(
+            stage="GOV_AUDIT",
+            session_id=session_id or "audit-only",
+            verdict="SEAL" if details.get("floors_loaded", True) else "PARTIAL",
+            payload={"scope": audit_scope, "details": details, "floors": floor_data},
+        )
+
+        if PREFAB_AVAILABLE and ctx.client_supports_extension(UI_EXTENSION_ID) and floor_data:
+            with Column(gap=4) as view:
+                Heading(f"Constitutional Audit: {audit_scope.upper()}", level=2)
+                Text("Verification of the 13 Constitutional Floors and governance invariants.")
+                
+                with DataTable(data=floor_data) as table:
+                    DataTableColumn("id", label="Floor ID")
+                    DataTableColumn("name", label="Floor Name")
+                    DataTableColumn("severity", label="Severity")
+                    DataTableColumn("status", label="Status")
+
+            return ToolResult(
+                content=[{"type": "text", "text": json.dumps(envelope, indent=2)}],
+                structured_content=PrefabApp(view=view),
+            )
+
+        return ToolResult(content=[{"type": "text", "text": json.dumps(envelope, indent=2)}])
+
     except Exception as e:
-        error_result = {"verdict": "VOID", "error": str(e), "scope": audit_scope}
-        if session_id:
-            error_result["session_id"] = session_id
-        return error_result
+        error_env = {"verdict": "VOID", "error": str(e), "scope": audit_scope}
+        return ToolResult(content=[{"type": "text", "text": json.dumps(error_env, indent=2)}])
 
 
 audit_rules = ToolHandle(_system_audit)
@@ -3219,22 +3456,57 @@ inspect_file = ToolHandle(_inspect_file)
     description="[Lane: Ω Omega] [Floors: F4, F5, F7] System health & vital signs.",
 )
 async def _check_vital(
+    ctx: Context,
     session_id: str,
     include_swap: bool = True,
     include_io: bool = False,
     include_temp: bool = False,
-) -> dict[str, Any]:
+) -> ToolResult:
     payload = get_system_health(
         include_swap=include_swap,
         include_io=include_io,
         include_temp=include_temp,
     )
-    return envelope_builder.build_envelope(
+    envelope = envelope_builder.build_envelope(
         stage="555_HEALTH",
         session_id=session_id,
         verdict="SEAL",
         payload=payload,
     )
+
+    if PREFAB_AVAILABLE and ctx.client_supports_extension(UI_EXTENSION_ID):
+        cpu = payload.get("cpu", {})
+        mem = payload.get("memory", {})
+        
+        with Column(gap=4) as view:
+            Heading("arifOS System Vitals", level=2)
+            with Row(gap=4):
+                Metric(
+                    label="CPU Load",
+                    value=f"{cpu.get('percent', 0)}%",
+                    description=f"{cpu.get('cores', 0)} Cores active",
+                )
+                Metric(
+                    label="Memory Use",
+                    value=f"{mem.get('percent', 0)}%",
+                    description=f"{round(mem.get('used_gb', 0), 1)} / {round(mem.get('total_gb', 0), 1)} GB",
+                )
+            
+            with Row(gap=4):
+                with Card():
+                    with CardHeader():
+                        CardTitle("Process Integrity")
+                    with CardContent():
+                        Text(f"Platform: {payload.get('platform', 'unknown')}")
+                        Text(f"Uptime: {round(payload.get('uptime_hours', 0), 2)} hours")
+                        Badge("System Nominal", color="success") if cpu.get('percent', 0) < 80 else Badge("High Load", color="warning")
+
+        return ToolResult(
+            content=[{"type": "text", "text": json.dumps(envelope, indent=2)}],
+            structured_content=PrefabApp(view=view),
+        )
+
+    return ToolResult(content=[{"type": "text", "text": json.dumps(envelope, indent=2)}])
 
 
 check_vital = ToolHandle(_check_vital)
@@ -3423,6 +3695,26 @@ def _ensure_rag() -> Any:
 
     _rag_instance = ConstitutionalRAG()
     return _rag_instance
+
+
+# Backward-compat mirror for legacy tests expecting `mcp._tools`.
+# FastMCP no longer exposes this private field in newer versions.
+if not hasattr(mcp, "_tools"):
+    mcp._tools = {
+        "anchor_session": anchor_session,
+        "reason_mind": reason_mind,
+        "vector_memory": vector_memory,
+        "simulate_heart": simulate_heart,
+        "critique_thought": critique_thought,
+        "apex_judge": apex_judge,
+        "eureka_forge": eureka_forge,
+        "seal_vault": seal_vault,
+        "search_reality": search_reality,
+        "ingest_evidence": ingest_evidence,
+        "audit_rules": audit_rules,
+        "check_vital": check_vital,
+        "metabolic_loop": metabolic_loop,
+    }
 
 
 __all__ = [

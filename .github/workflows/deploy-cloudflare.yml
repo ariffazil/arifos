@@ -8,6 +8,7 @@ on:
       - 'scripts/run_evals.py'
       - 'tests/mcp_live/golden/**'
       - 'arifosmcp.intelligence/core/eval/**'
+      - 'arifosmcp/sites/**'
       - '.github/workflows/deploy-cloudflare.yml'
   workflow_dispatch:
   schedule:

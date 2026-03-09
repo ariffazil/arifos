@@ -11,6 +11,7 @@ from arifosmcp.transport.services.constitutional_metrics import (
 # Import precedent memory (F8 Genius - institutional memory)
 try:
     from arifosmcp.transport.vault.precedent_memory import embed_vault_entry
+
     PRECEDENT_MEMORY_AVAILABLE = True
 except ImportError:
     PRECEDENT_MEMORY_AVAILABLE = False
@@ -29,7 +30,7 @@ async def vault_seal(
 
     Persists the final decision and payload to the session ledger.
     Optionally embeds governance explanation to precedent memory (F8 Genius).
-    
+
     Args:
         session_id: Constitutional session identifier
         verdict: Final verdict (SEAL, VOID, SABAR, 888_HOLD, PARTIAL)

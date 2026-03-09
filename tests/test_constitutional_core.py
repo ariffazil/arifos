@@ -263,6 +263,48 @@ class TestPhysicsGenius:
         score = genius_score(A=0.9, P=0.9, X=0.9, E=0.9)
         assert 0.0 < score <= 1.0
 
+    def test_apex_g_star(self):
+        from core.shared.physics import GeniusDial
+
+        dial = GeniusDial(
+            A=0.9,
+            P=0.9,
+            X=0.9,
+            E=0.9,
+            architecture=1.1,
+            parameters=1.2,
+            data_quality=0.9,
+            effort=2.0,
+        )
+        # G* = architecture * parameters * data_quality * effort^2
+        # G* = 1.1 * 1.2 * 0.9 * 2.0^2 = 1.188 * 4 = 4.752
+        assert dial.G_star() == pytest.approx(4.752)
+
+    def test_apex_g_dagger(self):
+        from core.shared.physics import GeniusDial, G_dagger
+
+        dial = GeniusDial(
+            A=0.9,
+            P=0.9,
+            X=0.9,
+            E=0.9,
+            architecture=1.0,
+            parameters=1.0,
+            data_quality=1.0,
+            effort=1.0,
+            compute_cost=100,
+            entropy_reduction=0.5,
+        )
+        # G* = 1 * 1 * 1 * 1^2 = 1.0
+        # eta = 0.5 / 100 = 0.005
+        # G_dagger = 1.0 * 0.005 = 0.005
+        assert dial.G_dagger() == pytest.approx(0.005)
+
+        # test standalone G_dagger function
+        score = G_dagger(G_star=10.0, entropy_reduction=0.2, compute_cost=50)
+        # eta = 0.2 / 50 = 0.004. G_dagger = 10 * 0.004 = 0.04
+        assert score == pytest.approx(0.04)
+
 
 class TestPhysicsEmpathy:
     def test_stakeholder_creation(self):

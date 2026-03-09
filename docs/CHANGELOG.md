@@ -5,6 +5,35 @@ All changes follow [T000 versioning](T000_VERSIONING.md): `YYYY.MM.DD-PHASE-STAT
 
 ---
 
+## [2026.3.8-APEX-METRICS-HARDENING-SEAL] — 2026-03-08 — APEX-METRICS-HARDENING-SEAL
+
+**T000:** 2026.03.08-APEX-METRICS-HARDENING-SEAL  
+**Theme:** APEX thermodynamic math hardening, dashboard runtime recovery, and deployment truth alignment
+
+### Changed
+- **`ThermoSnapshot.compute()`** (`arifosmcp/intelligence/core/thermo_budget.py`):
+  - entropy removal is now capped to `H_before - H_after` instead of `abs(delta_s)`
+  - `eta`, `G_dagger`, and `entropy_layer.delta_S` now remain bounded by the configured entropy baseline
+- **APEX dashboard live path** (`arifosmcp/sites/apex-dashboard/index.html`):
+  - live polling now sends `POST` requests with a `SystemCall` body instead of a bare `GET`
+  - dashboard payloads are normalized so both `apex_output` envelopes and legacy `telemetry` envelopes can render
+  - runtime display now reads canonical thermo fields (`G_dagger`, `eta`, `C`) rather than stale aliases (`governed_score`, `intelligence_efficiency`)
+
+### Fixed
+- **Dashboard boot failure:** inline JSX now uses the CSS variable string form `var(--dim)` correctly
+- **Live APEX rendering:** real thermo payloads no longer crash the page on missing legacy field names
+- **Thermodynamic overcounting:** sessions can no longer claim more entropy removal than the entropy baseline physically permits
+
+### Docs
+- `DEPLOY.md` now distinguishes the canonical public runtime server from the internal-only intelligence bridge used by standalone APEX dashboard live polling
+- deployment examples now include the required `POST /mcp/anchor` and `POST /mcp/reason` `SystemCall` payload shape for operators who enable the bridge locally
+
+### Verification
+- `pytest tests/aclip_cai/test_thermo.py -q` -> pass
+- `pytest tests/core/test_outputs.py -q` -> pass
+
+---
+
 ## [2026.3.7-QUADWITNESS-SEAL] — 2026-03-07 — QUAD-WITNESS-BFT-P0-IMPLEMENTATION-SEAL
 
 **T000:** 2026.03.07-QUADWITNESS-SEAL  

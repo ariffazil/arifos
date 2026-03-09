@@ -9,7 +9,11 @@ from __future__ import annotations
 import ast
 from pathlib import Path
 
-from arifosmcp.transport.protocol.aaa_contract import AAA_CANONICAL_TOOLS, AAA_TOOL_ALIASES, ARCHIVED_TOOLS
+from arifosmcp.transport.protocol.aaa_contract import (
+    AAA_CANONICAL_TOOLS,
+    AAA_TOOL_ALIASES,
+    ARCHIVED_TOOLS,
+)
 
 ROOT = Path(__file__).resolve().parents[2]
 SERVER_FILE = ROOT / "arifosmcp.runtime" / "server.py"

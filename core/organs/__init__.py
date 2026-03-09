@@ -41,7 +41,7 @@ from ._0_init import (
 from ._1_agi import agi, reason, sense, think
 from ._2_asi import align, asi, empathize
 from ._3_apex import apex, forge, judge, sync
-from ._4_vault import SealReceipt, seal, vault
+from ._4_vault import SealRecord, seal, vault
 
 # Humanized aliases
 anchor = init
@@ -79,7 +79,7 @@ __all__ = [
     # Types
     "InitOutput",
     "AuthorityLevel",
-    "SealReceipt",
+    "SealRecord",
     "validate_token",
     "get_authority_name",
 ]

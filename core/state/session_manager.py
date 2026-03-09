@@ -48,7 +48,9 @@ class SessionManager:
         F11: Establishes a unique authority boundary.
         """
         session_id = str(uuid.uuid4())
-        metadata = SessionMetadata(session_id=session_id, owner=owner, actor_identity=actor_identity)
+        metadata = SessionMetadata(
+            session_id=session_id, owner=owner, actor_identity=actor_identity
+        )
 
         # Initialize the Kernel for this session
         kernel = GovernanceKernel(decision_owner=owner, session_id=session_id)

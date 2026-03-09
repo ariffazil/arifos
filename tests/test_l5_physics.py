@@ -6,11 +6,7 @@ from pathlib import Path
 import pytest
 
 _L5_PHYSICS_PATH = (
-    Path(__file__).resolve().parents[1]
-    / "333_APPS"
-    / "L5_AGENTS"
-    / "environment"
-    / "physics.py"
+    Path(__file__).resolve().parents[1] / "333_APPS" / "L5_AGENTS" / "environment" / "physics.py"
 )
 _L5_MISSING = not _L5_PHYSICS_PATH.exists()
 

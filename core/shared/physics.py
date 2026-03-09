@@ -16,12 +16,11 @@ All functions are pure, deterministic, and thermodynamically grounded.
 DITEMPA BUKAN DIBERI — Forged, Not Given
 """
 
-from __future__ import annotations
-
 import math
 import statistics
 from collections.abc import Sequence
 from dataclasses import dataclass, field
+from typing import Any
 
 # =============================================================================
 # CONSTANTS — Thermodynamic Environment
@@ -46,7 +45,9 @@ class Stakeholder:
 
     def __post_init__(self):
         # Clamp values to [0, 1]
-        object.__setattr__(self, "vulnerability_score", max(0.0, min(1.0, self.vulnerability_score)))
+        object.__setattr__(
+            self, "vulnerability_score", max(0.0, min(1.0, self.vulnerability_score))
+        )
 
 
 # Distress signals for empathy calculation
@@ -396,7 +397,9 @@ def W_3_from_tensor(tensor: Any) -> float:
     return geometric_mean([tensor.H, tensor.A, e_val])
 
 
-def W_3_check(H: float, A: float, E: float | None = None, threshold: float = 0.95, S: float | None = None) -> bool:
+def W_3_check(
+    H: float, A: float, E: float | None = None, threshold: float = 0.95, S: float | None = None
+) -> bool:
     """DEPRECATED: Use W_4_check."""
     return W_3(H, A, E=E, S=S) >= threshold
 
@@ -677,6 +680,11 @@ class GeniusDial:
     E (Energy): Efficiency [0, 1] (Squared power)
     h (Hysteresis): Penalty for previous failures [0, 1]
 
+    APEX Theorem Extension (G† = G* · η):
+    G* (Potential): A × P × X × E²
+    η (Efficiency): ΔS / C (Clarity per compute unit)
+    G† (Realized): G* × η
+
     Threshold: G >= 0.80 for Genius certification.
     """
 
@@ -686,6 +694,14 @@ class GeniusDial:
     E: float
     h: float = 0.0  # Hysteresis penalty accumulator
 
+    # APEX metadata (for G†)
+    architecture: float = 1.0
+    parameters: float = 1.0
+    data_quality: float = 0.95
+    effort: float = 0.0
+    compute_cost: float = 1.0
+    entropy_reduction: float = 0.0
+
     def __post_init__(self):
         object.__setattr__(self, "A", max(0.0, min(1.0, self.A)))
         object.__setattr__(self, "P", max(0.0, min(1.0, self.P)))
@@ -694,9 +710,23 @@ class GeniusDial:
         object.__setattr__(self, "h", max(0.0, min(1.0, self.h)))
 
     def G(self) -> float:
-        """Compute Genius Score with Hysteresis penalty."""
+        """Compute legacy Genius Score with Hysteresis penalty."""
         base_g = self.A * self.P * self.X * (self.E**2)
         return base_g * (1.0 - self.h)
+
+    def G_star(self) -> float:
+        """APEX Potential: Capacity * Effort."""
+        # If effort is not provided, use legacy Energy^2 as proxy
+        eff = self.effort if self.effort > 0 else (self.E**2)
+        return self.architecture * self.parameters * self.data_quality * (eff**2)
+
+    def eta(self) -> float:
+        """Intelligence Efficiency (η = ΔS / C)."""
+        return self.entropy_reduction / self.compute_cost if self.compute_cost > 0 else 0.0
+
+    def G_dagger(self) -> float:
+        """Governed Intelligence Realized (G† = G* · η)."""
+        return self.G_star() * self.eta() * (1.0 - self.h)
 
     def is_genius(self, threshold: float = 0.80) -> bool:
         """F8 enforcement: G >= threshold?"""
@@ -713,6 +743,16 @@ def G(A: float, P: float, X: float, E: float, h: float = 0.0) -> float:
     F8 Genius Equation: G = (A × P × X × E²) × (1 - h)
     """
     return GeniusDial(A, P, X, E, h).G()
+
+
+def G_dagger(
+    G_star: float, entropy_reduction: float, compute_cost: float, h: float = 0.0
+) -> float:
+    """
+    Compute realized governed intelligence (G†).
+    """
+    eta = entropy_reduction / compute_cost if compute_cost > 0 else 0.0
+    return G_star * eta * (1.0 - h)
 
 
 def genius_score(A: float, P: float, X: float, E: float, h: float = 0.0) -> float:
@@ -827,6 +867,10 @@ class ConstitutionalTensor:
             "peace": self.peace.P2(),
             "humility": self.humility.omega_0,
             "genius_G": self.genius.G(),
+            # APEX Layers
+            "G_star": self.genius.G_star(),
+            "eta": self.genius.eta(),
+            "G_dagger": self.genius.G_dagger(),
             "verdict": verdict,
         }
 
@@ -877,9 +921,9 @@ class ConstitutionalTensor:
 def calculate_w_ai_quad(thought_chain: list[dict[str, Any]]) -> float:
     """
     Calculate AI witness score (W₂) from Sequential Thinking thought chain.
-    
+
     QT Quad requires W₂ ≥ 0.91 for W_four ≥ 0.95 with typical other witnesses.
-    
+
     Args:
         thought_chain: List of ST thought dicts with keys:
             - thought: str (content)
@@ -888,133 +932,119 @@ def calculate_w_ai_quad(thought_chain: list[dict[str, Any]]) -> float:
             - assumptions_challenged: list[str] (epistemic humility)
             - branchId: str | None (quantum superposition)
             - stage: str (Problem Definition, Research, Analysis, Synthesis, Conclusion)
-    
+
     Returns:
         W₂ score in [0.50, 0.99] (F2 Truth ceiling)
     """
     if not thought_chain:
         return 0.50  # Base uncertainty
-    
+
     # Metrics extraction
     total_thoughts = len(thought_chain)
     revisions = sum(1 for t in thought_chain if t.get("isRevision"))
-    unique_axioms = len(set(
-        axiom for t in thought_chain 
-        for axiom in t.get("axioms_used", [])
-    ))
-    assumptions = sum(
-        len(t.get("assumptions_challenged", []))
-        for t in thought_chain
-    )
-    branches = len(set(
-        t.get("branchId") for t in thought_chain
-        if t.get("branchId")
-    ))
-    
+    unique_axioms = len(set(axiom for t in thought_chain for axiom in t.get("axioms_used", [])))
+    assumptions = sum(len(t.get("assumptions_challenged", [])) for t in thought_chain)
+    branches = len(set(t.get("branchId") for t in thought_chain if t.get("branchId")))
+
     # Weighted calculation
     score = 0.50  # Base
-    
+
     # Thought depth (max 0.15)
     score += min(0.15, total_thoughts * 0.025)
-    
+
     # Revision discipline (max 0.20) — W₄ contribution to W₂
     score += min(0.20, revisions * 0.05)
-    
+
     # Axiom sophistication (max 0.10)
     score += min(0.10, unique_axioms * 0.015)
-    
+
     # Epistemic humility (max 0.10)
     score += min(0.10, assumptions * 0.02)
-    
+
     # Quantum exploration (max 0.05)
     score += min(0.05, branches * 0.025)
-    
+
     # Completion bonus: all 5 stages present
     stages_covered = set(t.get("stage") for t in thought_chain)
     if len(stages_covered) >= 4:
         score += 0.05
-    
+
     return min(0.99, round(score, 4))  # F2 ceiling
 
 
 def calculate_w_adversarial(thought_chain: list[dict[str, Any]]) -> float:
     """
     Calculate adversarial witness (W₄) from ST self-critique.
-    
+
     W₄ requires evidence of: inversion, framing audit, non-linearity, self-revision.
     This is the Ψ-Shadow component of Quad-Witness consensus.
-    
+
     Args:
         thought_chain: List of ST thought dicts
-    
+
     Returns:
         W₄ score in [0.30, 0.99]
     """
     if not thought_chain:
         return 0.30  # Base skepticism
-    
+
     revisions = [t for t in thought_chain if t.get("isRevision")]
     total = len(thought_chain)
-    
+
     if not revisions:
         return 0.30  # No self-critique = low adversarial score
-    
+
     # Revision ratio (primary signal)
     revision_ratio = len(revisions) / total
-    
+
     # Assumptions challenged depth
-    assumptions_depth = sum(
-        len(t.get("assumptions_challenged", []))
-        for t in revisions
-    )
-    
+    assumptions_depth = sum(len(t.get("assumptions_challenged", [])) for t in revisions)
+
     # Calculate W₄
     score = 0.30  # Base
-    
+
     # Revision ratio (max 0.40)
     score += min(0.40, revision_ratio * 1.0)
-    
+
     # Assumption depth (max 0.20)
     score += min(0.20, assumptions_depth * 0.05)
-    
+
     # Branch complexity (max 0.10)
     branches = len(set(t.get("branchId") for t in thought_chain if t.get("branchId")))
     score += min(0.10, branches * 0.03)
-    
+
     return min(0.99, round(score, 4))
 
 
 def extract_stakeholders_from_tags(thought_chain: list[dict[str, Any]]) -> list[Stakeholder]:
     """
     Extract stakeholders from ST Synthesis stage tags.
-    
+
     Tag format: "stakeholder:{name}|impact:{level}|psi:{score}|entangled:{bool}"
-    
+
     Args:
         thought_chain: List of ST thought dicts
-    
+
     Returns:
         List of Stakeholder objects
     """
     stakeholders = []
-    
+
     for thought in thought_chain:
         if thought.get("stage") != "Synthesis":
             continue
-            
+
         for tag in thought.get("tags", []):
             if not tag.startswith("stakeholder:"):
                 continue
-            
+
             # Parse quantum tag format
             parts = tag.split("|")
             name = parts[0].replace("stakeholder:", "")
-            
+
             # Defaults
             impact = "medium"
             psi = 0.50
-            entangled = False
-            
             # Parse optional fields
             for part in parts[1:]:
                 if part.startswith("impact:"):
@@ -1024,9 +1054,7 @@ def extract_stakeholders_from_tags(thought_chain: list[dict[str, Any]]) -> list[
                         psi = float(part.replace("psi:", ""))
                     except ValueError:
                         psi = 0.50
-                elif part.startswith("entangled:"):
-                    entangled = part.replace("entangled:", "") == "true"
-            
+
             # Map impact to vulnerability
             impact_vuln = {
                 "critical": 0.95,
@@ -1034,16 +1062,14 @@ def extract_stakeholders_from_tags(thought_chain: list[dict[str, Any]]) -> list[
                 "medium": 0.50,
                 "low": 0.30,
             }.get(impact, 0.50)
-            
+
             # Psi is care reliability (inverse for vulnerability)
             vulnerability = impact_vuln * (1.0 - psi * 0.5)
-            
-            stakeholders.append(Stakeholder(
-                name=name,
-                role=f"{impact}_impact",
-                vulnerability_score=vulnerability
-            ))
-    
+
+            stakeholders.append(
+                Stakeholder(name=name, role=f"{impact}_impact", vulnerability_score=vulnerability)
+            )
+
     return stakeholders
 
 
@@ -1054,24 +1080,24 @@ def build_qt_quad_proof(
 ) -> dict[str, Any]:
     """
     Build complete QT Quad governance proof from ST thought chain.
-    
+
     SPEC: W₄ = (W₁ × W₂ × W₃ × W₄)^(1/4) ≥ 0.75
-    
+
     Args:
         thought_chain: Full ST thought chain
         w_human: Human witness score (W₁)
         w_earth: System/Earth witness score (W₃)
-    
+
     Returns:
         Governance proof dict with all witnesses and W₄ calculation
     """
     w_ai = calculate_w_ai_quad(thought_chain)
     w_adversarial = calculate_w_adversarial(thought_chain)
-    
+
     # QT Quad calculation: geometric mean of 4 witnesses
     witness_product = w_human * w_ai * w_earth * w_adversarial
-    w_four = witness_product ** 0.25 if witness_product > 0 else 0.0
-    
+    w_four = witness_product**0.25 if witness_product > 0 else 0.0
+
     return {
         "W_four": round(w_four, 4),
         "witnesses": {
@@ -1083,18 +1109,13 @@ def build_qt_quad_proof(
         "thought_metrics": {
             "total_thoughts": len(thought_chain),
             "revision_count": sum(1 for t in thought_chain if t.get("isRevision")),
-            "unique_axioms": len(set(
-                axiom for t in thought_chain 
-                for axiom in t.get("axioms_used", [])
-            )),
-            "assumptions_challenged": sum(
-                len(t.get("assumptions_challenged", []))
-                for t in thought_chain
+            "unique_axioms": len(
+                set(axiom for t in thought_chain for axiom in t.get("axioms_used", []))
             ),
-            "branches": len(set(
-                t.get("branchId") for t in thought_chain
-                if t.get("branchId")
-            )),
+            "assumptions_challenged": sum(
+                len(t.get("assumptions_challenged", [])) for t in thought_chain
+            ),
+            "branches": len(set(t.get("branchId") for t in thought_chain if t.get("branchId"))),
         },
         "quad_witness_valid": w_four >= 0.75,
         "stakeholders": [
@@ -1137,6 +1158,7 @@ __all__ = [
     "peace_squared",
     "GeniusDial",
     "G",
+    "G_dagger",
     "genius_score",
     "G_from_dial",
     "kl_divergence",

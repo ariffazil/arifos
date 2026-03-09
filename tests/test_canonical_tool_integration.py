@@ -18,7 +18,9 @@ try:
 except ImportError:
     CORE_AVAILABLE = False
 
-pytestmark = pytest.mark.skipif(not CORE_AVAILABLE, reason="Core arifosmcp.transport modules not available")
+pytestmark = pytest.mark.skipif(
+    not CORE_AVAILABLE, reason="Core arifosmcp.transport modules not available"
+)
 
 
 def test_init_session_integration():

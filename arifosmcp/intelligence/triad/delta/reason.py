@@ -10,7 +10,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-from ...core.kernel import kernel
 from .._utils import serialize_floor_concerns
 
 if TYPE_CHECKING:
@@ -20,11 +19,7 @@ if TYPE_CHECKING:
 _SAMPLING_ENABLED = True
 
 try:
-    from ...core.constitutional_sampling import (
-        ReasonResult,
-        SamplingConfig,
-        sample_reason,
-    )
+    from ...core.constitutional_sampling import ReasonResult, SamplingConfig, sample_reason
 except ImportError:
     _SAMPLING_ENABLED = False
 
@@ -88,6 +83,8 @@ async def _reason_with_kernel(
     evidence: list[str],
 ) -> dict[str, Any]:
     """REASON using kernel.audit() structural checks (fallback)."""
+    from ...core.kernel import kernel
+
     # Run constitutional audit
     audit_res = kernel.audit(
         action=f"HYPOTHESIS: {hypothesis}\nEVIDENCE: {', '.join(evidence)}",

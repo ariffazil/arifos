@@ -8,4 +8,5 @@ __all__ = ["create_aaa_mcp_server"]
 
 def create_aaa_mcp_server():  # noqa: ANN201
     from .server import create_aaa_mcp_server as _fn
+
     return _fn()
