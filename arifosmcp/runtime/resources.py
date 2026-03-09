@@ -1016,11 +1016,11 @@ def register_resources(mcp: FastMCP) -> None:
     def telemetry_summary() -> str:
         """
         Placeholder telemetry summary.
-        Wire to arifosmcp.intelligence.core.thermo_budget for live metrics.
+        Wire to arifosmcp.intelligence.tools.logic.thermo_budget for live metrics.
         """
         return json.dumps(
             {
-                "note": "Wire to arifosmcp.intelligence.core.thermo_budget for live metrics.",
+                "note": "Wire to arifosmcp.intelligence.tools.logic.thermo_budget for live metrics.",
                 "example_shape": {
                     "sessions": 0,
                     "avg_dS": None,

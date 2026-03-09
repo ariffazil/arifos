@@ -11,6 +11,7 @@ All changes follow [T000 versioning](T000_VERSIONING.md): `YYYY.MM.DD-PHASE-STAT
 **Theme:** Dynamic Metabolic Routing (Stage 444), unified lifecycle hardening, and 000→999 sequential state machine.
 
 ### Added
+
 - **Dynamic Metabolic Router** (`core/governance_kernel.py`):
   - Intelligent stage planning based on query intent (reality, safety, forge, judge).
   - Enforced guardrail: **Stage 777 (Forge) always implies Stage 888 (Judge)**.
@@ -22,6 +23,7 @@ All changes follow [T000 versioning](T000_VERSIONING.md): `YYYY.MM.DD-PHASE-STAT
 - **`HOLD_888` Verdict** (`core/shared/types.py`): New canonical verdict for specific human gating.
 
 ### Changed
+
 - **Unified Runtime Path:**
   - `arifosmcp.transport` now acts as a stable compatibility shim.
   - All core coordination logic moved into `arifosmcp.runtime` for agnostic MCP clients.
@@ -34,6 +36,7 @@ All changes follow [T000 versioning](T000_VERSIONING.md): `YYYY.MM.DD-PHASE-STAT
 - **Initialization timing** for session state and auth context.
 
 ### Verification
+
 - **Router Logic:** Tested across 12 diverse query scenarios (grounding, execute, safety).
 - **Hardness Test:** Verified that `777_FORGE` is inaccessible without `888_JUDGE` plan insertion.
 - **Schema Compliance:** All returns from `arifOS.kernel` now pass the v1.0.0 envelope test.
