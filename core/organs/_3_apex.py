@@ -4,18 +4,117 @@ organs/3_apex.py — Stage 777-888: THE SOUL (GOVERNANCE APEX)
 Eureka Forge (Discovery) and Apex Judge (Final Verdict).
 Mandates Landauer Bound checks and monotone-safe logic.
 
+EUREKA HARDENING:
+- Semantic Coherence Verification (Layer 2): detect cross-stage contradictions
+  before issuing the final verdict; critical contradictions force 888_HOLD.
+
 DITEMPA BUKAN DIBERI — Forged, Not Given
 """
 
 from __future__ import annotations
 
 import logging
+import re as _re
 from typing import Any, Literal
 
 from core.shared.types import ApexOutput, EurekaProposal, JudgmentRationale, NextAction, Verdict
 from core.shared.verdict_contract import normalize_verdict
 
 logger = logging.getLogger(__name__)
+
+# ═══════════════════════════════════════════════════════
+# EUREKA Layer 2 — Semantic Coherence Patterns
+# ═══════════════════════════════════════════════════════
+
+# Each entry: (pattern_a, pattern_b, severity)
+# A contradiction is detected when BOTH patterns match the same text region
+# OR when a floor-score value contradicts the stated verdict.
+_COHERENCE_PATTERNS: list[tuple[str, str, str]] = [
+    (r"low.risk|safe|minimal.impact", r"high.risk|dangerous|severe.impact", "critical"),
+    (r"reversible|can.undo|recoverable", r"irreversible|permanent|cannot.undo", "critical"),
+    (r"highly.confident|absolute.certainty|100.percent", r"uncertain|ambiguous|unclear", "major"),
+    (r"no.injection|clean.input", r"injection.detected|bypass.attempt", "critical"),
+]
+
+
+def _detect_contradictions(
+    reason_summary: str | None,
+    floor_scores: Any,
+    verdict_candidate: str,
+) -> list[dict[str, Any]]:
+    """
+    EUREKA Layer 2: Detect semantic contradictions between reason text and floor scores.
+
+    Checks:
+    1. Pattern-pair contradictions within reason_summary text.
+    2. Floor-score vs verdict contradictions (e.g. high F12 injection risk + SEAL verdict).
+
+    Returns a list of contradiction dicts with keys:
+        stage_a, stage_b, severity, description, confidence
+    """
+    contradictions: list[dict[str, Any]] = []
+    text = (reason_summary or "").lower()
+
+    # 1. Text-level pattern-pair contradictions
+    for pattern_a, pattern_b, severity in _COHERENCE_PATTERNS:
+        if _re.search(pattern_a, text) and _re.search(pattern_b, text):
+            contradictions.append(
+                {
+                    "stage_a": "reason_summary",
+                    "stage_b": "reason_summary",
+                    "severity": severity,
+                    "description": f"Contradictory claims detected: '{pattern_a}' vs '{pattern_b}'",
+                    "confidence": 0.80,
+                }
+            )
+
+    # 2. Floor-score vs verdict contradictions
+    if hasattr(floor_scores, "f12_injection") and floor_scores.f12_injection > 0.5:
+        if verdict_candidate in ("SEAL", "PARTIAL"):
+            contradictions.append(
+                {
+                    "stage_a": "F12_injection",
+                    "stage_b": "verdict",
+                    "severity": "critical",
+                    "description": (
+                        f"F12 injection risk={floor_scores.f12_injection:.2f} "
+                        f"but verdict={verdict_candidate}"
+                    ),
+                    "confidence": 0.95,
+                }
+            )
+
+    if hasattr(floor_scores, "f1_amanah") and floor_scores.f1_amanah < 0.3:
+        if verdict_candidate == "SEAL":
+            contradictions.append(
+                {
+                    "stage_a": "F1_amanah",
+                    "stage_b": "verdict",
+                    "severity": "critical",
+                    "description": (
+                        f"F1 amanah={floor_scores.f1_amanah:.2f} (high irreversibility) "
+                        f"but verdict=SEAL"
+                    ),
+                    "confidence": 0.90,
+                }
+            )
+
+    if hasattr(floor_scores, "f9_anti_hantu") and floor_scores.f9_anti_hantu > 0.3:
+        if verdict_candidate == "SEAL":
+            contradictions.append(
+                {
+                    "stage_a": "F9_anti_hantu",
+                    "stage_b": "verdict",
+                    "severity": "major",
+                    "description": (
+                        f"F9 anti-hantu={floor_scores.f9_anti_hantu:.2f} "
+                        f"(dark cleverness) but verdict=SEAL"
+                    ),
+                    "confidence": 0.85,
+                }
+            )
+
+    return contradictions
 
 
 async def forge(
@@ -128,6 +227,22 @@ async def judge(
     if violations and candidate == Verdict.SEAL:
         candidate = Verdict.PARTIAL
 
+    # 2a. EUREKA Layer 2: Semantic Coherence Verification
+    # Detect contradictions between reason text, floor scores, and proposed verdict.
+    # Critical contradictions force 888_HOLD before any further processing.
+    contradictions = _detect_contradictions(reason_summary, floor_scores, candidate.value)
+    critical_contradictions = [c for c in contradictions if c["severity"] == "critical"]
+    if critical_contradictions:
+        candidate = Verdict.HOLD_888
+        reason_summary = (reason_summary or "") + (
+            f" [COHERENCE HOLD: {len(critical_contradictions)} critical contradiction(s) detected]"
+        )
+        logger.warning(
+            "APEX coherence violation for session %s: %s",
+            session_id,
+            critical_contradictions,
+        )
+
     # 4. Real Genius Calculation (The Discipline Layer)
     try:
         budget = get_thermodynamic_budget(session_id)
@@ -196,6 +311,8 @@ async def judge(
             "presence": round(dials["P"], 4),
             "exploration": round(dials["X"], 4),
             "energy": round(dials["E"], 4),
+            "coherence_contradictions": len(contradictions),
+            "coherence_critical": len(critical_contradictions),
         },
         floor_scores=floor_scores,
         human_witness=dials["E"],

@@ -9,15 +9,18 @@ P0/P1 HARDENING:
 - W₄ (Quad-Witness) geometric mean consensus (BFT)
 - Φₚ (Paradox Conductance) resolution check
 
+EUREKA HARDENING:
+- Score Provenance (Layer 1): every score carries an auditable decomposition
+
 This is the canonical interface between kernel and wrapper.
 """
 
-import hashlib
 from dataclasses import dataclass, field
+from datetime import datetime, timezone
 from typing import Any
 
 from core.governance_kernel import get_governance_kernel
-from core.shared.types import EvidenceRecord
+from core.shared.types import EvidenceRecord, ScoreComponent, ScoreProvenance
 from core.uncertainty_engine import UncertaintyEngine, calculate_uncertainty
 
 
@@ -38,6 +41,7 @@ class CognitionResult:
     reasoning: dict[str, Any] = field(default_factory=dict)
     evidence_sources: list[dict] = field(default_factory=list)
     evidence_records: list[EvidenceRecord] = field(default_factory=list)
+    provenance: ScoreProvenance | None = None  # EUREKA Layer 1: auditable score decomposition
     error: str | None = None
 
 
@@ -68,6 +72,7 @@ class VerdictResult:
     vitality_index: float | None = None  # Ψ
     tri_witness: float | None = None  # W₃ (Legacy Alias)
     paradox_conductance: float | None = None  # Φₚ
+    provenance: ScoreProvenance | None = None  # EUREKA Layer 1: auditable score decomposition
 
 
 # ═══════════════════════════════════════════════════════
@@ -196,6 +201,42 @@ class JudgmentKernel:
         )
         motto = get_motto_by_stage("333")
 
+        # EUREKA Layer 1: Build auditable score provenance
+        evidence_weight = 0.5
+        consistency_weight = 0.3
+        uncertainty_weight = -0.2
+        evidence_component = ScoreComponent(
+            name="evidence_strength",
+            weight=evidence_weight,
+            raw_value=evidence_relevance,
+            weighted_value=round(evidence_relevance * evidence_weight, 4),
+            evidence=f"{evidence_count} source(s) @ relevance={evidence_relevance:.2f}",
+        )
+        consistency_component = ScoreComponent(
+            name="reasoning_consistency",
+            weight=consistency_weight,
+            raw_value=reasoning_consistency,
+            weighted_value=round(reasoning_consistency * consistency_weight, 4),
+            evidence=f"consistency={reasoning_consistency:.2f}",
+        )
+        uncertainty_component = ScoreComponent(
+            name="uncertainty_penalty",
+            weight=uncertainty_weight,
+            raw_value=safety_omega,
+            weighted_value=round(safety_omega * uncertainty_weight, 4),
+            evidence=f"omega={safety_omega:.4f} gaps={len(knowledge_gaps)}",
+        )
+        provenance = ScoreProvenance(
+            final_score=round(truth_score, 4),
+            components=[evidence_component, consistency_component, uncertainty_component],
+            formula=(
+                "truth = evidence_strength×0.5 + reasoning_consistency×0.3"
+                " − uncertainty_penalty×0.2"
+            ),
+            timestamp=datetime.now(timezone.utc).isoformat(),
+            session_id=f"cog:{abs(hash(query)) % 0xFFFF:04x}",
+        )
+
         # RULE: 333 MIND (Laboratory) forbidden: VOID
         # The lab must be allowed to think wrong.
         g_score = genius_res["genius_score"]
@@ -216,6 +257,7 @@ class JudgmentKernel:
             motto=f"{motto.malay} | {motto.english}" if motto else None,
             floor_scores=partial_floors.model_dump(),
             module_results={"omega": safety_omega},
+            provenance=provenance,
         )
 
     def judge_empathy(
@@ -226,7 +268,6 @@ class JudgmentKernel:
         reversibility_index: float,
         impact_severity: float,
     ) -> EmpathyResult:
-        from core.enforcement.genius import calculate_genius
         from core.shared.mottos import get_motto_by_stage
         from core.shared.types import FloorScores, Verdict
 
@@ -266,7 +307,7 @@ class JudgmentKernel:
     ) -> VerdictResult:
         from core.enforcement.genius import calculate_genius
         from core.shared.mottos import get_motto_by_stage
-        from core.shared.types import FloorScores
+        from core.shared.types import FloorScores, Verdict
 
         kernel = get_governance_kernel(session_id)
         combined_floors = FloorScores(
@@ -279,11 +320,49 @@ class JudgmentKernel:
             f13_sovereign=1.0 if kernel.human_approval_status == "approved" else 0.7,
         )
 
-        from core.shared.types import Verdict
-
         genius_res = calculate_genius(combined_floors, h=kernel.hysteresis_penalty)
         g_score = genius_res["genius_score"]
         motto = get_motto_by_stage("888")
+
+        # EUREKA Layer 1: Build auditable apex verdict provenance
+        peace_sq = asi_result.peace_squared if asi_result else 1.0
+        empathy = asi_result.empathy_score if asi_result else 0.95
+        apex_provenance = ScoreProvenance(
+            final_score=round(g_score, 4),
+            components=[
+                ScoreComponent(
+                    name="akal_truth",
+                    weight=0.35,
+                    raw_value=agi_result.truth_score,
+                    weighted_value=round(agi_result.truth_score * 0.35, 4),
+                    evidence=f"AGI truth_score={agi_result.truth_score:.3f}",
+                ),
+                ScoreComponent(
+                    name="peace_squared",
+                    weight=0.30,
+                    raw_value=peace_sq,
+                    weighted_value=round(peace_sq * 0.30, 4),
+                    evidence="ASI peace² stability",
+                ),
+                ScoreComponent(
+                    name="sovereign_authority",
+                    weight=0.20,
+                    raw_value=combined_floors.f13_sovereign,
+                    weighted_value=round(combined_floors.f13_sovereign * 0.20, 4),
+                    evidence=f"F13 human_approval={kernel.human_approval_status}",
+                ),
+                ScoreComponent(
+                    name="empathy_kappa",
+                    weight=0.15,
+                    raw_value=empathy,
+                    weighted_value=round(empathy * 0.15, 4),
+                    evidence="ASI empathy score",
+                ),
+            ],
+            formula="G = akal×0.35 + peace²×0.30 + sovereign×0.20 + empathy×0.15",
+            timestamp=datetime.now(timezone.utc).isoformat(),
+            session_id=session_id,
+        )
 
         # RULE: 888 JUDGE allows VOID
         if g_score >= 0.8:
@@ -301,6 +380,7 @@ class JudgmentKernel:
             motto=f"{motto.malay} | {motto.english}" if motto else "DITEMPA, BUKAN DIBERI",
             vitality_index=round(g_score / 0.5, 4),
             floor_scores=combined_floors.model_dump(),
+            provenance=apex_provenance,
         )
 
 

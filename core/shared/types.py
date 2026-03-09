@@ -709,6 +709,89 @@ class VaultOutput(BaseOrganOutput):
 
 
 # ============================================================================
+# SCORE PROVENANCE — Auditable Score Decomposition (EUREKA Layer 1)
+# ============================================================================
+
+
+class ScoreComponent(BaseModel):
+    """Single factor contributing to a constitutional score."""
+
+    name: str
+    weight: float
+    raw_value: float
+    weighted_value: float
+    evidence: str
+
+
+class ScoreProvenance(BaseModel):
+    """
+    Immutable proof of how a constitutional score was calculated.
+
+    Every score becomes forensically explainable:
+        truth = evidence_strength×0.5 + reasoning_consistency×0.3 − uncertainty_penalty×0.2
+    """
+
+    final_score: float
+    components: list[ScoreComponent]
+    formula: str
+    timestamp: str
+    session_id: str
+
+    def to_audit_string(self) -> str:
+        """Human-readable decomposition for audit trail."""
+        lines = [
+            f"Final Score: {self.final_score:.4f}",
+            f"Formula: {self.formula}",
+            "Components:",
+        ]
+        for c in self.components:
+            lines.append(
+                f"  {c.name:20s} = {c.raw_value:.3f} × {c.weight:.2f}"
+                f" = {c.weighted_value:.4f}  [{c.evidence}]"
+            )
+        return "\n".join(lines)
+
+
+# ============================================================================
+# OUTCOME RECORD — Reality Feedback Loop (EUREKA Layer 6)
+# ============================================================================
+
+
+class OutcomeStatus(str, Enum):
+    """Status of a post-action outcome record."""
+
+    PENDING = "PENDING"
+    SUCCESS = "SUCCESS"
+    FAILURE = "FAILURE"
+    PARTIAL = "PARTIAL"
+    OVERRIDDEN = "OVERRIDDEN"
+
+
+class OutcomeRecord(BaseModel):
+    """
+    Post-action outcome record for the reality feedback loop.
+
+    Captures what was predicted vs what actually happened, enabling
+    the governance kernel to learn and self-correct over time.
+    """
+
+    decision_id: str
+    session_id: str
+    verdict_issued: str
+    expected_outcome: str
+    actual_outcome: str = ""
+    outcome_status: OutcomeStatus = OutcomeStatus.PENDING
+    harm_detected: bool = False
+    reversible: bool = True
+    calibration_delta: float = 0.0  # predicted_risk − observed_risk
+    operator_override: bool = False
+    override_reason: str = ""
+    timestamp_decision: str = ""
+    timestamp_outcome: str = ""
+    floor_attribution: dict[str, float] = Field(default_factory=dict)
+
+
+# ============================================================================
 # GOVERNANCE PLACEMENT VECTOR — ATLAS Types
 # ============================================================================
 
@@ -795,7 +878,6 @@ class RepoEvidence(BaseModel):
 # ============================================================================
 # EXPORT PUBLIC API
 # ============================================================================
-
 __all__ = [
     # Evidence
     "RepoEvidence",
@@ -832,131 +914,10 @@ __all__ = [
     "SoulBundle",
     "SystemState",
     "Profile",
-]
-
-
-# ============================================================================
-# GOVERNANCE PLACEMENT VECTOR — ATLAS Types
-# ============================================================================
-
-
-class GPV(BaseModel):
-    """
-    Governance Placement Vector (from ATLAS Φ function).
-
-    4D constitutional coordinate:
-    - lane: Categorical routing
-    - τ (tau): Truth demand
-    - κ (kappa): Care demand
-    - ρ (rho): Risk level
-    """
-
-    lane: Literal["CRISIS", "FACTUAL", "SOCIAL", "CARE"]
-    tau: float = Field(ge=0.0, le=1.0, alias="τ")  # Truth demand
-    kappa: float = Field(ge=0.0, le=1.0, alias="κ")  # Care demand
-    rho: float = Field(ge=0.0, le=1.0, alias="ρ")  # Risk level
-
-    model_config = ConfigDict(validate_by_name=True)
-
-
-# ============================================================================
-# SYSTEM STATE — v62 Cognitive Runtime
-# ============================================================================
-
-Profile = Literal["factual", "creative", "crisis", "routine"]
-
-
-class SystemState(BaseModel):
-    """
-    Minimal SystemState for v62.
-    Exposes system metrics for scheduler routing.
-
-    Fields:
-        uncertainty: 0.0-1.0 (epistemic uncertainty)
-        risk: 0.0-1.0 (stakeholder impact)
-        grounding: 0.0-1.0 (evidence strength)
-        loop_count: int (iteration detection)
-        profile: domain classification for adaptive floors
-    """
-
-    uncertainty: float  # 0..1
-    risk: float  # 0..1
-    grounding: float  # 0..1
-    loop_count: int
-    profile: Profile
-
-    def to_dict(self) -> dict:
-        return {
-            "uncertainty": round(self.uncertainty, 2),
-            "risk": round(self.risk, 2),
-            "grounding": round(self.grounding, 2),
-            "loop_count": self.loop_count,
-            "profile": self.profile,
-        }
-
-
-# ============================================================================
-# SENSORY EVIDENCE — L4 Tool Ingest
-# ============================================================================
-
-
-class RepoEvidence(BaseModel):
-    """
-    Δ Delta Sensory: GitIngest Codebase Digest.
-
-    Hardened with F12 (Injection) and F4 (Thermodynamic) budget.
-    """
-
-    repo_url: str = Field(description="Remote URL or local directory path")
-    digest: str = Field(description="The primary codebase text digest")
-    tree: str = Field(description="Directory structure representation")
-    token_count: int = Field(description="F4: Calculated token usage")
-    file_count: int = Field(description="Number of files ingested")
-    f12_risk_score: float = Field(ge=0.0, le=1.0, description="F12: Injection risk score")
-    verdict: Verdict = Verdict.SEAL
-    taint_lineage: dict[str, Any] = Field(default_factory=dict)
-
-    model_config = ConfigDict(extra="allow")
-
-
-# ============================================================================
-# EXPORT PUBLIC API
-# ============================================================================
-
-__all__ = [
-    # Evidence
-    "RepoEvidence",
-    # Enums
-    "Verdict",
-    # Thought Structures
-    "ThoughtNode",
-    "ThoughtChain",
-    # Floor Scores
-    "FloorScores",
-    # Metrics
-    "AgiMetrics",
-    "AsiMetrics",
-    "ApexMetrics",
-    # Organ Outputs
-    "BaseOrganOutput",
-    "InitOutput",
-    "AgiOutput",
-    "AsiOutput",
-    "ApexOutput",
-    "VaultOutput",
-    "VaultEntry",
-    # ATLAS
-    "GPV",
-    # Metabolic state
-    "EnergyState",
-    "MetabolismState",
-    "DecisionState",
-    "EMD",
-    "ScarWeight",
-    # Bundles
-    "MindBundle",
-    "HeartBundle",
-    "SoulBundle",
-    "SystemState",
-    "Profile",
+    # EUREKA Layer 1 — Score Provenance
+    "ScoreComponent",
+    "ScoreProvenance",
+    # EUREKA Layer 6 — Reality Feedback
+    "OutcomeStatus",
+    "OutcomeRecord",
 ]
