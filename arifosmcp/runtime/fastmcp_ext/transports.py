@@ -171,7 +171,7 @@ class BearerAuthMiddleware:
         await self.app(scope, receive, send)
 
 
-class _PayloadTooLarge(Exception):
+class _PayloadTooLargeError(Exception):
     pass
 
 
@@ -213,12 +213,12 @@ class BodySizeLimitMiddleware:
                 body = message.get("body", b"")
                 received += len(body)
                 if received > self.max_bytes:
-                    raise _PayloadTooLarge
+                    raise _PayloadTooLargeError
             return message
 
         try:
             await self.app(scope, limited_receive, send)
-        except _PayloadTooLarge:
+        except _PayloadTooLargeError:
             response = JSONResponse(
                 {"error": "payload_too_large", "max_bytes": self.max_bytes},
                 status_code=413,
