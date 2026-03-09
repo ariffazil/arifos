@@ -347,10 +347,8 @@ async def mcp_endpoint(request: Request) -> Response:
         _ACTIVE_SESSIONS.pop(session_id, None)
         return Response(status_code=204, headers=_transport_headers())
 
-    # POST rules
-    accept = request.headers.get("accept", "")
-    if "application/json" not in accept and "text/event-stream" not in accept:
-        return Response(status_code=406, headers=_transport_headers())
+    # POST rules - accept any or default to JSON
+    # Relaxed for ChatGPT compatibility (MCP 2025-11-25)
 
     try:
         body = await request.json()
@@ -657,9 +655,9 @@ async def mcp_endpoint(request: Request) -> Response:
             if name in TOOLS and name in TOOL_DESCRIPTIONS
         ]
         # Invariant check — surface must never exceed the sacred 13.
-        assert (
-            len(tools) == CANONICAL_TOOL_COUNT
-        ), f"tools/list surface violation: got {len(tools)}, expected {CANONICAL_TOOL_COUNT}"
+        assert len(tools) == CANONICAL_TOOL_COUNT, (
+            f"tools/list surface violation: got {len(tools)}, expected {CANONICAL_TOOL_COUNT}"
+        )
         return JSONResponse(
             {
                 "jsonrpc": "2.0",
