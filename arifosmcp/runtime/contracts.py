@@ -37,7 +37,7 @@ TOOL_INPUT_CONTRACTS: dict[str, dict[str, str]] = {
     "ingest_evidence": {"source_type": "str", "target": "str"},
     "audit_rules": {"audit_scope": "str", "session_id": "str"},
     "check_vital": {},
-    "metabolic_loop": {"query": "str"},
+    "metabolic_loop": {"query": "str", "allow_execution": "bool"},
 }
 
 
@@ -80,5 +80,12 @@ def validate_input(tool: str, payload: dict[str, Any]) -> dict[str, Any] | None:
                 "stage": "F3_CONTRACT",
                 "floors_failed": ["F3"],
                 "error": f"Field '{key}' must be object",
+            }
+        if type_name == "bool" and not isinstance(value, bool):
+            return {
+                "verdict": "VOID",
+                "stage": "F3_CONTRACT",
+                "floors_failed": ["F3"],
+                "error": f"Field '{key}' must be boolean",
             }
     return None

@@ -246,7 +246,8 @@ async def call_kernel(
                 query=query_input, 
                 risk_tier=payload.get("risk_tier", "medium"), 
                 actor_id=actor_id,
-                session_id=session_id
+                session_id=session_id,
+                allow_execution=bool(payload.get("allow_execution", False))
             )
 
         else:
@@ -284,6 +285,9 @@ async def call_kernel(
                 result.setdefault("stage", "999_SEAL")
 
         # 3. Governance Envelope Wrap (13 laws)
+        if isinstance(result, dict) and auth_ctx:
+            result["auth_context"] = auth_ctx
+            
         envelope = wrap_tool_output(canonical_name, result)
 
         if canonical_name == "anchor_session" and "auth_context" in result:

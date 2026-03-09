@@ -182,6 +182,8 @@ async def _wrap_call(
             verdict=verdict,
             stage=stage,
             session_id=effective_session_id,
+            failure_origin=kernel_res.get("failure_origin"),
+            remediation_notes=kernel_res.get("remediation_notes", []),
             telemetry=Telemetry(
                 dS=kernel_res.get("telemetry", {}).get("dS", -0.7),
                 peace2=kernel_res.get("telemetry", {}).get("peace2", 1.1),

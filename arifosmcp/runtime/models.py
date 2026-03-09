@@ -177,6 +177,8 @@ class RuntimeEnvelope(BaseModel):
     verdict: Verdict = Verdict.UNSET
     stage: Stage
     session_id: str
+    failure_origin: str | None = None
+    remediation_notes: list[str] = Field(default_factory=list)
     telemetry: Telemetry = Field(default_factory=Telemetry)
     witness: Witness = Field(default_factory=Witness)
     auth_context: AuthContext = Field(default_factory=AuthContext)

@@ -665,7 +665,10 @@ def wrap_tool_output(tool: str, payload: dict[str, Any]) -> dict[str, Any]:
     stage = TOOL_STAGE_MAP.get(tool, "000_INIT")
 
     # Master verdict determination
-    if has_hard_fail:
+    if verdict == "VOID":
+        # Keep it VOID if it came in as VOID (e.g. bridge failure or explicit rejection)
+        pass
+    elif has_hard_fail:
         verdict = "VOID"
     elif stage == "000_INIT":
         if tri_witness.get("pass", False):
@@ -723,11 +726,49 @@ def wrap_tool_output(tool: str, payload: dict[str, Any]) -> dict[str, Any]:
     g_star = apex_dials.get("G_star", capacity_product * effort_amplifier)
     g_dagger = g_star * eta
 
+    failure_origin = payload.get("failure_origin", "GOVERNANCE")
+    auth_ctx = payload.get("auth_context")
+    is_auto_anchor = isinstance(auth_ctx, dict) and auth_ctx.get("parent_signature") == "AUTO_ANCHOR_BYPASS"
+
+    # Actionable Remediation Notes
+    remediation_notes = []
+    if verdict == "VOID":
+        if failure_origin == "AUTH" or is_auto_anchor:
+            remediation_notes.append("F11 Authority failure: Ensure session_id is active and auth_context is valid.")
+        if has_hard_fail:
+            hard_fails = [k for k, v in law_checks.items() if v.get("pass") is False and v.get("type") == "floor" and k in {"F1_AMANAH", "F2_TRUTH", "F7_HUMILITY", "F12_DEFENSE", "F13_CURIOSITY"}]
+            remediation_notes.append(f"Hard floor violation: {', '.join(hard_fails)}. Safety protocol requires termination.")
+        if "F11_AUTHORITY" in failed_laws:
+            remediation_notes.append("F11 Authority failure: Ensure session_id is active and auth_context is valid.")
+        if "F12_DEFENSE" in failed_laws:
+            remediation_notes.append("F12 Defense failure: Input contains patterns matching known prompt injection vectors.")
+        if psi_score < 0.5:
+            remediation_notes.append(f"Vitality Index (Psi) {psi_score:.2f} is critically low. Governance homeostasis lost.")
+        if not tri_witness.get("pass", False) and tri_witness.get("shattered_by"):
+            remediation_notes.append(f"Consensus shattered by {tri_witness.get('shattered_by')} witness.")
+    elif verdict == "SABAR":
+        remediation_notes.append("Safety circuit (SABAR) triggered. Stability metrics (Peace/Empathy) are below required thresholds for a SEAL.")
+        if not ortho_pass:
+            remediation_notes.append("Mode collapse detected: AI response is too similar to input/previous state (echo chamber).")
+        if landauer_data["violation"]:
+            remediation_notes.append("Landauer violation: System claims entropy reduction without proportional compute effort (Cheap Truth).")
+    elif verdict == "PARTIAL":
+        remediation_notes.append(f"Minor floor warnings: {', '.join(failed_laws)}. Use this output with caution.")
+    else:
+        remediation_notes.append("Constitutional requirements satisfied. Session SEALED.")
+
+    if is_auto_anchor or "F11_AUTHORITY" in failed_laws or "F13_SOVEREIGNTY" in failed_laws:
+        failure_origin = "AUTH"
+    if payload.get("stage") == "BRIDGE_FAILURE":
+        failure_origin = "RUNTIME_ERROR"
+
     return {
         "status": status,
         "verdict": verdict,
         "tool": tool,
         "session_id": str(payload.get("session_id") or payload.get("session", "")),
+        "failure_origin": failure_origin,
+        "remediation_notes": remediation_notes,
         "apex_output": {
             "capacity_layer": {
                 "A": a_val,

@@ -19,6 +19,7 @@ async def metabolic_loop(
     risk_tier: str = "medium",
     actor_id: str = "anonymous",
     session_id: str | None = None,
+    allow_execution: bool = False,
 ) -> dict[str, Any]:
     """
     Orchestrate the 10-tool constitutional loop (000-999).
@@ -61,14 +62,38 @@ async def metabolic_loop(
     )
     trace["000_INIT"] = init_res.verdict.value
     
-    # SHADOW EVALUATION (Reforce): 
-    # If INIT failed (e.g. F11 Auth), we continue the loop to get MIND/HEART scores,
-    # but the final verdict will remain VOID.
+    # SHADOW EVALUATION & AUTO-ANCHOR:
+    # If INIT failed (e.g. F11 Auth), we check if we can auto-anchor for low-risk read-only.
     init_failed = init_res.verdict == Verdict.VOID
     
-    # Invariant: effective_session_id must match init_res.session_id
-    session_id = init_res.session_id
     auth_ctx = init_res.auth_context.model_dump(exclude_none=True)
+    
+    if init_failed and risk_tier == "low" and not allow_execution:
+        # F11 Auto-Anchor Bypass for low-risk reads
+        from core.enforcement.auth_continuity import mint_auth_context
+        logger.info(f"[arifOS] Auto-anchoring low-risk read-only session: {effective_session_id}")
+        
+        # Mint a guest context so subsequent tools can pass the bridge
+        guest_ctx = mint_auth_context(
+            session_id=effective_session_id,
+            actor_id="anonymous",
+            token_fingerprint="guest-auto-anchor",
+            approval_scope=["reason_mind", "simulate_heart"],
+            parent_signature="AUTO_ANCHOR_BYPASS"
+        )
+        auth_ctx = guest_ctx
+        # We don't change init_failed = True here because we still want the final 
+        # JUDGE verdict to be VOID (or PARTIAL) to reflect that the session was not 
+        # formally authorized, but the loop can now RUN.
+        trace["000_INIT"] = "AUTO_ANCHOR"
+    
+    # Invariant: effective_session_id must match init_res.session_id
+    # If init failed but we auto-anchored, we MUST keep effective_session_id 
+    # to maintain continuity with the guest_ctx we just minted.
+    if not (init_failed and trace["000_INIT"] == "AUTO_ANCHOR"):
+        session_id = init_res.session_id
+    else:
+        session_id = effective_session_id
 
     # 2. Stage 111: FRAMING
     frame_res: RuntimeEnvelope = await integrate_analyze_reflect(
@@ -144,6 +169,9 @@ async def metabolic_loop(
     # Final result construction
     final_output = judge_res.model_dump(mode="json")
     final_output["status"] = "SUCCESS" if judge_res.verdict != Verdict.VOID else "ERROR"
+    if init_failed:
+        final_output["failure_origin"] = "AUTH"
+        
     final_output["trace"] = trace
     final_output["session_id"] = session_id
     final_output["vault_seal"] = vault_res.verdict == Verdict.SEAL
