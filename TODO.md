@@ -30,7 +30,7 @@
 
 ### [ ] H1.3: Test Recovery (80% Target)
 - [ ] Fix broken unit tests in `tests/core/`.
-- [ ] Implement parameter-locked regression tests for `metabolic_loop_router`.
+- [ ] Implement parameter-locked regression tests for `arifOS.kernel` (legacy: `metabolic_loop_router`).
 - [ ] Verify `VAULT999` Merkle-chain integrity under high-concurrency loads.
 
 ---
@@ -38,7 +38,7 @@
 ## 🧬 Intelligence Kernel Refinement (L0)
 
 - [ ] Complete implementation of `core/physics/thermodynamics_hardened.py`.
-- [ ] Integrate Landauer Bound check into the `metabolic_loop_router` verdict logic.
+- [ ] Integrate Landauer Bound check into the `arifOS.kernel` verdict logic (legacy: `metabolic_loop_router`).
 - [ ] Forge `F3 Tri-Witness` backend connector for external evidentiary sources.
 - [ ] Implement `F12 Injection Defense` L4 (Sandboxed Simulation).
 

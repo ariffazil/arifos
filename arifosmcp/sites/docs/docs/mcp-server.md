@@ -42,13 +42,15 @@ HOST=0.0.0.0 PORT=8080 python -m arifosmcp.runtime http
 
 | Tool | Role |
 |------|------|
-| `metabolic_loop_router` | One-call governed 000->999 execution entrypoint. |
+| `arifOS.kernel` | One-call governed constitutional execution entrypoint. |
 | `search_reality` | External grounding and source discovery. |
 | `ingest_evidence` | Read-only evidence fetch/intake. |
-| `session_memory` | Session memory store/retrieve/forget facade. |
+| `session_memory` | Session context and reasoning artifact memory. |
 | `audit_rules` | Read-only constitutional rule audit. |
 | `check_vital` | Read-only system health snapshot. |
 | `open_apex_dashboard` | Opens the APEX dashboard iframe in MCP-compatible clients. |
+
+Legacy alias: `metabolic_loop_router` refers to `arifOS.kernel`.
 
 ## Canonical 10-Tool APEX-G Stack (`full` profile)
 
@@ -59,7 +61,7 @@ The core constitutional assembly line. Every tool returns a `RuntimeEnvelope`.
 | 000 | `init_anchor_state` | Governed session bootstrap. Mints auth chain. |
 | 111 | `integrate_analyze_reflect` | Problem framing and integrative analysis. |
 | 333 | `reason_mind_synthesis` | Multi-step reasoning with Eureka synthesis slot. |
-| 444 | `metabolic_loop_router` | Full 000→999 pipeline orchestrator. |
+| 444 | `metabolic_loop_router` | Full 000→999 pipeline orchestrator (internal legacy name for `arifOS.kernel`). |
 | 555 | `vector_memory_store` | BBB associative vector memory (store/recall/search/forget). |
 | 666A | `assess_heart_impact` | Empathy and ethical safety engine. |
 | 666B | `critique_thought_audit` | Adversarial internal thought audit. |
@@ -69,7 +71,7 @@ The core constitutional assembly line. Every tool returns a `RuntimeEnvelope`.
 
 ### Stage 222 (Reality Verification)
 
-The router path now contains a `222_REALITY` verification stage between `333_MIND` and `666_HEART`. Grounding status/score are included in judge synthesis and sealed telemetry for replay.
+The kernel path now contains a `222_REALITY` verification stage between `333_MIND` and `666_HEART`. Grounding status/score are included in judge synthesis and sealed telemetry for replay.
 
 ### Contrast Analytics Status
 

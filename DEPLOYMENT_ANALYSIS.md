@@ -324,7 +324,7 @@ The deployment includes 10 core constitutional tools:
 1. `init_anchor_state`
 2. `integrate_analyze_reflect`
 3. `reason_mind_synthesis`
-4. `metabolic_loop_router`
+4. `arifOS.kernel` (legacy internal: `metabolic_loop_router`)
 5. `vector_memory_store`
 6. `assess_heart_impact`
 7. `critique_thought_audit`

@@ -50,7 +50,7 @@ docker compose up -d --build
 
 The public ChatGPT-safe profile exposes:
 
-- `metabolic_loop_router`
+- `arifOS.kernel`
 - `search_reality`
 - `ingest_evidence`
 - `session_memory`
@@ -58,7 +58,7 @@ The public ChatGPT-safe profile exposes:
 - `check_vital`
 - `open_apex_dashboard`
 
-`trace_replay` remains available in the `full` profile for deep diagnostics and replay.
+Legacy compatibility alias: `metabolic_loop_router` maps to `arifOS.kernel`.
 
 If you need the full staged tool stack instead, override:
 

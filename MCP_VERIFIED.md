@@ -128,7 +128,7 @@ Add this MCP server to ChatGPT with:
 1. ✅ `init_anchor_state` - Start governed session
 2. ✅ `integrate_analyze_reflect` - Multi-path analysis
 3. ✅ `reason_mind_synthesis` - Constitutional reasoning
-4. ✅ `metabolic_loop_router` - One-call execution (RECOMMENDED)
+4. ✅ `arifOS.kernel` - One-call execution (RECOMMENDED)
 5. ✅ `vector_memory_store` - Memory operations
 6. ✅ `assess_heart_impact` - Impact assessment
 7. ✅ `critique_thought_audit` - Adversarial checking
@@ -157,7 +157,7 @@ Add this MCP server to ChatGPT with:
 
 ## 🧪 EXAMPLE API CALLS
 
-### Using metabolic_loop_router (Recommended)
+### Using arifOS.kernel (Recommended)
 ```bash
 curl -L -X POST https://arifosmcp.arif-fazil.com/mcp \
   -H "Content-Type: application/json" \
@@ -166,7 +166,7 @@ curl -L -X POST https://arifosmcp.arif-fazil.com/mcp \
     "jsonrpc": "2.0",
     "method": "tools/call",
     "params": {
-      "name": "metabolic_loop_router",
+      "name": "arifOS.kernel",
       "arguments": {
         "query": "Analyze the ethical implications of AI governance",
         "context": "Testing arifOS deployment",

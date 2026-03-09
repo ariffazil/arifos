@@ -66,25 +66,25 @@ Every request enters an "assembly line" of 10 metabolic tools. If any stage fail
 
 ```mermaid
 sequenceDiagram
-    participant U as User/Sovereign
-    participant A as 000 INIT (Airlock)
-    participant M as 111-333 MIND (Logic)
-    participant R as 444 ROUTER (Phoenix)
-    participant H as 666 HEART (Safety)
-    participant J as 888 APEX (Judge)
-    participant V as 999 VAULT (Ledger)
+    participant User
+    participant 000_INIT
+    participant 111_MIND
+    participant 444_KERNEL
+    participant 666_HEART
+    participant 888_APEX
+    participant 999_VAULT
 
-    U->>A: Query
-    A->>A: F12 Injection Check
-    A->>M: Authenticated Session
-    M->>M: F2 Truth Verification
-    M->>R: Reasoned Bundle
-    R->>H: Orchestrated Flow
-    H->>H: F6 Empathy Check
-    H->>J: Safety Bundle
-    J->>J: G† Realization Check
-    J->>V: Signed Verdict
-    V->>U: SEALED Result
+    User->>000_INIT: Query
+    000_INIT->>000_INIT: F12 Injection Check
+    000_INIT->>111_MIND: Authenticated Session
+    111_MIND->>111_MIND: F2 Truth Verification
+    111_MIND->>444_KERNEL: Reasoned Bundle
+    444_KERNEL->>666_HEART: Orchestrated Flow
+    666_HEART->>666_HEART: F6 Empathy Check
+    666_HEART->>888_APEX: Safety Bundle
+    888_APEX->>888_APEX: G† Realization Check
+    888_APEX->>999_VAULT: Signed Verdict
+    999_VAULT->>User: SEALED Result
 ```
 
 ---
@@ -128,9 +128,10 @@ Point any MCP client to our streamable HTTP endpoint:
 ### 3. Tool Surface (Layered)
 
 - Public profile (`ARIFOS_PUBLIC_TOOL_PROFILE=chatgpt`):
-  `metabolic_loop_router`, `search_reality`, `ingest_evidence`, `session_memory`, `audit_rules`, `check_vital`, `open_apex_dashboard`
-- Full profile (`ARIFOS_PUBLIC_TOOL_PROFILE=full`): full 10-tool APEX-G metabolic stack plus diagnostics like `trace_replay`.
-- Router includes an internal `222_REALITY` verification stage before heart/judge synthesis.
+  `arifOS.kernel`, `search_reality`, `ingest_evidence`, `session_memory`, `audit_rules`, `check_vital`, `open_apex_dashboard`
+- `arifOS.kernel` is the semantic entrypoint for governed constitutional execution.
+- Full profile (`ARIFOS_PUBLIC_TOOL_PROFILE=full`) keeps the staged 000->999 internal stack and legacy compatibility names.
+- Legacy alias: `metabolic_loop_router` -> semantic public name `arifOS.kernel`.
 
 ---
 

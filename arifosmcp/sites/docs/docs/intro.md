@@ -79,7 +79,7 @@ Live endpoints:
 
 ## Public Runtime Tools (`ARIFOS_PUBLIC_TOOL_PROFILE=chatgpt`)
 
-1. `metabolic_loop_router`
+1. `arifOS.kernel`
 2. `search_reality`
 3. `ingest_evidence`
 4. `session_memory`
@@ -87,12 +87,14 @@ Live endpoints:
 6. `check_vital`
 7. `open_apex_dashboard`
 
-## Internal 10-Tool Metabolic Stack (`ARIFOS_PUBLIC_TOOL_PROFILE=full`)
+Legacy compatibility alias: `metabolic_loop_router` -> `arifOS.kernel`.
+
+## Internal 10-Tool Execution Stack (`ARIFOS_PUBLIC_TOOL_PROFILE=full`)
 
 1. `init_anchor_state` (000)
 2. `integrate_analyze_reflect` (111)
 3. `reason_mind_synthesis` (333)
-4. `metabolic_loop_router` (444)
+4. `metabolic_loop_router` (444, legacy internal alias for `arifOS.kernel`)
 5. `vector_memory_store` (555)
 6. `assess_heart_impact` (666A)
 7. `critique_thought_audit` (666B)

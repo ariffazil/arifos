@@ -110,15 +110,15 @@ Remote HTTP example:
 - Transport: http
 
 Public profile tools (ARIFOS_PUBLIC_TOOL_PROFILE=chatgpt):
-- metabolic_loop_router
+- arifOS.kernel
 - search_reality
 - ingest_evidence
-- session_memory
 - audit_rules
 - check_vital
 - open_apex_dashboard
 
-Internal full profile keeps the full 10-tool APEX-G staged surface and diagnostics such as trace_replay.
+Internal full profile keeps the full staged 000->999 surface and legacy compatibility tooling.
+Legacy alias: metabolic_loop_router maps to arifOS.kernel.
 
 ## 7) Operational Verification Checklist
 
