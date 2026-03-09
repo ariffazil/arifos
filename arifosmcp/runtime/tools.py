@@ -183,14 +183,15 @@ async def _wrap_call(
             or session_id
         )
 
-        # Inject Philosophy Anchor
-        from arifosmcp.runtime.philosophy import get_philosophical_anchor
+        # Inject Philosophy Anchor (33-quote primary, 99-embedding secondary)
+        from arifosmcp.runtime.philosophy import get_philosophical_anchor, get_wisdom_for_context
 
         g_score = kernel_res.get("telemetry", {}).get("confidence", 0.9)
         failed_floors = []
         if verdict_str in ["VOID", "HOLD-888"]:
-            failed_floors.append("F2")  # simulate floor failure for void states to trigger Sagan
+            failed_floors.append("F2")
 
+        # Primary: 33-quote deterministic registry
         anchor = get_philosophical_anchor(
             stage=stage.value,
             g_score=g_score,
