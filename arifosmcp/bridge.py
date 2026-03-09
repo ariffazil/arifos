@@ -71,7 +71,7 @@ async def call_kernel(
     # 1.5. Early Exit for Grounding Utilities
     if canonical_name == "search_reality":
         query = payload.get("query", "")
-        return await reality_check(query=query, sources=payload.get("sources"))
+        return await reality_check(query=query)
     if canonical_name == "ingest_evidence":
         return await open_web_page(url=payload.get("source_url", ""))
 
