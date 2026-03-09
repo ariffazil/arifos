@@ -111,7 +111,7 @@ def _build_opex(tool_name: str, kernel_res: dict[str, Any], envelope: RuntimeEnv
         )
     elif tool_name == "apex_judge_verdict":
         w = envelope.witness
-        tri = (w.human * w.ai * w.earth) ** (1 / 3) if (w.human and w.ai and w.earth) else conf
+        tri = (w.human * w.ai * w.earth) ** (1 / 3)
         return OPEXBundle(
             output_candidate=str(data.get("governance_token", envelope.verdict.value)),
             probability=tri,
