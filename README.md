@@ -1,13 +1,9 @@
-<p align="center">
-  <img src="./arifosmcp/sites/docs/static/img/logo.svg" width="250" alt="arifOS MCP Logo">
-</p>
-
 # arifOS — Constitutional AI Kernel
 
-<p align="center">
-  <b>DITEMPA BUKAN DIBERI</b> — <i>Forged, Not Given.</i><br>
-  <i>Intelligence is a thermodynamic process that must cool under governance before it rules.</i>
-</p>
+![arifOS MCP Logo](./arifosmcp/sites/docs/static/img/logo.svg)
+
+**DITEMPA BUKAN DIBERI** — *Forged, Not Given.*
+*Intelligence is a thermodynamic process that must cool under governance before it rules.*
 
 ---
 
@@ -15,20 +11,20 @@
 
 | Resource | URL |
 | :--- | :--- |
-| **Live MCP Server** | https://arifosmcp.arif-fazil.com |
-| **Sovereign Dashboard** | https://arifosmcp.arif-fazil.com/dashboard/ |
-| **Documentation** | https://arifos.arif-fazil.com |
-| **MCP Endpoint** | https://arifosmcp.arif-fazil.com/mcp |
-| **Tools (REST)** | https://arifosmcp.arif-fazil.com/tools |
-| **Checkpoint (REST)** | https://arifosmcp.arif-fazil.com/checkpoint |
-| **Health** | https://arifosmcp.arif-fazil.com/health |
-| **OpenAPI Schema** | https://arifosmcp.arif-fazil.com/openapi.json |
-| **LLM Discovery** | https://arifosmcp.arif-fazil.com/llms.txt |
-| **MCP Registry** | https://arifosmcp.arif-fazil.com/.well-known/mcp/server.json |
-| **GitHub (MCP)** | https://github.com/ariffazil/arifosmcp |
-| **GitHub (OS)** | https://github.com/ariffazil/arifOS |
-| **npm** | https://www.npmjs.com/package/@arifos/mcp |
-| **PyPI** | https://pypi.org/project/arifos/ |
+| **Live MCP Server** | [arifosmcp.arif-fazil.com](https://arifosmcp.arif-fazil.com) |
+| **Sovereign Dashboard** | [arifosmcp.arif-fazil.com/dashboard/](https://arifosmcp.arif-fazil.com/dashboard/) |
+| **Documentation** | [arifos.arif-fazil.com](https://arifos.arif-fazil.com) |
+| **MCP Endpoint** | [arifosmcp.arif-fazil.com/mcp](https://arifosmcp.arif-fazil.com/mcp) |
+| **Tools (REST)** | [arifosmcp.arif-fazil.com/tools](https://arifosmcp.arif-fazil.com/tools) |
+| **Checkpoint (REST)** | [arifosmcp.arif-fazil.com/checkpoint](https://arifosmcp.arif-fazil.com/checkpoint) |
+| **Health** | [arifosmcp.arif-fazil.com/health](https://arifosmcp.arif-fazil.com/health) |
+| **OpenAPI Schema** | [arifosmcp.arif-fazil.com/openapi.json](https://arifosmcp.arif-fazil.com/openapi.json) |
+| **LLM Discovery** | [arifosmcp.arif-fazil.com/llms.txt](https://arifosmcp.arif-fazil.com/llms.txt) |
+| **MCP Registry** | [arifosmcp.arif-fazil.com/.well-known/mcp/server.json](https://arifosmcp.arif-fazil.com/.well-known/mcp/server.json) |
+| **GitHub (MCP)** | [github.com/ariffazil/arifosmcp](https://github.com/ariffazil/arifosmcp) |
+| **GitHub (OS)** | [github.com/ariffazil/arifOS](https://github.com/ariffazil/arifOS) |
+| **npm** | [npmjs.com/package/@arifos/mcp](https://www.npmjs.com/package/@arifos/mcp) |
+| **PyPI** | [pypi.org/project/arifos/](https://pypi.org/project/arifos/) |
 
 ---
 
@@ -38,7 +34,7 @@ arifOS is the **TCP layer for AI agents** — a governed intelligence kernel tha
 
 It is exposed via the **Model Context Protocol (MCP)**, allowing Claude, GPT, Gemini, or any MCP-compatible AI to connect to a 13-floor constitutional governance engine. Every tool call passes through hard and soft safety gates. If any hard floor fails, the session is immediately **VOID**.
 
-```
+```text
 User → arifOS.kernel → [13-floor validation] → verdict → VAULT999
 ```
 
@@ -49,16 +45,19 @@ User → arifOS.kernel → [13-floor validation] → verdict → VAULT999
 ## Install
 
 **Python (local / stdio):**
+
 ```bash
 pip install arifos
 ```
 
 **npm wrapper:**
+
 ```bash
 npx @arifos/mcp
 ```
 
 **Docker:**
+
 ```bash
 docker pull ariffazil/arifosmcp
 docker run -p 8000:8000 ariffazil/arifosmcp
@@ -125,6 +124,7 @@ Content-Type: application/json
 | 7 | `open_apex_dashboard` | Observability | Sovereign monitoring interface — live metrics, traces, and verdicts. |
 
 **Profiles:**
+
 - `chatgpt` profile: the 7 canonical tools above only.
 - `full` profile: canonical 7 + legacy 000→999 staged tools for internal orchestration.
 - **Legacy alias:** `metabolic_loop_router` → semantic public name `arifOS.kernel`.
@@ -138,9 +138,9 @@ arifOS operates through three specialized engines that isolate and then synthesi
 ```mermaid
 graph TD
     subgraph "The Sovereign Stack"
-        MIND["🧠 <b>AGI Delta (Mind)</b><br/>Logic & Truth Engine<br/><i>(F2, F4, F7, F8)</i>"]
-        HEART["❤️ <b>ASI Omega (Heart)</b><br/>Safety & Empathy Engine<br/><i>(F1, F5, F6, F9)</i>"]
-        SOUL["👑 <b>APEX Psi (Soul)</b><br/>Judgment & Consensus<br/><i>(F3, F11, F13)</i>"]
+        MIND["🧠 AGI Delta (Mind) — Logic & Truth Engine (F2, F4, F7, F8)"]
+        HEART["❤️ ASI Omega (Heart) — Safety & Empathy Engine (F1, F5, F6, F9)"]
+        SOUL["👑 APEX Psi (Soul) — Judgment & Consensus (F3, F11, F13)"]
     end
 
     Input --> MIND
@@ -232,13 +232,13 @@ Watch the kernel's math in real-time. The dashboard visualizes the **Discipline 
 - **Log-Decomposition:** See exactly what is driving intelligence up or down.
 - **Live Fetch:** Point the dashboard at your local or remote arifOS server.
 
-**Live:** [https://arifosmcp.arif-fazil.com/dashboard/](https://arifosmcp.arif-fazil.com/dashboard/)
+**Live:** <https://arifosmcp.arif-fazil.com/dashboard/>
 
 ---
 
 ## File Architecture
 
-```
+```text
 arifosmcp/                          # Transport & MCP Hub Layer
 ├── runtime/                        # FastMCP server, tools, resources, prompts
 │   ├── tools.py                    # 7-tool canonical stack + legacy pipeline
@@ -259,7 +259,7 @@ scripts/                            # Dev tooling and test harnesses
 
 ## Constitutional Authority
 
-```
+```text
 Sovereign:   Muhammad Arif bin Fazil
 Version:     2026.03.10-SEAL
 Status:      STATIONARY & ENFORCED
