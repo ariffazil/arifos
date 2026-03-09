@@ -427,7 +427,7 @@ def register_resources(mcp: FastMCP) -> None:
         """High-level arifOS canon map: tools, floors, and resource index."""
         return json.dumps(
             {
-                "version": "2026.03.08",
+                "version": "2026.03.09",
                 "motto": "DITEMPA BUKAN DIBERI",
                 "organs": ["AGI", "ASI", "APEX", "VAULT", "INIT", "UnifiedMemory"],
                 "tool_count": len(_TOOLS),
