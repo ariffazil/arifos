@@ -19,6 +19,7 @@ from __future__ import annotations
 import os
 
 from fastmcp import FastMCP
+from starlette.staticfiles import StaticFiles
 
 from arifosmcp.runtime.fastmcp_ext.transports import _build_http_middleware, run_server
 from arifosmcp.runtime.orchestrator import metabolic_loop
@@ -79,6 +80,11 @@ register_phase2_tools(mcp)
 
 HTTP_PATH = os.getenv("ARIFOS_MCP_PATH", "/mcp/")
 app = mcp.http_app(path=HTTP_PATH, middleware=_build_http_middleware())
+
+# Mount APEX dashboard static files
+_dashboard_dir = os.path.join(os.path.dirname(__file__), "..", "sites", "apex-dashboard")
+if os.path.isdir(_dashboard_dir):
+    app.mount("/dashboard", StaticFiles(directory=_dashboard_dir, html=True), name="dashboard")
 
 
 def create_aaa_mcp_server() -> FastMCP:

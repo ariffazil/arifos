@@ -158,6 +158,15 @@ services:
       - X_BEARER_TOKEN=${X_BEARER_TOKEN:-}
       - APIFY_API_TOKEN=${APIFY_API_TOKEN:-}
       - BROWSERLESS_URL=http://headless_browser:3000
+      # AI Model Provider Keys (from .env)
+      - KIMI_API_KEY=${KIMI_API_KEY:-}
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY:-}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY:-}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY:-}
+      - VENICE_API_KEY=${VENICE_API_KEY:-}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
     networks:
       - arifos_trinity
     ports:
@@ -241,7 +250,7 @@ services:
     deploy:
       resources:
         limits:
-          memory: 3072M
+          memory: 2048M
     restart: unless-stopped
 
   # --- Monitoring Stack ---
