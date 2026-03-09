@@ -1,8 +1,0 @@
-recursive-include spec *.json *.yaml *.md
-recursive-include arifos *.py *.json *.yaml *.md
-recursive-include codebase *.py *.json *.yaml *.md
-recursive-include aaa_mcp *.py *.json *.yaml *.md
-recursive-include mcp_server *.py *.json *.yaml *.md
-recursive-include scripts *.py *.json *.yaml *.md
-include requirements.txt
-include Dockerfile
