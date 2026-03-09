@@ -8,12 +8,15 @@ attention_steering, and resonance_density (ρ).
 
 from .coordinates import (
     ALL_MECHANISMS,
-    APEXGCoordinate,
+    CATEGORY_AGI_DOCTRINE,
     CATEGORY_CENTROIDS,
     CATEGORY_FLOOR_AFFINITIES,
     CATEGORY_POWER_MECHANISMS,
     CATEGORY_RESONANCE_DENSITY,
     DIM,
+    LAYER_DESCRIPTIONS,
+    APEXGCoordinate,
+    WisdomLayer,
     WordPowerMechanism,
     session_state_to_coordinate,
     stage_to_tau,
@@ -31,12 +34,15 @@ from .manifold import (
 __all__ = [
     # coordinates
     "APEXGCoordinate",
+    "CATEGORY_AGI_DOCTRINE",
     "CATEGORY_CENTROIDS",
     "CATEGORY_FLOOR_AFFINITIES",
     "CATEGORY_POWER_MECHANISMS",
     "CATEGORY_RESONANCE_DENSITY",
     "DIM",
+    "LAYER_DESCRIPTIONS",
     "WordPowerMechanism",
+    "WisdomLayer",
     "ALL_MECHANISMS",
     "session_state_to_coordinate",
     "stage_to_tau",

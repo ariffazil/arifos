@@ -8,7 +8,6 @@ from fastmcp.tools import ToolResult
 
 from arifosmcp.bridge import call_kernel
 from arifosmcp.runtime.models import (
-
     APEXBundle,
     AuthContext,
     OPEXBundle,
@@ -185,7 +184,7 @@ async def _wrap_call(
         )
 
         # Inject Philosophy Anchor (33-quote primary, 99-embedding secondary)
-        from arifosmcp.runtime.philosophy import get_philosophical_anchor, get_wisdom_for_context
+        from arifosmcp.runtime.philosophy import get_philosophical_anchor
 
         g_score = kernel_res.get("telemetry", {}).get("confidence", 0.9)
         failed_floors = []
