@@ -70,9 +70,10 @@ async def call_kernel(
 
     # 1.5. Early Exit for Grounding Utilities
     if canonical_name == "search_reality":
-        return await reality_check(payload.get("query", ""), **payload)
+        query = payload.get("query", "")
+        return await reality_check(query=query, sources=payload.get("sources"))
     if canonical_name == "ingest_evidence":
-        return await open_web_page(payload.get("source_url", ""), **payload)
+        return await open_web_page(url=payload.get("source_url", ""))
 
     # 2. Kernel Execution Logic
     try:
@@ -83,11 +84,21 @@ async def call_kernel(
         if canonical_name == "anchor_session":
             from core.shared.types import GovernanceMetadata, Intent, MathDials
 
-            intent = Intent(**payload.get("intent", {})) if payload.get("intent") else Intent(query=query_input or "INIT")
+            intent = (
+                Intent(**payload.get("intent", {}))
+                if payload.get("intent")
+                else Intent(query=query_input or "INIT")
+            )
             math = MathDials(**payload.get("math", {})) if payload.get("math") else MathDials()
-            gov = GovernanceMetadata(**payload.get("governance", {})) if payload.get("governance") else GovernanceMetadata(actor_id=actor_id)
+            gov = (
+                GovernanceMetadata(**payload.get("governance", {}))
+                if payload.get("governance")
+                else GovernanceMetadata(actor_id=actor_id)
+            )
 
-            res = await init(query=intent, actor_id=gov, math_dials=math, auth_token=payload.get("auth_token"))
+            res = await init(
+                query=intent, actor_id=gov, math_dials=math, auth_token=payload.get("auth_token")
+            )
             result = res.model_dump(mode="json")
 
             if res.verdict != Verdict.VOID:
@@ -166,13 +177,14 @@ async def call_kernel(
 
         elif canonical_name == "metabolic_loop":
             from arifosmcp.runtime.orchestrator import metabolic_loop
+
             result = await metabolic_loop(
-                query=query_input, 
-                risk_tier=payload.get("risk_tier", "medium"), 
+                query=query_input,
+                risk_tier=payload.get("risk_tier", "medium"),
                 actor_id=actor_id,
                 session_id=session_id,
                 allow_execution=bool(payload.get("allow_execution", False)),
-                dry_run=bool(payload.get("dry_run", False))
+                dry_run=bool(payload.get("dry_run", False)),
             )
 
         else:
@@ -186,17 +198,21 @@ async def call_kernel(
             verdict_value = result.get("verdict")
             if hasattr(verdict_value, "value"):
                 result["verdict"] = verdict_value.value
-            
+
             result.setdefault("session_id", session_id)
-            result.setdefault("actor_id", actor_id or (auth_ctx.get("actor_id") if auth_ctx else "anonymous"))
-            
-            if canonical_name != "anchor_session" and not any(k in result for k in ("evidence", "grounding", "results")):
+            result.setdefault(
+                "actor_id", actor_id or (auth_ctx.get("actor_id") if auth_ctx else "anonymous")
+            )
+
+            if canonical_name != "anchor_session" and not any(
+                k in result for k in ("evidence", "grounding", "results")
+            ):
                 result["grounding"] = 1.0
-            
+
             if canonical_name in {"eureka_forge", "apex_judge", "seal_vault"}:
                 for w in ("human_witness", "ai_witness", "earth_witness"):
                     result.setdefault(w, 1.0)
-            
+
             if canonical_name == "eureka_forge":
                 result.setdefault("evidence", {"grounding": "Constitutional Forge Logic"})
             elif canonical_name == "seal_vault":
@@ -204,7 +220,7 @@ async def call_kernel(
 
             if auth_ctx:
                 result["auth_context"] = auth_ctx
-            
+
         envelope = wrap_tool_output(canonical_name, result)
 
         # Handle Auth Context Rotation
@@ -225,4 +241,6 @@ async def call_kernel(
 
     except Exception as e:
         logger.error(f"Bridge failure on {tool_name}: {e}", exc_info=True)
-        return wrap_tool_output(canonical_name, {"verdict": "VOID", "error": str(e), "stage": "BRIDGE_FAILURE"})
+        return wrap_tool_output(
+            canonical_name, {"verdict": "VOID", "error": str(e), "stage": "BRIDGE_FAILURE"}
+        )
