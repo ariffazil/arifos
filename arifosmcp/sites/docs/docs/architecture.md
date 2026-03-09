@@ -118,25 +118,22 @@ Client (Claude Desktop / Cursor / ChatGPT / n8n)
   |
   |  stdio / SSE / HTTP
   v
-arifosmcp.runtime/server.py       @mcp.tool() wrappers + governance envelope
+arifosmcp.runtime/server.py        Canonical FastMCP 3.0 Hub
   |
   v
-arifosmcp.transport/server.py              FastMCP 3.0 internal 13-tool surface
+arifosmcp.runtime/tools.py          @mcp.tool() dispatch + governance envelope
   |
   v
-arifosmcp.intelligence/triad/*              Backend logic (anchor, reason, forge, seal, ...)
+arifosmcp/bridge.py                 Harden Bridge (000-999 gatekeeper)
   |
   v
-arifosmcp.intelligence/core/kernel.py       ConstitutionalKernel singleton (audit, thermo, vault)
+core/organs/*                      7-Organ pipeline logic
   |
   v
-core/organs/*                   7-Organ pipeline (000-999)
+core/shared/floors.py              13-Floor enforcement (THRESHOLDS dict)
   |
   v
-core/shared/floors.py          13-Floor enforcement (THRESHOLDS dict)
-  |
-  v
-VAULT999/vault999.jsonl         Immutable ledger (hash-chained, force-tracked in git)
+VAULT999/vault999.jsonl            Immutable ledger (Merkle-chained)
 ```
 
 ---

@@ -10,25 +10,21 @@ description: Technical reference for the canonical arifOS AAA MCP runtime.
 > Registry ID: `io.github.ariffazil/arifos-mcp`
 > Live base URL: `https://arifosmcp.arif-fazil.com`
 > Runtime module: `arifosmcp.runtime`
-> Version: `2026.03.08`
+> Version: `2026.03.09-SEAL`
 
 If you're wondering what an "MCP Server" is: **It's the bridge that connects an AI (like Claude or Cursor) to arifOS.** 
 
 The Model Context Protocol (MCP) is a standard that lets AI models securely use external tools. arifOS runs its own MCP server so that any AI can connect to it and instantly be bound by the 13 constitutional floors.
 
-## Runtime profile
+## Runtime Architecture
 
+- **Primary Entrypoint:** `python -m arifosmcp.runtime`
+- **Session Registry:** `arifosmcp.runtime.sessions` (Centralized state)
+- **Tool Surface:** `arifosmcp.runtime.tools` (APEX-G 10-tool stack)
 - **Production transport:** Streamable HTTP (`/mcp`) — Current MCP standard
 - **Local transport:** stdio — For Claude Desktop, Cursor IDE
 - **Constitutional envelope:** 333 axioms + 13 laws + APEX-G 5-layer stack
 - **Port:** 8080 (default)
-- **Current protocol version:** `2025-11-25`
-- **Supported protocol versions:** `2025-11-25`, `2025-03-26`
-
-## Version negotiation
-
-Protocol version is negotiated during `initialize` and fixed per session.
-If a client sends an unsupported version, the server returns a JSON-RPC error and no session is created.
 
 ## Launch commands (How to run it)
 

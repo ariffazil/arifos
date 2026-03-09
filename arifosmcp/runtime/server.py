@@ -49,7 +49,7 @@ from arifosmcp.runtime.tools import (
 # Phase 1 — Core Constitutional Stack (10 tools)
 # ---------------------------------------------------------------------------
 
-mcp = FastMCP("arifOS-APEX-G", version="2026.03.08-SEAL")
+mcp = FastMCP("arifOS-APEX-G", version="2026.03.09-SEAL")
 PUBLIC_TOOL_PROFILE = os.getenv("ARIFOS_PUBLIC_TOOL_PROFILE", "full").strip().lower() or "full"
 
 register_tools(mcp, profile=PUBLIC_TOOL_PROFILE)
