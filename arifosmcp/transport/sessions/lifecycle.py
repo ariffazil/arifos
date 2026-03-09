@@ -3,10 +3,9 @@ DEPRECATED: This legacy transport module is deprecated.
 
 arifosmcp/runtime/server.py and FastMCP are the canonical deployment paths
 for modern, agnostic MCP clients.
-"""
-"""
+
 arifosmcp.transport/sessions/lifecycle.py — Session Lifecycle Manager
-Constitutional State Machine: INIT_000 → ACTIVE → SABAR_72 → HOLD_888 → VOID
+Constitutional State Machine: INIT_000 -> ACTIVE -> SABAR_72 -> HOLD_888 -> VOID
 
 Session management for the governed MCP control plane.
 Manages session lifecycle, state transitions, and constitutional holds.

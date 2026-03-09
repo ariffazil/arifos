@@ -3,10 +3,8 @@ DEPRECATED: This legacy transport module is deprecated.
 
 arifosmcp/runtime/server.py and FastMCP are the canonical deployment paths
 for modern, agnostic MCP clients.
-"""
-"""
-arifosmcp.transport/external_gateways — External data gateways for arifOS
 
+arifosmcp.transport/external_gateways — External data gateways for arifOS
 Provides:
 - jina_reader_client: Jina Reader API client (PRIMARY for search_reality)
 - brave_client: Brave Search API client (fallback)

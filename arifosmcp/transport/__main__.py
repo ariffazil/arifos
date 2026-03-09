@@ -3,8 +3,8 @@ DEPRECATED: This legacy transport module is deprecated.
 
 arifosmcp/runtime/server.py and FastMCP are the canonical deployment paths
 for modern, agnostic MCP clients.
-"""
-"""arifosmcp.transport CLI entrypoint.
+
+arifosmcp.transport CLI entrypoint.
 
 This module is intentionally small and stable because multiple clients and test
 suites rely on its transport dispatch behavior.

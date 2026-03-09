@@ -3,10 +3,8 @@ DEPRECATED: This legacy transport module is deprecated.
 
 arifosmcp/runtime/server.py and FastMCP are the canonical deployment paths
 for modern, agnostic MCP clients.
-"""
-"""
-Principle Operators — Executable Governance Rules
 
+Principle Operators — Executable Governance Rules
 Converts 9 Principles into deterministic operators:
 - Each operator has: precondition, invariant, action
 - Machine-executable, zero ambiguity
