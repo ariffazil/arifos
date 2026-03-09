@@ -79,7 +79,12 @@ register_phase2_tools(mcp)
 # ---------------------------------------------------------------------------
 
 HTTP_PATH = os.getenv("ARIFOS_MCP_PATH", "/mcp/")
-app = mcp.http_app(path=HTTP_PATH, middleware=_build_http_middleware())
+# Enable stateless HTTP for Cloudflare compatibility (no session persistence needed)
+app = mcp.http_app(
+    path=HTTP_PATH, 
+    middleware=_build_http_middleware(),
+    stateless_http=True
+)
 
 # Mount APEX dashboard static files
 _dashboard_dir = os.path.join(os.path.dirname(__file__), "..", "sites", "apex-dashboard")
