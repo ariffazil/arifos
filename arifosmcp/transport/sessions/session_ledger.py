@@ -1,4 +1,10 @@
 """
+DEPRECATED: This legacy transport module is deprecated.
+
+arifosmcp/runtime/server.py and FastMCP are the canonical deployment paths
+for modern, agnostic MCP clients.
+"""
+"""
 SessionLedger — VAULT999 Unified Ledger
 
 UNIFIED: PostgreSQL + Redis + Merkle Tree + EUREKA Sieve

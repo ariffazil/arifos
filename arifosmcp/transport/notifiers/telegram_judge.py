@@ -1,3 +1,9 @@
+"""
+DEPRECATED: This legacy transport module is deprecated.
+
+arifosmcp/runtime/server.py and FastMCP are the canonical deployment paths
+for modern, agnostic MCP clients.
+"""
 # arifosmcp.transport/notifiers/telegram_judge.py — F11 Command Authority
 """
 888 Judge Notification System

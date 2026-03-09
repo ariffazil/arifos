@@ -1,4 +1,10 @@
 """
+DEPRECATED: This legacy transport module is deprecated.
+
+arifosmcp/runtime/server.py and FastMCP are the canonical deployment paths
+for modern, agnostic MCP clients.
+"""
+"""
 MCP Container Tools for AAA MCP Server
 Adds container management to the constitutional AI gateway
 """

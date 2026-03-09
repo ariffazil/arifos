@@ -1,3 +1,9 @@
+"""
+DEPRECATED: This legacy transport module is deprecated.
+
+arifosmcp/runtime/server.py and FastMCP are the canonical deployment paths
+for modern, agnostic MCP clients.
+"""
 #!/usr/bin/env python3
 """
 arifOS MCP Self-Test Module (2026.02.22-FORGE-VPS-SEAL)

@@ -1,4 +1,10 @@
 """
+DEPRECATED: This legacy transport module is deprecated.
+
+arifosmcp/runtime/server.py and FastMCP are the canonical deployment paths
+for modern, agnostic MCP clients.
+"""
+"""
 arifosmcp.transport/tools — Constitutional Tools Package
 
 Hardened v55.5 tools for the Trinity pipeline.

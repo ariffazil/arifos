@@ -1,4 +1,10 @@
 """
+DEPRECATED: This legacy transport module is deprecated.
+
+arifosmcp/runtime/server.py and FastMCP are the canonical deployment paths
+for modern, agnostic MCP clients.
+"""
+"""
 Unified Response Envelope — Low-Entropy Output Contract
 
 Standardizes ALL tool outputs into a predictable, machine-readable format.

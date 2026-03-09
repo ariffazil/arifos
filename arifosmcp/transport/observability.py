@@ -1,4 +1,10 @@
 """
+DEPRECATED: This legacy transport module is deprecated.
+
+arifosmcp/runtime/server.py and FastMCP are the canonical deployment paths
+for modern, agnostic MCP clients.
+"""
+"""
 OpenTelemetry Observability for arifOS FORGE-2
 Provides distributed tracing, metrics, and logging for constitutional floors.
 

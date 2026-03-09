@@ -1,4 +1,10 @@
 """
+DEPRECATED: This legacy transport module is deprecated.
+
+arifosmcp/runtime/server.py and FastMCP are the canonical deployment paths
+for modern, agnostic MCP clients.
+"""
+"""
 JWT Authentication Middleware for arifOS FORGE-2
 Replaces ARIF_SECRET header with standardized JWT + RBAC tied to constitutional floors.
 

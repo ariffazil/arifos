@@ -1,4 +1,10 @@
 """
+DEPRECATED: This legacy transport module is deprecated.
+
+arifosmcp/runtime/server.py and FastMCP are the canonical deployment paths
+for modern, agnostic MCP clients.
+"""
+"""
 arifOS Wrappers — Constitutional Governance for External Systems
 
 This package provides constitutional wrappers for Docker, Kubernetes, and

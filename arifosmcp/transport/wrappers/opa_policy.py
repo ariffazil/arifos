@@ -1,4 +1,10 @@
 """
+DEPRECATED: This legacy transport module is deprecated.
+
+arifosmcp/runtime/server.py and FastMCP are the canonical deployment paths
+for modern, agnostic MCP clients.
+"""
+"""
 arifOS OPA Policy MCP Integration
 
 Integrates with Open Policy Agent (OPA) / Conftest for manifest validation.

@@ -1,4 +1,10 @@
 """
+DEPRECATED: This legacy transport module is deprecated.
+
+arifosmcp/runtime/server.py and FastMCP are the canonical deployment paths
+for modern, agnostic MCP clients.
+"""
+"""
 Rate Limiter for arifOS MCP Server (v55.5-HARDENED)
 
 Implements token bucket algorithm for constitutional rate limiting.

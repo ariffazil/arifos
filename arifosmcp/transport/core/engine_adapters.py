@@ -1,3 +1,9 @@
+"""
+DEPRECATED: This legacy transport module is deprecated.
+
+arifosmcp/runtime/server.py and FastMCP are the canonical deployment paths
+for modern, agnostic MCP clients.
+"""
 """Transport-facing engine adapter compatibility layer.
 
 Kernel logic lives in `core.kernel.engine_adapters`.

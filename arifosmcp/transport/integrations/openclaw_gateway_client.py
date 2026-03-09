@@ -1,4 +1,10 @@
 """
+DEPRECATED: This legacy transport module is deprecated.
+
+arifosmcp/runtime/server.py and FastMCP are the canonical deployment paths
+for modern, agnostic MCP clients.
+"""
+"""
 arifosmcp.transport/integrations/openclaw_gateway_client.py
 
 Read-only OpenClaw gateway diagnostics for arifOS MCP.

@@ -1,3 +1,9 @@
+"""
+DEPRECATED: This legacy transport module is deprecated.
+
+arifosmcp/runtime/server.py and FastMCP are the canonical deployment paths
+for modern, agnostic MCP clients.
+"""
 # arifosmcp.transport/capabilities/t6_web_search.py
 # T6 Web Search — Brave Search API integration (v62 Step 2)
 # Real evidence grounding for F2 Truth verification

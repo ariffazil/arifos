@@ -22,7 +22,6 @@ from starlette.staticfiles import StaticFiles
 
 from arifosmcp.runtime.fastmcp_ext.transports import (
     _build_http_middleware,
-    _ensure_json_accept_header,
     _normalize_path,
     run_server,
 )
@@ -88,7 +87,8 @@ register_rest_routes(mcp, CORE_TOOL_REGISTRY)
 # Phase 2 — External Capability Tools (legacy-enabled, not in new loop)
 # ---------------------------------------------------------------------------
 
-register_phase2_tools(mcp, profile=PUBLIC_TOOL_PROFILE)
+if PUBLIC_TOOL_PROFILE not in ("chatgpt", "agnostic_public"):
+    register_phase2_tools(mcp, profile=PUBLIC_TOOL_PROFILE)
 
 
 # ---------------------------------------------------------------------------
@@ -96,7 +96,7 @@ register_phase2_tools(mcp, profile=PUBLIC_TOOL_PROFILE)
 # ---------------------------------------------------------------------------
 
 HTTP_PATH = _normalize_path(os.getenv("ARIFOS_MCP_PATH"), "/mcp")
-# Enable stateless HTTP + JSON responses for ChatGPT/remote MCP compatibility.
+# Enable stateless HTTP + JSON responses for agnostic/remote MCP compatibility.
 _mcp_app = mcp.http_app(
     path=HTTP_PATH,
     json_response=True,
@@ -104,21 +104,7 @@ _mcp_app = mcp.http_app(
     stateless_http=True,
 )
 
-
-# ASGI wrapper to add default Accept header for ChatGPT compatibility
-class ChatGPTCompatMiddleware:
-    """Ensure Accept includes application/json before FastMCP handles the request."""
-
-    def __init__(self, app):
-        self.app = app
-
-    async def __call__(self, scope, receive, send):
-        if scope.get("type") == "http":
-            scope["headers"] = _ensure_json_accept_header(scope.get("headers", []))
-        await self.app(scope, receive, send)
-
-
-app = ChatGPTCompatMiddleware(_mcp_app)
+app = _mcp_app
 
 # Mount APEX dashboard static files
 _dashboard_dir = os.path.join(os.path.dirname(__file__), "..", "sites", "apex-dashboard")

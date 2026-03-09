@@ -1,4 +1,10 @@
 """
+DEPRECATED: This legacy transport module is deprecated.
+
+arifosmcp/runtime/server.py and FastMCP are the canonical deployment paths
+for modern, agnostic MCP clients.
+"""
+"""
 AAA MCP REST Bridge — legacy HTTP convenience adapter.
 Maps HTTP POST /tools/{name} → tool calls for non-MCP clients only.
 

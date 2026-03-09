@@ -1,4 +1,10 @@
 """
+DEPRECATED: This legacy transport module is deprecated.
+
+arifosmcp/runtime/server.py and FastMCP are the canonical deployment paths
+for modern, agnostic MCP clients.
+"""
+"""
 ingest_evidence — Unified Evidence Ingestion Tool (F1, F2, F4, F11, F12)
 
 Merges the archived fetch_content (URL retrieval) and inspect_file (filesystem

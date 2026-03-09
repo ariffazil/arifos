@@ -1,3 +1,9 @@
+"""
+DEPRECATED: This legacy transport module is deprecated.
+
+arifosmcp/runtime/server.py and FastMCP are the canonical deployment paths
+for modern, agnostic MCP clients.
+"""
 """INTERNAL implementation for arifosmcp.transport.
 
 DO NOT CALL DIRECTLY for public MCP interactions. Use `arifosmcp.runtime.server` instead.

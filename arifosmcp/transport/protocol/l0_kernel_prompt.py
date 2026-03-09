@@ -1,4 +1,10 @@
 """
+DEPRECATED: This legacy transport module is deprecated.
+
+arifosmcp/runtime/server.py and FastMCP are the canonical deployment paths
+for modern, agnostic MCP clients.
+"""
+"""
 arifosmcp.transport/protocol/l0_kernel_prompt.py — L0 Constitutional Kernel System Prompt
 
 The foundational instruction set that enforces the 13 Floors and EMD Stack

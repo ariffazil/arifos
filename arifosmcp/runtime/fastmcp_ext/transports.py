@@ -44,7 +44,7 @@ def _normalize_path(raw: str | None, default: str) -> str:
 def _ensure_json_accept_header(
     headers: list[tuple[bytes, bytes]] | tuple[tuple[bytes, bytes], ...],
 ) -> list[tuple[bytes, bytes]]:
-    """Ensure Accept advertises application/json for JSON-only Streamable HTTP."""
+    """Ensure Accept advertises application/json for universally agnostic MCP compliance."""
     normalized_headers = list(headers)
     for index, (name, value) in enumerate(normalized_headers):
         if name.lower() != b"accept":
@@ -54,6 +54,7 @@ def _ensure_json_accept_header(
         if "application/json" in accept_value:
             return normalized_headers
 
+        # Force application/json for strict SDK compliance
         suffix = b", application/json" if value.strip() else b"application/json"
         normalized_headers[index] = (name, value + suffix)
         return normalized_headers
@@ -88,8 +89,8 @@ class SecurityHeadersMiddleware:
         await self.app(scope, receive, send_with_headers)
 
 
-class DefaultAcceptMiddleware:
-    """Ensure Accept includes application/json for ChatGPT MCP compatibility.
+class AgnosticAcceptMiddleware:
+    """Ensure Accept includes application/json for universal MCP compatibility.
 
     Some MCP clients omit Accept entirely; others send wildcard values like */*.
     The upstream SDK's JSON-only mode still requires application/json to appear.
@@ -309,8 +310,8 @@ class InMemoryRateLimitMiddleware:
 def _build_http_middleware() -> list[Middleware]:
     middleware: list[Middleware] = []
 
-    # Add default Accept header for ChatGPT compatibility (must be first)
-    middleware.append(Middleware(DefaultAcceptMiddleware))
+    # Add default Accept header for universal compatibility (must be first)
+    middleware.append(Middleware(AgnosticAcceptMiddleware))
 
     allowed_hosts = _split_csv("ARIFOS_ALLOWED_HOSTS", "*")
     if allowed_hosts != ["*"]:

@@ -1,4 +1,10 @@
 """
+DEPRECATED: This legacy transport module is deprecated.
+
+arifosmcp/runtime/server.py and FastMCP are the canonical deployment paths
+for modern, agnostic MCP clients.
+"""
+"""
 arifosmcp.transport/tools/reality_grounding.py — Minimal Reality Grounding Helpers
 
 This module is intentionally lightweight: it provides the symbols exported by
