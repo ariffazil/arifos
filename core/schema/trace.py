@@ -108,6 +108,6 @@ class Trace(BaseModel):
         """Allow constructing Trace directly from a stage→verdict dict."""
         if isinstance(data, dict):
             # If it looks like a stage-key dict (keys start with digits), convert it
-            if any(k[:3].isdigit() for k in data if isinstance(k, str)):
+            if any(len(k) >= 3 and k[:3].isdigit() for k in data if isinstance(k, str)):
                 return cls.from_dict(data).model_dump()
         return data
