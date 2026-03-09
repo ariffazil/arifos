@@ -22,6 +22,7 @@ from core.shared.atlas import QueryType
 from core.shared.floors import update_floor_status
 from core.shared.mottos import get_motto_for_stage
 from core.shared.types import EMD, Verdict
+from core.shared.verdict_contract import normalize_verdict, validate_stage_verdict
 from core.state.session_manager import session_manager
 
 
@@ -56,16 +57,16 @@ class ForgeResult(BaseModel):
     processing_time_ms: float = 0.0
 
     def is_success(self) -> bool:
-        """Check if result was successful (SEAL or PARTIAL)."""
-        return self.verdict in ("SEAL", "PARTIAL")
+        """Check if result was successful (SEAL, PROVISIONAL, or PARTIAL)."""
+        return self.verdict in ("SEAL", "PROVISIONAL", "PARTIAL")
 
     def is_blocked(self) -> bool:
-        """Check if result was blocked (VOID)."""
+        """Check if result was hard-rejected (VOID — terminal)."""
         return self.verdict == "VOID"
 
     def needs_human(self) -> bool:
-        """Check if result needs human review (888_HOLD)."""
-        return self.verdict == "888_HOLD"
+        """Check if result requires human decision (HOLD)."""
+        return self.verdict in ("HOLD", "888_HOLD")
 
     def to_user_message(self) -> str:
         """Generate user-friendly result message with remediation."""
@@ -75,6 +76,12 @@ class ForgeResult(BaseModel):
         elif self.verdict == "PARTIAL":
             return f"Limited approval with constraints. {self.remediation}"
 
+        elif self.verdict == "PROVISIONAL":
+            return f"Exploratory result. {self.remediation}"
+
+        elif self.verdict == "SABAR":
+            return f"Processing paused. {self.remediation}"
+
         elif self.verdict == "VOID":
             msg = "Blocked by constitutional floors."
             if self.floors_failed:
@@ -83,7 +90,7 @@ class ForgeResult(BaseModel):
                 msg += f" {self.remediation}"
             return msg
 
-        elif self.verdict == "888_HOLD":
+        elif self.verdict == "HOLD":
             return "Requires human sovereign review."
 
         return "Unknown verdict."
@@ -100,11 +107,13 @@ async def quick(
     Returns AGI output if init passes; otherwise returns VOID/HOLD token info.
     """
     token = await init(query, actor_id, auth_token)
-    if token.verdict == Verdict.VOID or token.verdict == Verdict.HOLD_888:
+    # 000 INIT is the only stage allowed to VOID (auth/injection failures)
+    token_verdict = normalize_verdict(0, token.verdict)
+    if token_verdict in (Verdict.VOID, Verdict.HOLD):
         return {
-            "verdict": token.verdict.value,
+            "verdict": token_verdict.value,
             "session_id": token.session_id,
-            "reason": token.error_message or "",
+            "reason": getattr(token, "error_message", "") or "",
         }
 
     agi_out = await agi(query, token.session_id, action="full")
@@ -173,10 +182,12 @@ async def forge(
         emd.energy.e_eff = kernel.current_energy
         emd.metabolism.pressure = pressure
 
-    if token.verdict == Verdict.VOID or token.verdict == Verdict.HOLD_888:
-        verdict = token.verdict.value
+    # 000 INIT normalization (auth/injection VOID is the only sanctioned early VOID)
+    token_verdict = normalize_verdict(0, token.verdict)
+    if token_verdict in (Verdict.VOID, Verdict.HOLD):
+        verdict = token_verdict.value
         elapsed = (time.perf_counter() - start_time) * 1000
-        remediation = token.error_message or "Airlock rejection."
+        remediation = getattr(token, "error_message", None) or "Airlock rejection."
 
         current_violations = list(token.violations)
         update_floor_status(current_violations)
@@ -249,8 +260,16 @@ async def forge(
 
     if floors_violated and mode == "conscience":
         elapsed = (time.perf_counter() - start_time) * 1000
+        # RULE: 333 MIND cannot kill ideas.
+        # Use kernel normalization Layer
+        raw_verdict = Verdict.VOID
+        if kernel:
+            verdict_enum = kernel.normalize_verdict("333", raw_verdict)
+        else:
+            verdict_enum = Verdict.SABAR
+
         return ForgeResult(
-            verdict="VOID",
+            verdict=verdict_enum.value,
             session_id=token.session_id,
             token_status=token.status,
             agi=agi_out.model_dump() if hasattr(agi_out, "model_dump") else agi_out,
@@ -261,7 +280,7 @@ async def forge(
             query_type=query_type_value,
             f2_threshold=f2_threshold,
             floors_failed=floors_violated,
-            remediation=f"Blocked by {', '.join(floors_violated)}",
+            remediation=f"Early stage adjustment (was VOID due to {', '.join(floors_violated)})",
             emd=emd.model_dump(),
             mode=mode,
         )
@@ -296,7 +315,9 @@ async def forge(
         query=query,
     )
 
-    verdict = apex_dict.get("verdict", "SEAL")
+    # 888 JUDGE is allowed to VOID — apply normalization to confirm it's lawful
+    _raw_apex_verdict = apex_dict.get("verdict", "SEAL")
+    verdict = normalize_verdict(888, _raw_apex_verdict).value
     elapsed = (time.perf_counter() - start_time) * 1000
 
     return ForgeResult(

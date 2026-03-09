@@ -153,8 +153,8 @@ class JudgmentKernel:
         expected_ms: float = 1.0,
     ) -> CognitionResult:
         from core.enforcement.genius import calculate_genius
-        from core.shared.types import FloorScores
         from core.shared.mottos import get_motto_by_stage
+        from core.shared.types import FloorScores
 
         uncertainty_calc = calculate_uncertainty(
             evidence_count=evidence_count,
@@ -165,27 +165,57 @@ class JudgmentKernel:
         )
 
         safety_omega = uncertainty_calc["safety_omega"]
-        truth_score = min(0.99, (sum(g.get("relevance", 0.9) for g in (grounding or [])) / max(1, len(grounding or []))) - (safety_omega * 0.1)) if grounding else 0.5
+        truth_score = (
+            min(
+                0.99,
+                (
+                    sum(g.get("relevance", 0.9) for g in (grounding or []))
+                    / max(1, len(grounding or []))
+                )
+                - (safety_omega * 0.1),
+            )
+            if grounding
+            else 0.5
+        )
 
         partial_floors = FloorScores(
             f2_truth=max(0.0, truth_score),
             f4_clarity=0.9,
             f7_humility=max(0.0, round(0.04 - (safety_omega / 10.0), 4)),
             f8_genius=0.8,
-            f10_ontology=bool(grounding)
+            f10_ontology=bool(grounding),
         )
 
-        genius_res = calculate_genius(partial_floors, compute_budget_used=compute_ms, compute_budget_max=max(expected_ms * 2, 1000))
+        from core.enforcement.genius import calculate_genius
+        from core.shared.types import Verdict
+
+        genius_res = calculate_genius(
+            partial_floors,
+            compute_budget_used=compute_ms,
+            compute_budget_max=max(expected_ms * 2, 1000),
+        )
         motto = get_motto_by_stage("333")
 
+        # RULE: 333 MIND (Laboratory) forbidden: VOID
+        # The lab must be allowed to think wrong.
+        g_score = genius_res["genius_score"]
+        if g_score >= 0.8:
+            verdict = Verdict.SEAL
+        elif g_score >= 0.6:
+            verdict = Verdict.PROVISIONAL
+        elif g_score >= 0.4:
+            verdict = Verdict.PARTIAL
+        else:
+            verdict = Verdict.SABAR
+
         return CognitionResult(
-            verdict="SEAL" if genius_res["genius_score"] >= 0.5 else "VOID",
+            verdict=verdict.value,
             truth_score=truth_score,
-            genius_score=genius_res["genius_score"],
+            genius_score=g_score,
             grounded=bool(grounding),
             motto=f"{motto.malay} | {motto.english}" if motto else None,
             floor_scores=partial_floors.model_dump(),
-            module_results={"omega": safety_omega}
+            module_results={"omega": safety_omega},
         )
 
     def judge_empathy(
@@ -197,20 +227,33 @@ class JudgmentKernel:
         impact_severity: float,
     ) -> EmpathyResult:
         from core.enforcement.genius import calculate_genius
-        from core.shared.types import FloorScores
         from core.shared.mottos import get_motto_by_stage
+        from core.shared.types import FloorScores, Verdict
 
         peace_squared = (1.0 - impact_severity) ** 2
         empathy_score = min(1.0, 0.6 + (stakeholder_count * 0.08) - (vulnerability_score * 0.2))
         motto = get_motto_by_stage("555")
 
+        # RULE: 555 HEART (Safety) forbidden: VOID
+        # Heart does not reject ideas. It pauses them.
+        if peace_squared > 0.8:
+            verdict = Verdict.SEAL
+        elif peace_squared > 0.4:
+            verdict = Verdict.PARTIAL
+        else:
+            verdict = Verdict.HOLD  # Requires human review due to risk
+
         return EmpathyResult(
-            verdict="SEAL" if peace_squared > 0.4 else "VOID",
+            verdict=verdict.value,
             reversibility_score=1.0 - reversibility_index,
             peace_squared=peace_squared,
             empathy_score=empathy_score,
             motto=f"{motto.malay} | {motto.english}" if motto else None,
-            floor_scores={"F1": 1.0 - reversibility_index, "F5": peace_squared, "F6": empathy_score}
+            floor_scores={
+                "F1": 1.0 - reversibility_index,
+                "F5": peace_squared,
+                "F6": empathy_score,
+            },
         )
 
     def judge_apex(
@@ -222,8 +265,8 @@ class JudgmentKernel:
         tool_class: str = "SPINE",
     ) -> VerdictResult:
         from core.enforcement.genius import calculate_genius
-        from core.shared.types import FloorScores
         from core.shared.mottos import get_motto_by_stage
+        from core.shared.types import FloorScores
 
         kernel = get_governance_kernel(session_id)
         combined_floors = FloorScores(
@@ -233,19 +276,31 @@ class JudgmentKernel:
             f5_peace=asi_result.peace_squared if asi_result else 1.0,
             f6_empathy=asi_result.empathy_score if asi_result else 0.95,
             f8_genius=0.8,
-            f13_sovereign=1.0 if kernel.human_approval_status == "approved" else 0.7
+            f13_sovereign=1.0 if kernel.human_approval_status == "approved" else 0.7,
         )
+
+        from core.shared.types import Verdict
 
         genius_res = calculate_genius(combined_floors, h=kernel.hysteresis_penalty)
         g_score = genius_res["genius_score"]
         motto = get_motto_by_stage("888")
 
+        # RULE: 888 JUDGE allows VOID
+        if g_score >= 0.8:
+            verdict = Verdict.SEAL
+        elif g_score >= 0.6:
+            verdict = Verdict.PARTIAL
+        elif g_score >= 0.4:
+            verdict = Verdict.HOLD
+        else:
+            verdict = Verdict.VOID
+
         return VerdictResult(
-            verdict="SEAL" if g_score >= 0.8 else ("888_HOLD" if g_score < 0.6 else "PARTIAL"),
+            verdict=verdict.value,
             confidence=g_score,
             motto=f"{motto.malay} | {motto.english}" if motto else "DITEMPA, BUKAN DIBERI",
             vitality_index=round(g_score / 0.5, 4),
-            floor_scores=combined_floors.model_dump()
+            floor_scores=combined_floors.model_dump(),
         )
 
 

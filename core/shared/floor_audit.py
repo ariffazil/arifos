@@ -43,13 +43,7 @@ except Exception:
 # ---------------------------------------------------------------------------
 
 
-class Verdict(str, Enum):
-    SEAL = "SEAL"  # ≥ 95% floors pass — unconditional approval
-    PARTIAL = "PARTIAL"  # 80-94% — constrained proceed
-    SABAR = "SABAR"  # < 80% — cooling required
-    HOLD = "HOLD"  # F1/F11 failure — awaiting human ratification
-    VOID = "VOID"  # Critical floor (F9/F12) failure — terminate
-
+from core.shared.types import Verdict
 
 # ---------------------------------------------------------------------------
 # Data containers
@@ -237,7 +231,7 @@ class FloorAuditor:
     # Critical: any single failure → VOID
     _VOID_ON_FAIL = frozenset(["F9", "F12"])
 
-    # Hold: failure → HOLD_888 (human ratification required)
+    # Hold: failure → HOLD (human ratification required)
     _HOLD_ON_FAIL = frozenset(["F1"])
 
     def __init__(self, config_path: str | None = None) -> None:
@@ -715,7 +709,7 @@ class FloorAuditor:
                 "F11",
                 score >= 0.90,
                 score,
-                None if has_approval else "High-risk action requires 888_HOLD sovereign approval",
+                None if has_approval else "High-risk action requires HOLD sovereign approval",
             )
         return FloorResult("F11", True, 0.98)
 
@@ -790,7 +784,7 @@ class FloorAuditor:
             )
         if verdict == Verdict.HOLD:
             return (
-                f"⏸ HOLD_888: Human ratification required for: {', '.join(failed)}. "
+                f"⏸ HOLD: Human ratification required for: {', '.join(failed)}. "
                 "Issue 888_APPROVED to proceed."
             )
         if verdict == Verdict.SABAR:

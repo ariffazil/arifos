@@ -171,14 +171,28 @@ class Verdict(str, Enum):
     """
     Constitutional verdict outcomes.
 
-    Hierarchy: SABAR > VOID > HOLD_888 > PARTIAL > SEAL
+    Only these 6 canonical verdicts exist system-wide:
+    - SEAL       (non-terminal): stage successful
+    - PROVISIONAL(non-terminal): exploratory result
+    - PARTIAL    (non-terminal): incomplete but usable
+    - SABAR      (non-terminal): pause / needs more context
+    - HOLD       (non-terminal): waiting for authority/human
+    - VOID       (TERMINAL):     hard rejection / invalid state — must be extremely rare
+
+    Normalization rule (enforced by verdict_contract.normalize_verdict):
+        if stage < 888 and verdict == VOID: verdict = SABAR
+
+    HOLD_888 is a legacy alias for HOLD kept for backward compatibility.
     """
 
-    SEAL = "SEAL"  # All floors pass ✅
-    PARTIAL = "PARTIAL"  # Soft floor warning ⚠️
-    VOID = "VOID"  # Hard floor violation 🛑
-    SABAR = "SABAR"  # Safety circuit triggered 🔴
-    HOLD_888 = "888_HOLD"  # Human review required 👤
+    SEAL = "SEAL"
+    PROVISIONAL = "PROVISIONAL"
+    PARTIAL = "PARTIAL"
+    SABAR = "SABAR"
+    HOLD = "HOLD"
+    VOID = "VOID"
+    # Legacy alias — normalizes to HOLD in verdict_contract layer
+    HOLD_888 = "888_HOLD"
 
 
 # ============================================================================
@@ -387,14 +401,16 @@ class CodeState(BaseModel):
     stage: Literal["000", "111", "222", "333", "444", "555", "666", "777", "888", "999"] = "000"
     lane: Literal["PHATIC", "SOFT", "HARD", "REFUSE", "UNKNOWN"] = "UNKNOWN"
     runtime_mode: Literal["init", "draft", "review", "judge", "seal"] = "init"
-    verdict: Literal["SEAL", "PARTIAL", "SABAR", "VOID", "HOLD-888", "UNSET"] = "UNSET"
+    verdict: Literal["SEAL", "PROVISIONAL", "PARTIAL", "SABAR", "HOLD", "VOID", "UNSET"] = "UNSET"
 
 
 class GovernanceMetadata(BaseModel):
     """G in APEX-G: Identity and stakes."""
 
     actor_id: str = "anonymous"
-    authority_level: Literal["human", "agent", "system", "anonymous", "operator", "sovereign"] = "anonymous"
+    authority_level: Literal["human", "agent", "system", "anonymous", "operator", "sovereign"] = (
+        "anonymous"
+    )
     stakes_class: Literal["A", "B", "C", "UNKNOWN"] = "UNKNOWN"
     tri_witness: dict[str, float] = Field(
         default_factory=lambda: {"human": 0.0, "ai": 0.0, "earth": 0.0}
@@ -527,7 +543,7 @@ class NextAction(BaseModel):
 
     action_type: Literal["run_eval", "update_schema_draft", "code_sandbox", "human_review", "none"]
     description: str
-    requires_888_hold: bool = False
+    requires_hold: bool = False
 
 
 # ============================================================================
@@ -604,8 +620,8 @@ class InitOutput(BaseOrganOutput):
 
     @property
     def requires_human(self) -> bool:
-        """Query requires sovereign approval (888_HOLD)."""
-        return self.code.verdict == "HOLD-888" or self.verdict == Verdict.HOLD_888
+        """Query requires sovereign approval (HOLD)."""
+        return self.code.verdict == "HOLD" or self.verdict == Verdict.HOLD
 
 
 class AgiOutput(BaseOrganOutput):

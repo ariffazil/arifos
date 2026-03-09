@@ -447,6 +447,34 @@ class GovernanceKernel:
     def can_proceed(self) -> bool:
         return self.governance_state in {GovernanceState.ACTIVE, GovernanceState.CONDITIONAL}
 
+    def normalize_verdict(self, stage: str, verdict: Any) -> Any:
+        """
+        Constitutional Verdict Normalization Layer.
+        Ensures exploration stages cannot kill ideas.
+
+        Mandatory Rule: if stage < 888 and verdict == VOID: verdict = SABAR
+        """
+        # Convert to Enum if string
+        from core.shared.types import Verdict
+
+        v = verdict if isinstance(verdict, Verdict) else Verdict(verdict)
+
+        # Parse stage prefix (e.g., "111_search" -> 111)
+        try:
+            stage_clean = stage.split("_")[0]
+            stage_int = int(stage_clean)
+        except (ValueError, IndexError):
+            # If stage is not numeric, treat it cautiously
+            stage_int = 999
+
+        if stage_int < 888 and v == Verdict.VOID:
+            # The heart of the contract:
+            # organs use VOID as "I don't know" or "rejection"
+            # but until JUDGE (888), we downgrade it to SABAR.
+            return Verdict.SABAR
+
+        return v
+
     def get_output_tags(self) -> list[str]:
         tags: list[str] = []
 
@@ -509,16 +537,19 @@ class GovernanceKernel:
             f1_amanah=round(self.reversibility_score, 4),
             f2_truth=round(max(0.0, 1.0 - self.safety_omega), 4),
             f4_clarity=1.0 if self.governance_state == GovernanceState.ACTIVE else 0.8,
-            f5_peace=round(self.reversibility_score, 4), # Peace derived from reversibility in kernel
-            f7_humility=round(0.04 - (self.safety_omega / 10.0), 4), # Grounded in safety_omega
-            f8_genius=0.8, # Previous state anchor
+            f5_peace=round(
+                self.reversibility_score, 4
+            ),  # Peace derived from reversibility in kernel
+            f7_humility=round(0.04 - (self.safety_omega / 10.0), 4),  # Grounded in safety_omega
+            f8_genius=0.8,  # Previous state anchor
             f11_command_auth=self.authority_level != AuthorityLevel.ANALYSIS,
-            f13_sovereign=1.0 if self.human_approval_status == "approved" else 0.7
+            f13_sovereign=1.0 if self.human_approval_status == "approved" else 0.7,
         )
-        
+
         # Physics budget integration
         try:
             from core.physics.thermodynamics_hardened import get_thermodynamic_budget
+
             budget = get_thermodynamic_budget(self.session_id)
             budget_used = budget.consumed
             budget_max = budget.initial_budget
@@ -530,23 +561,23 @@ class GovernanceKernel:
             floors=floors,
             h=self.hysteresis_penalty,
             compute_budget_used=budget_used,
-            compute_budget_max=budget_max
+            compute_budget_max=budget_max,
         )
         return res["genius_score"]
 
     def get_current_state(self) -> dict[str, Any]:
         """Compatibility payload for adapters expecting live governance telemetry."""
         from core.enforcement.genius import calculate_genius, floors_to_dials
-        from core.shared.types import FloorScores
+        from core.shared.types import FloorScores, Verdict
 
         if self.governance_state == GovernanceState.VOID:
-            verdict = "VOID"
+            verdict = Verdict.VOID.value
         elif self.governance_state == GovernanceState.AWAITING_888:
-            verdict = "888_HOLD"
+            verdict = Verdict.HOLD.value
         elif self.governance_state == GovernanceState.CONDITIONAL:
-            verdict = "PARTIAL"
+            verdict = Verdict.PARTIAL.value
         else:
-            verdict = "SEAL"
+            verdict = Verdict.SEAL.value
 
         # Construct FloorScores for a consistent view
         floors = FloorScores(
@@ -556,11 +587,12 @@ class GovernanceKernel:
             f5_peace=round(self.reversibility_score, 4),
             f7_humility=round(0.04 - (self.safety_omega / 10.0), 4),
             f11_command_auth=self.authority_level != AuthorityLevel.ANALYSIS,
-            f13_sovereign=1.0 if self.human_approval_status == "approved" else 0.7
+            f13_sovereign=1.0 if self.human_approval_status == "approved" else 0.7,
         )
-        
+
         try:
             from core.physics.thermodynamics_hardened import get_thermodynamic_budget
+
             budget = get_thermodynamic_budget(self.session_id)
             budget_used = budget.consumed
             budget_max = budget.initial_budget
@@ -601,7 +633,7 @@ class GovernanceKernel:
                 "psi_le": round(self.current_energy, 4),
                 "joules": self.tokens_consumed * 0.0005,
             },
-            "dials": dials
+            "dials": dials,
         }
 
     def to_dict(self) -> dict[str, Any]:

@@ -25,6 +25,7 @@ from core.shared.types import (
     ReasonMindStep,
     Verdict,
 )
+from core.shared.verdict_contract import normalize_verdict
 
 logger = logging.getLogger(__name__)
 
@@ -109,7 +110,7 @@ async def agi(
 
     # 8. Real Intelligence Kernel Judgment (F2, F4, F7, F10)
     from core.judgment import judge_cognition
-    
+
     cognition = judge_cognition(
         query=query,
         evidence_count=len(steps),
@@ -118,20 +119,20 @@ async def agi(
         knowledge_gaps=[],
         model_logits_confidence=confidence,
         grounding=evidence.get("sources", []),
-        compute_ms=50.0, # Simulated
-        expected_ms=100.0
+        compute_ms=50.0,  # Simulated
+        expected_ms=100.0,
     )
 
     answer = ReasonMindAnswer(
-        summary=summary, 
-        confidence=cognition.truth_score, 
-        verdict="ready" if cognition.verdict == "SEAL" else "partial"
+        summary=summary,
+        confidence=cognition.truth_score,
+        verdict="ready" if cognition.verdict == "SEAL" else "partial",
     )
 
     # 9. Construct Output
     return AgiOutput(
         session_id=session_id,
-        verdict=Verdict(cognition.verdict.lower()),
+        verdict=Verdict(cognition.verdict),
         stage="333",
         steps=steps,
         eureka=eureka,

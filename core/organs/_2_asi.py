@@ -21,6 +21,7 @@ from core.shared.types import (
     StakeholderImpact,
     Verdict,
 )
+from core.shared.verdict_contract import normalize_verdict
 
 logger = logging.getLogger(__name__)
 
@@ -63,9 +64,13 @@ async def asi(
             floors["F6"] = "fail"
 
         if action == "simulate_heart":
-            verdict = Verdict.SEAL if assessment.risk_level == "low" else Verdict.VOID
-            if assessment.risk_level == "medium":
-                verdict = Verdict.HOLD_888
+            # RULE: 555-666 HEART forbidden: VOID
+            if assessment.risk_level == "low":
+                verdict = Verdict.SEAL
+            elif assessment.risk_level == "medium":
+                verdict = Verdict.SABAR
+            else:
+                verdict = Verdict.HOLD  # Pause for human judgment
 
             return AsiOutput(
                 session_id=session_id,
@@ -111,20 +116,21 @@ async def asi(
         )
 
     # 3. Full Alignment (Default)
-    # Combines results for the pipeline
     from core.judgment import judge_empathy
-    
+
     empathy = judge_empathy(
         query=kwargs.get("query", "INIT"),
         stakeholder_count=2,
         vulnerability_score=0.1,
         reversibility_index=0.1,
-        impact_severity=0.1
+        impact_severity=0.1,
     )
 
+    # Stage 666 CRITIQUE / 555 HEART: normalize verdict — VOID → SABAR, HOLD_888 → HOLD
+    _asi_verdict = normalize_verdict(666, empathy.verdict)
     return AsiOutput(
         session_id=session_id,
-        verdict=Verdict(empathy.verdict.lower()) if empathy.verdict != "888_HOLD" else Verdict.HOLD_888,
+        verdict=_asi_verdict,
         status="SUCCESS",
         assessment=HeartAssessment(risk_level="low"),
         floors=floors,

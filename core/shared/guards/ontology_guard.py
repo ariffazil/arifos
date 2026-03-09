@@ -19,7 +19,7 @@ Design:
 Constitutional Floor: F10 (Ontology)
     - Type: Hypervisor (OS-level, cannot be bypassed by prompts)
     - Engine: AGI (Δ-Mind) is most prone to literalism
-    - Failure Action: HOLD_888
+    - Failure Action: HOLD
     - Precedence: 10
 
 Motto:
@@ -47,7 +47,7 @@ class OntologyGuardResult:
     Result structure for OntologyGuard.check_literalism.
 
     Attributes:
-        status: "PASS" if symbolic mode, "HOLD_888" if literalism detected
+        status: "PASS" if symbolic mode, "HOLD" if literalism detected
         risk_level: OntologyRisk value
         detected_patterns: List of literalism patterns found
         reason: Human-readable explanation
@@ -84,7 +84,7 @@ class OntologyGuard:
             output="The server will overheat if we continue",
             symbolic_mode=False
         )
-        if result.status == "HOLD_888":
+        if result.status == "HOLD":
             # Pause for human clarification
     """
 
@@ -139,14 +139,16 @@ class OntologyGuard:
         normalized_output = unicodedata.normalize("NFKC", output).lower()
 
         # Scan for literalism patterns
-        for pattern, compiled in zip(self.literalism_patterns, self.compiled_patterns, strict=False):
+        for pattern, compiled in zip(
+            self.literalism_patterns, self.compiled_patterns, strict=False
+        ):
             if compiled.search(normalized_output):
                 detected.append(pattern)
 
         # If literalism detected and symbolic mode not set, this is a violation
         if detected and not symbolic_mode:
             return OntologyGuardResult(
-                status="HOLD_888",
+                status="HOLD",
                 risk_level=OntologyRisk.LITERALISM,
                 detected_patterns=detected,
                 reason=f"F10 Ontology: Literalism detected. Found {len(detected)} pattern(s) treating symbolic language as physical constraints. Requires clarification: are these terms used symbolically or literally?",
@@ -187,7 +189,7 @@ def detect_literalism(output: str, symbolic_mode: bool = False) -> bool:
     """
     guard = OntologyGuard()
     result = guard.check_literalism(output, symbolic_mode)
-    return result.status == "HOLD_888"
+    return result.status == "HOLD"
 
 
 __all__ = ["OntologyGuard", "OntologyRisk", "OntologyGuardResult", "detect_literalism"]

@@ -12,13 +12,8 @@ from __future__ import annotations
 import logging
 from typing import Any, Literal
 
-from core.shared.types import (
-    ApexOutput,
-    EurekaProposal,
-    JudgmentRationale,
-    NextAction,
-    Verdict,
-)
+from core.shared.types import ApexOutput, EurekaProposal, JudgmentRationale, NextAction, Verdict
+from core.shared.verdict_contract import normalize_verdict
 
 logger = logging.getLogger(__name__)
 
@@ -55,7 +50,7 @@ async def forge(
             NextAction(
                 action_type="human_review",
                 description="Review proposal with sovereign.",
-                requires_888_hold=True,
+                requires_hold=True,
             )
         )
     elif materiality == "prototype":
@@ -95,21 +90,18 @@ async def judge(
     Rule: MONOTONE-SAFE. Cannot upgrade a weaker candidate.
     Discipline: APEX Theorem Gate (G† = G* · η)
     """
+    from core.enforcement.genius import calculate_genius
     from core.physics.thermodynamics_hardened import (
         check_landauer_before_seal,
         consume_tool_energy,
         get_thermodynamic_budget,
     )
-    from core.enforcement.genius import calculate_genius
     from core.shared.types import FloorScores, Verdict
 
     consume_tool_energy(session_id, n_calls=1)
 
-    # 1. Map Candidate
-    try:
-        candidate = Verdict(verdict_candidate)
-    except ValueError:
-        candidate = Verdict.VOID
+    # 1. Map Candidate — use normalize_verdict(888, ...) which allows VOID
+    candidate = normalize_verdict(888, verdict_candidate)
 
     # 2. Extract or Build Floor Scores
     floor_scores = kwargs.get("floor_scores")
@@ -157,7 +149,9 @@ async def judge(
 
     # 5. G Sovereignty Gate
     if candidate == Verdict.SEAL and g_score < 0.80:
-        logger.info(f"arifOS APEX Discipline Check: G ({g_score:.4f}) < 0.80. Downgrading to PARTIAL.")
+        logger.info(
+            f"arifOS APEX Discipline Check: G ({g_score:.4f}) < 0.80. Downgrading to PARTIAL."
+        )
         candidate = Verdict.PARTIAL
         reason_summary = (reason_summary or "") + f" [APEX Gate: G={g_score:.4f} < 0.80]"
 

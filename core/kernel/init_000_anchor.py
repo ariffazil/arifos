@@ -154,7 +154,7 @@ class AnchorEngine:
             governance_token="",
             injection_score=0.0,
             auth_verified=True,
-            verdict=Verdict.HOLD_888,
+            verdict=Verdict.HOLD,
             status="SABAR",
             violations=[floor],
             error_message=reason,
