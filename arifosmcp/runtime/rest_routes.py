@@ -15,7 +15,6 @@ DITEMPA BUKAN DIBERI
 from __future__ import annotations
 
 import inspect
-import json
 import logging
 import os
 import secrets
@@ -29,6 +28,7 @@ from starlette.requests import Request
 from starlette.responses import HTMLResponse, JSONResponse, Response
 from starlette.staticfiles import StaticFiles
 
+from arifosmcp.runtime.public_registry import build_server_json
 from arifosmcp.runtime.resources import apex_tools_html_rows, apex_tools_markdown_table
 from core.shared.floor_audit import get_ml_floor_runtime
 from core.shared.floors import (
@@ -216,7 +216,8 @@ __APEX_MD_TABLE__
 ```json
 {
   "verdict": "SEAL | PROVISIONAL | PARTIAL | SABAR | HOLD | HOLD_888 | VOID",
-  "stage": "000_INIT | 111_SENSE | 222_REALITY | 333_MIND | 444_ROUTER | 555_MEMORY | 666_HEART | 777_FORGE | 888_JUDGE | 999_VAULT",
+  "stage": "000_INIT | 111_SENSE | 222_REALITY | 333_MIND | 444_ROUTER | 555_MEMORY |"
+           " 666_HEART | 777_FORGE | 888_JUDGE | 999_VAULT",
   "session_id": "string",
   "metrics": { "truth": 0.0, "clarity_delta": 0.0, "confidence": 0.0, "peace": 0.0 },
   "authority": { "actor_id": "string", "level": "human|agent|system|anonymous" },
@@ -619,42 +620,17 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
 
     @mcp.custom_route("/.well-known/mcp/server.json", methods=["GET"])
     async def well_known(request: Request) -> Response:
-        package_root = os.path.dirname(os.path.dirname(__file__))
-        repo_root = os.path.dirname(package_root)
-        manifest_candidates = [
-            os.path.join(repo_root, "spec", "server.json"),
-            os.path.join(package_root, "static", ".well-known", "mcp", "server.json"),
-        ]
-        for manifest_path in manifest_candidates:
-            if not os.path.exists(manifest_path):
-                continue
-            with open(manifest_path, encoding="utf-8") as f:
-                payload = json.load(f)
-                payload.setdefault("protocolVersion", MCP_PROTOCOL_VERSION)
-                payload.setdefault("supportedProtocolVersions", MCP_SUPPORTED_PROTOCOL_VERSIONS)
-                payload.setdefault(
-                    "authentication",
-                    {
-                        "type": "none",
-                        "description": "No auth required.",
-                    },
-                )
-                return JSONResponse(payload)
-        # Fallback: generate minimal discovery
-        return JSONResponse(
+        payload = build_server_json(_public_base_url(request))
+        payload.setdefault("protocolVersion", MCP_PROTOCOL_VERSION)
+        payload.setdefault("supportedProtocolVersions", MCP_SUPPORTED_PROTOCOL_VERSIONS)
+        payload.setdefault(
+            "authentication",
             {
-                "name": "arifOS AAA MCP",
-                "version": BUILD_INFO["version"],
-                "protocolVersion": MCP_PROTOCOL_VERSION,
-                "supportedProtocolVersions": MCP_SUPPORTED_PROTOCOL_VERSIONS,
-                "transport": {"type": "streamable-http", "url": "/mcp"},
-                "authentication": {
-                    "type": "none",
-                    "description": "No authentication required. actor_id is used for logging only.",
-                },
-                "tools": list(tool_registry.keys()),
-            }
+                "type": "none",
+                "description": "No authentication required. actor_id is used for logging only.",
+            },
         )
+        return JSONResponse(payload)
 
     @mcp.custom_route("/api/governance-status", methods=["GET"])
     async def governance_status(request: Request) -> Response:

@@ -43,8 +43,8 @@ def test_build_vps_overlay_script_contains_full_build_and_mount_check():
         env_file=".env.docker",
         prod_bind="127.0.0.1:8088:8080",
         public_base_url="https://arifosmcp.arif-fazil.com",
-        expected_tools=6,
-        required_tools=module.CHATGPT_PUBLIC_TOOLS,
+        expected_tools=7,
+        required_tools=module.PUBLIC_DEPLOYMENT_TOOLS,
     )
 
     assert "docker build \\" in script
@@ -62,8 +62,8 @@ def test_deployment_tool_contract_matches_chatgpt_runtime_surface():
 
     count, tools = module.deployment_tool_contract("chatgpt")
 
-    assert count == 6
-    assert tools == module.CHATGPT_PUBLIC_TOOLS
+    assert count == 7
+    assert tools == module.PUBLIC_DEPLOYMENT_TOOLS
 
 
 def test_run_remote_bash_normalizes_crlf_and_uses_bytes(monkeypatch):

@@ -29,30 +29,17 @@ import tomllib
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
+from arifosmcp.runtime.public_registry import (
+    deployment_tool_contract as registry_deployment_tool_contract,
+)
+from arifosmcp.runtime.public_registry import (
+    public_tool_names,
+)
 
 ROOT = Path(__file__).parent.parent
 DEFAULT_VPS_HOST = "root@72.62.71.199"
 DEFAULT_PUBLIC_BASE_URL = "https://arifosmcp.arif-fazil.com"
-CORE_CONSTITUTIONAL_TOOLS = (
-    "init_anchor_state",
-    "integrate_analyze_reflect",
-    "reason_mind_synthesis",
-    "arifOS.kernel",
-    "vector_memory_store",
-    "assess_heart_impact",
-    "critique_thought_audit",
-    "quantum_eureka_forge",
-    "apex_judge_verdict",
-    "seal_vault_commit",
-)
-CHATGPT_PUBLIC_TOOLS = (
-    "audit_rules",
-    "check_vital",
-    "ingest_evidence",
-    "arifOS.kernel",
-    "open_apex_dashboard",
-    "search_reality",
-)
+PUBLIC_DEPLOYMENT_TOOLS = public_tool_names()
 
 
 class Colors:
@@ -118,10 +105,7 @@ def build_overlay_image_tag(version: str, git_sha: str, base_repo: str = "arifos
 
 def deployment_tool_contract(public_profile: str) -> tuple[int, tuple[str, ...]]:
     """Return the minimum public tool contract for a deployment profile."""
-    normalized = public_profile.strip().lower() or "full"
-    if normalized == "chatgpt":
-        return len(CHATGPT_PUBLIC_TOOLS), CHATGPT_PUBLIC_TOOLS
-    return len(CORE_CONSTITUTIONAL_TOOLS), CORE_CONSTITUTIONAL_TOOLS
+    return registry_deployment_tool_contract(public_profile)
 
 
 def build_vps_overlay_script(

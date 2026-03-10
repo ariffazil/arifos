@@ -1,7 +1,6 @@
-import json
 import pytest
 
-from arifosmcp.runtime.tools import metabolic_loop_router, seal_vault_commit
+from arifosmcp.runtime.tools import metabolic_loop_router
 
 
 @pytest.mark.asyncio

@@ -7,11 +7,14 @@ from fastmcp import Context, FastMCP
 from fastmcp.tools import ToolResult
 
 from arifosmcp.runtime.models import CallerContext, RuntimeEnvelope, Stage
+from arifosmcp.runtime.public_registry import public_tool_specs
 from arifosmcp.runtime.resources import build_open_apex_dashboard_result
 from arifosmcp.runtime.sessions import _resolve_session_id, set_active_session
 from core.state.session_manager import session_manager
 
 from .bridge import call_kernel
+
+PUBLIC_TOOL_SPEC_BY_NAME = {spec.name: spec for spec in public_tool_specs()}
 
 
 def _normalize_session_id(session_id: str | None) -> str:
@@ -402,14 +405,18 @@ def register_tools(mcp: FastMCP, profile: str = "full") -> None:
 
     normalized_profile = profile.strip().lower() or "full"
 
-    # 1. arifOS.kernel — Core execution
-    mcp.tool(
-        name="arifOS.kernel",
-        description=(
-            "The arifOS Intelligence Kernel. Runs the full constitutional reasoning pipeline. "
-            "Use this as the primary entrypoint for non-trivial intelligence tasks."
-        ),
-    )(metabolic_loop_router)
+    public_tool_handlers = {
+        "arifOS.kernel": metabolic_loop_router,
+        "search_reality": search_reality,
+        "ingest_evidence": ingest_evidence,
+        "session_memory": session_memory,
+        "audit_rules": audit_rules,
+        "check_vital": check_vital,
+    }
+
+    for tool_name, handler in public_tool_handlers.items():
+        spec = PUBLIC_TOOL_SPEC_BY_NAME[tool_name]
+        mcp.tool(name=spec.name, description=spec.description)(handler)
 
     # Legacy alias
     mcp.tool(
@@ -418,36 +425,6 @@ def register_tools(mcp: FastMCP, profile: str = "full") -> None:
             "[Legacy Alias] Use arifOS.kernel instead. Governed metabolic loop orchestrator."
         ),
     )(metabolic_loop_router)
-
-    # 2. search_reality — Discovery
-    mcp.tool(
-        name="search_reality",
-        description="Find real-world sources and factual grounding before reasoning.",
-    )(search_reality)
-
-    # 3. ingest_evidence — Intake
-    mcp.tool(
-        name="ingest_evidence",
-        description="Fetch or extract evidence from a URL, document, or file path.",
-    )(ingest_evidence)
-
-    # 4. session_memory — Context
-    mcp.tool(
-        name="session_memory",
-        description="Store, retrieve, or forget session context and reasoning artifacts.",
-    )(session_memory)
-
-    # 5. audit_rules — Governance
-    mcp.tool(
-        name="audit_rules",
-        description="Inspect the 13 constitutional floors and verify governance logic.",
-    )(audit_rules)
-
-    # 6. check_vital — Health
-    mcp.tool(
-        name="check_vital",
-        description="Read-only system health snapshot, reporting diagnostics and vitality signals.",
-    )(check_vital)
 
     # Legacy tools preserved for internal orchestration
     if normalized_profile != "chatgpt":

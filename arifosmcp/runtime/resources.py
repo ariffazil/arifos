@@ -20,6 +20,14 @@ from fastmcp import Context, FastMCP
 from fastmcp.server.apps import UI_EXTENSION_ID, AppConfig, ResourceCSP
 from fastmcp.tools import ToolResult
 
+from .public_registry import (
+    RUNTIME_ENVELOPE_SCHEMA,
+    public_resource_uris,
+    public_tool_input_schemas,
+    public_tool_specs,
+    release_version,
+)
+
 try:
     from prefab_ui.app import PrefabApp
     from prefab_ui.components import (
@@ -44,7 +52,10 @@ except ImportError:
 # Helpers
 # ---------------------------------------------------------------------------
 
-_VAULT_PATH = Path(__file__).resolve().parent.parent.parent / "core" / "vault"
+_VAULT_CANDIDATES = (
+    Path(__file__).resolve().parent.parent / "data" / "VAULT999",
+    Path(__file__).resolve().parent.parent.parent / "VAULT999",
+)
 _DASHBOARD_HTML = (
     Path(__file__).resolve().parent.parent / "sites" / "apex-dashboard" / "dashboard.html"
 )
@@ -66,10 +77,11 @@ APEX_DASHBOARD_DEFAULT_ENDPOINT = f"{APEX_DASHBOARD_CONNECT_DOMAINS[0]}/api/gove
 
 
 def _read_vault_entries(n: int = 5) -> list[dict[str, Any]]:
-    if not _VAULT_PATH.exists():
+    vault_path = next((path for path in _VAULT_CANDIDATES if path.exists()), None)
+    if vault_path is None:
         return []
     entries: list[dict[str, Any]] = []
-    for f in sorted(_VAULT_PATH.glob("*.json"), key=lambda p: p.stat().st_mtime, reverse=True)[:n]:
+    for f in sorted(vault_path.glob("*.json"), key=lambda p: p.stat().st_mtime, reverse=True)[:n]:
         try:
             raw = json.loads(f.read_text(encoding="utf-8"))
             entries.append(
@@ -92,40 +104,11 @@ def _read_vault_entries(n: int = 5) -> list[dict[str, Any]]:
 
 _TOOLS = [
     {
-        "name": "arifOS.kernel",
-        "role": "Core intelligence engine. Runs the full constitutional reasoning pipeline.",
-        "type": "Execution",
-    },
-    {
-        "name": "search_reality",
-        "role": "External knowledge discovery. Finds real-world sources before reasoning.",
-        "type": "Cognitive Input",
-    },
-    {
-        "name": "ingest_evidence",
-        "role": "Evidence ingestion. Loads URLs, documents, and datasets.",
-        "type": "Cognitive Input",
-    },
-    {
-        "name": "session_memory",
-        "role": "Conversation state + vector memory. Stores and retrieves session context.",
-        "type": "Session",
-    },
-    {
-        "name": "audit_rules",
-        "role": "Constitutional audit. Inspects governance floors and system rules.",
-        "type": "Governance",
-    },
-    {
-        "name": "check_vital",
-        "role": "Kernel health monitor. Reports G★, η, and entropy deltas.",
-        "type": "Governance",
-    },
-    {
-        "name": "open_apex_dashboard",
-        "role": "Sovereign monitoring interface. UI dashboard for live metrics.",
-        "type": "Observability",
-    },
+        "name": spec.name,
+        "role": spec.description,
+        "type": spec.layer,
+    }
+    for spec in public_tool_specs()
 ]
 
 APEX_CORE_TOOLS: tuple[dict[str, str], ...] = tuple(_TOOLS)
@@ -378,26 +361,12 @@ def register_resources(mcp: FastMCP) -> None:
         """High-level arifOS canon map: tools, floors, and resource index."""
         return json.dumps(
             {
-                "version": "2026.03.10",
+                "version": release_version(),
                 "motto": "DITEMPA BUKAN DIBERI",
                 "organs": ["AGI", "ASI", "APEX", "VAULT", "INIT", "UnifiedMemory"],
                 "tool_count": len(_TOOLS),
                 "floor_count": len(_FLOORS),
-                "resources": [
-                    "canon://index",
-                    "canon://tools",
-                    "canon://floors",
-                    "canon://metabolic-loop",
-                    "governance://law",
-                    "eval://metabolic-workflows",
-                    "eval://floors-thresholds",
-                    "schema://tools/input",
-                    "schema://tools/output",
-                    "schema://opex",
-                    "schema://apex",
-                    "vault://latest",
-                    "telemetry://summary",
-                ],
+                "resources": public_resource_uris(),
             },
             ensure_ascii=False,
         )
@@ -477,390 +446,16 @@ def register_resources(mcp: FastMCP) -> None:
 
     @mcp.resource("schema://tools/input")
     def schema_tools_input() -> str:
-        """Canonical JSON Schema input specs for public and legacy arifOS tools."""
-        schemas = {
-            "init_anchor_state": {
-                "required": ["intent"],
-                "properties": {
-                    "intent": {
-                        "type": "object",
-                        "required": ["query"],
-                        "properties": {
-                            "query": {"type": "string"},
-                            "task_type": {
-                                "type": "string",
-                                "enum": [
-                                    "ask",
-                                    "analyze",
-                                    "design",
-                                    "decide",
-                                    "audit",
-                                    "execute",
-                                    "unknown",
-                                ],
-                                "default": "unknown",
-                            },
-                            "domain": {"type": "string", "default": "general"},
-                            "desired_output": {
-                                "type": "string",
-                                "enum": ["text", "json", "table", "code", "mixed"],
-                                "default": "text",
-                            },
-                            "reversibility": {
-                                "type": "string",
-                                "enum": ["reversible", "mixed", "irreversible", "unknown"],
-                                "default": "unknown",
-                            },
-                        },
-                        "additionalProperties": False,
-                    },
-                    "math": {
-                        "type": "object",
-                        "properties": {
-                            "akal": {"type": "number", "minimum": 0, "maximum": 1, "default": 0.6},
-                            "present": {
-                                "type": "number",
-                                "minimum": 0,
-                                "maximum": 1,
-                                "default": 0.8,
-                            },
-                            "energy": {
-                                "type": "number",
-                                "minimum": 0,
-                                "maximum": 1,
-                                "default": 0.6,
-                            },
-                            "exploration": {
-                                "type": "number",
-                                "minimum": 0,
-                                "maximum": 1,
-                                "default": 0.4,
-                            },
-                        },
-                        "additionalProperties": False,
-                    },
-                    "governance": {
-                        "type": "object",
-                        "properties": {
-                            "actor_id": {"type": "string", "default": "anonymous"},
-                            "authority_level": {
-                                "type": "string",
-                                "enum": ["human", "agent", "system", "anonymous"],
-                                "default": "anonymous",
-                            },
-                            "stakes_class": {
-                                "type": "string",
-                                "enum": ["A", "B", "C", "UNKNOWN"],
-                                "default": "UNKNOWN",
-                            },
-                        },
-                        "additionalProperties": False,
-                    },
-                },
-                "additionalProperties": False,
-            },
-            "integrate_analyze_reflect": {
-                "required": ["session_id", "query", "auth_context"],
-                "properties": {
-                    "session_id": {"type": "string"},
-                    "query": {"type": "string"},
-                    "auth_context": {"type": "object", "additionalProperties": True},
-                    "max_subquestions": {
-                        "type": "integer",
-                        "minimum": 1,
-                        "maximum": 10,
-                        "default": 3,
-                    },
-                },
-                "additionalProperties": False,
-            },
-            "reason_mind_synthesis": {
-                "required": ["session_id", "query", "auth_context"],
-                "properties": {
-                    "session_id": {"type": "string"},
-                    "query": {"type": "string"},
-                    "auth_context": {"type": "object", "additionalProperties": True},
-                    "reason_mode": {
-                        "type": "string",
-                        "enum": ["default", "strict_truth", "design_space", "edge_cases"],
-                        "default": "default",
-                    },
-                    "max_steps": {"type": "integer", "minimum": 3, "maximum": 16, "default": 7},
-                },
-                "additionalProperties": False,
-            },
-            "arifOS.kernel": {
-                "required": ["query"],
-                "properties": {
-                    "query": {"type": "string"},
-                    "context": {"type": "string", "default": ""},
-                    "risk_tier": {
-                        "type": "string",
-                        "enum": ["low", "medium", "high", "critical"],
-                        "default": "medium",
-                    },
-                    "actor_id": {"type": "string", "default": "anonymous"},
-                    "use_memory": {"type": "boolean", "default": True},
-                    "use_heart": {"type": "boolean", "default": True},
-                    "use_critique": {"type": "boolean", "default": True},
-                    "allow_execution": {"type": "boolean", "default": False},
-                    "debug": {"type": "boolean", "default": False},
-                    "dry_run": {"type": "boolean", "default": False},
-                },
-                "additionalProperties": False,
-            },
-            "metabolic_loop_router": {
-                "required": ["query"],
-                "properties": {
-                    "query": {"type": "string"},
-                    "context": {"type": "string", "default": ""},
-                    "risk_tier": {
-                        "type": "string",
-                        "enum": ["low", "medium", "high", "critical"],
-                        "default": "medium",
-                    },
-                    "actor_id": {"type": "string", "default": "anonymous"},
-                    "use_memory": {"type": "boolean", "default": True},
-                    "use_heart": {"type": "boolean", "default": True},
-                    "use_critique": {"type": "boolean", "default": True},
-                    "allow_execution": {"type": "boolean", "default": False},
-                    "debug": {"type": "boolean", "default": False},
-                    "dry_run": {"type": "boolean", "default": False},
-                },
-                "additionalProperties": False,
-            },
-            "search_reality": {
-                "required": ["query"],
-                "properties": {
-                    "query": {"type": "string"},
-                },
-                "additionalProperties": False,
-            },
-            "ingest_evidence": {
-                "required": ["source_url"],
-                "properties": {
-                    "source_url": {"type": "string", "format": "uri"},
-                },
-                "additionalProperties": False,
-            },
-            "session_memory": {
-                "required": ["session_id", "operation"],
-                "properties": {
-                    "session_id": {"type": "string"},
-                    "operation": {
-                        "type": "string",
-                        "enum": ["store", "retrieve", "recall", "search", "forget"],
-                    },
-                    "auth_context": {"type": "object", "additionalProperties": True},
-                    "content": {"anyOf": [{"type": "string"}, {"type": "null"}], "default": None},
-                    "memory_ids": {"type": "array", "items": {"type": "string"}},
-                    "top_k": {"type": "integer", "minimum": 1, "maximum": 20, "default": 5},
-                },
-                "additionalProperties": False,
-            },
-            "vector_memory_store": {
-                "required": ["session_id", "operation", "auth_context"],
-                "properties": {
-                    "session_id": {"type": "string"},
-                    "operation": {
-                        "type": "string",
-                        "enum": ["store", "recall", "search", "forget"],
-                    },
-                    "auth_context": {"type": "object", "additionalProperties": True},
-                    "content": {"anyOf": [{"type": "string"}, {"type": "null"}], "default": None},
-                    "memory_ids": {"type": "array", "items": {"type": "string"}},
-                    "top_k": {"type": "integer", "minimum": 1, "maximum": 20, "default": 5},
-                },
-                "additionalProperties": False,
-            },
-            "audit_rules": {
-                "properties": {
-                    "session_id": {"type": "string", "default": "global"},
-                },
-                "additionalProperties": False,
-            },
-            "check_vital": {
-                "properties": {
-                    "session_id": {"type": "string", "default": "global"},
-                },
-                "additionalProperties": False,
-            },
-            "open_apex_dashboard": {
-                "properties": {
-                    "session_id": {"type": "string", "default": "global"},
-                },
-                "additionalProperties": False,
-            },
-            "assess_heart_impact": {
-                "required": ["session_id", "scenario", "auth_context"],
-                "properties": {
-                    "session_id": {"type": "string"},
-                    "scenario": {"type": "string"},
-                    "auth_context": {"type": "object", "additionalProperties": True},
-                    "heart_mode": {
-                        "type": "string",
-                        "enum": [
-                            "general",
-                            "vulnerable_stakeholder",
-                            "conflict",
-                            "self_harm",
-                            "legal_risk",
-                        ],
-                        "default": "general",
-                    },
-                },
-                "additionalProperties": False,
-            },
-            "critique_thought_audit": {
-                "required": ["session_id", "thought_id", "auth_context"],
-                "properties": {
-                    "session_id": {"type": "string"},
-                    "thought_id": {"type": "string"},
-                    "auth_context": {"type": "object", "additionalProperties": True},
-                    "critique_mode": {
-                        "type": "string",
-                        "enum": ["logic", "facts", "ethics", "clarity", "overall"],
-                        "default": "overall",
-                    },
-                },
-                "additionalProperties": False,
-            },
-            "quantum_eureka_forge": {
-                "required": ["session_id", "intent", "auth_context"],
-                "properties": {
-                    "session_id": {"type": "string"},
-                    "intent": {"type": "string"},
-                    "auth_context": {"type": "object", "additionalProperties": True},
-                    "eureka_type": {
-                        "type": "string",
-                        "enum": ["concept", "design", "eval_case", "governance_rule", "other"],
-                        "default": "concept",
-                    },
-                    "materiality": {
-                        "type": "string",
-                        "enum": ["idea_only", "prototype", "ready_for_eval"],
-                        "default": "idea_only",
-                    },
-                },
-                "additionalProperties": False,
-            },
-            "apex_judge_verdict": {
-                "required": ["session_id", "verdict_candidate", "auth_context"],
-                "properties": {
-                    "session_id": {"type": "string"},
-                    "verdict_candidate": {
-                        "type": "string",
-                        "enum": ["SEAL", "PARTIAL", "SABAR", "VOID", "HOLD-888", "UNSET"],
-                    },
-                    "auth_context": {"type": "object", "additionalProperties": True},
-                    "reason_summary": {"type": "string"},
-                },
-                "additionalProperties": False,
-            },
-            "seal_vault_commit": {
-                "required": ["session_id", "auth_context"],
-                "properties": {
-                    "session_id": {"type": "string"},
-                    "auth_context": {"type": "object", "additionalProperties": True},
-                    "verdict": {
-                        "type": "string",
-                        "enum": ["SEAL", "PARTIAL", "SABAR", "VOID", "HOLD-888"],
-                        "default": "SEAL",
-                    },
-                    "payload_ref": {"type": "string"},
-                    "payload_hash": {"type": "string"},
-                },
-                "additionalProperties": False,
-            },
-        }
-        return json.dumps(schemas, ensure_ascii=False)
+        """Canonical JSON Schema input specs for the public arifOS tool surface."""
+        return json.dumps(public_tool_input_schemas(), ensure_ascii=False)
 
     @mcp.resource("schema://tools/output")
     def schema_tools_output() -> str:
         """
-        Canonical output schema: the RuntimeEnvelope returned by all 13 arifOS tools.
+        Canonical output schema: the RuntimeEnvelope returned by all public arifOS tools.
         Tool-specific payloads live inside the 'payload' field.
         """
-        schema = {
-            "type": "object",
-            "description": "RuntimeEnvelope (v1.0.0) — common return shape for all arifOS tools.",
-            "required": [
-                "ok",
-                "tool",
-                "session_id",
-                "stage",
-                "verdict",
-                "status",
-                "metrics",
-                "trace",
-                "authority",
-                "payload",
-                "errors",
-                "meta",
-            ],
-            "properties": {
-                "ok": {"type": "boolean", "description": "Transport success"},
-                "tool": {"type": "string", "description": "Tool name"},
-                "session_id": {"type": "string", "description": "Active session ID"},
-                "stage": {"type": "string", "description": "Owning stage/organ"},
-                "verdict": {
-                    "type": "string",
-                    "enum": ["SEAL", "PROVISIONAL", "PARTIAL", "SABAR", "HOLD", "HOLD_888", "VOID"],
-                },
-                "status": {
-                    "type": "string",
-                    "enum": ["SUCCESS", "ERROR", "TIMEOUT", "DRY_RUN"],
-                },
-                "metrics": {
-                    "type": "object",
-                    "properties": {
-                        "truth": {"type": "number"},
-                        "clarity_delta": {"type": "number"},
-                        "confidence": {"type": "number"},
-                        "peace": {"type": "number"},
-                        "vitality": {"type": "number"},
-                        "entropy_delta": {"type": "number"},
-                        "authority": {"type": "number"},
-                        "risk": {"type": "number"},
-                    },
-                },
-                "trace": {"type": "object", "description": "Stage path summary"},
-                "authority": {
-                    "type": "object",
-                    "properties": {
-                        "actor_id": {"type": "string"},
-                        "level": {"type": "string"},
-                        "human_required": {"type": "boolean"},
-                        "approval_scope": {"type": "array", "items": {"type": "string"}},
-                        "auth_state": {"type": "string"},
-                    },
-                },
-                "payload": {"type": "object", "description": "Tool-specific result data"},
-                "errors": {
-                    "type": "array",
-                    "items": {
-                        "type": "object",
-                        "properties": {
-                            "code": {"type": "string"},
-                            "message": {"type": "string"},
-                            "stage": {"type": "string"},
-                            "recoverable": {"type": "boolean"},
-                        },
-                    },
-                },
-                "meta": {
-                    "type": "object",
-                    "properties": {
-                        "schema_version": {"type": "string"},
-                        "timestamp": {"type": "string"},
-                        "debug": {"type": "boolean"},
-                        "dry_run": {"type": "boolean"},
-                    },
-                },
-            },
-            "additionalProperties": True,
-        }
-        return json.dumps(schema, ensure_ascii=False)
+        return json.dumps(RUNTIME_ENVELOPE_SCHEMA, ensure_ascii=False)
 
     @mcp.resource("schema://opex")
     def schema_opex() -> str:

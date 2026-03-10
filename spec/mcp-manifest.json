@@ -1,10 +1,10 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.ariffazil/arifos-mcp",
-  "version": "2026.03.09-SEAL",
+  "version": "2026.03.10-SEAL",
   "title": "arifOS Sovereign Governance MCP",
-  "description": "Constitutional AI governance server with 15-tool surface (10 APEX-G + 5 Phase 2), Trinity engines (ΔΩΨ), and F1-F13 floor enforcement.",
-  "websiteUrl": "https://arifos.arif-fazil.com/",
+  "description": "Constitutional AI governance server with a 7-tool public surface, 7 public prompts, 14 public resources, Trinity engines (ΔΩΨ), and F1-F13 floor enforcement.",
+  "websiteUrl": "https://arifos.arif-fazil.com",
   "vendor": {
     "name": "arifOS",
     "url": "https://arifos.arif-fazil.com"
@@ -17,7 +17,9 @@
   "runtime": {
     "python": ">=3.12",
     "entrypoint": "python -m arifosmcp.runtime",
-    "dependencies": ["fastmcp==3.0.2"]
+    "dependencies": [
+      "fastmcp==3.1.0"
+    ]
   },
   "deployment": {
     "default_transport": "http",
@@ -30,12 +32,14 @@
     {
       "registryType": "pypi",
       "identifier": "arifos",
-      "version": "2026.03.09-SEAL",
-      "transport": { "type": "stdio" }
+      "version": "2026.03.10-SEAL",
+      "transport": {
+        "type": "stdio"
+      }
     },
     {
       "registryType": "oci",
-      "identifier": "docker.io/arifazil/arifosmcp:forge-20260309",
+      "identifier": "docker.io/arifazil/arifosmcp:forge-20260310",
       "transport": {
         "type": "streamable-http",
         "url": "https://arifosmcp.arif-fazil.com/mcp"
@@ -44,120 +48,705 @@
   ],
   "remotes": [
     {
-      "name": "jina-reader",
-      "type": "remote",
-      "url": "https://mcp.jina.ai/v1",
-      "headers": { "Authorization": "Bearer ${JINA_API_KEY}" }
-    },
-    {
       "type": "sse",
       "url": "https://arifosmcp.arif-fazil.com/sse"
     },
     {
       "type": "streamable-http",
       "url": "https://arifosmcp.arif-fazil.com/mcp",
-      "authentication": { "type": "none" }
+      "authentication": {
+        "type": "none"
+      }
     }
   ],
   "tools": {
-    "init_anchor_state": {
-      "stage": "000",
-      "trinity": "Δ Delta",
-      "floors": ["F11", "F12", "F13"],
-      "description": "000 INIT - Session anchor. Bootstrap a governed session and mint continuity context."
-    },
-    "integrate_analyze_reflect": {
-      "stage": "111",
-      "trinity": "Δ Delta",
-      "floors": ["F2", "F4", "F10"],
-      "description": "111 FRAME - Integrate, analyze, reflect. Frame the problem before deep reasoning."
-    },
-    "reason_mind_synthesis": {
-      "stage": "333",
-      "trinity": "Δ Delta",
-      "floors": ["F2", "F4", "F7", "F8"],
-      "description": "333 REASON - Mind synthesis. Run multi-step governed reasoning for the active session."
-    },
-    "metabolic_loop_router": {
-      "stage": "444",
+    "arifOS.kernel": {
+      "stage": "444_ROUTER",
       "trinity": "ALL",
-      "floors": ["F1-F13"],
-      "description": "Stage 444 ROUTER - Metabolic Loop. The all-in-one arifOS Sovereign evaluation."
-    },
-    "vector_memory_store": {
-      "stage": "555",
-      "trinity": "Ω Omega",
-      "floors": ["F4", "F7", "F13"],
-      "description": "555 MEMORY - Vector memory store. Store, recall, search, or forget BBB memory."
-    },
-    "assess_heart_impact": {
-      "stage": "666A",
-      "trinity": "Ω Omega",
-      "floors": ["F4", "F5", "F6"],
-      "description": "666A HEART - Impact assessment. Evaluate empathy, care, and stakeholder harm."
-    },
-    "critique_thought_audit": {
-      "stage": "666B",
-      "trinity": "Ω Omega",
-      "floors": ["F4", "F7", "F8"],
-      "description": "666B CRITIQUE - Thought audit. Run adversarial critique against a prior reasoning artifact."
-    },
-    "quantum_eureka_forge": {
-      "stage": "777",
-      "trinity": "Ψ Psi",
-      "floors": ["F1", "F11", "F12"],
-      "description": "777 FORGE - Eureka proposal. Forge a sandboxed discovery or implementation proposal."
-    },
-    "apex_judge_verdict": {
-      "stage": "888",
-      "trinity": "Ψ Psi",
-      "floors": ["F1-F13"],
-      "description": "888 JUDGE - APEX verdict. Render the sovereign constitutional judgment for a session."
-    },
-    "seal_vault_commit": {
-      "stage": "999",
-      "trinity": "Ψ Psi",
-      "floors": ["F1", "F3", "F10", "F11"],
-      "description": "999 SEAL - Vault commit. Append an immutable session verdict to VAULT999."
+      "floors": [
+        "F1-F13"
+      ],
+      "description": "The arifOS Intelligence Kernel. Runs the full constitutional reasoning pipeline and should be the primary entrypoint for non-trivial tasks.",
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "query"
+        ],
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Task or question to evaluate."
+          },
+          "context": {
+            "type": "string",
+            "default": ""
+          },
+          "risk_tier": {
+            "type": "string",
+            "enum": [
+              "low",
+              "medium",
+              "high",
+              "critical"
+            ],
+            "default": "medium"
+          },
+          "actor_id": {
+            "type": "string",
+            "default": "anonymous"
+          },
+          "use_memory": {
+            "type": "boolean",
+            "default": true
+          },
+          "use_heart": {
+            "type": "boolean",
+            "default": true
+          },
+          "use_critique": {
+            "type": "boolean",
+            "default": true
+          },
+          "allow_execution": {
+            "type": "boolean",
+            "default": false
+          },
+          "debug": {
+            "type": "boolean",
+            "default": false
+          },
+          "dry_run": {
+            "type": "boolean",
+            "default": false
+          },
+          "requested_persona": {
+            "type": "string",
+            "enum": [
+              "architect",
+              "engineer",
+              "auditor",
+              "validator"
+            ]
+          }
+        },
+        "additionalProperties": false
+      }
     },
     "search_reality": {
-      "stage": "111",
+      "stage": "111_SENSE",
       "trinity": "Δ Delta",
-      "floors": ["F2", "F12"],
-      "description": "Legacy external capability: web grounding before making claims.",
+      "floors": [
+        "F2",
+        "F12"
+      ],
+      "description": "Find real-world sources and factual grounding before reasoning.",
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "query"
+        ],
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Topic to ground with external facts."
+          }
+        },
+        "additionalProperties": false
+      },
       "readonly": true
     },
     "ingest_evidence": {
-      "stage": "111",
+      "stage": "222_REALITY",
       "trinity": "Δ Delta",
-      "floors": ["F2", "F11", "F12"],
-      "description": "Legacy external capability: extract evidence from a source URL.",
+      "floors": [
+        "F2",
+        "F11",
+        "F12"
+      ],
+      "description": "Fetch or extract evidence from a URL, document, or file path.",
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "url"
+        ],
+        "properties": {
+          "url": {
+            "type": "string",
+            "description": "URL to ingest into governed context."
+          }
+        },
+        "additionalProperties": false
+      },
       "readonly": true
     },
+    "session_memory": {
+      "stage": "555_MEMORY",
+      "trinity": "Ω Omega",
+      "floors": [
+        "F4",
+        "F7",
+        "F13"
+      ],
+      "description": "Store, retrieve, or forget session context and reasoning artifacts.",
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "session_id",
+          "operation"
+        ],
+        "properties": {
+          "session_id": {
+            "type": "string"
+          },
+          "operation": {
+            "type": "string",
+            "enum": [
+              "store",
+              "retrieve",
+              "forget",
+              "search"
+            ]
+          },
+          "content": {
+            "type": "string"
+          },
+          "memory_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "top_k": {
+            "type": "integer",
+            "minimum": 1,
+            "default": 5
+          }
+        },
+        "additionalProperties": false
+      }
+    },
     "audit_rules": {
-      "stage": "333",
+      "stage": "333_MIND",
       "trinity": "Δ Delta",
-      "floors": ["F2", "F8", "F10"],
-      "description": "Legacy external capability: verify current state against the Floors.",
+      "floors": [
+        "F2",
+        "F8",
+        "F10"
+      ],
+      "description": "Inspect the 13 constitutional floors and verify governance logic.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "session_id": {
+            "type": "string",
+            "default": "global"
+          }
+        },
+        "additionalProperties": false
+      },
       "readonly": true
     },
     "check_vital": {
-      "stage": "555",
+      "stage": "000_INIT",
       "trinity": "Ω Omega",
-      "floors": ["F4", "F5", "F7"],
-      "description": "Legacy external capability: system health and constitutional vitality.",
+      "floors": [
+        "F4",
+        "F5",
+        "F7"
+      ],
+      "description": "Read-only system health snapshot, reporting diagnostics and vitality signals.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "session_id": {
+            "type": "string",
+            "default": "global"
+          }
+        },
+        "additionalProperties": false
+      },
       "readonly": true
     },
-    "metabolic_loop": {
-      "stage": "000-999",
-      "trinity": "ALL",
-      "floors": ["F1-F13"],
-      "description": "Legacy orchestration tool preserved for compatibility only."
+    "open_apex_dashboard": {
+      "stage": "888_JUDGE",
+      "trinity": "Ψ Psi",
+      "floors": [
+        "F3",
+        "F8",
+        "F13"
+      ],
+      "description": "Open the APEX constitutional dashboard for live metrics and trace visibility.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "session_id": {
+            "type": "string",
+            "default": "global"
+          }
+        },
+        "additionalProperties": false
+      },
+      "readonly": true
+    }
+  },
+  "prompts": [
+    {
+      "name": "arifos_kernel_prompt",
+      "targetTool": "arifOS.kernel",
+      "description": "Route governed work to the kernel."
+    },
+    {
+      "name": "search_reality_prompt",
+      "targetTool": "search_reality",
+      "description": "Ground claims with external facts."
+    },
+    {
+      "name": "ingest_evidence_prompt",
+      "targetTool": "ingest_evidence",
+      "description": "Load a source into evidence context."
+    },
+    {
+      "name": "session_memory_prompt",
+      "targetTool": "session_memory",
+      "description": "Manage governed session continuity."
+    },
+    {
+      "name": "audit_rules_prompt",
+      "targetTool": "audit_rules",
+      "description": "Inspect constitutional floor logic."
+    },
+    {
+      "name": "check_vital_prompt",
+      "targetTool": "check_vital",
+      "description": "Read health and vitality telemetry."
+    },
+    {
+      "name": "open_apex_dashboard_prompt",
+      "targetTool": "open_apex_dashboard",
+      "description": "Open the dashboard surface for live governed metrics."
+    }
+  ],
+  "resources": [
+    {
+      "uri": "canon://index",
+      "description": "High-level arifOS canon map."
+    },
+    {
+      "uri": "canon://tools",
+      "description": "Canonical public tool surface."
+    },
+    {
+      "uri": "canon://floors",
+      "description": "arifOS 13 constitutional floors."
+    },
+    {
+      "uri": "canon://metabolic-loop",
+      "description": "Public kernel flow and stages."
+    },
+    {
+      "uri": "governance://law",
+      "description": "Verdict hierarchy and floor invariants."
+    },
+    {
+      "uri": "eval://metabolic-workflows",
+      "description": "Standard 000-999 workflow recipes."
+    },
+    {
+      "uri": "eval://floors-thresholds",
+      "description": "Numeric thresholds for floors."
+    },
+    {
+      "uri": "schema://tools/input",
+      "description": "Canonical JSON Schema input specs for public tools."
+    },
+    {
+      "uri": "schema://tools/output",
+      "description": "RuntimeEnvelope output schema."
+    },
+    {
+      "uri": "schema://opex",
+      "description": "Epistemic intake schema."
+    },
+    {
+      "uri": "schema://apex",
+      "description": "Governance output schema."
+    },
+    {
+      "uri": "vault://latest",
+      "description": "Latest sealed VAULT entries."
+    },
+    {
+      "uri": "telemetry://summary",
+      "description": "Governance telemetry summary."
+    },
+    {
+      "uri": "ui://apex/dashboard-v2.html",
+      "description": "Packaged APEX dashboard asset."
+    }
+  ],
+  "schema": {
+    "input": {
+      "arifOS.kernel": {
+        "type": "object",
+        "required": [
+          "query"
+        ],
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Task or question to evaluate."
+          },
+          "context": {
+            "type": "string",
+            "default": ""
+          },
+          "risk_tier": {
+            "type": "string",
+            "enum": [
+              "low",
+              "medium",
+              "high",
+              "critical"
+            ],
+            "default": "medium"
+          },
+          "actor_id": {
+            "type": "string",
+            "default": "anonymous"
+          },
+          "use_memory": {
+            "type": "boolean",
+            "default": true
+          },
+          "use_heart": {
+            "type": "boolean",
+            "default": true
+          },
+          "use_critique": {
+            "type": "boolean",
+            "default": true
+          },
+          "allow_execution": {
+            "type": "boolean",
+            "default": false
+          },
+          "debug": {
+            "type": "boolean",
+            "default": false
+          },
+          "dry_run": {
+            "type": "boolean",
+            "default": false
+          },
+          "requested_persona": {
+            "type": "string",
+            "enum": [
+              "architect",
+              "engineer",
+              "auditor",
+              "validator"
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "search_reality": {
+        "type": "object",
+        "required": [
+          "query"
+        ],
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Topic to ground with external facts."
+          }
+        },
+        "additionalProperties": false
+      },
+      "ingest_evidence": {
+        "type": "object",
+        "required": [
+          "url"
+        ],
+        "properties": {
+          "url": {
+            "type": "string",
+            "description": "URL to ingest into governed context."
+          }
+        },
+        "additionalProperties": false
+      },
+      "session_memory": {
+        "type": "object",
+        "required": [
+          "session_id",
+          "operation"
+        ],
+        "properties": {
+          "session_id": {
+            "type": "string"
+          },
+          "operation": {
+            "type": "string",
+            "enum": [
+              "store",
+              "retrieve",
+              "forget",
+              "search"
+            ]
+          },
+          "content": {
+            "type": "string"
+          },
+          "memory_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "top_k": {
+            "type": "integer",
+            "minimum": 1,
+            "default": 5
+          }
+        },
+        "additionalProperties": false
+      },
+      "audit_rules": {
+        "type": "object",
+        "properties": {
+          "session_id": {
+            "type": "string",
+            "default": "global"
+          }
+        },
+        "additionalProperties": false
+      },
+      "check_vital": {
+        "type": "object",
+        "properties": {
+          "session_id": {
+            "type": "string",
+            "default": "global"
+          }
+        },
+        "additionalProperties": false
+      },
+      "open_apex_dashboard": {
+        "type": "object",
+        "properties": {
+          "session_id": {
+            "type": "string",
+            "default": "global"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "output": {
+      "type": "object",
+      "description": "RuntimeEnvelope (v1.0.0) — common return shape for all public arifOS tools.",
+      "required": [
+        "ok",
+        "tool",
+        "session_id",
+        "stage",
+        "verdict",
+        "status",
+        "metrics",
+        "trace",
+        "authority",
+        "payload",
+        "errors",
+        "meta"
+      ],
+      "properties": {
+        "ok": {
+          "type": "boolean",
+          "description": "Transport success."
+        },
+        "tool": {
+          "type": "string",
+          "description": "Tool name."
+        },
+        "session_id": {
+          "type": "string",
+          "description": "Active session ID."
+        },
+        "stage": {
+          "type": "string",
+          "description": "Owning stage/organ."
+        },
+        "verdict": {
+          "type": "string",
+          "enum": [
+            "SEAL",
+            "PROVISIONAL",
+            "PARTIAL",
+            "SABAR",
+            "HOLD",
+            "HOLD_888",
+            "VOID"
+          ]
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "SUCCESS",
+            "ERROR",
+            "TIMEOUT",
+            "DRY_RUN"
+          ]
+        },
+        "metrics": {
+          "type": "object",
+          "properties": {
+            "truth": {
+              "type": "number"
+            },
+            "clarity_delta": {
+              "type": "number"
+            },
+            "confidence": {
+              "type": "number"
+            },
+            "peace": {
+              "type": "number"
+            },
+            "vitality": {
+              "type": "number"
+            },
+            "entropy_delta": {
+              "type": "number"
+            },
+            "authority": {
+              "type": "number"
+            },
+            "risk": {
+              "type": "number"
+            }
+          }
+        },
+        "trace": {
+          "type": "object",
+          "description": "Stage path summary."
+        },
+        "authority": {
+          "type": "object",
+          "properties": {
+            "actor_id": {
+              "type": "string"
+            },
+            "level": {
+              "type": "string"
+            },
+            "human_required": {
+              "type": "boolean"
+            },
+            "approval_scope": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "auth_state": {
+              "type": "string"
+            }
+          }
+        },
+        "payload": {
+          "type": "object",
+          "description": "Tool-specific result data."
+        },
+        "errors": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              },
+              "stage": {
+                "type": "string"
+              },
+              "recoverable": {
+                "type": "boolean"
+              }
+            }
+          }
+        },
+        "meta": {
+          "type": "object",
+          "properties": {
+            "schema_version": {
+              "type": "string"
+            },
+            "timestamp": {
+              "type": "string"
+            },
+            "debug": {
+              "type": "boolean"
+            },
+            "dry_run": {
+              "type": "boolean"
+            }
+          }
+        }
+      },
+      "additionalProperties": true
     }
   },
   "trinity": {
-    "delta": { "symbol": "Δ", "name": "Mind", "role": "AGI Reasoning", "stages": ["000", "111", "333"], "floors": ["F2", "F4", "F7", "F8"] },
-    "omega": { "symbol": "Ω", "name": "Heart", "role": "ASI Safety", "stages": ["555", "666"], "floors": ["F5", "F6", "F9"] },
-    "psi": { "symbol": "Ψ", "name": "Soul", "role": "APEX Judgment", "stages": ["777", "888", "999"], "floors": ["F1", "F3", "F10", "F11", "F12", "F13"] }
+    "delta": {
+      "symbol": "Δ",
+      "name": "Mind",
+      "role": "AGI Reasoning",
+      "stages": [
+        "000",
+        "111",
+        "333"
+      ],
+      "floors": [
+        "F2",
+        "F4",
+        "F7",
+        "F8"
+      ]
+    },
+    "omega": {
+      "symbol": "Ω",
+      "name": "Heart",
+      "role": "ASI Safety",
+      "stages": [
+        "555",
+        "666"
+      ],
+      "floors": [
+        "F5",
+        "F6",
+        "F9"
+      ]
+    },
+    "psi": {
+      "symbol": "Ψ",
+      "name": "Soul",
+      "role": "APEX Judgment",
+      "stages": [
+        "777",
+        "888",
+        "999"
+      ],
+      "floors": [
+        "F1",
+        "F3",
+        "F10",
+        "F11",
+        "F12",
+        "F13"
+      ]
+    }
   }
 }

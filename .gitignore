@@ -230,12 +230,44 @@ ${SQLITE_DB_PATH}
 ROADMAP/archive/
 
 # Agent workspaces (ephemeral runtime data)
+.adal/
+.agent/
 .agents/
 .antigravity/
+.augment/
 .cache/
 .clawhub/
-.kimi/
+.codebuddy/
+.commandcode/
+.continue/
+.cortex/
+.crush/
+.factory/
+.goose/
+.iflow/
+.junie/
+.kilocode/
+.kiro/
+.kode/
+.mcpjam/
+.mux/
+.neovate/
 .openmcp/
+.openhands/
+.pi/
+.pochi/
+.qoder/
+.qwen/
+.roo/
+.trae/
+.vibe/
+.windsurf/
+.zencoder/
+.kimi/
+
+# Skills
+skills/
+skills-lock.json
 
 # Ruff cache
 .ruff_cache/

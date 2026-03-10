@@ -9,11 +9,16 @@ from __future__ import annotations
 
 from typing import Any
 
+from .public_registry import public_tool_input_contracts, public_tool_names
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # CANONICAL TOOL SURFACE (L4)
 # ═══════════════════════════════════════════════════════════════════════════════
 
+AAA_PUBLIC_TOOLS: tuple[str, ...] = public_tool_names()
+
 AAA_CANONICAL_TOOLS: tuple[str, ...] = (
+    *AAA_PUBLIC_TOOLS,
     "anchor_session",
     "reason_mind",
     "vector_memory",
@@ -22,10 +27,6 @@ AAA_CANONICAL_TOOLS: tuple[str, ...] = (
     "eureka_forge",
     "apex_judge",
     "seal_vault",
-    "search_reality",
-    "ingest_evidence",
-    "audit_rules",
-    "check_vital",
     "metabolic_loop",
 )
 
@@ -181,7 +182,7 @@ AAA_TOOL_ALIASES: dict[str, str] = {
 }
 
 TOOL_INPUT_CONTRACTS: dict[str, dict[str, str]] = {
-    "arifOS.kernel": {"query": "str"},
+    **public_tool_input_contracts(),
     "anchor_session": {"query": "str", "actor_id": "str", "session_id": "str"},
     "reason_mind": {"query": "str", "session_id": "str"},
     "vector_memory": {"query": "str", "session_id": "str"},
@@ -193,12 +194,6 @@ TOOL_INPUT_CONTRACTS: dict[str, dict[str, str]] = {
         "intent": "str",
     },
     "seal_vault": {"session_id": "str", "verdict": "str"},
-    "search_reality": {"query": "str"},
-    "ingest_evidence": {"source_url": "str"},
-    "audit_rules": {},
-    "check_vital": {},
-    "session_memory": {"operation": "str"},
-    "open_apex_dashboard": {},
     "trace_replay": {},
     "metabolic_loop": {"query": "str"},
 }

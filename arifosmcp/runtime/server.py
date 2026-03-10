@@ -28,6 +28,7 @@ from arifosmcp.runtime.fastmcp_ext.transports import (
 from arifosmcp.runtime.orchestrator import metabolic_loop
 from arifosmcp.runtime.phase2_tools import register_phase2_tools
 from arifosmcp.runtime.prompts import register_prompts
+from arifosmcp.runtime.public_registry import release_version_label
 from arifosmcp.runtime.resources import register_resources
 from arifosmcp.runtime.rest_routes import register_rest_routes
 from arifosmcp.runtime.tools import (
@@ -45,7 +46,7 @@ from arifosmcp.runtime.tools import (
 # Phase 1 — Canonical 7-Tool arifOS Stack
 # ---------------------------------------------------------------------------
 
-mcp = FastMCP("arifOS-APEX-G", version="2026.03.10-SEAL")
+mcp = FastMCP("arifOS-APEX-G", version=release_version_label())
 PUBLIC_TOOL_PROFILE = os.getenv("ARIFOS_PUBLIC_TOOL_PROFILE", "full").strip().lower() or "full"
 VALID_TRANSPORT_MODES = {"stdio", "http", "sse", "streamable-http"}
 

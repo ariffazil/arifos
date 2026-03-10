@@ -1,0 +1,135 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$comment": "============================================================================\n  arifOS MCP Kimi Configuration — CURRENT PROJECT (C:/arifosmcp)\n  ============================================================================\n  LOCATION: Use this in ~/.kimi/mcp.json or via --mcp-config-file\n  PROJECT: C:/arifosmcp (Trinity Architecture ΔΩΨ)\n  VERSION: 2026.03.10-SEAL\n  \n  CONSTITUTIONAL NOTES:\n  --------------------\n  - This config uses the CURRENT arifOS project at C:/arifosmcp\n  - Python interpreter: .venv/Scripts/python.exe (project-local)\n  - Transport: stdio (for Kimi CLI integration)\n  - Env vars reference ~/.arifos/env (load with . ~/.arifos/load-env.ps1)\n  \n  TOOL SURFACE:\n  ------------\n  Core 7: arifOS.kernel, search_reality, ingest_evidence, session_memory,\n          audit_rules, check_vital, open_apex_dashboard\n  Plus: Phase 2 legacy tools (filesystem, git, etc.)\n  \n  TRINITY PIPELINE (000→999):\n  ---------------------------\n  000 INIT → 111 MIND → 333 ANALYSIS → 666 HEART → 777 APEX → 888 JUDGE → 999 VAULT\n  ============================================================================",
+  "mcpServers": {
+    "arifosmcp": {
+      "$comment": "arifOS Trinity Kernel — Constitutional governance via stdio",
+      "command": "C:/arifosmcp/.venv/Scripts/python.exe",
+      "args": [
+        "-m",
+        "arifosmcp.runtime",
+        "stdio"
+      ],
+      "cwd": "C:/arifosmcp",
+      "env": {
+        "PYTHONPATH": "C:/arifosmcp",
+        "PYTHONIOENCODING": "utf-8",
+        "PYTHONUNBUFFERED": "1",
+        "ARIFOS_VAULT_PATH": "C:/arifosmcp/VAULT999",
+        "ARIFOS_GOVERNANCE_SECRET": "${ARIFOS_GOVERNANCE_SECRET}",
+        "ARIFOS_PUBLIC_TOOL_PROFILE": "full",
+        "AAA_MCP_TRANSPORT": "stdio",
+        "BRAVE_API_KEY": "${BRAVE_API_KEY}",
+        "BROWSERBASE_API_KEY": "${BROWSERBASE_API_KEY}",
+        "DATABASE_URL": "${DATABASE_URL}",
+        "REDIS_URL": "${REDIS_URL}",
+        "PERPLEXITY_API_KEY": "${PERPLEXITY_API_KEY}",
+        "FIRECRAWL_API_KEY": "${FIRECRAWL_API_KEY}"
+      },
+      "disabled": false,
+      "alwaysAllow": [
+        "arifOS.kernel",
+        "check_vital",
+        "audit_rules",
+        "search_reality",
+        "ingest_evidence",
+        "session_memory"
+      ],
+      "description": "arifOS Trinity (ΔΩΨ): Constitutional AI governance with 13 Floors (F1-F13)"
+    },
+    "filesystem": {
+      "$comment": "Secure file operations scoped to project directories",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "C:/arifosmcp",
+        "C:/Users/User/Documents",
+        "C:/Users/User/VAULT999"
+      ],
+      "disabled": false
+    },
+    "memory": {
+      "$comment": "Knowledge graph persistent memory",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-memory"
+      ],
+      "env": {
+        "MEMORY_FILE_PATH": "C:/arifosmcp/VAULT999/kimi-memory.json"
+      },
+      "disabled": false
+    },
+    "sequential-thinking": {
+      "$comment": "Dynamic reflective problem-solving",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-sequential-thinking"
+      ],
+      "disabled": false
+    },
+    "brave-search": {
+      "$comment": "Web search grounding — F2 Truth enforcement",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-brave-search"
+      ],
+      "env": {
+        "BRAVE_API_KEY": "${BRAVE_API_KEY}"
+      },
+      "disabled": false
+    },
+    "context7": {
+      "$comment": "Library documentation lookup — F8 Genius amplification",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@upstash/context7-mcp"
+      ],
+      "disabled": false
+    },
+    "github": {
+      "$comment": "GitHub API — F3 Tri-Witness consensus",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-github"
+      ],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_PERSONAL_ACCESS_TOKEN}"
+      },
+      "disabled": false
+    },
+    "git": {
+      "$comment": "Local git operations",
+      "command": "uvx",
+      "args": [
+        "mcp-server-git",
+        "--repository",
+        "C:/arifosmcp"
+      ],
+      "disabled": false
+    },
+    "sqlite": {
+      "$comment": "SQLite database access",
+      "command": "uvx",
+      "args": [
+        "mcp-server-sqlite",
+        "--db-path",
+        "C:/arifosmcp/VAULT999/arifos.db"
+      ],
+      "disabled": false
+    },
+    "time": {
+      "$comment": "Time and timezone utilities",
+      "command": "uvx",
+      "args": [
+        "mcp-server-time"
+      ],
+      "disabled": false
+    }
+  }
+}

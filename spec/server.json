@@ -1,7 +1,7 @@
 {
   "name": "io.github.ariffazil/arifos-mcp",
   "version": "2026.03.10-SEAL",
-  "description": "Constitutional AI governance server — 7 Canonical MCP tools with F1-F13 floor enforcement, metabolic Stage 444 routing, and VAULT999 immutable ledger.",
+  "description": "Constitutional AI governance server — 7 canonical public MCP tools with F1-F13 floor enforcement, metabolic Stage 444 routing, prompts, and resources.",
   "vendor": {
     "name": "Muhammad Arif bin Fazil",
     "url": "https://arif-fazil.com"
@@ -28,7 +28,8 @@
     "metabolic_routing": true,
     "vault999": "postgresql+redis+merkle",
     "vector_memory": "qdrant+bge-m3-1024dim",
-    "spec_compliance": "100%"
+    "prompts": 7,
+    "resources": 14
   },
   "tools": [
     {
