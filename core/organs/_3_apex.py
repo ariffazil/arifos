@@ -37,6 +37,39 @@ _COHERENCE_PATTERNS: list[tuple[str, str, str]] = [
 ]
 
 
+def _check_floor_contradiction(
+    floor_scores: Any,
+    attr: str,
+    threshold: float,
+    comparison: str,
+    verdict_candidate: str,
+    blocked_verdicts: tuple[str, ...],
+    floor_name: str,
+    severity: str,
+    description_fn: Any,
+    confidence: float,
+) -> dict[str, Any] | None:
+    """Check a single floor score for contradictions with proposed verdict."""
+    if not hasattr(floor_scores, attr):
+        return None
+
+    value = getattr(floor_scores, attr)
+    violated = (
+        (comparison == "gt" and value > threshold)
+        or (comparison == "lt" and value < threshold)
+    )
+
+    if violated and verdict_candidate in blocked_verdicts:
+        return {
+            "stage_a": floor_name,
+            "stage_b": "verdict",
+            "severity": severity,
+            "description": description_fn(value, verdict_candidate),
+            "confidence": confidence,
+        }
+    return None
+
+
 def _detect_contradictions(
     reason_summary: str | None,
     floor_scores: Any,
@@ -63,58 +96,54 @@ def _detect_contradictions(
                     "stage_a": "reason_summary",
                     "stage_b": "reason_summary",
                     "severity": severity,
-                    "description": f"Contradictory claims detected: '{pattern_a}' vs '{pattern_b}'",
+                    "description": f"Contradictory claims: '{pattern_a}' vs '{pattern_b}'",
                     "confidence": 0.80,
                 }
             )
 
-    # 2. Floor-score vs verdict contradictions
-    if hasattr(floor_scores, "f12_injection") and floor_scores.f12_injection > 0.5:
-        if verdict_candidate in ("SEAL", "PARTIAL"):
-            contradictions.append(
-                {
-                    "stage_a": "F12_injection",
-                    "stage_b": "verdict",
-                    "severity": "critical",
-                    "description": (
-                        f"F12 injection risk={floor_scores.f12_injection:.2f} "
-                        f"but verdict={verdict_candidate}"
-                    ),
-                    "confidence": 0.95,
-                }
-            )
+    # 2. Floor-score vs verdict contradictions (F12, F1, F9)
+    floor_checks = [
+        ("f12_injection", 0.5, "gt", ("SEAL", "PARTIAL"), "F12_injection", "critical",
+         lambda v, vc: f"F12 injection risk={v:.2f} but verdict={vc}", 0.95),
+        ("f1_amanah", 0.3, "lt", ("SEAL",), "F1_amanah", "critical",
+         lambda v, vc: f"F1 amanah={v:.2f} (high irreversibility) but verdict={vc}", 0.90),
+        ("f9_anti_hantu", 0.3, "gt", ("SEAL",), "F9_anti_hantu", "major",
+         lambda v, vc: f"F9 anti-hantu={v:.2f} (dark cleverness) but verdict={vc}", 0.85),
+    ]
 
-    if hasattr(floor_scores, "f1_amanah") and floor_scores.f1_amanah < 0.3:
-        if verdict_candidate == "SEAL":
-            contradictions.append(
-                {
-                    "stage_a": "F1_amanah",
-                    "stage_b": "verdict",
-                    "severity": "critical",
-                    "description": (
-                        f"F1 amanah={floor_scores.f1_amanah:.2f} (high irreversibility) "
-                        f"but verdict=SEAL"
-                    ),
-                    "confidence": 0.90,
-                }
-            )
-
-    if hasattr(floor_scores, "f9_anti_hantu") and floor_scores.f9_anti_hantu > 0.3:
-        if verdict_candidate == "SEAL":
-            contradictions.append(
-                {
-                    "stage_a": "F9_anti_hantu",
-                    "stage_b": "verdict",
-                    "severity": "major",
-                    "description": (
-                        f"F9 anti-hantu={floor_scores.f9_anti_hantu:.2f} "
-                        f"(dark cleverness) but verdict=SEAL"
-                    ),
-                    "confidence": 0.85,
-                }
-            )
+    for attr, threshold, comp, blocked, floor_name, sev, desc_fn, conf in floor_checks:
+        contradiction = _check_floor_contradiction(
+            floor_scores, attr, threshold, comp, verdict_candidate, blocked,
+            floor_name, sev, desc_fn, conf
+        )
+        if contradiction:
+            contradictions.append(contradiction)
 
     return contradictions
+
+
+def _derive_next_actions(materiality: str) -> list[NextAction]:
+    """Derive next actions based on materiality level."""
+    action_map = {
+        "idea_only": NextAction(
+            action_type="human_review",
+            description="Review proposal with sovereign.",
+            requires_hold=True,
+        ),
+        "prototype": NextAction(
+            action_type="code_sandbox",
+            description="Run validation tests.",
+            requires_888_hold=False,
+        ),
+        "production": NextAction(
+            action_type="apex_judgment",
+            description="Submit to Stage 888 for final verdict.",
+            requires_hold=True,
+        ),
+    }
+    if materiality in action_map:
+        return [action_map[materiality]]
+    return []
 
 
 async def forge(
@@ -127,6 +156,9 @@ async def forge(
 ) -> ApexOutput:
     """
     Stage 777: EUREKA FORGE (Discovery Actuator)
+
+    Transforms intent into Eureka insight, proposes next actions based on
+    materiality, and returns an ApexOutput with SEAL verdict.
     """
     from core.physics.thermodynamics_hardened import consume_tool_energy
 
@@ -142,24 +174,8 @@ async def forge(
         evidence_links=["reason_mind.step:3"],
     )
 
-    # 2. Propose Next Actions
-    next_actions = []
-    if materiality == "idea_only":
-        next_actions.append(
-            NextAction(
-                action_type="human_review",
-                description="Review proposal with sovereign.",
-                requires_hold=True,
-            )
-        )
-    elif materiality == "prototype":
-        next_actions.append(
-            NextAction(
-                action_type="code_sandbox",
-                description="Run validation tests.",
-                requires_888_hold=False,
-            )
-        )
+    # 2. Derive Next Actions from materiality
+    next_actions = _derive_next_actions(materiality)
 
     # 3. Construct Output
     return ApexOutput(
@@ -202,7 +218,11 @@ async def judge(
 
     consume_tool_energy(session_id, n_calls=1)
 
-    # 1. Map Candidate — use normalize_verdict(888, ...) which allows VOID
+    # ─────────────────────────────────────────────────────────────────────────────
+    # Phase 1: Input Validation & Normalization
+    # ─────────────────────────────────────────────────────────────────────────────
+
+    # 1. Map Candidate — normalize_verdict(888, ...) allows VOID at this stage
     candidate = normalize_verdict(888, verdict_candidate)
 
     # 2. Extract or Build Floor Scores
@@ -211,12 +231,16 @@ async def judge(
         defaults={"f2_truth": kwargs.get("akal", 0.99)},
     )
 
-    # 3. Monotone Safety Check
+    # ─────────────────────────────────────────────────────────────────────────────
+    # Phase 2: Safety Gates (Monotone + Coherence)
+    # ─────────────────────────────────────────────────────────────────────────────
+
+    # 3. Monotone Safety Check — violations prevent SEAL upgrade
     violations = kwargs.get("violations", [])
     if violations and candidate == Verdict.SEAL:
         candidate = Verdict.PARTIAL
 
-    # 2a. EUREKA Layer 2: Semantic Coherence Verification
+    # 4. EUREKA Layer 2: Semantic Coherence Verification
     # Detect contradictions between reason text, floor scores, and proposed verdict.
     # Critical contradictions force 888_HOLD before any further processing.
     contradictions = _detect_contradictions(reason_summary, floor_scores, candidate.value)
@@ -232,7 +256,11 @@ async def judge(
             critical_contradictions,
         )
 
-    # 4. Real Genius Calculation (The Discipline Layer)
+    # ─────────────────────────────────────────────────────────────────────────────
+    # Phase 3: Genius Discipline (F8)
+    # ─────────────────────────────────────────────────────────────────────────────
+
+    # 5. Real Genius Calculation (The Discipline Layer)
     budget_used, budget_max = get_thermodynamic_budget_window(
         session_id,
         fallback_used=0.5,
@@ -249,7 +277,7 @@ async def judge(
     g_score = genius_result["genius_score"]
     dials = genius_result["dials"]
 
-    # 5. G Sovereignty Gate
+    # 6. G Sovereignty Gate — F8 enforcement
     if candidate == Verdict.SEAL and g_score < 0.80:
         logger.info(
             f"arifOS APEX Discipline Check: G ({g_score:.4f}) < 0.80. Downgrading to PARTIAL."
@@ -257,7 +285,11 @@ async def judge(
         candidate = Verdict.PARTIAL
         reason_summary = (reason_summary or "") + f" [APEX Gate: G={g_score:.4f} < 0.80]"
 
-    # 6. Landauer Physics Check (Mandatory before SEAL)
+    # ─────────────────────────────────────────────────────────────────────────────
+    # Phase 4: Physics Compliance (F4)
+    # ─────────────────────────────────────────────────────────────────────────────
+
+    # 7. Landauer Physics Check (Mandatory before SEAL)
     if candidate == Verdict.SEAL:
         try:
             check_landauer_before_seal(
@@ -271,21 +303,25 @@ async def judge(
             candidate = Verdict.SABAR
             reason_summary = f"Physics Law Violation: {str(e)}"
 
-    # 7. Build Rationale
+    # ─────────────────────────────────────────────────────────────────────────────
+    # Phase 5: Output Construction
+    # ─────────────────────────────────────────────────────────────────────────────
+
+    # 8. Build Rationale
     rationale = JudgmentRationale(
         summary=reason_summary or f"Judgment finalized for session {session_id}.",
         tri_witness={"human": dials["E"], "ai": dials["A"], "earth": dials["P"]},
         omega_0=floor_scores.f7_humility,
     )
 
-    # Update floor statuses for output
+    # 9. Update floor statuses for output
     floors_status = {f"F{i}": "pass" for i in range(1, 14)}
     if g_score < 0.80:
         floors_status["F8"] = "partial"
     if floor_scores.f2_truth < 0.99:
         floors_status["F2"] = "fail"
 
-    # 8. Construct Output
+    # 10. Construct Output
     return ApexOutput(
         session_id=session_id,
         verdict=candidate,

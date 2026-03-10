@@ -117,6 +117,63 @@ class ToolchainRole(str, Enum):
     SUBAGENT = "subagent"
 
 
+class UserModelSource(str, Enum):
+    """Allowed provenance sources for bounded user-model fields."""
+
+    EXPLICIT = "explicit"
+    OBSERVABLE = "observable"
+    DEFAULT_POLICY = "default_policy"
+    UNKNOWN = "unknown"
+
+
+class AdaptationMode(str, Enum):
+    """Governed adaptation scope for runtime user modeling."""
+
+    BEHAVIORAL_ONLY = "behavioral_only"
+
+
+class UserModelField(BaseModel):
+    """Single user-model field with provenance and bounded evidence."""
+
+    value: Any | None = None
+    source: UserModelSource = UserModelSource.UNKNOWN
+    evidence: str | None = None
+
+
+class InferencePolicy(BaseModel):
+    """Explicit anti-Theory-of-Mind guardrails for runtime adaptation."""
+
+    psychological_inference: str = "disallowed"
+    behavioral_adaptation: str = "allowed"
+    null_for_unknown: bool = True
+    source_priority: list[UserModelSource] = Field(
+        default_factory=lambda: [
+            UserModelSource.EXPLICIT,
+            UserModelSource.OBSERVABLE,
+            UserModelSource.DEFAULT_POLICY,
+        ]
+    )
+
+
+class UserModel(BaseModel):
+    """
+    Bounded user-model contract.
+
+    The runtime may adapt to explicit asks and observable interaction signals,
+    but must not attribute hidden motives or psychological states.
+    """
+
+    stated_goal: UserModelField | None = None
+    behavioral_constraints: list[UserModelField] = Field(default_factory=list)
+    output_constraints: list[UserModelField] = Field(default_factory=list)
+    requested_tone: UserModelField | None = None
+    expertise_level: UserModelField | None = None
+    emotion_state: UserModelField | None = None
+    hidden_motive: UserModelField | None = None
+    adaptation_mode: AdaptationMode = AdaptationMode.BEHAVIORAL_ONLY
+    inference_policy: InferencePolicy = Field(default_factory=InferencePolicy)
+
+
 class CallerContext(BaseModel):
     """
     AI execution identity layer — instrument only, never sovereign (F9/F10).
@@ -162,6 +219,13 @@ class RuntimeEnvelope(BaseModel):
     caller_context: CallerContext | None = Field(
         default=None,
         description="AI execution identity. Auto-populated by MCP server.",
+    )
+    user_model: UserModel | None = Field(
+        default=None,
+        description=(
+            "Bounded user model built from explicit asks and observable constraints only. "
+            "Psychological inference is disallowed by policy."
+        ),
     )
     philosophy: dict[str, Any] | None = Field(
         default=None,

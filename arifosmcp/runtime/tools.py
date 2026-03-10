@@ -6,7 +6,14 @@ from typing import Any
 from fastmcp import Context, FastMCP
 from fastmcp.tools import ToolResult
 
-from arifosmcp.runtime.models import CallerContext, RuntimeEnvelope, Stage
+from arifosmcp.runtime.models import (
+    CallerContext,
+    RuntimeEnvelope,
+    Stage,
+    UserModel,
+    UserModelField,
+    UserModelSource,
+)
 from arifosmcp.runtime.philosophy import select_governed_philosophy
 from arifosmcp.runtime.public_registry import public_tool_specs
 from arifosmcp.runtime.resources import build_open_apex_dashboard_result
@@ -82,6 +89,140 @@ def _infer_failed_floors(envelope_data: dict[str, Any]) -> list[str]:
                     failed.append(floor)
 
     return failed
+
+
+def _contains_any(text: str, patterns: tuple[str, ...]) -> bool:
+    return any(pattern in text for pattern in patterns)
+
+
+def _build_user_model(
+    tool_name: str,
+    stage_value: str,
+    payload: dict[str, Any],
+    envelope_data: dict[str, Any],
+) -> UserModel:
+    """
+    Build a bounded user model from explicit asks and observable runtime signals.
+
+    Anti-Theory-of-Mind rule:
+    - Use explicit request text and observable execution facts only.
+    - Never infer hidden motives or psychological state.
+    """
+    raw_query = str(payload.get("query") or payload.get("intent") or "").strip()
+    raw_context = str(payload.get("context") or "").strip()
+    observed_text = " ".join(part for part in (raw_query, raw_context) if part).lower()
+
+    behavioral_constraints: list[UserModelField] = []
+    output_constraints: list[UserModelField] = []
+
+    def add_behavioral_constraint(value: str, evidence: str, source: UserModelSource) -> None:
+        if any(field.value == value for field in behavioral_constraints):
+            return
+        behavioral_constraints.append(UserModelField(value=value, source=source, evidence=evidence))
+
+    def add_output_constraint(value: str, evidence: str, source: UserModelSource) -> None:
+        if any(field.value == value for field in output_constraints):
+            return
+        output_constraints.append(UserModelField(value=value, source=source, evidence=evidence))
+
+    if raw_query:
+        stated_goal = UserModelField(
+            value=raw_query,
+            source=UserModelSource.EXPLICIT,
+            evidence="payload.query",
+        )
+    elif payload.get("intent"):
+        stated_goal = UserModelField(
+            value=str(payload["intent"]),
+            source=UserModelSource.EXPLICIT,
+            evidence="payload.intent",
+        )
+    else:
+        stated_goal = UserModelField(
+            value=f"Handle tool call for {tool_name}",
+            source=UserModelSource.DEFAULT_POLICY,
+            evidence="tool_name fallback",
+        )
+
+    if _contains_any(observed_text, ("calm", "non-alarmist", "non alarmist")):
+        requested_tone = UserModelField(
+            value="calm_non_alarmist",
+            source=UserModelSource.EXPLICIT,
+            evidence="query/context requested calm wording",
+        )
+    elif stage_value == Stage.HEART_666.value:
+        requested_tone = UserModelField(
+            value="calm_non_alarmist",
+            source=UserModelSource.DEFAULT_POLICY,
+            evidence="heart stage default de-escalation policy",
+        )
+    else:
+        requested_tone = None
+
+    if _contains_any(observed_text, ("concise", "brief", "short")):
+        add_output_constraint(
+            "keep_response_concise",
+            "query/context requested concise output",
+            UserModelSource.EXPLICIT,
+        )
+    if _contains_any(
+        observed_text,
+        ("accessible", "plain english", "plain english", "simple terms", "high-level"),
+    ):
+        add_output_constraint(
+            "define_terms_clearly_and_keep_accessible",
+            "query/context requested accessible framing",
+            UserModelSource.EXPLICIT,
+        )
+    if _contains_any(observed_text, ("step by step", "steps", "walk me through")):
+        add_output_constraint(
+            "present_steps_explicitly",
+            "query/context requested step-by-step structure",
+            UserModelSource.EXPLICIT,
+        )
+    if _contains_any(observed_text, ("json", "schema", "table", "structured")):
+        add_output_constraint(
+            "prefer_structured_output_when_supported",
+            "query/context requested structured output",
+            UserModelSource.EXPLICIT,
+        )
+
+    if stage_value == Stage.HEART_666.value:
+        add_behavioral_constraint(
+            "optimize_for_dignity_and_harm_reduction",
+            "observable stage=666_HEART",
+            UserModelSource.OBSERVABLE,
+        )
+    elif stage_value == Stage.MIND_333.value:
+        add_behavioral_constraint(
+            "reduce_ambiguity_and_define_terms_clearly",
+            "observable stage=333_MIND",
+            UserModelSource.OBSERVABLE,
+        )
+    elif stage_value == Stage.JUDGE_888.value:
+        add_behavioral_constraint(
+            "state_release_risks_and_responsibility_clearly",
+            "observable stage=888_JUDGE",
+            UserModelSource.OBSERVABLE,
+        )
+
+    meta_block = envelope_data.get("meta")
+    if isinstance(meta_block, dict) and bool(meta_block.get("dry_run")):
+        add_output_constraint(
+            "state_that_execution_is_simulated",
+            "observable meta.dry_run=true",
+            UserModelSource.OBSERVABLE,
+        )
+
+    return UserModel(
+        stated_goal=stated_goal,
+        behavioral_constraints=behavioral_constraints,
+        output_constraints=output_constraints,
+        requested_tone=requested_tone,
+        expertise_level=None,
+        emotion_state=None,
+        hidden_motive=None,
+    )
 
 
 def _resolve_motto(stage_value: str) -> str | None:
@@ -240,6 +381,14 @@ async def _wrap_call(
 
     if envelope.philosophy is None:
         envelope.philosophy = _select_philosophy_payload(
+            tool_name,
+            envelope.stage,
+            payload,
+            envelope.model_dump(mode="json", exclude_none=True),
+        )
+
+    if envelope.user_model is None:
+        envelope.user_model = _build_user_model(
             tool_name,
             envelope.stage,
             payload,
@@ -564,8 +713,7 @@ def register_tools(mcp: FastMCP, profile: str = "full") -> None:
     mcp.tool(
         name="arifOS.kernel",
         description=(
-            "[Legacy Alias] Use arifOS_kernel instead. "
-            "Governed metabolic loop orchestrator."
+            "[Legacy Alias] Use arifOS_kernel instead. Governed metabolic loop orchestrator."
         ),
     )(metabolic_loop_router)
 

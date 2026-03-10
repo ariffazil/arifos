@@ -29,6 +29,40 @@ from core.shared.verdict_contract import normalize_verdict
 logger = logging.getLogger(__name__)
 
 
+def _build_reasoning_steps(query: str, reason_mode: str) -> list[ReasonMindStep]:
+    """
+    Build the three-stage reasoning pipeline: 111 Search → 222 Analyze → 333 Synthesize.
+
+    Args:
+        query: The input query being analyzed
+        reason_mode: Reasoning mode (e.g., "strict_truth" affects uncertainty marking)
+
+    Returns:
+        List of ReasonMindStep representing the reasoning progression
+    """
+    return [
+        ReasonMindStep(
+            id=1,
+            phase="111_search",
+            thought=f"Identifying facts and constraints for: {query[:50]}...",
+            evidence="src:session_context, lane:FACTUAL",
+        ),
+        ReasonMindStep(
+            id=2,
+            phase="222_analyze",
+            thought="Comparing implications and testing assumptions.",
+            uncertainty=(
+                "Limited by current context window." if reason_mode == "strict_truth" else None
+            ),
+        ),
+        ReasonMindStep(
+            id=3,
+            phase="333_synthesis",
+            thought="Synthesizing final conclusion based on analysis.",
+        ),
+    ]
+
+
 async def agi(
     query: str,
     session_id: str,
@@ -55,39 +89,13 @@ async def agi(
 
     # 3. Initialize State
     floors = {"F2": "pass", "F4": "pass", "F7": "pass", "F10": "pass"}
-    steps: list[ReasonMindStep] = []
 
-    # 4. Simulate Sequential Reasoning
+    # 4. Simulate Sequential Reasoning (111→222→333)
     # In a real implementation, this would be an LLM loop.
     consume_reason_energy(session_id, n_cycles=3)
 
-    steps.append(
-        ReasonMindStep(
-            id=1,
-            phase="111_search",
-            thought=f"Identifying facts and constraints for: {query[:50]}...",
-            evidence="src:session_context, lane:FACTUAL",
-        )
-    )
-
-    steps.append(
-        ReasonMindStep(
-            id=2,
-            phase="222_analyze",
-            thought="Comparing implications and testing assumptions.",
-            uncertainty=(
-                "Limited by current context window." if reason_mode == "strict_truth" else None
-            ),
-        )
-    )
-
-    steps.append(
-        ReasonMindStep(
-            id=3,
-            phase="333_synthesis",
-            thought="Synthesizing final conclusion based on analysis.",
-        )
-    )
+    # Build reasoning steps: Search → Analyze → Synthesize
+    steps = _build_reasoning_steps(query, reason_mode)
 
     # 5. Handle Eureka (Insight)
     has_eureka = reason_mode != "strict_truth"

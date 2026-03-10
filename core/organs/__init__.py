@@ -19,9 +19,8 @@ DITEMPA BUKAN DIBERI — Forged, Not Given
 """
 
 # Canonical modules (no legacy underscore names in public surface)
-from core.shared.types import InitOutput, Verdict
+from core.shared.types import InitOutput
 
-from . import _0_init as init_module
 from . import _1_agi as mind
 from . import _2_asi as heart
 from . import _3_apex as soul

@@ -17,12 +17,11 @@ from arifosmcp.runtime.models import (
     PersonaId,
     RuntimeEnvelope,
     RuntimeRole,
-    Stage,
     ToolchainRole,
-    Verdict,
+    UserModel,
+    UserModelSource,
 )
-from arifosmcp.runtime.tools import _resolve_caller_context
-
+from arifosmcp.runtime.tools import _build_user_model, _resolve_caller_context
 
 # ─── CallerContext model tests ───────────────────────────────────────────────
 
@@ -153,6 +152,25 @@ class TestRuntimeEnvelopeCallerContext:
         assert "caller_context" in dumped
         assert dumped["caller_context"]["persona_id"] == "validator"
 
+    def test_envelope_user_model_from_dict(self):
+        env = RuntimeEnvelope(
+            tool="test_tool",
+            stage="333_MIND",
+            user_model={
+                "stated_goal": {"value": "Explain the schema", "source": "explicit"},
+                "behavioral_constraints": [
+                    {
+                        "value": "reduce_ambiguity_and_define_terms_clearly",
+                        "source": "observable",
+                    }
+                ],
+            },
+        )
+        assert env.user_model is not None
+        assert env.user_model.stated_goal is not None
+        assert env.user_model.stated_goal.source == UserModelSource.EXPLICIT
+        assert env.user_model.behavioral_constraints[0].source == UserModelSource.OBSERVABLE
+
 
 # ─── _resolve_caller_context helper tests ────────────────────────────────────
 
@@ -199,6 +217,45 @@ class TestResolveCallerContext:
     def test_hint_case_insensitive(self):
         result = _resolve_caller_context(None, "ARCHITECT")
         assert result.persona_id == PersonaId.ARCHITECT
+
+
+class TestBuildUserModel:
+    def test_build_user_model_uses_explicit_and_observable_sources_only(self):
+        user_model = _build_user_model(
+            "reason_mind_synthesis",
+            "333_MIND",
+            {
+                "query": "Keep it concise and accessible with plain English.",
+                "context": "Need a high-level explanation.",
+            },
+            {"meta": {"dry_run": True}},
+        )
+
+        assert isinstance(user_model, UserModel)
+        assert user_model.stated_goal is not None
+        assert user_model.stated_goal.source == UserModelSource.EXPLICIT
+        assert any(
+            field.value == "keep_response_concise" and field.source == UserModelSource.EXPLICIT
+            for field in user_model.output_constraints
+        )
+        assert any(
+            field.value == "state_that_execution_is_simulated"
+            and field.source == UserModelSource.OBSERVABLE
+            for field in user_model.output_constraints
+        )
+
+    def test_build_user_model_keeps_unknown_user_state_null(self):
+        user_model = _build_user_model(
+            "assess_heart_impact",
+            "666_HEART",
+            {"query": "Review this safely."},
+            {},
+        )
+
+        assert user_model.expertise_level is None
+        assert user_model.emotion_state is None
+        assert user_model.hidden_motive is None
+        assert user_model.inference_policy.psychological_inference == "disallowed"
 
 
 # ─── Integration: tools accept caller_context ────────────────────────────────
@@ -277,3 +334,5 @@ async def test_check_vital_still_works():
     envelope = await check_vital()
     assert envelope is not None
     assert envelope.verdict is not None
+    assert envelope.user_model is not None
+    assert envelope.user_model.inference_policy.psychological_inference == "disallowed"

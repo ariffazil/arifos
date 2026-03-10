@@ -27,7 +27,6 @@ from typing import Any
 from starlette.requests import Request
 from starlette.responses import HTMLResponse, JSONResponse, Response
 from starlette.staticfiles import StaticFiles
-from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
 
 from arifosmcp.runtime.public_registry import build_server_json
 from arifosmcp.runtime.resources import apex_tools_html_rows, apex_tools_markdown_table
@@ -498,10 +497,6 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
             }
         )
 
-    @mcp.custom_route("/metrics", methods=["GET"])
-    async def metrics_endpoint(request: Request) -> Response:
-        """Prometheus metrics endpoint."""
-        return Response(generate_latest(), media_type=CONTENT_TYPE_LATEST)
 
     @mcp.custom_route("/health", methods=["GET"])
     async def health(request: Request) -> Response:
