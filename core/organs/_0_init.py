@@ -237,6 +237,7 @@ async def init(
     actor_id: str | GovernanceMetadata = "anonymous",
     auth_token: str | None = None,
     math_dials: MathDials | dict[str, float] | None = None,
+    session_id: str | None = None,
     **kwargs,
 ) -> InitOutput:
     """
@@ -345,24 +346,26 @@ async def init(
             )
 
     # 8. Finalize Session Ignition
-    session_id = secrets.token_hex(16)
+    final_session_id = session_id if session_id else secrets.token_hex(16)
 
     # Initialize Thermodynamic Budget
     try:
         from core.physics.thermodynamics_hardened import init_thermodynamic_budget
 
-        init_thermodynamic_budget(session_id=session_id, initial_budget=1.0)
+        init_thermodynamic_budget(session_id=final_session_id, initial_budget=1.0)
     except Exception:
         pass
 
     return InitOutput(
-        session_id=session_id,
+        session_id=final_session_id,
         verdict=Verdict.SEAL,
         status="READY",
         intent=intent,
         math=math,
         physics=physics,
-        code=CodeState(session_id=session_id, verdict="SEAL", stage="000", runtime_mode="init"),
+        code=CodeState(
+            session_id=final_session_id, verdict="SEAL", stage="000", runtime_mode="init"
+        ),
         governance=governance,
         floors=floors,
         governance_token=secrets.token_hex(16),

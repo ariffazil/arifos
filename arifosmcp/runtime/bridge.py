@@ -303,7 +303,11 @@ async def call_kernel(
             )
 
             res = await init(
-                query=intent, actor_id=gov, math_dials=math, auth_token=payload.get("auth_token")
+                query=intent,
+                actor_id=gov,
+                math_dials=math,
+                auth_token=payload.get("auth_token"),
+                session_id=session_id,
             )
             result = res.model_dump(mode="json")
 
