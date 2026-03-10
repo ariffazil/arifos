@@ -27,6 +27,7 @@ class PhilosophySelection(TypedDict):
     stage: str
     g_score: float
     semantic_backend: str
+    available_categories: dict[str, list[str]]
     agi: dict[str, Any]
     asi: dict[str, Any] | None
 
@@ -295,27 +296,105 @@ def _stage_number(stage: str) -> int:
         return 444
 
 
+def _local_category(
+    stage: str,
+    g_score: float,
+    failed_floors: list[str],
+    verdict: str,
+) -> str:
+    """Map runtime state onto the richer local 99-quote label space."""
+    stage_num = _stage_number(stage)
+    failed = set(failed_floors)
+
+    if stage_num >= 999:
+        return "seal"
+
+    if "F6" in failed:
+        return "love"
+    if {"F1", "F5"} & failed:
+        return "scar"
+    if {"F2", "F7"} & failed:
+        return "wisdom"
+    if {"F4", "F10"} & failed:
+        return "paradox"
+
+    if verdict in {"VOID", "HOLD", "HOLD_888"}:
+        return "scar" if g_score < 0.5 else "wisdom"
+
+    if stage_num >= 777:
+        if g_score >= 0.9 and verdict == "SEAL":
+            return "triumph"
+        return "power" if g_score >= 0.8 else "paradox"
+
+    if stage_num >= 666:
+        return "power" if g_score >= 0.85 else "paradox"
+
+    if stage_num >= 333:
+        return "paradox" if g_score >= 0.7 else "wisdom"
+
+    return "wisdom"
+
+
+def _deterministic_local_anchor(
+    context: str,
+    *,
+    stage: str,
+    g_score: float,
+    failed_floors: list[str],
+    verdict: str,
+    session_id: str,
+) -> tuple[dict[str, Any] | None, str]:
+    """
+    Deterministically pick from the richer local 99-quote corpus.
+
+    This preserves stability while allowing more category variety than the
+    legacy 33-quote registry.
+    """
+    try:
+        from arifosmcp.intelligence.tools.wisdom_quotes import load_wisdom_quotes
+    except ImportError:
+        return None, "unavailable"
+
+    try:
+        corpus = load_wisdom_quotes()
+    except Exception:
+        return None, "error"
+
+    category = _local_category(stage, g_score, failed_floors, verdict)
+    options = [
+        quote for quote in corpus if str(quote.get("category", "")).strip().lower() == category
+    ]
+    if not options:
+        return None, "empty"
+
+    floor_signature = "|".join(sorted(set(failed_floors)))
+    context_signature = context.strip().lower()[:160]
+    rounded_g = f"{g_score:.3f}"
+    seed = hashlib.sha256(
+        f"{session_id}:{stage}:{verdict}:{category}:{rounded_g}:{floor_signature}:{context_signature}".encode()
+    ).hexdigest()
+    idx = int(seed, 16) % len(options)
+    selected = options[idx]
+
+    return (
+        {
+            "quote_id": str(selected.get("id", "")),
+            "quote": str(selected.get("text", "")),
+            "author": str(selected.get("author", "unknown")) or "unknown",
+            "category": category,
+            "source": "deterministic_99",
+        },
+        "available",
+    )
+
+
 def _semantic_category(
     stage: str,
     g_score: float,
     failed_floors: list[str],
     verdict: str,
 ) -> str:
-    if verdict in {"VOID", "HOLD", "HOLD_888"} or g_score < 0.5:
-        return "wisdom"
-    if "F6" in failed_floors:
-        return "love"
-    if "F2" in failed_floors or "F7" in failed_floors:
-        return "wisdom"
-
-    stage_num = _stage_number(stage)
-    if stage_num >= 999:
-        return "seal"
-    if stage_num >= 666:
-        return "power" if g_score >= 0.85 else "paradox"
-    if stage_num >= 333:
-        return "paradox"
-    return "wisdom"
+    return _local_category(stage, g_score, failed_floors, verdict)
 
 
 def _quote_block(quote: Quote, *, score: float | None = None, source: str) -> dict[str, Any]:
@@ -413,7 +492,22 @@ def select_governed_philosophy(
     APEX -> choose deterministic, hybrid, or semantic emphasis from G*, stage, verdict
     """
     failed_floors = failed_floors or []
-    agi_quote = get_philosophical_anchor(stage, g_score, failed_floors, session_id=session_id)
+    stage_num = _stage_number(stage)
+    hard_governance = (
+        bool(failed_floors) or verdict in {"VOID", "HOLD", "HOLD_888"} or g_score < 0.5
+    )
+
+    legacy_agi_quote = get_philosophical_anchor(
+        stage, g_score, failed_floors, session_id=session_id
+    )
+    deterministic_local_quote, deterministic_local_backend = _deterministic_local_anchor(
+        context,
+        stage=stage,
+        g_score=g_score,
+        failed_floors=failed_floors,
+        verdict=verdict,
+        session_id=session_id,
+    )
     semantic_quote, semantic_backend = get_semantic_wisdom(
         context,
         stage=stage,
@@ -422,21 +516,37 @@ def select_governed_philosophy(
         verdict=verdict,
     )
 
-    stage_num = _stage_number(stage)
     role = "seal" if stage_num >= 999 else "anchor" if stage_num <= 111 else "support"
 
-    hard_governance = (
-        bool(failed_floors) or verdict in {"VOID", "HOLD", "HOLD_888"} or g_score < 0.5
-    )
-    if stage_num in {0, 999} or hard_governance:
+    if stage_num == 0:
         apex_mode = "deterministic_33"
+        agi_block = _quote_block(legacy_agi_quote, source="deterministic_33")
         semantic_quote = None
-    elif semantic_quote is None:
+    elif deterministic_local_quote is None and semantic_quote is None:
         apex_mode = "deterministic_33"
+        agi_block = _quote_block(legacy_agi_quote, source="deterministic_33")
+    elif hard_governance:
+        apex_mode = (
+            "deterministic_99" if deterministic_local_quote is not None else "deterministic_33"
+        )
+        agi_block = (
+            deterministic_local_quote
+            if deterministic_local_quote is not None
+            else _quote_block(legacy_agi_quote, source="deterministic_33")
+        )
+        semantic_quote = None
+    elif deterministic_local_quote is None:
+        apex_mode = "semantic_99" if g_score >= 0.8 else "hybrid"
+        agi_block = _quote_block(legacy_agi_quote, source="deterministic_33")
+    elif semantic_quote is None:
+        apex_mode = "deterministic_99"
+        agi_block = deterministic_local_quote
     elif g_score >= 0.8:
         apex_mode = "semantic_99"
+        agi_block = deterministic_local_quote
     else:
         apex_mode = "hybrid"
+        agi_block = deterministic_local_quote
 
     return {
         "apex_mode": apex_mode,
@@ -444,7 +554,11 @@ def select_governed_philosophy(
         "stage": stage,
         "g_score": round(g_score, 4),
         "semantic_backend": semantic_backend,
-        "agi": _quote_block(agi_quote, source="deterministic_33"),
+        "available_categories": {
+            "deterministic_33": ["wisdom", "power", "paradox", "void", "seal"],
+            "local_99": ["scar", "triumph", "paradox", "wisdom", "power", "love", "seal"],
+        },
+        "agi": agi_block,
         "asi": semantic_quote,
     }
 
