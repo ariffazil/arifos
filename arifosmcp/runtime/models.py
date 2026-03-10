@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 from enum import Enum
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 class Verdict(str, Enum):
@@ -45,6 +45,15 @@ class AuthorityLevel(str, Enum):
     ANONYMOUS = "anonymous"
     OPERATOR = "operator"
     SOVEREIGN = "sovereign"
+
+
+class PersonaRole(str, Enum):
+    """AI self-declared operational roles - governed whitelist."""
+    ARCHITECT = "architect"
+    ENGINEER = "engineer"
+    AUDITOR = "auditor"
+    VALIDATOR = "validator"
+    ASSISTANT = "assistant"
 
 
 class CanonicalMetrics(BaseModel):
