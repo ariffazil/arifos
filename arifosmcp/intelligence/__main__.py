@@ -51,13 +51,13 @@ def main():
         import warnings
 
         try:
-            from arifosmcp.transport.__main__ import main as aaa_main
+            from arifosmcp.runtime.__main__ import main as aaa_main
         except ImportError:
-            print("Error: arifosmcp.transport not found. Ensure package is installed.")
+            print("Error: arifosmcp.runtime not found. Ensure package is installed.")
             sys.exit(1)
 
         warnings.warn(
-            "arifosmcp.intelligence transport modes are deprecated; use 'python -m arifosmcp.transport' directly.",
+            "arifosmcp.intelligence transport modes are deprecated; use 'python -m arifosmcp.runtime' directly.",
             DeprecationWarning,
             stacklevel=2,
         )
@@ -69,7 +69,7 @@ def main():
             forwarded_mode = None
             forwarded_args = sys.argv[1:]
 
-        forwarded_argv = ["arifosmcp.transport"]
+        forwarded_argv = ["arifosmcp.runtime"]
         if forwarded_mode is not None:
             forwarded_argv.append(forwarded_mode)
         forwarded_argv.extend(forwarded_args)

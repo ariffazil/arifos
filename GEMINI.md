@@ -24,8 +24,8 @@
 - **Package Manager:** `uv` (preferred over pip).
 
 ### 🚀 Key Commands
-- **Run Server (STDIO):** `python -m arifosmcp.transport stdio`
-- **Run Server (HTTP):** `python -m arifosmcp.transport http`
+- **Run Server (STDIO):** `python -m arifosmcp.runtime stdio`
+- **Run Server (HTTP):** `python -m arifosmcp.runtime http`
 - **Linting:** `ruff check . --line-length 100`
 - **Formatting:** `black . --line-length 100`
 - **Type Checking:** `mypy .`
@@ -47,14 +47,15 @@ Requests flow through 11 stages: `INIT (000)` → `MIND (111-333)` → `HEART (5
 
 ### 3. Separation of Concerns
 - **`core/`**: Pure logic, stateless governance, physics/math. **No transport code here.**
-- **`arifosmcp.transport/`**: MCP/HTTP transport layer. **No decision logic here;** call the kernel.
+- **`arifosmcp.runtime/`**: MCP/HTTP transport layer. **No decision logic here;** call the kernel.
 
 ---
 
 ## 📂 Directory Structure (High-Level)
 
 - `core/`: The Governance Kernel (The Heart of the System).
-- `arifosmcp/`: MCP Transport, Hub, and Dashboard (The Senses & Brain).
+- `arifosmcp/runtime/`: MCP Transport Hub and Dashboard (The Brain).
+- `arifosmcp/intelligence/`: Sensory Tools and Grounding (The Senses).
 - `docs/`: Constitutional theory and implementation guides.
 - `VAULT999/`: Local immutable ledger files.
 - `tests/`: Comprehensive test suite (Constitutional & Functional).

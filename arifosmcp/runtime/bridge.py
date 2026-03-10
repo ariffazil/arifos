@@ -16,7 +16,8 @@ from arifosmcp.intelligence.tools.reality_grounding import open_web_page, realit
 from arifosmcp.runtime.contracts import REQUIRES_SESSION
 from core.enforcement.auth_continuity import mint_auth_context, verify_auth_context_cached
 from core.enforcement.governance_engine import wrap_tool_output
-from core.organs import Verdict, agi, apex, asi, init, vault
+from core.organs import agi, apex, asi, init, vault
+from .models import Verdict
 
 logger = logging.getLogger(__name__)
 DEFAULT_VAULT_PATH = Path("VAULT999/vault999.jsonl")
