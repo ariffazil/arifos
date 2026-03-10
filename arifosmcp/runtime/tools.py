@@ -6,7 +6,7 @@ from typing import Any
 from fastmcp import Context, FastMCP
 from fastmcp.tools import ToolResult
 
-from arifosmcp.bridge import call_kernel
+from .bridge import call_kernel
 from arifosmcp.runtime.models import RuntimeEnvelope, Stage
 from arifosmcp.runtime.resources import build_open_apex_dashboard_result
 from arifosmcp.runtime.sessions import _resolve_session_id, set_active_session

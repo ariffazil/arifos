@@ -31,8 +31,7 @@ from starlette.staticfiles import StaticFiles
 
 from arifosmcp.runtime.resources import apex_tools_html_rows, apex_tools_markdown_table
 from arifosmcp.transport.build_info import get_build_info
-from arifosmcp.transport.protocol.aaa_contract import AAA_TOOL_STAGE_MAP, TRINITY_BY_TOOL
-from arifosmcp.transport.protocol.public_surface import PUBLIC_TOOL_ALIASES
+from .contracts import AAA_TOOL_STAGE_MAP, TRINITY_BY_TOOL, AAA_TOOL_ALIASES, AAA_CANONICAL_TOOLS
 from core.shared.floor_audit import get_ml_floor_runtime
 from core.shared.floors import (
     FLOOR_SPEC_KEYS,
@@ -43,7 +42,7 @@ from core.shared.floors import (
 
 BUILD_INFO = get_build_info()
 MCP_PROTOCOL_VERSION = "2025-11-25"
-MCP_SUPPORTED_PROTOCOL_VERSIONS = ["2025-11-25", "2025-03-26"]
+MCP_SUPPORTED_PROTOCOL_VERSIONS = ["2025-11-25"]
 
 TOOL_ALIASES: dict[str, str] = dict(PUBLIC_TOOL_ALIASES)
 
@@ -154,14 +153,10 @@ WELCOME_HTML = """\
     <h3>Endpoints</h3>
     <table>
       <tr><th>Method</th><th>Path</th><th>Description</th></tr>
-      <tr><td>GET</td><td class="url">/mcp</td><td>MCP protocol endpoint (SSE / JSON-RPC)</td></tr>
-      <tr><td>GET</td><td class="url">/tools</td><td>Tool listing (REST)</td></tr>
-      <tr><td>POST</td><td class="url">/tools/{name}</td><td>Call a tool via HTTP</td></tr>
-      <tr><td>POST</td><td class="url">/checkpoint</td><td>Single-call constitutional evaluation</td></tr>
-      <tr><td>GET</td><td class="url">/health</td><td>Docker / uptime health check</td></tr>
+      <tr><td>GET</td><td class="url">/health</td><td>Service health check</td></tr>
       <tr><td>GET</td><td class="url">/openapi.json</td><td>OpenAPI 3.1 schema</td></tr>
       <tr><td>GET</td><td class="url">/llms.txt</td><td>LLM-readable server description</td></tr>
-      <tr><td>GET</td><td class="url">/.well-known/mcp/server.json</td><td>MCP registry discovery</td></tr>
+      <tr><td>GET</td><td class="url">/discovery</td><td>MCP registry discovery</td></tr>
     </table>
   </section>
 
@@ -219,20 +214,20 @@ __APEX_MD_TABLE__
 
 ```json
 {
-  "verdict": "SEAL | PARTIAL | SABAR | VOID | HOLD-888 | UNSET",
-  "stage": "INIT | MIND | MEMORY | HEART | APEX | JUDGE | VAULT",
+  "verdict": "SEAL | PROVISIONAL | PARTIAL | SABAR | HOLD | HOLD_888 | VOID",
+  "stage": "000_INIT | 111_SENSE | 222_REALITY | 333_MIND | 444_ROUTER | 555_MEMORY | 666_HEART | 777_FORGE | 888_JUDGE | 999_VAULT",
   "session_id": "string",
-  "telemetry": { "dS": -0.7, "peace2": 1.1, "confidence": 0.9, "verdict": "Alive" },
-  "witness": { "human": 0.0, "ai": 0.0, "earth": 0.0 },
-  "auth_context": { "actor_id": "string", "authority_level": "human|agent|system|anonymous", "stakes_class": "A|B|C|UNKNOWN" },
-  "data": {}
+  "metrics": { "truth": 0.0, "clarity_delta": 0.0, "confidence": 0.0, "peace": 0.0 },
+  "authority": { "actor_id": "string", "level": "human|agent|system|anonymous" },
+  "payload": {},
+  "meta": { "schema_version": "1.0.0", "timestamp": "ISO-8601" }
 }
 ```
 
 ## Governance floors summary
 
-- Hard floors (fail -> VOID): F1 Amanah, F2 Truth, F4 Clarity, F7 Humility, F9 Anti-dark, F10 Ontology, F11 Command Auth, F12 Injection Defense
-- Soft floors (fail -> PARTIAL): F3 Tri-Witness, F5 Peace, F6 Empathy, F8 Genius
+- Hard floors: F1, F2, F4, F7, F9, F10, F11, F12.
+- Soft floors: F3, F5, F6, F8.
 - Veto: F13 Sovereign — human final authority
 
 ## Key endpoints
@@ -599,7 +594,7 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
             )
 
         latency_ms = (time.time() - start_time) * 1000
-        
+
         # Handle RuntimeEnvelope and other Pydantic models serialization
         if hasattr(result, "model_dump"):
             # Pydantic v2
@@ -609,7 +604,7 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
             result_dict = result.dict()
         else:
             result_dict = result
-        
+
         return JSONResponse(
             {
                 "status": "success",
@@ -640,7 +635,7 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
                     "authentication",
                     {
                         "type": "none",
-                        "description": "No authentication required. actor_id is used for logging only.",
+                        "description": "No auth required.",
                     },
                 )
                 return JSONResponse(payload)
@@ -821,44 +816,46 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
             anchor_res = await anchor_fn(
                 intent={"query": query, "purpose": "checkpoint", "actor_id": actor_id}
             )
-            anchor_data = anchor_res.model_dump() if hasattr(anchor_res, "model_dump") else anchor_res
+            anchor_data = (
+                anchor_res.model_dump() if hasattr(anchor_res, "model_dump") else anchor_res
+            )
             cid = anchor_data.get("session_id", session_id)
 
             # 111-444_AGI
             reason_fn = getattr(reason_tool, "fn", reason_tool)
             await reason_fn(
-                query=query, 
+                query=query,
                 session_id=cid,
-                auth_context={"actor_id": actor_id, "authority_level": "agent"}
+                auth_context={"actor_id": actor_id, "authority_level": "agent"},
             )
 
             # 555-666_ASI
             heart_fn = getattr(heart_tool, "fn", heart_tool)
             await heart_fn(
-                scenario=query, 
+                scenario=query,
                 session_id=cid,
-                auth_context={"actor_id": actor_id, "authority_level": "agent"}
+                auth_context={"actor_id": actor_id, "authority_level": "agent"},
             )
 
             # 777-888_APEX
             judge_fn = getattr(judge_tool, "fn", judge_tool)
             judge_res = await judge_fn(
-                session_id=cid, 
+                session_id=cid,
                 verdict_candidate="checkpoint_evaluation",
                 reason_summary=query,
-                auth_context={"actor_id": actor_id, "authority_level": "agent"}
+                auth_context={"actor_id": actor_id, "authority_level": "agent"},
             )
 
             # Extract data from RuntimeEnvelope responses
             judge_data = judge_res.model_dump() if hasattr(judge_res, "model_dump") else judge_res
             verdict = judge_data.get("verdict", "VOID")
-            
+
             # Extract floors from nested data structure
             floors_passed = []
             floors_failed = []
             truth_score = None
             truth_threshold = None
-            
+
             if "data" in judge_data and isinstance(judge_data["data"], dict):
                 data = judge_data["data"]
                 # Try nested apex_output structure
@@ -867,7 +864,9 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
                     if "governance_layer" in apex:
                         gov = apex["governance_layer"]
                         floors_passed = [k for k, v in gov.items() if v == "pass"]
-                        floors_failed = [k for k, v in gov.items() if v != "pass" and k != "vitality_index"]
+                        floors_failed = [
+                            k for k, v in gov.items() if v != "pass" and k != "vitality_index"
+                        ]
                     if "governed_intelligence" in apex:
                         gi = apex["governed_intelligence"]
                         truth_score = gi.get("G_star")
@@ -879,7 +878,7 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
                 if truth_score is None:
                     truth_score = data.get("truth", {}).get("score")
                     truth_threshold = data.get("truth", {}).get("threshold", 0.5)
-            
+
             floors = {"passed": floors_passed, "failed": floors_failed}
             truth = {"score": truth_score, "threshold": truth_threshold}
 
@@ -890,11 +889,12 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
                 summary = "⚠ Soft floor warning. Proceed with caution."
             elif verdict == "VOID":
                 if floors_failed:
-                    summary = f"✗ Constitutional violation: {', '.join(floors_failed[:3])}. Action blocked."
+                    viol = ", ".join(floors_failed[:3])
+                    summary = f"✗ Constitutional violation: {viol}. Action blocked."
                 else:
-                    summary = "✗ Constitutional evaluation returned VOID. Action blocked."
+                    summary = "✗ Constitutional VOID. Action blocked."
             elif verdict == "888_HOLD":
-                summary = "⏸ High-stakes decision. Requires explicit human confirmation."
+                summary = "⏸ High-stakes decision. Requires human signature."
             else:
                 summary = f"Status: {verdict}"
 

@@ -1,7 +1,7 @@
 {
   "name": "io.github.ariffazil/arifos-mcp",
   "version": "2026.03.10-SEAL",
-  "description": "Constitutional AI governance server — 15 MCP tools (10 APEX-G + 5 Phase 2) with F1-F13 floor enforcement, Quad-Witness BFT consensus (W4 = H×A×E×V, n=4 f=1), Ψ-Shadow adversarial verifier, P3 thermodynamic enforcement, Trinity architecture (ΔΩΨ), and VAULT999 immutable ledger.",
+  "description": "Constitutional AI governance server — 7 Canonical MCP tools with F1-F13 floor enforcement, metabolic Stage 444 routing, and VAULT999 immutable ledger.",
   "vendor": {
     "name": "Muhammad Arif bin Fazil",
     "url": "https://arif-fazil.com"
@@ -25,105 +25,46 @@
   ],
   "capabilities": {
     "constitutional_floors": 13,
-    "witness_protocol": "quad-witness-bft",
-    "witness_formula": "W4 = (H × A × E × V)^(1/4) >= 0.75",
-    "bft_tolerance": "n=4 f=1",
-    "psi_shadow": true,
-    "p3_thermodynamics": true,
+    "metabolic_routing": true,
     "vault999": "postgresql+redis+merkle",
     "vector_memory": "qdrant+bge-m3-1024dim",
     "spec_compliance": "100%"
   },
   "tools": [
     {
-      "name": "init_anchor_state",
-      "band": "A",
-      "stage": "000",
-      "action": "CRITICAL"
-    },
-    {
-      "name": "integrate_analyze_reflect",
-      "band": "R",
-      "stage": "111",
-      "action": "READ"
-    },
-    {
-      "name": "reason_mind_synthesis",
-      "band": "R",
-      "stage": "333",
-      "action": "READ"
-    },
-    {
-      "name": "metabolic_loop_router",
-      "band": "O",
-      "stage": "444",
-      "action": "CRITICAL"
-    },
-    {
-      "name": "vector_memory_store",
-      "band": "I",
-      "stage": "555",
-      "action": "READ"
-    },
-    {
-      "name": "assess_heart_impact",
-      "band": "I",
-      "stage": "666A",
-      "action": "WRITE"
-    },
-    {
-      "name": "critique_thought_audit",
-      "band": "I",
-      "stage": "666B",
-      "action": "WRITE"
-    },
-    {
-      "name": "quantum_eureka_forge",
-      "band": "F",
-      "stage": "777",
-      "action": "WRITE"
-    },
-    {
-      "name": "apex_judge_verdict",
-      "band": "F",
-      "stage": "888",
-      "action": "CRITICAL"
-    },
-    {
-      "name": "seal_vault_commit",
-      "band": "F",
-      "stage": "999",
-      "action": "CRITICAL"
+      "name": "arifOS.kernel",
+      "stage": "444_ROUTER",
+      "role": "Main orchestrator"
     },
     {
       "name": "search_reality",
-      "band": "R",
-      "stage": "111",
-      "action": "READ"
+      "stage": "111_SENSE",
+      "role": "Grounding"
     },
     {
       "name": "ingest_evidence",
-      "band": "R",
-      "stage": "111",
-      "action": "READ"
+      "stage": "222_REALITY",
+      "role": "Ingestion"
+    },
+    {
+      "name": "session_memory",
+      "stage": "555_MEMORY",
+      "role": "Continuity"
     },
     {
       "name": "audit_rules",
-      "band": "R",
-      "stage": "333",
-      "action": "READ"
+      "stage": "333_MIND",
+      "role": "Governance"
     },
     {
       "name": "check_vital",
-      "band": "I",
-      "stage": "555",
-      "action": "READ"
+      "stage": "000_INIT",
+      "role": "Telemetry"
     },
     {
-      "name": "metabolic_loop",
-      "band": "O",
-      "stage": "000-999",
-      "action": "READ"
+      "name": "open_apex_dashboard",
+      "stage": "888_JUDGE",
+      "role": "Visualizer"
     }
   ]
 }

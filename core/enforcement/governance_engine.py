@@ -15,7 +15,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from arifosmcp.transport.protocol.aaa_contract import (
+from arifosmcp.runtime.contracts import (
     AAA_TOOL_LAW_BINDINGS,
     AAA_TOOL_STAGE_MAP,
     LAW_13_CATALOG,

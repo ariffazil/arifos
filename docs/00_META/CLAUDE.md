@@ -3,7 +3,7 @@
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 **Project:** arifOS — Constitutional AI Governance System
-**Package:** `arifos` v2026.2.28 (PyPI)
+**Package:** `arifos` v2026.3.10 (PyPI)
 **Python:** >=3.12 | **License:** AGPL-3.0-only
 **Motto:** *DITEMPA BUKAN DIBERI — Forged, Not Given*
 
@@ -29,14 +29,9 @@ python -m arifosmcp.runtime              # SSE (default for VPS/remote)
 python -m arifosmcp.runtime stdio        # stdio (Claude Desktop, local agents)
 python -m arifosmcp.runtime http         # Streamable HTTP at /mcp
 
-# Compatibility shim (still supported, default: SSE)
-python -m arifosmcp.transport                     # SSE
-python -m arifosmcp.transport stdio               # stdio
-python -m arifosmcp.transport rest                # REST API bridge
-
 # CLI entry points (from pyproject.toml [project.scripts])
 arifos                                # canonical (same as python -m arifosmcp.runtime)
-aaa-mcp                               # compat shim
+aaa-mcp                               # unified entry point
 aclip-cai health                      # ACLIP infrastructure CLI
 
 # Docker
@@ -51,7 +46,7 @@ docker run -e PORT=8080 -p 8080:8080 arifos
 pytest tests/ -v
 
 # With coverage
-pytest tests/ -v --cov=core --cov=arifosmcp.transport --cov-report=html
+pytest tests/ -v --cov=core --cov=arifosmcp.runtime --cov-report=html
 
 # Single file / single test
 pytest tests/test_quick.py -v
@@ -72,9 +67,9 @@ Async mode is `auto` in pyproject.toml — async test functions are auto-detecte
 ## Linting & Formatting
 
 ```bash
-black arifosmcp.transport/ core/ arifosmcp.runtime/ arifosmcp.intelligence/ --line-length=100
-ruff check arifosmcp.transport/ core/ arifosmcp.runtime/ arifosmcp.intelligence/
-ruff check arifosmcp.transport/ core/ arifosmcp.runtime/ arifosmcp.intelligence/ --fix
+black core/ arifosmcp.runtime/ arifosmcp.intelligence/ --line-length=100
+ruff check core/ arifosmcp.runtime/ arifosmcp.intelligence/
+ruff check core/ arifosmcp.runtime/ arifosmcp.intelligence/ --fix
 mypy core/ --ignore-missing-imports
 ```
 
@@ -102,35 +97,22 @@ core/                      → KERNEL (decision logic, zero transport deps)
 ├── config/                → Runtime configuration
 └── physics/               → Thermodynamic calculations
 
-arifosmcp.intelligence/                 → INTELLIGENCE (triad backend + 9-sense tools)
-├── triad/                 → Trinity backend: delta/ (anchor, reason, integrate),
-│                            omega/ (respond, validate, align), psi/ (forge, audit, seal)
-├── core/                  → Lifecycle, Floor Audit, Vault Logger, Thermo-Budgeting,
-│                            kernel, federation, eval suite, amendment, mcp_server
+arifosmcp.intelligence/                 → INTELLIGENCE (9-sense tools + ground truth)
 ├── tools/                 → 9-Sense tools (fs_inspector, system_monitor, net_monitor,
 │                            financial_monitor, thermo_estimator, reality_grounding, etc.)
+│   └── logic/             → Thermodynamic Budgeting, Vault Logger
 └── dashboard/             → React dashboard (Cloudflare Pages)
 
-arifosmcp.transport/                   → TRANSPORT ADAPTER (FastMCP surface, NO decision logic)
+arifosmcp.runtime/            → CANONICAL EXTERNAL PACKAGE (Transport Hub)
 ├── server.py              → FastMCP server with 13 tools (@mcp.tool decorators)
-├── __main__.py            → CLI entry: stdio/sse/http dispatcher (compat shim, rest via rest.py)
-├── rest.py                → REST API bridge
-├── protocol/              → Tool registry, schemas, naming, capabilities, tool graph
-├── external_gateways/     → brave_client.py, perplexity_client.py
-├── guards/                → injection_guard, ontology_guard
-├── sessions/              → Session ledger, dependency tracking
-├── services/              → constitutional_metrics, redis_client
-├── infrastructure/        → rate_limiter, logging, monitoring
-└── vault/                 → Audit logging adapter
-
-arifosmcp.runtime/            → CANONICAL EXTERNAL PACKAGE (PyPI entry point)
-├── server.py              → create_aaa_mcp_server() — imports arifosmcp.transport + arifosmcp.intelligence
-├── __main__.py            → CLI: default SSE, reads HOST/PORT env vars
-├── governance.py          → 13-LAW catalog, tool-to-dial mappings, axioms
-├── contracts.py           → require_session, validate_input
+├── __main__.py            → CLI entry: default SSE, reads HOST/PORT env vars
+├── bridge.py              → Secure airlock between Hub and Kernel
+├── contracts.py           → Single source of truth for tool surface and guards
 ├── rest_routes.py         → REST route definitions
-└── fastmcp_ext/           → FastMCP extensions (discovery, middleware, transports,
-                             telemetry, contracts, dependencies)
+├── models.py              → v1.0.0 Final Canonical Output Schema
+├── orchestrator.py        → Metabolic Loop Stage 444 logic
+├── philosophy.py          → 33-quote deterministic wisdom registry
+└── fastmcp_ext/           → FastMCP extensions (discovery, middleware, transports)
 
 333_APPS/                  → 8-Layer Application Stack (L0 Kernel → L7 AGI)
 VAULT999/                  → Immutable ledger storage (AAA_HUMAN, BBB_LEDGER, CCC_CANON)
@@ -138,20 +120,14 @@ VAULT999/                  → Immutable ledger storage (AAA_HUMAN, BBB_LEDGER, 
 
 **Critical boundaries:**
 
-- `core/` has zero transport dependencies. `arifosmcp.transport/` has zero decision logic. Never cross this boundary.
-- `arifosmcp.runtime/` is the canonical PyPI-facing surface; `arifosmcp.transport/` is the internal transport adapter.
-- `arifosmcp.intelligence/triad/` provides the actual backend functions that `arifosmcp.transport/server.py` calls.
+- `core/` has zero transport dependencies. `arifosmcp/runtime/` has zero decision logic. Never cross this boundary.
+- `arifosmcp.runtime/` is the canonical PyPI-facing surface and transport adapter.
+- `arifosmcp.intelligence/` provides sensory grounding and hardware-level instrumentation.
 
 ### Data Flow: How a tool call reaches the kernel
 
 ```text
-Client → arifosmcp.runtime → arifosmcp.transport/server.py (@mcp.tool) → arifosmcp.intelligence/triad/* → core/organs/* → core/shared/floors.py
-```
-
-`arifosmcp.transport/server.py` imports triad functions directly:
-
-```python
-from arifosmcp.intelligence.triad import align, anchor, audit, forge, integrate, reason, respond, seal, validate
+Client → arifosmcp.runtime (@mcp.tool) → bridge.py → core/organs/* → core/shared/floors.py
 ```
 
 ### Trinity Architecture (ΔΩΨ)
@@ -166,8 +142,6 @@ Three engines process in isolation, then converge:
 - **AGI (Δ/Delta)**: Reasoning — truth (F2), clarity (F4), humility (F7), genius (F8)
 - **ASI (Ω/Omega)**: Safety — amanah (F1), peace (F5), empathy (F6), anti-hantu (F9)
 - **APEX (Ψ/Psi)**: Judgment — tri-witness (F3), ontology (F10), authority (F11), injection (F12), sovereignty (F13)
-
-**Bundle isolation**: AGI and ASI cannot see each other's reasoning until stage 444 (TRINITY_SYNC). DeltaBundle and OmegaBundle are immutable after creation.
 
 ### 5-Organ Kernel (`core/organs/`)
 
@@ -185,31 +159,25 @@ Importable via `from core.organs import ...`:
 
 ## 13 MCP Tools (Canonical UX Verbs)
 
-All defined in `arifosmcp.transport/server.py` with `@mcp.tool()` decorators. Backend logic in `arifosmcp.intelligence/triad/`.
+All defined in `arifosmcp.runtime/server.py` with `@mcp.tool()` decorators.
 
 | Tool (UX Verb)     | Lane    | Stage   | Floors          | Purpose                               |
 | ------------------ | ------- | ------- | --------------- | ------------------------------------- |
 | `anchor_session`   | Δ Delta | 000     | F11, F12, F13   | Session ignition & injection defense  |
-| `reason_mind`      | Δ Delta | 333     | F2, F4, F7, F8  | AGI cognition (Stage 222 THINK runs internally before Stage 333) |
-| `recall_memory`    | Ω Omega | 555     | F4, F7, F13     | Associative memory traces             |
-| `simulate_heart`   | Ω Omega | 555     | F4, F5, F6      | Stakeholder impact & care constraints |
+| `reason_mind`      | Δ Delta | 333     | F2, F4, F7, F8  | AGI cognition                         |
+| `vector_memory`    | Ω Omega | 555     | F4, F7, F13     | Associative memory traces             |
+| `simulate_heart`   | Ω Omega | 666     | F4, F5, F6      | Stakeholder impact & care constraints |
 | `critique_thought` | Ω Omega | 666     | F4, F7, F8      | 7-organ alignment & bias critique     |
 | `apex_judge`       | Ψ Psi   | 888     | F1-F13          | Sovereign verdict synthesis           |
 | `eureka_forge`     | Ψ Psi   | 777     | F1, F11, F12    | Sandboxed action execution            |
-| `seal_vault`       | Ψ Psi   | 999     | F1, F3, F10     | Immutable ledger — requires `governance_token` from `apex_judge` |
-| `search_reality`   | Δ Delta | 111     | F2, F4, F12     | Web grounding (Perplexity/Brave)      |
-| `fetch_content`    | Δ Delta | 444     | F2, F4, F12     | Raw evidence content retrieval        |
-| `inspect_file`     | Δ Delta | 111     | F1, F4, F11     | Filesystem inspection (read-only)     |
+| `seal_vault`       | Ψ Psi   | 999     | F1, F3, F10     | Immutable ledger commit               |
+| `search_reality`   | Δ Delta | 111     | F2, F4, F12     | Web grounding                         |
+| `ingest_evidence`  | Δ Delta | 222     | F2, F4, F12     | Raw evidence content retrieval        |
 | `audit_rules`      | Δ Delta | 333     | F2, F8, F10     | Rule & governance audit checks        |
-| `check_vital`      | Ω Omega | 555     | F4, F5, F7      | System health & vital signs           |
+| `check_vital`      | Ω Omega | 000     | F4, F5, F7      | System health & vital signs           |
+| `arifOS.kernel`    | ALL     | 444     | F1-F13          | Consolidated metabolic loop           |
 
-All tools return a standard envelope: `{verdict, stage, session_id, floors, truth, next_actions}`.
-
-Alias compatibility:
-- `apex_judge` -> `apex_judge`
-- `eureka_forge` -> `eureka_forge`
-
-**Verdicts:** `SEAL` (pass) | `PARTIAL` (soft floor warn) | `SABAR` (hold) | `VOID` (blocked) | `888_HOLD` (needs human)
+All tools return the **v1.0.0 Final Canonical Output Schema** (`RuntimeEnvelope`).
 
 ---
 
@@ -233,112 +201,25 @@ Alias compatibility:
 | F12   | Injection Defense      | Hard   | < 0.85    |
 | F13   | Sovereign              | Veto   | HUMAN     |
 
-**Execution order:** F12→F11 (Walls) → AGI Floors (F1,F2,F4,F7) → ASI Floors (F5,F6,F9) → Mirrors (F3,F8) → Ledger
-
-**Verdict hierarchy:** `SABAR > VOID > 888_HOLD > PARTIAL > SEAL`
-
-**Floor enforcement:** Two layers exist:
-
-- `core/kernel/constitutional_decorator.py` — kernel-level floor enforcement with evaluator
-- `arifosmcp.transport/core/constitutional_decorator.py` — transport-level decorator for MCP tools
-
-**Floor definitions:** `core/shared/floors.py` (`THRESHOLDS` dict) is the canonical source. Guards in `core/shared/guards/` (injection_guard, ontology_guard).
-
 ---
 
 ## Key Conventions
 
 ### Import Namespacing
 
-- `arifosmcp.runtime.*` — canonical external package (PyPI surface)
-- `arifosmcp.transport.*` — internal transport adapter
-- `arifosmcp.intelligence.*` — intelligence layer (triad, tools, core)
+- `arifosmcp.runtime.*` — canonical transport hub (PyPI surface)
+- `arifosmcp.intelligence.*` — intelligence layer (tools, logic)
 - `core.*` — kernel imports (`from core.shared.physics import W_3`)
-- `core.organs` — organ actions (`from core.organs import sense, think, reason`)
-- `mcp.*` — external MCP SDK. **Never** shadow with local modules
-- `fastmcp.*` — FastMCP v3.0.2 framework
-
-### Decorator Order (Critical)
-
-```python
-@mcp.tool()                    # OUTER — FastMCP registers this
-@constitutional_floor("F2")   # INNER — enforcement runs at call time
-async def my_tool(...):
-```
-
-If reversed, FastMCP registers the unwrapped function and enforcement never runs.
-
-### Lazy Imports for Optional Dependencies
-
-```python
-try:
-    import numpy as np
-except ImportError:
-    np = None
-```
-
-Never crash on import for optional deps.
-
-### APEX Solver
-
-Uses geometric mean (not arithmetic) for 9-paradox synthesis. GM punishes imbalance more harshly. Target: GM ≥ 0.85, std dev ≤ 0.10.
+- `mcp.*` — external MCP SDK.
+- `fastmcp.*` — FastMCP v3.1.0 framework
 
 ### Source Verification for Constitutional Claims
 
 Before making constitutional claims, verify against PRIMARY sources:
 
 1. **PRIMARY (Required):** `spec/*.json`, canon documents (SEALED status)
-2. **SECONDARY:** `core/*.py`, `arifosmcp.transport/*.py` (implementation reference)
+2. **SECONDARY:** `core/*.py`, `arifosmcp/runtime/contracts.py` (implementation reference)
 3. **TERTIARY:** `docs/*.md`, `README.md` (informational, may lag behind PRIMARY)
-
----
-
-## Adding New Components
-
-### New MCP Tool
-
-1. Add `@mcp.tool()` definition in `arifosmcp.transport/server.py`
-2. Create backend function in appropriate `arifosmcp.intelligence/triad/` submodule
-3. Wire kernel logic via `core/` imports (not inline decision logic)
-4. Register floor mapping in `core/kernel/constitutional_decorator.py` FLOOR_ENFORCEMENT dict
-5. Mirror in `arifosmcp.runtime/server.py` and add to `AAA_TOOLS` list
-6. Add tests in `tests/`
-
-### New Constitutional Floor
-
-1. Add to `core/shared/floors.py` THRESHOLDS dict
-2. Implement guard logic in `core/shared/guards/` if needed
-3. Register in `core/kernel/evaluator.py` (PRE_FLOORS, POST_FLOORS, etc.)
-4. Add tests in `tests/constitutional/`
-
-### New Core Organ
-
-1. Create `core/organs/_X_name.py`
-2. Import only from `core.shared.*` (no cross-organ deps)
-3. Return ConstitutionalTensor with floor scores
-4. Update `core/organs/__init__.py` exports
-5. Add tests in `tests/core/`
-
----
-
-## Known Gotchas
-
-- **Stage 222 THINK is internal-only**: `think()` is NOT an `@mcp.tool()`. It runs inside `reason_mind` before Stage 333. External callers cannot call it directly. Raw delta drafts (sealed=False) must pass Stage 333 humility audit before they become valid output.
-- **seal_vault is token-locked (Amanah Handshake)**: `seal_vault` no longer accepts a `verdict` parameter. Pass `governance_token` from `apex_judge`'s response. A missing or tampered token returns VOID — no ledger entry is written. `_GOVERNANCE_TOKEN_SECRET` in `arifosmcp.transport/server.py` is hardcoded for dev; must be env-var-sourced in production.
-- **F4 (Clarity) is now a Hard floor**: Moved from SOFT_FLOORS to HARD_FLOORS in `core/kernel/evaluator.py`. Responses that increase entropy (ΔS > 0) now return VOID, not PARTIAL. This may cause new test failures in suites that relied on PARTIAL for high-entropy outputs.
-- **Namespace collision**: Never name a local package `mcp`. Local code is `arifosmcp.transport/`. The `mcp/` directory at repo root (if present) is Docker configs, NOT the SDK.
-- **Dual entry points**: `arifosmcp.runtime` (canonical, default SSE) vs `arifosmcp.transport` (compat shim, default SSE). Both call `arifosmcp.transport/server.py` but `arifosmcp.runtime` adds governance wrappers.
-- **`codebase/` removed**: Was deleted in v2026.2.15 consolidation. All logic now lives in `core/`, `arifosmcp.intelligence/`, and `arifosmcp.transport/`. Some docs/comments still reference it.
-- **F4/F6 numbering**: Differs between some older docs and `core/shared/floors.py`. Verify against `arifosmcp.transport/server.py` floor mappings as source of truth.
-- **Windows environment**: Use PowerShell. `$env:` syntax breaks in nested `-Command` strings.
-- **pyproject.toml packages**: Must NOT include `mcp*` (would re-shadow the SDK).
-- **`.mcp.json` (root)**: Deprecated. Active config is `.claude/mcp.json`.
-- **Copilot instructions** (`.github/copilot-instructions.md`): References stale `codebase/` paths. Use this CLAUDE.md as source of truth.
-- **vault_seal**: `result["seal"]` KeyError is pre-existing in some code paths.
-- **vault999.jsonl is tracked**: Despite `VAULT999/*.jsonl` in `.gitignore`, `vault999.jsonl` is force-tracked (`git add -f`). It's the immutable constitutional ledger and must stay in version control. Use `git add -f VAULT999/vault999.jsonl` when committing new entries.
-- **`remote_inspection/` is NOT arifOS**: Contains cloned external repos (e.g. OpenClaw with 5000+ node_modules files). Gitignored since v60.1. Never commit.
-- **`rclone_token.txt`**: Contains secrets. Gitignored. Never commit.
-- **`tests/archive/`**: ~100 legacy test files with broken imports (stale `mcp_trinity`, `mcp.core.bridge` references). Kept for reference only.
 
 ---
 
@@ -349,9 +230,7 @@ Require explicit user confirmation:
 - **Database migrations** — Irreversible system changes
 - **Production deployments** — Safety-critical operations
 - **Credential/secret handling** — Identity verification required
-- **Mass file operations (>10 files)** — Entropy management
 - **Git history modification** — Remote authority required
-- **User correction of constitutional claim** — Re-verify against PRIMARY sources
 - **Conflicting evidence across source tiers** — Pause for consensus
 
 **Protocol**: List consequences → State irreversibles → Ask "yes, proceed" → Wait for confirmation → Execute with logging.
@@ -372,10 +251,6 @@ Require explicit user confirmation:
 - SSE: `https://arifosmcp.arif-fazil.com/sse`
 - MCP: `https://arifosmcp.arif-fazil.com/mcp`
 
-**MCP config files:** `.claude/mcp.json` (active), `.agents/mcp.json` (agent mode)
-
-**Environment variables:** `HOST` (default `0.0.0.0`), `PORT` (default `8080`), `AAA_MCP_TRANSPORT` (default `sse`), `AAA_MCP_OUTPUT_MODE` (`user`/`debug`), `ARIFOS_PHYSICS_DISABLED` (`0`/`1`), `PPLX_API_KEY`, `BRAVE_API_KEY`
-
 ---
 
-**Version:** v2026.2.28 | **Repo:** <https://github.com/ariffazil/arifOS>
+**Version:** v2026.3.10 | **Repo:** <https://github.com/ariffazil/arifOS>
