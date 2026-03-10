@@ -30,7 +30,7 @@ from starlette.responses import HTMLResponse, JSONResponse, Response
 from starlette.staticfiles import StaticFiles
 
 from arifosmcp.runtime.resources import apex_tools_html_rows, apex_tools_markdown_table
-from arifosmcp.transport.build_info import get_build_info
+from .build_info import get_build_info
 from .contracts import AAA_TOOL_STAGE_MAP, TRINITY_BY_TOOL, AAA_TOOL_ALIASES, AAA_CANONICAL_TOOLS
 from core.shared.floor_audit import get_ml_floor_runtime
 from core.shared.floors import (
@@ -44,7 +44,7 @@ BUILD_INFO = get_build_info()
 MCP_PROTOCOL_VERSION = "2025-11-25"
 MCP_SUPPORTED_PROTOCOL_VERSIONS = ["2025-11-25"]
 
-TOOL_ALIASES: dict[str, str] = dict(PUBLIC_TOOL_ALIASES)
+TOOL_ALIASES: dict[str, str] = dict(AAA_TOOL_ALIASES)
 
 logger = logging.getLogger(__name__)
 

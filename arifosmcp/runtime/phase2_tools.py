@@ -13,7 +13,7 @@ from typing import Any
 
 from fastmcp import FastMCP
 
-from arifosmcp.bridge import call_kernel
+from .bridge import call_kernel
 
 logger = logging.getLogger(__name__)
 
