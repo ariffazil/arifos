@@ -4,7 +4,7 @@
       "command": "uvx",
       "args": [
         "--from",
-        "git+https://github.com/ariffazil/arifOS.git",
+        "git+https://github.com/ariffazil/arifosmcp.git",
         "arifos",
         "stdio"
       ],

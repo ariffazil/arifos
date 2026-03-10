@@ -6,7 +6,7 @@
   "_authority": "ARIF FAZIL",
   "_docs": "https://arifos.arif-fazil.com/intro",
   "_api": "https://arifos.arif-fazil.com/api",
-  "_repo": "https://github.com/ariffazil/arifOS",
+  "_repo": "https://github.com/ariffazil/arifosmcp",
 
   "mcpServers": {
 
@@ -71,7 +71,7 @@
     },
 
     "arifos-dev": {
-      "_comment": "Developer mode — from cloned repo with venv. Run: git clone https://github.com/ariffazil/arifOS && pip install -e '.[dev]'",
+      "_comment": "Developer mode — from cloned repo with venv. Run: git clone https://github.com/ariffazil/arifosmcp && pip install -e '.[dev]'",
       "_use_when": "You cloned the repo and want to hack on arifOS itself.",
       "command": ".venv/bin/python",
       "args": ["-m", "arifosmcp.runtime", "stdio"],

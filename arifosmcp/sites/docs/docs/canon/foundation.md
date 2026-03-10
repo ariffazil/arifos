@@ -7,7 +7,7 @@ description: The meta-constitutional principles of arifOS - the Strange Loop, fo
 
 # 000 Foundation - The Epistemological Basis
 
-> Canonical source: [`000_THEORY/000_FOUNDATIONS.md`](https://github.com/ariffazil/arifOS/blob/main/000_THEORY/000_FOUNDATIONS.md)  
+> Canonical source: [`000_THEORY/000_FOUNDATIONS.md`](https://github.com/ariffazil/arifosmcp/blob/main/000_THEORY/000_FOUNDATIONS.md)  
 > Authority: Muhammad Arif bin Fazil (888 Judge) . Status: SOVEREIGNLY SEALED
 
 ---
@@ -85,6 +85,6 @@ An uncertainty band of 3-5% is always present. Outputs claiming `Omega_0 = 0` ar
 
 ## Further Reading
 
-- Full axiom proofs with mathematical derivations: [`000_THEORY/000_FOUNDATIONS.md`](https://github.com/ariffazil/arifOS/blob/main/000_THEORY/000_FOUNDATIONS.md)
-- The 13 floors in constitutional law form: [`000_THEORY/000_LAW.md`](https://github.com/ariffazil/arifOS/blob/main/000_THEORY/000_LAW.md)
-- TPCP academic paper: [`000_THEORY/002_TPCP_PAPER.md`](https://github.com/ariffazil/arifOS/blob/main/000_THEORY/002_TPCP_PAPER.md)
+- Full axiom proofs with mathematical derivations: [`000_THEORY/000_FOUNDATIONS.md`](https://github.com/ariffazil/arifosmcp/blob/main/000_THEORY/000_FOUNDATIONS.md)
+- The 13 floors in constitutional law form: [`000_THEORY/000_LAW.md`](https://github.com/ariffazil/arifosmcp/blob/main/000_THEORY/000_LAW.md)
+- TPCP academic paper: [`000_THEORY/002_TPCP_PAPER.md`](https://github.com/ariffazil/arifosmcp/blob/main/000_THEORY/002_TPCP_PAPER.md)

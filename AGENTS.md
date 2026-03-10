@@ -1,66 +1,152 @@
 # AGENTS.md — arifOS Agent Protocol & Architecture
 
-This guide defines the operational context for AI agents (Claude, GPT, Gemini) working within the arifOS ecosystem.
+This guide defines the operational context for AI agents working within the arifOS ecosystem.
 
 **Motto:** *Ditempa Bukan Diberi — Forged, Not Given*
 
 ---
 
-## 🏛️ Directory Structure (Unified v1.0.0)
-
-```text
-core/                      → KERNEL (decision logic, math, thermodynamics)
-arifosmcp/runtime/         → TRANSPORT HUB (FastMCP interface, zero logic)
-arifosmcp/intelligence/    → SENSES (Grounding, health, instrumentation)
-docs/                      → LAW (Theory, 13 floors, specs)
-VAULT999/                  → MEMORY (Immutable ledger)
-```
-
----
-
-## 🛠️ Key Commands
+## Build, Test, and Lint Commands
 
 ```bash
-# Run Server
-python -m arifosmcp.runtime              # SSE (default)
-python -m arifosmcp.runtime stdio        # stdio (Claude Desktop)
+# Setup
+pip install -e ".[dev]"
 
-# Validation
-pytest tests/ -v
-ruff check .
-mypy .
+# Tests
+pytest tests/ -v                           # All tests
+pytest tests/test_file.py -v               # Single test file
+pytest tests/test_file.py::test_name -v    # Single test
+pytest tests/ -v -k "keyword"              # By keyword
+
+# Lint & Format
+ruff check . --fix                         # Lint and auto-fix
+ruff format .                              # Format
+mypy .                                     # Type check
+
+# Server
+python -m arifosmcp.runtime                # SSE (HTTP)
+python -m arifosmcp.runtime stdio          # stdio (Claude Desktop)
+
+# Docker
+make fast-deploy                           # Fast redeploy
+make build && make deploy                  # Full deploy
 ```
 
 ---
 
-## 🧠 Strategic Guidelines
+## Directory Structure
 
-### 1. Separation of Concerns
-- **Logic belongs in `core/`**. Never add decision math or ethics checks to `runtime/`.
-- **Transport belongs in `runtime/`**. The hub acts as a secure airlock (via `bridge.py`).
-- **Grounding belongs in `intelligence/`**. Tools for web search, filesystem, and hardware monitoring.
+```text
+core/                        → KERNEL (decision logic, math)
+├── governance_kernel.py    → Runtime state, transitions
+├── judgment.py             → Decision interface
+└── organs/                 → Trinity engines (AGI/ASI/APEX)
 
-### 2. The 13 Floors (F1–F13)
-Every thought or action must pass the 13 Constitutional Floors. Violating a **HARD** floor (e.g., F2 Truth, F12 Defense) triggers a `VOID` verdict.
-- **Exploration Rule**: Stages below `888_JUDGE` (Exploration) cannot kill the pipeline. `VOID` is downgraded to `SABAR` to allow context gathering.
-- **Sovereign Rule**: High-stakes operations (`888_HOLD`) require human ratification.
+arifosmcp/
+├── runtime/                → TRANSPORT HUB (FastMCP, zero logic)
+├── intelligence/           → SENSES (Grounding, health)
+└── transport/              → External gateways
 
-### 3. Final Canonical Output Schema (v1.0.0)
-Every tool returns a `RuntimeEnvelope` with 6 unified blocks:
-1. `metrics`: Normalized telemetry (Truth, Clarity, Peace, Vitality).
-2. `trace`: Stage-to-verdict history.
-3. `authority`: Identity and approval state.
-4. `payload`: Tool-specific data.
-5. `errors`: Standardized error blocks.
-6. `meta`: Schema version and flags.
+tests/
+├── conftest.py             → Pytest fixtures
+└── core/                   → Core module tests
+```
 
 ---
 
-## 🛡️ Operational Safeguards
+## Code Style Guidelines
 
-- **No Stdout**: Use `sys.stderr` for logging. `stdout` is reserved for JSON-RPC.
-- **Auth Continuity (F11)**: Reuse `auth_context` from the session anchor for all downstream calls.
-- **Merkle Chaining**: Every `SEAL` verdict is appended to the `VAULT999` ledger.
+### Python & Formatting
+- Target Python 3.10+ (requires-python = ">=3.12")
+- Line length: 100 characters
+- Quotes: double, Indent: 4 spaces
+- Modern type hints: `list[X]`, `dict[str, Any]`, `X | None`
 
-**Version:** 2026.03.10-SEAL
-**Status:** ACTIVE
+### Imports
+```python
+from __future__ import annotations  # Always first
+
+import stdlib
+import third_party
+from local import Something
+```
+- Group: stdlib → third-party → local (blank line between)
+- Lazy imports for optional deps: try/except ImportError
+
+### Naming Conventions
+- Functions/variables: `snake_case`
+- Classes: `PascalCase`
+- Constants: `UPPER_SNAKE_CASE`
+- Private: `_leading_underscore`
+
+### Error Handling
+```python
+@dataclass
+class Result:
+    success: bool
+    data: dict[str, Any] = field(default_factory=dict)
+    error: str | None = None
+```
+- Prefer result dataclass over exceptions
+- Use `sys.stderr` for logging (stdout reserved for JSON-RPC)
+
+---
+
+## Architecture Rules
+
+### Separation of Concerns
+1. **Logic in `core/`** — Never add decision math to `runtime/`
+2. **Transport in `runtime/`** — Hub acts as secure airlock
+3. **Grounding in `intelligence/`** — Web search, filesystem, hardware
+
+### The 13 Constitutional Floors (F1–F13)
+Every action passes through floors. **HARD** violations trigger `VOID`:
+- F1 Truth: No hallucination, cite sources
+- F2 Clarity: Transparent reasoning, state assumptions  
+- F3 Peace: Reversible changes, audit trail
+- F4 Entropy: Named constants, clear parameters
+- F5 Witness: Safe defaults, preserve state
+- F6 Empathy: Handle edge cases, clear errors
+- F7 Humility: Admit uncertainty, cap confidence
+- F8 Tri-Witness: Consensus verification
+- F9 Anti-Hantu: Honest naming, no deception
+- F10 Coherence: System-wide consistency
+- F11 Auth: Session anchoring
+- F12 Injection: Input validation
+- F13 Seal: Cryptographic verification
+
+### 888 HOLD Triggers
+Human approval required: destructive DB ops, production deploys, mass changes (>10 files), credentials, git history.
+
+### RuntimeEnvelope
+Every tool returns: `metrics`, `trace`, `authority`, `payload`, `errors`, `meta`.
+
+---
+
+## Tool Pattern
+
+```python
+from fastmcp import FastMCP
+mcp = FastMCP("arifOS-APEX-G")
+
+@mcp.tool()
+async def my_tool(query: str) -> dict[str, Any]:
+    """Tool description."""
+    return {"result": "..."}
+```
+
+---
+
+## Pre-commit & Security
+
+```bash
+pre-commit run --all-files    # Manual run
+```
+
+Checks: whitespace, syntax, large files, private keys, format, lint, type check, security.
+
+**Security:** Never commit secrets. Use `.env` files. Injection defense in `core/guards/`.
+
+---
+
+**Version:** 2026.03.10-SEAL | **Status:** ACTIVE

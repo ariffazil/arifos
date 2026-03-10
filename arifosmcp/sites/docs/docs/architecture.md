@@ -7,7 +7,7 @@ description: The L0-L7 stack, ARIF-banded L2-L5 architecture, Trinity engines (D
 
 # Architecture
 
-> Source: [`ARCHITECTURE.md`](https://github.com/ariffazil/arifOS/blob/main/ARCHITECTURE.md) . [`000_THEORY/010_TRINITY.md`](https://github.com/ariffazil/arifOS/blob/main/000_THEORY/010_TRINITY.md) . [`000_THEORY/000_ARCHITECTURE.md`](https://github.com/ariffazil/arifOS/blob/main/000_THEORY/000_ARCHITECTURE.md)
+> Source: [`ARCHITECTURE.md`](https://github.com/ariffazil/arifosmcp/blob/main/ARCHITECTURE.md) . [`000_THEORY/010_TRINITY.md`](https://github.com/ariffazil/arifosmcp/blob/main/000_THEORY/010_TRINITY.md) . [`000_THEORY/000_ARCHITECTURE.md`](https://github.com/ariffazil/arifosmcp/blob/main/000_THEORY/000_ARCHITECTURE.md)
 
 ---
 
@@ -385,7 +385,7 @@ arifosmcp.runtime       Canonical entry point (PyPI: arifos)
 - SSE: `https://arifosmcp.arif-fazil.com/sse`
 - MCP: `https://arifosmcp.arif-fazil.com/mcp`
 
-See [`DEPLOYMENT.md`](https://github.com/ariffazil/arifOS/blob/main/DEPLOYMENT.md) for Docker Compose, Coolify, and Fly.io configurations.
+See [`DEPLOYMENT.md`](https://github.com/ariffazil/arifosmcp/blob/main/DEPLOYMENT.md) for Docker Compose, Coolify, and Fly.io configurations.
 
 ---
 

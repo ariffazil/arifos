@@ -7,7 +7,7 @@ description: The 13 Constitutional Floors (F1-F13) - 9 Laws, 2 Mirrors, 2 Walls.
 
 # Constitutional Law - The 13 Floors
 
-> Canonical source: [`000_THEORY/000_LAW.md`](https://github.com/ariffazil/arifOS/blob/main/000_THEORY/000_LAW.md)  
+> Canonical source: [`000_THEORY/000_LAW.md`](https://github.com/ariffazil/arifosmcp/blob/main/000_THEORY/000_LAW.md)  
 > Version: v62.3-RELEVANCE . Sealed by: 888 Judge . Status: SOVEREIGNLY SEALED  
 > Motto: *Ditempa Bukan Diberi* - `G = A x P x X x E^2` . `DeltaS &lt;= 0` . `Peace^2 >= 1` . `Omega_0  [0.03, 0.05]`
 

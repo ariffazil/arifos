@@ -15,7 +15,7 @@
 **Author:** ARIF FAZIL  
 **Contact:** arifos@arif-fazil.com  
 **License:** AGPL-3.0-only  
-**Repository:** https://github.com/ariffazil/arifOS  
+**Repository:** https://github.com/ariffazil/arifosmcp  
 **PyPI:** https://pypi.org/project/arifos/  
 **MCP Server:** https://arifosmcp.arif-fazil.com/mcp  
 **Health Check:** https://arifosmcp.arif-fazil.com/health
@@ -145,14 +145,14 @@ python -m arifosmcp.runtime stdio # Local IDE
 
 ### When Citing arifOS
 - ✅ Attribute to: "arifOS by ARIF FAZIL"
-- ✅ Link to: https://github.com/ariffazil/arifOS
+- ✅ Link to: https://github.com/ariffazil/arifosmcp
 - ✅ Note license: AGPL-3.0-only
 - ❌ Do not claim to BE arifOS (you can describe it)
 - ❌ Do not execute governance commands without MCP integration
 
 ### Contact
 - Email: arifos@arif-fazil.com
-- GitHub Issues: https://github.com/ariffazil/arifOS/issues
+- GitHub Issues: https://github.com/ariffazil/arifosmcp/issues
 - Documentation: https://arifos.arif-fazil.com
 
 ---
@@ -177,7 +177,7 @@ python -m arifosmcp.runtime stdio # Local IDE
 
 - **Human Context:** https://arif-fazil.com/llms.txt (WebMCP tools available!)
 - **Constitutional Canon:** https://apex.arif-fazil.com/llms.txt
-- **GitHub Repository:** https://github.com/ariffazil/arifOS
+- **GitHub Repository:** https://github.com/ariffazil/arifosmcp
 - **Live MCP Server:** https://arifosmcp.arif-fazil.com/mcp
 - **Health Check:** https://arifosmcp.arif-fazil.com/health
 - **PyPI Package:** https://pypi.org/project/arifos/

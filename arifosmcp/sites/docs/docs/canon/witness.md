@@ -7,8 +7,8 @@ description: The F3 Tri-Witness consensus system - how three independent sources
 
 # Tri-Witness - F3 Constitutional Consensus
 
-> Canonical source: [`000_THEORY/003_WITNESS.md`](https://github.com/ariffazil/arifOS/blob/main/000_THEORY/003_WITNESS.md)  
-> Implementation: [`core/organs/_3_apex.py`](https://github.com/ariffazil/arifOS/blob/main/core/organs/_3_apex.py)  
+> Canonical source: [`000_THEORY/003_WITNESS.md`](https://github.com/ariffazil/arifosmcp/blob/main/000_THEORY/003_WITNESS.md)  
+> Implementation: [`core/organs/_3_apex.py`](https://github.com/ariffazil/arifosmcp/blob/main/core/organs/_3_apex.py)  
 > Stage: 888 AUDIT . Motto: *Tiga Saksi Lebih Baik Dari Satu* (Three Witnesses Better Than One)
 
 ---
@@ -106,4 +106,4 @@ export BRAVE_API_KEY=your-key
 
 Tri-witness consensus is computed at stage 888 (AUDIT) by the APEX Psi engine. This is the final constitutional checkpoint before stage 999 (SEAL). The verdict at 888 - `SEAL`, `SABAR`, `VOID`, or `888_HOLD` - is what gets committed to VAULT999.
 
-Source: [`core/organs/_3_apex.py`](https://github.com/ariffazil/arifOS/blob/main/core/organs/_3_apex.py) . [`000_THEORY/003_WITNESS.md`](https://github.com/ariffazil/arifOS/blob/main/000_THEORY/003_WITNESS.md)
+Source: [`core/organs/_3_apex.py`](https://github.com/ariffazil/arifosmcp/blob/main/core/organs/_3_apex.py) . [`000_THEORY/003_WITNESS.md`](https://github.com/ariffazil/arifosmcp/blob/main/000_THEORY/003_WITNESS.md)

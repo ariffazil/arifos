@@ -37,7 +37,7 @@ List all software this agent manages with their doc sources:
 | Docker | `docker --version` | docs.docker.com | YYYY-MM-DD |
 | PostgreSQL | `psql --version` | postgresql.org/docs | YYYY-MM-DD |
 | Nginx/Traefik | `traefik version` | doc.traefik.io | YYYY-MM-DD |
-| arifOS MCP | `arifos health` | github.com/ariffazil/arifOS | YYYY-MM-DD |
+| arifOS MCP | `arifos health` | github.com/ariffazil/arifosmcp | YYYY-MM-DD |
 ```
 
 Store this inventory in `memory/systems-inventory.md` or equivalent.

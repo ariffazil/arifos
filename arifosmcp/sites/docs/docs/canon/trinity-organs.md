@@ -7,8 +7,8 @@ description: The 5-Organ Trinity architecture (DeltaOmegaPsi) - AGI Mind, ASI He
 
 # Trinity Architecture - The 5 Organs
 
-> Canonical source: [`000_THEORY/010_TRINITY.md`](https://github.com/ariffazil/arifOS/blob/main/000_THEORY/010_TRINITY.md)  
-> Implementation: [`core/organs/`](https://github.com/ariffazil/arifOS/blob/main/core/organs/)  
+> Canonical source: [`000_THEORY/010_TRINITY.md`](https://github.com/ariffazil/arifosmcp/blob/main/000_THEORY/010_TRINITY.md)  
+> Implementation: [`core/organs/`](https://github.com/ariffazil/arifosmcp/blob/main/core/organs/)  
 > Status: L0 KERNEL - SEALED
 
 ---

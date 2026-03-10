@@ -253,4 +253,4 @@ Require explicit user confirmation:
 
 ---
 
-**Version:** v2026.3.10 | **Repo:** <https://github.com/ariffazil/arifOS>
+**Version:** v2026.3.10 | **Repo:** <https://github.com/ariffazil/arifosmcp>

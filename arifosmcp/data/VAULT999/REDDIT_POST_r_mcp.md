@@ -62,7 +62,7 @@ Not arbitrary rules. Load-bearing structure:
 | F6 Empathy | Vulnerable stakeholder protection | SABAR |
 | F13 Sovereign | Human veto (888_HOLD) | Human review |
 
-Full spec: [github.com/ariffazil/arifOS/blob/main/000_THEORY/000_LAW.md](https://github.com/ariffazil/arifOS/blob/main/000_THEORY/000_LAW.md)
+Full spec: [github.com/ariffazil/arifosmcp/blob/main/000_THEORY/000_LAW.md](https://github.com/ariffazil/arifosmcp/blob/main/000_THEORY/000_LAW.md)
 
 ---
 
@@ -127,7 +127,7 @@ The MCP community is building the "USB for AI." I think governance should be **n
 2. Do the 13 floors feel like over-engineering, or necessary granularity?
 3. Would you trust a kernel that can block your AI's cognition, or is that too much control?
 
-**Repo:** [github.com/ariffazil/arifOS](https://github.com/ariffazil/arifOS)  
+**Repo:** [github.com/ariffazil/arifosmcp](https://github.com/ariffazil/arifosmcp)  
 **Docs:** [arifos.arif-fazil.com](https://arifos.arif-fazil.com)
 
 ---

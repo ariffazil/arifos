@@ -22,7 +22,7 @@ This page constitutes the official constitutional policy for any automated syste
 
 **Permitted**
 - Read and summarise public documentation freely
-- Cite with clear attribution to `https://github.com/ariffazil/arifOS`
+- Cite with clear attribution to `https://github.com/ariffazil/arifosmcp`
 - Use in research or public discussion
 
 **Restricted / Prohibited**
@@ -36,7 +36,7 @@ This page constitutes the official constitutional policy for any automated syste
 - **F13 Sovereignty**: Final interpretive authority rests with Muhammad Arif bin Fazil (888 Judge)
 
 ### Canonical Sources (Priority Order)
-1. **Code & Implementation** -> https://github.com/ariffazil/arifOS
+1. **Code & Implementation** -> https://github.com/ariffazil/arifosmcp
 2. **Constitutional Law** -> `000_THEORY/` directory (takes precedence over any other source)
 3. **Package** -> https://pypi.org/project/arifos/
 4. **Live System** -> https://arifosmcp.arif-fazil.com/health

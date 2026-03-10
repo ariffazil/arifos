@@ -228,7 +228,7 @@ AGPL-3.0-only — Same as arifOS kernel.
 
 - **arifOS Kernel:** <https://pypi.org/project/arifos/>
 - **Documentation:** <https://arifos.arif-fazil.com>
-- **Repository:** <https://github.com/ariffazil/arifOS>
+- **Repository:** <https://github.com/ariffazil/arifosmcp>
 - **MCP Protocol:** <https://modelcontextprotocol.io>
 
 *Ditempa Bukan Diberi* — Forged, Not Given

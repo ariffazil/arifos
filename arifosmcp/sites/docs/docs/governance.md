@@ -20,7 +20,7 @@ Governance is operationalized through the `333_APPS` stack:
 
 See [Architecture](./architecture) for the full L2-L5 mapping.
 
-> Technical Source: [`000_THEORY/000_LAW.md`](https://github.com/ariffazil/arifOS/blob/main/000_THEORY/000_LAW.md)
+> Technical Source: [`000_THEORY/000_LAW.md`](https://github.com/ariffazil/arifosmcp/blob/main/000_THEORY/000_LAW.md)
 ---
 
 ## The Constitutional Structure
@@ -213,7 +213,7 @@ Floor Scores: F1=1.0 F2=0.99 F3=0.97 F4=0.00 F5=1.02 F6=0.72 F7=0.04 F8=0.82 F9=
 Verdict: SEAL
 ```
 
-Full constitutional theory: [`000_THEORY/000_LAW.md`](https://github.com/ariffazil/arifOS/blob/main/000_THEORY/000_LAW.md)
+Full constitutional theory: [`000_THEORY/000_LAW.md`](https://github.com/ariffazil/arifosmcp/blob/main/000_THEORY/000_LAW.md)
 
 ---
 
@@ -258,4 +258,4 @@ VAULT999 does **NOT** protect against:
 | Host compromise | None | ❌ Requires OS-level security |
 | Key exfiltration | None | ❌ Requires key management |
 
-For complete security architecture, see [`SECURITY.md`](https://github.com/ariffazil/arifOS/blob/main/SECURITY.md).
+For complete security architecture, see [`SECURITY.md`](https://github.com/ariffazil/arifosmcp/blob/main/SECURITY.md).

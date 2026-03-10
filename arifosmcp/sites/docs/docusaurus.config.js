@@ -1,7 +1,7 @@
 // @ts-check
 // docusaurus.config.js - arifOS Docs Site
 // Target: https://arifos.arif-fazil.com/
-// Source: https://github.com/ariffazil/arifOS
+// Source: https://github.com/ariffazil/arifosmcp
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
@@ -34,7 +34,7 @@ const config = {
         docs: {
           routeBasePath: '/',
           sidebarPath: './sidebars.js',
-          editUrl: 'https://github.com/ariffazil/arifOS/edit/main/sites/docs/',
+          editUrl: 'https://github.com/ariffazil/arifosmcp/edit/main/sites/docs/',
           showLastUpdateTime: true,
           showLastUpdateAuthor: false,
         },
@@ -87,7 +87,7 @@ const config = {
             label: 'Docs',
           },
           {
-            href: 'https://github.com/ariffazil/arifOS',
+            href: 'https://github.com/ariffazil/arifosmcp',
             label: 'GitHub',
             position: 'right',
           },
@@ -130,7 +130,7 @@ const config = {
             items: [
               {
                 label: 'GitHub',
-                href: 'https://github.com/ariffazil/arifOS',
+                href: 'https://github.com/ariffazil/arifosmcp',
               },
               {
                 label: 'PyPI',
@@ -138,7 +138,7 @@ const config = {
               },
               {
                 label: 'CHANGELOG',
-                href: 'https://github.com/ariffazil/arifOS/blob/main/CHANGELOG.md',
+                href: 'https://github.com/ariffazil/arifosmcp/blob/main/CHANGELOG.md',
               },
             ],
           },
@@ -151,11 +151,11 @@ const config = {
               },
               {
                 label: '000_THEORY',
-                href: 'https://github.com/ariffazil/arifOS/tree/main/000_THEORY',
+                href: 'https://github.com/ariffazil/arifosmcp/tree/main/000_THEORY',
               },
               {
                 label: 'License (AGPL-3.0)',
-                href: 'https://github.com/ariffazil/arifOS/blob/main/LICENSE',
+                href: 'https://github.com/ariffazil/arifosmcp/blob/main/LICENSE',
               },
             ],
           },

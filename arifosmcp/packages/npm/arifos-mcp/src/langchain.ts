@@ -77,7 +77,7 @@ export class ArifOSToolset {
     console.warn(
       '[@arifos/mcp/langchain] STUB: getTools() not yet implemented.\n' +
       'Use client.callTool() directly for now.\n' +
-      'See: https://github.com/ariffazil/arifOS/issues'
+      'See: https://github.com/ariffazil/arifosmcp/issues'
     );
     return [];
   }

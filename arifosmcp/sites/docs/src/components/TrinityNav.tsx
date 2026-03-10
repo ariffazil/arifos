@@ -19,7 +19,7 @@ export default function TrinityNav() {
         </div>
 
         <div className="trinity-right">
-          <a href="https://github.com/ariffazil/arifOS" target="_blank" rel="noopener noreferrer">
+          <a href="https://github.com/ariffazil/arifosmcp" target="_blank" rel="noopener noreferrer">
             GitHub
           </a>
           <a href="https://arifos.arif-fazil.com/" className="trinity-enter">

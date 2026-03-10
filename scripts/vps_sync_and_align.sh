@@ -6,7 +6,7 @@
 
 set -euo pipefail
 
-REPO_URL="https://github.com/ariffazil/arifOS.git"
+REPO_URL="https://github.com/ariffazil/arifosmcp.git"
 VPS_ARIFOS_DIR="/root/arifOS"
 GLOBAL_SKILLS_DIR="/root/.config/agents/skills"
 PROJECT_SKILLS_DIR="${VPS_ARIFOS_DIR}/.kimi/skills"

@@ -405,7 +405,7 @@ SEAL_ID: VAULT-999-20260129-153500-DOC-MCP-v53.2.9
 MERKLE_ROOT: 7c4e9f2a1b8d6e3c5a7f9b2e1d4c6a8e3f7b9d2c5e1a4f8b6d3e9c7a2f1b5e4
 PREVIOUS_HASH: 658395a6 (feat: Establish core MCP architecture)
 COMMIT_CHAIN: 69c1ba8a → 7b9414ba → e6dcdf83 → 2ca75f4e
-GIT_REMOTE: https://github.com/ariffazil/arifOS.git
+GIT_REMOTE: https://github.com/ariffazil/arifosmcp.git
 BRANCH: main (pushed)
 TIMESTAMP: 2026-01-29T15:35:00Z
 TIER: L2_PHOENIX_72H (cooling to L5_ETERNAL)
