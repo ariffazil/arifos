@@ -214,7 +214,7 @@ async def assess_heart_impact(
 ) -> RuntimeEnvelope:
     """666A HEART - Impact assessment. Evaluate empathy, care, and stakeholder harm."""
     payload = {"scenario": scenario, "focus": heart_mode, "auth_context": auth_context}
-    return await _wrap_call("assess_heart_impact", Stage.HEART_555, session_id, payload, ctx)
+    return await _wrap_call("assess_heart_impact", Stage.HEART_666, session_id, payload, ctx)
 
 
 async def critique_thought_audit(

@@ -93,7 +93,7 @@ async def run_stage(
             content=query,
         )
 
-    if stage_id == Stage.HEART_555.value:
+    if stage_id == Stage.HEART_666.value:
         return await assess_heart_impact(session_id=session_id, scenario=query, auth_context=auth_ctx)
 
     if stage_id == Stage.CRITIQUE_666.value:

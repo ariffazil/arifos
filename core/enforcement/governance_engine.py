@@ -823,6 +823,7 @@ def wrap_tool_output(tool: str, payload: dict[str, Any]) -> dict[str, Any]:
         "payload": pruned_payload,  # tool-specific data only
         "errors": errors,
         "meta": meta,
+        "auth_context": payload.get("auth_context"),
     }
 
     # 7. Debug Extension (if requested)
