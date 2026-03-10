@@ -90,6 +90,7 @@ async def _wrap_call(
                 )
             ],
             meta=CanonicalMeta(debug=bool(payload.get("debug"))),
+            auth_context=payload.get("auth_context"),
         )
 
     if ctx:

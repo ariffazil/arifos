@@ -93,7 +93,7 @@ class RuntimeEnvelope(BaseModel):
     payload: dict[str, Any] = Field(default_factory=dict)
     errors: list[CanonicalError] = Field(default_factory=list)
     meta: CanonicalMeta = Field(default_factory=CanonicalMeta)
-    auth_context: dict[str, Any] | None = Field(default=None, exclude=True)
+    auth_context: dict[str, Any] | None = Field(default=None)
 
     # Optional Debug layer (only if meta.debug is True)
     debug: dict[str, Any] | None = None

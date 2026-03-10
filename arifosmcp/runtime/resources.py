@@ -62,9 +62,7 @@ APEX_DASHBOARD_RESOURCE_DOMAINS = [
     "https://fonts.googleapis.com",
     "https://fonts.gstatic.com",
 ]
-APEX_DASHBOARD_DEFAULT_ENDPOINT = (
-    f"{APEX_DASHBOARD_CONNECT_DOMAINS[0]}/api/governance-status"
-)
+APEX_DASHBOARD_DEFAULT_ENDPOINT = f"{APEX_DASHBOARD_CONNECT_DOMAINS[0]}/api/governance-status"
 
 
 def _read_vault_entries(n: int = 5) -> list[dict[str, Any]]:
@@ -380,7 +378,7 @@ def register_resources(mcp: FastMCP) -> None:
         """High-level arifOS canon map: tools, floors, and resource index."""
         return json.dumps(
             {
-                "version": "2026.03.09",
+                "version": "2026.03.10",
                 "motto": "DITEMPA BUKAN DIBERI",
                 "organs": ["AGI", "ASI", "APEX", "VAULT", "INIT", "UnifiedMemory"],
                 "tool_count": len(_TOOLS),
@@ -607,6 +605,7 @@ def register_resources(mcp: FastMCP) -> None:
                     "use_critique": {"type": "boolean", "default": True},
                     "allow_execution": {"type": "boolean", "default": False},
                     "debug": {"type": "boolean", "default": False},
+                    "dry_run": {"type": "boolean", "default": False},
                 },
                 "additionalProperties": False,
             },
@@ -626,6 +625,7 @@ def register_resources(mcp: FastMCP) -> None:
                     "use_critique": {"type": "boolean", "default": True},
                     "allow_execution": {"type": "boolean", "default": False},
                     "debug": {"type": "boolean", "default": False},
+                    "dry_run": {"type": "boolean", "default": False},
                 },
                 "additionalProperties": False,
             },
@@ -778,101 +778,87 @@ def register_resources(mcp: FastMCP) -> None:
     @mcp.resource("schema://tools/output")
     def schema_tools_output() -> str:
         """
-        Canonical output schema: the RuntimeEnvelope returned by all 10 arifOS tools.
-        Tool-specific payloads live inside the 'data' field.
+        Canonical output schema: the RuntimeEnvelope returned by all 13 arifOS tools.
+        Tool-specific payloads live inside the 'payload' field.
         """
         schema = {
             "type": "object",
-            "description": "RuntimeEnvelope — common return shape for all 10 arifOS tools.",
+            "description": "RuntimeEnvelope (v1.0.0) — common return shape for all arifOS tools.",
             "required": [
-                "verdict",
-                "stage",
+                "ok",
+                "tool",
                 "session_id",
-                "telemetry",
-                "witness",
-                "auth_context",
-                "data",
+                "stage",
+                "verdict",
+                "status",
+                "metrics",
+                "trace",
+                "authority",
+                "payload",
+                "errors",
+                "meta",
             ],
             "properties": {
+                "ok": {"type": "boolean", "description": "Transport success"},
+                "tool": {"type": "string", "description": "Tool name"},
+                "session_id": {"type": "string", "description": "Active session ID"},
+                "stage": {"type": "string", "description": "Owning stage/organ"},
                 "verdict": {
                     "type": "string",
-                    "enum": ["SEAL", "PARTIAL", "SABAR", "VOID", "HOLD-888", "UNSET"],
+                    "enum": ["SEAL", "PROVISIONAL", "PARTIAL", "SABAR", "HOLD", "HOLD_888", "VOID"],
                 },
-                "stage": {
+                "status": {
                     "type": "string",
-                    "enum": [
-                        "000_INIT",
-                        "111_MIND",
-                        "333_MIND",
-                        "444_ROUTER",
-                        "555_MEMORY",
-                        "666_HEART",
-                        "777_APEX",
-                        "888_JUDGE",
-                        "999_VAULT",
-                    ],
+                    "enum": ["SUCCESS", "ERROR", "TIMEOUT", "DRY_RUN"],
                 },
-                "session_id": {"type": "string"},
-                "telemetry": {
+                "metrics": {
                     "type": "object",
-                    "required": ["dS", "peace2", "confidence", "verdict"],
                     "properties": {
-                        "dS": {
-                            "type": "number",
-                            "description": "Entropy delta (dS <= 0 is healthy)",
-                        },
-                        "peace2": {
-                            "type": "number",
-                            "description": "Stability margin squared (>= 1.0)",
-                        },
-                        "confidence": {"type": "number", "description": "Confidence score 0-1"},
-                        "verdict": {"type": "string", "description": "System health label"},
+                        "truth": {"type": "number"},
+                        "clarity_delta": {"type": "number"},
+                        "confidence": {"type": "number"},
+                        "peace": {"type": "number"},
+                        "vitality": {"type": "number"},
+                        "entropy_delta": {"type": "number"},
+                        "authority": {"type": "number"},
+                        "risk": {"type": "number"},
                     },
                 },
-                "witness": {
+                "trace": {"type": "object", "description": "Stage path summary"},
+                "authority": {
                     "type": "object",
-                    "required": ["human", "ai", "earth"],
-                    "properties": {
-                        "human": {"type": "number", "minimum": 0, "maximum": 1},
-                        "ai": {"type": "number", "minimum": 0, "maximum": 1},
-                        "earth": {"type": "number", "minimum": 0, "maximum": 1},
-                    },
-                },
-                "auth_context": {
-                    "type": "object",
-                    "required": ["actor_id", "authority_level", "stakes_class"],
                     "properties": {
                         "actor_id": {"type": "string"},
-                        "authority_level": {
-                            "type": "string",
-                            "enum": ["human", "agent", "system", "anonymous"],
-                        },
-                        "stakes_class": {
-                            "type": "string",
-                            "enum": ["A", "B", "C", "UNKNOWN"],
+                        "level": {"type": "string"},
+                        "human_required": {"type": "boolean"},
+                        "approval_scope": {"type": "array", "items": {"type": "string"}},
+                        "auth_state": {"type": "string"},
+                    },
+                },
+                "payload": {"type": "object", "description": "Tool-specific result data"},
+                "errors": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "code": {"type": "string"},
+                            "message": {"type": "string"},
+                            "stage": {"type": "string"},
+                            "recoverable": {"type": "boolean"},
                         },
                     },
                 },
-                "data": {
+                "meta": {
                     "type": "object",
-                    "description": "Tool-specific payload. Contents vary per stage.",
-                },
-                "opex": {
-                    "$ref": "schema://opex",
-                    "description": (
-                        "Optional OPEX epistemic layer. "
-                        "Declares output_candidate, probability, evidence, and uncertainty."
-                    ),
-                },
-                "apex": {
-                    "$ref": "schema://apex",
-                    "description": (
-                        "Optional APEX governance layer. "
-                        "Derived from RuntimeEnvelope telemetry + OPEX fields."
-                    ),
+                    "properties": {
+                        "schema_version": {"type": "string"},
+                        "timestamp": {"type": "string"},
+                        "debug": {"type": "boolean"},
+                        "dry_run": {"type": "boolean"},
+                    },
                 },
             },
-            "additionalProperties": False,
+            "additionalProperties": True,
         }
         return json.dumps(schema, ensure_ascii=False)
 
@@ -1020,7 +1006,7 @@ def register_resources(mcp: FastMCP) -> None:
         """
         return json.dumps(
             {
-                "note": "Wire to arifosmcp.intelligence.tools.logic.thermo_budget for live metrics.",
+                "note": "Wire to thermo_budget for live metrics.",
                 "example_shape": {
                     "sessions": 0,
                     "avg_dS": None,
@@ -1052,7 +1038,7 @@ def register_resources(mcp: FastMCP) -> None:
             csp=ResourceCSP(
                 connect_domains=APEX_DASHBOARD_CONNECT_DOMAINS,
                 resource_domains=APEX_DASHBOARD_RESOURCE_DOMAINS,
-            )
+            ),
         ),
     )
     def apex_dashboard_html() -> str:
