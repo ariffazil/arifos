@@ -118,7 +118,9 @@ def cost_estimator(
         },
         "thermodynamic": {
             "cost_score": cost_score,
-            "risk_band": "red" if cost_score >= 0.8 else ("amber" if cost_score >= 0.5 else "green"),
+            "risk_band": (
+                "red" if cost_score >= 0.8 else ("amber" if cost_score >= 0.5 else "green")
+            ),
         },
         "apex_input": {
             "tokens": token_count or 0,

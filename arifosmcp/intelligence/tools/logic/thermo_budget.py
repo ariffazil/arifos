@@ -201,12 +201,12 @@ class ThermoSnapshot:
         sovereignty_status: str = "Estimate Only",
         tri_witness_status: str = "Cannot Compute",
     ) -> ThermoSnapshot:
-        genius = akal * peace2 * exploration * (energy ** 2)
+        genius = akal * peace2 * exploration * (energy**2)
         h_before = max(0.0, entropy_baseline)
         h_after = max(0.0, h_before + delta_s)
         delta_s_reduction = max(0.0, h_before - h_after)
         eta = delta_s_reduction / token_cost if token_cost > 0 else 0.0
-        g_star = architecture * parameters * data_quality * (effort ** 2)
+        g_star = architecture * parameters * data_quality * (effort**2)
         g_dagger = g_star * eta
 
         if amanah_score is None:
@@ -291,7 +291,7 @@ class ThermoSnapshot:
             },
             "effort_layer": {
                 "E": round(self.effort, 4),
-                "effort_amplifier": round(self.effort ** 2, 6),
+                "effort_amplifier": round(self.effort**2, 6),
                 "reasoning_steps": self.reasoning_steps,
                 "tool_calls": self.tool_calls,
                 "status": effort_status,
@@ -336,9 +336,11 @@ class ThermoSnapshot:
                     "logP": round(math.log(self.parameters), 4) if self.parameters > 0 else 0.0,
                     "logX": round(math.log(self.data_quality), 4) if self.data_quality > 0 else 0.0,
                     "2logE": round(2 * math.log(self.effort), 4) if self.effort > 0 else 0.0,
-                    "logDeltaS": round(math.log(self.entropy_removed), 4)
-                    if self.entropy_removed > 0
-                    else 0.0,
+                    "logDeltaS": (
+                        round(math.log(self.entropy_removed), 4)
+                        if self.entropy_removed > 0
+                        else 0.0
+                    ),
                     "logC": round(math.log(self.token_cost), 4) if self.token_cost > 0 else 0.0,
                 },
                 "primary_constraint": constraint,

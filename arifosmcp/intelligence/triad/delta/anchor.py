@@ -9,8 +9,9 @@ async def anchor(session_id: str, user_id: str, context: str, jurisdiction: str 
     STAGE 000: Establishing Authority and Defense.
     Scan context for injection (F12) and establish session.
     """
-    from ...core.kernel import kernel
-    from ...core.lifecycle import KernelState
+    from core.lifecycle import KernelState
+
+    from core.kernel import kernel
 
     # Initialize session through lifecycle manager
     session = kernel.lifecycle.init_session(

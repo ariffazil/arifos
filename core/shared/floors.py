@@ -1030,9 +1030,7 @@ class FloorCalibrator:
         steps: int = 20,
     ) -> list[FloorCalibrationResult]:
         """Calibrate every floor that has registered test cases."""
-        return [
-            self.calibrate_floor(fid, threshold_range, steps) for fid in self._test_cases
-        ]
+        return [self.calibrate_floor(fid, threshold_range, steps) for fid in self._test_cases]
 
 
 __all__ = [

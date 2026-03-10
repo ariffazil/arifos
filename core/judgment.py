@@ -191,7 +191,6 @@ class JudgmentKernel:
             f10_ontology=bool(grounding),
         )
 
-        from core.enforcement.genius import calculate_genius
         from core.shared.types import Verdict
 
         genius_res = calculate_genius(
@@ -269,7 +268,7 @@ class JudgmentKernel:
         impact_severity: float,
     ) -> EmpathyResult:
         from core.shared.mottos import get_motto_by_stage
-        from core.shared.types import FloorScores, Verdict
+        from core.shared.types import Verdict
 
         peace_squared = (1.0 - impact_severity) ** 2
         empathy_score = min(1.0, 0.6 + (stakeholder_count * 0.08) - (vulnerability_score * 0.2))

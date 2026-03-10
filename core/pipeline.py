@@ -22,7 +22,7 @@ from core.shared.atlas import QueryType
 from core.shared.floors import update_floor_status
 from core.shared.mottos import get_motto_for_stage
 from core.shared.types import EMD, Verdict
-from core.shared.verdict_contract import normalize_verdict, validate_stage_verdict
+from core.shared.verdict_contract import normalize_verdict
 from core.state.session_manager import session_manager
 
 

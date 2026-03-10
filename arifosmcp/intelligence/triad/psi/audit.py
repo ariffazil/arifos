@@ -19,7 +19,7 @@ if TYPE_CHECKING:
 _SAMPLING_ENABLED = True
 
 try:
-    from ...core.constitutional_sampling import AuditResult, SamplingConfig, sample_audit
+    from core.constitutional_sampling import AuditResult, SamplingConfig, sample_audit
 except ImportError:
     _SAMPLING_ENABLED = False
 
@@ -93,7 +93,7 @@ async def _audit_with_kernel(
     audit_context: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """AUDIT using kernel.audit() structural checks (fallback)."""
-    from ...core.kernel import kernel
+    from core.kernel import kernel
 
     # Fix: Default to medium unless explicitly irreversible or approved
     if sovereign_token == "888_APPROVED":

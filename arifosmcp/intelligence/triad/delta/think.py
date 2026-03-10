@@ -25,7 +25,8 @@ from __future__ import annotations
 import asyncio
 from typing import TYPE_CHECKING
 
-from ...core.kernel import kernel
+from core.kernel import kernel
+
 from .._utils import serialize_floor_concerns
 
 if TYPE_CHECKING:
@@ -35,11 +36,7 @@ if TYPE_CHECKING:
 _SAMPLING_ENABLED = True
 
 try:
-    from ...core.constitutional_sampling import (
-        SamplingConfig,
-        ThinkResult,
-        sample_think,
-    )
+    from core.constitutional_sampling import SamplingConfig, ThinkResult, sample_think
 except ImportError:
     _SAMPLING_ENABLED = False
 

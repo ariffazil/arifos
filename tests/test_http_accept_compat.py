@@ -25,8 +25,6 @@ def test_appends_json_accept_to_wildcard():
     result = _ensure_json_accept_header(headers)
 
     assert any(
-        name.lower() == b"accept"
-        and b"*/*" in value
-        and b"application/json" in value
+        name.lower() == b"accept" and b"*/*" in value and b"application/json" in value
         for name, value in result
     )

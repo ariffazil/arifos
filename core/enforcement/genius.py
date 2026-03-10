@@ -10,25 +10,31 @@ G = A × P × X × E²
 DITEMPA BUKAN DIBERI — Forged, Not Given
 """
 
-import math
 import logging
 from typing import Any
 
 from pydantic import BaseModel, Field
-from core.shared.types import FloorScores
+
 from core.shared.floor_audit import AuditResult
+from core.shared.types import FloorScores
 
 logger = logging.getLogger(__name__)
+
 
 class APEXDials(BaseModel):
     """
     The 4 APEX dials derived from floor scores.
     Each dial represents a dimension of constitutional compliance.
     """
+
     A: float = Field(ge=0.0, le=1.0, description="Akal: Mind/Clarity cluster (F2, F4, F7, F10)")
     P: float = Field(ge=0.0, le=1.0, description="Presence: Stability/Trust cluster (F1, F5, F11)")
-    X: float = Field(ge=0.0, le=1.0, description="Exploration: Heart/Navigation cluster (F3, F6, F8_prev, F9)")
-    E: float = Field(ge=0.0, le=1.0, description="Energy: Vitality/Boundary cluster (F12, F13 + Budget)")
+    X: float = Field(
+        ge=0.0, le=1.0, description="Exploration: Heart/Navigation cluster (F3, F6, F8_prev, F9)"
+    )
+    E: float = Field(
+        ge=0.0, le=1.0, description="Energy: Vitality/Boundary cluster (F12, F13 + Budget)"
+    )
 
     def to_dict(self) -> dict[str, float]:
         return {"A": self.A, "P": self.P, "X": self.X, "E": self.E}
@@ -53,8 +59,10 @@ def audit_result_to_floor_scores(audit_result: Any) -> FloorScores:
         if isinstance(res, dict) and "score" in res:
             return res["score"]
         # Fallback for simple "pass"/"fail" strings
-        if res == "pass": return 1.0
-        if res == "fail": return 0.0
+        if res == "pass":
+            return 1.0
+        if res == "fail":
+            return 0.0
         return default
 
     def get_bool(fid: str, default: bool = True) -> bool:
@@ -63,8 +71,10 @@ def audit_result_to_floor_scores(audit_result: Any) -> FloorScores:
             return res.passed
         if isinstance(res, dict) and "passed" in res:
             return res["passed"]
-        if res == "pass": return True
-        if res == "fail": return False
+        if res == "pass":
+            return True
+        if res == "fail":
+            return False
         return default
 
     return FloorScores(
@@ -91,11 +101,11 @@ def geometric_mean(values: list[float]) -> float:
     """
     if not values:
         return 0.0
-    
+
     # Constitutional Enforcement: If any floor is 0, the cluster is 0.
     if any(v <= 0 for v in values):
         return 0.0
-        
+
     try:
         product = 1.0
         for v in values:
@@ -107,9 +117,7 @@ def geometric_mean(values: list[float]) -> float:
 
 
 def floors_to_dials(
-    floors: FloorScores,
-    compute_budget_used: float = 0.5,
-    compute_budget_max: float = 1.0
+    floors: FloorScores, compute_budget_used: float = 0.5, compute_budget_max: float = 1.0
 ) -> APEXDials:
     """
     Project 13 Floors onto 4 Dials (A/P/X/E).
@@ -117,49 +125,36 @@ def floors_to_dials(
     # 1. Helper to convert bool floors to floats
     f10 = 1.0 if floors.f10_ontology else 0.0
     f11 = 1.0 if floors.f11_command_auth else 0.0
-    
+
     # 2. A = AKAL (Mind/Structure)
-    f7_norm = 1.0 if 0.03 <= floors.f7_humility <= 0.05 else (
-        1.0 - min(abs(floors.f7_humility - 0.04) * 10, 1.0)
+    f7_norm = (
+        1.0
+        if 0.03 <= floors.f7_humility <= 0.05
+        else (1.0 - min(abs(floors.f7_humility - 0.04) * 10, 1.0))
     )
-    
-    akal = geometric_mean([
-        floors.f2_truth,
-        floors.f4_clarity,
-        f7_norm,
-        f10
-    ])
-    
+
+    akal = geometric_mean([floors.f2_truth, floors.f4_clarity, f7_norm, f10])
+
     # 3. P = PRESENCE (Stability/Trust)
-    presence = geometric_mean([
-        floors.f1_amanah,
-        floors.f5_peace,
-        f11
-    ])
-    
+    presence = geometric_mean([floors.f1_amanah, floors.f5_peace, f11])
+
     # 4. X = EXPLORATION (Navigation/Heart)
     anti_hantu_compliance = 1.0 - floors.f9_anti_hantu
-    
-    exploration = geometric_mean([
-        floors.f3_tri_witness,
-        floors.f6_empathy,
-        floors.f8_genius,
-        anti_hantu_compliance
-    ])
-    
+
+    exploration = geometric_mean(
+        [floors.f3_tri_witness, floors.f6_empathy, floors.f8_genius, anti_hantu_compliance]
+    )
+
     # 5. E = ENERGY (Vitality/System)
     injection_compliance = 1.0 - floors.f12_injection
-    
-    energy_from_floors = geometric_mean([
-        injection_compliance,
-        floors.f13_sovereign
-    ])
-    
+
+    energy_from_floors = geometric_mean([injection_compliance, floors.f13_sovereign])
+
     energy_ratio = 1.0 - (compute_budget_used / max(compute_budget_max, 1e-6))
     energy_ratio = max(0.0, min(1.0, energy_ratio))
-    
+
     energy = (energy_from_floors + energy_ratio) / 2.0
-    
+
     return APEXDials(A=akal, P=presence, X=exploration, E=energy)
 
 
@@ -167,27 +162,28 @@ def calculate_genius(
     floors: FloorScores,
     h: float = 0.0,
     compute_budget_used: float = 0.5,
-    compute_budget_max: float = 1.0
+    compute_budget_max: float = 1.0,
 ) -> dict[str, Any]:
     """
     The Unified Genius Equation: G = (A × P × X × E²) × (1 - h)
     """
     dials = floors_to_dials(floors, compute_budget_used, compute_budget_max)
-    
+
     akal = dials.A
     presence = dials.P
     exploration = dials.X
     energy = dials.E
-    
-    base_g = akal * presence * exploration * (energy ** 2)
+
+    base_g = akal * presence * exploration * (energy**2)
     G = base_g * (1.0 - h)
-    
+
     return {
         "genius_score": round(G, 4),
         "dials": dials.to_dict(),
         "hysteresis": h,
         "passed": G >= 0.80,
-        "verdict": "SEAL" if G >= 0.80 else "PARTIAL" if G >= 0.60 else "VOID"
+        "verdict": "SEAL" if G >= 0.80 else "PARTIAL" if G >= 0.60 else "VOID",
     }
+
 
 __all__ = ["APEXDials", "floors_to_dials", "calculate_genius", "audit_result_to_floor_scores"]

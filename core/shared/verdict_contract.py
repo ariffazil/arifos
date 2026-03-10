@@ -172,7 +172,6 @@ def validate_stage_verdict(stage: int, verdict) -> tuple[bool, str]:
     Does NOT raise — only warns. The pipeline should log warnings but continue.
     Normalization via normalize_verdict() should be called before this.
     """
-    from core.shared.types import Verdict
 
     if isinstance(verdict, str):
         verdict = _coerce_verdict(verdict)

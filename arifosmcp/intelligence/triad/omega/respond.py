@@ -3,7 +3,7 @@ arifosmcp.intelligence/triad/omega/respond.py — Stage 444 Evidence
 Draft generation with pre-audit checks.
 """
 
-from ...core.kernel import kernel
+from core.kernel import kernel
 
 
 async def respond(session_id: str, draft_response: str) -> dict:

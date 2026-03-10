@@ -23,7 +23,6 @@ from core.shared.types import (
     FloorScores,
     ReasonMindAnswer,
     ReasonMindStep,
-    Verdict,
 )
 from core.shared.verdict_contract import normalize_verdict
 

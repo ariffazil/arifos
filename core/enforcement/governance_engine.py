@@ -24,7 +24,7 @@ from arifosmcp.runtime.contracts import (
 from core.shared.guards.injection_guard import scan_for_injection
 from core.shared.guards.ontology_guard import detect_literalism
 from core.shared.mottos import MOTTO_000_INIT_HEADER, MOTTO_999_SEAL_HEADER, get_motto_for_stage
-from core.shared.types import RuntimeStatus, Verdict
+from core.shared.types import RuntimeStatus
 
 TOOL_LAW_BINDINGS = AAA_TOOL_LAW_BINDINGS
 TOOL_STAGE_MAP = AAA_TOOL_STAGE_MAP
@@ -105,7 +105,7 @@ def _derive_apex_dials(tool: str, payload: dict[str, Any]) -> dict[str, Any]:
     Derive A/P/X/E and governed genius G* for each tool call.
     Grounds dials in real constitutional manifold (F1-F13).
     """
-    from core.enforcement.genius import audit_result_to_floor_scores, calculate_genius
+    from core.enforcement.genius import calculate_genius
     from core.shared.types import FloorScores
 
     # 1. Reconstruct FloorScores from payload or defaults
@@ -798,15 +798,37 @@ def wrap_tool_output(tool: str, payload: dict[str, Any]) -> dict[str, Any]:
     # 6. Final Production Output
     # Prune redundant fields from payload to keep the envelope surgical
     canonical_keys = {
-        "verdict", "stage", "status", "metrics", "trace", "authority", "errors", "meta",
-        "session_id", "actor_id", "auth_context", "debug", "tool"
+        "verdict",
+        "stage",
+        "status",
+        "metrics",
+        "trace",
+        "authority",
+        "errors",
+        "meta",
+        "session_id",
+        "actor_id",
+        "auth_context",
+        "debug",
+        "tool",
     }
     pruned_payload = {k: v for k, v in payload.items() if k not in canonical_keys}
 
     # Also prune common metric-like fields that are now in the metrics block
     metric_keys = {
-        "truth", "truth_score", "dS", "peace2", "kappa_r", "omega0", "risk_score",
-        "human_witness", "ai_witness", "earth_witness", "grounding", "G_star", "G_prev"
+        "truth",
+        "truth_score",
+        "dS",
+        "peace2",
+        "kappa_r",
+        "omega0",
+        "risk_score",
+        "human_witness",
+        "ai_witness",
+        "earth_witness",
+        "grounding",
+        "G_star",
+        "G_prev",
     }
     pruned_payload = {k: v for k, v in pruned_payload.items() if k not in metric_keys}
 

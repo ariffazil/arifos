@@ -4,7 +4,7 @@ import json
 
 import pytest
 
-from arifosmcp import bridge
+from arifosmcp.runtime import bridge
 
 
 @pytest.mark.asyncio
