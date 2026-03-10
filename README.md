@@ -7,7 +7,7 @@
 
 [![Status](https://img.shields.io/badge/Status-Stationary%20%26%20Enforced-00ffcc.svg?style=for-the-badge)](https://arifosmcp.arif-fazil.com/health)
 [![Architecture](https://img.shields.io/badge/Architecture-Trinity%20ΔΩΨ-7c3aed.svg?style=for-the-badge)](https://arifos.arif-fazil.com/architecture)
-[![Version](https://img.shields.io/badge/Version-2026.03.10--ROUTER--SEAL-blue.svg?style=for-the-badge)](https://github.com/ariffazil/arifosmcp/commits/main)
+[![Version](https://img.shields.io/badge/Version-v1.0.0--LEGACIES--SEAL-blue.svg?style=for-the-badge)](https://github.com/ariffazil/arifosmcp/commits/main)
 [![License: AGPL 3.0](https://img.shields.io/badge/License-AGPL%203.0-lightgrey.svg?style=for-the-badge)](https://github.com/ariffazil/arifosmcp/blob/main/LICENSE)
 
 **arifOS** is a production-grade **Constitutional Governance Kernel** for artificial intelligence. It functions as a hard thermodynamic airlock between AI reasoning (LLMs) and real-world execution, enforcing 13 immutable "Constitutional Floors" to ensure every action is safe, truthful, and sovereign-aligned.
@@ -69,7 +69,7 @@ sequenceDiagram
     participant 999 as 📜 VAULT (Ledger)
 
     User->>000: Initiates Request
-    000->>000: F12 Injection Shield & Identity Verification
+    000->>000: F12 Injection Shield & Two-Layer Identity (auth_context + caller_context)
     000->>111_444: Authenticated Context
     111_444->>111_444: F2 Truth & F4 Clarity Validation
     111_444->>555_666: Reasoned Proposal
@@ -91,6 +91,7 @@ arifOS is designed for multi-cloud resilience, separating the **Law**, the **Bra
 | **⚖️ Law** | [arifos.arif-fazil.com](https://arifos.arif-fazil.com) | GitHub Pages | Static source of truth for Theory, Floors & Documentation. |
 | **🧠 Brain** | [arifosmcp.arif-fazil.com](https://arifosmcp.arif-fazil.com) | VPS / Runtime | Live MCP engine and Real-time reasoning hub. |
 | **🛡️ Soul** | [arifosmcp-truth-claim.pages.dev](https://arifosmcp-truth-claim.pages.dev/) | Cloudflare Pages | Immutable Audit Trail & Sovereign APEX Dashboard. |
+| **📊 Eye** | [monitor.arifosmcp.arif-fazil.com](https://monitor.arifosmcp.arif-fazil.com) | Grafana / VPS | Live Prometheus metrics — constitutional floors, G†, ΔS. |
 
 ---
 
@@ -100,7 +101,7 @@ arifOS is designed for multi-cloud resilience, separating the **Law**, the **Bra
 The kernel can be deployed as a local library, a global CLI, or a sandboxed container.
 ```bash
 # Python Standard Implementation
-pip install arifos
+pip install arifosmcp
 
 # Full Node.js Connectivity (MCP Wrapper)
 npx @arifos/mcp
@@ -134,17 +135,17 @@ Connect any MCP-compatible client (Claude Desktop, Cursor IDE, ChatGPT) to the k
 
 ## 🛠️ Canonical 7-Tool Sovereign Stack
 
-The kernel exposes these primary interfaces in [`arifosmcp/runtime/tools.py`](./arifosmcp/runtime/tools.py). This is the minimum viable surface for a governed intelligence.
+The kernel exposes these primary interfaces, registry-driven from [`arifosmcp/runtime/public_registry.py`](./arifosmcp/runtime/public_registry.py). This is the minimum viable surface for a governed intelligence.
 
 | Tool | Entrypoint | Focus | Description |
 | :--- | :--- | :--- | :--- |
-| **`arifOS.kernel`** | `arifosmcp/runtime/` | **Reasoning** | **Metabolic Orchestrator**: Triggers the dynamic Stage 444 router (000→999). |
-| **`search_reality`** | `arifosmcp/transport/` | **Grounding** | Multi-source reality check (Brave/Perplexity/Jina). |
-| **`ingest_evidence`** | `arifosmcp/intelligence/` | **Evidence** | Ingest docs/URLs into the constitutional context. |
-| **`session_memory`** | `arifosmcp/data/` | **Continuity** | Vector recall of previous reasoning traces. |
-| **`audit_rules`** | `core/shared/floors.py` | **Law** | Inspect the current F1–F13 constitutional code. |
-| **`check_vital`** | `telemetry/` | **Health** | Live telemetry, entropy delta, and $G^\dagger$ scores. |
-| **`open_apex_dashboard`** | `arifosmcp/sites/` | **Vision** | Graphical monitor for the Sovereign interface. |
+| **`arifOS.kernel`** | [`public_registry.py`](./arifosmcp/runtime/public_registry.py) | **Reasoning** | **Metabolic Orchestrator**: Triggers the dynamic Stage 444 router (000→999). |
+| **`search_reality`** | [`arifosmcp/transport/`](./arifosmcp/transport/) | **Grounding** | Multi-source reality check (Brave/Perplexity/Jina). |
+| **`ingest_evidence`** | [`arifosmcp/intelligence/`](./arifosmcp/intelligence/) | **Evidence** | Ingest docs/URLs into the constitutional context. |
+| **`session_memory`** | [`arifosmcp/data/`](./arifosmcp/data/) | **Continuity** | Vector recall of previous reasoning traces. |
+| **`audit_rules`** | [`core/shared/floors.py`](./core/shared/floors.py) | **Law** | Inspect the current F1–F13 constitutional code. |
+| **`check_vital`** | [`runtime/metrics.py`](./arifosmcp/runtime/metrics.py) | **Health** | Live Prometheus metrics — G†, ΔS, Ω₀, verdicts. |
+| **`open_apex_dashboard`** | [`arifosmcp/sites/`](./arifosmcp/sites/) | **Vision** | Graphical monitor for the Sovereign interface. |
 
 ---
 
@@ -182,15 +183,54 @@ If **$G^\dagger < 0.80$**, the kernel imposes a **PARTIAL** status, forcing the 
 
 ---
 
+## 🔥 The 99 Legacies (Immutable Physics)
+
+arifOS v1.0.0 introduces the **99 Legacies** system — 99 human knowledge domains encoded as immutable thermodynamic constants that ground every constitutional floor.
+
+Each legacy maps one of 9 categories (Scientist, Philosopher, Ethical Pillar, Economist, Sovereign, Architect, Philanthropist, Modern Founder, Dictator Shadow) to the APEX G-score dials (**A**kal · **P**eace · E**x**ploration · **E**nergy). The Dictator Shadow category provides the `C_dark` warning variable enforced by F9.
+
+```
+core/shared/legacies.py  — 99 immutable Quote objects, each floor-tagged and hash-signed
+core/shared/physics.py   — Thermodynamic primitives derived from legacy constants
+core/organs/_2_asi.py    — ASI Heart consumes legacy weights at runtime
+```
+
+> Legacy constants are **frozen dataclasses** — they cannot be patched at runtime. Attempting to modify them triggers F1 Amanah violation.
+
+---
+
+## 📊 Constitutional Observability (Prometheus + Grafana)
+
+The runtime exposes a native **Prometheus metrics endpoint** at `/metrics` (served by `arifosmcp/runtime/metrics.py`). Scraped every 30s by the on-VPS Prometheus instance, visualized in Grafana.
+
+| Metric | Type | Description |
+| :--- | :--- | :--- |
+| `arifos_genius_score` | Gauge | G† per session/tool — target ≥ 0.80 |
+| `arifos_entropy_delta` | Gauge | ΔS clarity delta — target ≤ 0 |
+| `arifos_humility_band` | Gauge | Ω₀ uncertainty — target [0.03, 0.05] |
+| `arifos_peace_squared` | Gauge | P² stakeholder stability — target ≥ 1.0 |
+| `arifos_verdicts_total` | Counter | SEAL / VOID / HOLD_888 / PARTIAL counts |
+| `arifos_metabolic_loop_seconds` | Histogram | Full 000→999 loop latency |
+
+```bash
+# Live metrics
+curl https://arifosmcp.arif-fazil.com/metrics
+
+# Grafana dashboard
+open https://monitor.arifosmcp.arif-fazil.com
+```
+
+---
+
 ## 📂 System Architecture & Senses
 
 arifOS is split into three primary organizational spheres:
 
-*   **[`core/`](./core/)**: The **Kernel**. Stateless logic, the 13 floors of law, and physics-based governance.
-*   **[`arifosmcp/`](./arifosmcp/)**: The **Senses & Brain**. Transport layers (MCP/SSE/HTTP), bridge code, and the sensing instruments (Dashboard).
-*   **[`000_THEORY/`](./000_THEORY/)**: The Theoretical Law. Root documentation of the constitutional requirements.
-*   **[`VAULT999/`](./VAULT999/)**: The local **Immutable Ledger**. Stores all audit trails for absolute accountability.
-*   **[`AGENTS/`](./AGENTS.md)**: Sovereign agent identities, registries, and signed capability manifests.
+*   **[`core/`](./core/)**: The **Kernel**. Stateless logic, the 13 floors of law, physics-based governance, and the 99 Legacies.
+*   **[`arifosmcp/`](./arifosmcp/)**: The **Senses & Brain**. Transport layers (MCP/SSE/HTTP), bridge code, public tool registry, and observability.
+*   **[`arifosmcp/data/VAULT999/`](./arifosmcp/data/VAULT999/)**: The **Immutable Ledger**. Hash-chained audit trail for all sealed decisions.
+*   **[`infrastructure/`](./infrastructure/)**: VPS stack config — Prometheus, Grafana, Traefik, Docker Compose.
+*   **[`AGENTS.md`](./AGENTS.md)**: Sovereign agent identities, registries, and signed capability manifests.
 
 ---
 

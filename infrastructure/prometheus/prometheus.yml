@@ -7,14 +7,14 @@ global:
     environment: 'production'
 
 scrape_configs:
-  # arifOS MCP Server — /health used until /metrics is implemented
+  # arifOS MCP Server — /metrics (prometheus_client generate_latest)
   - job_name: 'arifos-mcp'
     static_configs:
       - targets: ['arifosmcp_server:8080']
         labels:
           service: 'arifos-mcp'
           component: 'governance'
-    metrics_path: '/health'
+    metrics_path: '/metrics'
     scrape_interval: 30s
     scrape_timeout: 5s
 
@@ -24,6 +24,16 @@ scrape_configs:
       - targets: ['qdrant_memory:6333']
     metrics_path: '/metrics'
     scrape_interval: 30s
+
+  # Traefik edge router metrics
+  - job_name: 'traefik'
+    static_configs:
+      - targets: ['traefik_router:8082']
+        labels:
+          service: 'traefik'
+          component: 'edge-router'
+    scrape_interval: 30s
+    scrape_timeout: 5s
 
   # Prometheus self-metrics
   - job_name: 'prometheus'
