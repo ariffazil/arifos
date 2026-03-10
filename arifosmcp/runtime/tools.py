@@ -21,6 +21,8 @@ from core.state.session_manager import session_manager
 from .bridge import call_kernel
 
 PUBLIC_TOOL_SPEC_BY_NAME = {spec.name: spec for spec in public_tool_specs()}
+PUBLIC_KERNEL_TOOL_NAME = "arifOS_kernel"
+LEGACY_KERNEL_TOOL_NAME = "arifOS.kernel"
 
 
 def _normalize_session_id(session_id: str | None) -> str:
@@ -167,7 +169,9 @@ async def _wrap_call(
         # call_kernel now returns a dictionary matching the Canonical Schema
         kernel_res = await call_kernel(tool_name, session_id, payload)
 
-        if tool_name == "arifOS.kernel" and isinstance(kernel_res, dict):
+        if tool_name in {PUBLIC_KERNEL_TOOL_NAME, LEGACY_KERNEL_TOOL_NAME} and isinstance(
+            kernel_res, dict
+        ):
             claimed_actor_id = str(
                 payload.get("claimed_actor_id", payload.get("actor_id", "anonymous")) or "anonymous"
             )
@@ -380,7 +384,7 @@ async def metabolic_loop_router(
         "dry_run": dry_run,
     }
     return await _wrap_call(
-        "arifOS.kernel", Stage.ROUTER_444, session_id, payload, ctx, resolved_caller
+        PUBLIC_KERNEL_TOOL_NAME, Stage.ROUTER_444, session_id, payload, ctx, resolved_caller
     )
 
 
@@ -544,7 +548,7 @@ def register_tools(mcp: FastMCP, profile: str = "full") -> None:
     normalized_profile = profile.strip().lower() or "full"
 
     public_tool_handlers = {
-        "arifOS.kernel": metabolic_loop_router,
+        "arifOS_kernel": metabolic_loop_router,
         "search_reality": search_reality,
         "ingest_evidence": ingest_evidence,
         "session_memory": session_memory,
@@ -558,9 +562,18 @@ def register_tools(mcp: FastMCP, profile: str = "full") -> None:
 
     # Legacy alias
     mcp.tool(
+        name="arifOS.kernel",
+        description=(
+            "[Legacy Alias] Use arifOS_kernel instead. "
+            "Governed metabolic loop orchestrator."
+        ),
+    )(metabolic_loop_router)
+
+    # Legacy alias
+    mcp.tool(
         name="metabolic_loop_router",
         description=(
-            "[Legacy Alias] Use arifOS.kernel instead. Governed metabolic loop orchestrator."
+            "[Legacy Alias] Use arifOS_kernel instead. Governed metabolic loop orchestrator."
         ),
     )(metabolic_loop_router)
 

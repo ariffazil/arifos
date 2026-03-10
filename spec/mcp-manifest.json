@@ -60,7 +60,7 @@
     }
   ],
   "tools": {
-    "arifOS.kernel": {
+    "arifOS_kernel": {
       "stage": "444_ROUTER",
       "trinity": "ALL",
       "floors": [
@@ -296,7 +296,7 @@
   "prompts": [
     {
       "name": "arifos_kernel_prompt",
-      "targetTool": "arifOS.kernel",
+      "targetTool": "arifOS_kernel",
       "description": "Route governed work to the kernel."
     },
     {
@@ -390,7 +390,7 @@
   ],
   "schema": {
     "input": {
-      "arifOS.kernel": {
+      "arifOS_kernel": {
         "type": "object",
         "required": [
           "query"

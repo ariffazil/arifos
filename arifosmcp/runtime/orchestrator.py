@@ -12,8 +12,12 @@ import os
 import time
 from typing import Any
 
+from arifosmcp.runtime.metrics import (
+    METABOLIC_LOOP_DURATION,
+    record_constitutional_metrics,
+    record_verdict,
+)
 from arifosmcp.runtime.models import CallerContext, RuntimeEnvelope, Stage, Verdict
-from arifosmcp.runtime.metrics import METABOLIC_LOOP_DURATION, record_constitutional_metrics, record_verdict
 
 
 def _extract_auth_context(
@@ -175,7 +179,7 @@ async def run_stage(
         )
 
     return RuntimeEnvelope(
-        tool="arifOS.kernel",
+        tool="arifOS_kernel",
         session_id=session_id,
         stage=stage_id,
         verdict=Verdict.SABAR,
@@ -253,7 +257,7 @@ async def metabolic_loop(
         if dry_run:
             return {
                 "ok": True,
-                "tool": "arifOS.kernel",
+                "tool": "arifOS_kernel",
                 "session_id": current_session_id,
                 "stage": Stage.ROUTER_444.value,
                 "verdict": Verdict.PARTIAL.value,
@@ -330,7 +334,7 @@ async def metabolic_loop(
         out = policy_res.model_dump(mode="json")
         out.update(
             {
-                "tool": "arifOS.kernel",
+                "tool": "arifOS_kernel",
                 "session_id": current_session_id,
                 "stage": policy_res.stage,
                 "verdict": policy_verdict.value,
@@ -350,7 +354,7 @@ async def metabolic_loop(
         # Record final verdict and kernel metrics
         record_verdict(policy_verdict.value)
         if "metrics" in out and out["metrics"]:
-            record_constitutional_metrics(current_session_id, "arifOS.kernel", out["metrics"])
+            record_constitutional_metrics(current_session_id, "arifOS_kernel", out["metrics"])
             
         return out
     finally:

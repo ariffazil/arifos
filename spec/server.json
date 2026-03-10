@@ -33,7 +33,7 @@
   },
   "tools": [
     {
-      "name": "arifOS.kernel",
+      "name": "arifOS_kernel",
       "stage": "444_ROUTER",
       "role": "Main orchestrator"
     },

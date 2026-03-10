@@ -86,7 +86,7 @@ def fastmcp_dependency() -> str:
 
 PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
     ToolSpec(
-        name="arifOS.kernel",
+        name="arifOS_kernel",
         stage="444_ROUTER",
         role="Main orchestrator",
         layer="Execution",
@@ -248,7 +248,7 @@ NON_CHATGPT_EXTRA_TOOL_NAMES: tuple[str, ...] = (
 )
 
 PUBLIC_PROMPT_SPECS: tuple[PromptSpec, ...] = (
-    PromptSpec("arifos_kernel_prompt", "arifOS.kernel", "Route governed work to the kernel."),
+    PromptSpec("arifos_kernel_prompt", "arifOS_kernel", "Route governed work to the kernel."),
     PromptSpec("search_reality_prompt", "search_reality", "Ground claims with external facts."),
     PromptSpec("ingest_evidence_prompt", "ingest_evidence", "Load a source into evidence context."),
     PromptSpec("session_memory_prompt", "session_memory", "Manage governed session continuity."),

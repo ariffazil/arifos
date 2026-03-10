@@ -17,7 +17,7 @@ def test_route_pipeline_uses_canonical_heart_stage():
 
 
 def test_public_kernel_schema_exposes_auth_context():
-    kernel_spec = next(spec for spec in PUBLIC_TOOL_SPECS if spec.name == "arifOS.kernel")
+    kernel_spec = next(spec for spec in PUBLIC_TOOL_SPECS if spec.name == "arifOS_kernel")
     properties = kernel_spec.input_schema["properties"]
 
     assert "auth_context" in properties
@@ -34,8 +34,8 @@ def test_manifest_kernel_schema_exposes_auth_context():
     manifest_path = Path(__file__).resolve().parents[1] / "spec" / "mcp-manifest.json"
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
 
-    tool_properties = manifest["tools"]["arifOS.kernel"]["inputSchema"]["properties"]
-    schema_properties = manifest["schema"]["input"]["arifOS.kernel"]["properties"]
+    tool_properties = manifest["tools"]["arifOS_kernel"]["inputSchema"]["properties"]
+    schema_properties = manifest["schema"]["input"]["arifOS_kernel"]["properties"]
 
     assert "auth_context" in tool_properties
     assert "auth_context" in schema_properties
@@ -52,6 +52,7 @@ async def test_auth_failure_payload_includes_identity_resolution_and_next_action
     identity_resolution = payload["identity_resolution"]
     next_action = payload["next_action"]
 
+    assert envelope.tool == "arifOS_kernel"
     assert envelope.errors[0].code == "AUTH_FAILURE"
     assert identity_resolution["input_actor_id"] == "ARIF"
     assert identity_resolution["resolved_actor_id"] == "anonymous"

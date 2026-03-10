@@ -29,6 +29,7 @@ TOOL_MAP = {
     "init_anchor_state": "anchor_session",
     "integrate_analyze_reflect": "reason_mind",
     "reason_mind_synthesis": "reason_mind",
+    "arifOS_kernel": "metabolic_loop",
     "arifOS.kernel": "metabolic_loop",
     "metabolic_loop_router": "metabolic_loop",
     "vector_memory_store": "vector_memory",
@@ -191,7 +192,10 @@ async def call_kernel(
             return _auth_failure_envelope(
                 tool=canonical_name,
                 session_id=session_id,
-                error_message="F11: Missing auth_context for continuity. Run init_anchor_state first.",
+                error_message=(
+                    "F11: Missing auth_context for continuity. "
+                    "Run init_anchor_state first."
+                ),
                 claimed_actor_id=claimed_actor_id,
                 identity_claim_status="UNVERIFIED_CLAIM",
                 identity_reason="No auth_context supplied for continuity.",
@@ -210,7 +214,9 @@ async def call_kernel(
                 identity_claim_status="INVALID_AUTH_CONTEXT",
                 identity_reason=reason,
                 resolved_actor_id=resolved_actor_id,
-                next_action_reason="Refresh continuity state and attach the newly minted auth_context.",
+                next_action_reason=(
+                    "Refresh continuity state and attach the newly minted auth_context."
+                ),
             )
 
     # 1.5. Early Exit for Grounding Utilities
