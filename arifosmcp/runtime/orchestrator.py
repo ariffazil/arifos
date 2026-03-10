@@ -189,6 +189,7 @@ async def metabolic_loop(
     query: str,
     risk_tier: str = "medium",
     actor_id: str = "anonymous",
+    auth_context: dict[str, Any] | None = None,
     session_id: str | None = None,
     allow_execution: bool = False,
     dry_run: bool = False,
@@ -203,16 +204,38 @@ async def metabolic_loop(
     current_session_id = _normalize_session_id(session_id)
     try:
         stakes_class = coerce_stakes_class(risk_tier).get("value", "C")
-        init_res = await init_anchor_state(
-            {"query": query},
-            session_id=current_session_id,
-            governance={"actor_id": actor_id, "stakes_class": stakes_class},
-            caller_context=caller_context,
-        )
-        auth_ctx = _extract_auth_context(init_res)
-        caller_ctx = _extract_caller_context(init_res, caller_context)
-        auth_state = init_res.authority.auth_state
-        init_failed = init_res.verdict == Verdict.VOID
+        if auth_context and auth_context.get("signature"):
+            auth_ctx = dict(auth_context)
+            caller_ctx = caller_context
+            auth_state = "verified"
+            init_res = RuntimeEnvelope(
+                tool="init_anchor_state",
+                session_id=current_session_id,
+                stage=Stage.INIT_000.value,
+                verdict=Verdict.SEAL,
+                authority={
+                    "actor_id": str(auth_ctx.get("actor_id", actor_id)),
+                    "level": str(auth_ctx.get("authority_level", "anonymous")),
+                    "approval_scope": list(auth_ctx.get("approval_scope", [])),
+                    "auth_state": auth_state,
+                    "human_required": False,
+                },
+                payload={"message": "Existing auth_context accepted for continuity."},
+                auth_context=auth_ctx,
+                caller_context=caller_context,
+            )
+            init_failed = False
+        else:
+            init_res = await init_anchor_state(
+                {"query": query},
+                session_id=current_session_id,
+                governance={"actor_id": actor_id, "stakes_class": stakes_class},
+                caller_context=caller_context,
+            )
+            auth_ctx = _extract_auth_context(init_res)
+            caller_ctx = _extract_caller_context(init_res, caller_context)
+            auth_state = init_res.authority.auth_state
+            init_failed = init_res.verdict == Verdict.VOID
 
         reality_summary = {
             "status": "SKIPPED",

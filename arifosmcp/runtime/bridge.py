@@ -110,6 +110,7 @@ async def call_kernel(
     auth_ctx = payload.get("auth_context")
     if canonical_name in REQUIRES_SESSION:
         if not auth_ctx:
+            claimed_actor_id = str(payload.get("actor_id", "anonymous") or "anonymous")
             return wrap_tool_output(
                 canonical_name,
                 {
@@ -118,17 +119,43 @@ async def call_kernel(
                         "F11: Missing auth_context for continuity. Run init_anchor_state first."
                     ),
                     "stage": "000_INIT",
+                    "actor_id": claimed_actor_id,
+                    "identity_resolution": {
+                        "input_actor_id": claimed_actor_id,
+                        "resolved_actor_id": "anonymous",
+                        "identity_claim_status": "UNVERIFIED_CLAIM",
+                        "reason": "No auth_context supplied for continuity.",
+                    },
+                    "next_action": {
+                        "tool": "init_anchor_state",
+                        "required": True,
+                        "reason": "Establish continuity and mint auth_context before retrying.",
+                    },
                 },
             )
 
         valid, reason = verify_auth_context_cached(session_id, auth_ctx)
         if not valid:
+            claimed_actor_id = str(payload.get("actor_id", "anonymous") or "anonymous")
+            resolved_actor_id = str(auth_ctx.get("actor_id", "anonymous") or "anonymous")
             return wrap_tool_output(
                 canonical_name,
                 {
                     "verdict": "VOID",
                     "error": f"F11: Authentication continuity failed: {reason}",
                     "stage": "000_INIT",
+                    "actor_id": claimed_actor_id,
+                    "identity_resolution": {
+                        "input_actor_id": claimed_actor_id,
+                        "resolved_actor_id": resolved_actor_id,
+                        "identity_claim_status": "INVALID_AUTH_CONTEXT",
+                        "reason": reason,
+                    },
+                    "next_action": {
+                        "tool": "init_anchor_state",
+                        "required": True,
+                        "reason": "Refresh continuity state and attach the newly minted auth_context.",
+                    },
                 },
             )
 
@@ -340,6 +367,7 @@ async def call_kernel(
                 query=query_input,
                 risk_tier=payload.get("risk_tier", "medium"),
                 actor_id=actor_id,
+                auth_context=auth_ctx,
                 session_id=session_id,
                 allow_execution=bool(payload.get("allow_execution", False)),
                 dry_run=bool(payload.get("dry_run", False)),

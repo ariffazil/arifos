@@ -108,6 +108,13 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
                     "default": "medium",
                 },
                 "actor_id": {"type": "string", "default": "anonymous"},
+                "auth_context": {
+                    "type": "object",
+                    "description": (
+                        "Optional continuity envelope from init_anchor_state. "
+                        "Required for anchored follow-up kernel calls."
+                    ),
+                },
                 "use_memory": {"type": "boolean", "default": True},
                 "use_heart": {"type": "boolean", "default": True},
                 "use_critique": {"type": "boolean", "default": True},

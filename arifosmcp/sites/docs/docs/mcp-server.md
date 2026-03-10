@@ -52,6 +52,8 @@ HOST=0.0.0.0 PORT=8080 python -m arifosmcp.runtime http
 
 Legacy alias: `metabolic_loop_router` refers to `arifOS.kernel`.
 
+`arifOS.kernel` accepts a claimed `actor_id` for routing intent, but continuity is established by `auth_context`. Run `init_anchor_state` for the first anchored call, then pass the returned `auth_context` into subsequent governed kernel calls.
+
 ## Canonical 10-Tool APEX-G Stack (`full` profile)
 
 The core constitutional assembly line. Every tool returns a `RuntimeEnvelope`.

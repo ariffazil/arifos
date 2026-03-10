@@ -834,8 +834,8 @@ def route_pipeline(query: str, context: dict | None = None) -> list[str]:
             plan.insert(-1, "555_MEMORY")
 
     if any(k in q for k in safety):
-        if "555_HEART" not in plan:
-            plan.insert(-1, "555_HEART")
+        if "666_HEART" not in plan:
+            plan.insert(-1, "666_HEART")
 
     if any(k in q for k in execute):
         if "777_FORGE" not in plan:

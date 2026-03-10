@@ -54,6 +54,8 @@ Unlike a normal API where tools just execute blindly, arifOS exposes a **"govern
 
 Legacy alias: `metabolic_loop_router` refers to `arifOS.kernel`.
 
+`arifOS.kernel` accepts a claimed `actor_id` for routing intent, but continuity is established by `auth_context`. For the first anchored call, run `init_anchor_state`; for subsequent governed calls, pass the returned `auth_context` back into `arifOS.kernel`.
+
 ## Canonical 10-Tool Metabolic Stack (`full` profile)
 
 The core governance assembly line. These tools must be called in sequence (000→999) to reach a sealed action.
