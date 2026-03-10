@@ -1,9 +1,13 @@
 # ── arifOS AI-First Unified Trinity Stack ──────────────────────────
-# Canonical VPS deployment compose for Git-pull agents.
-# Use this file for production. `docker-compose.override.yml` is dev-only.
-# All components run on the 'arifos_trinity' network.
-# Traefik acts as the dynamic edge router.
-# Hardened for a single-port runtime MCP surface at /mcp.
+# HARDENED PRODUCTION CONFIGURATION
+# Version: 2026.03.10-SEAL-HARDENED
+# Changes:
+#   - Optimized Dockerfile with layer caching
+#   - Non-root user security (arifos:1000)
+#   - Health checks with Traefik integration
+#   - Resource limits (2 CPU, 3GB RAM)
+#   - Persistent volumes for telemetry, vault, memory
+#   - External network integration with arifOS stack
 # ─────────────────────────────────────────────────────────────────
 
 services:
@@ -27,6 +31,8 @@ services:
       - "--metrics.prometheus.addEntryPointsLabels=true"
       - "--metrics.prometheus.addServicesLabels=true"
       - "--metrics.prometheus.addRoutersLabels=true"
+      - "--log.level=WARN"
+      - "--accesslog=false"
     environment:
       - DOCKER_API_VERSION=1.44
     ports:
@@ -45,8 +51,17 @@ services:
     deploy:
       resources:
         limits:
+          cpus: '0.5'
           memory: 128M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp:noexec,nosuid,size=10m
 
   # --- Persistence Layers ---
   postgres:
@@ -60,7 +75,7 @@ services:
     volumes:
       - /opt/arifos/data/postgres:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
     networks:
       - arifos_trinity
     healthcheck:
@@ -68,61 +83,112 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 10s
     deploy:
       resources:
         limits:
+          cpus: '1.0'
           memory: 1024M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
 
   redis:
     image: redis:7-alpine
     container_name: arifos_redis
     init: true
-    command: redis-server --save 60 1 --loglevel warning
+    command: redis-server --save 60 1 --loglevel warning --maxmemory 96mb --maxmemory-policy allkeys-lru
     volumes:
       - /opt/arifos/data/redis:/data
     ports:
-      - "6379:6379"
+      - "127.0.0.1:6379:6379"
     networks:
       - arifos_trinity
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
     deploy:
       resources:
         limits:
+          cpus: '0.25'
           memory: 128M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    sysctls:
+      - net.core.somaxconn=511
 
   # --- Internal Memory Layers ---
   qdrant:
     image: qdrant/qdrant:latest
     container_name: qdrant_memory
     init: true
+    environment:
+      - QDRANT__STORAGE__STORAGE_PATH=/qdrant/storage
+      - QDRANT__SERVICE__HTTP_PORT=6333
+      - QDRANT__SERVICE__GRPC_PORT=6334
+      - QDRANT__LOG_LEVEL=WARN
     volumes:
       - /opt/arifos/data/qdrant:/qdrant/storage
     networks:
       - arifos_trinity
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:6333/healthz || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
     deploy:
       resources:
         limits:
+          cpus: '1.0'
           memory: 1024M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
 
   # --- LLM Engine ---
   ollama:
     image: ollama/ollama:latest
     container_name: ollama_engine
     init: true
+    environment:
+      - OLLAMA_KEEP_ALIVE=24h
+      - OLLAMA_MAX_LOADED_MODELS=2
+      - OLLAMA_NUM_PARALLEL=2
     volumes:
       - /opt/arifos/data/ollama:/root/.ollama
     networks:
       - arifos_trinity
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:11434/api/tags || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
     deploy:
       resources:
         limits:
-          memory: 1536M
+          cpus: '2.0'
+          memory: 2048M
+        reservations:
+          cpus: '0.5'
+          memory: 512M
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
 
   # --- Gateways & Reasoning ---
   openclaw:
@@ -152,17 +218,16 @@ services:
       - VENICE_API_KEY=${VENICE_API_KEY}
       - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
       - NODE_OPTIONS=--max-old-space-size=1536
-      # PATH includes custom CLI tools: gh, op, mcporter
       - PATH=/root/.local/bin:/root/.npm-global/bin:/host/clis:/host/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
       - GH_TOKEN=${GITHUB_TOKEN:-}
       - FIRECRAWL_API_KEY=${FIRECRAWL_API_KEY:-}
       - X_BEARER_TOKEN=${X_BEARER_TOKEN:-}
       - APIFY_API_TOKEN=${APIFY_API_TOKEN:-}
       - BROWSERLESS_URL=http://headless_browser:3000
-      # AI Model Provider Keys (from .env)
       - GEMINI_API_KEY=${GEMINI_API_KEY:-}
       - GOOGLE_API_KEY=${GOOGLE_API_KEY:-}
       - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - OLLAMA_API_BASE=http://ollama:11434
     networks:
       - arifos_trinity
     ports:
@@ -173,46 +238,36 @@ services:
       - "traefik.http.routers.openclaw.entrypoints=websecure"
       - "traefik.http.routers.openclaw.tls.certresolver=letsencrypt"
       - "traefik.http.services.openclaw.loadbalancer.server.port=18789"
+      - "traefik.http.services.openclaw.loadbalancer.healthcheck.path=/healthz"
+      - "traefik.http.services.openclaw.loadbalancer.healthcheck.interval=10s"
     healthcheck:
       test: ["CMD-SHELL", "curl -fsS http://localhost:18789/healthz || exit 1"]
       interval: 30s
       timeout: 5s
       retries: 3
+      start_period: 30s
     deploy:
       resources:
         limits:
+          cpus: '2.0'
           memory: 2048M
+        reservations:
+          cpus: '0.5'
+          memory: 512M
     restart: unless-stopped
+    depends_on:
+      ollama:
+        condition: service_started
+      redis:
+        condition: service_healthy
 
-  agent-zero:
-    image: agent0ai/agent-zero:latest
-    container_name: agent_zero_reasoner
-    init: true
-    volumes:
-      - /opt/arifos/data/agent_zero:/app/work_dir
-      - /srv/arifOS:/mnt/arifos:rw
-      - /opt/arifos/APEX-THEORY:/mnt/apex:rw
-    environment:
-      - OPENCLAW_URL=http://openclaw:18789
-    networks:
-      - arifos_trinity
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.agent-zero.rule=Host(`brain.arifosmcp.arif-fazil.com`)"
-      - "traefik.http.routers.agent-zero.entrypoints=websecure"
-      - "traefik.http.routers.agent-zero.tls.certresolver=letsencrypt"
-      - "traefik.http.services.agent-zero.loadbalancer.server.port=80"
-    deploy:
-      resources:
-        limits:
-          memory: 1024M
-    restart: unless-stopped
-
-  # --- Constitutional Kernel ---
+  # --- Constitutional Kernel (HARDENED) ---
   arifosmcp:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.optimized
+      args:
+        - BUILDKIT_INLINE_CACHE=1
     image: arifos/arifosmcp:latest
     container_name: arifosmcp_server
     init: true
@@ -220,11 +275,13 @@ services:
       - path: .env.docker
         required: false
     volumes:
-      - /opt/arifos/data/core:/usr/src/app/data
+      - /opt/arifos/data/core:/usr/src/app/data:rw
+      - arifosmcp_telemetry:/usr/src/app/telemetry:rw
+      - arifosmcp_vault:/usr/src/app/VAULT999:rw
+      - arifosmcp_memory:/usr/src/app/memory:rw
     environment:
       PYTHONUNBUFFERED: 1
       PYTHONDONTWRITEBYTECODE: 1
-      # F1 Amanah: Safe workspace for EUREKA FORGE
       ARIFOS_WORKDIR: /usr/src/app
       DATABASE_URL: postgresql://${POSTGRES_USER:-arifos_admin}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-arifos_vault}
       REDIS_URL: redis://redis:6379/0
@@ -237,6 +294,10 @@ services:
       ARIFOS_GOVERNANCE_SECRET: ${ARIFOS_GOVERNANCE_SECRET}
       ARIFOS_PUBLIC_TOOL_PROFILE: ${ARIFOS_PUBLIC_TOOL_PROFILE:-chatgpt}
       ARIFOS_MCP_PATH: ${ARIFOS_MCP_PATH:-/mcp}
+      UVICORN_WORKERS: ${UVICORN_WORKERS:-1}
+      UVICORN_TIMEOUT: ${UVICORN_TIMEOUT:-120}
+      PYTHONHASHSEED: 0
+      PYTHONDETERMINISTICHASH: 1
     ports:
       - "127.0.0.1:8080:8080"
     networks:
@@ -247,11 +308,35 @@ services:
       - "traefik.http.routers.arifosmcp.entrypoints=websecure"
       - "traefik.http.routers.arifosmcp.tls.certresolver=letsencrypt"
       - "traefik.http.services.arifosmcp.loadbalancer.server.port=8080"
+      - "traefik.http.services.arifosmcp.loadbalancer.healthcheck.path=/health"
+      - "traefik.http.services.arifosmcp.loadbalancer.healthcheck.interval=10s"
+      - "traefik.http.services.arifosmcp.loadbalancer.healthcheck.timeout=5s"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS --max-time 5 http://localhost:8080/health || exit 1"]
+      interval: 20s
+      timeout: 5s
+      start_period: 60s
+      retries: 3
     deploy:
       resources:
         limits:
-          memory: 2048M
+          cpus: '2.0'
+          memory: 3072M
+        reservations:
+          cpus: '0.5'
+          memory: 1024M
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      qdrant:
+        condition: service_healthy
+      ollama:
+        condition: service_healthy
 
   # --- Monitoring Stack ---
   prometheus:
@@ -262,16 +347,32 @@ services:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'
       - '--storage.tsdb.retention.time=30d'
+      - '--storage.tsdb.retention.size=5GB'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+      - '--web.enable-lifecycle'
+      - '--log.level=warn'
     volumes:
       - /srv/arifOS/infrastructure/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - /opt/arifos/data/prometheus:/prometheus
     networks:
       - arifos_trinity
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:9090/-/healthy || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
     deploy:
       resources:
         limits:
+          cpus: '0.5'
           memory: 1024M
+        reservations:
+          cpus: '0.1'
+          memory: 256M
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
 
   grafana:
     image: grafana/grafana:latest
@@ -282,6 +383,8 @@ services:
       GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD}
       GF_SERVER_ROOT_URL: https://monitor.arifosmcp.arif-fazil.com
       GF_SERVER_DOMAIN: monitor.arifosmcp.arif-fazil.com
+      GF_SECURITY_DISABLE_GRAVATAR: "true"
+      GF_ANALYTICS_REPORTING_ENABLED: "false"
     volumes:
       - /opt/arifos/data/grafana:/var/lib/grafana
       - /srv/arifOS/infrastructure/grafana/datasources/prometheus.yml:/etc/grafana/provisioning/datasources/prometheus.yml:ro
@@ -293,11 +396,22 @@ services:
       - "traefik.http.routers.grafana.entrypoints=websecure"
       - "traefik.http.routers.grafana.tls.certresolver=letsencrypt"
       - "traefik.http.services.grafana.loadbalancer.server.port=3000"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:3000/api/health || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
     deploy:
       resources:
         limits:
+          cpus: '0.5'
           memory: 1024M
+        reservations:
+          cpus: '0.1'
+          memory: 256M
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
 
   # --- Workflow Automation ---
   n8n:
@@ -311,6 +425,8 @@ services:
       WEBHOOK_URL: https://flow.arifosmcp.arif-fazil.com/
       N8N_EDITOR_BASE_URL: https://flow.arifosmcp.arif-fazil.com/
       GENERIC_TIMEZONE: Asia/Kuala_Lumpur
+      N8N_LOG_LEVEL: warn
+      N8N_METRICS: "true"
     volumes:
       - /opt/arifos/data/n8n:/home/node/.n8n
     networks:
@@ -321,11 +437,22 @@ services:
       - "traefik.http.routers.n8n.entrypoints=websecure"
       - "traefik.http.routers.n8n.tls.certresolver=letsencrypt"
       - "traefik.http.services.n8n.loadbalancer.server.port=5678"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:5678/healthz || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
     deploy:
       resources:
         limits:
+          cpus: '0.5'
           memory: 1024M
+        reservations:
+          cpus: '0.1'
+          memory: 256M
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
 
   # --- Webhook Auto-Deploy ---
   webhook:
@@ -357,8 +484,14 @@ services:
     deploy:
       resources:
         limits:
+          cpus: '0.25'
           memory: 128M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
 
   # --- Headless Browser (DOM Reality) ---
   headless_browser:
@@ -370,27 +503,42 @@ services:
       - CONNECTION_TIMEOUT=20000
       - PREBOOT_CHROME=true
       - TOKEN=${BROWSERLESS_TOKEN:-}
-      - DEBUG=browserless:*
+      - DEBUG=browserless:error
       - ENABLE_CORS=true
       - DEFAULT_BLOCK_ADS=true
       - DEFAULT_IGNORE_HTTPS_ERRORS=true
+      - DEFAULT_STEALTH=true
     networks:
       - arifos_trinity
-    deploy:
-      resources:
-        limits:
-          cpus: '1.0'
-          memory: 1024M
     healthcheck:
       test: ["CMD-SHELL", "curl -fsS http://localhost:3000/pressure || exit 1"]
       interval: 30s
       timeout: 5s
       retries: 3
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1024M
+        reservations:
+          cpus: '0.25'
+          memory: 512M
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
 
+# --- Persistent Volumes for arifosmcp ---
+volumes:
+  arifosmcp_telemetry:
+    driver: local
+  arifosmcp_vault:
+    driver: local
+  arifosmcp_memory:
+    driver: local
+
+# --- Networks ---
 networks:
   arifos_trinity:
-    driver: bridge
-    ipam:
-      config:
-        - subnet: 10.0.10.0/24
+    external: true
+    name: arifos_arifos_trinity
