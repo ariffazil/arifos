@@ -189,13 +189,16 @@ async def judge(
     Rule: MONOTONE-SAFE. Cannot upgrade a weaker candidate.
     Discipline: APEX Theorem Gate (G† = G* · η)
     """
-    from core.enforcement.genius import calculate_genius
+    from core.enforcement.genius import (
+        calculate_genius,
+        coerce_floor_scores,
+        get_thermodynamic_budget_window,
+    )
     from core.physics.thermodynamics_hardened import (
         check_landauer_before_seal,
         consume_tool_energy,
-        get_thermodynamic_budget,
     )
-    from core.shared.types import FloorScores, Verdict
+    from core.shared.types import Verdict
 
     consume_tool_energy(session_id, n_calls=1)
 
@@ -203,24 +206,10 @@ async def judge(
     candidate = normalize_verdict(888, verdict_candidate)
 
     # 2. Extract or Build Floor Scores
-    floor_scores = kwargs.get("floor_scores")
-    if not isinstance(floor_scores, FloorScores):
-        # Map kwargs to FloorScores with defaults
-        floor_scores = FloorScores(
-            f1_amanah=kwargs.get("f1_amanah", kwargs.get("f1", 1.0)),
-            f2_truth=kwargs.get("f2_truth", kwargs.get("f2", kwargs.get("akal", 0.99))),
-            f3_tri_witness=kwargs.get("f3_tri_witness", kwargs.get("f3", 0.95)),
-            f4_clarity=kwargs.get("f4_clarity", kwargs.get("f4", 1.0)),
-            f5_peace=kwargs.get("f5_peace", kwargs.get("f5", 1.0)),
-            f6_empathy=kwargs.get("f6_empathy", kwargs.get("f6", 0.95)),
-            f7_humility=kwargs.get("f7_humility", kwargs.get("f7", 0.04)),
-            f8_genius=kwargs.get("f8_genius", kwargs.get("f8", 0.80)),
-            f9_anti_hantu=kwargs.get("f9_anti_hantu", kwargs.get("f9", 0.0)),
-            f10_ontology=kwargs.get("f10_ontology", kwargs.get("f10", True)),
-            f11_command_auth=kwargs.get("f11_command_auth", kwargs.get("f11", True)),
-            f12_injection=kwargs.get("f12_injection", kwargs.get("f12", 0.0)),
-            f13_sovereign=kwargs.get("f13_sovereign", kwargs.get("f13", 1.0)),
-        )
+    floor_scores = coerce_floor_scores(
+        kwargs.get("floor_scores") if kwargs.get("floor_scores") is not None else kwargs,
+        defaults={"f2_truth": kwargs.get("akal", 0.99)},
+    )
 
     # 3. Monotone Safety Check
     violations = kwargs.get("violations", [])
@@ -244,13 +233,11 @@ async def judge(
         )
 
     # 4. Real Genius Calculation (The Discipline Layer)
-    try:
-        budget = get_thermodynamic_budget(session_id)
-        budget_used = budget.consumed
-        budget_max = budget.initial_budget
-    except Exception:
-        budget_used = 0.5
-        budget_max = 1.0
+    budget_used, budget_max = get_thermodynamic_budget_window(
+        session_id,
+        fallback_used=0.5,
+        fallback_max=1.0,
+    )
 
     genius_result = calculate_genius(
         floors=floor_scores,

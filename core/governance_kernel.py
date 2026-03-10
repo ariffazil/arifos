@@ -525,37 +525,40 @@ class GovernanceKernel:
         except ImportError:
             return 0.0
 
+    def _project_genius_floor_scores(self) -> Any:
+        """Project live kernel state into the canonical FloorScores manifold."""
+        from core.enforcement.genius import coerce_floor_scores
+
+        return coerce_floor_scores(
+            defaults={
+                "f1_amanah": round(self.reversibility_score, 4),
+                "f2_truth": round(max(0.0, 1.0 - self.safety_omega), 4),
+                "f4_clarity": 1.0 if self.governance_state == GovernanceState.ACTIVE else 0.8,
+                "f5_peace": round(self.reversibility_score, 4),
+                "f7_humility": round(0.04 - (self.safety_omega / 10.0), 4),
+                "f8_genius": 0.8,
+                "f11_command_auth": self.authority_level != AuthorityLevel.ANALYSIS,
+                "f13_sovereign": 1.0 if self.human_approval_status == "approved" else 0.7,
+            }
+        )
+
+    def _project_genius_budget_window(self) -> tuple[float, float]:
+        """Resolve the thermodynamic budget window for kernel self-measurement."""
+        from core.enforcement.genius import get_thermodynamic_budget_window
+
+        return get_thermodynamic_budget_window(
+            self.session_id,
+            fallback_used=1.0 - self.current_energy,
+            fallback_max=1.0,
+        )
+
     @property
     def genius_score(self) -> float:
         """Derived G score: G = (A×P×X×E²) × (1-h)"""
         from core.enforcement.genius import calculate_genius
-        from core.shared.types import FloorScores
 
-        # Map current kernel state to FloorScores
-        # This is a real-time projection of kernel state into the 13-floor manifold
-        floors = FloorScores(
-            f1_amanah=round(self.reversibility_score, 4),
-            f2_truth=round(max(0.0, 1.0 - self.safety_omega), 4),
-            f4_clarity=1.0 if self.governance_state == GovernanceState.ACTIVE else 0.8,
-            f5_peace=round(
-                self.reversibility_score, 4
-            ),  # Peace derived from reversibility in kernel
-            f7_humility=round(0.04 - (self.safety_omega / 10.0), 4),  # Grounded in safety_omega
-            f8_genius=0.8,  # Previous state anchor
-            f11_command_auth=self.authority_level != AuthorityLevel.ANALYSIS,
-            f13_sovereign=1.0 if self.human_approval_status == "approved" else 0.7,
-        )
-
-        # Physics budget integration
-        try:
-            from core.physics.thermodynamics_hardened import get_thermodynamic_budget
-
-            budget = get_thermodynamic_budget(self.session_id)
-            budget_used = budget.consumed
-            budget_max = budget.initial_budget
-        except Exception:
-            budget_used = 1.0 - self.current_energy
-            budget_max = 1.0
+        floors = self._project_genius_floor_scores()
+        budget_used, budget_max = self._project_genius_budget_window()
 
         res = calculate_genius(
             floors=floors,
@@ -568,7 +571,7 @@ class GovernanceKernel:
     def get_current_state(self) -> dict[str, Any]:
         """Compatibility payload for adapters expecting live governance telemetry."""
         from core.enforcement.genius import calculate_genius
-        from core.shared.types import FloorScores, Verdict
+        from core.shared.types import Verdict
 
         if self.governance_state == GovernanceState.VOID:
             verdict = Verdict.VOID.value
@@ -579,27 +582,8 @@ class GovernanceKernel:
         else:
             verdict = Verdict.SEAL.value
 
-        # Construct FloorScores for a consistent view
-        floors = FloorScores(
-            f1_amanah=round(self.reversibility_score, 4),
-            f2_truth=round(max(0.0, 1.0 - self.safety_omega), 4),
-            f4_clarity=1.0 if self.governance_state == GovernanceState.ACTIVE else 0.8,
-            f5_peace=round(self.reversibility_score, 4),
-            f7_humility=round(0.04 - (self.safety_omega / 10.0), 4),
-            f11_command_auth=self.authority_level != AuthorityLevel.ANALYSIS,
-            f13_sovereign=1.0 if self.human_approval_status == "approved" else 0.7,
-        )
-
-        try:
-            from core.physics.thermodynamics_hardened import get_thermodynamic_budget
-
-            budget = get_thermodynamic_budget(self.session_id)
-            budget_used = budget.consumed
-            budget_max = budget.initial_budget
-        except Exception:
-            budget_used = 1.0 - self.current_energy
-            budget_max = 1.0
-
+        floors = self._project_genius_floor_scores()
+        budget_used, budget_max = self._project_genius_budget_window()
         genius_res = calculate_genius(floors, self.hysteresis_penalty, budget_used, budget_max)
         dials = genius_res["dials"]
 

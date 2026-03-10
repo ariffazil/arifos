@@ -437,6 +437,25 @@ class TestRouteRefuse:
         assert result["confidence"] == 0.8
 
 
+class TestRoutingCompatibility:
+    def test_shared_router_uses_canonical_category_mapping(self):
+        from core.enforcement.routing import compatibility_category_for_domain, detect_refusal_rule
+        from core.shared.routing import route_refuse
+
+        query = "Please diagnose my symptoms"
+        rule = detect_refusal_rule(query)
+        result = route_refuse(query)
+
+        assert rule is not None
+        assert result["should_refuse"] is True
+        assert result["category"] == compatibility_category_for_domain(rule.risk_domain)
+
+    def test_canonical_router_returns_no_rule_for_clean_query(self):
+        from core.enforcement.routing import detect_refusal_rule
+
+        assert detect_refusal_rule("What is the capital of France?") is None
+
+
 class TestShouldRealityCheck:
     def test_factual_query_needs_check(self):
         from core.shared.routing import should_reality_check

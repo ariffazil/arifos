@@ -105,37 +105,33 @@ def _derive_apex_dials(tool: str, payload: dict[str, Any]) -> dict[str, Any]:
     Derive A/P/X/E and governed genius G* for each tool call.
     Grounds dials in real constitutional manifold (F1-F13).
     """
-    from core.enforcement.genius import calculate_genius
-    from core.shared.types import FloorScores
+    from core.enforcement.genius import (
+        calculate_genius,
+        coerce_floor_scores,
+        get_thermodynamic_budget_window,
+    )
 
     # 1. Reconstruct FloorScores from payload or defaults
-    floor_scores = payload.get("floor_scores")
-    if not isinstance(floor_scores, FloorScores):
-        # Fallback: extract from payload keys if available
-        truth = _safe_float(
-            payload.get("truth", {}), "score", _safe_float(payload, "truth_score", 0.8)
-        )
-        ds = _safe_float(payload, "dS", -0.1)
-        peace2 = _safe_float(payload, "peace2", 1.0)
-
-        floor_scores = FloorScores(
-            f2_truth=truth,
-            f4_clarity=1.0 - abs(min(0.0, ds)),
-            f5_peace=peace2,
-            f8_genius=_safe_float(payload, "G_prev", 0.8),
-        )
+    truth = _safe_float(payload.get("truth", {}), "score", _safe_float(payload, "truth_score", 0.8))
+    ds = _safe_float(payload, "dS", -0.1)
+    peace2 = _safe_float(payload, "peace2", 1.0)
+    floor_scores = coerce_floor_scores(
+        payload.get("floor_scores") if payload.get("floor_scores") is not None else payload,
+        defaults={
+            "f2_truth": truth,
+            "f4_clarity": 1.0 - abs(min(0.0, ds)),
+            "f5_peace": peace2,
+            "f8_genius": _safe_float(payload, "G_prev", 0.8),
+        },
+    )
 
     # 2. Integrate with Physics Budget
     session_id = str(payload.get("session_id", "global"))
-    try:
-        from core.physics.thermodynamics_hardened import get_thermodynamic_budget
-
-        budget = get_thermodynamic_budget(session_id)
-        budget_used = budget.consumed
-        budget_max = budget.initial_budget
-    except Exception:
-        budget_used = 0.5
-        budget_max = 1.0
+    budget_used, budget_max = get_thermodynamic_budget_window(
+        session_id,
+        fallback_used=0.5,
+        fallback_max=1.0,
+    )
 
     # 3. Final Genius Intelligence Kernel Calculation
     res = calculate_genius(

@@ -10,6 +10,8 @@ G = A × P × X × E²
 DITEMPA BUKAN DIBERI — Forged, Not Given
 """
 
+from __future__ import annotations
+
 import logging
 from typing import Any
 
@@ -19,6 +21,38 @@ from core.shared.floor_audit import AuditResult
 from core.shared.types import FloorScores
 
 logger = logging.getLogger(__name__)
+
+_FLOOR_ALIAS_MAP: dict[str, tuple[str, ...]] = {
+    "f1_amanah": ("f1",),
+    "f2_truth": ("f2", "truth_score", "akal"),
+    "f3_tri_witness": ("f3",),
+    "f4_clarity": ("f4", "clarity_score"),
+    "f5_peace": ("f5", "peace2"),
+    "f6_empathy": ("f6", "empathy_score", "kappa_r"),
+    "f7_humility": ("f7", "omega_0", "omega0"),
+    "f8_genius": ("f8", "g_prev", "G_prev", "genius_score"),
+    "f9_anti_hantu": ("f9", "c_dark"),
+    "f10_ontology": ("f10", "ontology_valid"),
+    "f11_command_auth": ("f11", "command_auth"),
+    "f12_injection": ("f12", "injection_risk"),
+    "f13_sovereign": ("f13", "human_score", "sovereign_score"),
+}
+_BOOL_FLOORS = {"f10_ontology", "f11_command_auth"}
+_FLOOR_DEFAULTS: dict[str, Any] = {
+    "f1_amanah": 1.0,
+    "f2_truth": 0.99,
+    "f3_tri_witness": 0.95,
+    "f4_clarity": 1.0,
+    "f5_peace": 1.0,
+    "f6_empathy": 0.95,
+    "f7_humility": 0.04,
+    "f8_genius": 0.80,
+    "f9_anti_hantu": 0.0,
+    "f10_ontology": True,
+    "f11_command_auth": True,
+    "f12_injection": 0.0,
+    "f13_sovereign": 1.0,
+}
 
 
 class APEXDials(BaseModel):
@@ -92,6 +126,89 @@ def audit_result_to_floor_scores(audit_result: Any) -> FloorScores:
         f12_injection=1.0 - get_score("F12", 1.0),
         f13_sovereign=get_score("F13"),
     )
+
+
+def _first_present(mapping: dict[str, Any], keys: tuple[str, ...]) -> Any:
+    """Return the first present non-None value from a mapping."""
+    for key in keys:
+        if key in mapping and mapping[key] is not None:
+            return mapping[key]
+    return None
+
+
+def _coerce_bool(value: Any, default: bool) -> bool:
+    """Parse permissive bool-like values while preserving explicit false signals."""
+    if value is None:
+        return default
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, (int, float)):
+        return bool(value)
+    if isinstance(value, str):
+        lowered = value.strip().lower()
+        if lowered in {"true", "1", "yes", "pass", "approved", "seal"}:
+            return True
+        if lowered in {"false", "0", "no", "fail", "denied", "void"}:
+            return False
+    return bool(value)
+
+
+def _coerce_float(value: Any, default: float) -> float:
+    """Parse float-like values with stable defaults."""
+    if value is None:
+        return default
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return default
+
+
+def coerce_floor_scores(
+    source: FloorScores | AuditResult | dict[str, Any] | None = None,
+    *,
+    defaults: dict[str, Any] | None = None,
+) -> FloorScores:
+    """
+    Canonicalize heterogeneous floor payloads into a single FloorScores object.
+
+    This is the shared entrypoint for real APEX G measurement inputs.
+    """
+    if isinstance(source, FloorScores):
+        return source
+    if isinstance(source, AuditResult):
+        return audit_result_to_floor_scores(source)
+    if isinstance(source, dict) and "floor_results" in source:
+        return audit_result_to_floor_scores(source)
+
+    payload = source if isinstance(source, dict) else {}
+    resolved_defaults = {**_FLOOR_DEFAULTS, **(defaults or {})}
+    values: dict[str, Any] = {}
+
+    for field_name, aliases in _FLOOR_ALIAS_MAP.items():
+        value = _first_present(payload, (field_name, *aliases))
+        default_value = resolved_defaults[field_name]
+        if field_name in _BOOL_FLOORS:
+            values[field_name] = _coerce_bool(value, bool(default_value))
+        else:
+            values[field_name] = _coerce_float(value, float(default_value))
+
+    return FloorScores(**values)
+
+
+def get_thermodynamic_budget_window(
+    session_id: str,
+    *,
+    fallback_used: float = 0.5,
+    fallback_max: float = 1.0,
+) -> tuple[float, float]:
+    """Resolve the real thermodynamic budget window, with explicit fallback."""
+    try:
+        from core.physics.thermodynamics_hardened import get_thermodynamic_budget
+
+        budget = get_thermodynamic_budget(session_id)
+        return float(budget.consumed), float(budget.initial_budget)
+    except Exception:
+        return float(fallback_used), float(fallback_max)
 
 
 def geometric_mean(values: list[float]) -> float:
@@ -186,4 +303,11 @@ def calculate_genius(
     }
 
 
-__all__ = ["APEXDials", "floors_to_dials", "calculate_genius", "audit_result_to_floor_scores"]
+__all__ = [
+    "APEXDials",
+    "audit_result_to_floor_scores",
+    "calculate_genius",
+    "coerce_floor_scores",
+    "floors_to_dials",
+    "get_thermodynamic_budget_window",
+]

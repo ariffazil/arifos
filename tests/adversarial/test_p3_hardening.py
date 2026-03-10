@@ -203,9 +203,7 @@ def test_contradiction_critical_forces_888_hold():
 
     # F12 injection risk=0.9 with SEAL candidate → critical contradiction
     fs = FloorScores(f12_injection=0.9)
-    result = asyncio.get_event_loop().run_until_complete(
-        judge(session_id="coh_test", verdict_candidate="SEAL", floor_scores=fs)
-    )
+    result = asyncio.run(judge(session_id="coh_test", verdict_candidate="SEAL", floor_scores=fs))
     assert result.verdict in (Verdict.HOLD_888, Verdict.VOID, Verdict.PARTIAL)
     # Metrics must expose coherence counts
     assert "coherence_contradictions" in result.metrics

@@ -448,11 +448,46 @@ class TestGovernanceKernel:
         kernel = GovernanceKernel()
         assert kernel is not None
 
+    def test_kernel_state_and_property_share_genius_measurement(self):
+        from core.governance_kernel import GovernanceKernel
+
+        kernel = GovernanceKernel(
+            session_id="g-sync",
+            reversibility_score=0.82,
+            safety_omega=0.03,
+            current_energy=0.76,
+        )
+
+        assert kernel.get_current_state()["genius"] == kernel.genius_score
+
     def test_kernel_has_floors(self):
         from core.shared.floors import THRESHOLDS
 
         assert "F1_Amanah" in THRESHOLDS
         assert "F13_Sovereign" in THRESHOLDS
+
+
+class TestEnforcementGenius:
+    def test_coerce_floor_scores_supports_aliases(self):
+        from core.enforcement.genius import coerce_floor_scores
+
+        floors = coerce_floor_scores(
+            {
+                "f1": 0.42,
+                "truth_score": 0.88,
+                "peace2": 0.77,
+                "omega0": 0.04,
+                "f11": "false",
+                "f13": 0.91,
+            }
+        )
+
+        assert floors.f1_amanah == 0.42
+        assert floors.f2_truth == 0.88
+        assert floors.f5_peace == 0.77
+        assert floors.f7_humility == 0.04
+        assert floors.f11_command_auth is False
+        assert floors.f13_sovereign == 0.91
 
 
 # =============================================================================
