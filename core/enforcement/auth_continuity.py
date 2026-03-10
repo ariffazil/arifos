@@ -20,7 +20,14 @@ from typing import Any
 # without keeping a large in-memory state for every hop.
 
 
+def _env_flag(name: str) -> bool:
+    return os.getenv(name, "").strip().lower() in {"1", "true", "yes", "on"}
+
+
 def _load_governance_token_secret() -> str:
+    if _env_flag("ARIFOS_GOVERNANCE_OPEN_MODE"):
+        return "arifos-open-governance-dev-mode"
+
     for env_name in ("ARIFOS_GOVERNANCE_SECRET", "ARIFOS_GOVERNANCE_TOKEN_SECRET"):
         secret = os.getenv(env_name, "").strip()
         if secret:

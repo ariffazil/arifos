@@ -26,6 +26,11 @@ Set at minimum before exposing the service:
 - `GRAFANA_PASSWORD`
 - `WEBHOOK_SECRET`
 
+Temporary local/dev override:
+
+- `ARIFOS_GOVERNANCE_OPEN_MODE=1` uses a fixed public development continuity key instead of a private governance secret.
+- Use that only for single-instance local/dev work. Do not use it for production or shared deployments.
+
 The default public tool profile is:
 
 ```env
