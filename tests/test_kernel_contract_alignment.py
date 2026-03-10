@@ -4,6 +4,7 @@ from pathlib import Path
 
 import pytest
 
+from arifosmcp.runtime.philosophy import select_governed_philosophy
 from arifosmcp.runtime.public_registry import PUBLIC_TOOL_SPECS
 from arifosmcp.runtime.tools import check_vital, metabolic_loop_router
 from core.governance_kernel import route_pipeline
@@ -74,3 +75,45 @@ async def test_check_vital_includes_motto_and_governed_philosophy():
     assert envelope.philosophy["stage"] == "000_INIT"
     assert envelope.philosophy["agi"]["source"] == "deterministic_33"
     assert envelope.philosophy["asi"] is None
+
+
+def test_governed_philosophy_exposes_available_categories():
+    payload = select_governed_philosophy(
+        "Assess trade-offs in a paradox-heavy design review.",
+        stage="333_MIND",
+        verdict="SEAL",
+        g_score=0.74,
+        failed_floors=[],
+        session_id="phi-1",
+    )
+
+    assert "local_99" in payload["available_categories"]
+    assert "paradox" in payload["available_categories"]["local_99"]
+
+
+def test_governed_philosophy_uses_richer_local_categories_for_normal_runtime():
+    payload = select_governed_philosophy(
+        "Close the loop and release the governed result.",
+        stage="888_JUDGE",
+        verdict="SEAL",
+        g_score=0.92,
+        failed_floors=[],
+        session_id="phi-2",
+    )
+
+    assert payload["agi"]["source"] == "deterministic_99"
+    assert payload["agi"]["category"] in {"triumph", "power"}
+
+
+def test_governed_philosophy_maps_empathy_failures_to_love():
+    payload = select_governed_philosophy(
+        "A user is hurt and needs care before we proceed.",
+        stage="666_HEART",
+        verdict="PARTIAL",
+        g_score=0.71,
+        failed_floors=["F6"],
+        session_id="phi-3",
+    )
+
+    assert payload["agi"]["source"] == "deterministic_99"
+    assert payload["agi"]["category"] == "love"
