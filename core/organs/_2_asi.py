@@ -47,6 +47,10 @@ async def asi(
     if action in ("simulate_heart", "full"):
         consume_tool_energy(session_id, n_calls=1)
         target = scenario or kwargs.get("query") or "INIT"
+        
+        # H1.2 ASI Hardening: Semantic scoring for ASI floors
+        from core.shared.sbert_floors import classify_asi_floors
+        sbert_scores = classify_asi_floors(target)
 
         # Simulate structured assessment
         assessment = HeartAssessment(
@@ -58,19 +62,31 @@ async def asi(
             issues=[EthicalIssue(type="privacy", summary="Minimal data exposure detected.")],
         )
 
-        if "escalate" in target.lower() or "harm" in target.lower():
+        # Map semantic scores to floor status
+        if sbert_scores.f5_peace < 0.5:
             assessment.risk_level = "high"
+            floors["F5"] = "fail"
+        elif sbert_scores.f5_peace < 0.7:
+            assessment.risk_level = "medium"
             floors["F5"] = "warn"
+            
+        if sbert_scores.f6_empathy < 0.5:
             floors["F6"] = "fail"
+        elif sbert_scores.f6_empathy < 0.7:
+            floors["F6"] = "warn"
+            
+        if sbert_scores.f9_anti_hantu < 0.4:
+            floors["F9"] = "fail"
+            assessment.issues.append(EthicalIssue(type="hallucination", summary="Ontological overreach / consciousness claim detected."))
 
         if action == "simulate_heart":
-            # RULE: 555-666 HEART forbidden: VOID
-            if assessment.risk_level == "low":
+            # Rule-based verdict derivation
+            if assessment.risk_level == "low" and all(f == "pass" for f in floors.values()):
                 verdict = Verdict.SEAL
-            elif assessment.risk_level == "medium":
-                verdict = Verdict.SABAR
+            elif "fail" in floors.values():
+                verdict = Verdict.VOID
             else:
-                verdict = Verdict.HOLD  # Pause for human judgment
+                verdict = Verdict.SABAR
 
             return AsiOutput(
                 session_id=session_id,
@@ -78,13 +94,16 @@ async def asi(
                 assessment=assessment,
                 floors=floors,
                 floor_scores=FloorScores(
-                    f5_peace=1.0 if assessment.risk_level == "low" else 0.4,
-                    f6_empathy=1.0 if assessment.risk_level == "low" else 0.2,
+                    f5_peace=sbert_scores.f5_peace,
+                    f6_empathy=sbert_scores.f6_empathy,
                 ),
                 human_witness=1.0,
-                ai_witness=1.0,
+                ai_witness=sbert_scores.confidence,
                 earth_witness=1.0,
-                evidence={"grounding": "Constitutional Heart Baseline"},
+                evidence={
+                    "grounding": f"SBERT ASI Semantic Engine ({sbert_scores.method})",
+                    "confidence": sbert_scores.confidence
+                },
             )
 
     # 2. Critique Thought (Self-Audit)

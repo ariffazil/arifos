@@ -9,9 +9,11 @@ from __future__ import annotations
 
 import asyncio
 import os
+import time
 from typing import Any
 
 from arifosmcp.runtime.models import CallerContext, RuntimeEnvelope, Stage, Verdict
+from arifosmcp.runtime.metrics import METABOLIC_LOOP_DURATION, record_constitutional_metrics, record_verdict
 
 
 def _extract_auth_context(
@@ -193,119 +195,141 @@ async def metabolic_loop(
     caller_context: CallerContext | None = None,
 ) -> dict[str, Any]:
     """Run the routed constitutional loop and return the canonical kernel envelope."""
+    start_time = time.perf_counter()
     from arifosmcp.runtime.tools import _normalize_session_id, init_anchor_state, seal_vault_commit
     from core.governance_kernel import route_pipeline
     from core.organs._0_init import coerce_stakes_class
 
     current_session_id = _normalize_session_id(session_id)
-    stakes_class = coerce_stakes_class(risk_tier).get("value", "C")
-    init_res = await init_anchor_state(
-        {"query": query},
-        session_id=current_session_id,
-        governance={"actor_id": actor_id, "stakes_class": stakes_class},
-        caller_context=caller_context,
-    )
-    auth_ctx = _extract_auth_context(init_res)
-    caller_ctx = _extract_caller_context(init_res, caller_context)
-    auth_state = init_res.authority.auth_state
-    init_failed = init_res.verdict == Verdict.VOID
-
-    reality_summary = {
-        "status": "SKIPPED",
-        "required": False,
-        "executed": False,
-        "score": 0.0,
-        "results_count": 0,
-    }
-    trace = {Stage.INIT_000.value: init_res.verdict.value}
-
-    plan = route_pipeline(query, {"human_required": allow_execution})
-    if Stage.VAULT_999.value not in plan:
-        plan.append(Stage.VAULT_999.value)
-
-    if dry_run:
-        return {
-            "ok": True,
-            "tool": "arifOS.kernel",
-            "session_id": current_session_id,
-            "stage": Stage.ROUTER_444.value,
-            "verdict": Verdict.PARTIAL.value,
-            "status": "DRY_RUN",
-            "metrics": {},
-            "trace": trace,
-            "authority": {"actor_id": actor_id, "auth_state": auth_state},
-            "payload": {"plan": plan},
-            "errors": [],
-            "meta": {"schema_version": "1.0.0", "debug": False, "dry_run": True},
-            "final_verdict": "DRY_RUN",
-            "auth_state": auth_state,
-            "caller_context": _dump_caller_context(caller_ctx),
-            "remediation_notes": ["Constitutional dry-run completed."],
-        }
-
-    verdicts: list[Verdict] = [init_res.verdict]
-    policy_res: RuntimeEnvelope = init_res
-    policy_verdict = init_res.verdict
-
-    for stage_id in plan:
-        res = await run_stage(
-            stage_id=stage_id,
-            query=query,
+    try:
+        stakes_class = coerce_stakes_class(risk_tier).get("value", "C")
+        init_res = await init_anchor_state(
+            {"query": query},
             session_id=current_session_id,
-            auth_ctx=auth_ctx,
-            verdicts=verdicts,
-            trace=trace,
-            reality_summary=reality_summary,
-            caller_ctx=caller_ctx,
+            governance={"actor_id": actor_id, "stakes_class": stakes_class},
+            caller_context=caller_context,
         )
-        verdict = res.verdict
+        auth_ctx = _extract_auth_context(init_res)
+        caller_ctx = _extract_caller_context(init_res, caller_context)
+        auth_state = init_res.authority.auth_state
+        init_failed = init_res.verdict == Verdict.VOID
 
-        if stage_id < Stage.JUDGE_888.value and verdict == Verdict.VOID:
-            verdict = Verdict.SABAR
-            res = res.model_copy(update={"verdict": verdict})
-
-        trace[stage_id] = verdict.value
-        verdicts.append(verdict)
-        auth_ctx = _extract_auth_context(res, auth_ctx)
-        caller_ctx = _extract_caller_context(res, caller_ctx)
-
-        if stage_id != Stage.VAULT_999.value:
-            policy_res = res
-            policy_verdict = verdict
-
-        should_break = stage_id in {Stage.JUDGE_888.value, Stage.VAULT_999.value} and verdict in {
-            Verdict.SEAL,
-            Verdict.HOLD_888,
-            Verdict.VOID,
+        reality_summary = {
+            "status": "SKIPPED",
+            "required": False,
+            "executed": False,
+            "score": 0.0,
+            "results_count": 0,
         }
-        if should_break and stage_id != Stage.VAULT_999.value:
-            vault_res = await seal_vault_commit(
+        trace = {Stage.INIT_000.value: init_res.verdict.value}
+
+        plan = route_pipeline(query, {"human_required": allow_execution})
+        if Stage.VAULT_999.value not in plan:
+            plan.append(Stage.VAULT_999.value)
+
+        if dry_run:
+            return {
+                "ok": True,
+                "tool": "arifOS.kernel",
+                "session_id": current_session_id,
+                "stage": Stage.ROUTER_444.value,
+                "verdict": Verdict.PARTIAL.value,
+                "status": "DRY_RUN",
+                "metrics": {},
+                "trace": trace,
+                "authority": {"actor_id": actor_id, "auth_state": auth_state},
+                "payload": {"plan": plan},
+                "errors": [],
+                "meta": {"schema_version": "1.0.0", "debug": False, "dry_run": True},
+                "final_verdict": "DRY_RUN",
+                "auth_state": auth_state,
+                "caller_context": _dump_caller_context(caller_ctx),
+                "remediation_notes": ["Constitutional dry-run completed."],
+            }
+
+        verdicts: list[Verdict] = [init_res.verdict]
+        policy_res: RuntimeEnvelope = init_res
+        policy_verdict = init_res.verdict
+
+        for stage_id in plan:
+            res = await run_stage(
+                stage_id=stage_id,
+                query=query,
                 session_id=current_session_id,
-                verdict=policy_verdict.value,
-                auth_context=auth_ctx,
-                telemetry={"trace": trace, "reality": reality_summary},
-                caller_context=caller_ctx,
+                auth_ctx=auth_ctx,
+                verdicts=verdicts,
+                trace=trace,
+                reality_summary=reality_summary,
+                caller_ctx=caller_ctx,
             )
-            trace[Stage.VAULT_999.value] = vault_res.verdict.value
-            auth_ctx = _extract_auth_context(vault_res, auth_ctx)
-            caller_ctx = _extract_caller_context(vault_res, caller_ctx)
-            break
+            verdict = res.verdict
 
-    out = policy_res.model_dump(mode="json")
-    out.update(
-        {
-            "tool": "arifOS.kernel",
-            "session_id": current_session_id,
-            "stage": policy_res.stage,
-            "verdict": policy_verdict.value,
-            "status": "SUCCESS" if policy_verdict not in (Verdict.VOID, Verdict.SABAR) else "ERROR",
-            "trace": trace,
-            "authority": policy_res.authority.model_dump(mode="json"),
-            "final_verdict": "AUTH_FAIL" if init_failed else policy_verdict.value,
-            "auth_state": auth_state,
-            "grounding": reality_summary,
-            "vault_seal": trace.get(Stage.VAULT_999.value) == Verdict.SEAL.value,
-            "caller_context": _dump_caller_context(caller_ctx),
-        }
-    )
-    return out
+            if stage_id < Stage.JUDGE_888.value and verdict == Verdict.VOID:
+                verdict = Verdict.SABAR
+                res = res.model_copy(update={"verdict": verdict})
+
+            trace[stage_id] = verdict.value
+            verdicts.append(verdict)
+            auth_ctx = _extract_auth_context(res, auth_ctx)
+            caller_ctx = _extract_caller_context(res, caller_ctx)
+
+            # Record metrics for the stage/tool
+            if hasattr(res, "metrics") and res.metrics:
+                record_constitutional_metrics(
+                    current_session_id, f"stage_{stage_id}", res.metrics
+                )
+
+            if stage_id != Stage.VAULT_999.value:
+                policy_res = res
+                policy_verdict = verdict
+
+            should_break = stage_id in {
+                Stage.JUDGE_888.value,
+                Stage.VAULT_999.value,
+            } and verdict in {
+                Verdict.SEAL,
+                Verdict.HOLD_888,
+                Verdict.VOID,
+            }
+            if should_break and stage_id != Stage.VAULT_999.value:
+                vault_res = await seal_vault_commit(
+                    session_id=current_session_id,
+                    verdict=policy_verdict.value,
+                    auth_context=auth_ctx,
+                    telemetry={"trace": trace, "reality": reality_summary},
+                    caller_context=caller_ctx,
+                )
+                trace[Stage.VAULT_999.value] = vault_res.verdict.value
+                auth_ctx = _extract_auth_context(vault_res, auth_ctx)
+                caller_ctx = _extract_caller_context(vault_res, caller_ctx)
+                break
+
+        out = policy_res.model_dump(mode="json")
+        out.update(
+            {
+                "tool": "arifOS.kernel",
+                "session_id": current_session_id,
+                "stage": policy_res.stage,
+                "verdict": policy_verdict.value,
+                "status": (
+                    "SUCCESS" if policy_verdict not in (Verdict.VOID, Verdict.SABAR) else "ERROR"
+                ),
+                "trace": trace,
+                "authority": policy_res.authority.model_dump(mode="json"),
+                "final_verdict": "AUTH_FAIL" if init_failed else policy_verdict.value,
+                "auth_state": auth_state,
+                "grounding": reality_summary,
+                "vault_seal": trace.get(Stage.VAULT_999.value) == Verdict.SEAL.value,
+                "caller_context": _dump_caller_context(caller_ctx),
+            }
+        )
+        
+        # Record final verdict and kernel metrics
+        record_verdict(policy_verdict.value)
+        if "metrics" in out and out["metrics"]:
+            record_constitutional_metrics(current_session_id, "arifOS.kernel", out["metrics"])
+            
+        return out
+    finally:
+        duration = time.perf_counter() - start_time
+        METABOLIC_LOOP_DURATION.observe(duration)

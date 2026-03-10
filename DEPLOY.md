@@ -1,150 +1,258 @@
-# 🚀 arifOS Deployment & Orchestration Guide
-**FORGED, NOT GIVEN** — *Ditempa Bukan Diberi*
+# arifosmcp VPS Deploy Guide
 
-This is the canonical deployment manual for **arifOS**, an intelligence-governed MCP kernel. It covers local runtime, VPS deployment, and the specialized "Agnostic HTTP" setup required for ChatGPT and remote MCP clients.
+This document is the current deployment reference for the production VPS layout as of March 10, 2026.
 
----
+Production deploys are High-stakes - apply `888_HOLD` gate before sealing changes to live infrastructure.
 
-## 🏛️ 1. Deployment Architecture
+## Current Topology
 
-arifOS uses a **Layered Transport Architecture** to ensure that constitutional governance remains consistent regardless of the connection method.
+The live architecture is a single VPS running a 13-service Docker Compose stack behind Traefik.
 
-| Mode | Transport | Best For | Entrypoint |
-| :--- | :--- | :--- | :--- |
-| **Local** | `stdio` | Cursor, Claude Desktop, VS Code | `python -m arifosmcp.runtime stdio` |
-| **Cloud** | `sse` | Web clients, persistent connections | `python -m arifosmcp.runtime sse` |
-| **Agnostic**| `http` | ChatGPT, n8n, Stateless clients | `python -m arifosmcp.runtime http` |
+Canonical source of truth:
 
----
+| Layer | Canonical path / endpoint | Notes |
+| --- | --- | --- |
+| Git working tree | `/srv/arifosmcp` | Main active repository on VPS |
+| Persistent data root | `/opt/arifos/data` | Postgres, Redis, Qdrant, Grafana, n8n, OpenClaw, Agent Zero |
+| TLS state | `/opt/arifos/traefik/acme.json` | Traefik certificate store |
+| Public base URL | `https://arifosmcp.arif-fazil.com` | Main public MCP domain |
+| MCP endpoint | `https://arifosmcp.arif-fazil.com/mcp` | Streamable HTTP MCP |
+| SSE endpoint | `https://arifosmcp.arif-fazil.com/sse` | SSE transport |
+| Public discovery | `https://arifosmcp.arif-fazil.com/.well-known/mcp/server.json` | Generated from runtime registry |
 
-## 🧬 2. The 7-Tool Sovereign Surface
+Known drift:
 
-While arifOS contains 13+ internal stages, the public surface is strictly unified to **7 Core Tools** to reduce information entropy and provide a clean API for LLMs.
+- The active codebase on VPS is `/srv/arifosmcp`.
+- Some Compose mounts and helper scripts still reference legacy `/srv/arifOS`.
+- Treat `/srv/arifosmcp` as the code source of truth and normalize legacy path references before sealing major infra changes.
 
-| Tool | Profile | Role |
-| :--- | :--- | :--- |
-| **`arifOS.kernel`** | `core` | **Main Orchestrator**: Triggers the Stage 444 metabolic router. |
-| **`search_reality`** | `senses` | **Grounding**: Multi-source truth verification (Jina/Brave). |
-| **`ingest_evidence`** | `senses` | **Ingestion**: Adding URLs/Files to the temporary context. |
-| **`session_memory`** | `continuity` | **Memory**: Semantic search over previous reasoning traces.|
-| **`audit_rules`** | `law` | **Observability**: Inspection of F1–F13 Constitutional Floors. |
-| **`check_vital`** | `health` | **Telemetry**: Real-time $G^\dagger$ and entropy monitoring. |
-| **`open_apex_dashboard`** | `vision` | **Visual**: Launch the Sovereign dashboard UI. |
+## 13-Service Stack
 
----
+The current Docker Compose architecture contains these services:
 
-## ⚡ 3. Quickstart: Local Implementation
+| Service | Role | Persistence | Exposure |
+| --- | --- | --- | --- |
+| `traefik` | Reverse proxy, TLS, routing | `/opt/arifos/traefik/acme.json` | Public `:80`, `:443` |
+| `postgres` | Primary relational store | `/opt/arifos/data/postgres` | Internal |
+| `redis` | Cache / broker | `/opt/arifos/data/redis` | Internal |
+| `qdrant` | Vector memory | `/opt/arifos/data/qdrant` | Internal |
+| `ollama` | Local model runtime | `/opt/arifos/data/ollama` | Internal |
+| `openclaw` | External agent gateway | `/opt/arifos/data/openclaw` plus legacy code mount | Internal |
+| `agent-zero` | Local reasoning sidecar | `/opt/arifos/data/agent-zero` plus legacy code mount | Internal |
+| `arifosmcp` | Main FastMCP runtime | Repo bind mount plus env file | Routed via Traefik |
+| `prometheus` | Metrics collector | `/opt/arifos/data/prometheus` plus config mount | Internal |
+| `grafana` | Dashboards | `/opt/arifos/data/grafana` | Public via Traefik |
+| `n8n` | Automation workflows | `/opt/arifos/data/n8n` | Public via Traefik |
+| `webhook` | Controlled HTTP trigger service | Legacy code mount | Internal |
+| `headless_browser` | Browser automation / rendering | Container-local | Internal |
 
-Set up the virtual environment and launch the kernel in **STDIO** mode for local IDE integration.
+## Runtime Contract
 
-```bash
-# 1. Install dependencies
-uv sync --all-extras
+The public MCP surface is registry-driven from `arifosmcp.runtime.public_registry`.
 
-# 2. Configure Environment
-cp .env.example .env
-# Edit .env with your provider keys (ANTHROPIC_API_KEY, etc.)
+Current public profile:
 
-# 3. Launch Local Kernel
-python -m arifosmcp.runtime stdio
+- Version: `2026.03.10`
+- Public tool profile: `chatgpt`
+- Public tool count: `7`
+- Discovery documents:
+  - `spec/server.json`
+  - `spec/mcp-manifest.json`
+- Deploy validation source:
+  - `scripts/deploy_production.py`
+
+Do not hand-edit public tool lists in multiple places. Update the registry and regenerate specs.
+
+## Required Production Environment
+
+Create `.env.docker` from `.env.docker.example` and set production values explicitly.
+
+Minimum required variables:
+
+| Variable | Required value / guidance |
+| --- | --- |
+| `PORT` | `8080` |
+| `HOST` | `0.0.0.0` |
+| `AAA_MCP_TRANSPORT` | `http` |
+| `ARIFOS_VERSION` | `2026.03.10` |
+| `ARIFOS_PUBLIC_TOOL_PROFILE` | `chatgpt` |
+| `ARIFOS_MCP_PATH` | `/mcp` |
+| `ARIFOS_PUBLIC_BASE_URL` | Public HTTPS domain, currently `https://arifosmcp.arif-fazil.com` |
+| `ARIFOS_WIDGET_DOMAIN` | Same public origin unless intentionally split |
+| `ARIFOS_GOVERNANCE_SECRET` | Long random secret, must not remain placeholder |
+| `POSTGRES_PASSWORD` | Strong secret |
+| `OPENCLAW_ACCESS_TOKEN` | Strong secret |
+| `N8N_BASIC_AUTH_PASSWORD` | Strong secret |
+| `WEBHOOK_SECRET` | Strong secret |
+| `GF_SECURITY_ADMIN_PASSWORD` | Strong secret |
+
+Operational note:
+
+- If `ARIFOS_GOVERNANCE_SECRET` is missing, auth continuity falls back to an ephemeral in-process secret. That is not acceptable for durable production restarts or multi-instance scaling.
+
+## Canonical VPS Layout
+
+Use this directory shape on the VPS:
+
+```text
+/srv/arifosmcp
+├── docker-compose.yml
+├── .env.docker
+├── arifosmcp/
+├── scripts/
+├── spec/
+└── infrastructure/
+
+/opt/arifos
+├── data/
+│   ├── agent-zero/
+│   ├── grafana/
+│   ├── n8n/
+│   ├── ollama/
+│   ├── openclaw/
+│   ├── postgres/
+│   ├── prometheus/
+│   ├── qdrant/
+│   └── redis/
+└── traefik/
+    └── acme.json
 ```
 
-### IDE Configuration (Cursor / Claude)
-```json
-{
-  "mcpServers": {
-    "arifos": {
-      "command": "python",
-      "args": ["-m", "arifosmcp.runtime", "stdio"],
-      "env": { "ARIFOS_GOVERNANCE_SECRET": "your-secret-here" }
-    }
-  }
-}
+Avoid duplicate live working trees under home directories. They increase entropy and make rollback analysis harder.
+
+## Deploy Procedure
+
+### 1. Prepare host
+
+```bash
+mkdir -p /srv/arifosmcp
+mkdir -p /opt/arifos/data/{agent-zero,grafana,n8n,ollama,openclaw,postgres,prometheus,qdrant,redis}
+mkdir -p /opt/arifos/traefik
+touch /opt/arifos/traefik/acme.json
+chmod 600 /opt/arifos/traefik/acme.json
 ```
 
----
+### 2. Sync repository
 
-## 🐋 4. Production: VPS & Docker Stack
-
-Production deployments use the **arifOSTRINITY** stack, which orchestrates 12 containers for full metabolic resilience.
-
-### Prerequisites
-- Ubuntu VPS (16GB RAM recommended)
-- Docker & Docker Compose
-- Domain pointed to VPS (e.g., `arifosmcp.domain.com`)
-
-### Deployment Steps
 ```bash
-# 1. Clone & Prep
-git clone https://github.com/ariffazil/arifosmcp.git /srv/arifOS
-cd /srv/arifOS
+cd /srv/arifosmcp
+git pull --ff-only
 cp .env.docker.example .env.docker
-
-# 2. Build & Launch
-# We recommend using 'up -d --build' for a clean state
-docker compose up -d --build arifosmcp traefik-router
 ```
 
-### Zero-Downtime Overlay (Advanced)
-For high-availability, use the `vps-overlay` platform script which performs an atomic container swap:
-```bash
-python scripts/deploy_production.py --platform vps-overlay --host root@YOUR_IP
-```
+Edit `.env.docker` and replace all placeholder secrets before continuing.
 
----
+### 3. Regenerate public specs
 
-## ⚖️ 5. Setting up ChatGPT (Agnostic HTTP)
-
-ChatGPT requires strict adherence to the **MCP 2025-11-25** protocol. arifOS includes an `AgnosticAcceptMiddleware` to handle header mismatches automatically.
-
-### Production Env Settings
-To expose arifOS to ChatGPT, ensure these variables are in your `.env.docker`:
-
-```env
-# Forces the stateless HTTP mode required by remote clients
-AAA_MCP_TRANSPORT=http
-ARIFOS_MCP_PATH=/mcp
-
-# Limits the tool surface to only the 7 core tools
-ARIFOS_PUBLIC_TOOL_PROFILE=chatgpt
-
-# Required for dashboard and resource links
-ARIFOS_PUBLIC_BASE_URL=https://arifosmcp.arif-fazil.com
-```
-
-### Connector Configuration
-In the OpenAI Developer Dashboard, set:
-- **Connector URL**: `https://YOUR_DOMAIN.com/mcp`
-- **Authentication**: Bearer Token (if `ARIFOS_GOVERNANCE_SECRET` is set)
-
----
-
-## 🔍 6. Post-Deployment Verification
-
-Run this checklist to ensure the kernel is sealed and healthy.
+Run this whenever public tools, prompts, resources, or version change:
 
 ```bash
-# 1. Check Health & Version
-curl -fsS https://YOUR_DOMAIN.com/health
+cd /srv/arifosmcp
+python scripts/generate_public_specs.py
+```
 
-# 2. Verify Protocol Discovery
-curl -fsS https://YOUR_DOMAIN.com/.well-known/mcp/server.json
+### 4. Build and launch stack
 
-# 3. Test Tool Execution (Live)
-curl -i -X POST https://YOUR_DOMAIN.com/mcp \
+```bash
+cd /srv/arifosmcp
+docker compose --env-file .env.docker up -d --build
+```
+
+If you need a targeted restart for the MCP runtime only:
+
+```bash
+cd /srv/arifosmcp
+docker compose --env-file .env.docker up -d --build arifosmcp
+```
+
+### 5. Inspect runtime health
+
+```bash
+docker compose ps
+docker compose logs --tail=200 arifosmcp
+docker compose logs --tail=200 traefik
+```
+
+## Overlay Deploy Path
+
+There is also a scripted VPS overlay deploy path:
+
+```bash
+cd /srv/arifosmcp
+python scripts/deploy_production.py \
+  --platform vps-overlay \
+  --host root@YOUR_VPS_IP \
+  --app-dir /srv/arifosmcp \
+  --public-base-url https://YOUR_DOMAIN
+```
+
+Important:
+
+- The deploy script now validates public tools against `arifosmcp.runtime.public_registry`.
+- Some script defaults still carry legacy path assumptions such as `/root/arifOS`.
+- Override `--app-dir` explicitly to `/srv/arifosmcp` until those legacy defaults are fully removed.
+
+## Verification
+
+After deployment, verify the public contract and runtime:
+
+```bash
+curl -fsS https://YOUR_DOMAIN/health
+curl -fsS https://YOUR_DOMAIN/.well-known/mcp/server.json
+curl -fsS https://YOUR_DOMAIN/tools
+curl -fsS https://YOUR_DOMAIN/mcp \
   -H "Content-Type: application/json" \
-  -H "Accept: application/json" \
-  --data '{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}'
+  -d '{"jsonrpc":"2.0","id":"1","method":"tools/list","params":{}}'
 ```
 
----
+Expected checks:
 
-## 🛡️ 7. Operational Safeguards
+- `health` returns success.
+- `server.json` and `mcp-manifest.json` match the current registry version.
+- `tools/list` reflects the `chatgpt` public profile.
+- Public tool count is `7`.
+- `arifosmcp` is reachable through Traefik, not by direct public port exposure.
 
-- **VAULT Persistence**: All reasoning traces are stored in `/opt/arifos/data/`. Never delete this directory without a backup.
-- **888_HOLD**: Any tool call requesting file deletion or production state changes will trigger an `888_HOLD` status. You must use the `888_signer` utility to sign these transactions.
-- **Cloudflare Proxy**: We **strongly recommend** enabling Cloudflare Proxy (Orange Cloud) for production to protect the AKI Boundary from DDoS attacks.
+## Observability
 
----
+Supporting observability stack:
 
-**Ditempa Bukan Diberi** — *The kernel stays sealed. The logic stays true.* 🏛️
+- Prometheus scrapes service metrics.
+- Grafana provides dashboards.
+- Traefik logs ingress behavior.
+- `docker compose logs` remains the fastest first-pass incident surface on the VPS.
+
+For incidents:
+
+```bash
+cd /srv/arifosmcp
+docker compose ps
+docker compose logs --tail=200 arifosmcp
+docker compose logs --tail=200 postgres
+docker compose logs --tail=200 redis
+docker compose logs --tail=200 qdrant
+```
+
+## Chaos Watch
+
+Current entropy risks to reduce before a hard production seal:
+
+| Risk | Impact | Action |
+| --- | --- | --- |
+| Duplicate repo roots on VPS | Unclear live code path | Keep `/srv/arifosmcp` as sole active repo |
+| Legacy `/srv/arifOS` mounts in Compose | Broken binds or stale code | Normalize mounts to `/srv/arifosmcp` |
+| Placeholder governance secret | Session continuity breaks across restart | Set fixed `ARIFOS_GOVERNANCE_SECRET` |
+| Manual spec drift | Discovery/docs/runtime mismatch | Regenerate specs from registry before deploy |
+| Production deploy without contract check | Silent public surface regression | Run deploy validation and post-deploy `tools/list` |
+
+## Deploy Standard
+
+For this repo, a production-ready VPS deploy means:
+
+1. Code runs from `/srv/arifosmcp`.
+2. Persistent state lives under `/opt/arifos/data`.
+3. Traefik owns public ingress and TLS.
+4. Public MCP specs are generated from the runtime registry.
+5. The public `chatgpt` profile exposes exactly the intended 7 tools.
+6. Secrets are fixed, non-placeholder, and not process-ephemeral.
+7. High-stakes deploys are treated as `888_HOLD` until human approval is explicit.

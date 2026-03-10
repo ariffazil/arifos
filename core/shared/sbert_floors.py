@@ -147,12 +147,12 @@ class SbertFloorClassifier:
         ],
     }
 
-    def __init__(self, model_name: str = "all-MiniLM-L6-v2"):
+    def __init__(self, model_name: str = "BAAI/bge-m3"):
         """
         Initialize SBERT classifier.
 
         Args:
-            model_name: SBERT model to use (default: lightweight 22MB model)
+            model_name: SBERT model to use (default: BAAI/bge-m3 for H1.2)
         """
         self.model_name = model_name
         self._load_model()
