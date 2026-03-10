@@ -65,6 +65,27 @@ async def _wrap_call(
         # call_kernel now returns a dictionary matching the Canonical Schema
         kernel_res = await call_kernel(tool_name, session_id, payload)
 
+        if tool_name == "arifOS.kernel" and isinstance(kernel_res, dict):
+            claimed_actor_id = str(
+                payload.get("claimed_actor_id", payload.get("actor_id", "anonymous")) or "anonymous"
+            )
+            payload_block = kernel_res.get("payload")
+            if isinstance(payload_block, dict):
+                identity_resolution = payload_block.get("identity_resolution")
+                if isinstance(identity_resolution, dict) and identity_resolution.get(
+                    "input_actor_id"
+                ) in {None, "", "anonymous"}:
+                    identity_resolution["input_actor_id"] = claimed_actor_id
+            errors_block = kernel_res.get("errors")
+            if (
+                isinstance(errors_block, list)
+                and errors_block
+                and isinstance(errors_block[0], dict)
+                and str(errors_block[0].get("stage", "")) == Stage.INIT_000.value
+                and "F11:" in str(errors_block[0].get("message", ""))
+            ):
+                errors_block[0]["code"] = "AUTH_FAILURE"
+
         # Merge additional runtime metadata if not already present
         if "meta" not in kernel_res:
             from datetime import datetime, timezone

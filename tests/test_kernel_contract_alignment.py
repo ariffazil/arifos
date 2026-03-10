@@ -4,7 +4,6 @@ from pathlib import Path
 
 import pytest
 
-from arifosmcp.runtime.bridge import call_kernel
 from arifosmcp.runtime.tools import metabolic_loop_router
 from arifosmcp.runtime.public_registry import PUBLIC_TOOL_SPECS
 from core.governance_kernel import route_pipeline
@@ -44,18 +43,17 @@ def test_manifest_kernel_schema_exposes_auth_context():
 
 @pytest.mark.asyncio
 async def test_auth_failure_payload_includes_identity_resolution_and_next_action():
-    envelope = await call_kernel(
-        "arifOS.kernel",
-        "session-auth-fail",
-        {"query": "Assess deployment readiness.", "actor_id": "ARIF"},
+    envelope = await metabolic_loop_router(
+        query="Assess deployment readiness.",
+        actor_id="ARIF",
     )
 
-    payload = envelope["payload"]
+    payload = envelope.payload
     identity_resolution = payload["identity_resolution"]
     next_action = payload["next_action"]
 
-    assert envelope["errors"][0]["code"] == "AUTH_FAILURE"
-    assert "input_actor_id" in identity_resolution
+    assert envelope.errors[0].code == "AUTH_FAILURE"
+    assert identity_resolution["input_actor_id"] == "ARIF"
     assert identity_resolution["resolved_actor_id"] == "anonymous"
     assert identity_resolution["identity_claim_status"] == "UNVERIFIED_CLAIM"
     assert next_action["tool"] == "init_anchor_state"

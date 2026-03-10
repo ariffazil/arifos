@@ -9,6 +9,7 @@ DITEMPA BUKAN DIBERI — Forged, Not Given
 
 import json
 import logging
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -46,6 +47,74 @@ def _resolve_claimed_actor_id(payload: dict[str, Any]) -> str:
         return "anonymous"
     claim = str(raw_claim).strip()
     return claim or "anonymous"
+
+
+def _auth_failure_envelope(
+    *,
+    tool: str,
+    session_id: str,
+    error_message: str,
+    claimed_actor_id: str,
+    identity_claim_status: str,
+    identity_reason: str,
+    resolved_actor_id: str = "anonymous",
+    next_action_reason: str,
+) -> dict[str, Any]:
+    return {
+        "ok": False,
+        "tool": tool,
+        "session_id": session_id,
+        "stage": "000_INIT",
+        "verdict": "VOID",
+        "status": "ERROR",
+        "metrics": {
+            "truth": 0.0,
+            "clarity_delta": 0.0,
+            "confidence": 0.0,
+            "peace": 0.0,
+            "vitality": 0.0,
+            "entropy_delta": 0.0,
+            "authority": 0.0,
+            "risk": 0.0,
+        },
+        "trace": {"000_INIT": "VOID"},
+        "authority": {
+            "actor_id": "anonymous",
+            "level": "anonymous",
+            "human_required": True,
+            "approval_scope": [],
+            "auth_state": "unverified",
+        },
+        "payload": {
+            "error": error_message,
+            "identity_resolution": {
+                "input_actor_id": claimed_actor_id,
+                "resolved_actor_id": resolved_actor_id,
+                "identity_claim_status": identity_claim_status,
+                "reason": identity_reason,
+            },
+            "next_action": {
+                "tool": "init_anchor_state",
+                "required": True,
+                "reason": next_action_reason,
+            },
+        },
+        "errors": [
+            {
+                "code": "AUTH_FAILURE",
+                "message": error_message,
+                "stage": "000_INIT",
+                "recoverable": False,
+            }
+        ],
+        "meta": {
+            "schema_version": "1.0.0",
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "debug": False,
+            "dry_run": False,
+        },
+        "auth_context": None,
+    }
 
 
 def _trace_replay_envelope(
@@ -113,60 +182,35 @@ async def call_kernel(
     Supports the 10-tool APEX-G naming convention.
     """
     canonical_name = TOOL_MAP.get(tool_name, tool_name)
+    claimed_actor_id = _resolve_claimed_actor_id(payload)
 
     # 1. Verification of Continuity (F11)
     auth_ctx = payload.get("auth_context")
     if canonical_name in REQUIRES_SESSION:
         if not auth_ctx:
-            claimed_actor_id = _resolve_claimed_actor_id(payload)
-            return wrap_tool_output(
-                canonical_name,
-                {
-                    "verdict": "VOID",
-                    "error_code": "AUTH_FAILURE",
-                    "error": (
-                        "F11: Missing auth_context for continuity. Run init_anchor_state first."
-                    ),
-                    "stage": "000_INIT",
-                    "actor_id": claimed_actor_id,
-                    "identity_resolution": {
-                        "input_actor_id": claimed_actor_id,
-                        "resolved_actor_id": "anonymous",
-                        "identity_claim_status": "UNVERIFIED_CLAIM",
-                        "reason": "No auth_context supplied for continuity.",
-                    },
-                    "next_action": {
-                        "tool": "init_anchor_state",
-                        "required": True,
-                        "reason": "Establish continuity and mint auth_context before retrying.",
-                    },
-                },
+            return _auth_failure_envelope(
+                tool=canonical_name,
+                session_id=session_id,
+                error_message="F11: Missing auth_context for continuity. Run init_anchor_state first.",
+                claimed_actor_id=claimed_actor_id,
+                identity_claim_status="UNVERIFIED_CLAIM",
+                identity_reason="No auth_context supplied for continuity.",
+                resolved_actor_id="anonymous",
+                next_action_reason="Establish continuity and mint auth_context before retrying.",
             )
 
         valid, reason = verify_auth_context_cached(session_id, auth_ctx)
         if not valid:
-            claimed_actor_id = _resolve_claimed_actor_id(payload)
             resolved_actor_id = str(auth_ctx.get("actor_id", "anonymous") or "anonymous")
-            return wrap_tool_output(
-                canonical_name,
-                {
-                    "verdict": "VOID",
-                    "error_code": "AUTH_FAILURE",
-                    "error": f"F11: Authentication continuity failed: {reason}",
-                    "stage": "000_INIT",
-                    "actor_id": claimed_actor_id,
-                    "identity_resolution": {
-                        "input_actor_id": claimed_actor_id,
-                        "resolved_actor_id": resolved_actor_id,
-                        "identity_claim_status": "INVALID_AUTH_CONTEXT",
-                        "reason": reason,
-                    },
-                    "next_action": {
-                        "tool": "init_anchor_state",
-                        "required": True,
-                        "reason": "Refresh continuity state and attach the newly minted auth_context.",
-                    },
-                },
+            return _auth_failure_envelope(
+                tool=canonical_name,
+                session_id=session_id,
+                error_message=f"F11: Authentication continuity failed: {reason}",
+                claimed_actor_id=claimed_actor_id,
+                identity_claim_status="INVALID_AUTH_CONTEXT",
+                identity_reason=reason,
+                resolved_actor_id=resolved_actor_id,
+                next_action_reason="Refresh continuity state and attach the newly minted auth_context.",
             )
 
     # 1.5. Early Exit for Grounding Utilities
