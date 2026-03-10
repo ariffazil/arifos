@@ -745,9 +745,7 @@ def G(A: float, P: float, X: float, E: float, h: float = 0.0) -> float:
     return GeniusDial(A, P, X, E, h).G()
 
 
-def G_dagger(
-    G_star: float, entropy_reduction: float, compute_cost: float, h: float = 0.0
-) -> float:
+def G_dagger(G_star: float, entropy_reduction: float, compute_cost: float, h: float = 0.0) -> float:
     """
     Compute realized governed intelligence (G†).
     """

@@ -98,8 +98,11 @@ def test_score_provenance_audit_string():
     from core.shared.types import ScoreComponent, ScoreProvenance
 
     comp = ScoreComponent(
-        name="reasoning", weight=0.3, raw_value=0.95,
-        weighted_value=0.285, evidence="consistency=0.95",
+        name="reasoning",
+        weight=0.3,
+        raw_value=0.95,
+        weighted_value=0.285,
+        evidence="consistency=0.95",
     )
     prov = ScoreProvenance(
         final_score=0.95,
@@ -251,7 +254,7 @@ def test_landauer_is_within_budget_large_session():
     approx_joules = 10_000 * BITS_PER_TOKEN * LANDAUER_LIMIT_JOULES
     summary = budget.landauer_summary("l3_large")
     assert abs(summary["min_energy_joules"] - approx_joules) < 1e-30
-    assert budget.is_within_budget("l3_large", max_joules=1e-10) is True   # generous budget
+    assert budget.is_within_budget("l3_large", max_joules=1e-10) is True  # generous budget
     assert budget.is_within_budget("l3_large", max_joules=1e-30) is False  # below Landauer min
 
 
@@ -527,8 +530,11 @@ def test_trust_update_harm_reduces_trust():
 
     ledger = OutcomeLedger()
     outcome = OutcomeRecord(
-        decision_id="T001", session_id="s", verdict_issued="SEAL",
-        expected_outcome="safe", harm_detected=True,
+        decision_id="T001",
+        session_id="s",
+        verdict_issued="SEAL",
+        expected_outcome="safe",
+        harm_detected=True,
         outcome_status=OutcomeStatus.FAILURE,
     )
     initial_trust = ledger.get_trust("actor-1")  # DEFAULT_TRUST
@@ -543,8 +549,11 @@ def test_trust_update_success_increases_trust():
 
     ledger = OutcomeLedger()
     outcome = OutcomeRecord(
-        decision_id="T002", session_id="s", verdict_issued="SEAL",
-        expected_outcome="safe", harm_detected=False,
+        decision_id="T002",
+        session_id="s",
+        verdict_issued="SEAL",
+        expected_outcome="safe",
+        harm_detected=False,
         outcome_status=OutcomeStatus.SUCCESS,
     )
     initial_trust = ledger.get_trust("actor-2")
@@ -560,8 +569,11 @@ def test_trust_clamped_to_one():
     ledger = OutcomeLedger()
     ledger._trust_scores["actor-3"] = 0.99
     outcome = OutcomeRecord(
-        decision_id="T003", session_id="s", verdict_issued="SEAL",
-        expected_outcome="safe", outcome_status=OutcomeStatus.SUCCESS,
+        decision_id="T003",
+        session_id="s",
+        verdict_issued="SEAL",
+        expected_outcome="safe",
+        outcome_status=OutcomeStatus.SUCCESS,
     )
     new_trust = ledger.update_trust("actor-3", outcome)
     assert new_trust <= 1.0

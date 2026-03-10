@@ -3,6 +3,7 @@ arifosmcp.intelligence/triad/psi/seal.py — Stage 999 Vault
 Commit to VAULT999 + Phoenix-72.
 """
 
+from core.kernel import kernel
 from core.organs import seal as core_seal
 from core.shared.physics import (
     ConstitutionalTensor,
@@ -12,13 +13,11 @@ from core.shared.physics import (
     UncertaintyBand,
 )
 
-from ...core.kernel import kernel
-
 
 async def seal(
     session_id: str,
     task_summary: str,
-    was_modified: bool = True,
+    was_modified: bool = False,
     verdict: str | None = None,
 ) -> dict:
     """

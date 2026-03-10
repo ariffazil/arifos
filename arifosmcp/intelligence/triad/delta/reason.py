@@ -19,7 +19,7 @@ if TYPE_CHECKING:
 _SAMPLING_ENABLED = True
 
 try:
-    from ...core.constitutional_sampling import ReasonResult, SamplingConfig, sample_reason
+    from core.constitutional_sampling import ReasonResult, SamplingConfig, sample_reason
 except ImportError:
     _SAMPLING_ENABLED = False
 
@@ -83,7 +83,7 @@ async def _reason_with_kernel(
     evidence: list[str],
 ) -> dict[str, Any]:
     """REASON using kernel.audit() structural checks (fallback)."""
-    from ...core.kernel import kernel
+    from core.kernel import kernel
 
     # Run constitutional audit
     audit_res = kernel.audit(

@@ -30,8 +30,6 @@ from starlette.responses import HTMLResponse, JSONResponse, Response
 from starlette.staticfiles import StaticFiles
 
 from arifosmcp.runtime.resources import apex_tools_html_rows, apex_tools_markdown_table
-from .build_info import get_build_info
-from .contracts import AAA_TOOL_STAGE_MAP, TRINITY_BY_TOOL, AAA_TOOL_ALIASES, AAA_CANONICAL_TOOLS
 from core.shared.floor_audit import get_ml_floor_runtime
 from core.shared.floors import (
     FLOOR_SPEC_KEYS,
@@ -39,6 +37,9 @@ from core.shared.floors import (
     get_floor_spec,
     get_floor_threshold,
 )
+
+from .build_info import get_build_info
+from .contracts import AAA_TOOL_ALIASES, AAA_TOOL_STAGE_MAP, TRINITY_BY_TOOL
 
 BUILD_INFO = get_build_info()
 MCP_PROTOCOL_VERSION = "2025-11-25"

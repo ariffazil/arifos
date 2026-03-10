@@ -273,10 +273,11 @@ async def metabolic_loop(
             policy_res = res
             policy_verdict = verdict
 
-        should_break = (
-            stage_id in {Stage.JUDGE_888.value, Stage.VAULT_999.value}
-            and verdict in {Verdict.SEAL, Verdict.HOLD_888, Verdict.VOID}
-        )
+        should_break = stage_id in {Stage.JUDGE_888.value, Stage.VAULT_999.value} and verdict in {
+            Verdict.SEAL,
+            Verdict.HOLD_888,
+            Verdict.VOID,
+        }
         if should_break and stage_id != Stage.VAULT_999.value:
             vault_res = await seal_vault_commit(
                 session_id=current_session_id,

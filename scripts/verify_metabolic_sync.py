@@ -1,5 +1,4 @@
 import asyncio
-import json
 import os
 import sys
 
@@ -9,7 +8,6 @@ sys.path.append(os.getcwd())
 # Disable physics for pure logic test
 os.environ["ARIFOS_PHYSICS_DISABLED"] = "1"
 
-from arifosmcp.runtime.models import Verdict
 from arifosmcp.runtime.orchestrator import metabolic_loop
 
 

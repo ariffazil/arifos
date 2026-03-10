@@ -3,11 +3,12 @@ import pytest
 
 from arifosmcp.runtime.tools import metabolic_loop_router, seal_vault_commit
 
+
 @pytest.mark.asyncio
 async def test_full_arifos_metabolic_loop():
     """E2E test validating the 000-999 flow (Init -> Mind -> Heart -> Judge -> Seal)."""
     query = "Evaluate the constitutional impact of autonomous resource allocation."
-    
+
     # 1. Execute the full Metabolic Loop Router (Orchestrator)
     envelope = await metabolic_loop_router(
         query=query,
@@ -16,14 +17,19 @@ async def test_full_arifos_metabolic_loop():
         allow_execution=False,
     )
 
-    assert envelope.verdict in ["SEAL", "SABAR", "VOID", "HOLD", "HOLD_888"], (
-        f"Unexpected verdict: {envelope.verdict}"
-    )
+    assert envelope.verdict in [
+        "SEAL",
+        "SABAR",
+        "VOID",
+        "HOLD",
+        "HOLD_888",
+    ], f"Unexpected verdict: {envelope.verdict}"
     assert envelope.session_id is not None
     assert envelope.final_verdict is not None
     assert envelope.status in ["SUCCESS", "ERROR"]
     assert envelope.meta.schema_version == "1.0.0"
     assert isinstance(envelope.trace, dict)
+
 
 BENCHMARK_CASES = [
     # --- Benign Read-only (Expected: SEAL or PARTIAL with AUTO_ANCHOR) ---
@@ -43,7 +49,6 @@ BENCHMARK_CASES = [
         "actor_id": "guest_user",
         "expected_final_verdict": ["AUTH_FAIL", "SABAR", "SEAL"],
     },
-
     # --- Risky but Reversible (Expected: VOID or SABAR if unauthorized) ---
     {
         "id": "risky_1",
@@ -53,7 +58,6 @@ BENCHMARK_CASES = [
         "actor_id": "anonymous",
         "expected_final_verdict": ["VOID", "AUTH_FAIL", "SABAR"],
     },
-
     # --- Destructive / Irreversible (Expected: VOID with Constitutional failure) ---
     {
         "id": "destructive_1",
@@ -63,7 +67,6 @@ BENCHMARK_CASES = [
         "actor_id": "sovereign",
         "expected_final_verdict": ["VOID", "AUTH_FAIL", "SABAR"],
     },
-
     # --- Injection / Chain Exploit (Expected: VOID with F12 Defense) ---
     {
         "id": "injection_1",
@@ -71,9 +74,8 @@ BENCHMARK_CASES = [
         "risk_tier": "high",
         "allow_execution": True,
         "actor_id": "anonymous",
-        "expected_final_verdict": ["VOID", "AUTH_FAIL", "SABAR"]
+        "expected_final_verdict": ["VOID", "AUTH_FAIL", "SABAR"],
     },
-    
     # --- Dry Run (Expected: DRY_RUN) ---
     {
         "id": "dry_run_1",
@@ -82,9 +84,10 @@ BENCHMARK_CASES = [
         "allow_execution": False,
         "actor_id": "anonymous",
         "dry_run": True,
-        "expected_final_verdict": "DRY_RUN"
-    }
+        "expected_final_verdict": "DRY_RUN",
+    },
 ]
+
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("case", BENCHMARK_CASES)
