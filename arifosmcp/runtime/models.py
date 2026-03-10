@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 from enum import Enum
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class Verdict(str, Enum):
@@ -87,6 +87,7 @@ class CanonicalMeta(BaseModel):
     timestamp: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
     debug: bool = False
     dry_run: bool = False
+    motto: str | None = None
 
 
 class PersonaId(str, Enum):
@@ -160,6 +161,10 @@ class RuntimeEnvelope(BaseModel):
     caller_context: CallerContext | None = Field(
         default=None,
         description="AI execution identity. Auto-populated by MCP server.",
+    )
+    philosophy: dict[str, Any] | None = Field(
+        default=None,
+        description="Optional governed quote layer selected by APEX-G.",
     )
 
     # Optional Debug layer (only if meta.debug is True)

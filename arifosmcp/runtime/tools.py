@@ -7,9 +7,15 @@ from fastmcp import Context, FastMCP
 from fastmcp.tools import ToolResult
 
 from arifosmcp.runtime.models import CallerContext, RuntimeEnvelope, Stage
+from arifosmcp.runtime.philosophy import select_governed_philosophy
 from arifosmcp.runtime.public_registry import public_tool_specs
 from arifosmcp.runtime.resources import build_open_apex_dashboard_result
 from arifosmcp.runtime.sessions import _resolve_session_id, set_active_session
+from core.shared.mottos import (
+    MOTTO_000_INIT_HEADER,
+    MOTTO_999_SEAL_HEADER,
+    get_motto_for_stage,
+)
 from core.state.session_manager import session_manager
 
 from .bridge import call_kernel
@@ -39,6 +45,102 @@ def _normalize_verdict(verdict: Any) -> str:
     from core.shared.verdict_contract import normalize_verdict
 
     return normalize_verdict(333, verdict_str).value
+
+
+def _safe_float(value: Any, default: float = 0.0) -> float:
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return default
+
+
+def _infer_failed_floors(envelope_data: dict[str, Any]) -> list[str]:
+    failed: list[str] = []
+
+    debug_block = envelope_data.get("debug")
+    if isinstance(debug_block, dict):
+        law_checks = debug_block.get("law_checks")
+        if isinstance(law_checks, dict):
+            for law_name, law_result in law_checks.items():
+                if not isinstance(law_result, dict):
+                    continue
+                if law_result.get("required") and not bool(law_result.get("pass")):
+                    floor = str(law_name).split("_", 1)[0]
+                    if floor.startswith("F") and floor not in failed:
+                        failed.append(floor)
+
+    errors_block = envelope_data.get("errors")
+    if isinstance(errors_block, list):
+        for error in errors_block:
+            if not isinstance(error, dict):
+                continue
+            message = str(error.get("message", ""))
+            for floor in ("F1", "F2", "F4", "F7", "F10", "F11", "F12", "F13"):
+                if floor in message and floor not in failed:
+                    failed.append(floor)
+
+    return failed
+
+
+def _resolve_motto(stage_value: str) -> str | None:
+    if stage_value == Stage.INIT_000.value:
+        return MOTTO_000_INIT_HEADER
+    if stage_value == Stage.VAULT_999.value:
+        return MOTTO_999_SEAL_HEADER
+
+    stage_motto = get_motto_for_stage(stage_value)
+    if stage_motto is None:
+        return None
+    return f"{stage_motto.positive}, {stage_motto.negative}"
+
+
+def _select_philosophy_payload(
+    tool_name: str,
+    stage_value: str,
+    payload: dict[str, Any],
+    envelope_data: dict[str, Any],
+) -> dict[str, Any]:
+    metrics_block = envelope_data.get("metrics")
+    if isinstance(metrics_block, dict):
+        g_score = _safe_float(
+            metrics_block.get("confidence", metrics_block.get("truth", 0.0)),
+            default=0.0,
+        )
+    else:
+        g_score = 0.0
+
+    payload_block = envelope_data.get("payload")
+    context_parts = [
+        payload.get("query"),
+        payload.get("context"),
+        payload.get("url"),
+        payload.get("source_url"),
+        payload.get("intent"),
+    ]
+    if isinstance(payload_block, dict):
+        context_parts.extend(
+            [
+                payload_block.get("error"),
+                payload_block.get("message"),
+                payload_block.get("summary"),
+            ]
+        )
+
+    context_text = (
+        " ".join(str(part).strip() for part in context_parts if part).strip() or tool_name
+    )
+    failed_floors = _infer_failed_floors(envelope_data)
+    verdict_value = str(envelope_data.get("verdict") or "SABAR")
+    session_value = str(envelope_data.get("session_id") or payload.get("session_id") or "global")
+
+    return select_governed_philosophy(
+        context_text,
+        stage=stage_value,
+        verdict=verdict_value,
+        g_score=g_score,
+        failed_floors=failed_floors,
+        session_id=session_value,
+    )
 
 
 async def _wrap_call(
@@ -126,6 +228,18 @@ async def _wrap_call(
             meta=CanonicalMeta(debug=bool(payload.get("debug"))),
             auth_context=payload.get("auth_context"),
             caller_context=caller_context,
+        )
+
+    resolved_motto = _resolve_motto(envelope.stage)
+    if resolved_motto and envelope.meta.motto is None:
+        envelope.meta.motto = resolved_motto
+
+    if envelope.philosophy is None:
+        envelope.philosophy = _select_philosophy_payload(
+            tool_name,
+            envelope.stage,
+            payload,
+            envelope.model_dump(mode="json", exclude_none=True),
         )
 
     if ctx:

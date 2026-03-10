@@ -11,7 +11,7 @@ DITEMPA, BUKAN DIBERI.
 from __future__ import annotations
 
 import hashlib
-from typing import TypedDict
+from typing import Any, TypedDict
 
 
 class Quote(TypedDict):
@@ -19,6 +19,16 @@ class Quote(TypedDict):
     category: str
     author: str
     text: str
+
+
+class PhilosophySelection(TypedDict):
+    apex_mode: str
+    role: str
+    stage: str
+    g_score: float
+    semantic_backend: str
+    agi: dict[str, Any]
+    asi: dict[str, Any] | None
 
 
 PHILOSOPHY_REGISTRY: list[Quote] = [
@@ -278,9 +288,173 @@ def get_wisdom_for_context(
     return get_philosophical_anchor(stage, g_score, failed_floors)
 
 
+def _stage_number(stage: str) -> int:
+    try:
+        return int("".join(ch for ch in stage if ch.isdigit()) or "444")
+    except ValueError:
+        return 444
+
+
+def _semantic_category(
+    stage: str,
+    g_score: float,
+    failed_floors: list[str],
+    verdict: str,
+) -> str:
+    if verdict in {"VOID", "HOLD", "HOLD_888"} or g_score < 0.5:
+        return "wisdom"
+    if "F6" in failed_floors:
+        return "love"
+    if "F2" in failed_floors or "F7" in failed_floors:
+        return "wisdom"
+
+    stage_num = _stage_number(stage)
+    if stage_num >= 999:
+        return "seal"
+    if stage_num >= 666:
+        return "power" if g_score >= 0.85 else "paradox"
+    if stage_num >= 333:
+        return "paradox"
+    return "wisdom"
+
+
+def _quote_block(quote: Quote, *, score: float | None = None, source: str) -> dict[str, Any]:
+    block: dict[str, Any] = {
+        "quote_id": quote["id"],
+        "quote": quote["text"],
+        "author": quote["author"],
+        "category": quote["category"],
+        "source": source,
+    }
+    if score is not None:
+        block["score"] = round(score, 4)
+    return block
+
+
+def get_semantic_wisdom(
+    context: str,
+    *,
+    stage: str = "444",
+    g_score: float = 0.9,
+    failed_floors: list[str] | None = None,
+    verdict: str = "SABAR",
+) -> tuple[dict[str, Any] | None, str]:
+    """
+    Best-effort semantic wisdom retrieval from the 99-quote ASI layer.
+
+    Returns a tuple of (quote block or None, backend status).
+    The runtime remains fully functional if the vector layer is absent.
+    """
+    failed_floors = failed_floors or []
+
+    try:
+        from arifosmcp.intelligence.tools.wisdom_quotes import retrieve_wisdom
+    except ImportError:
+        return None, "unavailable"
+
+    category = _semantic_category(stage, g_score, failed_floors, verdict)
+
+    try:
+        result = retrieve_wisdom(context, category=category, n_results=1)
+    except Exception:
+        return None, "error"
+
+    if not isinstance(result, dict):
+        return None, "empty"
+
+    quotes = result.get("quotes")
+    if not isinstance(quotes, list) or not quotes:
+        return None, "empty"
+
+    first = quotes[0]
+    if not isinstance(first, dict):
+        return None, "empty"
+
+    quote_id = str(first.get("id") or first.get("quote_id") or "").strip()
+    quote_text = str(first.get("text") or first.get("quote") or "").strip()
+    author = str(first.get("author") or "unknown").strip() or "unknown"
+    quote_category = str(first.get("category") or category).strip() or category
+    if not quote_id or not quote_text:
+        return None, "empty"
+
+    score_raw = first.get("score", first.get("similarity"))
+    try:
+        score = float(score_raw) if score_raw is not None else None
+    except (TypeError, ValueError):
+        score = None
+
+    return (
+        {
+            "quote_id": quote_id,
+            "quote": quote_text,
+            "author": author,
+            "category": quote_category,
+            "source": "semantic_99",
+            "score": round(score, 4) if score is not None else None,
+        },
+        "available",
+    )
+
+
+def select_governed_philosophy(
+    context: str,
+    *,
+    stage: str,
+    verdict: str,
+    g_score: float,
+    failed_floors: list[str] | None = None,
+    session_id: str = "global",
+) -> PhilosophySelection:
+    """
+    Govern quote exposure without letting quotes influence the verdict.
+
+    AGI  -> 33 deterministic constitutional anchors
+    ASI  -> 99 semantic/vector wisdom when available
+    APEX -> choose deterministic, hybrid, or semantic emphasis from G*, stage, verdict
+    """
+    failed_floors = failed_floors or []
+    agi_quote = get_philosophical_anchor(stage, g_score, failed_floors, session_id=session_id)
+    semantic_quote, semantic_backend = get_semantic_wisdom(
+        context,
+        stage=stage,
+        g_score=g_score,
+        failed_floors=failed_floors,
+        verdict=verdict,
+    )
+
+    stage_num = _stage_number(stage)
+    role = "seal" if stage_num >= 999 else "anchor" if stage_num <= 111 else "support"
+
+    hard_governance = (
+        bool(failed_floors) or verdict in {"VOID", "HOLD", "HOLD_888"} or g_score < 0.5
+    )
+    if stage_num in {0, 999} or hard_governance:
+        apex_mode = "deterministic_33"
+        semantic_quote = None
+    elif semantic_quote is None:
+        apex_mode = "deterministic_33"
+    elif g_score >= 0.8:
+        apex_mode = "semantic_99"
+    else:
+        apex_mode = "hybrid"
+
+    return {
+        "apex_mode": apex_mode,
+        "role": role,
+        "stage": stage,
+        "g_score": round(g_score, 4),
+        "semantic_backend": semantic_backend,
+        "agi": _quote_block(agi_quote, source="deterministic_33"),
+        "asi": semantic_quote,
+    }
+
+
 __all__ = [
+    "PhilosophySelection",
     "Quote",
     "PHILOSOPHY_REGISTRY",
     "get_philosophical_anchor",
+    "get_semantic_wisdom",
     "get_wisdom_for_context",
+    "select_governed_philosophy",
 ]

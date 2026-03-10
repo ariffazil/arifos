@@ -1,11 +1,11 @@
-import json
 import inspect
+import json
 from pathlib import Path
 
 import pytest
 
-from arifosmcp.runtime.tools import metabolic_loop_router
 from arifosmcp.runtime.public_registry import PUBLIC_TOOL_SPECS
+from arifosmcp.runtime.tools import check_vital, metabolic_loop_router
 from core.governance_kernel import route_pipeline
 
 
@@ -58,3 +58,18 @@ async def test_auth_failure_payload_includes_identity_resolution_and_next_action
     assert identity_resolution["identity_claim_status"] == "UNVERIFIED_CLAIM"
     assert next_action["tool"] == "init_anchor_state"
     assert next_action["required"] is True
+    assert envelope.meta.motto == "🔥 IGNITE — DITEMPA, BUKAN DIBERI 💎"
+    assert envelope.philosophy is not None
+    assert envelope.philosophy["apex_mode"] == "deterministic_33"
+    assert envelope.philosophy["agi"]["source"] == "deterministic_33"
+
+
+@pytest.mark.asyncio
+async def test_check_vital_includes_motto_and_governed_philosophy():
+    envelope = await check_vital()
+
+    assert envelope.meta.motto == "🔥 IGNITE — DITEMPA, BUKAN DIBERI 💎"
+    assert envelope.philosophy is not None
+    assert envelope.philosophy["stage"] == "000_INIT"
+    assert envelope.philosophy["agi"]["source"] == "deterministic_33"
+    assert envelope.philosophy["asi"] is None
