@@ -155,13 +155,15 @@ async def metabolic_loop(
 ) -> dict[str, Any]:
     """Run the routed constitutional loop and return the canonical kernel envelope."""
     from arifosmcp.runtime.tools import _normalize_session_id, init_anchor_state, seal_vault_commit
+    from core.organs._0_init import coerce_stakes_class
     from core.governance_kernel import route_pipeline
 
     current_session_id = _normalize_session_id(session_id)
+    stakes_class = coerce_stakes_class(risk_tier).get("value", "C")
     init_res = await init_anchor_state(
         {"query": query},
         session_id=current_session_id,
-        governance={"actor_id": actor_id, "stakes_class": risk_tier},
+        governance={"actor_id": actor_id, "stakes_class": stakes_class},
     )
     auth_ctx = _extract_auth_context(init_res)
     auth_state = init_res.authority.auth_state
@@ -186,7 +188,7 @@ async def metabolic_loop(
             "tool": "arifOS.kernel",
             "session_id": current_session_id,
             "stage": Stage.ROUTER_444.value,
-            "verdict": Verdict.SABAR.value,
+            "verdict": Verdict.PARTIAL.value,
             "status": "DRY_RUN",
             "metrics": {},
             "trace": trace,

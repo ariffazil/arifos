@@ -38,6 +38,61 @@ TOOL_MAP = {
 }
 
 
+def _trace_replay_envelope(
+    session_id: str,
+    replay_status: str,
+    entries: list[dict[str, Any]],
+    message: str | None = None,
+    error: str | None = None,
+) -> dict[str, Any]:
+    ok = replay_status != "ERROR"
+    errors = []
+    if error:
+        errors.append(
+            {
+                "code": "TRACE_REPLAY_ERROR",
+                "message": error,
+                "stage": "999_VAULT",
+                "recoverable": True,
+            }
+        )
+
+    verdict_map = {
+        "SUCCESS": "SEAL",
+        "NO_DATA": "PARTIAL",
+        "ERROR": "VOID",
+    }
+    return {
+        "ok": ok,
+        "tool": "trace_replay",
+        "session_id": session_id,
+        "stage": "999_VAULT",
+        "verdict": verdict_map.get(replay_status, "SABAR"),
+        "status": "ERROR" if replay_status == "ERROR" else "SUCCESS",
+        "metrics": {},
+        "trace": {},
+        "authority": {
+            "actor_id": "anonymous",
+            "level": "anonymous",
+            "human_required": False,
+            "approval_scope": [],
+            "auth_state": "anonymous",
+        },
+        "payload": {
+            "replay_status": replay_status,
+            "trace_count": len(entries),
+            "message": message,
+            "entries": entries,
+        },
+        "errors": errors,
+        "meta": {
+            "schema_version": "1.0.0",
+            "debug": False,
+            "dry_run": False,
+        },
+    }
+
+
 async def call_kernel(
     tool_name: str,
     session_id: str,
@@ -91,15 +146,11 @@ async def call_kernel(
             max_entries = 20
 
         if not DEFAULT_VAULT_PATH.exists():
-            return wrap_tool_output(
-                canonical_name,
-                {
-                    "status": "NO_DATA",
-                    "session_id": session_id,
-                    "trace_count": 0,
-                    "message": "No vault ledger found for replay.",
-                    "entries": [],
-                },
+            return _trace_replay_envelope(
+                session_id=session_id,
+                replay_status="NO_DATA",
+                entries=[],
+                message="No vault ledger found for replay.",
             )
 
         replay_entries: list[dict[str, Any]] = []
@@ -132,26 +183,19 @@ async def call_kernel(
                     )
         except OSError as exc:
             logger.warning("trace_replay failed reading vault: %s", exc)
-            return wrap_tool_output(
-                canonical_name,
-                {
-                    "status": "ERROR",
-                    "session_id": session_id,
-                    "trace_count": 0,
-                    "message": f"Vault read failed: {exc}",
-                    "entries": [],
-                },
+            return _trace_replay_envelope(
+                session_id=session_id,
+                replay_status="ERROR",
+                entries=[],
+                message=f"Vault read failed: {exc}",
+                error=str(exc),
             )
 
         replay_entries = replay_entries[-max_entries:]
-        return wrap_tool_output(
-            canonical_name,
-            {
-                "status": "SUCCESS",
-                "session_id": session_id,
-                "trace_count": len(replay_entries),
-                "entries": replay_entries,
-            },
+        return _trace_replay_envelope(
+            session_id=session_id,
+            replay_status="SUCCESS",
+            entries=replay_entries,
         )
 
     # 2. Kernel Execution Logic
