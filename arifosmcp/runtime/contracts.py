@@ -183,6 +183,87 @@ TOOL_INPUT_CONTRACTS: dict[str, dict[str, str]] = {
     "metabolic_loop": {"query": "str"},
 }
 
+# ═══════════════════════════════════════════════════════════════════════════════
+# TWO-LAYER IDENTITY ENVELOPE (F9/F10 compliant)
+#
+# Every tool call envelope must carry two identity layers, auto-populated by
+# the MCP server:
+#   1. auth_context  — Human authority layer (never AI)
+#   2. caller_context — AI execution identity layer (instrument, not sovereign)
+#
+# The LLM may provide a `requested_persona` hint (advisory only); the server
+# governs the final caller_context.persona_id.
+# ═══════════════════════════════════════════════════════════════════════════════
+
+#: JSON Schema for the human authority layer.
+AUTH_CONTEXT_SCHEMA: dict[str, Any] = {
+    "type": "object",
+    "description": "Human authority layer. Populated by MCP server. Never the AI model.",
+    "properties": {
+        "actor_id": {
+            "type": "string",
+            "description": "Human or org identity (e.g. 'arif', 'petronas_ciso').",
+        },
+        "authority_level": {
+            "type": "string",
+            "enum": ["viewer", "editor", "judge", "admin", "root"],
+            "description": "Permission or approval scope.",
+        },
+        "continuity": {
+            "type": "string",
+            "enum": ["session", "thread", "case", "none"],
+            "description": "Continuity anchor for audit/logging.",
+        },
+    },
+    "required": ["actor_id", "authority_level"],
+}
+
+#: JSON Schema for the AI runtime identity layer.
+CALLER_CONTEXT_SCHEMA: dict[str, Any] = {
+    "type": "object",
+    "description": (
+        "AI execution identity layer. Instrument only — never inherits human sovereignty (F9/F10). "
+        "Populated by the MCP server from transport metadata. The LLM may supply a "
+        "`requested_persona` hint but the server governs the final persona_id."
+    ),
+    "properties": {
+        "agent_id": {
+            "type": "string",
+            "description": "Stable runtime instance ID (e.g. 'gpt-runtime-01').",
+        },
+        "model_id": {
+            "type": "string",
+            "description": "Model/version string (e.g. 'claude-3-5-sonnet').",
+        },
+        "persona_id": {
+            "type": "string",
+            "enum": ["architect", "engineer", "auditor", "validator"],
+            "description": (
+                "Governed operational persona. Server-assigned; LLM hint via "
+                "`requested_persona` field is advisory only."
+            ),
+        },
+        "runtime_role": {
+            "type": "string",
+            "enum": ["assistant", "router", "tool_broker", "evaluator"],
+            "description": "Operational role for this call.",
+        },
+        "toolchain_role": {
+            "type": "string",
+            "enum": ["orchestrator", "leaf", "subagent"],
+            "description": "Position in multi-agent/tool chain.",
+        },
+        "extra": {
+            "type": "object",
+            "description": "Forward-compatible extension slot for future fields.",
+        },
+    },
+    "required": ["persona_id", "runtime_role"],
+}
+
+#: Valid persona hints that the LLM client may suggest.
+VALID_PERSONA_HINTS: frozenset[str] = frozenset({"architect", "engineer", "auditor", "validator"})
+
 
 def require_session(tool: str, session_id: str | None) -> dict[str, Any] | None:
     if tool in REQUIRES_SESSION and (not session_id or not str(session_id).strip()):
