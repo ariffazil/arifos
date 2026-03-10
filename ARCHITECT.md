@@ -235,7 +235,7 @@ Primary tools:
 
 ```
 init_anchor_state
-arifOS.kernel (legacy: metabolic_loop_router)
+arifOS_kernel (legacy aliases: arifOS.kernel, metabolic_loop_router)
 check_vital
 ```
 
@@ -268,7 +268,7 @@ aclip_config_flags
 For reliability, external agents should primarily use:
 
 ```
-arifOS.kernel
+arifOS_kernel
 check_vital
 ```
 
@@ -345,7 +345,7 @@ debug = true
 ```
 User query
    ↓
-arifOS.kernel (legacy: metabolic_loop_router)
+arifOS_kernel (legacy aliases: arifOS.kernel, metabolic_loop_router)
    ↓
 INIT session
    ↓

@@ -139,7 +139,7 @@ The kernel exposes these primary interfaces, registry-driven from [`arifosmcp/ru
 
 | Tool | Entrypoint | Focus | Description |
 | :--- | :--- | :--- | :--- |
-| **`arifOS.kernel`** | [`public_registry.py`](./arifosmcp/runtime/public_registry.py) | **Reasoning** | **Metabolic Orchestrator**: Triggers the dynamic Stage 444 router (000→999). |
+| **`arifOS_kernel`** | [`public_registry.py`](./arifosmcp/runtime/public_registry.py) | **Reasoning** | **Metabolic Orchestrator**: Triggers the dynamic Stage 444 router (000→999). Legacy aliases: `arifOS.kernel`, `metabolic_loop_router`. |
 | **`search_reality`** | [`arifosmcp/transport/`](./arifosmcp/transport/) | **Grounding** | Multi-source reality check (Brave/Perplexity/Jina). |
 | **`ingest_evidence`** | [`arifosmcp/intelligence/`](./arifosmcp/intelligence/) | **Evidence** | Ingest docs/URLs into the constitutional context. |
 | **`session_memory`** | [`arifosmcp/data/`](./arifosmcp/data/) | **Continuity** | Vector recall of previous reasoning traces. |

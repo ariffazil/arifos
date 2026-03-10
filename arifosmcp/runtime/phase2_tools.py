@@ -2,7 +2,7 @@
 Phase 2 external capability tools for the arifOS runtime.
 
 These tools remain enabled for compatibility, but they are intentionally kept
-outside the public arifOS.kernel surface. They are the integration seam
+outside the public arifOS_kernel surface. They are the integration seam
 for stricter future governance at Stages 777/888.
 """
 
@@ -48,7 +48,7 @@ def _register_local_phase2_tools(mcp: FastMCP, profile: str = "full") -> None:
         mcp.tool(
             description=(
                 "Use this only for legacy compatibility. For ChatGPT and remote MCP clients, "
-                "prefer `arifOS.kernel` from the core runtime tool surface."
+                "prefer `arifOS_kernel` from the core runtime tool surface."
             ),
         )(metabolic_loop)
 

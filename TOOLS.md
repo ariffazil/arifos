@@ -1,10 +1,10 @@
 # arifOS Tool Surface (Layered)
 
-Public naming is semantic-first. The authoritative external execution name is `arifOS.kernel`.
+Public naming is semantic-first. The authoritative external execution name is `arifOS_kernel`.
 
 ## Public Interface Tools (7)
 
-1. `arifOS.kernel` - core constitutional intelligence engine and execution authority.
+1. `arifOS_kernel` - core constitutional intelligence engine and execution authority.
 2. `search_reality` - external fact discovery and grounding.
 3. `ingest_evidence` - intake of URLs/files/evidence objects.
 4. `session_memory` - session context and reasoning artifact memory.
@@ -13,15 +13,16 @@ Public naming is semantic-first. The authoritative external execution name is `a
 7. `open_apex_dashboard` - observability and sovereign monitoring surface.
 
 Legacy compatibility:
-- legacy internal/public alias: `metabolic_loop_router`
-- canonical semantic name: `arifOS.kernel`
+- legacy internal alias: `metabolic_loop_router`
+- legacy public alias: `arifOS.kernel`
+- canonical semantic name: `arifOS_kernel`
 
 ## Internal Execution Stack (10)
 
 1. init_anchor_state (000)
 2. integrate_analyze_reflect (111)
 3. reason_mind_synthesis (333)
-4. metabolic_loop_router (444, legacy internal alias for arifOS.kernel)
+4. metabolic_loop_router (444, legacy internal alias for `arifOS_kernel`)
 5. vector_memory_store (555)
 6. assess_heart_impact (666A)
 7. critique_thought_audit (666B)
@@ -31,7 +32,7 @@ Legacy compatibility:
 
 ## Embedded Reality Stage
 
-Inside arifOS.kernel (legacy internal name: metabolic_loop_router), arifOS applies an explicit 222_REALITY verification stage between 333_MIND and 666_HEART.
+Inside `arifOS_kernel` (legacy internal name: `metabolic_loop_router`), arifOS applies an explicit `222_REALITY` verification stage between `333_MIND` and `666_HEART`.
 
 - It is risk-tier aware (ARIFOS_REALITY_REQUIRED_TIERS, default A,B).
 - It feeds grounding status/score into judge synthesis.
