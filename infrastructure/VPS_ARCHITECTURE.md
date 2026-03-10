@@ -1,7 +1,33 @@
 # VPS Architecture Map - arifOS
 
-**Generated:** 2026.03.10
-**Purpose:** Document current VPS state, identify chaos, propose clean architecture
+**Generated:** 2026.03.10-SEAL-HARDENED  
+**Purpose:** Document current VPS state, identify chaos, propose clean architecture  
+**Status:** ✅ PRODUCTION-HARDENED  
+**Git Commit:** `099cf673` - harden(docker): production-hardened compose
+
+---
+
+## 🛡️ HARDENING SUMMARY (NEW)
+
+| Security Control | Status | Details |
+|-----------------|--------|---------|
+| NoNewPrivileges | ✅ All Services | `security_opt: no-new-privileges:true` |
+| Non-root User | ✅ arifosmcp | User `arifos:1000` |
+| Resource Limits | ✅ All Services | CPU & Memory limits set |
+| Health Checks | ✅ All Services | Docker + Traefik integrated |
+| Read-only FS | ✅ Traefik | `read_only: true` with tmpfs |
+| Network Isolation | ✅ External | Shared `arifos_arifos_trinity` |
+
+### Resource Allocation
+
+| Service | CPU Limit | Memory Limit | CPU Reserve | Memory Reserve |
+|---------|-----------|--------------|-------------|----------------|
+| arifosmcp | 2.0 | 3GB | 0.5 | 1GB |
+| openclaw | 2.0 | 2GB | 0.5 | 512MB |
+| ollama | 2.0 | 2GB | 0.5 | 512MB |
+| postgres | 1.0 | 1GB | 0.25 | 256MB |
+| traefik | 0.5 | 128MB | 0.1 | 64MB |
+| redis | 0.25 | 128MB | 0.1 | 64MB |
 
 ---
 
@@ -11,7 +37,7 @@
 |----------|------|---------|--------|
 | `/var/lib/docker` | 20G | Docker containers & volumes | Active |
 | `/home/ariffazil` | 12G | User home | CHAOS |
-| `/srv/arifosmcp` | 8.0G | Main codebase | Active |
+| `/srv/arifosmcp` | 8.0G | Main codebase | ✅ Active (HARDENED) |
 | `/opt/arifos` | 5.4G | Data, git, APEX-THEORY | Mixed |
 | `/srv/ariffazil` | 7.4M | Another repo | Redundant? |
 | `/home/ai` | 136K | AI workspace | Clean |
@@ -186,7 +212,7 @@
 
 ```
 /srv/
-├── arifosmcp/              ← MAIN CODEBASE (8.0G) ✅
+├── arifosmcp/              ← MAIN CODEBASE (8.0G) ✅ HARDENED
 │   │
 │   ├── core/               ← KERNEL (2.0M)
 │   │   ├── governance_kernel.py   ← Runtime state
@@ -238,6 +264,7 @@
 │   │   └── core/
 │   │
 │   ├── infrastructure/     ← Deployment (328K)
+│   │   ├── VPS_ARCHITECTURE.md    ← THIS FILE
 │   │   ├── config_root/           ← Agent configs
 │   │   │   ├── server.json
 │   │   │   ├── opencode.json
@@ -260,8 +287,9 @@
 │   ├── .env.example        ← Template
 │   ├── .env.docker         ← Docker secrets
 │   ├── .env.docker.example ← Docker template
-│   ├── docker-compose.yml  ← Docker compose
+│   ├── docker-compose.yml  ← Docker compose (HARDENED)
 │   ├── Dockerfile          ← Docker image
+│   ├── Dockerfile.optimized← Optimized Dockerfile
 │   ├── pyproject.toml      ← Python project
 │   ├── requirements.txt    ← Dependencies
 │   ├── Makefile            ← Make commands
@@ -302,10 +330,18 @@
     │   ├── grafana/        ← Grafana data
     │   ├── n8n/            ← n8n data
     │   ├── ollama/         ← Ollama models
+    │   │   └── models/
+    │   │       ├── bge-m3:latest (1.2GB)
+    │   │       ├── nomic-embed-text:latest (274MB)
+    │   │       └── qwen2.5:3b (1.9GB)
     │   ├── openclaw/       ← OpenClaw data
     │   ├── postgres/       ← Postgres data
     │   ├── prometheus/     ← Metrics
     │   ├── qdrant/         ← Vector DB
+    │   │   └── collections/
+    │   │       ├── arifos_constitutional/
+    │   │       ├── arifos_wisdom_quotes/
+    │   │       └── vault_precedent_memory/
     │   └── redis/          ← Redis data
     │
     ├── git/                ← Git repos
@@ -327,33 +363,95 @@
 /var/lib/docker/
 ├── containers/             ← Running containers
 ├── volumes/                ← Persistent volumes
-│   ├── arifos_postgres_data/   ← PostgreSQL data
-│   ├── arifos_redis_data/      ← Redis data
-│   ├── arifos_openclaw_config/ ← OpenClaw config
-│   └── openclaw_gateway/       ← OpenClaw gateway
+│   ├── arifosmcp_telemetry/      ← arifosmcp telemetry
+│   ├── arifosmcp_vault/          ← arifosmcp VAULT999
+│   ├── arifosmcp_memory/         ← arifosmcp memory
+│   ├── arifos_postgres_data/     ← PostgreSQL data
+│   ├── arifos_redis_data/        ← Redis data
+│   ├── arifos_openclaw_config/   ← OpenClaw config
+│   └── openclaw_gateway/         ← OpenClaw gateway
 ├── image/                  ← Docker images
+│   ├── arifos/arifosmcp:latest (6.35GB) ✅
+│   └── ghcr.io/openclaw/openclaw:latest
 ├── buildkit/               ← Build cache
 ├── network/                ← Docker networks
+│   └── arifos_arifos_trinity     ← Shared network
 ├── plugins/                ← Docker plugins
 └── runtimes/               ← Container runtimes
 ```
 
 ---
 
-## Running Docker Containers
+## Running Docker Containers (HARDENED)
 
-| Container | Image | Purpose | Status |
-|-----------|-------|---------|--------|
-| `openclaw_gateway` | ghcr.io/openclaw/openclaw | Sandboxed execution | Healthy |
-| `arifosmcp_server` | local | MCP server | RESTARTING (broken!) |
-| `arifos_postgres` | postgres:16-alpine | Database | Healthy |
-| `arifos_redis` | redis:7-alpine | Cache | Healthy |
-| `qdrant_memory` | qdrant/qdrant | Vector memory | Running |
-| `headless_browser` | ghcr.io/browserless/chromium | Browser | Healthy |
-| `arifos_n8n` | n8nio/n8n | Workflows | Running |
-| `traefik_router` | traefik:v3.6.9 | Reverse proxy | Running |
-| `ollama_engine` | ollama/ollama | Local LLM | Running |
-| `agent_zero_reasoner` | agent0ai/agent-zero | Agent Zero | Running |
+| Container | Image | Purpose | Status | Health |
+|-----------|-------|---------|--------|--------|
+| `arifosmcp_server` | arifos/arifosmcp:latest | MCP server | ✅ **HEALTHY** | 8 tools, hardened |
+| `openclaw_gateway` | ghcr.io/openclaw/openclaw | Sandboxed execution | ✅ Healthy | Memory search enabled |
+| `arifos_postgres` | postgres:16-alpine | Database | ✅ Healthy | 5432 bound |
+| `arifos_redis` | redis:7-alpine | Cache | ✅ Healthy | Maxmemory 96MB |
+| `qdrant_memory` | qdrant/qdrant | Vector memory | Running | 3 collections |
+| `headless_browser` | ghcr.io/browserless/chromium | Browser | ✅ Healthy | Preboot enabled |
+| `arifos_n8n` | n8nio/n8n | Workflows | Running | 5678/tcp |
+| `traefik_router` | traefik:v3.6.9 | Reverse proxy | Running | 80/443 bound |
+| `ollama_engine` | ollama/ollama | Local LLM | Running | bge-m3 loaded |
+| `agent_zero_reasoner` | agent0ai/agent-zero | Agent Zero | Running | 80/tcp |
+| `arifos_prometheus` | prom/prometheus | Metrics | Running | 9090/tcp |
+
+### Container Hardening Details
+
+```yaml
+arifosmcp_server:
+  User: arifos (1000)
+  NoNewPrivileges: true
+  CPU Limit: 2.0
+  Memory Limit: 3GB
+  Healthcheck: 20s interval, 5s timeout
+  Volumes: telemetry, vault, memory (persistent)
+  Network: arifos_arifos_trinity (external)
+
+openclaw_gateway:
+  Memory Limit: 2GB
+  Model: kimi/kimi-k2.5 (default)
+  Embeddings: ollama/bge-m3:latest
+  
+ollama_engine:
+  Models: bge-m3:latest, nomic-embed-text:latest, qwen2.5:3b
+  Memory Limit: 2GB
+  Keep Alive: 24h
+```
+
+---
+
+## Network Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                     arifos_arifos_trinity                        │
+│                      (10.0.10.0/24)                              │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐         │
+│  │   traefik    │  │  openclaw    │  │  arifosmcp   │         │
+│  │   :80/:443   │  │   :18789     │  │   :8080      │         │
+│  └──────┬───────┘  └──────┬───────┘  └──────┬───────┘         │
+│         │                 │                 │                  │
+│         └─────────────────┴─────────────────┘                  │
+│                           │                                     │
+│         ┌─────────────────┼─────────────────┐                  │
+│         ↓                 ↓                 ↓                  │
+│  ┌──────────┐    ┌──────────┐    ┌──────────┐                 │
+│  │ postgres │    │  redis   │    │  qdrant  │                 │
+│  │  :5432   │    │  :6379   │    │  :6333   │                 │
+│  └──────────┘    └──────────┘    └──────────┘                 │
+│                                                                 │
+│  ┌──────────┐    ┌──────────┐    ┌──────────┐                 │
+│  │  ollama  │    │ headless │    │   n8n    │                 │
+│  │  :11434  │    │  :3000   │    │  :5678   │                 │
+│  └──────────┘    └──────────┘    └──────────┘                 │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
 
 ---
 
@@ -361,8 +459,8 @@
 
 | Location | Purpose | Status |
 |----------|---------|--------|
-| `/srv/arifosmcp/.env` | Main secrets | Active |
-| `/srv/arifosmcp/.env.docker` | Docker secrets | Active |
+| `/srv/arifosmcp/.env` | Main secrets | ✅ Active |
+| `/srv/arifosmcp/.env.docker` | Docker secrets | ✅ Active |
 | `/srv/arifosmcp/infrastructure/.env.*` | Templates | OK |
 | `/home/ariffazil/arifosmcp/.env.*` | Duplicate templates | Redundant |
 | `/home/ariffazil/xxx/.env` | Old env | Should delete |
@@ -499,19 +597,32 @@ rm -rf /home/ariffazil/.npm/_cacache
 
 ## Network Ports
 
-| Port | Service | Container |
-|------|---------|-----------|
-| 80 | HTTP | traefik_router |
-| 443 | HTTPS | traefik_router |
-| 5432 | PostgreSQL | arifos_postgres |
-| 6379 | Redis | arifos_redis |
-| 18789 | OpenClaw | openclaw_gateway |
+| Port | Service | Container | External |
+|------|---------|-----------|----------|
+| 80 | HTTP | traefik_router | ✅ Yes |
+| 443 | HTTPS | traefik_router | ✅ Yes |
+| 5432 | PostgreSQL | arifos_postgres | ⚠️ Localhost only |
+| 6379 | Redis | arifos_redis | ⚠️ Localhost only |
+| 18789 | OpenClaw | openclaw_gateway | ⚠️ Localhost only |
+| 8080 | arifOS MCP | arifosmcp_server | ⚠️ Localhost only |
+| 6333 | Qdrant | qdrant_memory | ❌ Internal only |
+| 11434 | Ollama | ollama_engine | ❌ Internal only |
+
+---
+
+## Deployment History
+
+| Date | Commit | Changes |
+|------|--------|---------|
+| 2026-03-10 | `099cf673` | Hardened docker-compose with security opts, resource limits, health checks |
+| 2026-03-10 | `41be6502` | New enforcement routing for risk detection |
+| 2026-03-10 | `de3f0dfd` | Comprehensive documentation, tool registration refactor |
 
 ---
 
 ## Next Steps
 
-1. [ ] Fix `arifosmcp_server` container (currently restarting)
+1. [x] Fix `arifosmcp_server` container - ✅ **COMPLETED (HEALTHY)**
 2. [ ] Execute cleanup commands
 3. [ ] Review `/srv/ariffazil/` - keep or delete?
 4. [ ] Consolidate `.env` files
@@ -519,6 +630,7 @@ rm -rf /home/ariffazil/.npm/_cacache
 
 ---
 
-**Version:** 2026.03.10-SEAL
-**Author:** arifOS Agent
-**Status:** ACTIVE
+**Version:** 2026.03.10-SEAL-HARDENED  
+**Git Commit:** `099cf673`  
+**Author:** arifOS Agent  
+**Status:** ✅ PRODUCTION-HARDENED & OPERATIONAL
