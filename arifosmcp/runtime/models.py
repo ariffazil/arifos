@@ -80,6 +80,60 @@ class CanonicalMeta(BaseModel):
     dry_run: bool = False
 
 
+class PersonaId(str, Enum):
+    """Governed AI operational personas. F9-compliant: honest naming, no sovereign claim."""
+
+    ARCHITECT = "architect"
+    ENGINEER = "engineer"
+    AUDITOR = "auditor"
+    VALIDATOR = "validator"
+
+
+class RuntimeRole(str, Enum):
+    """AI runtime role within the current call."""
+
+    ASSISTANT = "assistant"
+    ROUTER = "router"
+    TOOL_BROKER = "tool_broker"
+    EVALUATOR = "evaluator"
+
+
+class ToolchainRole(str, Enum):
+    """Position of the AI agent in a multi-agent toolchain."""
+
+    ORCHESTRATOR = "orchestrator"
+    LEAF = "leaf"
+    SUBAGENT = "subagent"
+
+
+class CallerContext(BaseModel):
+    """
+    AI execution identity layer — instrument only, never sovereign (F9/F10).
+
+    Populated by the MCP server from transport metadata. The LLM may submit a
+    ``requested_persona`` hint; the server governs the final ``persona_id``.
+    """
+
+    agent_id: str | None = Field(default=None, description="Stable runtime instance ID.")
+    model_id: str | None = Field(default=None, description="Model/version string.")
+    persona_id: PersonaId = Field(
+        default=PersonaId.ENGINEER,
+        description="Governed operational persona. Server-assigned; LLM hint only.",
+    )
+    runtime_role: RuntimeRole = Field(
+        default=RuntimeRole.ASSISTANT,
+        description="Operational role for this call.",
+    )
+    toolchain_role: ToolchainRole = Field(
+        default=ToolchainRole.LEAF,
+        description="Position in multi-agent/tool chain.",
+    )
+    # Forward-compatible extension slot
+    extra: dict[str, Any] = Field(default_factory=dict)
+
+    model_config = ConfigDict(extra="allow")
+
+
 class RuntimeEnvelope(BaseModel):
     ok: bool = True
     tool: str
@@ -94,6 +148,10 @@ class RuntimeEnvelope(BaseModel):
     errors: list[CanonicalError] = Field(default_factory=list)
     meta: CanonicalMeta = Field(default_factory=CanonicalMeta)
     auth_context: dict[str, Any] | None = Field(default=None)
+    caller_context: CallerContext | None = Field(
+        default=None,
+        description="AI execution identity. Auto-populated by MCP server.",
+    )
 
     # Optional Debug layer (only if meta.debug is True)
     debug: dict[str, Any] | None = None

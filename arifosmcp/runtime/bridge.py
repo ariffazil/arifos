@@ -17,6 +17,7 @@ from arifosmcp.runtime.contracts import REQUIRES_SESSION
 from core.enforcement.auth_continuity import mint_auth_context, verify_auth_context_cached
 from core.enforcement.governance_engine import wrap_tool_output
 from core.organs import agi, apex, asi, init, vault
+
 from .models import Verdict
 
 logger = logging.getLogger(__name__)
@@ -321,6 +322,20 @@ async def call_kernel(
         elif canonical_name == "metabolic_loop":
             from arifosmcp.runtime.orchestrator import metabolic_loop
 
+            # Extract caller_context from payload to pass through
+            caller_ctx_data = payload.get("caller_context")
+            caller_ctx_obj = None
+            if caller_ctx_data:
+                from pydantic import ValidationError
+
+                from arifosmcp.runtime.models import CallerContext as _CallerContext
+
+                try:
+                    caller_ctx_obj = _CallerContext.model_validate(caller_ctx_data)
+                except ValidationError as exc:
+                    logger.warning("caller_context deserialization failed: %s", exc)
+                    caller_ctx_obj = None
+
             result = await metabolic_loop(
                 query=query_input,
                 risk_tier=payload.get("risk_tier", "medium"),
@@ -328,6 +343,7 @@ async def call_kernel(
                 session_id=session_id,
                 allow_execution=bool(payload.get("allow_execution", False)),
                 dry_run=bool(payload.get("dry_run", False)),
+                caller_context=caller_ctx_obj,
             )
 
             canonical_envelope_keys = {
@@ -397,6 +413,11 @@ async def call_kernel(
                 envelope["auth_context"]["math"] = auth_ctx["math"]
         elif canonical_name == "anchor_session" and "auth_context" in result:
             envelope["auth_context"] = result["auth_context"]
+
+        # Propagate caller_context from payload into envelope if not already present
+        caller_ctx_in_payload = payload.get("caller_context")
+        if caller_ctx_in_payload and "caller_context" not in envelope:
+            envelope["caller_context"] = caller_ctx_in_payload
 
         return envelope
 

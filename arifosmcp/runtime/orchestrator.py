@@ -11,7 +11,7 @@ import asyncio
 import os
 from typing import Any
 
-from arifosmcp.runtime.models import RuntimeEnvelope, Stage, Verdict
+from arifosmcp.runtime.models import CallerContext, RuntimeEnvelope, Stage, Verdict
 
 
 def _extract_auth_context(
@@ -27,6 +27,27 @@ def _extract_auth_context(
     return dict(fallback or {})
 
 
+def _extract_caller_context(
+    envelope: RuntimeEnvelope | None, fallback: CallerContext | None = None
+) -> CallerContext | None:
+    """Carry the caller_context forward through the metabolic loop."""
+    if envelope is None:
+        return fallback
+
+    ctx = getattr(envelope, "caller_context", None)
+    if isinstance(ctx, CallerContext):
+        return ctx
+
+    return fallback
+
+
+def _dump_caller_context(caller_ctx: CallerContext | None) -> dict[str, Any] | None:
+    """Serialize CallerContext for embedding in output dicts."""
+    if caller_ctx is None:
+        return None
+    return caller_ctx.model_dump(mode="json", exclude_none=True)
+
+
 async def run_stage(
     stage_id: str,
     query: str,
@@ -35,6 +56,7 @@ async def run_stage(
     verdicts: list[Verdict],
     trace: dict[str, Any],
     reality_summary: dict[str, Any],
+    caller_ctx: CallerContext | None = None,
 ) -> RuntimeEnvelope:
     """Execute one routed stage for the metabolic loop."""
     from arifosmcp.runtime.tools import (
@@ -49,14 +71,18 @@ async def run_stage(
     )
 
     if stage_id == Stage.SENSE_111.value:
-        return await integrate_analyze_reflect(session_id=session_id, query=query, auth_context=auth_ctx)
+        return await integrate_analyze_reflect(
+            session_id=session_id, query=query, auth_context=auth_ctx, caller_context=caller_ctx
+        )
 
     if stage_id == Stage.REALITY_222.value:
         from arifosmcp.intelligence.tools.reality_grounding import reality_check
 
         reality_timeout = float(os.getenv("ARIFOS_REALITY_TIMEOUT_SECONDS", "15"))
         try:
-            reality_res = await asyncio.wait_for(reality_check(query=query), timeout=reality_timeout)
+            reality_res = await asyncio.wait_for(
+                reality_check(query=query), timeout=reality_timeout
+            )
             score = float(reality_res.get("score", 0.0))
             results_count = int(reality_res.get("results_count", 0))
             status = str(reality_res.get("status", "OK"))
@@ -80,10 +106,13 @@ async def run_stage(
             verdict=verdict,
             payload={"reality": dict(reality_summary)},
             auth_context=auth_ctx,
+            caller_context=caller_ctx,
         )
 
     if stage_id == Stage.MIND_333.value:
-        return await reason_mind_synthesis(session_id=session_id, query=query, auth_context=auth_ctx)
+        return await reason_mind_synthesis(
+            session_id=session_id, query=query, auth_context=auth_ctx, caller_context=caller_ctx
+        )
 
     if stage_id == Stage.MEMORY_555.value:
         return await session_memory(
@@ -91,20 +120,26 @@ async def run_stage(
             operation="search",
             auth_context=auth_ctx,
             content=query,
+            caller_context=caller_ctx,
         )
 
     if stage_id == Stage.HEART_666.value:
-        return await assess_heart_impact(session_id=session_id, scenario=query, auth_context=auth_ctx)
+        return await assess_heart_impact(
+            session_id=session_id, scenario=query, auth_context=auth_ctx, caller_context=caller_ctx
+        )
 
     if stage_id == Stage.CRITIQUE_666.value:
         return await critique_thought_audit(
             session_id=session_id,
             thought_id="current_thought",
             auth_context=auth_ctx,
+            caller_context=caller_ctx,
         )
 
     if stage_id == Stage.FORGE_777.value:
-        return await quantum_eureka_forge(session_id=session_id, intent=query, auth_context=auth_ctx)
+        return await quantum_eureka_forge(
+            session_id=session_id, intent=query, auth_context=auth_ctx, caller_context=caller_ctx
+        )
 
     if stage_id == Stage.JUDGE_888.value:
         candidate = Verdict.SEAL
@@ -124,6 +159,7 @@ async def run_stage(
                 f"reality_status={reality_summary.get('status', 'SKIPPED')} "
                 f"score={reality_summary.get('score', 0.0):.2f}"
             ),
+            caller_context=caller_ctx,
         )
 
     if stage_id == Stage.VAULT_999.value:
@@ -133,6 +169,7 @@ async def run_stage(
             verdict=last_verdict.value,
             auth_context=auth_ctx,
             telemetry={"trace": trace, "reality": reality_summary},
+            caller_context=caller_ctx,
         )
 
     return RuntimeEnvelope(
@@ -142,6 +179,7 @@ async def run_stage(
         verdict=Verdict.SABAR,
         payload={"warning": f"Unknown routed stage: {stage_id}"},
         auth_context=auth_ctx,
+        caller_context=caller_ctx,
     )
 
 
@@ -152,11 +190,12 @@ async def metabolic_loop(
     session_id: str | None = None,
     allow_execution: bool = False,
     dry_run: bool = False,
+    caller_context: CallerContext | None = None,
 ) -> dict[str, Any]:
     """Run the routed constitutional loop and return the canonical kernel envelope."""
     from arifosmcp.runtime.tools import _normalize_session_id, init_anchor_state, seal_vault_commit
-    from core.organs._0_init import coerce_stakes_class
     from core.governance_kernel import route_pipeline
+    from core.organs._0_init import coerce_stakes_class
 
     current_session_id = _normalize_session_id(session_id)
     stakes_class = coerce_stakes_class(risk_tier).get("value", "C")
@@ -164,8 +203,10 @@ async def metabolic_loop(
         {"query": query},
         session_id=current_session_id,
         governance={"actor_id": actor_id, "stakes_class": stakes_class},
+        caller_context=caller_context,
     )
     auth_ctx = _extract_auth_context(init_res)
+    caller_ctx = _extract_caller_context(init_res, caller_context)
     auth_state = init_res.authority.auth_state
     init_failed = init_res.verdict == Verdict.VOID
 
@@ -198,13 +239,13 @@ async def metabolic_loop(
             "meta": {"schema_version": "1.0.0", "debug": False, "dry_run": True},
             "final_verdict": "DRY_RUN",
             "auth_state": auth_state,
+            "caller_context": _dump_caller_context(caller_ctx),
             "remediation_notes": ["Constitutional dry-run completed."],
         }
 
     verdicts: list[Verdict] = [init_res.verdict]
     policy_res: RuntimeEnvelope = init_res
     policy_verdict = init_res.verdict
-    last_res: RuntimeEnvelope = init_res
 
     for stage_id in plan:
         res = await run_stage(
@@ -215,18 +256,18 @@ async def metabolic_loop(
             verdicts=verdicts,
             trace=trace,
             reality_summary=reality_summary,
+            caller_ctx=caller_ctx,
         )
-        last_res = res
         verdict = res.verdict
 
         if stage_id < Stage.JUDGE_888.value and verdict == Verdict.VOID:
             verdict = Verdict.SABAR
             res = res.model_copy(update={"verdict": verdict})
-            last_res = res
 
         trace[stage_id] = verdict.value
         verdicts.append(verdict)
         auth_ctx = _extract_auth_context(res, auth_ctx)
+        caller_ctx = _extract_caller_context(res, caller_ctx)
 
         if stage_id != Stage.VAULT_999.value:
             policy_res = res
@@ -242,10 +283,11 @@ async def metabolic_loop(
                 verdict=policy_verdict.value,
                 auth_context=auth_ctx,
                 telemetry={"trace": trace, "reality": reality_summary},
+                caller_context=caller_ctx,
             )
             trace[Stage.VAULT_999.value] = vault_res.verdict.value
-            last_res = vault_res
             auth_ctx = _extract_auth_context(vault_res, auth_ctx)
+            caller_ctx = _extract_caller_context(vault_res, caller_ctx)
             break
 
     out = policy_res.model_dump(mode="json")
@@ -262,6 +304,7 @@ async def metabolic_loop(
             "auth_state": auth_state,
             "grounding": reality_summary,
             "vault_seal": trace.get(Stage.VAULT_999.value) == Verdict.SEAL.value,
+            "caller_context": _dump_caller_context(caller_ctx),
         }
     )
     return out

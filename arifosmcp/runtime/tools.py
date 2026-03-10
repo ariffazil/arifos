@@ -6,11 +6,12 @@ from typing import Any
 from fastmcp import Context, FastMCP
 from fastmcp.tools import ToolResult
 
-from .bridge import call_kernel
-from arifosmcp.runtime.models import RuntimeEnvelope, Stage
+from arifosmcp.runtime.models import CallerContext, RuntimeEnvelope, Stage
 from arifosmcp.runtime.resources import build_open_apex_dashboard_result
 from arifosmcp.runtime.sessions import _resolve_session_id, set_active_session
 from core.state.session_manager import session_manager
+
+from .bridge import call_kernel
 
 
 def _normalize_session_id(session_id: str | None) -> str:
@@ -43,6 +44,7 @@ async def _wrap_call(
     session_id: str,
     payload: dict[str, Any],
     ctx: Context | None = None,
+    caller_context: CallerContext | None = None,
 ) -> RuntimeEnvelope:
     """Call the bridge and normalize the result into a RuntimeEnvelope."""
 
@@ -51,6 +53,10 @@ async def _wrap_call(
     payload["session_id"] = session_id
     payload["tool"] = tool_name
     payload["stage"] = stage.value
+
+    # Propagate caller_context into payload for bridge/kernel tracing
+    if caller_context is not None:
+        payload["caller_context"] = caller_context.model_dump(mode="json", exclude_none=True)
 
     try:
         # call_kernel now returns a dictionary matching the Canonical Schema
@@ -66,6 +72,10 @@ async def _wrap_call(
                 "debug": bool(payload.get("debug")),
                 "dry_run": bool(payload.get("dry_run")),
             }
+
+        # Carry caller_context into envelope from payload or argument
+        if "caller_context" not in kernel_res and caller_context is not None:
+            kernel_res["caller_context"] = caller_context.model_dump(mode="json", exclude_none=True)
 
         # Initialize the envelope model (v1.0.0 Schema)
         envelope = RuntimeEnvelope(**kernel_res)
@@ -91,6 +101,7 @@ async def _wrap_call(
             ],
             meta=CanonicalMeta(debug=bool(payload.get("debug"))),
             auth_context=payload.get("auth_context"),
+            caller_context=caller_context,
         )
 
     if ctx:
@@ -104,12 +115,42 @@ async def _wrap_call(
     return envelope
 
 
+# ─── Persona resolution helper ──────────────────────────────────────────────
+
+_PERSONA_WHITELIST = {"architect", "engineer", "auditor", "validator"}
+
+
+def _resolve_caller_context(
+    caller_context: CallerContext | None,
+    requested_persona: str | None,
+) -> CallerContext:
+    """
+    Resolve the final CallerContext for a tool call.
+
+    The LLM may suggest a persona via ``requested_persona`` (advisory hint).
+    The server governs the final ``persona_id``; unknown hints are silently
+    ignored and fall back to the default (engineer).
+
+    F9 compliance: AI declares execution role, never inherits human sovereignty.
+    """
+    from arifosmcp.runtime.models import PersonaId
+
+    base = caller_context or CallerContext()
+
+    if requested_persona and requested_persona.lower() in _PERSONA_WHITELIST:
+        governed_persona = PersonaId(requested_persona.lower())
+        base = base.model_copy(update={"persona_id": governed_persona})
+
+    return base
+
+
 async def init_anchor_state(
     intent: dict[str, Any],
     math: dict[str, Any] | None = None,
     governance: dict[str, Any] | None = None,
     auth_token: str | None = None,
     session_id: str = "global",
+    caller_context: CallerContext | None = None,
     ctx: Context | None = None,
 ) -> RuntimeEnvelope:
     """000 INIT - Session anchor. Bootstrap a governed session and mint continuity context."""
@@ -119,7 +160,9 @@ async def init_anchor_state(
         "governance": governance,
         "auth_token": auth_token,
     }
-    return await _wrap_call("init_anchor_state", Stage.INIT_000, session_id, payload, ctx)
+    return await _wrap_call(
+        "init_anchor_state", Stage.INIT_000, session_id, payload, ctx, caller_context
+    )
 
 
 async def integrate_analyze_reflect(
@@ -127,6 +170,7 @@ async def integrate_analyze_reflect(
     query: str,
     auth_context: dict[str, Any],
     max_subquestions: int = 3,
+    caller_context: CallerContext | None = None,
     ctx: Context | None = None,
 ) -> RuntimeEnvelope:
     """111 FRAME - Integrate, analyze, reflect. Frame the problem before deep reasoning."""
@@ -135,7 +179,9 @@ async def integrate_analyze_reflect(
         "auth_context": auth_context,
         "max_subquestions": max_subquestions,
     }
-    return await _wrap_call("integrate_analyze_reflect", Stage.SENSE_111, session_id, payload, ctx)
+    return await _wrap_call(
+        "integrate_analyze_reflect", Stage.SENSE_111, session_id, payload, ctx, caller_context
+    )
 
 
 async def reason_mind_synthesis(
@@ -144,6 +190,7 @@ async def reason_mind_synthesis(
     auth_context: dict[str, Any],
     reason_mode: str = "default",
     max_steps: int = 7,
+    caller_context: CallerContext | None = None,
     ctx: Context | None = None,
 ) -> RuntimeEnvelope:
     """333 REASON - Mind synthesis. Run multi-step governed reasoning for the active session."""
@@ -153,7 +200,9 @@ async def reason_mind_synthesis(
         "reason_mode": reason_mode,
         "max_steps": max_steps,
     }
-    return await _wrap_call("reason_mind_synthesis", Stage.MIND_333, session_id, payload, ctx)
+    return await _wrap_call(
+        "reason_mind_synthesis", Stage.MIND_333, session_id, payload, ctx, caller_context
+    )
 
 
 async def metabolic_loop_router(
@@ -167,10 +216,16 @@ async def metabolic_loop_router(
     allow_execution: bool = False,
     debug: bool = False,
     dry_run: bool = False,
+    requested_persona: str | None = None,
+    caller_context: CallerContext | None = None,
     ctx: Context | None = None,
 ) -> RuntimeEnvelope:
     """Stage 444 ROUTER - Metabolic Loop. The all-in-one arifOS Sovereign evaluation."""
     session_id = _resolve_session_id(None)
+
+    # Server governs final persona; LLM hint (requested_persona) is advisory only.
+    resolved_caller = _resolve_caller_context(caller_context, requested_persona)
+
     payload = {
         "query": query,
         "context": context,
@@ -183,7 +238,9 @@ async def metabolic_loop_router(
         "debug": debug,
         "dry_run": dry_run,
     }
-    return await _wrap_call("arifOS.kernel", Stage.ROUTER_444, session_id, payload, ctx)
+    return await _wrap_call(
+        "arifOS.kernel", Stage.ROUTER_444, session_id, payload, ctx, resolved_caller
+    )
 
 
 async def session_memory(
@@ -193,6 +250,7 @@ async def session_memory(
     content: str | None = None,
     memory_ids: list[str] | None = None,
     top_k: int = 5,
+    caller_context: CallerContext | None = None,
     ctx: Context | None = None,
 ) -> RuntimeEnvelope:
     """Session memory for conversation state, vector recall, and reasoning artifacts."""
@@ -203,7 +261,9 @@ async def session_memory(
         "top_k": top_k,
         "auth_context": auth_context or {},
     }
-    return await _wrap_call("vector_memory_store", Stage.MEMORY_555, session_id, payload, ctx)
+    return await _wrap_call(
+        "vector_memory_store", Stage.MEMORY_555, session_id, payload, ctx, caller_context
+    )
 
 
 async def assess_heart_impact(
@@ -211,11 +271,14 @@ async def assess_heart_impact(
     scenario: str,
     auth_context: dict[str, Any],
     heart_mode: str = "general",
+    caller_context: CallerContext | None = None,
     ctx: Context | None = None,
 ) -> RuntimeEnvelope:
     """666A HEART - Impact assessment. Evaluate empathy, care, and stakeholder harm."""
     payload = {"scenario": scenario, "focus": heart_mode, "auth_context": auth_context}
-    return await _wrap_call("assess_heart_impact", Stage.HEART_666, session_id, payload, ctx)
+    return await _wrap_call(
+        "assess_heart_impact", Stage.HEART_666, session_id, payload, ctx, caller_context
+    )
 
 
 async def critique_thought_audit(
@@ -223,6 +286,7 @@ async def critique_thought_audit(
     thought_id: str,
     auth_context: dict[str, Any],
     critique_mode: str = "overall",
+    caller_context: CallerContext | None = None,
     ctx: Context | None = None,
 ) -> RuntimeEnvelope:
     """666B CRITIQUE - Thought audit against a prior reasoning artifact."""
@@ -231,7 +295,9 @@ async def critique_thought_audit(
         "critique_focus": critique_mode,
         "auth_context": auth_context,
     }
-    return await _wrap_call("critique_thought_audit", Stage.CRITIQUE_666, session_id, payload, ctx)
+    return await _wrap_call(
+        "critique_thought_audit", Stage.CRITIQUE_666, session_id, payload, ctx, caller_context
+    )
 
 
 async def quantum_eureka_forge(
@@ -240,6 +306,7 @@ async def quantum_eureka_forge(
     auth_context: dict[str, Any],
     eureka_type: str = "concept",
     materiality: str = "idea_only",
+    caller_context: CallerContext | None = None,
     ctx: Context | None = None,
 ) -> RuntimeEnvelope:
     """777 FORGE - Eureka proposal. Forge a sandboxed discovery or implementation proposal."""
@@ -249,7 +316,9 @@ async def quantum_eureka_forge(
         "materiality": materiality,
         "auth_context": auth_context,
     }
-    return await _wrap_call("quantum_eureka_forge", Stage.FORGE_777, session_id, payload, ctx)
+    return await _wrap_call(
+        "quantum_eureka_forge", Stage.FORGE_777, session_id, payload, ctx, caller_context
+    )
 
 
 async def apex_judge_verdict(
@@ -257,6 +326,7 @@ async def apex_judge_verdict(
     verdict_candidate: str,
     auth_context: dict[str, Any],
     reason_summary: str | None = None,
+    caller_context: CallerContext | None = None,
     ctx: Context | None = None,
 ) -> RuntimeEnvelope:
     """888 JUDGE - APEX verdict. Render the sovereign constitutional judgment for a session."""
@@ -265,7 +335,9 @@ async def apex_judge_verdict(
         "reason_summary": reason_summary,
         "auth_context": auth_context,
     }
-    return await _wrap_call("apex_judge_verdict", Stage.JUDGE_888, session_id, payload, ctx)
+    return await _wrap_call(
+        "apex_judge_verdict", Stage.JUDGE_888, session_id, payload, ctx, caller_context
+    )
 
 
 async def seal_vault_commit(
@@ -275,6 +347,7 @@ async def seal_vault_commit(
     payload_ref: str | None = None,
     payload_hash: str | None = None,
     telemetry: dict[str, Any] | None = None,
+    caller_context: CallerContext | None = None,
     ctx: Context | None = None,
 ) -> RuntimeEnvelope:
     """999 SEAL - Vault commit. Append an immutable session verdict to VAULT999."""
@@ -286,7 +359,9 @@ async def seal_vault_commit(
         "telemetry": telemetry,
         "auth_context": auth_context,
     }
-    return await _wrap_call("seal_vault_commit", Stage.VAULT_999, session_id, payload, ctx)
+    return await _wrap_call(
+        "seal_vault_commit", Stage.VAULT_999, session_id, payload, ctx, caller_context
+    )
 
 
 async def search_reality(query: str, ctx: Context | None = None) -> RuntimeEnvelope:
@@ -296,7 +371,9 @@ async def search_reality(query: str, ctx: Context | None = None) -> RuntimeEnvel
 
 async def ingest_evidence(url: str, ctx: Context | None = None) -> RuntimeEnvelope:
     """Evidence ingestion. Loads URLs, documents, and datasets into context."""
-    return await _wrap_call("ingest_evidence", Stage.REALITY_222, "global", {"source_url": url}, ctx)
+    return await _wrap_call(
+        "ingest_evidence", Stage.REALITY_222, "global", {"source_url": url}, ctx
+    )
 
 
 async def audit_rules(session_id: str = "global", ctx: Context | None = None) -> RuntimeEnvelope:
