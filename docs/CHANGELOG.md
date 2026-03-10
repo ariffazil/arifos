@@ -22,7 +22,9 @@ All changes follow [T000 versioning](T000_VERSIONING.md): `YYYY.MM.DD-PHASE-STAT
   - Terminal breaks for `SEAL`, `HOLD`, `HOLD_888`, and `VOID` status.
 - **`HOLD_888` Verdict** (`core/shared/types.py`): New canonical verdict for specific human gating.
 
-### Changed
+### Documentation Unification
+- **Unified `DEPLOY.md`**: Consolidated historical deployment reports (`DEPLOYMENT_ANALYSIS.md`, `DEPLOYMENT_SUCCESS.md`, etc.) into a single, premium root entry point.
+- **Agnostic HTTP Documentation**: Added specific guidance for ChatGPT connectivity via `AgnosticAcceptMiddleware`.
 
 - **Unified Runtime Path:**
   - `arifosmcp.transport` now acts as a stable compatibility shim.
@@ -37,9 +39,9 @@ All changes follow [T000 versioning](T000_VERSIONING.md): `YYYY.MM.DD-PHASE-STAT
 
 ### Verification
 
-- **Router Logic:** Tested across 12 diverse query scenarios (grounding, execute, safety).
-- **Hardness Test:** Verified that `777_FORGE` is inaccessible without `888_JUDGE` plan insertion.
-- **Schema Compliance:** All returns from `arifOS.kernel` now pass the v1.0.0 envelope test.
+- **Router Logic:** Tested across 12 diverse query scenarios.
+- **Hardness Test:** Verified `777_FORGE` is inaccessible without `888_JUDGE`.
+- **Schema Compliance:** All returns pass the v1.0.0 tool envelope.
 
 ---
 

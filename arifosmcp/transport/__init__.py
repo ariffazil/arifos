@@ -14,7 +14,7 @@ from __future__ import annotations
 import warnings
 from typing import Any
 
-__version__ = "2026.02.27-CANONICAL-13"
+__version__ = "2026.03.10"
 
 __all__ = ["mcp"]
 

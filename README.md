@@ -110,7 +110,7 @@ docker pull ariffazil/arifosmcp
 ```
 
 ### 2. Connect Your AI (MCP Integration)
-Connect any MCP-compatible client (Claude Desktop, Cursor IDE, Custom Agents) to the local kernel.
+Connect any MCP-compatible client (Claude Desktop, Cursor IDE, ChatGPT) to the kernel. For remote clients, arifOS uses a stateless **Agnostic HTTP** bridge.
 
 ```json
 {
@@ -119,12 +119,16 @@ Connect any MCP-compatible client (Claude Desktop, Cursor IDE, Custom Agents) to
       "command": "python",
       "args": ["-m", "arifosmcp.runtime", "stdio"],
       "env": {
-        "ARIFOS_GOVERNANCE_SECRET": "YOUR_SECRET_KEY"
+        "ARIFOS_GOVERNANCE_SECRET": "YOUR_SECRET_KEY",
+        "ARIFOS_PUBLIC_TOOL_PROFILE": "chatgpt"
       }
     }
   }
 }
 ```
+
+> [!TIP]
+> Run `python scripts/verify_metabolic_sync.py` to verify your local routing logic before deployment.
 
 ---
 
@@ -134,7 +138,7 @@ The kernel exposes these primary interfaces in [`arifosmcp/runtime/tools.py`](./
 
 | Tool | Entrypoint | Focus | Description |
 | :--- | :--- | :--- | :--- |
-| **`arifOS.kernel`** | `arifosmcp/runtime/` | **Reasoning** | Unified entry point for dynamic metabolic routing (000→999). |
+| **`arifOS.kernel`** | `arifosmcp/runtime/` | **Reasoning** | **Metabolic Orchestrator**: Triggers the dynamic Stage 444 router (000→999). |
 | **`search_reality`** | `arifosmcp/transport/` | **Grounding** | Multi-source reality check (Brave/Perplexity/Jina). |
 | **`ingest_evidence`** | `arifosmcp/intelligence/` | **Evidence** | Ingest docs/URLs into the constitutional context. |
 | **`session_memory`** | `arifosmcp/data/` | **Continuity** | Vector recall of previous reasoning traces. |

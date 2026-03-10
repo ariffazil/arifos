@@ -54,12 +54,8 @@ def _register_local_phase2_tools(mcp: FastMCP, profile: str = "full") -> None:
 
 
 def _register_aclip_tools(mcp: FastMCP) -> None:
-    try:
-        from arifosmcp.intelligence.mcp_bridge import register_aclip_tools
-
-        register_aclip_tools(mcp)
-    except Exception as exc:
-        logger.warning("Phase 2 ACLIP tools unavailable: %s", exc)
+    # ACLIP legacy tools are currently disabled or migrated to the primary surface.
+    pass
 
 
 def register_phase2_tools(mcp: FastMCP, profile: str = "full") -> None:

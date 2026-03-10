@@ -1,5 +1,5 @@
 """
-core/ — arifOS Kernel (2026.02.27-PROTOCOL-NEGOTIATION)
+core/ — arifOS Kernel (2026.03.10-METABOLIC-ROUTER-SEAL)
 
 Reusable governance engine containing ALL decision logic.
 Imported by: aaa_mcp (wrapper), future products
@@ -16,7 +16,7 @@ core/ = decision logic (this package)
 aaa_mcp/ = transport only (no decisions)
 """
 
-__version__ = "2026.02.27-PROTOCOL-NEGOTIATION"
+__version__ = "2026.03.10"
 
 # Expose kernel components for import
 from . import enforcement, governance_kernel, judgment, organs, telemetry, uncertainty_engine
