@@ -40,6 +40,14 @@ TOOL_MAP = {
 }
 
 
+def _resolve_claimed_actor_id(payload: dict[str, Any]) -> str:
+    raw_claim = payload.get("claimed_actor_id", payload.get("actor_id", "anonymous"))
+    if raw_claim is None:
+        return "anonymous"
+    claim = str(raw_claim).strip()
+    return claim or "anonymous"
+
+
 def _trace_replay_envelope(
     session_id: str,
     replay_status: str,
@@ -110,11 +118,12 @@ async def call_kernel(
     auth_ctx = payload.get("auth_context")
     if canonical_name in REQUIRES_SESSION:
         if not auth_ctx:
-            claimed_actor_id = str(payload.get("actor_id", "anonymous") or "anonymous")
+            claimed_actor_id = _resolve_claimed_actor_id(payload)
             return wrap_tool_output(
                 canonical_name,
                 {
                     "verdict": "VOID",
+                    "error_code": "AUTH_FAILURE",
                     "error": (
                         "F11: Missing auth_context for continuity. Run init_anchor_state first."
                     ),
@@ -136,12 +145,13 @@ async def call_kernel(
 
         valid, reason = verify_auth_context_cached(session_id, auth_ctx)
         if not valid:
-            claimed_actor_id = str(payload.get("actor_id", "anonymous") or "anonymous")
+            claimed_actor_id = _resolve_claimed_actor_id(payload)
             resolved_actor_id = str(auth_ctx.get("actor_id", "anonymous") or "anonymous")
             return wrap_tool_output(
                 canonical_name,
                 {
                     "verdict": "VOID",
+                    "error_code": "AUTH_FAILURE",
                     "error": f"F11: Authentication continuity failed: {reason}",
                     "stage": "000_INIT",
                     "actor_id": claimed_actor_id,

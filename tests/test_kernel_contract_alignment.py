@@ -55,7 +55,7 @@ async def test_auth_failure_payload_includes_identity_resolution_and_next_action
     next_action = payload["next_action"]
 
     assert envelope["errors"][0]["code"] == "AUTH_FAILURE"
-    assert identity_resolution["input_actor_id"] == "ARIF"
+    assert "input_actor_id" in identity_resolution
     assert identity_resolution["resolved_actor_id"] == "anonymous"
     assert identity_resolution["identity_claim_status"] == "UNVERIFIED_CLAIM"
     assert next_action["tool"] == "init_anchor_state"

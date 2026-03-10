@@ -235,6 +235,7 @@ async def metabolic_loop_router(
         "context": context,
         "risk_tier": risk_tier,
         "actor_id": actor_id,
+        "claimed_actor_id": actor_id,
         "auth_context": auth_context,
         "use_memory": use_memory,
         "use_heart": use_heart,

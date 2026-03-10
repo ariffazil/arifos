@@ -772,10 +772,10 @@ def wrap_tool_output(tool: str, payload: dict[str, Any]) -> dict[str, Any]:
     # Unified Errors
     errors = []
     if verdict in ["VOID", "SABAR"]:
-        error_code = "GOVERNANCE_BLOCK"
-        if has_hard_fail:
+        error_code = str(payload.get("error_code", "")).strip() or "GOVERNANCE_BLOCK"
+        if not str(payload.get("error_code", "")).strip() and has_hard_fail:
             error_code = "CONSTITUTIONAL_VIOLATION"
-        elif auth_state == "unverified":
+        elif not str(payload.get("error_code", "")).strip() and auth_state == "unverified":
             error_code = "AUTH_FAILURE"
 
         errors.append(
