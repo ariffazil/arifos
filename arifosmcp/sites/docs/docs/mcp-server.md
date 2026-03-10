@@ -42,7 +42,7 @@ HOST=0.0.0.0 PORT=8080 python -m arifosmcp.runtime http
 
 | Tool | Role |
 |------|------|
-| `arifOS.kernel` | One-call governed constitutional execution entrypoint. |
+| `arifOS_kernel` | One-call governed constitutional execution entrypoint. |
 | `search_reality` | External grounding and source discovery. |
 | `ingest_evidence` | Read-only evidence fetch/intake. |
 | `session_memory` | Session context and reasoning artifact memory. |
@@ -50,9 +50,9 @@ HOST=0.0.0.0 PORT=8080 python -m arifosmcp.runtime http
 | `check_vital` | Read-only system health snapshot. |
 | `open_apex_dashboard` | Opens the APEX dashboard iframe in MCP-compatible clients. |
 
-Legacy alias: `metabolic_loop_router` refers to `arifOS.kernel`.
+Legacy aliases: `arifOS.kernel` and `metabolic_loop_router` refer to `arifOS_kernel`.
 
-`arifOS.kernel` accepts a claimed `actor_id` for routing intent, but continuity is established by `auth_context`. Run `init_anchor_state` for the first anchored call, then pass the returned `auth_context` into subsequent governed kernel calls.
+`arifOS_kernel` accepts a claimed `actor_id` for routing intent, but continuity is established by `auth_context`. Run `init_anchor_state` for the first anchored call, then pass the returned `auth_context` into subsequent governed kernel calls.
 
 ## Canonical 10-Tool APEX-G Stack (`full` profile)
 
@@ -63,7 +63,7 @@ The core constitutional assembly line. Every tool returns a `RuntimeEnvelope`.
 | 000 | `init_anchor_state` | Governed session bootstrap. Mints auth chain. |
 | 111 | `integrate_analyze_reflect` | Problem framing and integrative analysis. |
 | 333 | `reason_mind_synthesis` | Multi-step reasoning with Eureka synthesis slot. |
-| 444 | `metabolic_loop_router` | Full 000→999 pipeline orchestrator (internal legacy name for `arifOS.kernel`). |
+| 444 | `metabolic_loop_router` | Full 000→999 pipeline orchestrator (internal legacy alias for `arifOS_kernel`). |
 | 555 | `vector_memory_store` | BBB associative vector memory (store/recall/search/forget). |
 | 666A | `assess_heart_impact` | Empathy and ethical safety engine. |
 | 666B | `critique_thought_audit` | Adversarial internal thought audit. |

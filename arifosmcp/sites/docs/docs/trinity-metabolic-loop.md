@@ -63,7 +63,7 @@ The three engines run in thermodynamic isolation until constitutional merge poin
 **Function:** Uses external reality evidence and uncertainty signals to produce a grounding score and gate verdict.
 **Trace key:** `222_REALITY` (sealed into vault telemetry).
 
-### 444 PHOENIX ROUTER — legacy internal `metabolic_loop_router` (`arifOS.kernel` externally)
+### 444 PHOENIX ROUTER — legacy aliases `metabolic_loop_router` / `arifOS.kernel` (`arifOS_kernel` externally)
 **Purpose:** The constitutional orchestrator. Manages the 000→999 flow.
 **Function:** Routes context between organs and ensures stage-gate passage.
 

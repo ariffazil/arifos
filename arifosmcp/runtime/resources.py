@@ -387,7 +387,7 @@ def register_resources(mcp: FastMCP) -> None:
         return (
             "# arifOS Kernel Flow\n\n"
             "Public execution flow:\n\n"
-            "User -> arifOS.kernel -> judgment/verdict -> vault/trace\n\n"
+            "User -> arifOS_kernel -> judgment/verdict -> vault/trace\n\n"
             "Internal execution stages:\n\n"
             f"{apex_tools_markdown_table()}\n\n"
             "Every action passes F12 then F11 guards first, then AGI floors "

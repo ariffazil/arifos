@@ -175,7 +175,7 @@ All defined in `arifosmcp.runtime/server.py` with `@mcp.tool()` decorators.
 | `ingest_evidence`  | Δ Delta | 222     | F2, F4, F12     | Raw evidence content retrieval        |
 | `audit_rules`      | Δ Delta | 333     | F2, F8, F10     | Rule & governance audit checks        |
 | `check_vital`      | Ω Omega | 000     | F4, F5, F7      | System health & vital signs           |
-| `arifOS.kernel`    | ALL     | 444     | F1-F13          | Consolidated metabolic loop           |
+| `arifOS_kernel`    | ALL     | 444     | F1-F13          | Consolidated metabolic loop           |
 
 All tools return the **v1.0.0 Final Canonical Output Schema** (`RuntimeEnvelope`).
 
