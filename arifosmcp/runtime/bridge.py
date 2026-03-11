@@ -17,6 +17,7 @@ from arifosmcp.intelligence.tools.reality_grounding import open_web_page, realit
 from arifosmcp.runtime.contracts import REQUIRES_SESSION
 from core.enforcement.auth_continuity import mint_auth_context, verify_auth_context_cached
 from core.enforcement.governance_engine import wrap_tool_output
+from core.organs._4_vault import verify_vault_ledger
 from core.organs import agi, apex, asi, init, vault
 
 from .models import Verdict
@@ -143,21 +144,23 @@ def _trace_replay_envelope(
     message: str | None = None,
     error: str | None = None,
 ) -> dict[str, Any]:
-    ok = replay_status != "ERROR"
+    ok = replay_status not in {"ERROR", "TAMPERED"}
     errors = []
     if error:
+        code = "TRACE_REPLAY_TAMPER" if replay_status == "TAMPERED" else "TRACE_REPLAY_ERROR"
         errors.append(
             {
-                "code": "TRACE_REPLAY_ERROR",
+                "code": code,
                 "message": error,
                 "stage": "999_VAULT",
-                "recoverable": True,
+                "recoverable": replay_status != "TAMPERED",
             }
         )
 
     verdict_map = {
         "SUCCESS": "SEAL",
         "NO_DATA": "PARTIAL",
+        "TAMPERED": "VOID",
         "ERROR": "VOID",
     }
     return {
@@ -297,6 +300,17 @@ async def call_kernel(
                 replay_status="NO_DATA",
                 entries=[],
                 message="No vault ledger found for replay.",
+            )
+
+        integrity_ok, integrity_reason = verify_vault_ledger(DEFAULT_VAULT_PATH)
+        if not integrity_ok:
+            logger.warning("trace_replay blocked by vault integrity failure: %s", integrity_reason)
+            return _trace_replay_envelope(
+                session_id=session_id,
+                replay_status="TAMPERED",
+                entries=[],
+                message="Vault integrity verification failed.",
+                error=integrity_reason,
             )
 
         replay_entries: list[dict[str, Any]] = []

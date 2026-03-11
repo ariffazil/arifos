@@ -24,6 +24,86 @@ logger = logging.getLogger(__name__)
 
 # Default storage
 DEFAULT_VAULT_PATH = Path("VAULT999/vault999.jsonl")
+_CHAIN_SEED = "PREV_HASH_STUB"
+
+
+def _canonical_entry_payload(payload: dict[str, Any]) -> dict[str, Any]:
+    """Return the canonical fields used to derive a vault seal hash."""
+    return {
+        "session_id": payload.get("session_id"),
+        "ledger_id": payload.get("ledger_id"),
+        "summary": payload.get("summary"),
+        "verdict": payload.get("verdict"),
+        "approved_by": payload.get("approved_by"),
+        "approval_reference": payload.get("approval_reference"),
+        "telemetry": payload.get("telemetry", {}),
+        "timestamp": payload.get("timestamp"),
+    }
+
+
+def compute_vault_seal_hash(payload: dict[str, Any]) -> str:
+    """Compute the canonical seal hash for a vault entry."""
+    entry_json = json.dumps(_canonical_entry_payload(payload), sort_keys=True, ensure_ascii=False)
+    return hashlib.sha256(entry_json.encode()).hexdigest()
+
+
+def verify_vault_record(payload: dict[str, Any]) -> tuple[bool, str | None]:
+    """Validate a persisted vault record for tamper evidence."""
+    required = {
+        "session_id",
+        "ledger_id",
+        "summary",
+        "verdict",
+        "approved_by",
+        "telemetry",
+        "timestamp",
+        "seal_hash",
+        "chain",
+    }
+    missing = sorted(key for key in required if key not in payload)
+    if missing:
+        return False, f"missing required fields: {', '.join(missing)}"
+
+    expected_hash = compute_vault_seal_hash(payload)
+    if payload.get("seal_hash") != expected_hash:
+        return False, "seal hash mismatch"
+
+    chain = payload.get("chain")
+    if not isinstance(chain, dict):
+        return False, "invalid chain payload"
+
+    if chain.get("payload_hash") != expected_hash:
+        return False, "chain payload hash mismatch"
+
+    expected_entry_hash = hashlib.sha256((expected_hash + _CHAIN_SEED).encode()).hexdigest()
+    if chain.get("entry_hash") != expected_entry_hash:
+        return False, "chain entry hash mismatch"
+
+    if chain.get("prev_entry_hash") != "0x" + "0" * 64:
+        return False, "unexpected previous entry hash seed"
+
+    return True, None
+
+
+def verify_vault_ledger(path: Path) -> tuple[bool, str | None]:
+    """Verify every persisted entry in a vault ledger file."""
+    try:
+        with open(path, encoding="utf-8") as file_handle:
+            for line_no, line in enumerate(file_handle, start=1):
+                row = line.strip()
+                if not row:
+                    continue
+                try:
+                    payload = json.loads(row)
+                except json.JSONDecodeError as exc:
+                    return False, f"line {line_no}: invalid json ({exc})"
+                ok, reason = verify_vault_record(payload)
+                if not ok:
+                    return False, f"line {line_no}: {reason}"
+    except OSError as exc:
+        return False, str(exc)
+
+    return True, None
 
 
 def _append_vault_record(path: Path, payload: dict[str, Any]) -> None:
@@ -71,8 +151,7 @@ async def seal(
         "timestamp": timestamp.isoformat(),
     }
 
-    entry_json = json.dumps(entry_data, sort_keys=True, ensure_ascii=False)
-    entry_hash = hashlib.sha256(entry_json.encode()).hexdigest()
+    entry_hash = compute_vault_seal_hash(entry_data)
 
     # 3. Construct Seal Record
     record = SealRecord(
@@ -87,7 +166,7 @@ async def seal(
     # 4. Build Tamper-Evident Hash Chain
     chain = HashChain(
         payload_hash=entry_hash,
-        entry_hash=hashlib.sha256((entry_hash + "PREV_HASH_STUB").encode()).hexdigest(),
+        entry_hash=hashlib.sha256((entry_hash + _CHAIN_SEED).encode()).hexdigest(),
         prev_entry_hash="0x" + "0" * 64,
     )
 
@@ -159,4 +238,12 @@ SealReceipt = SealRecord
 seal_vault = seal
 
 
-__all__ = ["SealReceipt", "vault", "seal", "seal_vault"]
+__all__ = [
+    "SealReceipt",
+    "compute_vault_seal_hash",
+    "seal",
+    "seal_vault",
+    "vault",
+    "verify_vault_ledger",
+    "verify_vault_record",
+]

@@ -5,6 +5,7 @@ import json
 import pytest
 
 from arifosmcp.runtime import bridge
+from core.organs._4_vault import compute_vault_seal_hash
 
 
 @pytest.mark.asyncio
@@ -60,3 +61,40 @@ async def test_trace_replay_returns_no_data_when_vault_missing(tmp_path, monkeyp
     assert result["status"] == "SUCCESS"
     assert result["payload"]["replay_status"] == "NO_DATA"
     assert result["payload"]["trace_count"] == 0
+
+
+@pytest.mark.asyncio
+async def test_trace_replay_blocks_tampered_vault_entries(tmp_path, monkeypatch):
+    vault_path = tmp_path / "vault999.jsonl"
+    monkeypatch.setattr(bridge, "DEFAULT_VAULT_PATH", vault_path)
+
+    entry = {
+        "session_id": "s-bad",
+        "ledger_id": "LGR-BAD",
+        "summary": "tampered entry",
+        "verdict": "SEAL",
+        "approved_by": "system",
+        "approval_reference": None,
+        "telemetry": {"trace": {"111_MIND": "SEAL"}},
+        "timestamp": "2026-03-10T00:00:00Z",
+    }
+    good_hash = compute_vault_seal_hash(entry)
+    tampered = {
+        **entry,
+        "summary": "tampered entry after seal",
+        "seal_hash": good_hash,
+        "chain": {
+            "payload_hash": good_hash,
+            "entry_hash": "not-a-real-entry-hash",
+            "prev_entry_hash": "0x" + "0" * 64,
+        },
+    }
+    vault_path.write_text(json.dumps(tampered), encoding="utf-8")
+
+    result = await bridge.call_kernel("trace_replay", "s-bad", {"limit": 5})
+
+    assert result["ok"] is False
+    assert result["status"] == "ERROR"
+    assert result["payload"]["replay_status"] == "TAMPERED"
+    assert result["payload"]["trace_count"] == 0
+    assert result["errors"][0]["code"] == "TRACE_REPLAY_TAMPER"

@@ -19,6 +19,9 @@ def test_rest_health_endpoint():
     assert data["status"] == "healthy"
     assert "ml_floors" in data
     assert "ml_floors_enabled" in data["ml_floors"]
+    assert "capability_map" in data
+    assert data["capability_map"]["schema"] == "capability-map/v1"
+    assert "server_identity" in data["capability_map"]
 
 
 def test_version_endpoint():
@@ -34,7 +37,7 @@ def test_tools_endpoint():
     """Verify that /tools endpoint lists available tools."""
     client = TestClient(server_app)
     response = client.get("/tools")
-    # Might require auth if configured, but default should be accessible in tests if ARIFOS_DEV_MODE=1
+    # Might require auth if configured, but should usually be open in tests.
     if response.status_code == 200:
         data = response.json()
         assert "tools" in data

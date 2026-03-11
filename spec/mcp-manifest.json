@@ -384,6 +384,10 @@
       "description": "Governance telemetry summary."
     },
     {
+      "uri": "runtime://capability-map",
+      "description": "Redacted capability and credential-class state."
+    },
+    {
       "uri": "ui://apex/dashboard-v2.html",
       "description": "Packaged APEX dashboard asset."
     }
