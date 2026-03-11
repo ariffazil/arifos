@@ -89,6 +89,10 @@ async def test_check_vital_includes_motto_and_governed_philosophy():
     assert envelope.philosophy["stage"] == "000_INIT"
     assert envelope.philosophy["agi"]["source"] == "deterministic_33"
     assert envelope.philosophy["asi"] is None
+    assert "capability_map" in envelope.payload
+    assert envelope.payload["capability_map"]["schema"] == "capability-map/v1"
+    assert "credential_classes" in envelope.payload["capability_map"]
+    assert "providers" in envelope.payload["capability_map"]
 
 
 def test_governed_philosophy_exposes_available_categories():

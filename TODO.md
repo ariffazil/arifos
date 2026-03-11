@@ -18,6 +18,10 @@
 - [ ] **Capability Claim Hardening:** Remove or qualify unsupported claims like `all tools live`, `server fully operational`, and `real AI/no AI` unless backed by live checks.
 - [ ] **Runtime Role Clarification:** Make it explicit when arifOS is acting as governance kernel, semantic runtime, or external-tool wrapper.
 - [ ] **Flow Explanation Correction:** Ensure public explanations match the actual routed stage names and conditional pipeline behavior.
+- [x] **Coverage Gap Matrix:** Forged a repo-grounded audit at `docs/COVERAGE_GAP_MATRIX_2026-03-12.md`.
+- [x] **AKI Boundary Tests:** Added direct tests for `AKIContract`, `SovereignGate`, and `L0KernelGatekeeper`.
+- [x] **Missing Floor Tests:** Added direct tests for `F3`, `F5`, `F6`, `F8`, and `F10`.
+- [x] **Vault Integrity Enforcement:** `trace_replay` now rejects tampered ledger entries with a hard failure.
 
 ---
 

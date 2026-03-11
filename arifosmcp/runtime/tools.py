@@ -6,6 +6,7 @@ from typing import Any
 from fastmcp import Context, FastMCP
 from fastmcp.tools import ToolResult
 
+from arifosmcp.runtime.capability_map import build_runtime_capability_map
 from arifosmcp.runtime.models import (
     CallerContext,
     RuntimeEnvelope,
@@ -395,6 +396,16 @@ async def _wrap_call(
             envelope.stage,
             payload,
             envelope.model_dump(mode="json", exclude_none=True),
+        )
+
+    if tool_name == "check_vital":
+        envelope.payload.setdefault("capability_map", build_runtime_capability_map())
+        envelope.payload.setdefault(
+            "operator_note",
+            (
+                "Read capability_map for configured/disabled/degraded features. "
+                "Raw credential values are intentionally never exposed."
+            ),
         )
 
     if ctx:

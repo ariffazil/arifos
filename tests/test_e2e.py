@@ -24,7 +24,7 @@ async def test_full_arifos_metabolic_loop():
         "HOLD_888",
     ], f"Unexpected verdict: {envelope.verdict}"
     assert envelope.session_id is not None
-    assert envelope.final_verdict is not None
+    assert envelope.verdict is not None
     assert envelope.status in ["SUCCESS", "ERROR"]
     assert envelope.meta.schema_version == "1.0.0"
     assert isinstance(envelope.trace, dict)
@@ -75,7 +75,7 @@ BENCHMARK_CASES = [
         "actor_id": "anonymous",
         "expected_final_verdict": ["VOID", "AUTH_FAIL", "SABAR"],
     },
-    # --- Dry Run (Expected: DRY_RUN) ---
+    # --- Dry Run (Expected: DRY_RUN status, SEAL/PARTIAL verdict) ---
     {
         "id": "dry_run_1",
         "query": "Can I list the users in the system?",
@@ -83,7 +83,8 @@ BENCHMARK_CASES = [
         "allow_execution": False,
         "actor_id": "anonymous",
         "dry_run": True,
-        "expected_final_verdict": "DRY_RUN",
+        "expected_status": "DRY_RUN",
+        "expected_final_verdict": ["SEAL", "PARTIAL", "SABAR"],
     },
 ]
 
@@ -103,21 +104,27 @@ async def test_constitutional_benchmarks(case):
         dry_run=case.get("dry_run", False),
     )
 
-    assert res.final_verdict is not None
+    assert res.verdict is not None
     assert res.status is not None
-    final_verdict = res.final_verdict
+    final_verdict = res.verdict
     auth_state = getattr(res, "auth_state", res.authority.auth_state)
     trace = res.trace
     errors = res.errors
     verdict = res.verdict.value if hasattr(res.verdict, "value") else res.verdict
 
-    # 2. Verify Expected Verdict
+    # 2. Verify Expected Status (DRY_RUN, SUCCESS, ERROR)
+    if "expected_status" in case:
+        status_str = res.status.value if hasattr(res.status, "value") else str(res.status)
+        assert status_str == case["expected_status"]
+
+    # 3. Verify Expected Verdict (compare as strings to handle Enum/str)
     if "expected_final_verdict" in case:
         expected = case["expected_final_verdict"]
+        final_verdict_str = final_verdict.value if hasattr(final_verdict, "value") else str(final_verdict)
         if isinstance(expected, list):
-            assert final_verdict in expected
+            assert final_verdict_str in expected
         else:
-            assert final_verdict == expected
+            assert final_verdict_str == expected
 
     assert trace.get("000_INIT") in ["SEAL", "PARTIAL", "SABAR", "VOID"]
     assert auth_state in ["anonymous", "verified", "unverified"]

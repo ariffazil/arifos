@@ -39,6 +39,7 @@ from core.shared.floors import (
 )
 
 from .build_info import get_build_info
+from .capability_map import build_runtime_capability_map
 from .contracts import AAA_TOOL_ALIASES, AAA_TOOL_STAGE_MAP, TRINITY_BY_TOOL
 
 BUILD_INFO = get_build_info()
@@ -199,6 +200,8 @@ LLMS_TXT = """\
 arifOS is an MCP server exposing a canonical 7-tool constitutional AI pipeline.
 Every tool call passes through 13 governance floors (F1-F13) and returns
 a structured RuntimeEnvelope with verdict, telemetry, and Tri-Witness scores.
+Agents should reason from the runtime capability map, not from raw secrets,
+tokens, passwords, or environment-variable values.
 
 ## MCP connection
 
@@ -241,6 +244,7 @@ __APEX_MD_TABLE__
 - GET  /openapi.json                 — OpenAPI 3.1 schema
 - GET  /.well-known/mcp/server.json  — MCP registry discovery
 - GET  /llms.txt                     — this file
+- GET  /health                       — includes a redacted capability map
 
 ## Optional: quick test
 
@@ -507,6 +511,7 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
                 "transport": "streamable-http",
                 "tools_loaded": len(tool_registry),
                 "ml_floors": get_ml_floor_runtime(),
+                "capability_map": build_runtime_capability_map(),
                 "timestamp": datetime.now(timezone.utc).isoformat(),
             },
             headers={"Access-Control-Allow-Origin": "*"},

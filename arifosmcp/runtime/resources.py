@@ -20,6 +20,7 @@ from fastmcp import Context, FastMCP
 from fastmcp.server.apps import UI_EXTENSION_ID, AppConfig, ResourceCSP
 from fastmcp.tools import ToolResult
 
+from .capability_map import build_runtime_capability_map
 from .public_registry import (
     RUNTIME_ENVELOPE_SCHEMA,
     public_resource_uris,
@@ -611,6 +612,16 @@ def register_resources(mcp: FastMCP) -> None:
             },
             ensure_ascii=False,
         )
+
+    @mcp.resource("runtime://capability-map")
+    def runtime_capability_map() -> str:
+        """
+        Redacted runtime capability map for agents and dashboards.
+
+        This resource exposes capability/credential-class state only.
+        It never returns raw secret/token/password values.
+        """
+        return json.dumps(build_runtime_capability_map(), ensure_ascii=False)
 
     # ------------------------------------------------------------------
     # APEX Dashboard — MCP App (HTML iframe embedded in host client)

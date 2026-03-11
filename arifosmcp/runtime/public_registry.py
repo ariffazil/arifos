@@ -275,6 +275,7 @@ PUBLIC_RESOURCE_SPECS: tuple[ResourceSpec, ...] = (
     ResourceSpec("schema://apex", "Governance output schema."),
     ResourceSpec("vault://latest", "Latest sealed VAULT entries."),
     ResourceSpec("telemetry://summary", "Governance telemetry summary."),
+    ResourceSpec("runtime://capability-map", "Redacted capability and credential-class state."),
     ResourceSpec("ui://apex/dashboard-v2.html", "Packaged APEX dashboard asset."),
 )
 
