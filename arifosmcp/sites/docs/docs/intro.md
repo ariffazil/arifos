@@ -77,7 +77,7 @@ Live endpoints:
 - Dashboard: `https://arifosmcp.arif-fazil.com/dashboard/`
 - Health: `https://arifosmcp.arif-fazil.com/health`
 
-## Public Runtime Tools (`ARIFOS_PUBLIC_TOOL_PROFILE=chatgpt`)
+## Public Runtime Tools (`ARIFOS_PUBLIC_TOOL_PROFILE=chatgpt` or `agnostic_public`)
 
 1. `arifOS_kernel`
 2. `search_reality`

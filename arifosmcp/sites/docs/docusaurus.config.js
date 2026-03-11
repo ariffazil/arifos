@@ -12,6 +12,12 @@ const config = {
 
   url: 'https://arifos.arif-fazil.com',
   baseUrl: '/',
+  scripts: [
+    {
+      src: '/scripts/sovereign-unify.js',
+      async: true,
+    },
+  ],
 
   organizationName: 'ariffazil',
   projectName: 'arifOS',

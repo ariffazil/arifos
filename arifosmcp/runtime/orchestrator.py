@@ -233,7 +233,7 @@ async def metabolic_loop(
             init_res = await init_anchor_state(
                 {"query": query},
                 session_id=current_session_id,
-                governance={"actor_id": actor_id, "stakes_class": stakes_class},
+                governance={"actor_id": "anonymous", "stakes_class": stakes_class},
                 caller_context=caller_context,
             )
             auth_ctx = _extract_auth_context(init_res)

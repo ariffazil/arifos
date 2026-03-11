@@ -29,7 +29,7 @@ from .bridge import call_kernel
 
 PUBLIC_TOOL_SPEC_BY_NAME = {spec.name: spec for spec in public_tool_specs()}
 PUBLIC_KERNEL_TOOL_NAME = "arifOS_kernel"
-LEGACY_KERNEL_TOOL_NAME = "arifOS.kernel"
+LEGACY_KERNEL_TOOL_NAME = "arifOS-kernel"
 
 
 def _normalize_session_id(session_id: str | None) -> str:
@@ -313,6 +313,8 @@ async def _wrap_call(
         if tool_name in {PUBLIC_KERNEL_TOOL_NAME, LEGACY_KERNEL_TOOL_NAME} and isinstance(
             kernel_res, dict
         ):
+            if str(kernel_res.get("tool", "")).strip() == "metabolic_loop":
+                kernel_res["tool"] = PUBLIC_KERNEL_TOOL_NAME
             claimed_actor_id = str(
                 payload.get("claimed_actor_id", payload.get("actor_id", "anonymous")) or "anonymous"
             )
@@ -711,7 +713,7 @@ def register_tools(mcp: FastMCP, profile: str = "full") -> None:
 
     # Legacy alias
     mcp.tool(
-        name="arifOS.kernel",
+        name="arifOS-kernel",
         description=(
             "[Legacy Alias] Use arifOS_kernel instead. Governed metabolic loop orchestrator."
         ),

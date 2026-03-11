@@ -52,7 +52,7 @@ HOST=0.0.0.0 PORT=8080 python -m arifosmcp.runtime http
 
 Legacy aliases: `arifOS.kernel` and `metabolic_loop_router` refer to `arifOS_kernel`.
 
-`arifOS_kernel` accepts a claimed `actor_id` for routing intent, but continuity is established by `auth_context`. Run `init_anchor_state` for the first anchored call, then pass the returned `auth_context` into subsequent governed kernel calls.
+`arifOS_kernel` accepts a claimed `actor_id` for routing intent, but continuity is established by `auth_context`. Low/medium non-executing first calls may auto-bootstrap through `000_INIT`. High-risk or execution-capable calls should run `init_anchor_state` first, then pass the returned `auth_context` into subsequent governed kernel calls.
 
 ## Canonical 10-Tool APEX-G Stack (`full` profile)
 

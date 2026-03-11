@@ -26,10 +26,23 @@ class PhilosophySelection(TypedDict):
     role: str
     stage: str
     g_score: float
+    label: str
+    label_source: str
     semantic_backend: str
     available_categories: dict[str, list[str]]
     agi: dict[str, Any]
     asi: dict[str, Any] | None
+
+
+LOCAL_99_LABELS: tuple[str, ...] = (
+    "scar",
+    "triumph",
+    "paradox",
+    "wisdom",
+    "power",
+    "love",
+    "seal",
+)
 
 
 PHILOSOPHY_REGISTRY: list[Quote] = [
@@ -62,7 +75,10 @@ PHILOSOPHY_REGISTRY: list[Quote] = [
         "id": "W5",
         "category": "wisdom",
         "author": "Marcus Aurelius",
-        "text": "You have power over your mind—not outside events. Realize this, and you will find strength.",
+        "text": (
+            "You have power over your mind—not outside events. "
+            "Realize this, and you will find strength."
+        ),
     },
     {
         "id": "W6",
@@ -92,7 +108,10 @@ PHILOSOPHY_REGISTRY: list[Quote] = [
         "id": "W10",
         "category": "wisdom",
         "author": "Alan Turing",
-        "text": "We can only see a short distance ahead, but we can see plenty there that needs to be done.",
+        "text": (
+            "We can only see a short distance ahead, but we can see plenty there "
+            "that needs to be done."
+        ),
     },
     # 11-20: POWER (Action / Will)
     {
@@ -129,7 +148,10 @@ PHILOSOPHY_REGISTRY: list[Quote] = [
         "id": "P6",
         "category": "power",
         "author": "Winston Churchill",
-        "text": "Success is not final, failure is not fatal: it is the courage to continue that counts.",
+        "text": (
+            "Success is not final, failure is not fatal: it is the courage to "
+            "continue that counts."
+        ),
     },
     {
         "id": "P7",
@@ -141,7 +163,10 @@ PHILOSOPHY_REGISTRY: list[Quote] = [
         "id": "P8",
         "category": "power",
         "author": "George S. Patton",
-        "text": "A good plan violently executed now is better than a perfect plan executed next week.",
+        "text": (
+            "A good plan violently executed now is better than a perfect plan "
+            "executed next week."
+        ),
     },
     {
         "id": "P9",
@@ -190,38 +215,57 @@ PHILOSOPHY_REGISTRY: list[Quote] = [
         "id": "R6",
         "category": "paradox",
         "author": "G.K. Chesterton",
-        "text": "The whole secret of life is to be interested in one thing profoundly and in a thousand things well.",
+        "text": (
+            "The whole secret of life is to be interested in one thing profoundly "
+            "and in a thousand things well."
+        ),
     },
     {
         "id": "R7",
         "category": "paradox",
         "author": "Bertrand Russell",
-        "text": "The trouble with the world is that the stupid are cocksure and the intelligent are full of doubt.",
+        "text": (
+            "The trouble with the world is that the stupid are cocksure and the "
+            "intelligent are full of doubt."
+        ),
     },
     {
         "id": "R8",
         "category": "paradox",
         "author": "Albert Camus",
-        "text": "In the depth of winter, I finally learned that within me there lay an invincible summer.",
+        "text": (
+            "In the depth of winter, I finally learned that within me there lay "
+            "an invincible summer."
+        ),
     },
     {
         "id": "R9",
         "category": "paradox",
         "author": "Carl Jung",
-        "text": "One does not become enlightened by imagining figures of light, but by making the darkness conscious.",
+        "text": (
+            "One does not become enlightened by imagining figures of light, but "
+            "by making the darkness conscious."
+        ),
     },
     {
         "id": "R10",
         "category": "paradox",
         "author": "F. Scott Fitzgerald",
-        "text": "The test of a first-rate intelligence is the ability to hold two opposed ideas in mind at the same time and still retain the ability to function.",
+        "text": (
+            "The test of a first-rate intelligence is the ability to hold two "
+            "opposed ideas in mind at the same time and still retain the ability "
+            "to function."
+        ),
     },
     # 31-32: VOID (Gödel Lock)
     {
         "id": "V1",
         "category": "void",
         "author": "Kurt Gödel",
-        "text": "Either mathematics is too big for the human mind, or the human mind is more than a machine.",
+        "text": (
+            "Either mathematics is too big for the human mind, or the human mind "
+            "is more than a machine."
+        ),
     },
     {
         "id": "V2",
@@ -233,9 +277,105 @@ PHILOSOPHY_REGISTRY: list[Quote] = [
     {"id": "S1", "category": "seal", "author": "Arif Fazil", "text": "DITEMPA, BUKAN DIBERI."},
 ]
 
+LABEL_TO_LEGACY_CATEGORY: dict[str, str] = {
+    "void": "void",
+    "scar": "void",
+    "triumph": "power",
+    "paradox": "paradox",
+    "wisdom": "wisdom",
+    "power": "power",
+    "love": "wisdom",
+    "seal": "seal",
+}
+
+LABEL_KEYWORDS: dict[str, tuple[str, ...]] = {
+    "void": ("silent", "unknown", "cannot", "unsure", "void", "unclear", "limit"),
+    "scar": ("hurt", "pain", "loss", "grief", "scar", "wound", "trauma", "broken"),
+    "triumph": ("rise", "build", "overcome", "hope", "release", "win", "forge", "achieve"),
+    "paradox": ("paradox", "contradiction", "both", "balance", "trade-off", "doubt"),
+    "wisdom": ("truth", "clarity", "explain", "understand", "evidence", "question", "learn"),
+    "power": ("power", "discipline", "strength", "command", "execute", "authority", "force"),
+    "love": ("care", "mercy", "compassion", "love", "heal", "dignity", "gentle", "peace"),
+    "seal": ("seal", "final", "witness", "judgment", "sovereign", "commit"),
+}
+
+
+def _registry_quotes(category: str) -> list[Quote]:
+    return [q for q in PHILOSOPHY_REGISTRY if q["category"] == category]
+
+
+def _select_registry_quote(
+    category: str,
+    *,
+    session_id: str,
+    stage: str,
+    g_score: float,
+    context: str = "",
+    failed_floors: list[str] | None = None,
+) -> Quote:
+    options = _registry_quotes(category)
+    if not options:
+        options = _registry_quotes("wisdom")
+
+    floor_signature = "|".join(sorted(set(failed_floors or [])))
+    context_signature = context.strip().lower()[:160]
+    seed = hashlib.sha256(
+        f"{session_id}:{stage}:{g_score:.3f}:{category}:{floor_signature}:{context_signature}".encode()
+    ).hexdigest()
+    idx = int(seed, 16) % len(options)
+    return options[idx]
+
+
+def _bounded_context_label(
+    context: str,
+    *,
+    stage: str,
+    verdict: str,
+    g_score: float,
+    failed_floors: list[str],
+) -> tuple[str, str]:
+    """
+    Classify runtime context into a bounded ontology.
+
+    This is intentionally finite and governed. It can later be replaced by an
+    LLM classifier that must still emit one of these exact labels.
+    """
+    stage_num = _stage_number(stage)
+    text = context.strip().lower()
+    failed = set(failed_floors)
+
+    if stage_num >= 999:
+        return "seal", "state_router"
+    if "F6" in failed:
+        return "love", "state_router"
+    if {"F1", "F5"} & failed:
+        return "scar", "state_router"
+    if {"F2", "F7"} & failed:
+        return "wisdom", "state_router"
+    if {"F4", "F10"} & failed:
+        return "paradox", "state_router"
+
+    for label in ("love", "scar", "paradox", "wisdom", "power", "triumph", "seal"):
+        if any(keyword in text for keyword in LABEL_KEYWORDS[label]):
+            return label, "bounded_context"
+
+    if verdict in {"VOID", "HOLD", "HOLD_888"}:
+        return ("scar", "state_router") if g_score < 0.5 else ("wisdom", "state_router")
+
+    if g_score < 0.5:
+        return "void", "state_router"
+
+    return _local_category(stage, g_score, failed_floors, verdict), "state_router"
+
 
 def get_philosophical_anchor(
-    stage: str, g_score: float, failed_floors: list[str], session_id: str = "global"
+    stage: str,
+    g_score: float,
+    failed_floors: list[str],
+    session_id: str = "global",
+    *,
+    context: str = "",
+    label: str | None = None,
 ) -> Quote:
     """
     Selects a philosophical anchor from the 33-quote registry based on:
@@ -249,7 +389,16 @@ def get_philosophical_anchor(
     if "F7" in failed_floors:  # Humility failure
         return next(q for q in PHILOSOPHY_REGISTRY if q["id"] == "W1")  # Socrates
     if g_score < 0.5:
-        return next(q for q in PHILOSOPHY_REGISTRY if q["id"] == "V2")  # Wittgenstein (Silent)
+        target_label = label or "void"
+        target_category = LABEL_TO_LEGACY_CATEGORY.get(target_label, "void")
+        return _select_registry_quote(
+            target_category,
+            session_id=session_id,
+            stage=stage,
+            g_score=g_score,
+            context=context,
+            failed_floors=failed_floors,
+        )
 
     # 2. Stage-based Category Mapping
     try:
@@ -266,13 +415,14 @@ def get_philosophical_anchor(
     elif 600 < stage_num <= 900:
         category = "power" if g_score > 0.85 else "paradox"
 
-    options = [q for q in PHILOSOPHY_REGISTRY if q["category"] == category]
-
-    # 3. Deterministic selection via session hash
-    seed = hashlib.sha256(f"{session_id}:{stage}:{g_score}".encode()).hexdigest()
-    idx = int(seed, 16) % len(options)
-
-    return options[idx]
+    return _select_registry_quote(
+        category,
+        session_id=session_id,
+        stage=stage,
+        g_score=g_score,
+        context=context,
+        failed_floors=failed_floors,
+    )
 
 
 def get_wisdom_for_context(
@@ -286,7 +436,20 @@ def get_wisdom_for_context(
     Falls back to stage-based deterministic selection.
     """
     failed_floors = failed_floors or []
-    return get_philosophical_anchor(stage, g_score, failed_floors)
+    label, _ = _bounded_context_label(
+        context,
+        stage=stage,
+        verdict="SABAR",
+        g_score=g_score,
+        failed_floors=failed_floors,
+    )
+    return get_philosophical_anchor(
+        stage,
+        g_score,
+        failed_floors,
+        context=context,
+        label=label,
+    )
 
 
 def _stage_number(stage: str) -> int:
@@ -343,6 +506,7 @@ def _deterministic_local_anchor(
     failed_floors: list[str],
     verdict: str,
     session_id: str,
+    label: str | None = None,
 ) -> tuple[dict[str, Any] | None, str]:
     """
     Deterministically pick from the richer local 99-quote corpus.
@@ -360,7 +524,7 @@ def _deterministic_local_anchor(
     except Exception:
         return None, "error"
 
-    category = _local_category(stage, g_score, failed_floors, verdict)
+    category = label or _local_category(stage, g_score, failed_floors, verdict)
     options = [
         quote for quote in corpus if str(quote.get("category", "")).strip().lower() == category
     ]
@@ -393,8 +557,9 @@ def _semantic_category(
     g_score: float,
     failed_floors: list[str],
     verdict: str,
+    label: str | None = None,
 ) -> str:
-    return _local_category(stage, g_score, failed_floors, verdict)
+    return label or _local_category(stage, g_score, failed_floors, verdict)
 
 
 def _quote_block(quote: Quote, *, score: float | None = None, source: str) -> dict[str, Any]:
@@ -417,6 +582,7 @@ def get_semantic_wisdom(
     g_score: float = 0.9,
     failed_floors: list[str] | None = None,
     verdict: str = "SABAR",
+    label: str | None = None,
 ) -> tuple[dict[str, Any] | None, str]:
     """
     Best-effort semantic wisdom retrieval from the 99-quote ASI layer.
@@ -431,7 +597,7 @@ def get_semantic_wisdom(
     except ImportError:
         return None, "unavailable"
 
-    category = _semantic_category(stage, g_score, failed_floors, verdict)
+    category = _semantic_category(stage, g_score, failed_floors, verdict, label)
 
     try:
         result = retrieve_wisdom(context, category=category, n_results=1)
@@ -496,9 +662,21 @@ def select_governed_philosophy(
     hard_governance = (
         bool(failed_floors) or verdict in {"VOID", "HOLD", "HOLD_888"} or g_score < 0.5
     )
+    label, label_source = _bounded_context_label(
+        context,
+        stage=stage,
+        verdict=verdict,
+        g_score=g_score,
+        failed_floors=failed_floors,
+    )
 
     legacy_agi_quote = get_philosophical_anchor(
-        stage, g_score, failed_floors, session_id=session_id
+        stage,
+        g_score,
+        failed_floors,
+        session_id=session_id,
+        context=context,
+        label=label,
     )
     deterministic_local_quote, deterministic_local_backend = _deterministic_local_anchor(
         context,
@@ -507,6 +685,7 @@ def select_governed_philosophy(
         failed_floors=failed_floors,
         verdict=verdict,
         session_id=session_id,
+        label=label if label in LOCAL_99_LABELS else None,
     )
     semantic_quote, semantic_backend = get_semantic_wisdom(
         context,
@@ -514,6 +693,7 @@ def select_governed_philosophy(
         g_score=g_score,
         failed_floors=failed_floors,
         verdict=verdict,
+        label=label if label in LOCAL_99_LABELS else None,
     )
 
     role = "seal" if stage_num >= 999 else "anchor" if stage_num <= 111 else "support"
@@ -553,10 +733,13 @@ def select_governed_philosophy(
         "role": role,
         "stage": stage,
         "g_score": round(g_score, 4),
+        "label": label,
+        "label_source": label_source,
         "semantic_backend": semantic_backend,
         "available_categories": {
             "deterministic_33": ["wisdom", "power", "paradox", "void", "seal"],
-            "local_99": ["scar", "triumph", "paradox", "wisdom", "power", "love", "seal"],
+            "bounded_labels": ["void", *LOCAL_99_LABELS],
+            "local_99": list(LOCAL_99_LABELS),
         },
         "agi": agi_block,
         "asi": semantic_quote,

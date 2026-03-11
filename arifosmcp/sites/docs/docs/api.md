@@ -37,10 +37,10 @@ Unlike a normal API where tools just execute blindly, arifOS exposes a **"govern
 
 ## Tool Surface Is Layered
 
-- Public profile (`ARIFOS_PUBLIC_TOOL_PROFILE=chatgpt`): small, stable operator interface.
+- Public profile (`ARIFOS_PUBLIC_TOOL_PROFILE=chatgpt` or `agnostic_public`): small, stable operator interface.
 - Full profile (`ARIFOS_PUBLIC_TOOL_PROFILE=full`): internal 10-tool constitutional assembly line.
 
-### Public Tool Interface (`chatgpt` profile)
+### Public Tool Interface (public/model-agnostic profile)
 
 | Tool | Role |
 |------|------|
@@ -54,7 +54,7 @@ Unlike a normal API where tools just execute blindly, arifOS exposes a **"govern
 
 Legacy aliases: `arifOS.kernel` and `metabolic_loop_router` refer to `arifOS_kernel`.
 
-`arifOS_kernel` accepts a claimed `actor_id` for routing intent, but continuity is established by `auth_context`. For the first anchored call, run `init_anchor_state`; for subsequent governed calls, pass the returned `auth_context` back into `arifOS_kernel`.
+`arifOS_kernel` accepts a claimed `actor_id` for routing intent, but continuity is established by `auth_context`. Low/medium non-executing first calls may auto-bootstrap through `000_INIT`. High-risk or execution-capable calls still require `init_anchor_state` first; for subsequent governed calls, pass the returned `auth_context` back into `arifOS_kernel`.
 
 ## Canonical 10-Tool Metabolic Stack (`full` profile)
 

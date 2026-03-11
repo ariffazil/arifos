@@ -41,6 +41,8 @@ TOOL_MAP = {
     "session_memory": "session_memory",
 }
 
+AUTO_BOOTSTRAP_RISK_TIERS = frozenset({"low", "medium"})
+
 
 def _resolve_claimed_actor_id(payload: dict[str, Any]) -> str:
     raw_claim = payload.get("claimed_actor_id", payload.get("actor_id", "anonymous"))
@@ -118,6 +120,22 @@ def _auth_failure_envelope(
     }
 
 
+def _requires_explicit_kernel_auth(payload: dict[str, Any]) -> bool:
+    """
+    Decide whether arifOS_kernel must reject missing auth_context at the bridge.
+
+    Model-agnostic policy:
+    - Allow low/medium non-executing first calls to auto-bootstrap through 000_INIT.
+    - Require explicit continuity for execution-capable or high/critical requests.
+    """
+    risk_tier = str(payload.get("risk_tier", "medium") or "medium").strip().lower()
+    allow_execution = bool(payload.get("allow_execution", False))
+
+    if allow_execution:
+        return True
+    return risk_tier not in AUTO_BOOTSTRAP_RISK_TIERS
+
+
 def _trace_replay_envelope(
     session_id: str,
     replay_status: str,
@@ -187,7 +205,46 @@ async def call_kernel(
 
     # 1. Verification of Continuity (F11)
     auth_ctx = payload.get("auth_context")
-    if canonical_name in REQUIRES_SESSION:
+    if canonical_name == "metabolic_loop":
+        if not auth_ctx:
+            if _requires_explicit_kernel_auth(payload):
+                return _auth_failure_envelope(
+                    tool=canonical_name,
+                    session_id=session_id,
+                    error_message=(
+                        "F11: High-risk or execution-capable kernel calls require "
+                        "auth_context. Run init_anchor_state first."
+                    ),
+                    claimed_actor_id=claimed_actor_id,
+                    identity_claim_status="UNVERIFIED_CLAIM",
+                    identity_reason=(
+                        "Auto-bootstrap is allowed only for low/medium non-executing "
+                        "kernel calls."
+                    ),
+                    resolved_actor_id="anonymous",
+                    next_action_reason=(
+                        "Establish continuity with init_anchor_state, then retry the "
+                        "kernel call with the returned auth_context."
+                    ),
+                )
+        else:
+            valid, reason = verify_auth_context_cached(session_id, auth_ctx)
+            if not valid:
+                resolved_actor_id = str(auth_ctx.get("actor_id", "anonymous") or "anonymous")
+                return _auth_failure_envelope(
+                    tool=canonical_name,
+                    session_id=session_id,
+                    error_message=f"F11: Authentication continuity failed: {reason}",
+                    claimed_actor_id=claimed_actor_id,
+                    identity_claim_status="INVALID_AUTH_CONTEXT",
+                    identity_reason=reason,
+                    resolved_actor_id=resolved_actor_id,
+                    next_action_reason=(
+                        "Refresh continuity state and attach the newly minted auth_context."
+                    ),
+                )
+
+    elif canonical_name in REQUIRES_SESSION:
         if not auth_ctx:
             return _auth_failure_envelope(
                 tool=canonical_name,

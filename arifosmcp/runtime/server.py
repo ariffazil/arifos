@@ -73,7 +73,7 @@ register_prompts(mcp)
 
 CORE_TOOL_REGISTRY = {
     "arifOS_kernel": metabolic_loop_router,
-    "arifOS.kernel": metabolic_loop_router,
+    "arifOS-kernel": metabolic_loop_router,
     "search_reality": search_reality,
     "ingest_evidence": ingest_evidence,
     "session_memory": session_memory,

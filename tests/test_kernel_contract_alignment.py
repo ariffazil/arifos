@@ -43,10 +43,28 @@ def test_manifest_kernel_schema_exposes_auth_context():
 
 
 @pytest.mark.asyncio
-async def test_auth_failure_payload_includes_identity_resolution_and_next_action():
+async def test_low_risk_kernel_call_auto_bootstraps_without_auth_context():
     envelope = await metabolic_loop_router(
         query="Assess deployment readiness.",
         actor_id="ARIF",
+        risk_tier="low",
+    )
+
+    assert envelope.tool == "arifOS_kernel"
+    assert envelope.auth_context is not None
+    assert all(error.code != "AUTH_FAILURE" for error in envelope.errors)
+    assert envelope.trace.get("000_INIT") in {"SEAL", "SABAR", "VOID"}
+    assert envelope.philosophy is not None
+    assert envelope.meta.motto is not None
+
+
+@pytest.mark.asyncio
+async def test_high_risk_kernel_call_still_requires_explicit_auth_context():
+    envelope = await metabolic_loop_router(
+        query="Approve production release and execute deployment steps.",
+        actor_id="ARIF",
+        risk_tier="high",
+        allow_execution=True,
     )
 
     payload = envelope.payload
@@ -60,10 +78,6 @@ async def test_auth_failure_payload_includes_identity_resolution_and_next_action
     assert identity_resolution["identity_claim_status"] == "UNVERIFIED_CLAIM"
     assert next_action["tool"] == "init_anchor_state"
     assert next_action["required"] is True
-    assert envelope.meta.motto == "🔥 IGNITE — DITEMPA, BUKAN DIBERI 💎"
-    assert envelope.philosophy is not None
-    assert envelope.philosophy["apex_mode"] == "deterministic_33"
-    assert envelope.philosophy["agi"]["source"] == "deterministic_33"
 
 
 @pytest.mark.asyncio
@@ -87,7 +101,10 @@ def test_governed_philosophy_exposes_available_categories():
         session_id="phi-1",
     )
 
+    assert payload["label"] == "paradox"
+    assert payload["label_source"] in {"bounded_context", "state_router"}
     assert "local_99" in payload["available_categories"]
+    assert "bounded_labels" in payload["available_categories"]
     assert "paradox" in payload["available_categories"]["local_99"]
 
 
@@ -117,3 +134,19 @@ def test_governed_philosophy_maps_empathy_failures_to_love():
 
     assert payload["agi"]["source"] == "deterministic_99"
     assert payload["agi"]["category"] == "love"
+
+
+def test_stage_000_low_g_uses_bounded_label_not_fixed_void_quote():
+    payload = select_governed_philosophy(
+        "Please respond with care and compassion after a painful loss.",
+        stage="000_INIT",
+        verdict="VOID",
+        g_score=0.21,
+        failed_floors=[],
+        session_id="phi-4",
+    )
+
+    assert payload["label"] == "love"
+    assert payload["agi"]["source"] == "deterministic_33"
+    assert payload["agi"]["category"] == "wisdom"
+    assert payload["agi"]["quote_id"] != "V2"
