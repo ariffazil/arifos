@@ -1,6 +1,6 @@
 # arifOS ROADMAP — Horizon 2026
 
-**Version:** 2026.03.10-SEAL
+**Version:** 2026.03.11-SEAL
 **Status:** ✅ ENFORCED  
 **Motto:** *Ditempa Bukan Diberi — Forged, Not Given*
 
@@ -16,6 +16,10 @@
 - [x] **99 Legacies System:** 99 human knowledge domains as immutable thermodynamic constants (`core/shared/legacies.py`).
 - [x] **Canonical v1.0.0 Schema:** `ArifOSOutput` envelope + `Trace` verdict contract finalized.
 - [x] **H1.1: Production Observability:** Prometheus metrics endpoint (`/metrics`) + Grafana on VPS. Constitutional G†, ΔS, Ω₀, P² metrics live.
+- [ ] **Public Explanation Hardening:** Align Agent Builder, Copilot, and public docs to runtime truth so external surfaces do not overclaim capability or certainty.
+- [ ] **Metric Provenance Model:** Every public score should declare whether it is measured, derived, bounded estimate, or policy constant.
+- [ ] **External Evaluation Rubric:** Convert anecdotal transcript-based judgments into a repeatable evidence rubric for uptime, semantic health, governance health, and capability claims.
+- [ ] **Semantic Backend Truthfulness:** Separate `governance kernel live` from `semantic/LLM path live` in health checks, builder copy, and dashboard UX.
 - [ ] **H1.2: ASI Hardening:** SBERT-based semantic scoring for F5 (Peace²), F6 (Empathy), and F9 (Anti-Hantu).
 - [ ] **H1.3: Test Recovery:** Reaching 80%+ test coverage across the new runtime surface.
 
@@ -28,6 +32,8 @@
 - [ ] **Collective VAULT999:** Multi-agent Merkle-chain sharing for collaborative memory and audit trails.
 - [ ] **888_HOLD Refinement:** Enhanced human adjudication interface in the Sovereign Dashboard.
 - [ ] **Amanah Handshake v2:** Decentralized governance tokens for federated clusters.
+- [ ] **Builder-Safe Public Contracts:** Stable model-agnostic tool/profile contract for ChatGPT, Copilot Studio, Claude, and other agent builders.
+- [ ] **Claim-Bounded Personas:** Public personas must reflect role and limits without overstating sovereign authority or semantic capability.
 
 ---
 
@@ -37,6 +43,8 @@
 - [ ] **Edge Sidecar:** Lightweight arifOS runtime for mobile and IoT devices.
 - [ ] **Native Platform Connectors:** Deep integration with OpenAI GPTs, Anthropic Projects, and Google Vertex AI.
 - [ ] **The Sovereign Cloud:** Fully managed, private constitutional intelligence hosting.
+- [ ] **Cross-Platform Builder Kits:** Reference packages for Copilot Studio, ChatGPT Apps, Claude Projects, and model-agnostic MCP deployments.
+- [ ] **Public Benchmark Pack:** Standardized external evaluation harness for `what can arifOS do?`, `is the MCP server working?`, and `is there real AI inside?`.
 
 ---
 

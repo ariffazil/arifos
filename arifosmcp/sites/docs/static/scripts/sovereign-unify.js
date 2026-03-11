@@ -70,6 +70,18 @@
   // Adjust body padding to accommodate fixed header
   document.body.style.paddingTop = '60px';
 
+  // 4.5 Suppress Docusaurus Announcement Bar (if present)
+  const suppressOverlaps = () => {
+    const docusaurusAnnouncement = document.querySelector('div[class*="announcementBar"]');
+    if (docusaurusAnnouncement) docusaurusAnnouncement.style.display = 'none';
+    
+    // Also hide default Docusaurus navbar to avoid double headers
+    const docusaurusNavbar = document.querySelector('.navbar');
+    // if (docusaurusNavbar) docusaurusNavbar.style.top = '60px';
+  };
+  suppressOverlaps();
+  setTimeout(suppressOverlaps, 1000); // Repeat after hydration
+
   // 5. Dynamic Status Fetching
   async function updateStatus() {
     const pulseContainer = header.querySelector('.status-pulse');

@@ -497,7 +497,6 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
             }
         )
 
-
     @mcp.custom_route("/health", methods=["GET"])
     async def health(request: Request) -> Response:
         return JSONResponse(
@@ -509,7 +508,8 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
                 "tools_loaded": len(tool_registry),
                 "ml_floors": get_ml_floor_runtime(),
                 "timestamp": datetime.now(timezone.utc).isoformat(),
-            }
+            },
+            headers={"Access-Control-Allow-Origin": "*"},
         )
 
     @mcp.custom_route("/version", methods=["GET"])
@@ -689,7 +689,8 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
                     "session_id": session_id or f"sess_{uuid.uuid4().hex[:8]}",
                     "timestamp": datetime.now(timezone.utc).isoformat(),
                     "metabolic_stage": metabolic_stage or _DEFAULT_METABOLIC_STAGE,
-                }
+                },
+                headers={"Access-Control-Allow-Origin": "*"},
             )
         except Exception as exc:
             logger.exception("governance_status endpoint failed")
@@ -736,7 +737,8 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
                     "sessions": sessions,
                     "count": len(sessions),
                     "limit": limit,
-                }
+                },
+                headers={"Access-Control-Allow-Origin": "*"},
             )
         except Exception as exc:
             logger.exception("governance_history endpoint failed")
