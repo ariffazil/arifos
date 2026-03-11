@@ -79,7 +79,8 @@ Minimum required variables:
 | `ARIFOS_MCP_PATH` | `/mcp` |
 | `ARIFOS_PUBLIC_BASE_URL` | Public HTTPS domain, currently `https://arifosmcp.arif-fazil.com` |
 | `ARIFOS_WIDGET_DOMAIN` | Same public origin unless intentionally split |
-| `ARIFOS_GOVERNANCE_SECRET` | Long random secret, must not remain placeholder |
+| `ARIFOS_GOVERNANCE_SECRET_FILE` | **Preferred:** Path to persistent secret file (see below) |
+| `ARIFOS_GOVERNANCE_SECRET` | Fallback: Long random secret (not recommended for production) |
 | `POSTGRES_PASSWORD` | Strong secret |
 | `OPENCLAW_ACCESS_TOKEN` | Strong secret |
 | `N8N_BASIC_AUTH_PASSWORD` | Strong secret |
@@ -88,7 +89,9 @@ Minimum required variables:
 
 Operational note:
 
-- If `ARIFOS_GOVERNANCE_SECRET` is missing, auth continuity falls back to an ephemeral in-process secret. That is not acceptable for durable production restarts or multi-instance scaling.
+- **F11 CRITICAL:** `ARIFOS_GOVERNANCE_SECRET` MUST be persistent across restarts. Ephemeral secrets invalidate all auth_context tokens on restart, breaking session continuity.
+- **Recommended:** Use `ARIFOS_GOVERNANCE_SECRET_FILE` pointing to a stable file path (e.g., `/opt/arifos/secrets/governance.secret`)
+- See [DEPLOY_SECRETS.md](DEPLOY_SECRETS.md) for Docker Secrets, file-based secrets, and rotation procedures.
 
 ## Canonical VPS Layout
 
@@ -241,7 +244,7 @@ Current entropy risks to reduce before a hard production seal:
 | --- | --- | --- |
 | Duplicate repo roots on VPS | Unclear live code path | Keep `/srv/arifosmcp` as sole active repo |
 | Legacy `/srv/arifOS` mounts in Compose | Broken binds or stale code | Normalize mounts to `/srv/arifosmcp` |
-| Placeholder governance secret | Session continuity breaks across restart | Set fixed `ARIFOS_GOVERNANCE_SECRET` |
+| Placeholder governance secret | Session continuity breaks across restart | Use `ARIFOS_GOVERNANCE_SECRET_FILE` with stable path. See [DEPLOY_SECRETS.md](DEPLOY_SECRETS.md) |
 | Manual spec drift | Discovery/docs/runtime mismatch | Regenerate specs from registry before deploy |
 | Production deploy without contract check | Silent public surface regression | Run deploy validation and post-deploy `tools/list` |
 

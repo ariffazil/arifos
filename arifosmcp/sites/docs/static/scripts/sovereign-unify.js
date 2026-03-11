@@ -15,11 +15,13 @@
   else if (hostname.includes('arifos')) activeClass = 'active-apps';
   else if (hostname.includes('arifosmcp')) activeClass = 'active-runtime';
 
-  // 3. Create Header
+  // 3. Create Header (Sovereign Primary)
   const header = document.createElement('header');
   header.id = 'sovereign-header';
   header.innerHTML = `
-    <a href="https://arifos.arif-fazil.com" class="logo">ΔΩΨ arifOS</a>
+    <div class="header-left">
+      <a href="https://arifos.arif-fazil.com" class="logo">ΔΩΨ arifOS</a>
+    </div>
     <div class="trinity-pill">
       <a href="https://arif-fazil.com" class="${activeClass === 'active-human' ? 'active-human' : ''}">Human</a>
       <a href="https://apex.arif-fazil.com" class="${activeClass === 'active-theory' ? 'active-theory' : ''}">Theory</a>
@@ -28,7 +30,7 @@
     </div>
     <div class="status-pulse">
       <div class="pulse-dot"></div>
-      SYSTEM SEALED
+      <span class="status-label">INITIALIZING</span>
     </div>
   `;
   document.body.prepend(header);
@@ -70,35 +72,48 @@
   // Adjust body padding to accommodate fixed header
   document.body.style.paddingTop = '60px';
 
-  // 4.5 Suppress Docusaurus Announcement Bar (if present)
+  // 4.5 Suppress Docusaurus Announcement Bar and Duplicated Links
   const suppressOverlaps = () => {
-    const docusaurusAnnouncement = document.querySelector('div[class*="announcementBar"]');
-    if (docusaurusAnnouncement) docusaurusAnnouncement.style.display = 'none';
+    // 1. Hide Docusaurus Announcement Bar
+    document.querySelectorAll('div[class*="announcementBar"]').forEach(el => el.style.display = 'none');
     
-    // Also hide default Docusaurus navbar to avoid double headers
+    // 2. Hide redundant links in Docusaurus navbar if they exist
+    const navbarLinks = document.querySelectorAll('.navbar__link');
+    navbarLinks.forEach(link => {
+      const text = link.textContent.trim().toUpperCase();
+      if (['HUMAN', 'THEORY', 'STATUS'].includes(text)) {
+        link.style.display = 'none';
+      }
+    });
+
+    // 3. Adjust Docusaurus navbar position so it sits below our Sovereign Header
     const docusaurusNavbar = document.querySelector('.navbar');
-    // if (docusaurusNavbar) docusaurusNavbar.style.top = '60px';
+    if (docusaurusNavbar) {
+      docusaurusNavbar.style.top = '60px';
+      docusaurusNavbar.style.boxShadow = 'none';
+    }
   };
   suppressOverlaps();
-  setTimeout(suppressOverlaps, 1000); // Repeat after hydration
+  setInterval(suppressOverlaps, 2000); // Keep cleaning up after React renders
 
   // 5. Dynamic Status Fetching
   async function updateStatus() {
     const pulseContainer = header.querySelector('.status-pulse');
-    const statusText = pulseContainer.lastChild;
+    const statusLabel = pulseContainer.querySelector('.status-label');
     
     try {
-      const response = await fetch('https://arifosmcp.arif-fazil.com/health');
+      // Use no-cache to ensure we get live data
+      const response = await fetch('https://arifosmcp.arif-fazil.com/health', { cache: 'no-store' });
       if (response.ok) {
         pulseContainer.className = 'status-pulse';
-        statusText.textContent = ' SYSTEM SEALED';
+        statusLabel.textContent = 'SYSTEM SEALED';
       } else {
         pulseContainer.className = 'status-pulse warning';
-        statusText.textContent = ' 888_HOLD ACTIVE';
+        statusLabel.textContent = '888_HOLD ACTIVE';
       }
     } catch (e) {
       pulseContainer.className = 'status-pulse error';
-      statusText.textContent = ' SYSTEM OFFLINE';
+      statusLabel.textContent = 'SYSTEM OFFLINE';
     }
   }
 
