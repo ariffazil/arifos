@@ -18,6 +18,7 @@ from __future__ import annotations
 import os
 
 from fastmcp import FastMCP
+from starlette.middleware.cors import CORSMiddleware
 from starlette.staticfiles import StaticFiles
 
 from arifosmcp.runtime.fastmcp_ext.transports import (
@@ -107,6 +108,15 @@ _mcp_app = mcp.http_app(
 )
 
 app = _mcp_app
+
+# Enable CORS for all origins (required for cross-site health/telemetry monitoring)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Mount APEX dashboard static files
 _dashboard_dir = os.path.join(os.path.dirname(__file__), "..", "sites", "apex-dashboard")
