@@ -208,7 +208,9 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
         stage="000_INIT",
         role="Telemetry",
         layer="Governance",
-        description="Read system vitality, including thermodynamic budget and redacted capability map.",
+        description=(
+            "Read system vitality, including thermodynamic budget and redacted capability map."
+        ),
         trinity="Ω Omega",
         floors=("F4", "F5", "F7"),
         input_schema={

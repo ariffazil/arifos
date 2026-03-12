@@ -199,7 +199,8 @@ LLMS_TXT = """\
 
 arifOS is an MCP server exposing a canonical 7-tool metabolic AI pipeline.
 Every tool call passes through 13 governance floors (F1-F13) and returns
-a structured RuntimeEnvelope with verdict, thermodynamic telemetry, and Tri-Witness scores. Agents reason from the capability map (Known Constraints).
+a structured RuntimeEnvelope with verdict, thermodynamic telemetry, and Tri-Witness scores. 
+Agents reason from the capability map (Known Constraints).
 
 ## MCP connection
 
