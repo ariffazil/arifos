@@ -3,21 +3,28 @@ core/physics/thermodynamic_enforcement.py — The Thermodynamic Prosecutor
 
 DITEMPA BUKAN DIBERI — Forged, Not Given
 
+⚠️  APEX NON-LEARNING GUARANTEE:
+This class is a CALCULATOR, not a LEARNER. It applies fixed physics constants
+and constitutional thresholds. It never updates its own rules.
+See: core/governance/APEX_INVARIANTS.md for the complete invariant table.
+
 THERMODYNAMIC DUALITY:
 ─────────────────────
 Boltzmann Machine (1985): Physics as GENERATIVE ENGINE
   → Uses k_B, T, E to CREATE patterns via stochastic exploration
   → "Wander the energy landscape freely"
   → Randomness is ESSENTIAL for learning
+  → Contrast IS knowledge (at this layer)
 
 arifOS (2026): Physics as JUDICIAL GOVERNOR  
   → Uses k_B, T, E to PROSECUTE claims via cost verification
   → "Pay your entropy tax or be VOIDed"
   → Randomness is SUSPICIOUS (possible free lunch)
+  → Contrast is VERIFIED elsewhere (AGI/ASI), judged here
 
 SAME PHYSICS, OPPOSITE FUNCTION:
-  • One is an ENGINE (creates patterns)
-  • One is a GOVERNOR (prosecutes patterns)
+  • One is an ENGINE (creates patterns) — LEARNS
+  • One is a GOVERNOR (prosecutes patterns) — DOES NOT LEARN
   • One uses energy for INFERENCE
   • One uses energy for ENFORCEMENT
 
@@ -29,6 +36,10 @@ from __future__ import annotations
 
 from typing import Any
 
+from core.governance.apex_invariants import (
+    APEX_CONSTANTS,
+    validate_apex_non_learning,
+)
 from core.physics.thermodynamics_hardened import (
     LANDAUER_MIN,
     LandauerError,
@@ -43,20 +54,52 @@ class ThermodynamicProsecutor:
     Unlike a Boltzmann machine that uses physics to generate patterns,
     this class uses physics to PROSECUTE patterns that look like magic.
     
+    ⚠️  NON-LEARNING GUARANTEE:
+    This is an APEX (Ψ/777-888) class. It applies fixed constitutional
+    thresholds. It does NOT learn, adapt, or update its own rules.
+    
     Core Principle:
     "You cannot claim arbitrarily huge clarity at near-zero cost."
     
     The VOID verdict is our "anti-pattern"—it marks outputs that
     violate conservation laws, not outputs we don't like.
+    
+    See Also:
+        - core/governance/APEX_INVARIANTS.md
+        - validate_apex_non_learning() for safety checks
     """
 
-    # Prosecution thresholds
-    MIN_EFFICIENCY_RATIO: float = 1.0  # Below this = physically impossible
-    SUSPICIOUS_EFFICIENCY: float = 100.0  # Below this = "suspiciously cheap"
+    # ═══════════════════════════════════════════════════════════════════
+    # APEX INVARIANTS — These are CONSTANTS, not learnable parameters
+    # ═══════════════════════════════════════════════════════════════════
+    # 
+    # ⚠️  NEVER make these instance variables or mutable attributes.
+    # ⚠️  NEVER add methods like learn(), fit(), train(), update_thresholds().
+    # ⚠️  These are constitutional law, not neural network weights.
+    #
+    # Modification requires human legislative action via 888_HOLD,
+    # not gradient descent or feedback loops.
+    
+    # Prosecution thresholds (from APEX_CONSTANTS)
+    MIN_EFFICIENCY_RATIO: float = APEX_CONSTANTS.EFFICIENCY_MIN  # 1.0
+    SUSPICIOUS_EFFICIENCY: float = APEX_CONSTANTS.EFFICIENCY_SUSPICION  # 100.0
     
     # The thermodynamic tax rate
     # E_min = n·k_B·T·ln(2)·|ΔS|
-    TAX_RATE: float = LANDAUER_MIN  # ~2.87×10^-21 J/bit
+    TAX_RATE: float = LANDAUER_MIN  # ~2.87×10^-21 J/bit (physics constant)
+    
+    @classmethod
+    def validate_non_learning(cls) -> dict[str, Any]:
+        """
+        Verify this APEX class has no learning capabilities.
+        
+        This is a hard safety check. If this ever returns clean=False,
+        it means someone accidentally added learning to the judge.
+        
+        Returns:
+            Validation report from validate_apex_non_learning()
+        """
+        return validate_apex_non_learning(cls)
 
     @classmethod
     def prosecute_claim(
