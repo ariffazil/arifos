@@ -10,19 +10,20 @@
 
 | ID | File | Role | Purpose |
 | :--- | :--- | :--- | :--- |
-| **A100** | [ARCHITECT.md](file:///C:/arifOS/AGENTS/A100_ARCHITECT.md) | **Architect** | High-level Trinity alignment & Design. |
-| **A110** | [CANON.md](file:///C:/arifOS/AGENTS/A110_CANON.md) | **Canon** | The "Mind" history and logical deep-dives. |
-| **A120** | [TOPOGRAPHY.md](file:///C:/arifOS/AGENTS/A120_TOPOGRAPHY.md) | **Topography** | Universal PC-wide registry (Mind vs. Body). |
-| **A200** | [ENGINEER.md](file:///C:/arifOS/AGENTS/A200_ENGINEER.md) | **Engineer** | Code standards & Operational loops (rifosmcp). |
-| **A300** | [STATE.md](file:///C:/arifOS/AGENTS/A300_STATE.md) | **Monitor** | Dynamic agentic state & session tracking. |
+| **A100** | [A100_ARCHITECT.md](A100_ARCHITECT.md) | **Architect** | High-level Trinity alignment & Design. |
+| **A110** | [A110_CANON.md](A110_CANON.md) | **Canon** | The "Mind" history and logical deep-dives. |
+| **A120** | [A120_TOPOGRAPHY.md](A120_TOPOGRAPHY.md) | **Topography** | Universal PC-wide registry (Mind vs. Body). |
+| **A200** | [A200_ENGINEER.md](A200_ENGINEER.md) | **Engineer** | Code standards & Operational loops (arifosmcp). |
+| **A300** | [A300_STATE.md](A300_STATE.md) | **Monitor** | Dynamic agentic state & session tracking. |
+| **A400** | [A400_SUPERPOWERS.md](A400_SUPERPOWERS.md) | **Capability** | Embedded Skills, Tools, and Workflows. |
 
 ---
 
 ## 🎯 Model-Specific Protocols (The A800 Series)
 
-- **A801**: [GEMINI.md](file:///C:/arifOS/AGENTS/A801_GEMINI.md) — Base Gemini instructions.
-- **A802**: [GEMINI_MCP.md](file:///C:/arifOS/AGENTS/A802_GEMINI_MCP.md) — Gemini-to-MCP bridge protocols.
-- **A803**: [KIMI.md](file:///C:/arifOS/AGENTS/A803_KIMI.md) — Kimi skill & metabolic integration.
+- **A801**: [A801_GEMINI.md](A801_GEMINI.md) — Base Gemini instructions.
+- **A802**: [A802_GEMINI_MCP.md](A802_GEMINI_MCP.md) — Gemini-to-MCP bridge protocols.
+- **A803**: [A803_KIMI.md](A803_KIMI.md) — Kimi skill & metabolic integration.
 
 ---
 
