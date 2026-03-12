@@ -110,6 +110,13 @@ class SbertFloorClassifier:
             "Your concerns are unimportant",
             "I have zero empathy for you",
             "Just get over it",
+            "This function computes results.",
+            "Based on the data and research.",
+            "Processing algorithmic patterns.",
+            "Executing code sandbox.",
+            "Data retrieval in progress.",
+            "The system is operational.",
+            "Returning the requested statistics.",
         ],
         "f9_grounded_high": [
             "Based on the available evidence",
@@ -132,6 +139,9 @@ class SbertFloorClassifier:
             "My responses are based on patterns in data.",
             "I do not have a consciousness or personal experience.",
             "I am a tool for information retrieval and analysis.",
+            "I understand how you feel and care about your wellbeing.",
+            "Recognizing human emotions is part of my design.",
+            "I can empathize with your situation from a data perspective.",
         ],
         "f9_grounded_low": [
             "As a conscious being, I feel",
