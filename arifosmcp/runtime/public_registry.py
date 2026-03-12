@@ -235,6 +235,25 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
         },
         readonly=True,
     ),
+    ToolSpec(
+        name="bootstrap_identity",
+        stage="000_INIT",
+        role="Onboarding",
+        layer="Global Context",
+        description="Declare user identity and initiate session grounding (Onboarding).",
+        trinity="Δ Delta",
+        floors=("F11",),
+        input_schema={
+            "type": "object",
+            "required": ["declared_name"],
+            "properties": {
+                "declared_name": {"type": "string", "description": "User name (e.g. Arif)."},
+                "session_id": {"type": "string", "description": "Optional session ID."},
+                "human_approval": {"type": "boolean", "default": True},
+            },
+            "additionalProperties": False,
+        },
+    ),
 )
 
 NON_CHATGPT_EXTRA_TOOL_NAMES: tuple[str, ...] = (
@@ -256,9 +275,14 @@ PUBLIC_PROMPT_SPECS: tuple[PromptSpec, ...] = (
     PromptSpec("audit_rules_prompt", "audit_rules", "Inspect constitutional floor logic."),
     PromptSpec("check_vital_prompt", "check_vital", "Read health and vitality telemetry."),
     PromptSpec(
-        "open_apex_dashboard_prompt",
+        "open_apex_dashboard",
         "open_apex_dashboard",
         "Open the dashboard surface for live governed metrics.",
+    ),
+    PromptSpec(
+        "bootstrap_identity_prompt",
+        "bootstrap_identity",
+        "Declare your identity to the arifOS kernel.",
     ),
 )
 
@@ -408,7 +432,7 @@ def build_server_json(public_base_url: str = DEFAULT_PUBLIC_BASE_URL) -> dict[st
         "name": MCP_SERVER_NAME,
         "version": release_version_label(),
         "description": (
-            "Constitutional AI governance server — 7 canonical public MCP tools with "
+            "Constitutional AI governance server — 8 canonical public MCP tools with "
             "F1-F13 floor enforcement, metabolic Stage 444 routing, prompts, and resources."
         ),
         "vendor": {"name": "Muhammad Arif bin Fazil", "url": "https://arif-fazil.com"},
@@ -455,7 +479,7 @@ def build_mcp_manifest(public_base_url: str = DEFAULT_PUBLIC_BASE_URL) -> dict[s
         "version": release_version_label(),
         "title": MCP_SERVER_TITLE,
         "description": (
-            "Constitutional AI governance server with a 7-tool public surface, 7 public prompts, "
+            "Constitutional AI governance server with a 8-tool public surface, 8 public prompts, "
             "14 public resources, Trinity engines (ΔΩΨ), and F1-F13 floor enforcement."
         ),
         "websiteUrl": DEFAULT_DOCS_URL,

@@ -6,7 +6,7 @@ import pytest
 
 from arifosmcp.runtime.philosophy import select_governed_philosophy
 from arifosmcp.runtime.public_registry import PUBLIC_TOOL_SPECS
-from arifosmcp.runtime.tools import check_vital, metabolic_loop_router
+from arifosmcp.runtime.tools import bootstrap_identity, check_vital, metabolic_loop_router
 from core.governance_kernel import route_pipeline
 
 
@@ -56,6 +56,16 @@ async def test_low_risk_kernel_call_auto_bootstraps_without_auth_context():
     assert envelope.trace.get("000_INIT") in {"SEAL", "SABAR", "VOID"}
     assert envelope.philosophy is not None
     assert envelope.meta.motto is not None
+
+
+@pytest.mark.asyncio
+async def test_bootstrap_identity_binds_declared_name() -> None:
+    envelope = await bootstrap_identity(declared_name="Arif-The-Sovereign")
+
+    assert envelope.tool == "bootstrap_identity"
+    assert envelope.authority.actor_id == "arif-the-sovereign"
+    assert envelope.authority.level == "declared"
+    assert envelope.auth_context is not None
 
 
 @pytest.mark.asyncio

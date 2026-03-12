@@ -19,13 +19,9 @@ from arifosmcp.runtime.philosophy import select_governed_philosophy
 from arifosmcp.runtime.public_registry import public_tool_specs
 from arifosmcp.runtime.resources import build_open_apex_dashboard_result
 from arifosmcp.runtime.sessions import _resolve_session_id, set_active_session
-from core.shared.mottos import (
-    MOTTO_000_INIT_HEADER,
-    MOTTO_999_SEAL_HEADER,
-    get_motto_for_stage,
-)
-from core.state.session_manager import session_manager
 from core.physics.thermodynamics_hardened import get_thermodynamic_report
+from core.shared.mottos import MOTTO_000_INIT_HEADER, MOTTO_999_SEAL_HEADER, get_motto_for_stage
+from core.state.session_manager import session_manager
 from core.telemetry import check_adaptation_status, get_current_hysteresis
 
 from .bridge import call_kernel
@@ -337,6 +333,9 @@ async def _wrap_call(
                 and "F11:" in str(errors_block[0].get("message", ""))
             ):
                 errors_block[0]["code"] = "AUTH_FAILURE"
+        elif tool_name in {"bootstrap_identity", "init_anchor_state"} and isinstance(kernel_res, dict):
+            if str(kernel_res.get("tool", "")).strip() == "anchor_session":
+                kernel_res["tool"] = tool_name
 
         # Merge additional runtime metadata if not already present
         if "meta" not in kernel_res:
@@ -468,6 +467,31 @@ async def init_anchor_state(
     }
     return await _wrap_call(
         "init_anchor_state", Stage.INIT_000, session_id, payload, ctx, caller_context
+    )
+
+
+async def bootstrap_identity(
+    declared_name: str,
+    session_id: str | None = None,
+    human_approval: bool = True,
+    caller_context: CallerContext | None = None,
+    ctx: Context | None = None,
+) -> RuntimeEnvelope:
+    """Bootstrap a named identity session without cryptographic verification (Onboarding)."""
+    current_session_id = _normalize_session_id(session_id)
+    normalized_actor_id = declared_name.strip().lower().replace(" ", "-")
+    payload = {
+        "actor_id": normalized_actor_id,
+        "claimed_actor_id": normalized_actor_id,
+        "intent": {"query": f"I am {declared_name}"},
+        "governance": {
+            "actor_id": normalized_actor_id,
+            "stakes_class": "C",
+            "human_approval": human_approval,
+        },
+    }
+    return await _wrap_call(
+        "bootstrap_identity", Stage.INIT_000, current_session_id, payload, ctx, caller_context
     )
 
 
@@ -698,11 +722,15 @@ async def check_vital(session_id: str = "global", ctx: Context | None = None) ->
     # Enhance payload with real-time thermo-budget and telemetry (H1.1)
     try:
         from core.physics.thermodynamics_hardened import ThermodynamicViolation
+
         try:
             thermo_report = get_thermodynamic_report(session_id)
         except ThermodynamicViolation:
-            thermo_report = {"status": "no_active_budget", "note": "Session has not initialized thermodynamics."}
-            
+            thermo_report = {
+                "status": "no_active_budget",
+                "note": "Session has not initialized thermodynamics.",
+            }
+
         adaptation = check_adaptation_status()
         hysteresis = get_current_hysteresis()
 
@@ -745,6 +773,7 @@ def register_tools(mcp: FastMCP, profile: str = "full") -> None:
         "session_memory": session_memory,
         "audit_rules": audit_rules,
         "check_vital": check_vital,
+        "bootstrap_identity": bootstrap_identity,
     }
 
     for tool_name, handler in public_tool_handlers.items():

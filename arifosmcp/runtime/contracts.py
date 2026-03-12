@@ -66,6 +66,7 @@ AAA_TOOL_STAGE_MAP: dict[str, str] = {
     "audit_rules": "333_MIND",
     "check_vital": "000_INIT",
     "metabolic_loop": "444_ROUTER",
+    "bootstrap_identity": "000_INIT",
 }
 
 TRINITY_BY_TOOL: dict[str, str] = {
@@ -83,6 +84,7 @@ TRINITY_BY_TOOL: dict[str, str] = {
     "audit_rules": "Delta",
     "check_vital": "Omega",
     "metabolic_loop": "ALL",
+    "bootstrap_identity": "Delta",
 }
 
 LAW_13_CATALOG: dict[str, dict[str, str]] = {
@@ -150,6 +152,7 @@ AAA_TOOL_LAW_BINDINGS: dict[str, list[str]] = {
     "audit_rules": ["F2_TRUTH", "F8_GENIUS", "F10_ONTOLOGY_LOCK", "F12_DEFENSE"],
     "check_vital": ["F4_CLARITY", "F5_PEACE2", "F7_HUMILITY", "F3_TRI_WITNESS"],
     "metabolic_loop": ["F1_AMANAH", "F2_TRUTH", "F3_TRI_WITNESS", "F4_CLARITY", "F13_SOVEREIGNTY"],
+    "bootstrap_identity": ["F11_AUTHORITY"],
 }
 
 AAA_TOOL_ALIASES: dict[str, str] = {

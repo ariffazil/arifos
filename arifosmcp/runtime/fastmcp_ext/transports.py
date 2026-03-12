@@ -397,7 +397,7 @@ class _HealthEndpointMiddleware:
                 {
                     "status": "healthy",
                     "service": "arifos-mcp",
-                    "version": os.getenv("ARIFOS_VERSION", "2026.03.09"),
+                    "version": os.getenv("ARIFOS_VERSION", "2026.03.12"),
                 },
                 status_code=200,
             )

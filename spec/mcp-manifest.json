@@ -1,9 +1,9 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.ariffazil/arifos-mcp",
-  "version": "2026.03.10-SEAL",
+  "version": "2026.03.12-SEAL",
   "title": "arifOS Sovereign Governance MCP",
-  "description": "Constitutional AI governance server with a 7-tool public surface, 7 public prompts, 14 public resources, Trinity engines (ΔΩΨ), and F1-F13 floor enforcement.",
+  "description": "Constitutional AI governance server with a 8-tool public surface, 8 public prompts, 14 public resources, Trinity engines (ΔΩΨ), and F1-F13 floor enforcement.",
   "websiteUrl": "https://arifos.arif-fazil.com",
   "vendor": {
     "name": "arifOS",
@@ -32,14 +32,14 @@
     {
       "registryType": "pypi",
       "identifier": "arifos",
-      "version": "2026.03.10-SEAL",
+      "version": "2026.03.12-SEAL",
       "transport": {
         "type": "stdio"
       }
     },
     {
       "registryType": "oci",
-      "identifier": "docker.io/arifazil/arifosmcp:forge-20260310",
+      "identifier": "docker.io/arifazil/arifosmcp:forge-20260312",
       "transport": {
         "type": "streamable-http",
         "url": "https://arifosmcp.arif-fazil.com/mcp"

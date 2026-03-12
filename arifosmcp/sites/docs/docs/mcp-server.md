@@ -10,7 +10,7 @@ description: Technical reference for the canonical arifOS AAA MCP runtime.
 > Registry ID: `io.github.ariffazil/arifos-mcp`
 > Live base URL: `https://arifosmcp.arif-fazil.com`
 > Runtime module: `arifosmcp.runtime`
-> Version: `2026.03.10-SEAL`
+> Version: `2026.03.12-SEAL`
 
 If you're wondering what an "MCP Server" is: **It's the bridge that connects an AI (like Claude or Cursor) to arifOS.** 
 

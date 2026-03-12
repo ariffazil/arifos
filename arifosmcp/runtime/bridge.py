@@ -28,6 +28,7 @@ DEFAULT_VAULT_PATH = Path("VAULT999/vault999.jsonl")
 # Normalized mapping for the 10-tool stack
 TOOL_MAP = {
     "init_anchor_state": "anchor_session",
+    "bootstrap_identity": "anchor_session",
     "integrate_analyze_reflect": "reason_mind",
     "reason_mind_synthesis": "reason_mind",
     "arifOS_kernel": "metabolic_loop",
@@ -397,6 +398,7 @@ async def call_kernel(
                     parent_signature="",
                 )
                 result["auth_context"]["math"] = math.model_dump(mode="json")
+                result["auth_context"]["authority_level"] = res.governance.authority_level
 
         elif canonical_name == "reason_mind":
             action = "framing" if tool_name == "integrate_analyze_reflect" else "full"

@@ -62,7 +62,7 @@ def test_deployment_tool_contract_matches_chatgpt_runtime_surface():
 
     count, tools = module.deployment_tool_contract("chatgpt")
 
-    assert count == 7
+    assert count == len(module.PUBLIC_DEPLOYMENT_TOOLS)
     assert tools == module.PUBLIC_DEPLOYMENT_TOOLS
 
 

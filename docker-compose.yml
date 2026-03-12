@@ -1,6 +1,6 @@
 # ── arifOS AI-First Unified Trinity Stack ──────────────────────────
 # HARDENED PRODUCTION CONFIGURATION
-# Version: 2026.03.10-SEAL-HARDENED
+# Version: 2026.03.12-SEAL-HARDENED
 # Changes:
 #   - Optimized Dockerfile with layer caching
 #   - Non-root user security (arifos:1000)

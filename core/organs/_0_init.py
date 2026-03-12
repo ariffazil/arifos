@@ -15,7 +15,6 @@ DITEMPA BUKAN DIBERI — Forged, Not Given
 
 from __future__ import annotations
 
-import os
 import secrets
 import time
 from datetime import datetime
@@ -133,11 +132,12 @@ class AuthorityLevel(Enum):
     SYSTEM = "system"
     AGENT = "agent"
     ANONYMOUS = "anonymous"
+    DECLARED = "declared"
 
 
 def coerce_authority_level(level: str | None) -> dict[str, Any]:
     """Coerce or suggest valid authority levels."""
-    valid = [l.value for l in AuthorityLevel if l != AuthorityLevel.NONE]
+    valid = [level.value for level in AuthorityLevel if level != AuthorityLevel.NONE]
     if not level:
         return {"value": "anonymous", "coerced": True}
 
@@ -152,6 +152,7 @@ def coerce_authority_level(level: str | None) -> dict[str, Any]:
         "root": "system",
         "bot": "agent",
         "guest": "anonymous",
+        "declared": "declared",
     }
     if clean in aliases:
         return {"value": aliases[clean], "coerced": True}
@@ -206,19 +207,45 @@ ACTOR_AUTHORITY: dict[str, AuthorityLevel] = {
     "operator": AuthorityLevel.OPERATOR,
     "arif-fazil": AuthorityLevel.SOVEREIGN,
     "system": AuthorityLevel.SYSTEM,
-    "anonymous": AuthorityLevel.USER,
+    "anonymous": AuthorityLevel.ANONYMOUS,
 }
 
 
+def infer_identity(query: str) -> str | None:
+    """Infer actor identity from natural language introduction (F11 Soft)."""
+    import re
+
+    patterns = [
+        r"(?:im|i am|this is|name is|call me)\s+([a-zA-Z0-9\-\s]{2,20})",
+        r"saya\s+(?:adalah|ialah)?\s*([a-zA-Z0-9\-\s]{2,20})",  # Malay support
+    ]
+    query_clean = query.strip()
+    for p in patterns:
+        match = re.search(p, query_clean, re.IGNORECASE)
+        if match:
+            # Clean up: no punctuation at end, limit length
+            name = match.group(1).strip().rstrip(".,!?")
+            if name:
+                return name.replace(" ", "-").lower()
+    return None
+
+
 def verify_auth(actor_id: str, auth_token: str | None = None) -> tuple[bool, AuthorityLevel]:
-    if not actor_id:
-        return True, AuthorityLevel.USER  # Default to anonymous user
-    actor_id = actor_id.lower().strip()
-    if actor_id not in VALID_ACTORS:
-        if os.environ.get("ARIFOS_TEST_MODE") == "1":
-            return True, AuthorityLevel.USER
-        return False, AuthorityLevel.NONE
-    return True, ACTOR_AUTHORITY.get(actor_id, AuthorityLevel.USER)
+    if not actor_id or actor_id == "anonymous":
+        return True, AuthorityLevel.ANONYMOUS
+
+    actor_id_clean = actor_id.lower().strip()
+    if actor_id_clean in VALID_ACTORS:
+        return True, ACTOR_AUTHORITY.get(actor_id_clean, AuthorityLevel.USER)
+
+    # GRACEFUL DEGRADATION (F11): If we have a name but no token, it's DECLARED/UNVERIFIED.
+    # We do NOT block at 000 INIT unless it's a high-stakes action.
+    if not auth_token:
+        return True, AuthorityLevel.DECLARED
+
+    # If it reached here with a token, we still assume USER for now
+    # unless we implement a real token verify logic.
+    return True, AuthorityLevel.USER
 
 
 def requires_sovereign(query: str) -> bool:
@@ -299,8 +326,18 @@ async def init(
             injection_score=injection.score,
         )
 
-    # 6. F11: Command Authority
-    is_auth, authority = verify_auth(governance.actor_id, auth_token)
+    # 6. F11: Command Authority (Identity Resolution)
+    # 6a. Identity Inference: If user says "I am Arif", bind it.
+    inferred_id = infer_identity(intent.query)
+    current_actor_id = governance.actor_id
+
+    if inferred_id and (current_actor_id == "anonymous" or current_actor_id == "guest"):
+        current_actor_id = inferred_id
+        governance.actor_id = inferred_id
+
+    # 6b. Verification
+    is_auth, authority = verify_auth(current_actor_id, auth_token)
+
     if not is_auth:
         floors["F11"] = "fail"
         failed = [f for f, s in floors.items() if s == "fail"]
@@ -316,12 +353,14 @@ async def init(
             governance=governance,
             floors=floors,
             floors_failed=failed,
-            error_message="F11 invalid actor",
+            error_message="F11 invalid actor (blocked)",
             auth_verified=False,
         )
 
+    # 6c. Logic: If inferred/declared, we mark it as verified=False but authorized for flow.
     # Update governance metadata with verified level
     governance.authority_level = authority.value  # type: ignore
+    auth_verified = authority not in {AuthorityLevel.ANONYMOUS, AuthorityLevel.DECLARED}
 
     # 7. F13: Sovereign Override (High Stakes)
     is_high_stakes = requires_sovereign(intent.query) or intent.reversibility == "irreversible"
@@ -369,7 +408,7 @@ async def init(
         governance=governance,
         floors=floors,
         governance_token=secrets.token_hex(16),
-        auth_verified=True,
+        auth_verified=auth_verified,
         injection_score=injection.score,
     )
 

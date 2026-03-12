@@ -1,6 +1,6 @@
 # arifos.arif-fazil.com — The Law Hub
 Location: https://arifos.arif-fazil.com/llms.txt
-Version: 2026.03.11-SEAL
+Version: 2026.03.12-SEAL
 Domain: APPS / THE MIND (Δ)
 
 ---

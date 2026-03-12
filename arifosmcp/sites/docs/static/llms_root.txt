@@ -1,6 +1,6 @@
 # arif-fazil.com — The Sovereign Root
 Location: https://arif-fazil.com/llms.txt
-Version: 2026.03.11-SEAL
+Version: 2026.03.12-SEAL
 Authority: ARIF FAZIL (888_JUDGE)
 Domain: HUMAN / ROOT AUTHORITY
 

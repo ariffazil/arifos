@@ -70,6 +70,6 @@ Requests flow through 11 stages: `INIT (000)` → `MIND (111-333)` → `HEART (5
 
 ---
 
-**Version:** 2026.03.09-GEMINI-INIT
+**Version:** 2026.03.12-SEAL
 **Status:** ACTIVE
 **Sovereign Authority:** Muhammad Arif bin Fazil

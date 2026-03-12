@@ -45,6 +45,7 @@ class AuthorityLevel(str, Enum):
     ANONYMOUS = "anonymous"
     OPERATOR = "operator"
     SOVEREIGN = "sovereign"
+    DECLARED = "declared"
 
 
 class PersonaRole(str, Enum):

@@ -1,6 +1,6 @@
 # apex.arif-fazil.com — The APEX Theory
 Location: https://apex.arif-fazil.com/llms.txt
-Version: 2026.03.11-SEAL
+Version: 2026.03.12-SEAL
 Domain: THEORY / THE SOUL (Ψ)
 
 ---
