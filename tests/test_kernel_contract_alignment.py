@@ -43,11 +43,19 @@ def test_manifest_kernel_schema_exposes_auth_context():
 
 
 @pytest.mark.asyncio
-async def test_low_risk_kernel_call_auto_bootstraps_without_auth_context():
+async def test_low_risk_kernel_call_auto_bootstraps_without_auth_context(monkeypatch):
+    from core.physics.thermodynamics_hardened import init_thermodynamic_budget
+    monkeypatch.setenv("ARIFOS_GOVERNANCE_OPEN_MODE", "1")
+    
+    # We need a stable session_id to init budget
+    session_id = "test_low_risk_auto"
+    init_thermodynamic_budget(session_id, initial_budget=1.0)
+    
     envelope = await metabolic_loop_router(
         query="Assess deployment readiness.",
         actor_id="ARIF",
         risk_tier="low",
+        session_id=session_id,
     )
 
     assert envelope.tool == "arifOS_kernel"

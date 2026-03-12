@@ -333,7 +333,9 @@ async def _wrap_call(
                 and "F11:" in str(errors_block[0].get("message", ""))
             ):
                 errors_block[0]["code"] = "AUTH_FAILURE"
-        elif tool_name in {"bootstrap_identity", "init_anchor_state"} and isinstance(kernel_res, dict):
+        elif tool_name in {"bootstrap_identity", "init_anchor_state"} and isinstance(
+            kernel_res, dict
+        ):
             if str(kernel_res.get("tool", "")).strip() == "anchor_session":
                 kernel_res["tool"] = tool_name
 
@@ -601,9 +603,7 @@ async def session_memory(
     """
     # Parse comma-separated memory_ids string into list (Copilot Studio schema-safe)
     parsed_ids: list[str] | None = (
-        [mid.strip() for mid in memory_ids.split(",") if mid.strip()]
-        if memory_ids
-        else None
+        [mid.strip() for mid in memory_ids.split(",") if mid.strip()] if memory_ids else None
     )
     payload = {
         "operation": operation,
@@ -768,6 +768,16 @@ async def check_vital(session_id: str = "global", ctx: Context | None = None) ->
     return envelope
 
 
+async def verify_vault_ledger(
+    session_id: str = "global",
+    full_scan: bool = True,
+    ctx: Context | None = None,
+) -> RuntimeEnvelope:
+    """999 VAULT - Verify Merkle chain integrity of the VAULT999 ledger."""
+    payload = {"full_scan": full_scan}
+    return await _wrap_call("verify_vault_ledger", Stage.VAULT_999, session_id, payload, ctx)
+
+
 async def open_apex_dashboard(
     session_id: str = "global", ctx: Context | None = None
 ) -> ToolResult | RuntimeEnvelope:
@@ -852,11 +862,17 @@ def register_tools(mcp: FastMCP, profile: str = "full") -> None:
         "audit_rules": audit_rules,
         "check_vital": check_vital,
         "bootstrap_identity": bootstrap_identity,
+        "verify_vault_ledger": verify_vault_ledger,
     }
 
+    specs = {spec.name: spec for spec in public_tool_specs()}
+
     for tool_name, handler in public_tool_handlers.items():
-        spec = PUBLIC_TOOL_SPEC_BY_NAME[tool_name]
-        mcp.tool(name=spec.name, description=spec.description)(handler)
+        spec = specs.get(tool_name)
+        if spec:
+            mcp.tool(name=spec.name, description=spec.description)(handler)
+        else:
+            mcp.tool(name=tool_name)(handler)
 
     # Legacy aliases — omitted in copilot/chatgpt/agnostic_public profiles
     if normalized_profile not in ("chatgpt", "agnostic_public"):
@@ -898,4 +914,5 @@ __all__ = [
     "seal_vault_commit",
     "search_reality",
     "session_memory",
+    "verify_vault_ledger",
 ]

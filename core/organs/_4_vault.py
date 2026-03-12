@@ -1,7 +1,7 @@
 """
 organs/4_vault.py — Stage 999: THE MEMORY (VAULT SEAL)
 
-Immutable ledger sealing and tamper-evident logging.
+Immutable ledger sealing and tamper-evident Merkle chaining.
 Commits final session state to VAULT999.
 
 DITEMPA BUKAN DIBERI — Forged, Not Given
@@ -13,6 +13,7 @@ import asyncio
 import hashlib
 import json
 import logging
+import os
 import secrets
 from datetime import datetime, timezone
 from pathlib import Path
@@ -24,7 +25,8 @@ logger = logging.getLogger(__name__)
 
 # Default storage
 DEFAULT_VAULT_PATH = Path("VAULT999/vault999.jsonl")
-_CHAIN_SEED = "PREV_HASH_STUB"
+_CHAIN_SEED = "0x" + "0" * 64
+VAULT_VERSION = "v1"
 
 
 def _canonical_entry_payload(payload: dict[str, Any]) -> dict[str, Any]:
@@ -75,13 +77,9 @@ def verify_vault_record(payload: dict[str, Any]) -> tuple[bool, str | None]:
     if chain.get("payload_hash") != expected_hash:
         return False, "chain payload hash mismatch"
 
-    expected_entry_hash = hashlib.sha256((expected_hash + _CHAIN_SEED).encode()).hexdigest()
-    if chain.get("entry_hash") != expected_entry_hash:
-        return False, "chain entry hash mismatch"
-
-    if chain.get("prev_entry_hash") != "0x" + "0" * 64:
-        return False, "unexpected previous entry hash seed"
-
+    # In v1, entry_hash = sha256(prev_entry_hash + payload_hash)
+    # This verification requires the previous entry, which we don't do here for speed.
+    # Full ledger verification does it.
     return True, None
 
 
@@ -89,6 +87,7 @@ def verify_vault_ledger(path: Path) -> tuple[bool, str | None]:
     """Verify every persisted entry in a vault ledger file."""
     try:
         with open(path, encoding="utf-8") as file_handle:
+            prev_entry_hash = _CHAIN_SEED
             for line_no, line in enumerate(file_handle, start=1):
                 row = line.strip()
                 if not row:
@@ -97,13 +96,54 @@ def verify_vault_ledger(path: Path) -> tuple[bool, str | None]:
                     payload = json.loads(row)
                 except json.JSONDecodeError as exc:
                     return False, f"line {line_no}: invalid json ({exc})"
+
+                # Basic record check
                 ok, reason = verify_vault_record(payload)
                 if not ok:
                     return False, f"line {line_no}: {reason}"
+
+                # Chain check
+                chain = payload.get("chain", {})
+                current_prev_hash = chain.get("prev_entry_hash")
+                if current_prev_hash != prev_entry_hash:
+                    return False, f"line {line_no}: chain broken (prev_hash mismatch)"
+
+                expected_entry_hash = hashlib.sha256(
+                    (prev_entry_hash + payload["seal_hash"]).encode()
+                ).hexdigest()
+                if chain.get("entry_hash") != expected_entry_hash:
+                    return False, f"line {line_no}: entry hash mismatch"
+
+                prev_entry_hash = chain.get("entry_hash")
+
     except OSError as exc:
         return False, str(exc)
 
     return True, None
+
+
+def get_last_vault_entry_hash(path: Path = DEFAULT_VAULT_PATH) -> str:
+    """Retrieve the entry_hash of the very last line in the ledger."""
+    if not path.exists():
+        return _CHAIN_SEED
+
+    try:
+        # P3 Hardening: Read only the last line (efficiency)
+        with open(path, "rb") as f:
+            try:
+                f.seek(-2, os.SEEK_END)
+                while f.read(1) != b"\n":
+                    f.seek(-2, os.SEEK_CUR)
+            except OSError:
+                # File might only have one line
+                f.seek(0)
+            last_line = f.readline().decode().strip()
+            if not last_line:
+                return _CHAIN_SEED
+            data = json.loads(last_line)
+            return data.get("chain", {}).get("entry_hash", _CHAIN_SEED)
+    except Exception:
+        return _CHAIN_SEED
 
 
 def _append_vault_record(path: Path, payload: dict[str, Any]) -> None:
@@ -163,20 +203,26 @@ async def seal(
         hash=entry_hash,
     )
 
-    # 4. Build Tamper-Evident Hash Chain
+    # 4. Build Tamper-Evident Hash Chain (THE FORGE)
+    prev_hash = get_last_vault_entry_hash(DEFAULT_VAULT_PATH)
+    # Entry Hash Protocol: sha256(prev_hash + entry_hash)
+    entry_chain_hash = hashlib.sha256((prev_hash + entry_hash).encode()).hexdigest()
+
     chain = HashChain(
         payload_hash=entry_hash,
-        entry_hash=hashlib.sha256((entry_hash + _CHAIN_SEED).encode()).hexdigest(),
-        prev_entry_hash="0x" + "0" * 64,
+        entry_hash=entry_chain_hash,
+        prev_entry_hash=prev_hash,
+        vault_version=VAULT_VERSION,
     )
 
     # 5. Persist to VAULT999
     try:
-        await asyncio.to_thread(
-            _append_vault_record,
-            DEFAULT_VAULT_PATH,
-            {**entry_data, "seal_hash": entry_hash, "chain": chain.model_dump()},
-        )
+        if seal_mode == "final":
+            await asyncio.to_thread(
+                _append_vault_record,
+                DEFAULT_VAULT_PATH,
+                {**entry_data, "seal_hash": entry_hash, "chain": chain.model_dump()},
+            )
     except Exception as e:
         logger.error("Vault persistence failure: %s", e)
 
@@ -186,8 +232,6 @@ async def seal(
         telemetry["physics_final"] = final_report
 
     # 7. EUREKA Layer 6: Register decision in the Reality Feedback Ledger
-    # The ledger records the expected outcome so that post-action results can
-    # be reconciled later via OutcomeLedger.resolve_outcome().
     try:
         from core.recovery.rollback_engine import outcome_ledger
 
@@ -210,11 +254,10 @@ async def seal(
         seal_record=record,
         hash_chain=chain,
         floors=floors,
-        # P1 Hardening: Pass CRITICAL floors
         human_witness=1.0,
         ai_witness=1.0,
         earth_witness=1.0,
-        evidence={"grounding": "Immutable Vault Seal Hash"},
+        evidence={"grounding": f"v1 Tamper-Evident Chain Seal: {entry_chain_hash[:16]}..."},
     )
 
 
@@ -224,10 +267,8 @@ async def vault(
 ) -> Any:
     """Unified Vault Interface."""
     if operation == "seal":
-        # Map legacy 'action' or 'operation'
         return await seal(**kwargs)
 
-    # Forward to memory search if not seal
     from .unified_memory import vault as memory_vault
 
     return await memory_vault(operation=operation, **kwargs)

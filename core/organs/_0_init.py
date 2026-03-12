@@ -265,6 +265,7 @@ async def init(
     auth_token: str | None = None,
     math_dials: MathDials | dict[str, float] | None = None,
     session_id: str | None = None,
+    dry_run: bool = False,
     **kwargs,
 ) -> InitOutput:
     """
@@ -410,6 +411,7 @@ async def init(
         governance_token=secrets.token_hex(16),
         auth_verified=auth_verified,
         injection_score=injection.score,
+        tri_witness={"human": 1.0, "ai": 1.0, "earth": 1.0},
     )
 
 

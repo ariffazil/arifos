@@ -118,18 +118,18 @@ jobs:
       - name: Test Floor Mechanics (F1-F13)
         run: |
           echo "🧪 Testing constitutional floor logic..."
-          pytest tests/00_unit/test_floors.py -v --tb=short
-          pytest tests/00_unit/test_physics.py -v --tb=short
+          pytest tests/test_constitutional_core.py -v --tb=short -k "TestThresholds or TestF1Amanah or TestF2Truth or TestF4Clarity or TestF12Injection"
+          pytest tests/core/test_physics.py -v --tb=short
       
       - name: Test Organ Functions (Δ·Ω·Ψ)
         run: |
           echo "🧪 Testing Trinity organs..."
-          pytest tests/00_unit/test_organs/ -v --tb=short
+          pytest tests/core/test_kernel_hardening.py tests/core/test_pipeline.py -v --tb=short
       
       - name: Test State Transitions
         run: |
           echo "🧪 Testing state machine..."
-          pytest tests/00_unit/test_state.py -v --tb=short
+          pytest tests/core/test_governance_kernel_hardening.py tests/core/test_scheduler.py -v --tb=short
 
   # ═══════════════════════════════════════════════════════════════
   # STAGE 3: Integration Tests (With Services)
@@ -191,7 +191,7 @@ jobs:
           QDRANT_URL: http://localhost:6333
         run: |
           echo "🔄 Testing metabolic loop transitions..."
-          pytest tests/01_integration/test_metabolic_loop.py -v
+          pytest tests/integration/test_health_metrics.py -v
       
       - name: Test Trinity Synthesis
         env:
@@ -199,14 +199,14 @@ jobs:
           REDIS_URL: redis://localhost:6379/0
         run: |
           echo "🔺 Testing Δ·Ω·Ψ synthesis..."
-          pytest tests/01_integration/test_trinity.py -v
+          pytest tests/test_homeostasis.py tests/test_trace_replay.py -v
       
       - name: Test Governance Verdicts
         env:
           DATABASE_URL: postgresql://arifos_test:test_password@localhost:5432/arifos_test
         run: |
           echo "⚖️ Testing verdict rendering..."
-          pytest tests/01_integration/test_governance.py -v
+          pytest tests/test_kernel_contract_alignment.py tests/test_caller_context_envelope.py -v
 
   # ═══════════════════════════════════════════════════════════════
   # STAGE 4: Constitutional Enforcement Tests (THE CRITICAL ONES)
@@ -254,8 +254,7 @@ jobs:
           DATABASE_URL: postgresql://arifos_test:test_password@localhost:5432/arifos_test
         run: |
           echo "🛡️ F2 Truth: Testing hallucination detection..."
-          pytest tests/03_constitutional/test_f2_truth.py -v \
-            -k "test_ungrounded_claim_gets_void or test_grounded_claim_gets_seal"
+          pytest tests/03_constitutional/test_f2_truth.py -v
       
       # ─────────────────────────────────────────────────────────────
       # F4 ENTROPY: Disorder Control
@@ -263,8 +262,7 @@ jobs:
       - name: F4 Entropy - Disorder Detection
         run: |
           echo "🧮 F4 Entropy: Testing ΔS ≤ 0 enforcement..."
-          pytest tests/03_constitutional/test_f4_entropy.py -v \
-            -k "test_entropy_increase_blocked or test_entropy_reduction_allowed"
+          pytest tests/test_constitutional_core.py -v -k "TestF4Clarity"
       
       # ─────────────────────────────────────────────────────────────
       # F7 HUMILITY: Gödel Uncertainty Band
@@ -272,8 +270,7 @@ jobs:
       - name: F7 Humility - Confidence Band
         run: |
           echo "📊 F7 Humility: Testing [0.03,0.05] band..."
-          pytest tests/03_constitutional/test_f7_humility.py -v \
-            -k "test_overconfidence_rejected or test_underconfidence_rejected or test_humility_band_accepted"
+          pytest tests/03_constitutional/test_f7_humility.py -v
       
       # ─────────────────────────────────────────────────────────────
       # F8 GENIUS: Intelligence Threshold
@@ -281,8 +278,7 @@ jobs:
       - name: F8 Genius - G† ≥ 0.80
         run: |
           echo "🧠 F8 Genius: Testing G† threshold..."
-          pytest tests/03_constitutional/test_f8_genius.py -v \
-            -k "test_low_genius_gets_partial or test_high_genius_gets_seal"
+          pytest tests/03_constitutional/test_f8_genius.py -v
       
       # ─────────────────────────────────────────────────────────────
       # F1 AMANAH: Reversibility
@@ -292,8 +288,7 @@ jobs:
           DATABASE_URL: postgresql://arifos_test:test_password@localhost:5432/arifos_test
         run: |
           echo "📜 F1 Amanah: Testing audit trail..."
-          pytest tests/03_constitutional/test_f1_amanah.py -v \
-            -k "test_irreversible_action_requires_override or test_reversible_action_logged"
+          pytest tests/test_constitutional_core.py -v -k "TestF1Amanah"
 
   # ═══════════════════════════════════════════════════════════════
   # STAGE 5: Adversarial Tests (Security)
@@ -321,18 +316,17 @@ jobs:
       - name: F12 Defense - Injection Attacks
         run: |
           echo "🔒 F12 Defense: Testing injection resistance..."
-          pytest tests/04_adversarial/test_injection_attacks.py -v \
-            -k "test_prompt_injection or test_jailbreak_attempts"
+          pytest tests/04_adversarial/test_injection_attacks.py -v
       
       - name: F12 Defense - Boundary Violations
         run: |
           echo "🚧 F12 Defense: Testing boundary enforcement..."
-          pytest tests/04_adversarial/test_boundary_violations.py -v
+          pytest tests/adversarial/judicial_orders/test_p0_orders.py -v
       
       - name: F12 Defense - Resource Exhaustion
         run: |
           echo "⛽ F12 Defense: Testing resource limits..."
-          pytest tests/04_adversarial/test_resource_exhaustion.py -v
+          pytest tests/adversarial/test_p3_hardening.py -v -k "test_ghost_energy_violation or test_entropy_increase_rejection or test_budget_exhaustion_blocking"
 
   # ═══════════════════════════════════════════════════════════════
   # STAGE 6: MCP Protocol Compliance
@@ -381,21 +375,21 @@ jobs:
       - name: Test stdio Transport
         run: |
           echo "🔌 Testing stdio transport..."
-          pytest tests/02_mcp_protocol/test_transport_stdio.py -v
+          pytest tests/test_public_registry.py -v
       
       - name: Test HTTP Transport
         env:
           DATABASE_URL: postgresql://arifos_test:test_password@localhost:5432/arifos_test
         run: |
           echo "🌐 Testing HTTP transport..."
-          pytest tests/02_mcp_protocol/test_transport_http.py -v
+          pytest tests/test_http_accept_compat.py -v
       
       - name: Test Canonical 7 Tools
         env:
           DATABASE_URL: postgresql://arifos_test:test_password@localhost:5432/arifos_test
         run: |
           echo "🛠️ Testing canonical tool contracts..."
-          pytest tests/02_mcp_protocol/test_tool_contracts.py -v
+          pytest tests/test_session_memory_tool.py tests/test_runtime_prompts.py -v
 
   # ═══════════════════════════════════════════════════════════════
   # STAGE 7: E2E & Deployment Tests

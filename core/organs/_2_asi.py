@@ -110,7 +110,7 @@ async def asi(
     if action == "critique_thought":
         consume_tool_energy(session_id, n_calls=1)
         if not thought_id:
-            raise ValueError("Action 'critique_thought' requires 'thought_id'")
+            thought_id = f"auto-critique:{session_id}"
 
         # Simulate critique result
         critique = CritiqueResult(

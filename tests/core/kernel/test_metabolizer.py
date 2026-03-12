@@ -46,6 +46,7 @@ async def test_metabolic_pipeline_full_flow():
 async def test_stage_444_sync_logic():
     """Verify Stage 444 Trinity Sync — merging AGI and ASI."""
     session_id = "test_sync_session"
+    init_thermodynamic_budget(session_id, initial_budget=1.0)
 
     def mock_get_stage(sid: str, stage: str) -> dict[str, Any]:
         if stage in ("agi", "think"):
@@ -68,6 +69,7 @@ async def test_stage_444_sync_logic():
 async def test_stage_888_judge_veto():
     """Verify Stage 888 APEX Judge — final executive veto."""
     session_id = "test_judge_session"
+    init_thermodynamic_budget(session_id, initial_budget=1.0)
 
     agi_res = {"query": "restricted action", "verdict": "SEAL"}
     asi_res = {"verdict": "HOLD", "is_reversible": False}

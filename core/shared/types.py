@@ -12,7 +12,7 @@ License: AGPL-3.0-only
 DITEMPA BUKAN DIBERI 💎🔥🧠
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from typing import TYPE_CHECKING, Any, Literal, Optional
 
@@ -346,6 +346,30 @@ class ApexMetrics(BaseModel):
 
 
 # ============================================================================
+# TEMPORAL GROUNDING — Latency-Aware Control
+# ============================================================================
+
+
+class TemporalContract(BaseModel):
+    """
+    T in EMD - Temporal layer (Timed Control System).
+    Breaks LLM statelessness by anchoring data to a verified wall-clock.
+    """
+
+    observed_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    request_latency_ms: float = Field(
+        default=0.0, description="Actual physical latency for effort check"
+    )
+    recency_bias: float = Field(
+        default=1.0, ge=0.0, le=1.0, description="Freshness weight [0=Stale, 1=Live]"
+    )
+    valid_until: datetime | None = Field(default=None, description="Expiry TTL for authority/cache")
+    cooldown_expiry: datetime | None = Field(
+        default=None, description="Verification window for PHOENIX-72"
+    )
+
+
+# ============================================================================
 # BASE ORGAN OUTPUT — The Modular Contract
 # ============================================================================
 
@@ -362,6 +386,9 @@ class BaseOrganOutput(BaseModel):
     violations: list[str] = Field(default_factory=list)
     error_message: str | None = None
     timestamp: datetime = Field(default_factory=datetime.now)
+    temporal_contract: TemporalContract | None = Field(
+        default=None, description="Active temporal grounding metadata"
+    )
     metrics: dict[str, Any] | None = None
 
     model_config = ConfigDict(extra="allow", populate_by_name=True)
@@ -581,6 +608,8 @@ class HashChain(BaseModel):
     payload_hash: str
     entry_hash: str
     prev_entry_hash: str
+    block_root: str | None = None
+    vault_version: str = "v1"
 
 
 class SealRecord(BaseModel):

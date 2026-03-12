@@ -44,6 +44,7 @@ TOOL_MAP = {
     "apex_judge_verdict": "apex_judge",
     "seal_vault_commit": "seal_vault",
     "session_memory": "session_memory",
+    "verify_vault_ledger": "verify_vault_ledger",
 }
 
 AUTO_BOOTSTRAP_RISK_TIERS = frozenset({"low", "medium"})
@@ -195,8 +196,6 @@ async def call_kernel(
 ) -> dict[str, Any]:
 
     from arifosmcp.runtime.models import CallerContext as _CallerContext
-    from core.governance_kernel import get_governance_kernel
-    from core.shared.types import GovernanceMetadata, Intent, MathDials, TemporalContract
     from core.governance_kernel import get_governance_kernel
     from core.shared.types import GovernanceMetadata, Intent, MathDials, TemporalContract
 
@@ -396,6 +395,15 @@ async def call_kernel(
                 seal_mode=payload.get("seal_mode", "final"),
                 auth_context=auth_ctx,
             )
+
+        elif canonical_name == "verify_vault_ledger":
+            ok, reason = verify_vault_ledger(DEFAULT_VAULT_PATH)
+            result = {
+                "ok": ok,
+                "status": "INTACT" if ok else "BROKEN",
+                "message": reason or "Chain Integrity: VERIFIED (SHA-256 Merkle)",
+                "path": str(DEFAULT_VAULT_PATH),
+            }
 
         elif canonical_name == "metabolic_loop":
             from arifosmcp.runtime.orchestrator import metabolic_loop

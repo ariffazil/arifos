@@ -4,15 +4,26 @@ run_evals.py - Constitutional Dashboard Generator for arifOS MCP.
 Standard: 2026.03.12-SEAL
 Generates test-reports/index.html (Truth Claim audit log dashboard).
 """
+import datetime
+import hashlib
+import json
 import os
 import sys
-import json
-import datetime
 from pathlib import Path
-
 
 SEAL_ID = "2026.03.12-SEAL"
 GENERATED_AT = datetime.datetime.utcnow().isoformat() + "Z"
+
+
+def compute_sha256(file_path):
+    """Compute the SHA-256 hash of a file."""
+    if not os.path.exists(file_path):
+        return "N/A"
+    sha256_hash = hashlib.sha256()
+    with open(file_path, "rb") as f:
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    return sha256_hash.hexdigest()
 
 
 def collect_truth_records():
@@ -21,52 +32,119 @@ def collect_truth_records():
     repo_root = Path(".")
 
     # Scan for constitutional documents
-    for pattern in ["CONSTITUTION.md", "docs/**/*.md", "metadata/**/*.json",
-                    "arifosmcp/intelligence/core/eval/**/*",
-                    "tests/mcp_live/golden/**/*"]:
+    for pattern in [
+        "CONSTITUTION.md",
+        "docs/**/*.md",
+        "metadata/**/*.json",
+        "arifosmcp/intelligence/core/eval/**/*",
+        "tests/mcp_live/golden/**/*",
+    ]:
         for fpath in repo_root.glob(pattern):
             if fpath.is_file():
                 stat = fpath.stat()
-                records.append({
-                    "path": str(fpath),
-                    "size": stat.st_size,
-                    "modified": datetime.datetime.utcfromtimestamp(
-                        stat.st_mtime
-                    ).isoformat() + "Z",
-                    "type": fpath.suffix or "file",
-                })
+                records.append(
+                    {
+                        "path": str(fpath),
+                        "size": stat.st_size,
+                        "modified": datetime.datetime.utcfromtimestamp(stat.st_mtime).isoformat()
+                        + "Z",
+                        "type": fpath.suffix or "file",
+                        "hash": compute_sha256(str(fpath)),
+                    }
+                )
 
     # Always include a baseline record
-    records.append({
-        "path": "scripts/run_evals.py",
-        "size": Path("scripts/run_evals.py").stat().st_size
-            if Path("scripts/run_evals.py").exists() else 0,
-        "modified": GENERATED_AT,
-        "type": ".py",
-        "note": "Generator script - Seal verified",
-    })
+    generator_path = "scripts/run_evals.py"
+    records.append(
+        {
+            "path": generator_path,
+            "size": Path(generator_path).stat().st_size if Path(generator_path).exists() else 0,
+            "modified": GENERATED_AT,
+            "type": ".py",
+            "hash": compute_sha256(generator_path) if Path(generator_path).exists() else "N/A",
+            "note": "Generator script - Seal verified",
+        }
+    )
 
     return records
 
 
+def verify_vault_chain():
+    """Verify the VAULT999 ledger chain status."""
+    ledger_path = Path("VAULT999/vault999.jsonl")
+    if not ledger_path.exists():
+        return "NO_LEDGER", "No VAULT999 ledger found.", 0
+
+    try:
+        count = 0
+        prev_entry_hash = "0x" + "0" * 64
+        with open(ledger_path, "r", encoding="utf-8") as f:
+            for line_no, line in enumerate(f, 1):
+                row = line.strip()
+                if not row:
+                    continue
+                data = json.loads(row)
+                count += 1
+
+                # Verify Chain
+                chain = data.get("chain", {})
+                current_prev = chain.get("prev_entry_hash")
+                if current_prev != prev_entry_hash:
+                    return "BROKEN", f"Chain broken at entry {line_no} (prev_hash mismatch)", count
+
+                # Check entry_hash consistency
+                seal_hash = data.get("seal_hash")
+                expected_entry_hash = hashlib.sha256(
+                    (prev_entry_hash + seal_hash).encode()
+                ).hexdigest()
+                if chain.get("entry_hash") != expected_entry_hash:
+                    return "BROKEN", f"Entry hash mismatch at index {line_no}", count
+
+                prev_entry_hash = chain.get("entry_hash")
+
+        return "INTACT", "All links verified via SHA-256 Merkle Chaining.", count
+    except Exception as e:
+        return "ERROR", str(e), 0
+
+
 def build_html(records, title="Constitutional Dashboard", is_apex=False):
     """Build the HTML dashboard from truth records."""
+    chain_status, chain_msg, ledger_count = verify_vault_chain()
+    chain_class = "status-ok" if chain_status == "INTACT" else "status-error"
+    if chain_status == "BROKEN":
+        chain_class = "status-error"
+    elif chain_status == "NO_LEDGER":
+        chain_class = "status-muted"
+
     rows = ""
     for i, rec in enumerate(records, 1):
         note = rec.get("note", "")
+        file_hash = rec.get("hash", "N/A")
+        short_hash = file_hash[:12] + "..." if len(file_hash) > 12 else file_hash
         rows += f"""
         <tr>
           <td>{i}</td>
           <td><code>{rec['path']}</code></td>
           <td>{rec['size']:,} bytes</td>
           <td>{rec['modified']}</td>
+          <td><code>{short_hash}</code></td>
           <td>{rec['type']}</td>
           <td>{note}</td>
         </tr>"""
 
     record_count = len(records)
-    apex_link = "<p><a href='/dashboard/'>&#8594; APEX Sub-Dashboard</a></p>" if not is_apex else "<p><a href='/'>&#8592; Back to Main Dashboard</a></p>"
+    apex_link = (
+        "<p><a href='/dashboard/'>&#8594; APEX Sub-Dashboard</a></p>"
+        if not is_apex
+        else "<p><a href='/'>&#8592; Back to Main Dashboard</a></p>"
+    )
     apex_badge = "APEX" if is_apex else "SOVEREIGN"
+
+    # Add custom styles for status-error and status-muted
+    custom_styles = """
+    .status-error { color: var(--red); font-weight: bold; }
+    .status-muted { color: var(--muted); }
+    """
 
     html = f"""<!DOCTYPE html>
 <html lang="en">
@@ -86,6 +164,7 @@ def build_html(records, title="Constitutional Dashboard", is_apex=False):
       --green: #00ff88;
       --red: #ff4444;
     }}
+    {custom_styles}
     * {{ box-sizing: border-box; margin: 0; padding: 0; }}
     body {{
       background: var(--bg);
@@ -180,24 +259,40 @@ def build_html(records, title="Constitutional Dashboard", is_apex=False):
     <strong>Status:</strong> <span class="status-ok">&#10003; OPERATIONAL</span>
   </div>
 
-  <div class="meta-grid">
-    <div class="meta-card">
-      <div class="label">Total Truth Records</div>
-      <div class="value">{record_count}</div>
+  <section style="margin-bottom: 2rem; border-left: 2px solid var(--accent2); padding-left: 1rem;">
+    <h2>The Context: What is this?</h2>
+    <p style="font-size: 0.9rem; color: var(--text); max-width: 800px;">
+      This dashboard is the <strong>Public Notary</strong> of arifOS. It serves as the bridge between 
+      internal AI operations and external human observability. Its core purpose is 
+      <strong>Evidence-Based Governance</strong>: every entry in the table below is a 
+      <em>Truth Record</em>—a piece of verifiable evidence that the system is operating within its 
+      Constitutional Floors (F1-F13).
+    </p>
+    <p style="font-size: 0.85rem; color: var(--muted); margin-top: 0.5rem;">
+      By hashing these files, we ensure that the "Ground Truth" of the system cannot be altered 
+      without breaking the Seal. This is the <strong>VAULT999 Immutable Ledger</strong> made visible.
+    </p>
+  </section>
+
+    <div class="meta-grid">
+      <div class="meta-card">
+        <div class="label">Total Truth Records</div>
+        <div class="value">{record_count}</div>
+      </div>
+      <div class="meta-card" style="border-left: 3px solid var(--accent2);">
+        <div class="label">VAULT999 Chain Status</div>
+        <div class="value {chain_class}">{chain_status}</div>
+        <div style="font-size: 0.7rem; color: var(--muted); margin-top: 0.5rem;">{ledger_count} Sealed Entries | {chain_msg}</div>
+      </div>
+      <div class="meta-card">
+        <div class="label">Seal Standard</div>
+        <div class="value">{SEAL_ID}</div>
+      </div>
+      <div class="meta-card">
+        <div class="label">Constitutional Alignment</div>
+        <div class="value status-ok">COMPLIANT</div>
+      </div>
     </div>
-    <div class="meta-card">
-      <div class="label">Seal Standard</div>
-      <div class="value">{SEAL_ID}</div>
-    </div>
-    <div class="meta-card">
-      <div class="label">Runtime</div>
-      <div class="value">arifOS MCP v1.0</div>
-    </div>
-    <div class="meta-card">
-      <div class="label">Constitutional Alignment</div>
-      <div class="value status-ok">COMPLIANT</div>
-    </div>
-  </div>
 
   {apex_link}
 
@@ -209,6 +304,7 @@ def build_html(records, title="Constitutional Dashboard", is_apex=False):
         <th>Path</th>
         <th>Size</th>
         <th>Last Modified (UTC)</th>
+        <th>Hash (SHA-256)</th>
         <th>Type</th>
         <th>Notes</th>
       </tr>

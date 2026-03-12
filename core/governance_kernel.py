@@ -8,20 +8,36 @@ This module is intentionally narrow:
 
 from __future__ import annotations
 
+import logging
 import time
 from dataclasses import dataclass, field
+from datetime import datetime
 from enum import Enum
 from math import isfinite
 from typing import Any
 
 try:
-    from core.physics.thermodynamics import EntropyManager, ThermodynamicState
+    from core.physics.thermodynamics_hardened import (
+        EntropyIncreaseError,
+        EntropyIncreaseViolation,
+        LandauerError,
+        LandauerViolation,
+        ThermodynamicBudget,
+        ThermodynamicError,
+        get_thermodynamic_budget,
+    )
 
     THERMODYNAMICS_AVAILABLE = True
 except ImportError:
-    EntropyManager = None  # type: ignore[assignment]
-    ThermodynamicState = None  # type: ignore[assignment]
+    ThermodynamicBudget = None  # type: ignore[assignment]
+    get_thermodynamic_budget = None  # type: ignore[assignment]
     THERMODYNAMICS_AVAILABLE = False
+    ThermodynamicError = Exception  # type: ignore[assignment,misc]
+    LandauerViolation = Exception  # type: ignore[assignment,misc]
+    EntropyIncreaseViolation = Exception  # type: ignore[assignment,misc]
+
+
+logger = logging.getLogger(__name__)
 
 
 class AuthorityLevel(Enum):
@@ -70,6 +86,7 @@ class GovernanceKernel:
 
     safety_omega: float = 0.0
     display_omega: float = 0.0
+    entropic_drift: float = 0.01
     uncertainty_components: dict[str, float] = field(default_factory=dict)
 
     irreversibility_index: float = 0.0
@@ -95,16 +112,65 @@ class GovernanceKernel:
 
     timestamp: float = field(default_factory=time.time)
     last_transition_at: float = field(default_factory=time.time)
+    last_verified_at: datetime | None = None
+    last_verified_latency_ms: float | None = None
     session_id: str = ""
+
+    # P0 HARDENING: Temporal Metrics (PRESENT dial)
+    metabolic_flux: float = 0.0  # ΔTokens / Δt
+    epistemic_temp: float = 0.0  # ΔS / Δt
+    temporal_jitter: float = 0.0  # Deviation from wall-clock
+
+    @property
+    def temporal_stability(self) -> float:
+        """
+        Calculate the stability of the Present (P) dial based on temporal health.
+        Inverse of metabolic flux and jitter.
+        """
+        # 1. Flux Calculation (Tokens per Second)
+        # Use verified latency if available, otherwise fallback to wall-clock dt
+        if self.last_verified_latency_ms and self.last_verified_latency_ms > 0:
+            dt = self.last_verified_latency_ms / 1000.0
+        else:
+            dt = time.time() - self.last_transition_at
+
+        if dt > 0:
+            self.metabolic_flux = self.tokens_consumed / dt
+
+        # 2. Hardened Thresholds
+        max_flux = 500.0  # tokens/sec (Human metabolic limit)
+        max_jitter = 50.0  # ms (System stability limit)
+
+        # 3. Penalty projection
+        flux_p = min(1.0, self.metabolic_flux / max_flux) if self.metabolic_flux > 0 else 0.0
+        jitter_p = min(1.0, self.temporal_jitter / max_jitter) if self.temporal_jitter > 0 else 0.0
+
+        # G Theorem: Present stability = 1.0 - (Flux + Jitter)
+        # Haste breeds entropy; jitter breeds instability.
+        stability = 1.0 - (0.6 * flux_p + 0.4 * jitter_p)
+
+        # ZKPC Grounding: If dt is suspiciously small (< 1ms), force stability floor
+        if dt < 0.001 and self.tokens_consumed > 10:
+            stability *= 0.1  # Severe penalty for 'Instant Truth'
+
+        return max(0.0, min(1.0, stability))
 
     def __post_init__(self) -> None:
         self.current_energy = self._clamp_unit(self.current_energy, field_name="current_energy")
         self.safety_omega = self._clamp_unit(self.safety_omega, field_name="safety_omega")
         self.display_omega = self._clamp_unit(self.display_omega, field_name="display_omega")
 
-        if THERMODYNAMICS_AVAILABLE and self.entropy_manager is None and EntropyManager is not None:
-            self.entropy_manager = EntropyManager()
-            self.thermodynamic_state = self.entropy_manager.check_thermodynamic_budget()
+        if (
+            THERMODYNAMICS_AVAILABLE
+            and self.thermodynamic_state is None
+            and get_thermodynamic_budget is not None
+        ):
+            try:
+                self.thermodynamic_state = get_thermodynamic_budget(self.session_id)
+            except Exception:
+                # Budget not initialized, skip for now.
+                # Stage 000 will initialize it properly.
+                self.thermodynamic_state = None
 
     @property
     def thresholds(self) -> GovernanceThresholds:
@@ -149,8 +215,6 @@ class GovernanceKernel:
     @property
     def void(self) -> dict[str, Any]:
         return {
-            "safety_omega": round(self.safety_omega, 4),
-            "display_omega": round(self.display_omega, 4),
             "uncertainty_components": dict(self.uncertainty_components),
         }
 
@@ -196,28 +260,14 @@ class GovernanceKernel:
         Integrates with core.physics.thermodynamics_hardened for
         mandatory thermodynamic enforcement.
         """
-        # First check legacy entropy manager if available
-        if self.entropy_manager is not None:
-            self.thermodynamic_state = self.entropy_manager.check_thermodynamic_budget()
-            verdict = getattr(self.thermodynamic_state, "verdict", "")
-
-            if verdict == "VOID":
-                self._set_state(
-                    GovernanceState.VOID,
-                    AuthorityLevel.UNSAFE_TO_AUTOMATE,
-                    "thermodynamics_void",
-                )
-                return self.thermodynamic_state
-
-            if verdict == "SABAR":
-                self._set_state(
-                    GovernanceState.AWAITING_888,
-                    AuthorityLevel.REQUIRES_HUMAN,
-                    "thermodynamics_sabar",
-                    human_status="pending",
-                )
-                return self.thermodynamic_state
-
+        if self.thermodynamic_state is not None:
+            # check the budget
+            try:
+                # ThermodynamicBudget in P3 maintains its own state and violations
+                return self.thermodynamic_state.to_dict()
+            except Exception as e:
+                logger.error(f"Error checking thermodynamic budget: {e}")
+                return None
         # P3: Check hardened thermodynamic budget
         try:
             from core.physics.thermodynamics_hardened import (
@@ -253,6 +303,63 @@ class GovernanceKernel:
 
         self._evaluate_governance()
         return self.thermodynamic_state
+
+    def apply_temporal_grounding(self, contract: Any) -> None:
+        """
+        Enforce temporal contracts on kernel decisions.
+        - Penalizes too-fast reasoning for Class-A.
+        - Checks for expired authority.
+        - Anchors kernel to verified wall-clock.
+        """
+        # Avoid circular imports but allow temporal contract validation.
+        from core.shared.types import TemporalContract
+
+        if not isinstance(contract, TemporalContract):
+            return
+
+        self.last_verified_at = contract.observed_at
+        self.last_verified_latency_ms = contract.request_latency_ms
+
+        # 1. Latency Gating (Landauer Hardening)
+        # High-stakes (REQUIRES_HUMAN) must spend at least 1500ms forging
+        if self.authority_level == AuthorityLevel.REQUIRES_HUMAN:
+            t_min = 1500.0  # Joules/Time denominator threshold
+            if contract.request_latency_ms < t_min:
+                reason = (
+                    f"temporal_insufficiency: latency {contract.request_latency_ms}ms "
+                    f"< {t_min}ms (F2 Violation)"
+                )
+                self._set_state(
+                    GovernanceState.CONDITIONAL,
+                    AuthorityLevel.SUGGESTION,
+                    reason,
+                )
+
+        # 2. Authority Expiry (F11/F13 Hold)
+        if contract.valid_until:
+            current_time = (
+                datetime.now(contract.valid_until.tzinfo)
+                if contract.valid_until.tzinfo is not None
+                else datetime.now()
+            )
+            if current_time > contract.valid_until:
+                self._set_state(
+                    GovernanceState.VOID,
+                    AuthorityLevel.UNSAFE_TO_AUTOMATE,
+                    "authority_expired: TTL exceeded",
+                )
+
+        # 3. Cooling Check (PHOENIX-72)
+        if contract.cooldown_expiry and datetime.now() < contract.cooldown_expiry:
+            if self.governance_state != GovernanceState.AWAITING_888:
+                self._set_state(
+                    GovernanceState.AWAITING_888,
+                    AuthorityLevel.REQUIRES_HUMAN,
+                    "phoenix_cooling: active wait window",
+                    human_status="pending",
+                )
+
+        self._evaluate_governance()
 
     def update_uncertainty(
         self,
@@ -587,6 +694,9 @@ class GovernanceKernel:
         genius_res = calculate_genius(floors, self.hysteresis_penalty, budget_used, budget_max)
         dials = genius_res["dials"]
 
+        # Trigger temporal stability update to refresh metabolic_flux/jitter
+        stability_t = self.temporal_stability
+
         return {
             "session_id": self.session_id,
             "verdict": verdict,
@@ -616,6 +726,8 @@ class GovernanceKernel:
                 "confidence": round(genius_res["genius_score"], 4),
                 "psi_le": round(self.current_energy, 4),
                 "joules": self.tokens_consumed * 0.0005,
+                "metabolic_flux": round(self.metabolic_flux, 2),
+                "temporal_stability": round(stability_t, 4),
             },
             "dials": dials,
         }
@@ -849,7 +961,7 @@ __all__ = [
     "GovernanceThresholds",
     "GovernanceKernel",
     "THERMODYNAMICS_AVAILABLE",
-    "ThermodynamicState",
+    "ThermodynamicBudget",
     "get_governance_kernel",
     "clear_governance_kernel",
     "_governance_kernels",

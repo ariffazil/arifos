@@ -1,10 +1,11 @@
 from __future__ import annotations
 
-import tomllib
 from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
 from typing import Any
+
+import tomllib
 
 ROOT = Path(__file__).resolve().parents[2]
 PYPROJECT_PATH = ROOT / "pyproject.toml"
@@ -261,6 +262,24 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
             },
             "additionalProperties": False,
         },
+    ),
+    ToolSpec(
+        name="verify_vault_ledger",
+        stage="999_VAULT",
+        role="Auditor",
+        layer="Observability",
+        description="Verify the SHA-256 Merkle chain integrity of the VAULT999 immutable ledger.",
+        trinity="Ψ Psi",
+        floors=("F13",),
+        input_schema={
+            "type": "object",
+            "properties": {
+                "session_id": {"type": "string", "default": "global"},
+                "full_scan": {"type": "boolean", "default": True},
+            },
+            "additionalProperties": False,
+        },
+        readonly=True,
     ),
 )
 

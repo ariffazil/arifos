@@ -7,6 +7,7 @@ from core.organs._4_vault import compute_vault_seal_hash, verify_vault_ledger, v
 
 
 def _build_entry() -> dict[str, object]:
+    from core.organs._4_vault import _CHAIN_SEED
     entry = {
         "session_id": "vault-test",
         "ledger_id": "LGR-TEST",
@@ -18,13 +19,14 @@ def _build_entry() -> dict[str, object]:
         "timestamp": "2026-03-12T00:00:00+00:00",
     }
     seal_hash = compute_vault_seal_hash(entry)
+    entry_hash = hashlib.sha256((_CHAIN_SEED + seal_hash).encode()).hexdigest()
     return {
         **entry,
         "seal_hash": seal_hash,
         "chain": {
             "payload_hash": seal_hash,
-            "entry_hash": hashlib.sha256((seal_hash + "PREV_HASH_STUB").encode()).hexdigest(),
-            "prev_entry_hash": "0x" + "0" * 64,
+            "entry_hash": entry_hash,
+            "prev_entry_hash": _CHAIN_SEED,
         },
     }
 

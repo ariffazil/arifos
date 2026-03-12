@@ -124,12 +124,15 @@
       "disabled": false
     },
     "time": {
-      "$comment": "Time and timezone utilities",
+      "$comment": "F4 Clarity, F13 Coordination — Temporal Grounding for arifOS",
       "command": "uvx",
       "args": [
-        "mcp-server-time"
+        "mcp-server-time",
+        "--local-timezone",
+        "Asia/Kuala_Lumpur"
       ],
-      "disabled": false
+      "disabled": false,
+      "description": "Time + timezone/duration tools backing PHOENIX-72 cooling, VAULT999 ledger, and thermodynamic vitals."
     }
   }
 }

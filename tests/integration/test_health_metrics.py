@@ -56,8 +56,9 @@ def test_governance_status_endpoint():
     assert "session_id" in data
 
 
-def test_metrics_endpoint_not_found():
-    """The legacy /metrics endpoint should now be 404 unless explicitly added."""
+def test_metrics_endpoint_available():
+    """Verify that the Prometheus /metrics endpoint is exposed."""
     client = TestClient(server_app)
     response = client.get("/metrics")
-    assert response.status_code == 404
+    assert response.status_code == 200
+    assert "text/plain" in response.headers.get("content-type", "")

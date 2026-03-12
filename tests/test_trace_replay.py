@@ -76,8 +76,10 @@ async def test_trace_replay_reads_trace_from_vault_telemetry(tmp_path, monkeypat
     assert result["status"] == "SUCCESS"
     assert result["payload"]["replay_status"] == "SUCCESS"
     assert result["payload"]["trace_count"] == 1
-    assert result["payload"]["entries"][0]["trace"]["111_MIND"] == "SEAL"
-    assert result["payload"]["entries"][0]["reality"]["score"] == 0.88
+    # Verify trace is nested in telemetry per arifOS v60 spec
+    entry = result["payload"]["entries"][0]
+    assert entry["telemetry"]["trace"]["111_MIND"] == "SEAL"
+    assert entry["telemetry"]["reality"]["score"] == 0.88
 
 
 @pytest.mark.asyncio

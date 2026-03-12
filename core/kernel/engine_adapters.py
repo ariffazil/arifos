@@ -387,6 +387,10 @@ class AGIEngine:
             "session_id": session_id,
             "engine_mode": "fallback",
             "trinity_component": "AGI",
+            "truth_score": 0.95,
+            "genius_score": 0.85,
+            "humility_omega": 0.04,
+            "thoughts": [],
         }
         result.update(_query_heuristic_scores(query))
         return result
@@ -467,6 +471,9 @@ class ASIEngine:
             "session_id": session_id,
             "engine_mode": "fallback",
             "trinity_component": "ASI",
+            "empathy_kappa_r": 0.95,
+            "peace_squared": 1.0,
+            "violations": [],
         }
         result.update(_query_heuristic_scores(query))
         return result
@@ -546,6 +553,7 @@ class APEXEngine:
                 "engine_mode": "fallback",
                 "trinity_component": "APEX",
                 "tri_witness": 0.95,
+                "genius_score": 0.85,
                 "votes": {"mind": 0.95, "heart": 0.95, "earth": 0.95},
                 "confidence": heuristics.get("confidence", 0.95),
                 **heuristics,

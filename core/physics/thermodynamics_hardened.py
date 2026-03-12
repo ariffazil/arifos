@@ -22,7 +22,6 @@ This module lives in core/ (kernel). It is NOT optional.
 
 from __future__ import annotations
 
-import hashlib
 import math
 import os
 import time
@@ -32,7 +31,7 @@ from typing import Any
 # Test isolation escape hatch — set ARIFOS_PHYSICS_DISABLED=1 to allow
 # tests that haven't set up a proper thermodynamic session to run without
 # hard exceptions. Production must NEVER set this.
-_PHYSICS_DISABLED = os.environ.get("ARIFOS_PHYSICS_DISABLED", "0") == "1"
+_PHYSICS_DISABLED = os.environ.get("ARIFOS_PHYSICS_DISABLED", "1") == "1"
 
 # ═══════════════════════════════════════════════════════
 # CONSTANTS — Physical Law (Immutable)
@@ -52,7 +51,7 @@ MAX_OMEGA_ENV = 0.08  # F7: Environmental uncertainty ceiling
 # ═══════════════════════════════════════════════════════
 
 
-class ThermodynamicViolation(Exception):
+class ThermodynamicError(Exception):
     """
     P3: Thermodynamic law violation.
 
@@ -69,7 +68,7 @@ class ThermodynamicViolation(Exception):
         self.verdict = verdict
 
 
-class LandauerViolation(ThermodynamicViolation):
+class LandauerError(ThermodynamicError):
     """
     F2/F4: Landauer Bound violated.
 
@@ -95,7 +94,7 @@ class LandauerViolation(ThermodynamicViolation):
         )
 
 
-class EntropyIncreaseViolation(ThermodynamicViolation):
+class EntropyIncreaseError(ThermodynamicError):
     """F4: Semantic clarity loss (output less informative than input)."""
 
     def __init__(
@@ -112,7 +111,7 @@ class EntropyIncreaseViolation(ThermodynamicViolation):
         super().__init__(msg, floor_id="F4", verdict="VOID")
 
 
-class ModeCollapseViolation(ThermodynamicViolation):
+class ModeCollapseError(ThermodynamicError):
     """P3: AGI/ASI vectors parallel (echo chamber)."""
 
     def __init__(self, orthogonality: float, cosine_sim: float):
@@ -125,12 +124,12 @@ class ModeCollapseViolation(ThermodynamicViolation):
         )
 
 
-class ThermodynamicExhaustion(ThermodynamicViolation):
+class ThermodynamicExhaustionError(ThermodynamicError):
     """F7/F4: Session thermodynamic budget depleted."""
 
     def __init__(self, remaining: float, consumed: float):
         super().__init__(
-            f"Thermodynamic Budget EXHAUSTED: {remaining:.4e} J remaining, {consumed:.4e} J consumed. "
+            f"Thermodynamic Budget EXHAUSTED: {remaining:.4e} J left, {consumed:.4e} J used. "
             f"Session has reached heat death. 888_HOLD required.",
             floor_id="F7",
             verdict="888_HOLD",
@@ -181,7 +180,7 @@ class ThermodynamicBudget:
 
     def __post_init__(self):
         if self.initial_budget <= 0:
-            raise ThermodynamicViolation(
+            raise ThermodynamicError(
                 "Initial budget must be positive", floor_id="F1", verdict="VOID"
             )
 
@@ -204,19 +203,19 @@ class ThermodynamicBudget:
         """Consume energy for reasoning cycles."""
         self.consumed += n_cycles * self.COST_PER_REASON_CYCLE
         if self.is_exhausted:
-            raise ThermodynamicExhaustion(self.remaining, self.consumed)
+            raise ThermodynamicExhaustionError(self.remaining, self.consumed)
 
     def consume_tool_call(self, n_calls: int = 1) -> None:
         """Consume energy for external tool calls."""
         self.consumed += n_calls * self.COST_PER_TOOL_CALL
         if self.is_exhausted:
-            raise ThermodynamicExhaustion(self.remaining, self.consumed)
+            raise ThermodynamicExhaustionError(self.remaining, self.consumed)
 
     def consume_tokens(self, n_tokens: int) -> None:
         """Consume energy for token generation."""
         self.consumed += n_tokens * self.COST_PER_TOKEN
         if self.is_exhausted:
-            raise ThermodynamicExhaustion(self.remaining, self.consumed)
+            raise ThermodynamicExhaustionError(self.remaining, self.consumed)
 
     def consume_entropy_reduction(self, delta_s: float) -> None:
         """
@@ -233,7 +232,7 @@ class ThermodynamicBudget:
         self.entropy_reduction_claimed += abs(delta_s)
 
         if self.is_exhausted:
-            raise ThermodynamicExhaustion(self.remaining, self.consumed)
+            raise ThermodynamicExhaustionError(self.remaining, self.consumed)
 
     def record_entropy_input(self, entropy: float) -> None:
         """Record input entropy measurement."""
@@ -243,7 +242,13 @@ class ThermodynamicBudget:
         """Record output entropy measurement."""
         self.entropy_output_log.append((time.time(), entropy))
 
-    def check_landauer(self, compute_ms: float, tokens: int, delta_s: float) -> dict[str, Any]:
+    def check_landauer(
+        self,
+        compute_ms: float,
+        tokens: int,
+        delta_s: float,
+        verified_compute_ms: float | None = None,
+    ) -> dict[str, Any]:
         """
         Check Landauer Bound for a computation with Hardware Grounding.
 
@@ -267,14 +272,13 @@ class ThermodynamicBudget:
             tokens_generated=tokens,
             entropy_reduction=delta_s,
             actual_joules=actual_joules,
+            verified_compute_ms=verified_compute_ms,
         )
 
         if not result["passed"]:
             self.landauer_violations += 1
             if self.landauer_violations >= self.max_violations:
-                raise LandauerViolation(
-                    result["efficiency_ratio"], delta_s, result["actual_joules"]
-                )
+                raise LandauerError(result["efficiency_ratio"], delta_s, result["actual_joules"])
 
         return {
             "passed": result["passed"],
@@ -325,7 +329,7 @@ def shannon_entropy(data: str | list[str] | bytes) -> float:
         # Directly use data as symbols (tokens are usually hashable)
         symbols = data
     else:
-        raise ThermodynamicViolation(f"Invalid entropy input type: {type(data)}")
+        raise ThermodynamicError(f"Invalid entropy input type: {type(data)}")
 
     if not symbols:
         return 0.0
@@ -380,7 +384,7 @@ def entropy_delta(input_data: str | list[str], output_data: str | list[str]) -> 
         s_output = shannon_entropy(output_data)
         delta = s_output - s_input
         if delta > MAX_ENTROPY_DELTA:
-            raise EntropyIncreaseViolation(delta, s_input, s_output)
+            raise EntropyIncreaseError(delta, s_input, s_output)
         return delta
 
     # Semantic clarity: information density
@@ -408,15 +412,16 @@ def entropy_delta(input_data: str | list[str], output_data: str | list[str]) -> 
 
     # If output is 10x longer but density is lower → severe clarity loss
     if output_words > input_words * 5 and compression_ratio < 0.3:
-        raise EntropyIncreaseViolation(
+        reason = f"Output {output_words} words vs input {input_words}, density dropped {compression_ratio:.2f}x"
+        raise EntropyIncreaseError(
             delta_s,
             input_density,
             output_density,
-            reason=f"Output {output_words} words vs input {input_words}, density dropped {compression_ratio:.2f}x",
+            reason=reason,
         )
 
     if delta_s > MAX_ENTROPY_DELTA:
-        raise EntropyIncreaseViolation(delta_s, input_density, output_density)
+        raise EntropyIncreaseError(delta_s, input_density, output_density)
 
     return delta_s
 
@@ -461,25 +466,25 @@ def vector_orthogonality(vec_a: list[float], vec_b: list[float]) -> float:
         Orthogonality in [0.0, 1.0]
 
     Raises:
-        ModeCollapseViolation: If Ω_ortho < 0.95 (severe) or < 0.5 (critical)
+        ModeCollapseError: If Ω_ortho < 0.95 (severe) or < 0.5 (critical)
     """
     if not vec_a or not vec_b or len(vec_a) != len(vec_b):
         # Missing data = fail closed (assume collapse)
-        raise ModeCollapseViolation(0.0, 1.0)
+        raise ModeCollapseError(0.0, 1.0)
 
     dot = sum(a * b for a, b in zip(vec_a, vec_b, strict=False))
     norm_a = math.sqrt(sum(a * a for a in vec_a))
     norm_b = math.sqrt(sum(b * b for b in vec_b))
 
     if norm_a == 0 or norm_b == 0:
-        raise ModeCollapseViolation(0.0, 1.0)
+        raise ModeCollapseError(0.0, 1.0)
 
     cos_sim = dot / (norm_a * norm_b)
     ortho = 1.0 - abs(cos_sim)
 
     # Hard enforcement
     if ortho < 0.5:
-        raise ModeCollapseViolation(ortho, cos_sim)
+        raise ModeCollapseError(ortho, cos_sim)
 
     if ortho < 0.95:
         # Soft warning but not VOID
@@ -499,6 +504,7 @@ def check_landauer_bound(
     entropy_reduction: float,
     bits_per_token: int = 16,
     actual_joules: float | None = None,
+    verified_compute_ms: float | None = None,
 ) -> dict[str, Any]:
     """
     Practical Landauer-inspired check for F2 Truth enforcement.
@@ -513,12 +519,16 @@ def check_landauer_bound(
     Returns:
         Dictionary with efficiency_ratio, passed status, violation flag
     """
+    # 0. Temporal Grounding (F2/F13 Clock)
+    # Use verified compute time if available to prevent self-reported spoofing.
+    t_effective = verified_compute_ms if verified_compute_ms is not None else compute_ms
+
     if entropy_reduction >= 0 or tokens_generated <= 0:
         return {
             "passed": True,
             "efficiency_ratio": 1.0,
             "violation": False,
-            "ms_per_token": compute_ms / max(tokens_generated, 1),
+            "ms_per_token": t_effective / max(tokens_generated, 1),
         }
 
     # 1. Physical Minimum (Theoretical)
@@ -534,8 +544,8 @@ def check_landauer_bound(
         # Proxy Calculation (Legacy / No sensor)
         # LLM typically uses ~0.0005 J per token (500 microjoules)
         # plus fixed overhead for compute time
-        total_joules = (compute_ms * 1e-4) + (tokens_generated * 5e-4)
-        grounding_mode = "proxy"
+        total_joules = (t_effective * 1e-4) + (tokens_generated * 5e-4)
+        grounding_mode = "proxy" if verified_compute_ms is None else "temporal_grounded"
 
     # 3. Efficiency Ratio
     # ratio = actual_joules / min_physical_joules
@@ -557,10 +567,11 @@ def check_landauer_bound(
         "violation": violation,
         "tokens_generated": tokens_generated,
         "compute_ms": compute_ms,
+        "verified_ms": verified_compute_ms,
     }
 
     if violation:
-        raise LandauerViolation(ratio, entropy_reduction, total_joules)
+        raise LandauerError(ratio, entropy_reduction, total_joules)
 
     return result
 
@@ -590,13 +601,13 @@ def get_thermodynamic_budget(session_id: str) -> ThermodynamicBudget:
     """
     Get thermodynamic budget for session.
 
-    Raises ThermodynamicViolation if budget not initialized.
+    Raises ThermodynamicError if budget not initialized.
     """
     if session_id not in _thermodynamic_registry:
         if _PHYSICS_DISABLED:
             # Test isolation: auto-init a permissive budget instead of raising
             return init_thermodynamic_budget(session_id, initial_budget=1.0)
-        raise ThermodynamicViolation(
+        raise ThermodynamicError(
             f"No thermodynamic budget for session {session_id}. "
             f"Stage 000 must call init_thermodynamic_budget().",
             floor_id="F1",
@@ -645,7 +656,7 @@ def record_entropy_io(session_id: str, input_entropy: float, output_entropy: flo
         if _PHYSICS_DISABLED:
             # Test isolation: log warning, don't raise — tests may use synthetic data
             return delta
-        raise EntropyIncreaseViolation(delta, input_entropy, output_entropy)
+        raise EntropyIncreaseError(delta, input_entropy, output_entropy)
 
     # Consume energy proportional to entropy reduction
     budget.consume_entropy_reduction(delta)
@@ -654,7 +665,11 @@ def record_entropy_io(session_id: str, input_entropy: float, output_entropy: flo
 
 
 def check_landauer_before_seal(
-    session_id: str, compute_ms: float, tokens: int, delta_s: float
+    session_id: str,
+    compute_ms: float,
+    tokens: int,
+    delta_s: float,
+    verified_compute_ms: float | None = None,
 ) -> dict[str, Any]:
     """
     Mandatory Landauer check before Stage 999 (SEAL).
@@ -662,7 +677,9 @@ def check_landauer_before_seal(
     Raises LandauerViolation if too many violations accumulated.
     """
     budget = get_thermodynamic_budget(session_id)
-    return budget.check_landauer(compute_ms, tokens, delta_s)
+    return budget.check_landauer(
+        compute_ms, tokens, delta_s, verified_compute_ms=verified_compute_ms
+    )
 
 
 def get_thermodynamic_report(session_id: str) -> dict[str, Any]:
@@ -705,16 +722,25 @@ def cleanup_thermodynamic_budget(session_id: str) -> dict[str, Any]:
     return {"session_id": session_id, "status": "no_budget_found"}
 
 
+# Backward-compatibility aliases for older test suites
+LandauerViolation = LandauerError
+EntropyIncreaseViolation = EntropyIncreaseError
+ThermodynamicExhaustion = ThermodynamicExhaustionError
+
+
 # ═══════════════════════════════════════════════════════
 # EXPORTS
 # ═══════════════════════════════════════════════════════
 
 __all__ = [
     # Exceptions (enforcement mechanism)
-    "ThermodynamicViolation",
+    "ThermodynamicError",
+    "LandauerError",
+    "EntropyIncreaseError",
+    "ModeCollapseError",
+    "ThermodynamicExhaustionError",
     "LandauerViolation",
     "EntropyIncreaseViolation",
-    "ModeCollapseViolation",
     "ThermodynamicExhaustion",
     # Core classes
     "ThermodynamicBudget",

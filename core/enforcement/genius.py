@@ -252,8 +252,21 @@ def floors_to_dials(
 
     akal = geometric_mean([floors.f2_truth, floors.f4_clarity, f7_norm, f10])
 
-    # 3. P = PRESENCE (Stability/Trust)
-    presence = geometric_mean([floors.f1_amanah, floors.f5_peace, f11])
+    # 3. P = PRESENCE (Stability/Trust/Temporal PRESENT)
+    # APEX G Theorem: P is the stability of the Present State.
+    # It is dampened by high metabolic flux (haste) and jitter.
+    presence_base = geometric_mean([floors.f1_amanah, floors.f5_peace, f11])
+    
+    # Temporal Dampening: P = P_base * Stability_t
+    # We retrieve the instantaneous stability from the governance kernel if available
+    try:
+        from core.governance_kernel import get_governance_kernel
+        kernel = get_governance_kernel()
+        stability_t = kernel.temporal_stability
+    except Exception:
+        stability_t = 1.0
+
+    presence = presence_base * stability_t
 
     # 4. X = EXPLORATION (Navigation/Heart)
     anti_hantu_compliance = 1.0 - floors.f9_anti_hantu

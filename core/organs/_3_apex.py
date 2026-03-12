@@ -136,7 +136,7 @@ def _derive_next_actions(materiality: str) -> list[NextAction]:
             requires_888_hold=False,
         ),
         "production": NextAction(
-            action_type="apex_judgment",
+            action_type="human_review",
             description="Submit to Stage 888 for final verdict.",
             requires_hold=True,
         ),
