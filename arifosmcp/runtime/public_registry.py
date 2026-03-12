@@ -416,7 +416,6 @@ def build_server_json(public_base_url: str = DEFAULT_PUBLIC_BASE_URL) -> dict[st
         "repository": DEFAULT_REPOSITORY_URL,
         "transports": [
             {"type": "http", "url": f"{base_url}{DEFAULT_HTTP_PATH}"},
-            {"type": "sse", "url": f"{base_url}/sse"},
             {"type": "stdio", "command": DEFAULT_STDIO_COMMAND},
         ],
         "capabilities": {
@@ -488,7 +487,6 @@ def build_mcp_manifest(public_base_url: str = DEFAULT_PUBLIC_BASE_URL) -> dict[s
             },
         ],
         "remotes": [
-            {"type": "sse", "url": f"{base_url}/sse"},
             {
                 "type": "streamable-http",
                 "url": f"{base_url}{DEFAULT_HTTP_PATH}",

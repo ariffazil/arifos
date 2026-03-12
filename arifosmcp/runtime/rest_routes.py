@@ -206,7 +206,7 @@ tokens, passwords, or environment-variable values.
 ## MCP connection
 
 - Protocol: Model Context Protocol (MCP) 2025-11-25
-- Endpoint: /mcp  (SSE + JSON-RPC)
+- Endpoint: /mcp  (streamable-http + JSON-RPC)
 - Tool listing: GET /tools
 - Single call: POST /checkpoint
 
