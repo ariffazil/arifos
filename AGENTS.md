@@ -48,8 +48,16 @@ arifosmcp/
 └── transport/              → External gateways
 
 tests/
-├── conftest.py             → Pytest fixtures
-└── core/                   → Core module tests
+├── conftest.py                           → Pytest fixtures
+├── core/                                 → Core module tests
+│   ├── kernel/                           → Kernel execution tests (NEW)
+│   │   ├── test_engine_adapters.py       → InitEngine, AGIEngine, ASIEngine
+│   │   └── test_stage_orchestrator.py    → 000-999 metabolic pipeline
+│   └── test_sbert_floors.py              → F5/F6/F9 semantic classification
+├── adversarial/                          → Judicial order tests
+│   └── judicial_orders/
+│       └── test_p0_orders.py             → P0 constitutional hardening
+└── test_trace_replay.py                  → VAULT999 integrity tests
 ```
 
 ---
@@ -149,4 +157,36 @@ Checks: whitespace, syntax, large files, private keys, format, lint, type check,
 
 ---
 
-**Version:** 2026.03.12-SEAL | **Status:** ACTIVE
+## Test Coverage Guidelines
+
+### Current State (2026.03.12-FORGED)
+- **Total Tests:** ~410 passing
+- **Coverage:** ~64% (target: 80%)
+- **Recent Forge:** +126 tests added (kernel + SBERT validation)
+
+### Test Structure by Module
+| Module | Coverage | Status | Test File |
+|--------|----------|--------|-----------|
+| `core/kernel/engine_adapters.py` | ~85% | ✅ Well-tested | `tests/core/kernel/test_engine_adapters.py` |
+| `core/kernel/stage_orchestrator.py` | ~80% | ✅ Well-tested | `tests/core/kernel/test_stage_orchestrator.py` |
+| `core/shared/sbert_floors.py` | ~75% | ✅ Well-tested | `tests/core/test_sbert_floors.py` |
+| `core/kernel/evaluator.py` | 0% | 🔴 Needs tests | — |
+| `core/kernel/heuristics.py` | 0% | 🔴 Needs tests | — |
+| `core/kernel/init_000_anchor.py` | 0% | 🔴 Needs tests | — |
+
+### Writing New Tests
+```bash
+# Run specific test file
+pytest tests/core/kernel/test_engine_adapters.py -v
+
+# Run with coverage
+pytest tests/core/kernel/test_stage_orchestrator.py --cov=core.kernel.stage_orchestrator
+
+# Run failing tests only
+pytest tests/ --lf -v
+```
+
+---
+
+**Version:** 2026.03.12-FORGED | **Status:** ACTIVE  
+**Coverage:** ~64% (56% → 64%, +8pp) | **Tests:** ~410 passing (+73)
