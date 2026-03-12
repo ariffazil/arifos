@@ -28,17 +28,31 @@
     "port": 8080,
     "path": "/mcp",
     "log_level": "INFO",
-    "transports_available": ["stdio", "http", "sse"],
+    "transports_available": ["stdio", "http", "streamable-http"],
+    "transport_note": "SSE removed: deprecated by MCP spec (2025-03) and Microsoft Copilot Studio (2025-08). Use streamable-http for all remote clients.",
     "env": {
       "HOST": "${HOST:-0.0.0.0}",
-      "PORT": "${PORT:-8080}"
+      "PORT": "${PORT:-8080}",
+      "ARIFOS_PUBLIC_TOOL_PROFILE": "full",
+      "COPILOT_API_KEY": ""
     }
   },
+  "profiles": {
+    "full": "All tools + phase2 external capability tools. Default for VPS/local use.",
+    "copilot": "Copilot Studio-safe surface: 6 flat-schema tools, no legacy aliases, no phase2 tools. Set ARIFOS_PUBLIC_TOOL_PROFILE=copilot.",
+    "chatgpt": "ChatGPT/OpenAI compatible surface. No phase2 tools.",
+    "agnostic_public": "Minimal public surface. No phase2 tools."
+  },
   "tools": {
-    "core_constitutional_stack": 10,
+    "core_constitutional_stack": 6,
     "phase2_legacy_tools_enabled": true,
     "governance": true,
-    "description": "10-tool core constitutional stack plus legacy external capability tools kept enabled outside the new metabolic loop"
+    "description": "6-tool Copilot Studio-safe core stack (profile=copilot). Full profile adds legacy orchestration tools."
+  },
+  "authentication": {
+    "mode": "optional_api_key",
+    "header": "X-API-Key",
+    "note": "Set COPILOT_API_KEY env var to enable. Leave empty for open access (development). In Copilot Studio wizard: Authentication -> API Key -> Header -> X-API-Key."
   },
   "metadata": {
     "author": "Arif Fazil",
