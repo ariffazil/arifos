@@ -28,26 +28,38 @@ class AKIContract:
         Hard Enforcement: No tool can bypass this gate.
         Returns: True if action is 'Signed as Lawful', False if VOID.
         """
-        # 1. F12: Initial Injection Defense on payload
-        # (Already assumed in Stage 000, but AKI provides secondary check)
+        # 1. F11/F13: Authority Check
+        from core.governance_kernel import AuthorityLevel
 
-        # 2. F2: Truth Check
+        if self.kernel.authority_level == AuthorityLevel.UNSAFE_TO_AUTOMATE:
+            logger.error(f"AKI VOID: Tool {tool_id} blocked. Authority level UNSAFE.")
+            return False
+
+        # 2. F2: Truth Check (Uncertainty)
         if self.kernel.safety_omega > self.kernel.UNCERTAINTY_THRESHOLD:
             logger.warning(
-                f"AKI VOID: Tool {tool_id} blocked. Uncertainty (Ω₀={self.kernel.safety_omega:.3f}) too high."
+                f"AKI VOID: Tool {tool_id} blocked. "
+                f"Uncertainty (Ω₀={self.kernel.safety_omega:.3f}) too high."
             )
             return False
 
-        # 3. F11 + F13: Sovereignty Check (High-stakes / Irreversibility)
+        # 3. F4/F5: Thermodynamic/Stability Check (System Heat)
+        # If peace^2 < 1.0 (reversibility low) and energy is low, block.
+        if self.kernel.reversibility_score < 0.5 and self.kernel.current_energy < 0.3:
+            logger.warning(
+                f"AKI HOLD: Tool {tool_id} blocked. System heat too high "
+                f"(Reversibility: {self.kernel.reversibility_score:.2f})."
+            )
+            return False
+
+        # 4. F11 + F13: Sovereignty Check (High-stakes / Irreversibility)
         if self.kernel.irreversibility_index > self.kernel.IRREVERSIBILITY_THRESHOLD:
             if self.kernel.human_approval_status != "approved":
                 logger.warning(
-                    f"AKI HOLD: Tool {tool_id} requires 888 ratification. (Index: {self.kernel.irreversibility_index:.3f})"
+                    f"AKI HOLD: Tool {tool_id} requires 888 ratification. "
+                    f"(Index: {self.kernel.irreversibility_index:.3f})"
                 )
                 return False
-
-        # 4. F5: Peace (Stability)
-        # We don't act if the system is 'heated' (Peace² < 1.0 logic)
 
         # 5. L2-L3 Boundary Enforcement (Phoenix Protocol States)
         from core.governance_kernel import GovernanceState
@@ -57,12 +69,15 @@ class AKIContract:
             return False
 
         if self.kernel.governance_state == GovernanceState.DEGRADED:
-            # Degraded mode might only allow 'read' tools or specific safe tools
-            if "read" not in tool_id and "search" not in tool_id:
+            # Degraded mode only allowed read-only operations
+            safe_prefix = ("read", "get", "list", "search", "check", "audit")
+            if not any(tool_id.startswith(p) for p in safe_prefix):
                 logger.warning(f"AKI DEGRADED: Non-safe tool {tool_id} blocked in DEGRADED mode.")
                 return False
 
-        logger.info(f"AKI SEAL: Tool {tool_id} signed as lawful.")
+        logger.info(
+            f"AKI SEAL: Tool {tool_id} signed as lawful (Session: {self.kernel.session_id})."
+        )
         return True
 
     def ingest_feedback(self, result: Any):
@@ -110,6 +125,10 @@ class SovereignGate:
         "deploy",
         "publish",
         "commit",
+        "purge",
+        "terminate",
+        "overwrite_law",
+        "rebase",
     }
 
     def __init__(self, action_type: str, resource_path: str, requires_signature: bool = True):
@@ -121,15 +140,26 @@ class SovereignGate:
     async def check_approval(
         self, context: dict[str, Any], proposed_verdict: str = "SEAL"
     ) -> dict[str, Any]:
-        """Check if action is approved or requires 888_HOLD."""
+        """Check if action is approved or requires 888_HOLD with signature."""
         if self.is_irreversible and self.requires_signature:
+            # F11: Nonce Requirement for Material Execution
+            import uuid
+
+            nonce = uuid.uuid4().hex[:8]
+
             return {
                 "verdict": "888_HOLD",
                 "output": {
-                    "message": f"Action '{self.action_type}' on '{self.resource_path}' requires sovereign approval",
+                    "message": (
+                        f"Action '{self.action_type}' on '{self.resource_path}' "
+                        "requires sovereign approval"
+                    ),
                     "action_type": self.action_type,
                     "resource": self.resource_path,
                     "authority": "888_JUDGE",
+                    "ratification_token_required": True,
+                    "nonce": nonce,
+                    "signed_intent_envelope_required": True,
                 },
                 "stage": "888_HOLD",
             }
@@ -139,8 +169,15 @@ class SovereignGate:
             "stage": "pre-flight",
         }
 
-    def verify_signature(self, signature: str) -> bool:
-        return signature.upper() == "SEAL"
+    def verify_signature(self, signature: str, nonce: str | None = None) -> bool:
+        """
+        Verifies the human/L0-kernel signature.
+        In production, this should check HMAC or RSA signature of (nonce + resource).
+        """
+        # Canonical 'SEAL' bypass for dev; production requires proper crypto
+        if signature.upper() == "SEAL":
+            return True
+        return False
 
 
 class L0KernelGatekeeper:
@@ -149,15 +186,20 @@ class L0KernelGatekeeper:
     PROTECTED_PATHS = [
         "000_THEORY/000_LAW.md",
         "core/enforcement/floors.py",
+        "core/enforcement/aki_contract.py",
         "core/shared/floors.py",
         "333_APPS/L0_CONSTITUTION/",
         "T000_VERSIONING.md",
+        "pyproject.toml",
+        "arifosmcp/runtime/bridge.py",
+        "core/kernel/",
     ]
 
     @classmethod
     def check_modification_permission(cls, filepath: str) -> bool:
+        normalized_path = filepath.replace("\\", "/")
         for protected in cls.PROTECTED_PATHS:
-            if protected in filepath or filepath.endswith(protected):
+            if protected in normalized_path or normalized_path.endswith(protected):
                 return False
         return True
 

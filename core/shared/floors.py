@@ -23,7 +23,7 @@ from core.shared.guards.ontology_guard import OntologyGuard
 # CONSTANTS & SPECIFICATIONS
 # =============================================================================
 
-CONSTITUTIONAL_VERSION = "v60.1-SEAL"
+CONSTITUTIONAL_VERSION = "2026.03.12--FORGED"
 EPOCH = "2026-02-25"
 AUTHORITY = "Muhammad Arif bin Fazil"
 
@@ -218,10 +218,7 @@ class F2_Truth(Floor):
         landauer_status = ""
         landauer_available = False
         try:
-            from core.physics.thermodynamics_hardened import (
-                LandauerViolation,
-                check_landauer_bound,
-            )
+            from core.physics.thermodynamics_hardened import LandauerViolation, check_landauer_bound
 
             landauer_available = True
         except ImportError:

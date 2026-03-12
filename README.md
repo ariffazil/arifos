@@ -7,7 +7,7 @@
 
 [![Status](https://img.shields.io/badge/Status-Stationary%20%26%20Enforced-00ffcc.svg?style=for-the-badge)](https://arifosmcp.arif-fazil.com/health)
 [![Architecture](https://img.shields.io/badge/Architecture-Trinity%20ΔΩΨ-7c3aed.svg?style=for-the-badge)](https://arifos.arif-fazil.com/architecture)
-[![Version](https://img.shields.io/badge/Version-v2026.03.12--SEAL-blue.svg?style=for-the-badge)](https://github.com/ariffazil/arifosmcp/commits/main)
+[![Version](https://img.shields.io/badge/Version-2026.03.12--FORGED-blue.svg?style=for-the-badge)](https://github.com/ariffazil/arifosmcp/commits/main)
 [![Tests](https://img.shields.io/badge/Tests-80%2F80%20Passing-success.svg?style=for-the-badge)](./tests/)
 [![License: AGPL 3.0](https://img.shields.io/badge/License-AGPL%203.0-lightgrey.svg?style=for-the-badge)](./LICENSE)
 

@@ -1,4 +1,4 @@
-# arifOS Constitutional Alignment (v60.1-SEAL)
+# arifOS Constitutional Alignment (2026.03.12--FORGED)
 
 **Motto:** *Ditempa Bukan Diberi — Forged, Not Given*  
 **Domain:** Constitutional AI Governance & Thermodynamic Intelligence  
@@ -71,5 +71,5 @@ The 11-stage process for all governed intent:
 - **Humans:** You hold the **Amanah** (F1) and **Sovereignty** (F13). High-stakes operations (Risk Tier: Critical) require your physical `888_HOLD` ratification.
 - **System Integrity:** Never write to `stdout` in transport code. Always verify `auth_context` for session continuity (F11).
 
-**VERSION:** 2026.03.09-CONSTITUTION-SEAL
+**VERSION:** 2026.03.12-CONSTITUTION-FORGED
 **STATUS:** ACTIVE
