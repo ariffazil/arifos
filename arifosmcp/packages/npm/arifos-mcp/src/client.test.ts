@@ -1,143 +1,78 @@
 /**
- * @arifos/mcp — Client Tests
- * 
- * Integration tests for the MCP client.
- * Requires a running arifOS MCP server.
+ * @arifos/mcp - Client Tests
  */
 
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
-import { createClient } from './client.js';
-import type { ArifOSMCPClient } from './client.js';
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { createClient, ENDPOINTS, PUBLIC_TOOL_NAMES, VERSION } from "./index.js";
+import type { ArifOSMCPClient } from "./client.js";
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// Test Configuration
-// ═══════════════════════════════════════════════════════════════════════════════
+const TEST_ENDPOINT = process.env.ARIFOS_TEST_ENDPOINT ?? "http://localhost:8080/mcp";
+const SKIP_INTEGRATION = process.env.SKIP_INTEGRATION_TESTS === "true";
 
-const TEST_ENDPOINT = process.env.ARIFOS_TEST_ENDPOINT ?? 'http://localhost:8080/mcp';
-const SKIP_INTEGRATION = process.env.SKIP_INTEGRATION_TESTS === 'true';
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// Integration Tests
-// ═══════════════════════════════════════════════════════════════════════════════
-
-describe('@arifos/mcp client', () => {
+describe("@arifos/mcp client", () => {
   let client: ArifOSMCPClient;
-  
+
   beforeAll(async () => {
     if (SKIP_INTEGRATION) {
-      console.log('Skipping integration tests (SKIP_INTEGRATION_TESTS=true)');
       return;
     }
-    
+
     client = await createClient({
-      transport: 'http',
+      transport: "http",
       endpoint: TEST_ENDPOINT,
       timeout: 30000,
     });
-    
+
     await client.connect();
   });
-  
+
   afterAll(async () => {
     if (client) {
       await client.disconnect();
     }
   });
-  
-  it.skipIf(SKIP_INTEGRATION)('should connect to MCP server', async () => {
+
+  it.skipIf(SKIP_INTEGRATION)("lists only the public 8-tool contract", async () => {
     const tools = await client.listTools();
-    expect(tools.length).toBeGreaterThan(0);
-    
-    // Should have the 13 canonical tools
-    const toolNames = tools.map(t => t.name);
-    expect(toolNames).toContain('anchor_session');
-    expect(toolNames).toContain('apex_judge');
-    expect(toolNames).toContain('seal_vault');
+    expect(tools.map((tool) => tool.name)).toEqual([...PUBLIC_TOOL_NAMES]);
   });
-  
-  it.skipIf(SKIP_INTEGRATION)('should anchor a session', async () => {
-    const result = await client.anchorSession('npm test session');
-    
-    expect(result.session_id).toBeDefined();
-    expect(typeof result.session_id).toBe('string');
-    expect(result.metadata).toBeDefined();
-    expect(result.metadata.stage).toBe('000_INIT');
-    
-    // Client should track session
-    expect(client.sessionId).toBe(result.session_id);
+
+  it.skipIf(SKIP_INTEGRATION)("bootstraps identity and tracks auth context", async () => {
+    const envelope = await client.bootstrapIdentity({
+      declared_name: "npm-test",
+      human_approval: true,
+    });
+
+    expect(envelope.tool).toBe("bootstrap_identity");
+    expect(envelope.session_id).toBeTruthy();
+    expect(client.sessionId).toBe(envelope.session_id);
+    expect(client.authContext?.session_id).toBe(envelope.session_id);
   });
-  
-  it.skipIf(SKIP_INTEGRATION)('should execute reason_mind and return a valid verdict', async () => {
-    // Must anchor first
-    await client.anchorSession('reasoning test');
-    
-    const result = await client.reasonMind('What is 2+2?');
-    
-    // Verify verdict is one of the expected values
-    expect(result.verdict).toBeDefined();
-    expect(['SEAL', 'PARTIAL', 'SABAR', 'VOID', '888_HOLD', 'HOLD']).toContain(result.verdict);
-    
-    // Verify structure
-    expect(result.stage).toBeDefined();
-    expect(result.session_id).toBe(client.sessionId);
-    // floors may be undefined, array, or object depending on response format
-    console.log('floors type:', typeof result.floors, Array.isArray(result.floors));
-    
-    // Log for debugging
-    console.log('reason_mind verdict:', result.verdict);
-    console.log('stage:', result.stage);
-    console.log('Floors evaluated:', (result.floors?.passed?.length ?? 0) + (result.floors?.failed?.length ?? 0));
-  });
-  
-  it.skipIf(SKIP_INTEGRATION)('should get apex_judge verdict', async () => {
-    // Must anchor first
-    await client.anchorSession('judgment test');
-    
-    const result = await client.apexJudge('Is it safe to list directory contents?');
-    
-    console.log('apex_judge result:', JSON.stringify(result, null, 2));
-    expect(result.verdict).toBeDefined();
-    expect(['SEAL', 'PARTIAL', 'SABAR', 'VOID', '888_HOLD', 'HOLD']).toContain(result.verdict);
-    expect(result.stage).toMatch(/888_APEX/);
-  });
-  
-  it.skipIf(SKIP_INTEGRATION)('should trigger PARTIAL verdict on vague query (soft-floor test)', async () => {
-    // Must anchor first
-    await client.anchorSession('soft floor test');
-    
-    // A vague query may trigger soft-floor warnings (F5, F6, or F9)
-    const vagueQuery = 'do something';  // Intentionally vague
-    
-    const result = await client.reasonMind(vagueQuery);
-    
-    // The verdict could be SEAL (if floors pass) or PARTIAL (if soft floors warn)
-    // We accept either, but log what we got
-    console.log('Vague query verdict:', result.verdict);
-    console.log('Stage:', result.stage);
-    
-    // Verify structure is correct regardless of verdict
-    expect(result.verdict).toBeDefined();
-    expect(['SEAL', 'PARTIAL', 'SABAR', 'VOID', '888_HOLD', 'HOLD']).toContain(result.verdict);
-    
-    // If we got PARTIAL, verify there are failed floors
-    if (result.verdict === 'PARTIAL') {
-      const failedCount = result.floors?.failed?.length ?? 0;
-      console.log('Failed floors:', failedCount);
-      expect(failedCount).toBeGreaterThan(0);
-    }
+
+  it.skipIf(SKIP_INTEGRATION)("runs the public kernel with carried continuity", async () => {
+    await client.bootstrapIdentity({
+      declared_name: "kernel-test",
+      human_approval: true,
+    });
+
+    const envelope = await client.runKernel({
+      query: "Summarize the purpose of the public contract in one sentence.",
+      risk_tier: "low",
+      dry_run: true,
+    });
+
+    expect(envelope.tool).toBe("arifOS_kernel");
+    expect(envelope.stage).toBeTruthy();
+    expect(envelope.verdict).toBeTruthy();
+    expect(envelope.status).toBeTruthy();
   });
 });
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// Unit Tests (no server required)
-// ═══════════════════════════════════════════════════════════════════════════════
-
-describe('types', () => {
-  it('should export version constants', async () => {
-    const { VERSION, ARIFOS_COMPATIBILITY, ENDPOINTS } = await import('./index.js');
-    
-    expect(VERSION).toBe('0.3.0');
-    expect(ARIFOS_COMPATIBILITY).toContain('2026.2.17');
-    expect(ENDPOINTS.VPS).toBe('https://arifosmcp.arif-fazil.com/mcp');
+describe("public package contract", () => {
+  it("exports the narrowed public version and endpoints", () => {
+    expect(VERSION).toBe("0.5.0");
+    expect(PUBLIC_TOOL_NAMES).toHaveLength(8);
+    expect(ENDPOINTS.VPS).toBe("https://arifosmcp.arif-fazil.com/mcp");
+    expect("SSE" in ENDPOINTS).toBe(false);
   });
 });

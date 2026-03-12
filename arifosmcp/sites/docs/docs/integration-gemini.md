@@ -13,7 +13,7 @@ Connect **arifOS** to [Gemini CLI](https://geminicli.com/) for terminal-based co
 
 ## Overview
 
-Gemini CLI supports MCP servers through **STDIO transport**, allowing you to extend Gemini's capabilities with arifOS's 13 Constitutional Floors directly from your terminal.
+Gemini CLI supports MCP servers through **STDIO transport**, allowing you to extend Gemini's capabilities with arifOS's 13 Constitutional Floors and unified 8-tool public contract directly from your terminal.
 
 :::tip Requirements
 - **Gemini CLI** installed: `npm install -g @google/gemini-cli`
@@ -135,19 +135,14 @@ Here are the verified results...
 ### Risk-Classified File Operations
 
 ```bash
-You: Use arifOS to inspect my project structure
+You: Use arifOS to ingest this deployment checklist URL
 
-Gemini: [Tool Call: inspect_file]
-Path: ./my-project
-Risk: LOW (read-only inspection)
+Gemini: [Tool Call: ingest_evidence]
+URL: https://example.com/deploy-checklist
+Risk: LOW (read-only evidence intake)
 Executing...
 
-Found 47 files:
-- README.md
-- src/
-  - main.py
-  - utils.py
-...
+Evidence extracted and ready for governed review.
 ```
 
 ### Dangerous Operations Require Confirmation
@@ -215,13 +210,11 @@ Every Gemini CLI session with arifOS enforces:
 
 | Stage | Governance |
 |-------|------------|
-| **000 INIT** | `anchor_session` validates security clearance |
-| **111-333 REASON** | `reason_mind` with F2 Truth grounding |
-| **444 MEMORY** | `recall_memory` retrieves past context |
-| **555-666 HEART** | `simulate_heart` checks stakeholder impact |
-| **777 FORGE** | `eureka_forge` with risk classification |
-| **888 JUDGE** | `apex_judge` issues final verdict |
-| **999 SEAL** | `seal_vault` commits to immutable ledger |
+| **Public onboarding** | `bootstrap_identity` declares identity when needed |
+| **Public execution** | `arifOS_kernel` runs the governed 000→999 path |
+| **Grounding** | `search_reality` and `ingest_evidence` provide verified inputs |
+| **Continuity** | `session_memory` stores and retrieves governed context |
+| **Visibility** | `check_vital` and `open_apex_dashboard` expose runtime status |
 
 ---
 
@@ -266,7 +259,7 @@ gemini mcp add arifOS \
 
 ### Governance token errors
 
-`ARIFOS_GOVERNANCE_SECRET` is required for `seal_vault` operations:
+`ARIFOS_GOVERNANCE_SECRET` is required for continuity signing and critical action confirmation:
 
 ```bash
 export ARIFOS_GOVERNANCE_SECRET=$(openssl rand -hex 32)
@@ -309,7 +302,7 @@ gemini mcp update arifOS --env KEY=value
 
 ## Next Steps
 
-- [MCP Server Overview](/mcp-server) — Learn the 13 tools
+- [Public Contract](/public-contract) — Learn the 8 public tools
 - [Claude Desktop Integration](/integration-claude) — Desktop alternative
 - [ChatGPT Integration](/integration-chatgpt) — Cloud-based option
 - [Governance](/governance) — Constitutional Floors reference

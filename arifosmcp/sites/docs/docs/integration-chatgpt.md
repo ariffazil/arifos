@@ -47,7 +47,7 @@ docker run -d \
 
 Your server will be available at:
 - **MCP Endpoint**: `https://your-domain.com/mcp`
-- **SSE Endpoint**: `https://your-domain.com/sse`
+- **Dashboard**: `https://your-domain.com/dashboard/`
 
 ### Option 2: Development with ngrok
 
@@ -174,9 +174,9 @@ Ask ChatGPT:
 Deep Research provides systematic information retrieval with citations.
 
 :::warning Search/Fetch Required
-Deep Research mode requires `search` and `fetch` tools. arifOS provides:
+Deep Research mode requires search and fetch-capable behavior. arifOS provides:
 - `search_reality` — Web search with evidence
-- `fetch_content` — URL content extraction
+- `ingest_evidence` — URL content extraction
 :::
 
 ### Using Deep Research
@@ -193,7 +193,7 @@ Ask ChatGPT:
 
 ChatGPT will:
 1. Use `search_reality` to find papers
-2. Use `fetch_content` to extract full text
+2. Use `ingest_evidence` to extract full text
 3. Cite sources with arifOS verification
 4. Present findings with confidence scores
 
@@ -210,9 +210,9 @@ Control confirmation behavior with tool annotations:
 | **Idempotent** | Skip if safe to retry |
 
 arifOS automatically sets these based on constitutional risk classification:
-- `inspect_file`, `search_reality` → Read-only
-- `eureka_forge` (LOW) → May skip
-- `eureka_forge` (CRITICAL) → Always confirm
+- `search_reality`, `audit_rules`, `check_vital` → Read-only
+- `ingest_evidence`, `session_memory` → Usually operator-safe
+- `arifOS_kernel` → Governed by risk tier and floor checks
 
 ---
 
@@ -257,7 +257,7 @@ DATABASE_URL=postgresql://...   # For VAULT999 ledger
 
 ChatGPT requires servers to have search/fetch tools for Deep Research. arifOS has:
 - ✅ `search_reality` — Web search
-- ✅ `fetch_content` — URL extraction
+- ✅ `ingest_evidence` — URL extraction
 
 Ensure your server is properly exposing these tools.
 
@@ -327,7 +327,7 @@ When deploying arifOS for ChatGPT:
 
 ## Next Steps
 
-- [MCP Server Overview](/mcp-server) — Learn all 13 tools
+- [Public Contract](/public-contract) — Learn the 8 public tools
 - [Claude Desktop Integration](/integration-claude) — Local alternative
 - [Gemini CLI Integration](/integration-gemini) — Terminal option
 - [Deployment Guide](/deployment) — Production deployment

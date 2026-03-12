@@ -457,6 +457,7 @@ async def init_anchor_state(
     session_id: str = "global",
     caller_context: CallerContext | None = None,
     ctx: Context | None = None,
+    dry_run: bool = False,
 ) -> RuntimeEnvelope:
     """000 INIT - Session anchor. Bootstrap a governed session and mint continuity context."""
     payload = {
@@ -464,6 +465,7 @@ async def init_anchor_state(
         "math": math,
         "governance": governance,
         "auth_token": auth_token,
+        "dry_run": dry_run,
     }
     return await _wrap_call(
         "init_anchor_state", Stage.INIT_000, session_id, payload, ctx, caller_context
@@ -486,6 +488,7 @@ async def bootstrap_identity(
         "intent": {"query": f"I am {declared_name}"},
         "governance": {
             "actor_id": normalized_actor_id,
+            "authority_level": "declared",
             "stakes_class": "C",
             "human_approval": human_approval,
         },
@@ -550,12 +553,13 @@ async def metabolic_loop_router(
     requested_persona: str | None = None,
     caller_context: CallerContext | None = None,
     ctx: Context | None = None,
+    session_id: str | None = None,
 ) -> RuntimeEnvelope:
     """Stage 444 ROUTER - Metabolic Loop. The all-in-one arifOS Sovereign evaluation."""
     # NOTE: caller_context and auth_context are optional complex types.
     # When profile=copilot, the copilot_kernel_wrapper is registered instead,
     # which uses a flat primitive-only signature compatible with Copilot Studio.
-    session_id = _resolve_session_id(None)
+    resolved_session_id = _resolve_session_id(session_id)
 
     # Server governs final persona; LLM hint (requested_persona) is advisory only.
     resolved_caller = _resolve_caller_context(caller_context, requested_persona)

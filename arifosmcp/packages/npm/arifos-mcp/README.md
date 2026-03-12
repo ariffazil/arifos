@@ -34,14 +34,20 @@ const client = await createClient({
 
 await client.connect();
 
-// Start a governed session
-const { session_id } = await client.anchorSession('My research task');
-console.log('Session:', session_id);
+const identity = await client.bootstrapIdentity({
+  declared_name: 'Researcher',
+  human_approval: true,
+});
 
-// Execute governed reasoning
-const result = await client.reasonMind('What is quantum computing?');
-console.log('Verdict:', result.verdict);  // SEAL | PARTIAL | SABAR | VOID | 888_HOLD
-console.log('Floors passed:', result.floors.passed.length);
+const result = await client.runKernel({
+  query: 'What is quantum computing?',
+  risk_tier: 'medium',
+  actor_id: 'researcher'
+});
+
+console.log(identity.session_id);
+console.log(result.verdict);
+console.log(result.payload);
 
 await client.disconnect();
 ```
@@ -116,21 +122,27 @@ interface ArifOSClientConfig {
 | :--- | :--- |
 | `client.connect()` | Establish MCP connection |
 | `client.disconnect()` | Close connection |
-| `client.anchorSession(context?)` | Start new governed session |
-| `client.reasonMind(query, context?)` | Execute 333_MIND reasoning |
-| `client.apexJudge(action, risk_level?)` | Get 888_APEX judgment |
-| `client.callTool(name, params)` | Call any of 13 canonical tools |
-| `client.listTools()` | Discover available tools |
+| `client.callTool(name, params)` | Call one of the 8 public tools directly |
+| `client.bootstrapIdentity(params)` | Start governed session grounding and capture `auth_context` |
+| `client.runKernel(params)` | Execute the public kernel and auto-carry known `auth_context` |
+| `client.searchReality(params)` | Ground a query with external sources |
+| `client.ingestEvidence(params)` | Load evidence from a URL |
+| `client.sessionMemory(params)` | Store/retrieve governed memory |
+| `client.auditRules(params?)` | Inspect floor logic |
+| `client.checkVital(params?)` | Read runtime health and telemetry |
+| `client.openApexDashboard(params?)` | Open the dashboard surface |
+| `client.listTools()` | Discover the filtered 8-tool public contract |
 
 ### Types
 
 ```typescript
 import type { 
-  Verdict,        // 'SEAL' | 'PARTIAL' | 'SABAR' | 'VOID' | '888_HOLD'
+  Verdict,        // 'SEAL' | 'PROVISIONAL' | 'PARTIAL' | 'SABAR' | 'HOLD' | 'HOLD_888' | 'VOID'
   FloorCode,      // 'F1' | 'F2' | ... | 'F13'
-  Stage,          // '000_INIT' | ... | '999_VAULT'
-  VerdictEnvelope,
+  Stage,          // public stage string or runtime stage string
+  RuntimeEnvelope,
   ArifOSMetadata,
+  ArifOSKernelInput,
 } from '@arifos/mcp';
 ```
 
@@ -140,45 +152,40 @@ import type {
 
 | @arifos/mcp | Node.js | arifOS (PyPI) | Transport | Status |
 | :--- | :--- | :--- | :--- | :--- |
-| 0.2.0 | ≥18 | ≥2026.3.1 | HTTP/SSE | 🔄 **Current** |
-| 0.1.1 | ≥18 | 2026.2.22 | HTTP/SSE | ✅ Tested |
-| 0.1.0 | ≥18 | 2026.2.17 | HTTP/SSE | ✅ Stable |
+| 0.5.0 | ≥18 | ≥2026.03.10-FORGED | HTTP/stdio | 🔄 **Current** |
+| 0.4.0 | ≥18 | 2026.03.10 | HTTP/stdio | historical |
+| 0.1.1 | ≥18 | 2026.2.22 | HTTP/stdio | ✅ Tested |
+| 0.1.0 | ≥18 | 2026.2.17 | HTTP/stdio | ✅ Stable |
 
 **Notes:**
 - All versions tested against production VPS endpoint (`arifosmcp.arif-fazil.com`)
 - `stdio` transport tested locally with `arifosmcp>=2026.2.17`
-- Verdicts observed: `SEAL`, `PARTIAL`, `SABAR`, `VOID`, `HOLD`, `888_HOLD`
+- Public contract authority comes from the generated runtime registry, not this README alone
 
 ---
 
-## The 13 Canonical Tools
+## Public MCP Contract (8 tools)
 
-All tools return a `VerdictEnvelope` with `{ verdict, stage, session_id, floors, ... }`.
-
-> **Note on 888_HOLD:** This verdict indicates an irreversible action requiring human approval. The call may remain pending until a human sovereign signs off. Handle this as an async event, not a timeout.
-
-### Governance Spine (8 tools)
-
-| Tool | Stage | Purpose |
-| :--- | :--- | :--- |
-| `anchor_session` | 000_INIT | Session ignition & injection defense |
-| `reason_mind` | 333_MIND | AGI cognition & causal tracing |
-| `recall_memory` | 444_PHOENIX | Associative memory recall |
-| `simulate_heart` | 555_HEART | Stakeholder impact analysis |
-| `critique_thought` | 666_CRITIQUE | Self-critique & bias detection |
-| `apex_judge` | 888_APEX | Sovereign verdict + governance_token |
-| `eureka_forge` | 777_FORGE | Sandboxed action execution |
-| `seal_vault` | 999_VAULT | Immutable ledger commit |
-
-### Utility Tools (5 tools, read-only)
+The production runtime exposes 8 public/main tools to model-facing clients:
 
 | Tool | Purpose |
 | :--- | :--- |
+| `arifOS_kernel` | One-call governed constitutional execution entrypoint |
 | `search_reality` | Web grounding |
-| `fetch_content` | URL retrieval |
-| `inspect_file` | Filesystem inspection |
+| `ingest_evidence` | URL/document/file intake |
+| `session_memory` | Governed session continuity |
 | `audit_rules` | Governance rule audit |
-| `check_vital` | System health |
+| `check_vital` | System health and telemetry |
+| `open_apex_dashboard` | Observability dashboard |
+| `bootstrap_identity` | Explicit onboarding and identity declaration |
+
+## Compatibility Guidance
+
+Use the public 8-tool contract for model-facing integrations. Legacy names such as `anchor_session`, `reason_mind`, `apex_judge`, and `seal_vault` should be treated as compatibility history or internal/dev-only stage tools unless a specific internal profile documents otherwise.
+
+The generated runtime contract lives in the docs:
+
+- <https://arifos.arif-fazil.com/public-contract>
 
 ---
 
@@ -188,7 +195,7 @@ All tools return a `VerdictEnvelope` with `{ verdict, stage, session_id, floors,
 import { ArifOSError } from '@arifos/mcp';
 
 try {
-  await client.reasonMind('...');
+  await client.runKernel({ query: 'Explain F2 Truth briefly.', dry_run: true });
 } catch (error) {
   if (error instanceof ArifOSError) {
     console.log(error.code);   // 'CONNECTION_FAILED' | 'INVALID_RESPONSE' | ...

@@ -1,7 +1,7 @@
 {
   "name": "@arifos/mcp",
-  "version": "0.4.0",
-  "description": "arifOS MCP Client — TypeScript types and minimal client for Constitutional AI Governance (L2 Skills Adapter) featuring Dynamic Metabolic Routing (Stage 444)",
+  "version": "0.5.0",
+  "description": "arifOS MCP Client — model-agnostic TypeScript adapter for the canonical 8-tool public contract",
   "keywords": [
     "mcp",
     "arifos",
@@ -13,7 +13,7 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/ariffazil/arifosmcp.git",
-    "directory": "packages/npm/arifos-mcp"
+    "directory": "arifosmcp/packages/npm/arifos-mcp"
   },
   "bugs": {
     "url": "https://github.com/ariffazil/arifosmcp/issues"
@@ -24,24 +24,24 @@
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/index.mjs",
-      "require": "./dist/index.js",
-      "types": "./dist/index.d.ts"
+      "require": "./dist/index.js"
     },
     "./types": {
+      "types": "./dist/types.d.ts",
       "import": "./dist/types.mjs",
-      "require": "./dist/types.js",
-      "types": "./dist/types.d.ts"
+      "require": "./dist/types.js"
     },
     "./client": {
+      "types": "./dist/client.d.ts",
       "import": "./dist/client.mjs",
-      "require": "./dist/client.js",
-      "types": "./dist/client.d.ts"
+      "require": "./dist/client.js"
     },
     "./langchain": {
+      "types": "./dist/langchain.d.ts",
       "import": "./dist/langchain.mjs",
-      "require": "./dist/langchain.js",
-      "types": "./dist/langchain.d.ts"
+      "require": "./dist/langchain.js"
     }
   },
   "files": [
@@ -75,5 +75,5 @@
     "access": "public",
     "tag": "latest"
   },
-  "_updated": "2026.03.10"
+  "_updated": "2026.03.12"
 }

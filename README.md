@@ -79,7 +79,7 @@
 - [3-Tier Sovereign Deployment](#-the-3-tier-sovereign-deployment)
 - [Quick Start Guide](#-quick-start-guide)
 - [Installation Options](#-rapid-deployment-protocols)
-- [API & Tools](#-canonical-7-tool-sovereign-stack)
+- [API & Tools](#-canonical-8-tool-sovereign-stack)
 - [Configuration](#-environment-configuration)
 - [Observability](#-constitutional-observability)
 - [Security Hardening](#-production-security-hardening)
@@ -334,7 +334,6 @@ arifosmcp --version
 
 # Run MCP server (choose transport)
 arifosmcp http     # Streamable HTTP on :8080
-arifosmcp sse      # SSE for VPS/Coolify
 arifosmcp stdio    # For Claude Desktop, Cursor IDE
 
 # Verify health
@@ -411,8 +410,13 @@ const client = await createClient({
 });
 await client.connect();
 
-const result = await client.reasonMind('Is this action safe?');
-console.log(result.verdict); // SEAL | PARTIAL | SABAR | VOID | 888_HOLD
+await client.callTool('bootstrap_identity', { declared_name: 'Operator' });
+const result = await client.callTool('arifOS_kernel', {
+  query: 'Is this action safe?',
+  risk_tier: 'medium',
+  actor_id: 'operator',
+});
+console.log(result.response);
 
 await client.disconnect();
 ```
@@ -423,7 +427,7 @@ await client.disconnect();
 https://arifosmcp.arif-fazil.com/mcp
 ```
 
-No API key required. All 13 tools live.
+No API key required. The 8-tool public contract is live.
 
 ---
 
@@ -497,6 +501,8 @@ The arifOS kernel exposes 8 core tools that form the "Sensory-Reasoning-Action" 
 | **`check_vital`** | `metrics` | `000` | **Self-Awareness**: Reports system health, resource budget, and machine vitals. |
 | **`open_apex_dashboard`** | `sites` | `888` | **Vision**: Launches the APEX UI for human-in-the-loop governance and metrics. |
 | **`bootstrap_identity`** | `auth` | `000` | **Onboarding**: Anchors the session to a specific human or agent identity (F11). |
+
+Public/main contract rule: model-facing clients should use only these 8 names. Stage tools and legacy aliases are internal/dev-only or compatibility-only.
 
 ---
 

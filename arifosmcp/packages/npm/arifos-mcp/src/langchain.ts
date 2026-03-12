@@ -1,113 +1,40 @@
 /**
- * @arifos/mcp — LangChain.js Integration (STUB)
- * 
- * Placeholder for LangChain.js/LangGraph integration.
- * Future: Full tool binding with proper schema conversion.
- * 
- * NOTE: This is a STUB. The full implementation will come in a later phase.
- * For now, use the MCP client directly via `createClient()`.
- * 
- * Canonical Source: https://pypi.org/project/arifos/
+ * @arifos/mcp - LangChain.js Integration (stub)
+ *
+ * The package stays model-agnostic. This wrapper exposes the public 8-tool
+ * contract shape only; structured LangChain tool bindings can be added later.
  */
 
-import type { ArifOSMCPClient } from './client.js';
-import type { ArifOSToolName } from './types.js';
+import { PUBLIC_TOOL_NAMES, type ArifOSToolName } from "./types.js";
+import type { ArifOSMCPClient } from "./client.js";
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// Stub Implementation
-// ═══════════════════════════════════════════════════════════════════════════════
-
-/**
- * Placeholder for LangChain.js toolset wrapper.
- * 
- * This class will eventually expose arifOS tools as LangChain `StructuredTool`
- * instances with proper Zod schemas. For now, it just wraps the MCP client.
- * 
- * @example
- * ```typescript
- * import { ArifOSToolset } from '@arifos/mcp/langchain';
- * 
- * const client = await createClient({ transport: 'http', endpoint: '...' });
- * await client.connect();
- * 
- * // Stub: Just proxy to MCP client
- * const toolset = new ArifOSToolset(client);
- * const tools = await toolset.getTools();
- * 
- * // Use with LangChain (when implemented)
- * // const agent = createReactAgent({ llm, tools });
- * ```
- */
 export class ArifOSToolset {
-  // Client reserved for future implementation
-  // @ts-expect-error Unused in stub phase
-  constructor(private readonly _client: ArifOSMCPClient) {}
-  
-  /**
-   * Get list of available tool names.
-   * 
-   * STUB: Currently just returns hardcoded canonical 13 tools.
-   * Future: Dynamic tool discovery from MCP server.
-   */
+  constructor(private readonly client: ArifOSMCPClient) {}
+
   async getToolNames(): Promise<ArifOSToolName[]> {
-    return [
-      'anchor_session',
-      'reason_mind',
-      'vector_memory',
-      'simulate_heart',
-      'critique_thought',
-      'eureka_forge',
-      'apex_judge',
-      'seal_vault',
-      'metabolic_loop',
-      'search_reality',
-      'ingest_evidence',
-      'audit_rules',
-      'check_vital',
-    ];
+    const tools = await this.client.listTools();
+    if (tools.length > 0) {
+      return tools.map((tool) => tool.name);
+    }
+    return [...PUBLIC_TOOL_NAMES];
   }
-  
-  /**
-   * Get tools formatted for LangChain.
-   * 
-   * STUB: Currently returns empty array with warning.
-   * Future: Returns array of `StructuredTool` instances.
-   */
+
   async getTools(): Promise<[]> {
     console.warn(
-      '[@arifos/mcp/langchain] STUB: getTools() not yet implemented.\n' +
-      'Use client.callTool() directly for now.\n' +
-      'See: https://github.com/ariffazil/arifosmcp/issues'
+      "[@arifos/mcp/langchain] Structured LangChain bindings are not implemented yet.\n" +
+        "Use client.callTool(), client.runKernel(), or client.listTools() directly.",
     );
     return [];
   }
-  
-  /**
-   * Get a specific tool by name.
-   * 
-   * STUB: Returns null with warning.
-   * Future: Returns `StructuredTool` instance.
-   */
+
   async getTool(_name: ArifOSToolName): Promise<null> {
     console.warn(
-      `[@arifos/mcp/langchain] STUB: getTool() not yet implemented.\n` +
-      `Use client.callTool('${_name}', params) directly for now.`
+      `[@arifos/mcp/langchain] Structured tool wrappers are not implemented yet.\n` +
+        `Use client.callTool('${_name}', params) directly.`,
     );
     return null;
   }
 }
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// Re-exports for convenience
-// ═══════════════════════════════════════════════════════════════════════════════
-
-export { createClient, type ArifOSMCPClient } from './client.js';
-export * from './types.js';
-
-/**
- * Future exports (when implemented):
- * 
- * export { ArifOSTool } from './langchain/tool.js';
- * export { createArifOSAgent } from './langchain/agent.js';
- * export type { ArifOSAgentConfig } from './langchain/types.js';
- */
+export { createClient, type ArifOSMCPClient } from "./client.js";
+export * from "./types.js";

@@ -24,14 +24,49 @@ def _env_flag(name: str) -> bool:
     return os.getenv(name, "").strip().lower() in {"1", "true", "yes", "on"}
 
 
+def _read_secret_file(*env_names: str) -> str:
+    for env_name in env_names:
+        file_path = os.getenv(env_name, "").strip()
+        if not file_path:
+            continue
+        try:
+            with open(file_path, encoding="utf-8") as handle:
+                secret = handle.read().strip()
+        except OSError as exc:
+            warnings.warn(
+                f"{env_name} points to unreadable secret file '{file_path}': {exc}",
+                RuntimeWarning,
+                stacklevel=2,
+            )
+            continue
+        if secret:
+            return secret
+        warnings.warn(
+            f"{env_name} points to empty secret file '{file_path}'.",
+            RuntimeWarning,
+            stacklevel=2,
+        )
+    return ""
+
+
+def _read_secret_env(*env_names: str) -> str:
+    for env_name in env_names:
+        secret = os.getenv(env_name, "").strip()
+        if secret:
+            return secret
+    return ""
+
+
 def _load_governance_token_secret() -> str:
     if _env_flag("ARIFOS_GOVERNANCE_OPEN_MODE"):
         return "arifos-open-governance-dev-mode"
 
-    for env_name in ("ARIFOS_GOVERNANCE_SECRET", "ARIFOS_GOVERNANCE_TOKEN_SECRET"):
-        secret = os.getenv(env_name, "").strip()
-        if secret:
-            return secret
+    secret = _read_secret_file(
+        "ARIFOS_GOVERNANCE_SECRET_FILE",
+        "ARIFOS_GOVERNANCE_TOKEN_SECRET_FILE",
+    ) or _read_secret_env("ARIFOS_GOVERNANCE_SECRET", "ARIFOS_GOVERNANCE_TOKEN_SECRET")
+    if secret:
+        return secret
 
     warnings.warn(
         (
@@ -45,20 +80,38 @@ def _load_governance_token_secret() -> str:
     return secrets.token_hex(32)
 
 
+def _load_previous_governance_token_secret() -> str:
+    if _env_flag("ARIFOS_GOVERNANCE_OPEN_MODE"):
+        return ""
+
+    return _read_secret_file(
+        "ARIFOS_GOVERNANCE_SECRET_PREVIOUS_FILE",
+        "ARIFOS_GOVERNANCE_TOKEN_SECRET_PREVIOUS_FILE",
+    ) or _read_secret_env(
+        "ARIFOS_GOVERNANCE_SECRET_PREVIOUS",
+        "ARIFOS_GOVERNANCE_TOKEN_SECRET_PREVIOUS",
+    )
+
+
 _GOVERNANCE_TOKEN_SECRET = _load_governance_token_secret()
+_GOVERNANCE_TOKEN_SECRET_PREVIOUS = _load_previous_governance_token_secret()
 _AUTH_VERIFY_CACHE_TTL_SECONDS = 60
 _auth_verify_cache: dict[str, tuple[bool, str, float, str]] = {}
 
 
-def sign_auth_context(unsigned_context: dict[str, Any]) -> str:
+def _sign_auth_context_with_secret(unsigned_context: dict[str, Any], secret: str) -> str:
     canonical = json.dumps(
         unsigned_context, ensure_ascii=True, sort_keys=True, separators=(",", ":")
     )
     return hmac.new(
-        _GOVERNANCE_TOKEN_SECRET.encode(),
+        secret.encode(),
         canonical.encode(),
         hashlib.sha256,
     ).hexdigest()
+
+
+def sign_auth_context(unsigned_context: dict[str, Any]) -> str:
+    return _sign_auth_context_with_secret(unsigned_context, _GOVERNANCE_TOKEN_SECRET)
 
 
 def mint_auth_context(
@@ -68,11 +121,13 @@ def mint_auth_context(
     approval_scope: list[str],
     parent_signature: str,
     ttl: int = 900,
+    authority_level: str = "anonymous",
 ) -> dict[str, Any]:
     now = int(time.time())
     unsigned_context = {
         "session_id": session_id,
         "actor_id": actor_id,
+        "authority_level": authority_level,
         "token_fingerprint": token_fingerprint,
         "nonce": secrets.token_hex(12),
         "iat": now,
@@ -90,6 +145,7 @@ def verify_auth_context(session_id: str, auth_context: dict[str, Any]) -> tuple[
     required_fields = [
         "session_id",
         "actor_id",
+        "authority_level",
         "token_fingerprint",
         "nonce",
         "iat",
@@ -112,8 +168,16 @@ def verify_auth_context(session_id: str, auth_context: dict[str, Any]) -> tuple[
     unsigned_context = {
         field: auth_context[field] for field in required_fields if field != "signature"
     }
-    expected_sig = sign_auth_context(unsigned_context)
-    if not hmac.compare_digest(auth_context.get("signature", ""), expected_sig):
+    expected_signatures = [
+        _sign_auth_context_with_secret(unsigned_context, _GOVERNANCE_TOKEN_SECRET)
+    ]
+    if _GOVERNANCE_TOKEN_SECRET_PREVIOUS:
+        expected_signatures.append(
+            _sign_auth_context_with_secret(unsigned_context, _GOVERNANCE_TOKEN_SECRET_PREVIOUS)
+        )
+
+    presented_signature = auth_context.get("signature", "")
+    if not any(hmac.compare_digest(presented_signature, expected) for expected in expected_signatures):
         return False, "signature mismatch"
 
     return True, ""

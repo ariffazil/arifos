@@ -54,7 +54,7 @@ Current public profile:
 
 - Version: `2026.03.10`
 - Public tool profile: `chatgpt`
-- Public tool count: `7`
+- Public tool count: `8`
 - Discovery documents:
   - `spec/server.json`
   - `spec/mcp-manifest.json`
@@ -79,7 +79,7 @@ Minimum required variables:
 | `ARIFOS_MCP_PATH` | `/mcp` |
 | `ARIFOS_PUBLIC_BASE_URL` | Public HTTPS domain, currently `https://arifosmcp.arif-fazil.com` |
 | `ARIFOS_WIDGET_DOMAIN` | Same public origin unless intentionally split |
-| `ARIFOS_GOVERNANCE_SECRET_FILE` | **Preferred:** Path to persistent secret file (see below) |
+| `ARIFOS_GOVERNANCE_SECRET_FILE` | **Preferred:** Path to persistent secret file (for example `/opt/arifos/secrets/governance.secret`) |
 | `ARIFOS_GOVERNANCE_SECRET` | Fallback: Long random secret (not recommended for production) |
 | `POSTGRES_PASSWORD` | Strong secret |
 | `OPENCLAW_ACCESS_TOKEN` | Strong secret |
@@ -130,9 +130,12 @@ Avoid duplicate live working trees under home directories. They increase entropy
 ```bash
 mkdir -p /srv/arifosmcp
 mkdir -p /opt/arifos/data/{agent-zero,grafana,n8n,ollama,openclaw,postgres,prometheus,qdrant,redis}
+mkdir -p /opt/arifos/secrets
 mkdir -p /opt/arifos/traefik
 touch /opt/arifos/traefik/acme.json
 chmod 600 /opt/arifos/traefik/acme.json
+openssl rand -hex 32 > /opt/arifos/secrets/governance.secret
+chmod 600 /opt/arifos/secrets/governance.secret
 ```
 
 ### 2. Sync repository
@@ -144,6 +147,12 @@ cp .env.docker.example .env.docker
 ```
 
 Edit `.env.docker` and replace all placeholder secrets before continuing.
+
+At minimum, confirm:
+
+- `ARIFOS_GOVERNANCE_SECRET_FILE=/opt/arifos/secrets/governance.secret`
+- `/opt/arifos/secrets` is mounted read-only into the `arifosmcp` container
+- `python scripts/verify-secrets.py` passes before restart
 
 ### 3. Regenerate public specs
 
@@ -213,7 +222,7 @@ Expected checks:
 - `health` returns success.
 - `server.json` and `mcp-manifest.json` match the current registry version.
 - `tools/list` reflects the `chatgpt` public profile.
-- Public tool count is `7`.
+- Public tool count is `8`.
 - `arifosmcp` is reachable through Traefik, not by direct public port exposure.
 
 ## Observability
@@ -256,6 +265,18 @@ For this repo, a production-ready VPS deploy means:
 2. Persistent state lives under `/opt/arifos/data`.
 3. Traefik owns public ingress and TLS.
 4. Public MCP specs are generated from the runtime registry.
-5. The public `chatgpt` profile exposes exactly the intended 7 tools.
+5. The public `chatgpt` profile exposes exactly the intended 8 tools.
 6. Secrets are fixed, non-placeholder, and not process-ephemeral.
 7. High-stakes deploys are treated as `888_HOLD` until human approval is explicit.
+
+## Systemd Compatibility
+
+Docker Compose is the canonical production deploy path for this repo.
+
+If a legacy systemd unit still imports a WSGI/ASGI app directly, use:
+
+```bash
+python -c "from aaa_mcp.rest import app; import uvicorn; uvicorn.run(app, host='0.0.0.0', port=8080)"
+```
+
+`aaa_mcp.rest` is a compatibility shim only. Do not treat it as a second public contract.
