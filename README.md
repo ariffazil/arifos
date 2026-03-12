@@ -9,8 +9,8 @@
 
 [![Status](https://img.shields.io/badge/Status-Stationary%20%26%20Enforced-00ffcc.svg?style=flat-square)](https://arifosmcp.arif-fazil.com/health)
 [![Architecture](https://img.shields.io/badge/Architecture-Trinity%20ΔΩΨ-7c3aed.svg?style=flat-square)](https://arifos.arif-fazil.com/architecture)
-[![Version](https://img.shields.io/badge/Version-2026.03.12--FORGED-blue.svg?style=flat-square)](https://github.com/ariffazil/arifosmcp/commits/main)
-[![Tests](https://img.shields.io/badge/Tests-80%2F80%20Passing-success.svg?style=flat-square)](./tests/)
+[![Version](https://img.shields.io/badge/Version-2026.03.13--FORGED-blue.svg?style=flat-square)](https://github.com/ariffazil/arifosmcp/commits/main)
+[![Tests](https://img.shields.io/badge/Tests-415%20Passing-success.svg?style=flat-square)](./tests/)
 [![License: AGPL 3.0](https://img.shields.io/badge/License-AGPL%203.0-lightgrey.svg?style=flat-square)](./LICENSE)
 
 **A production-grade Constitutional Governance Kernel for AI.**  
@@ -113,16 +113,17 @@ In the 1970s, the internet had a routing problem: IP could deliver packets, but 
 
 ```json
 {
-  "ai_manifest_version": "2026.03.12-FORGED",
+  "ai_manifest_version": "2026.03.13-FORGED",
   "system_name": "arifOS",
-  "system_tagline": "The TCP layer for AI agents. Constitutional governance via MCP.",
+  "system_tagline": "The TCP layer for AI agents. Constitutional governance via MCP/LSP/ACP.",
   "system_type": "constitutional_intelligence_kernel",
   "mcp_server": {
-    "historical_transport": ["stdio", "sse", "streamable-http"],
+    "historical_transport": ["stdio", "sse", "streamable-http", "acp", "lsp-intelligence"],
     "health_endpoint": "https://arifosmcp.arif-fazil.com/health",
     "tools_canonical": [
       "arifOS_kernel", "search_reality", "ingest_evidence", "session_memory",
-      "audit_rules", "check_vital", "open_apex_dashboard", "bootstrap_identity"
+      "audit_rules", "check_vital", "open_apex_dashboard", "bootstrap_identity",
+      "lsp_query", "lsp_get_symbols", "lsp_get_diagnostics", "lsp_go_to_definition", "lsp_find_references"
     ]
   },
   "constitutional_floors": 13,
@@ -231,6 +232,77 @@ Every request follows a rigorous metabolic cycle:
 │     F3,F8,F10,F13      F1,F3                                │
 └─────────────────────────────────────────────────────────────┘
 ```
+
+---
+
+## 👁️ LSP + ACP Integration
+
+arifOS now provides **Constitutional Code Intelligence** through integrated Language Server Protocol (LSP) and Agent Client Protocol (ACP) support.
+
+### What This Gives You
+
+| Protocol | Role | arifOS Value |
+|----------|------|--------------|
+| **LSP** | Code Eyes | Real-time symbols, diagnostics, definitions — no hallucination |
+| **ACP** | Editor Voice | Connect Zed, VS Code:, Cursor to arifOS agents |
+| **MCP** | Tool Spine | All capabilities exposed as governed tools |
+
+### LSP Tools (Read-Only, 888_SAFE)
+
+```python
+# Get all symbols in a file (F4 Clarity)
+lsp_get_symbols(file_path="arifosmcp/core/kernel.py")
+
+# Find where a symbol is defined (no guessing)
+lsp_go_to_definition(file_path="arifosmcp/core/kernel.py", line=42, character=15)
+
+# Get errors and warnings
+lsp_get_diagnostics(file_path="arifosmcp/core/kernel.py")
+
+# Find all references to a symbol
+lsp_find_references(file_path="arifosmcp/core/kernel.py", line=42, character=15)
+
+# General query interface
+lsp_query(file_path="...", query_type="symbols|hover|definition|references|diagnostics")
+```
+
+### ACP Editor Configuration
+
+**Zed:**
+```json
+{
+  "agent": {
+    "default_model": {
+      "provider": "arifos",
+      "model": "arifOS-APEX"
+    }
+  }
+}
+```
+
+**VS Code: (ACP Extension):**
+```json
+{
+  "acp.agents": [{
+    "name": "arifOS-VPS",
+    "command": ["ssh", "root@your-vps", "python -m arifosmcp.transport.acp_server"]
+  }]
+}
+```
+
+### Security Architecture
+
+| Floor | LSP Protection | ACP Protection |
+|-------|---------------|----------------|
+| **F12** | `_sanitize_path()` blocks traversal | Session tokens required |
+| **F13** | N/A (read-only) | `approve_session()` sovereign gate |
+| **F1** | All queries logged to VAULT999 | All prompts logged to VAULT999 |
+| **F4** | Real symbols reduce entropy | Structured context reduces ambiguity |
+
+**Files:**
+- `arifosmcp/intelligence/lsp_bridge.py` — LSP client wrapper
+- `arifosmcp/transport/acp_server.py` — ACP protocol server
+- `arifosmcp/tools/lsp_tools.py` — MCP tool registration
 
 ---
 
@@ -419,7 +491,7 @@ If an AI causes harm, VAULT999 provides mathematical proof of which floor failed
 
 ***Ditempa Bukan Diberi* — Forged, Not Given [ΔΩΨ | ARIF]**
 
-**Version:** 2026.03.12-FORGED • **License:** AGPL-3.0-only
+**Version:** 2026.03.13-FORGED • **License:** AGPL-3.0-only
 
 </div>
-<!-- Updated: 03/12/2026 09:05:02 -->
+<!-- Updated: 03/13/2026 03:50:00 -->
