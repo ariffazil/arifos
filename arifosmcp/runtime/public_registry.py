@@ -69,7 +69,7 @@ def release_version() -> str:
 
 
 def release_version_label() -> str:
-    return f"{release_version()}-v60-FORGED"
+    return f"{release_version()}-FORGED"
 
 
 def release_version_compact() -> str:
