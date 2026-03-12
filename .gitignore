@@ -29,6 +29,7 @@ htmlcov/
 .coverage
 .pytest_cache/
 .pytest_cache_win/
+test-reports/
 test_output*.txt
 verification_output.txt
 entropy_metrics.json
@@ -217,6 +218,7 @@ ${SQLITE_DB_PATH}
 .env.*.local
 .env.production
 .env.docker
+.gitignore_local
 
 # Agent ephemeral configs
 .kimi_mcp_fixed.json

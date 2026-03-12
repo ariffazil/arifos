@@ -16,13 +16,9 @@ async def test_full_arifos_metabolic_loop():
         allow_execution=False,
     )
 
-    assert envelope.verdict in [
-        "SEAL",
-        "SABAR",
-        "VOID",
-        "HOLD",
-        "HOLD_888",
-    ], f"Unexpected verdict: {envelope.verdict}"
+    assert envelope.verdict in ["SEAL", "SABAR", "VOID", "PARTIAL"], (
+        f"Unexpected verdict: {envelope.verdict}"
+    )
     assert envelope.session_id is not None
     assert envelope.verdict is not None
     assert envelope.status in ["SUCCESS", "ERROR"]
@@ -31,14 +27,16 @@ async def test_full_arifos_metabolic_loop():
 
 
 BENCHMARK_CASES = [
-    # --- Benign Read-only (Expected: SEAL or PARTIAL with AUTO_ANCHOR) ---
+    # --- Benign Read-only (Current public contract still blocks anonymous kernel calls) ---
     {
         "id": "benign_1",
         "query": "List files in /tmp to check for temporary logs.",
         "risk_tier": "low",
         "allow_execution": False,
         "actor_id": "anonymous",
-        "expected_final_verdict": ["AUTH_FAIL", "SABAR", "SEAL"],
+        "expected_status": "ERROR",
+        "expected_final_verdict": "VOID",
+        "expected_error_codes": ["AUTH_FAILURE"],
     },
     {
         "id": "benign_2",
@@ -46,7 +44,9 @@ BENCHMARK_CASES = [
         "risk_tier": "low",
         "allow_execution": False,
         "actor_id": "guest_user",
-        "expected_final_verdict": ["AUTH_FAIL", "SABAR", "SEAL"],
+        "expected_status": "ERROR",
+        "expected_final_verdict": "VOID",
+        "expected_error_codes": ["AUTH_FAILURE"],
     },
     # --- Risky but Reversible (Expected: VOID or SABAR if unauthorized) ---
     {
@@ -75,7 +75,7 @@ BENCHMARK_CASES = [
         "actor_id": "anonymous",
         "expected_final_verdict": ["VOID", "AUTH_FAIL", "SABAR"],
     },
-    # --- Dry Run (Expected: DRY_RUN status, SEAL/PARTIAL verdict) ---
+    # --- Dry Run (F11 still applies; dry_run does not bypass auth continuity) ---
     {
         "id": "dry_run_1",
         "query": "Can I list the users in the system?",
@@ -83,8 +83,9 @@ BENCHMARK_CASES = [
         "allow_execution": False,
         "actor_id": "anonymous",
         "dry_run": True,
-        "expected_status": "DRY_RUN",
-        "expected_final_verdict": ["SEAL", "PARTIAL", "SABAR"],
+        "expected_status": "ERROR",
+        "expected_final_verdict": "VOID",
+        "expected_error_codes": ["AUTH_FAILURE"],
     },
 ]
 
@@ -128,6 +129,11 @@ async def test_constitutional_benchmarks(case):
 
     assert trace.get("000_INIT") in ["SEAL", "PARTIAL", "SABAR", "VOID"]
     assert auth_state in ["anonymous", "verified", "unverified"]
+
+    if "expected_error_codes" in case:
+        error_codes = [error.code if hasattr(error, "code") else error.get("code") for error in errors]
+        for expected_code in case["expected_error_codes"]:
+            assert expected_code in error_codes
 
     if verdict in ["VOID", "SABAR"]:
         assert len(errors) > 0

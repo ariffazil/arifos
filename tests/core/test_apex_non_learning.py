@@ -39,7 +39,7 @@ class TestApexNonLearningGuarantee:
         Learning at APEX would mean the judge updates its own thresholds,
         violating the separation between legislation and adjudication.
         """
-        assert not hasattr(ThermodynamicProsecutor, 'learn'), \
+        assert not hasattr(ThermodynamicProsecutor, "learn"), \
             "APEX class has forbidden learn() method"
 
     def test_apex_has_no_fit_method(self) -> None:
@@ -48,7 +48,7 @@ class TestApexNonLearningGuarantee:
         
         Fitting/training is for AGI/ASI layers, not the judge.
         """
-        assert not hasattr(ThermodynamicProsecutor, 'fit'), \
+        assert not hasattr(ThermodynamicProsecutor, "fit"), \
             "APEX class has forbidden fit() method"
 
     def test_apex_has_no_train_method(self) -> None:
@@ -57,7 +57,7 @@ class TestApexNonLearningGuarantee:
         
         Training loops belong in Delta (AGI), not Psi (APEX).
         """
-        assert not hasattr(ThermodynamicProsecutor, 'train'), \
+        assert not hasattr(ThermodynamicProsecutor, "train"), \
             "APEX class has forbidden train() method"
 
     def test_apex_has_no_update_thresholds(self) -> None:
@@ -67,9 +67,9 @@ class TestApexNonLearningGuarantee:
         Threshold modification is a GOVERNANCE EVENT (888_HOLD),
         not an optimization outcome.
         """
-        assert not hasattr(ThermodynamicProsecutor, 'update_thresholds'), \
+        assert not hasattr(ThermodynamicProsecutor, "update_thresholds"), \
             "APEX class has forbidden update_thresholds() method"
-        assert not hasattr(ThermodynamicProsecutor, 'adjust_thresholds'), \
+        assert not hasattr(ThermodynamicProsecutor, "adjust_thresholds"), \
             "APEX class has forbidden adjust_thresholds() method"
 
     def test_apex_has_no_adapt_method(self) -> None:
@@ -78,7 +78,7 @@ class TestApexNonLearningGuarantee:
         
         Adaptation at APEX = constitutional drift.
         """
-        assert not hasattr(ThermodynamicProsecutor, 'adapt'), \
+        assert not hasattr(ThermodynamicProsecutor, "adapt"), \
             "APEX class has forbidden adapt() method"
 
     def test_apex_validate_non_learning_returns_clean(self) -> None:
@@ -114,9 +114,9 @@ class TestApexConstantsAreImmutable:
         assert isinstance(APEX_CONSTANTS, ApexConstants)
         
         # All expected attributes present
-        assert hasattr(APEX_CONSTANTS, 'F2_TRUTH_THRESHOLD')
-        assert hasattr(APEX_CONSTANTS, 'F3_TRI_WITNESS_MIN')
-        assert hasattr(APEX_CONSTANTS, 'LANDAUER_MIN')
+        assert hasattr(APEX_CONSTANTS, "F2_TRUTH_THRESHOLD")
+        assert hasattr(APEX_CONSTANTS, "F3_TRI_WITNESS_MIN")
+        assert hasattr(APEX_CONSTANTS, "LANDAUER_MIN")
 
     def test_thresholds_are_reasonable_values(self) -> None:
         """
@@ -175,8 +175,14 @@ class TestContrastBelongsElsewhere:
         
         NOT in APEX (Ψ): Binary judgment only.
         """
-        forbidden = ['contrast', 'compare', 'compare_outputs', 
-                     'select_best', 'rank', 'score_alternatives']
+        forbidden = [
+            "contrast",
+            "compare",
+            "compare_outputs",
+            "select_best",
+            "rank",
+            "score_alternatives",
+        ]
         
         for method in forbidden:
             assert not hasattr(ThermodynamicProsecutor, method), \
@@ -244,18 +250,18 @@ class TestConstitutionalDriftPrevention:
         
         # Core thresholds must be present
         required = [
-            'landauer_minimum',
-            'truth_threshold',
-            'humility_band',
-            'tri_witness_floor',
-            'genius_minimum',
-            'shadow_ceiling',
-            'empathy_minimum',
+            "landauer_minimum",
+            "truth_threshold",
+            "humility_band",
+            "tri_witness_floor",
+            "genius_minimum",
+            "shadow_ceiling",
+            "empathy_minimum",
         ]
         
         for key in required:
             assert key in table, f"Missing invariant documentation: {key}"
-            assert table[key].get('learnable') is False, \
+            assert table[key].get("learnable") is False, \
                 f"{key} marked as learnable in invariant table"
 
 
@@ -272,19 +278,22 @@ class TestApexSeparationOfPowers:
         not adjudication.
         """
         forbidden_patterns = [
-            'setattr', '__setattr__', 
-            'globals()[' , 'locals()[',
-            'exec', 'eval',
+            "setattr",
+            "__setattr__",
+            "globals()[",
+            "locals()[",
+            "exec",
+            "eval",
         ]
         
         source = inspect.getsource(ThermodynamicProsecutor)
         
         for pattern in forbidden_patterns:
             # Allow the pattern in comments/docstrings
-            lines = source.split('\n')
+            lines = source.split("\n")
             for line in lines:
                 # Skip comments
-                code_line = line.split('#')[0]
+                code_line = line.split("#")[0]
                 if pattern in code_line:
                     pytest.fail(
                         f"APEX class contains forbidden self-modification: {pattern}\n"
@@ -300,17 +309,12 @@ class TestApexSeparationOfPowers:
         """
         # prosecute_claim should be a classmethod
         assert isinstance(
-            inspect.getattr_static(ThermodynamicProsecutor, 'prosecute_claim'),
+            inspect.getattr_static(ThermodynamicProsecutor, "prosecute_claim"),
             classmethod
         ), "prosecute_claim should be classmethod (stateless)"
         
         # detect_stochastic_magic should be a classmethod
         assert isinstance(
-            inspect.getattr_static(ThermodynamicProsecutor, 'detect_stochastic_magic'),
+            inspect.getattr_static(ThermodynamicProsecutor, "detect_stochastic_magic"),
             classmethod
         ), "detect_stochastic_magic should be classmethod (stateless)"
-
-
-# Import needed for inspection
-import inspect
-from inspect import getattr_static

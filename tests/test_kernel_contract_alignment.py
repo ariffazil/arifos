@@ -43,7 +43,7 @@ def test_manifest_kernel_schema_exposes_auth_context():
 
 
 @pytest.mark.asyncio
-async def test_low_risk_kernel_call_auto_bootstraps_without_auth_context(monkeypatch):
+async def test_low_risk_open_mode_mints_context_but_keeps_unverified_authority(monkeypatch):
     from core.physics.thermodynamics_hardened import init_thermodynamic_budget
     monkeypatch.setenv("ARIFOS_GOVERNANCE_OPEN_MODE", "1")
     
@@ -60,8 +60,11 @@ async def test_low_risk_kernel_call_auto_bootstraps_without_auth_context(monkeyp
 
     assert envelope.tool == "arifOS_kernel"
     assert envelope.auth_context is not None
-    assert all(error.code != "AUTH_FAILURE" for error in envelope.errors)
-    assert envelope.trace.get("000_INIT") in {"SEAL", "SABAR", "VOID"}
+    assert any(error.code == "AUTH_FAILURE" for error in envelope.errors)
+    assert envelope.verdict == "VOID"
+    assert envelope.authority.actor_id == "anonymous"
+    assert envelope.authority.auth_state == "unverified"
+    assert envelope.trace.get("000_INIT") == "SEAL"
     assert envelope.philosophy is not None
     assert envelope.meta.motto is not None
 
