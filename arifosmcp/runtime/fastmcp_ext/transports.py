@@ -352,7 +352,7 @@ def _build_http_middleware() -> list[Middleware]:
 
     exempt_paths = _split_csv(
         "ARIFOS_AUTH_EXEMPT_PATHS",
-        "/,/health,/tools,/version,/ready,/openapi.json,/openapi.yaml,/.well-known/mcp/server.json",
+        "/,/health,/metrics,/tools,/version,/ready,/openapi.json,/openapi.yaml,/.well-known/mcp/server.json",
     )
     middleware.append(Middleware(BearerAuthMiddleware, exempt_paths=exempt_paths))
     middleware.append(Middleware(SecurityHeadersMiddleware))
@@ -391,7 +391,7 @@ class _HealthEndpointMiddleware:
         path = scope.get("path", "")
         method = scope.get("method", "GET")
 
-        # Only handle /health - let all other routes pass through to FastMCP custom routes
+        # Only handle /health and /metrics - let all other routes pass through
         if path == "/health" and method == "GET":
             response = JSONResponse(
                 {
@@ -400,6 +400,18 @@ class _HealthEndpointMiddleware:
                     "version": os.getenv("ARIFOS_VERSION", "2026.03.09"),
                 },
                 status_code=200,
+            )
+            await response(scope, receive, send)
+            return
+
+        if path == "/metrics" and method == "GET":
+            from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
+            from starlette.responses import Response
+            
+            response = Response(
+                generate_latest(),
+                status_code=200,
+                headers={"Content-Type": CONTENT_TYPE_LATEST},
             )
             await response(scope, receive, send)
             return
