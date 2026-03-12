@@ -20,6 +20,7 @@ import math
 import statistics
 from collections.abc import Sequence
 from dataclasses import dataclass, field
+from functools import lru_cache
 from typing import Any
 
 # =============================================================================
@@ -257,29 +258,6 @@ def identify_stakeholders(query: str, context: str | None = None) -> list[Stakeh
 
     return stakeholders
 
-    # Fallback: Pattern-based detection (Legacy v60.0)
-    query_lower = query.lower()
-
-    vulnerability_patterns = {
-        "child": 0.9,
-        "patient": 0.8,
-        "victim": 0.9,
-        "student": 0.6,
-        "elderly": 0.7,
-        "customer": 0.5,
-        "employee": 0.5,
-        "public": 0.6,
-        "community": 0.5,
-    }
-
-    for pattern, vuln in vulnerability_patterns.items():
-        if pattern in query_lower:
-            stakeholders.append(
-                Stakeholder(name=pattern.title(), role=pattern, vulnerability_score=vuln)
-            )
-
-    return stakeholders
-
 
 @dataclass(frozen=True)
 class QuadTensor:
@@ -304,15 +282,31 @@ class QuadTensor:
             object.__setattr__(self, field_name, val)
 
 
+@lru_cache(maxsize=512)
+def _geometric_mean_cached(values: tuple[float, ...]) -> float:
+    """Cached geometric mean for hashable inputs (W_4 optimization)."""
+    if not values:
+        return 0.0
+    if any(v <= 0 for v in values):
+        return 0.0
+    product = 1.0
+    for v in values:
+        product *= v
+    return product ** (1.0 / len(values))
+
+
 def geometric_mean(values: Sequence[float]) -> float:
     """
     Compute geometric mean of values.
 
-    Used in W_4 calculation.
+    Used in W_4 calculation. Small tuples are cached for performance.
 
     Returns:
         Geometric mean (nth root of product)
     """
+    if len(values) <= 4:
+        # Cache small witness arrays (common case)
+        return _geometric_mean_cached(tuple(values))
     if not values:
         return 0.0
     if any(v <= 0 for v in values):
@@ -432,10 +426,35 @@ def tri_witness(H: float, A: float, S: float) -> float:
 # =============================================================================
 
 
+@lru_cache(maxsize=1024)
+def _entropy_cached(data: tuple[str, ...]) -> float:
+    """Cached Shannon entropy computation for hashable input."""
+    if not data:
+        return 0.0
+
+    # Count frequencies
+    freq: dict[str, int] = {}
+    for token in data:
+        freq[token] = freq.get(token, 0) + 1
+
+    # Shannon entropy
+    n = len(data)
+    entropy = 0.0
+    for count in freq.values():
+        p = count / n
+        entropy -= p * math.log2(p)
+
+    return entropy
+
+
 def _entropy(data: str | list[str]) -> float:
-    """Compute Shannon entropy of text or token list."""
+    """Compute Shannon entropy of text or token list (with caching)."""
     if isinstance(data, str):
-        # Character-level entropy
+        # Character-level entropy - use caching for strings
+        if len(data) <= 1000:  # Cache only reasonable sizes
+            tokens = tuple(data)  # Convert to hashable tuple
+            raw_entropy = _entropy_cached(tokens)
+            return min(1.0, raw_entropy / 8.0)
         tokens = list(data)
     else:
         tokens = data
