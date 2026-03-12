@@ -55,7 +55,7 @@ from arifosmcp.runtime.tools import (
 # ---------------------------------------------------------------------------
 
 mcp = FastMCP("arifOS-APEX-G", version=release_version_label())
-PUBLIC_TOOL_PROFILE = os.getenv("ARIFOS_PUBLIC_TOOL_PROFILE", "full").strip().lower() or "full"
+PUBLIC_TOOL_PROFILE = os.getenv("ARIFOS_PUBLIC_TOOL_PROFILE", "public").strip().lower() or "public"
 # SSE removed: deprecated by MCP spec (2025-03) and Copilot Studio (2025-08)
 VALID_TRANSPORT_MODES = {"stdio", "http", "streamable-http"}
 
@@ -123,7 +123,7 @@ register_rest_routes(mcp, CORE_TOOL_REGISTRY)
 # Phase 2 — External Capability Tools (legacy-enabled, not in new loop)
 # ---------------------------------------------------------------------------
 
-if PUBLIC_TOOL_PROFILE not in ("chatgpt", "agnostic_public", "copilot"):
+if PUBLIC_TOOL_PROFILE != "public":
     register_phase2_tools(mcp, profile=PUBLIC_TOOL_PROFILE)
 
 
@@ -158,6 +158,7 @@ app.add_middleware(
 _dashboard_dir = os.path.join(os.path.dirname(__file__), "..", "sites", "apex-dashboard")
 if os.path.isdir(_dashboard_dir):
     _mcp_app.mount("/dashboard", StaticFiles(directory=_dashboard_dir, html=True), name="dashboard")
+
 
 def create_aaa_mcp_server() -> FastMCP:
     """Return the fully configured arifOS MCP hub."""
