@@ -256,6 +256,7 @@ services:
           memory: 512M
     restart: unless-stopped
     depends_on:
+      - arifosmcp
       ollama:
         condition: service_started
       redis:
@@ -269,7 +270,7 @@ services:
       args:
         - BUILDKIT_INLINE_CACHE=1
     image: arifos/arifosmcp:latest
-    container_name: arifosmcp_server
+    container_name: arifosmcp
     init: true
     env_file:
       - path: .env.docker
@@ -333,6 +334,7 @@ services:
     security_opt:
       - no-new-privileges:true
     depends_on:
+      - arifosmcp
       postgres:
         condition: service_healthy
       redis:
@@ -546,7 +548,8 @@ services:
       - ARIFOS_ML_FLOORS=1
     restart: unless-stopped
     depends_on:
-      - arifosmcp_server
+      - arifosmcp
+      - arifosmcp
 
 volumes:
   arifosmcp_telemetry:
