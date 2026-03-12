@@ -46,20 +46,6 @@ services:
       - /opt/arifos/data/triggers:/shared/triggers
       - /opt/arifos/data/openclaw/models:/root/.node-llama-cpp/models
       - /opt/arifos/traefik/acme.json:/letsencrypt/acme.json
-  # ── arifOS Office Forge Watcher ──────────────────────────
-  inbox_watcher:
-    build:
-      context: .
-      dockerfile: Dockerfile.watcher
-    container_name: arifos_inbox_watcher
-    volumes:
-      - /srv/syncthing:/watch
-      - /srv/arifosmcp:/app
-    environment:
-      - ARIFOS_ML_FLOORS=1
-    restart: unless-stopped
-    depends_on:
-      - arifosmcp_server
     networks:
       - arifos_trinity
     deploy:
@@ -547,20 +533,6 @@ services:
       - no-new-privileges:true
 
 # --- Persistent Volumes for arifosmcp ---
-volumes:
-  arifosmcp_telemetry:
-    driver: local
-  arifosmcp_vault:
-    driver: local
-  arifosmcp_memory:
-    driver: local
-
-# --- Networks ---
-networks:
-  arifos_trinity:
-    external: true
-    name: arifos_arifos_trinity
-
   # ── arifOS Office Forge Watcher ──────────────────────────
   inbox_watcher:
     build:
@@ -575,3 +547,17 @@ networks:
     restart: unless-stopped
     depends_on:
       - arifosmcp_server
+
+volumes:
+  arifosmcp_telemetry:
+    driver: local
+  arifosmcp_vault:
+    driver: local
+  arifosmcp_memory:
+    driver: local
+
+# --- Networks ---
+networks:
+  arifos_trinity:
+    external: true
+    name: arifos_arifos_trinity
