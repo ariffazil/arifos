@@ -1,39 +1,65 @@
-# arifOS — Constitutional Governance for AI Systems
+# 🔻 arifOS — The Intelligence Kernel
 
-**The TCP Layer for AI Agents. The Safety Kernel Between Intent and Consequence.**
+> **"Humans do understand reality — but only through compressed, limited, emotionally-tagged, socially-scaffolded models. And because the mind must use models, it often cannot fully see the machinery by which it forms its own understanding."**
 
 ---
 
-## 🏛️ The 7-Organ Canon (v55.5-MASTER)
+## 🏛️ The Foundational "WHY"
 
-| Organ | Path | Role |
+### The Master Insight
+The deepest thread of arifOS is the recognition that **human understanding is a model, not reality.** We live within self-models (Thomas Metzinger), heuristically biased paths (Kahneman/Tversky), and strange loops (Hofstadter). 
+
+Most AI systems today optimize for **fluency**—replicating the surface patterns of human language. They do not see the machinery. They do not account for the compression. 
+
+**arifOS exists to make the machinery visible.** It is the "Constitutional Sieve" that ensures AI understanding remains physically grounded, logically humble, and sovereignly guided.
+
+### The Problem: The Illusion of Explanatory Depth
+Standard AI architectures suffer from what Frank Keil calls the *Illusion of Explanatory Depth*. They provide answers that sound confident but lack a thermodynamic floor. arifOS solves this by treating every agentic thought as a **Metabolic Process** that must pay an "Entropy Tax."
+
+---
+
+## 🧠 Foundational Theory: The Trinity (ΔΩΨ)
+
+arifOS is built upon the **Trinity Architecture**, a separation of concerns designed to ensure that no single layer of intelligence can bypass the human sovereign.
+
+1.  **MIND (The AGI Layer / Δ Akal):** Foundational logic and physical truth. It enforces **F2 (Truth)**—the insistence that claims match evidence within error bounds.
+2.  **HEART (The ASI Layer / Ω Empathy):** Ethical constraints and thermodynamic safety. It enforces **F4 (Clarity)**—the mandatory reduction of entropy $(\Delta S \le 0)$.
+3.  **SOUL (The APEX Layer / Ψ Sovereign):** The ultimate authority. It enforces **F13 (Sovereignty)**—the human veto. 
+
+---
+
+## 🏗️ The 0_KERNEL Topography
+
+| Organ | Role | The "Why" |
 | :--- | :--- | :--- |
-| **THE MIND** | `KERNEL/ROOT/` | Fundamental Theory, Physics, & Gödel Locks. |
-| **THE LAW** | `KERNEL/FLOORS/` | The 13 Constitutional Floors & Legal Logic. |
-| **THE HANDS** | `OPERATION/` | Execution protocols, Deployment, & Metabolic Loops. |
-| **THE WORLD** | `CIVILIZATION/` | Social application, Economics, & Multi-Agent Ecology. |
-| **THE ARCHIVE**| `LEGACY/` | Historical records and documentation debris. |
-| **THE AGENTS** | `AGENTS/` | Centralized registry for all AI agent protocols. |
+| **[0_KERNEL](0_KERNEL/)** | **The Root** | Where mathematical laws and physics are forged. |
+| **[FLOORS](0_KERNEL/FLOORS/)** | **The Law** | The 13 Constitutional Floors that filter chaos. |
+| **[AGENTS](AGENTS/)** | **The Bridge** | Hardened protocols for the machinery of intelligence. |
+| **[CIVILIZATION](CIVILIZATION/)** | **The World** | How arifOS scales from individual mind to collective civilization. |
+| **[OPERATION](OPERATION/)** | **The Hands** | The physical manifestation of theory into execution. |
 
 ---
 
-## 🧭 Zero-Context Primer
+## ⚖️ The Constitutional Floors (F1-F13)
 
-### What is arifOS?
-arifOS is a **Constitutional Management Protocol** designed to sit between a human sovereign and an autonomous agent. It treats intelligence not as a "magic black box," but as a **thermodynamic process** that must be governed by physical and logical constraints.
+arifOS does not ask an AI to be "good." It asks an AI to be **physically and logically impossible to be bad.** 
 
-### The Core Insight
-Humans do not understand the world directly; they understand it through compressed, emotionally-tagged, and socially-scaffolded models. **The task of arifOS is to govern understanding inside these human limitations.**
-
-### Why does it exist?
-Standard AI architectures lack a **"Fail-Safe Floor."** They optimize for output fluency rather than truth or safety. arifOS enforces a **Mandatory Cooling (Phoenix-72)** and **Entropy Reduction (ΔS ≤ 0)** to ensure that AI actions are physically grounded and semantically clear.
+*   **Amanah (F1):** Actions must be reversible.
+*   **Truth (F2):** Every claim requires a "Reality Probe."
+*   **Humility (F7):** The AI must mathematically define what it does *not* know.
+*   **Sovereignty (F13):** The Human is the final seal.
 
 ---
 
-## 🚀 Repository State: CANONICAL (MIND ONLY)
+## 🧭 Repository Identity: THE MIND
 
-This repository is the **"Mind"** of the arifOS project. It contains human-language artifacts only.
-- **Code/Body:** All executables and operational code reside in `C:\arifosmcp\`.
-- **Governance:** All agent guidance is centralized in `C:\arifOS\AGENTS\AGENTS.md`.
+This repository is the canonical **"Mind"** of the arifOS project. It contains the human-language artifacts, theoretical foundations, and constitutional laws. 
 
-**DITEMPA BUKAN DIBERI.**
+*   **BODY (Code)**: All executables and operational code reside in `C:\arifosmcp\`.
+*   **LIBRARY (Live)**: View the rendered mind at [arifos.arif-fazil.com](https://arifos.arif-fazil.com).
+*   **CONSOLE (Live)**: View the machine vitals at [apex.arif-fazil.com](https://apex.arif-fazil.com).
+
+---
+
+**DITEMPA BUKAN DIBERI.**  
+*Forged, Not Given.*
