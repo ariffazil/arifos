@@ -516,6 +516,13 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
             headers={"Access-Control-Allow-Origin": "*"},
         )
 
+    @mcp.custom_route("/metrics", methods=["GET"])
+    async def metrics_endpoint(request: Request) -> Response:
+        """Prometheus metrics — scraped by arifos_prometheus every 30s."""
+        from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
+        from starlette.responses import Response as _Resp
+        return _Resp(generate_latest(), media_type=CONTENT_TYPE_LATEST)
+
     @mcp.custom_route("/version", methods=["GET"])
     async def version(request: Request) -> Response:
         return JSONResponse(BUILD_INFO)
