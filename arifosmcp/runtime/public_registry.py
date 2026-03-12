@@ -487,7 +487,6 @@ def build_mcp_manifest(public_base_url: str = DEFAULT_PUBLIC_BASE_URL) -> dict[s
             },
         ],
         "remotes": [
-            {"type": "sse", "url": f"{base_url}/sse"},
             {
                 "type": "streamable-http",
                 "url": f"{base_url}{DEFAULT_HTTP_PATH}",
