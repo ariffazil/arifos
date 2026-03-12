@@ -105,7 +105,8 @@ def test_p3_cheap_truth_voided():
 
     # CASE: Massive entropy reduction claimed for virtually zero compute cost
     # ΔS = -2.0e16 is an impossible reduction for 0.001ms and 1 token.
-    with pytest.raises(physics.LandauerViolation):
+    # The thermodynamic budget raises LandauerError when violations exceed threshold
+    with pytest.raises(physics.LandauerError):
         physics.check_landauer_before_seal(
             session_id=session_id, compute_ms=0.001, tokens=1, delta_s=-2.0e16  # Massive reduction
         )

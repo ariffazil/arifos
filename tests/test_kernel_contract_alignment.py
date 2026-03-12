@@ -1,13 +1,21 @@
 import inspect
 import json
+import types
 from pathlib import Path
 
 import pytest
 
 from arifosmcp.runtime.philosophy import select_governed_philosophy
 from arifosmcp.runtime.public_registry import PUBLIC_TOOL_SPECS
-from arifosmcp.runtime.tools import bootstrap_identity, check_vital, metabolic_loop_router
-from core.governance_kernel import route_pipeline
+from arifosmcp.runtime import tools as runtime_tools
+from arifosmcp.runtime.tools import (
+    audit_rules,
+    bootstrap_identity,
+    check_vital,
+    metabolic_loop_router,
+    reason_mind_synthesis,
+)
+from core.governance_kernel import clear_governance_kernel, get_governance_kernel, route_pipeline
 
 
 def test_route_pipeline_uses_canonical_heart_stage():
@@ -29,6 +37,12 @@ def test_public_kernel_router_accepts_auth_context():
     signature = inspect.signature(metabolic_loop_router)
 
     assert "auth_context" in signature.parameters
+
+
+def test_public_kernel_router_accepts_human_approval():
+    signature = inspect.signature(metabolic_loop_router)
+
+    assert "human_approval" in signature.parameters
 
 
 def test_manifest_kernel_schema_exposes_auth_context():
@@ -71,12 +85,56 @@ async def test_low_risk_open_mode_mints_context_but_keeps_unverified_authority(m
 
 @pytest.mark.asyncio
 async def test_bootstrap_identity_binds_declared_name() -> None:
-    envelope = await bootstrap_identity(declared_name="Arif-The-Sovereign")
+    envelope = await bootstrap_identity(
+        declared_name="Arif-The-Sovereign",
+        human_approval=False,
+    )
 
     assert envelope.tool == "bootstrap_identity"
     assert envelope.authority.actor_id == "arif-the-sovereign"
-    assert envelope.authority.level == "declared"
+    assert envelope.authority.level != "anonymous"
     assert envelope.auth_context is not None
+
+
+@pytest.mark.asyncio
+async def test_bootstrap_identity_human_approval_updates_kernel_state() -> None:
+    session_id = "bootstrap-human-approval"
+    clear_governance_kernel(session_id)
+
+    envelope = await bootstrap_identity(
+        declared_name="Chat Operator",
+        session_id=session_id,
+        human_approval=True,
+    )
+
+    kernel = get_governance_kernel(session_id)
+
+    assert envelope.auth_context is not None
+    assert envelope.auth_context["authority_level"] == "human"
+    assert kernel.human_approval_status == "approved"
+    assert kernel.decision_owner == "chat-operator"
+
+
+@pytest.mark.asyncio
+async def test_reason_stage_preserves_declared_authority_context() -> None:
+    session_id = "declared-authority-continuity"
+    init_env = await bootstrap_identity(
+        declared_name="Arif",
+        session_id=session_id,
+        human_approval=False,
+    )
+
+    envelope = await reason_mind_synthesis(
+        session_id=session_id,
+        query="Explain F11 briefly.",
+        auth_context=init_env.auth_context,
+    )
+
+    assert envelope.auth_context is not None
+    assert envelope.auth_context["actor_id"] == "arif"
+    assert envelope.auth_context["authority_level"] != "anonymous"
+    assert envelope.authority.actor_id == "arif"
+    assert envelope.authority.level != "anonymous"
 
 
 @pytest.mark.asyncio
@@ -102,10 +160,58 @@ async def test_high_risk_kernel_call_still_requires_explicit_auth_context():
 
 
 @pytest.mark.asyncio
+async def test_explicit_human_approval_bootstraps_kernel_without_crypto(monkeypatch):
+    from core.physics.thermodynamics_hardened import init_thermodynamic_budget
+
+    monkeypatch.delenv("ARIFOS_GOVERNANCE_OPEN_MODE", raising=False)
+    session_id = "human-approval-kernel"
+    clear_governance_kernel(session_id)
+    init_thermodynamic_budget(session_id, initial_budget=1.0)
+
+    envelope = await metabolic_loop_router(
+        query="Explain the current runtime authority posture.",
+        actor_id="chat-operator",
+        human_approval=True,
+        risk_tier="low",
+        dry_run=True,
+        session_id=session_id,
+    )
+
+    assert envelope.status.name == "DRY_RUN"
+    assert envelope.auth_context is not None
+    assert envelope.auth_context["actor_id"] == "chat-operator"
+    assert envelope.auth_context["authority_level"] == "human"
+    assert envelope.authority.actor_id == "chat-operator"
+    assert envelope.authority.level == "human"
+    assert not any(error.code == "AUTH_FAILURE" for error in envelope.errors)
+
+
+@pytest.mark.asyncio
+async def test_protected_identity_claim_requires_crypto_even_with_human_approval():
+    envelope = await metabolic_loop_router(
+        query="Inspect the current runtime posture.",
+        actor_id="arif-fazil",
+        human_approval=True,
+        risk_tier="low",
+        dry_run=True,
+        session_id="protected-identity-claim",
+    )
+
+    assert envelope.verdict.name == "VOID"
+    assert envelope.errors[0].code == "AUTH_FAILURE"
+    assert envelope.authority.actor_id == "anonymous"
+    assert envelope.payload["identity_resolution"]["identity_claim_status"] == (
+        "PROTECTED_IDENTITY_REQUIRES_CRYPTO"
+    )
+
+
+@pytest.mark.asyncio
 async def test_check_vital_includes_motto_and_governed_philosophy():
-    envelope = await check_vital()
+    session_id = "vital-diagnostics-session"
+    envelope = await check_vital(session_id)
 
     assert envelope.meta.motto == "🔥 IGNITE — DITEMPA, BUKAN DIBERI 💎"
+    assert envelope.session_id == session_id
     assert envelope.philosophy is not None
     assert envelope.philosophy["stage"] == "000_INIT"
     assert envelope.philosophy["agi"]["source"] == "deterministic_33"
@@ -114,6 +220,44 @@ async def test_check_vital_includes_motto_and_governed_philosophy():
     assert envelope.payload["capability_map"]["schema"] == "capability-map/v1"
     assert "credential_classes" in envelope.payload["capability_map"]
     assert "providers" in envelope.payload["capability_map"]
+    assert envelope.payload["diagnostics_loader"]["status"] == "loaded"
+    assert envelope.payload["message"] == "Deep diagnostics loaded."
+
+
+@pytest.mark.asyncio
+async def test_audit_rules_loads_governance_diagnostics() -> None:
+    session_id = "audit-diagnostics-session"
+    envelope = await audit_rules(session_id)
+
+    assert envelope.session_id == session_id
+    assert envelope.payload["audit_loader"]["status"] == "loaded"
+    assert envelope.payload["message"] == "Governance diagnostics loaded."
+    assert "thermodynamic_separation" in envelope.payload["audit"]
+    assert envelope.verdict.name in {"SEAL", "SABAR"}
+
+
+@pytest.mark.asyncio
+async def test_metabolic_loop_preserves_declared_authority() -> None:
+    session_id = "declared-loop-authority"
+    init_env = await bootstrap_identity("Arif", session_id=session_id, human_approval=False)
+
+    envelope = await metabolic_loop_router(
+        query="Explain the 13 Constitutional Floors.",
+        context="Authority continuity regression test.",
+        risk_tier="low",
+        auth_context=init_env.auth_context,
+        actor_id="arif",
+        use_memory=False,
+        use_heart=False,
+        use_critique=False,
+        allow_execution=False,
+        dry_run=True,
+        session_id=session_id,
+    )
+
+    assert envelope.authority.actor_id == "arif"
+    assert envelope.authority.level != "anonymous"
+    assert envelope.authority.auth_state == "verified"
 
 
 def test_governed_philosophy_exposes_available_categories():
@@ -131,6 +275,37 @@ def test_governed_philosophy_exposes_available_categories():
     assert "local_99" in payload["available_categories"]
     assert "bounded_labels" in payload["available_categories"]
     assert "paradox" in payload["available_categories"]["local_99"]
+
+
+def test_thermodynamic_loader_falls_back_to_legacy_module(monkeypatch):
+    class _LegacyManager:
+        def get_thermodynamic_report(self) -> dict[str, object]:
+            return {"status": "legacy-ok"}
+
+    legacy_module = types.SimpleNamespace(
+        get_entropy_manager=lambda: _LegacyManager(),
+        ThermodynamicViolation=RuntimeError,
+    )
+
+    def fake_import_module(name: str):
+        if name == "core.physics.thermodynamics_hardened":
+            raise ImportError("hardened loader unavailable")
+        if name == "core.physics.thermodynamics":
+            return legacy_module
+        raise AssertionError(f"unexpected import target: {name}")
+
+    runtime_tools._load_thermodynamic_reporter.cache_clear()
+    monkeypatch.setattr(runtime_tools.importlib, "import_module", fake_import_module)
+
+    reporter, violation, source = runtime_tools._load_thermodynamic_reporter()
+    report = reporter("legacy-session")
+
+    assert source == "core.physics.thermodynamics"
+    assert violation is RuntimeError
+    assert report["status"] == "legacy-ok"
+    assert report["session_id"] == "legacy-session"
+
+    runtime_tools._load_thermodynamic_reporter.cache_clear()
 
 
 def test_governed_philosophy_uses_richer_local_categories_for_normal_runtime():

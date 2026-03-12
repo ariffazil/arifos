@@ -18,9 +18,9 @@ def test_canonical_vps_compose_uses_runtime_http_profile():
     assert "dockerfile: Dockerfile" in compose
     assert "ARIFOS_PUBLIC_TOOL_PROFILE: ${ARIFOS_PUBLIC_TOOL_PROFILE:-chatgpt}" in compose
     assert "ARIFOS_MCP_PATH: ${ARIFOS_MCP_PATH:-/mcp}" in compose
-    assert "/srv/arifOS/infrastructure/prometheus/prometheus.yml" in compose
-    assert "/srv/arifOS/infrastructure/deploy_from_git.sh" in compose
-    assert "/srv/arifOS/arifosmcp.transport" not in compose
+    assert "/srv/arifosmcp/infrastructure/prometheus/prometheus.yml" in compose
+    assert "/srv/arifosmcp/infrastructure/deploy_from_git.sh" in compose
+    assert "/srv/arifosmcp/arifosmcp.transport" not in compose
 
 
 def test_canonical_vps_env_template_declares_public_profile_and_governance_secret():

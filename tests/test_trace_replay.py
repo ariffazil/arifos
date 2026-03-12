@@ -16,7 +16,9 @@ def _build_vault_entry(
     timestamp: str,
     verdict: str = "SEAL",
     telemetry: dict[str, object] | None = None,
+    prev_entry_hash: str = _CHAIN_SEED,
 ) -> dict[str, object]:
+    """Build a complete vault entry with all required fields for integrity verification."""
     entry = {
         "session_id": session_id,
         "ledger_id": f"LGR-{session_id.upper()}",
@@ -28,15 +30,28 @@ def _build_vault_entry(
         "timestamp": timestamp,
     }
     seal_hash = compute_vault_seal_hash(entry)
+    # Build chain with proper entry_hash calculation
+    entry_hash = hashlib.sha256((prev_entry_hash + seal_hash).encode()).hexdigest()
     return {
         **entry,
         "seal_hash": seal_hash,
         "chain": {
             "payload_hash": seal_hash,
-            "entry_hash": hashlib.sha256((seal_hash + _CHAIN_SEED).encode()).hexdigest(),
-            "prev_entry_hash": "0x" + "0" * 64,
+            "entry_hash": entry_hash,
+            "prev_entry_hash": prev_entry_hash,
         },
     }
+
+
+def _build_chained_ledger(entries: list[dict]) -> list[dict]:
+    """Build a list of vault entries with proper chaining."""
+    prev_hash = _CHAIN_SEED
+    chained = []
+    for entry_data in entries:
+        entry = _build_vault_entry(**entry_data, prev_entry_hash=prev_hash)
+        chained.append(entry)
+        prev_hash = entry["chain"]["entry_hash"]
+    return chained
 
 
 @pytest.mark.asyncio
@@ -44,30 +59,27 @@ async def test_trace_replay_reads_trace_from_vault_telemetry(tmp_path, monkeypat
     vault_path = tmp_path / "vault999.jsonl"
     monkeypatch.setattr(bridge, "DEFAULT_VAULT_PATH", vault_path)
 
+    # Build properly chained entries
+    entries = _build_chained_ledger([
+        {
+            "session_id": "s-1",
+            "summary": "test summary",
+            "timestamp": "2026-03-10T00:00:00Z",
+            "telemetry": {
+                "trace": {"111_MIND": "SEAL", "222_REALITY": {"score": 0.88}},
+                "reality": {"score": 0.88, "status": "OK"},
+            },
+        },
+        {
+            "session_id": "s-2",
+            "summary": "other session",
+            "timestamp": "2026-03-10T00:00:01Z",
+            "telemetry": {"trace": {"111_MIND": "PARTIAL"}},
+        },
+    ])
+
     vault_path.write_text(
-        "\n".join(
-            [
-                json.dumps(
-                    _build_vault_entry(
-                        session_id="s-1",
-                        summary="test summary",
-                        timestamp="2026-03-10T00:00:00Z",
-                        telemetry={
-                            "trace": {"111_MIND": "SEAL", "222_REALITY": {"score": 0.88}},
-                            "reality": {"score": 0.88, "status": "OK"},
-                        },
-                    )
-                ),
-                json.dumps(
-                    _build_vault_entry(
-                        session_id="s-2",
-                        summary="other session",
-                        timestamp="2026-03-10T00:00:01Z",
-                        telemetry={"trace": {"111_MIND": "PARTIAL"}},
-                    )
-                ),
-            ]
-        ),
+        "\n".join(json.dumps(e) for e in entries),
         encoding="utf-8",
     )
 
@@ -98,22 +110,24 @@ async def test_trace_replay_blocks_tampered_vault_entries(tmp_path, monkeypatch)
     vault_path = tmp_path / "vault999.jsonl"
     monkeypatch.setattr(bridge, "DEFAULT_VAULT_PATH", vault_path)
 
-    entry = {
-        "session_id": "s-bad",
-        "summary": "tampered entry",
-        "timestamp": "2026-03-10T00:00:00Z",
-        "telemetry": {"trace": {"111_MIND": "SEAL"}},
-    }
-    signed_entry = _build_vault_entry(**entry)
-    good_hash = signed_entry["seal_hash"]
+    # Build a valid entry first
+    valid_entry = _build_vault_entry(
+        session_id="s-bad",
+        summary="tampered entry",
+        timestamp="2026-03-10T00:00:00Z",
+        telemetry={"trace": {"111_MIND": "SEAL"}},
+    )
+    good_hash = valid_entry["seal_hash"]
+    
+    # Tamper with it: modify content but keep original hash
     tampered = {
-        **signed_entry,
+        **valid_entry,
         "summary": "tampered entry after seal",
-        "seal_hash": good_hash,
+        "seal_hash": good_hash,  # Original hash doesn't match modified content
         "chain": {
             "payload_hash": good_hash,
             "entry_hash": "not-a-real-entry-hash",
-            "prev_entry_hash": "0x" + "0" * 64,
+            "prev_entry_hash": _CHAIN_SEED,
         },
     }
     vault_path.write_text(json.dumps(tampered), encoding="utf-8")
