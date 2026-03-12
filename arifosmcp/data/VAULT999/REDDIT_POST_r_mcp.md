@@ -1,6 +1,6 @@
 # arifOS — I built an Intelligence Kernel for Constitutional AI (MCP-native, pip installable)
 
-**TL;DR:** `pip install arifos` — A governance kernel that sits between AI models and users, enforcing 13 constitutional safety floors through 9 MCP tools. Every decision is cryptographically sealed. Would love feedback from the MCP community.
+**TL;DR:** `pip install arifosmcp` — A governance kernel that sits between AI models and users, enforcing 13 constitutional safety floors through 9 MCP tools. Every decision is cryptographically sealed. Would love feedback from the MCP community.
 
 ---
 
@@ -69,10 +69,10 @@ Full spec: [github.com/ariffazil/arifosmcp/blob/main/000_THEORY/000_LAW.md](http
 ## Quick Start
 
 ```bash
-pip install arifos
-python -m arifosmcp.transport          # stdio (Claude Desktop, Cursor)
-python -m arifosmcp.transport sse      # SSE endpoint
-python -m arifosmcp.transport http     # Streamable HTTP
+pip install arifosmcp
+python -m arifosmcp.runtime          # stdio (Claude Desktop, Cursor)
+python -m arifosmcp.runtime sse      # SSE endpoint
+python -m arifosmcp.runtime http     # Streamable HTTP
 ```
 
 Or connect to live server:

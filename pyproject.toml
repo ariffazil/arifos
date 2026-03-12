@@ -1,5 +1,5 @@
 [project]
-name = "arifos"
+name = "arifosmcp"
 version = "2026.3.12"
 # T000 Versioning: YYYY.MM.DD — see T000_VERSIONING.md and CHANGELOG.md for full history
 # 2026.03.07 — Architectural Formalization Seal
@@ -24,7 +24,7 @@ version = "2026.3.12"
 # 2026.1.26 — Live constitutional metrics; 13/13 floors passing
 # 2026.1.24 — Unified core: arifosmcp.transport pure transport, all logic in core/
 # 2026.1.18 — Constitutional Forge: 13 floors F1-F13, Trinity ΔΩΨ, VAULT999, 9-tool MCP
-description = "arifOS - The World's First Production-Grade Constitutional AI Governance System. Mathematical enforcement of ethical constraints with 13 stationary floors (F1-F13), Axiom Engine for physics-grounded truth, and immutable VAULT999 ledger. Trinity architecture (ΔΩΨ): AGI Mind, ASI Heart, APEX Soul. MCP-compatible. Install: pip install arifos. https://arifos.arif-fazil.com/"
+description = "arifOS - The World's First Production-Grade Constitutional AI Governance System. Mathematical enforcement of ethical constraints with 13 stationary floors (F1-F13), Axiom Engine for physics-grounded truth, and immutable VAULT999 ledger. Trinity architecture (ΔΩΨ): AGI Mind, ASI Heart, APEX Soul. MCP-compatible. Install: pip install arifosmcp. https://arifos.arif-fazil.com/"
 readme = "README.md"
 requires-python = ">=3.12"
 license = "AGPL-3.0-only"
@@ -183,7 +183,7 @@ Documentation = "https://github.com/ariffazil/arifosmcp"
 Repository    = "https://github.com/ariffazil/arifosmcp"
 Issues        = "https://github.com/ariffazil/arifosmcp/issues"
 Trinity       = "https://github.com/ariffazil/arifosmcp/blob/main/KERNEL/TRINITY_ARCHITECTURE.md"
-PyPI          = "https://pypi.org/project/arifos/"
+PyPI          = "https://pypi.org/project/arifosmcp/"
 
 [project.scripts]
 arifos     = "arifosmcp.runtime.__main__:main"

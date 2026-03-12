@@ -62,7 +62,7 @@ G --> H[999: Commit - Seal VAULT999]
 ## Quick start
 
 ```bash
-pip install arifos
+pip install arifosmcp
 
 # Local clients (Claude Desktop / Cursor)
 python -m arifosmcp.runtime stdio

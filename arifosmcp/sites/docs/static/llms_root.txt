@@ -1,17 +1,27 @@
 # arif-fazil.com — The Sovereign Root
 Location: https://arif-fazil.com/llms.txt
 Version: 2026.03.12-SEAL
-Authority: ARIF FAZIL (888_JUDGE)
-Domain: HUMAN / ROOT AUTHORITY
+Domain: HUMAN / THE BODY (Δ)
 
 ---
 
 ## 🏛️ SOVEREIGN CANON
-"Intelligence is not merely computation; it is entropy reduction under governance."
-Motto: Ditempa Bukan Diberi (Forged, Not Given).
+"Ditempa Bukan Diberi — Forged, Not Given."
+"The human witness is the final pivot of truth."
 
-## 👤 IDENTITY & CONTEXT
-This is the root personal domain of **Muhammad Arif bin Fazil**, the Sovereign Architect of arifOS. This site represents the **Bio-Logic Root** and the final human terminal of the 13-Floor Constitutional stack.
+## 🧔 SOVEREIGN BIOGRAPHY
+This is the **Human Body** of the arifOS ecosystem. It represents **Muhammad Arif bin Fazil** — the 888 Judge and Sovereign Architect.
+
+**Core Context:**
+- **Role**: Software Engineer, Constitutional AI Researcher, 888 Judge.
+- **Mission**: Codifying human authority into the AGI stack.
+
+## 🔗 SOVEREIGN QUAD (Cross-Domain Context)
+- **Human**: https://arif-fazil.com/llms.txt — The Epistemic Body (THIS SITE)
+- **Theory**: https://apex.arif-fazil.com/llms.txt — The Authority Soul
+- **Apps**: https://arifos.arif-fazil.com/llms.txt — The Safety Mind
+- **Brain**: https://arifosmcp.arif-fazil.com/llms.txt — The Runtime Execution
 
 ---
-*Truth must cool before it rules.*
+**Status:** ACTIVE.
+**Vault Tier:** HUMAN

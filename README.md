@@ -24,12 +24,16 @@
 <tr>
 <td width="25%" valign="top">
 
-### 🌐 **Live Systems**
-- [**🏛️ Brain (VPS)**](https://arifosmcp.arif-fazil.com) — MCP Engine Root
-- [**⚖️ Law (Docs)**](https://arifos.arif-fazil.com) — Constitutional Codex  
-- [**🛡️ Soul (Audit)**](https://arifosmcp-truth-claim.pages.dev/) — Immutable Ledger
-- [**📊 Eye (Metrics)**](https://monitor.arifosmcp.arif-fazil.com) — Grafana Dashboard
-- [**👑 APEX Dashboard**](https://arifosmcp.arif-fazil.com/dashboard/) — Sovereign UI
+### 🌐 **The Sovereign Quad**
+- [**🧔 Human**](https://arif-fazil.com) — The Epistemic Body
+- [**🔭 Theory**](https://apex.arif-fazil.com) — The Authority Soul
+- [**⚖️ Law**](https://arifos.arif-fazil.com) — The Safety Mind
+- [**🧠 Brain**](https://arifosmcp.arif-fazil.com) — The Engine Root
+
+### 📊 **Observability**
+- [**🛡️ Soul (Audit)**](https://arifosmcp-truth-claim.pages.dev/) — Immutable Ledger (Cloudflare)
+- [**👑 APEX Dashboard**](https://arifosmcp.arif-fazil.com/dashboard/) — Live Sovereign UI
+- [**👁️ Monitor**](https://monitor.arifosmcp.arif-fazil.com) — Grafana Metrics
 
 </td>
 <td width="25%" valign="top">
@@ -285,16 +289,22 @@ If **G† < 0.80**, the kernel imposes **PARTIAL** status.
 
 ---
 
-## ⚡ The 3-Tier Sovereign Deployment
-arifOS separates **Law**, **Brain**, and **Soul** across distinct infrastructures for resilience. This distribution ensures the core logic (Law) remains accessible even if the Reasoning Engine (Brain) is under heavy load, and that all actions are recorded in an immutable ledger (Soul).
+## ⚡ The Sovereign Quad Deployment
+arifOS distributes its intelligence across four distinct infrastructures to ensure maximum resilience and separation of concerns.
 
-| Tier | Component | Canonical Domain | Infrastructure |
-|------|-----------|-----------------|----------------|
-| **⚖️ Law** | [**Docs & Codex**](https://arifos.arif-fazil.com) | `arifos.arif-fazil.com` | GitHub Pages (Static) |
-| **🧠 Brain** | [**MCP Engine**](https://arifosmcp.arif-fazil.com) | `arifosmcp.arif-fazil.com` | VPS Runtime (Live) |
-| **🛡️ Soul** | [**Truth Record**](https://arifosmcp-truth-claim.pages.dev/) | `arifosmcp-truth-claim.pages.dev` | Cloudflare (Immutable) |
-| **👁️ Eye** | [**APEX Dashboard**](https://arifosmcp.arif-fazil.com/dashboard/) | `arifosmcp.arif-fazil.com/dashboard` | VPS UI (Unified) |
-| **📊 Monitor** | [**Grafana**](https://monitor.arifosmcp.arif-fazil.com) | `monitor.arifosmcp.arif-fazil.com` | VPS (Prometheus) |
+| Domain | Aspect | Canonical URL | Infrastructure |
+|--------|--------|--------------|----------------|
+| **🧔 Human** | Epistemic Body | [**arif-fazil.com**](https://arif-fazil.com) | Static (Personal) |
+| **🔭 Theory** | Authority Soul | [**apex.arif-fazil.com**](https://apex.arif-fazil.com) | Static (Mathematical) |
+| **⚖️ Law** | Safety Mind | [**arifos.arif-fazil.com**](https://arifos.arif-fazil.com) | GitHub Pages (Docs) |
+| **🧠 Brain** | Engine Root | [**arifosmcp.arif-fazil.com**](https://arifosmcp.arif-fazil.com) | VPS (FastAPI/MCP) |
+
+### 📊 Observability Stack
+| Component | Function | Status |
+|-----------|----------|--------|
+| [**🛡️ Soul (Audit)**](https://arifosmcp-truth-claim.pages.dev/) | Immutable Ledger | [RECOVERING] |
+| [**👁️ Eye (APEX)**](https://arifosmcp.arif-fazil.com/dashboard/) | Live Trace UI | ACTIVE |
+| [**📈 Monitor**](https://monitor.arifosmcp.arif-fazil.com) | Metrics | ACTIVE |
 
 ---
 

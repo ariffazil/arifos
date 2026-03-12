@@ -3,7 +3,7 @@
 **L2 Skills Adapter** — TypeScript client for the arifOS Constitutional AI Governance System.
 
 > **F4 CLARITY:** This package is a **CABLE**, not the **KERNEL**.  
-> Governance authority resides exclusively in the PyPI [`arifos`](https://pypi.org/project/arifos/) package.  
+> Governance authority resides exclusively in the PyPI [`arifosmcp`](https://pypi.org/project/arifosmcp/) package.  
 > This npm package only provides TypeScript types and a thin MCP transport client.
 
 ---
@@ -83,7 +83,7 @@ await client.disconnect();
 └──────────────┼──────────────────────┘
                │ MCP Protocol
 ┌──────────────▼──────────────────────┐
-│  arifos (PyPI) — THE KERNEL         │
+│  arifosmcp (PyPI) — THE KERNEL         │
 │  ├── core/ (13 Floors, Trinity)     │
 │  ├── arifosmcp.runtime/ (MCP server)   │
 │  └── VAULT999 (immutable ledger)    │
@@ -146,7 +146,7 @@ import type {
 
 **Notes:**
 - All versions tested against production VPS endpoint (`arifosmcp.arif-fazil.com`)
-- `stdio` transport tested locally with `arifos>=2026.2.17`
+- `stdio` transport tested locally with `arifosmcp>=2026.2.17`
 - Verdicts observed: `SEAL`, `PARTIAL`, `SABAR`, `VOID`, `HOLD`, `888_HOLD`
 
 ---
@@ -226,7 +226,7 @@ AGPL-3.0-only — Same as arifOS kernel.
 
 ## Links
 
-- **arifOS Kernel:** <https://pypi.org/project/arifos/>
+- **arifOS Kernel:** <https://pypi.org/project/arifosmcp/>
 - **Documentation:** <https://arifos.arif-fazil.com>
 - **Repository:** <https://github.com/ariffazil/arifosmcp>
 - **MCP Protocol:** <https://modelcontextprotocol.io>

@@ -35,7 +35,7 @@
     },
 
     "arifos-local": {
-      "_comment": "Local stdio via pip. Install: pip install arifos (v2026.3.7 on PyPI)",
+      "_comment": "Local stdio via pip. Install: pip install arifosmcp (v2026.3.12 on PyPI)",
       "_use_when": "Privacy-first or offline. Runs on your own machine, no external network.",
       "command": "python3",
       "args": ["-m", "arifosmcp.runtime", "stdio"],

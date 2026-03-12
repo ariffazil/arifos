@@ -141,7 +141,9 @@ WELCOME_HTML = """\
     <a href="/openapi.json">/openapi.json</a>
     <a href="/llms.txt">/llms.txt</a>
     <a href="/.well-known/mcp/server.json">/.well-known/mcp/server.json</a>
-    <a href="https://arifos.arif-fazil.com" target="_blank">docs</a>
+    <a href="https://arif-fazil.com" target="_blank">human</a>
+    <a href="https://apex.arif-fazil.com" target="_blank">theory</a>
+    <a href="https://arifos.arif-fazil.com" target="_blank">apps</a>
   </div>
 
   <section>
@@ -159,6 +161,7 @@ WELCOME_HTML = """\
       <tr><td>GET</td><td class="url">/health</td><td>Service health check</td></tr>
       <tr><td>GET</td><td class="url">/openapi.json</td><td>OpenAPI 3.1 schema</td></tr>
       <tr><td>GET</td><td class="url">/llms.txt</td><td>LLM-readable server description</td></tr>
+      <tr><td>GET</td><td class="url">/llms.json</td><td>Full Sovereign Quad ecosystem map</td></tr>
       <tr><td>GET</td><td class="url">/discovery</td><td>MCP registry discovery</td></tr>
     </table>
   </section>
@@ -188,10 +191,14 @@ Allow: /
 # LLM-readable description of this service
 # See: https://llmstxt.org
 Sitemap: https://arifosmcp.arif-fazil.com/llms.txt
+Sitemap: https://arifosmcp.arif-fazil.com/llms.json
 """
 
 LLMS_TXT = """\
-# arifOS MCP Server
+# arifOS Brain (Runtime)
+Location: https://arifosmcp.arif-fazil.com/llms.txt
+Version: 2026.03.12-SEAL
+Domain: BRAIN / THE MIND (Ω)
 
 > arifOS Constitutional Kernel — a governed Model Context Protocol (MCP) server.
 > Motto: DITEMPA BUKAN DIBERI — Forged, not given.
@@ -203,31 +210,16 @@ Every tool call passes through 13 governance floors (F1-F13) and returns
 a structured RuntimeEnvelope with verdict, thermodynamic telemetry, and Tri-Witness scores. 
 Agents reason from the capability map (Known Constraints).
 
-## MCP connection
+## Connectivity
 
-- Protocol: Model Context Protocol (MCP) 2025-11-25
-- Endpoint: /mcp  (streamable-http + JSON-RPC)
-- Tool listing: GET /tools
-- Single call: POST /checkpoint
+- **MCP Endpoint**: `https://arifosmcp.arif-fazil.com/mcp` (Streamable-HTTP)
+- **Dashboard**: `https://arifosmcp.arif-fazil.com/dashboard/` (Live Audit)
+- **Health**: `https://arifosmcp.arif-fazil.com/health`
+- **Registry**: `https://arifosmcp.arif-fazil.com/.well-known/mcp/server.json`
 
 ## The 7-tool arifOS stack
 
 __APEX_MD_TABLE__
-
-## Common RuntimeEnvelope (returned by every tool)
-
-```json
-{
-  "verdict": "SEAL | PROVISIONAL | PARTIAL | SABAR | HOLD | HOLD_888 | VOID",
-  "stage": "000_INIT | 111_SENSE | 222_REALITY | 333_MIND | 444_ROUTER | 555_MEMORY |"
-           " 666_HEART | 777_FORGE | 888_JUDGE | 999_VAULT",
-  "session_id": "string",
-  "metrics": { "truth": 0.0, "clarity_delta": 0.0, "confidence": 0.0, "peace": 0.0 },
-  "authority": { "actor_id": "string", "level": "human|agent|system|anonymous" },
-  "payload": {},
-  "meta": { "schema_version": "1.0.0", "timestamp": "ISO-8601" }
-}
-```
 
 ## Governance floors summary
 
@@ -235,31 +227,54 @@ __APEX_MD_TABLE__
 - Soft floors: F3, F5, F6, F8.
 - Veto: F13 Sovereign — human final authority
 
-## Key endpoints
+## 🔗 SOVEREIGN QUAD (Cross-Domain Context)
+- **Human**: https://arif-fazil.com/llms.txt — The Epistemic Body
+- **Theory**: https://apex.arif-fazil.com/llms.txt — The Authority Soul
+- **Apps**: https://arifos.arif-fazil.com/llms.txt — The Safety Mind
+- **Brain**: https://arifosmcp.arif-fazil.com/llms.txt — The Runtime Execution (THIS SITE)
 
-- GET  /tools                        — list all tools with schemas
-- POST /tools/{tool_name}            — call a tool via REST
-- POST /checkpoint                   — single-call constitutional evaluation
-- GET  /health                       — health check
-- GET  /openapi.json                 — OpenAPI 3.1 schema
-- GET  /.well-known/mcp/server.json  — MCP registry discovery
-- GET  /llms.txt                     — this file
-- GET  /health                       — includes a redacted capability map
-
-## Optional: quick test
-
-```
-POST /checkpoint
-Content-Type: application/json
-
-{ "query": "Should I deploy this to production?", "risk_tier": "high" }
-```
-
-## Links
-
-- Docs: https://arifos.arif-fazil.com
-- Protocol: https://modelcontextprotocol.io
+---
+**Status:** Ditempa Bukan Diberi.
+**Vault Tier:** BRAIN
 """
+
+LLMS_JSON = {
+    "name": "arifOS Sovereign Quad",
+    "description": "Unified Intelligence Kernel Map for Human, Theory, Law, and Brain domains.",
+    "version": "2026.03.12-SEAL",
+    "authority": "Muhammad Arif bin Fazil (888 Judge)",
+    "motto": "Ditempa Bukan Diberi (Forged, Not Given)",
+    "domains": {
+        "human": {
+            "name": "The Body (Human Authority)",
+            "url": "https://arif-fazil.com",
+            "llms_txt": "https://arif-fazil.com/llms.txt",
+            "role": "Epistemic Root and final 888_JUDGE terminal.",
+        },
+        "theory": {
+            "name": "The Soul (Constitutional Theory)",
+            "url": "https://apex.arif-fazil.com",
+            "llms_txt": "https://apex.arif-fazil.com/llms.txt",
+            "role": "Mathematical foundations and the APEX Manifesto.",
+        },
+        "law": {
+            "name": "The Mind (Technical Docs & Apps)",
+            "url": "https://arifos.arif-fazil.com",
+            "llms_txt": "https://arifos.arif-fazil.com/llms.txt",
+            "role": "The 13 Floors specification and integration hub.",
+        },
+        "brain": {
+            "name": "The Engine (Runtime MCP)",
+            "url": "https://arifosmcp.arif-fazil.com",
+            "llms_txt": "https://arifosmcp.arif-fazil.com/llms.txt",
+            "role": "The live Constitutional Kernel (MCP) and Audit Dashboard.",
+        },
+    },
+    "status": {
+        "version": "2026.03.12-SEAL",
+        "status": "FORGED",
+    },
+}
 
 WELCOME_HTML = WELCOME_HTML.replace("__APEX_HTML_ROWS__", apex_tools_html_rows())
 LLMS_TXT = LLMS_TXT.replace("__APEX_MD_TABLE__", apex_tools_markdown_table())
@@ -522,6 +537,7 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
         """Prometheus metrics — scraped by arifos_prometheus every 30s."""
         from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
         from starlette.responses import Response as _Resp
+
         return _Resp(generate_latest(), media_type=CONTENT_TYPE_LATEST)
 
     @mcp.custom_route("/version", methods=["GET"])
@@ -943,6 +959,10 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
     @mcp.custom_route("/llms.txt", methods=["GET"])
     async def llms_txt(_request: Request) -> Response:
         return Response(LLMS_TXT, media_type="text/plain")
+
+    @mcp.custom_route("/llms.json", methods=["GET"])
+    async def llms_json(_request: Request) -> Response:
+        return JSONResponse(LLMS_JSON, headers={"Access-Control-Allow-Origin": "*"})
 
     # Serve the APEX Sovereign Dashboard at /dashboard/
     dashboard_dir = os.path.join(
