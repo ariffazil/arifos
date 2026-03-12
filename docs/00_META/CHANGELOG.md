@@ -297,7 +297,7 @@ All changes follow [T000 versioning](T000_VERSIONING.md): `YYYY.MM.DD-PHASE-STAT
 ### Added
 - `LiveMetricsService` — real-time constitutional metrics from VAULT999 ledger
 - Live τ (truth), κᵣ (empathy), Ψ (vitality), ΔS (clarity) computation
-- `/metrics/json` endpoint serving live data with `calibration_mode` transparency
+- `/metrics` (Prometheus) and `/api/governance-status` (JSON) endpoints serving live data with `calibration_mode` transparency
 
 ### Fixed
 - Removed all static placeholder metrics (0.99, 0.98, 0.85)
