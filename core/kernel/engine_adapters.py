@@ -331,8 +331,8 @@ class AGIEngine:
         # but wrapped to match the Remote structure.
 
         try:
-            sense_out = await core_organs.sense(query, session_id, action="sense")
-            think_out = await core_organs.think(query, session_id, action="think")
+            await core_organs.sense(query, session_id, action="sense")
+            await core_organs.think(query, session_id, action="think")
             agi_out = await core_organs.reason(query, session_id, action="reason")
 
             # Extract tensor from AgiOutput
@@ -436,7 +436,7 @@ class ASIEngine:
         """Stage 666: Constitutional alignment check."""
         try:
             agi_tensor, context = await self._core_agi_process(query, session_id)
-            emp_out = await core_organs.empathize(
+            await core_organs.empathize(
                 action="simulate_heart", session_id=session_id, scenario=query
             )
             align_out = await core_organs.align(
@@ -515,16 +515,8 @@ class APEXEngine:
             asi_engine = ASIEngine()
             asi_res = asi_result or await asi_engine.align(query, session_id)
 
-            # Build tensors for apex
-            agi_out = await core_organs.agi(query, session_id, action="full")
-            agi_tensor = _agi_output_to_tensor(agi_out)
-
-            asi_output = {
-                "kappa_r": asi_res.get("kappa_r", asi_res.get("empathy_kappa_r", 0.7)),
-                "peace_squared": asi_res.get("peace_squared", 1.0),
-                "is_reversible": asi_res.get("is_reversible", True),
-                "verdict": asi_res.get("verdict", "SEAL"),
-            }
+            # APEX v60: action="judge" combines inputs internally via session_id
+            await core_organs.agi(query, session_id, action="full")
 
             apex_out = await core_organs.apex(
                 action="judge", session_id=session_id, verdict_candidate="SEAL", intent=query

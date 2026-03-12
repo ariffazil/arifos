@@ -74,8 +74,8 @@ def _extract_query_from_stage_inputs(
 
 
 async def _build_agi_tensor(query: str, session_id: str) -> Any:
-    sense_out = await core_organs.sense(query, session_id, action="sense")
-    think_out = await core_organs.think(query, session_id, action="think")
+    await core_organs.sense(query, session_id, action="sense")
+    await core_organs.think(query, session_id, action="think")
     agi_tensor = await core_organs.reason(query, session_id, action="reason")
     if hasattr(agi_tensor, "peace") and agi_tensor.peace is None:
         agi_tensor.peace = Peace2({})
@@ -148,12 +148,9 @@ async def run_stage_444_trinity_sync(
             "asi",
         )
         query = _extract_query_from_stage_inputs(agi_result, asi_result, "444")
-        agi_tensor = await _build_agi_tensor(query, session_id)
-        asi_output = _build_asi_output(asi_result)
 
-        sync_out = await core_organs.sync(
-            action="judge", session_id=session_id, verdict_candidate="SEAL"
-        )
+        # Unified Call: action="full" is safest for sync
+        sync_out = await core_organs.sync(action="full", session_id=session_id, intent=query)
 
         # Handle Pydantic model output
         if hasattr(sync_out, "verdict"):
@@ -217,9 +214,24 @@ async def run_stage_555_empathy(
             "session_id": session_id,
             "status": "completed",
         }
-        _store_stage_with_aliases(
-            store_stage_result_fn, session_id, result, "stage_555", "empathy", "asi"
-        )
+        # Ω Incident Logging (Hardening)
+        try:
+            floor_scores = emp_data.get("floor_scores", {})
+            floors_failed = [
+                f for f, s in floor_scores.items() if isinstance(s, (int, float)) and s < 0.7
+            ]
+            await log_asi_decision_fn(
+                session_id=session_id,
+                stage="555",
+                query=query,
+                asi_output=emp_data,
+                verdict=result["verdict"],
+                floors_checked=["F5", "F6", "F9"],
+                floors_failed=floors_failed,
+            )
+        except Exception as e:
+            logger.warning(f"[555] Failed to log ASI incident: {e}")
+
         return result
 
     except Exception as e:
@@ -259,6 +271,25 @@ async def run_stage_666_align(
             "status": "completed",
         }
         _store_stage_with_aliases(store_stage_result_fn, session_id, result, "stage_666", "align")
+
+        # Ω Incident Logging (Hardening)
+        try:
+            floor_scores = align_data.get("floor_scores", {})
+            floors_failed = [
+                f for f, s in floor_scores.items() if isinstance(s, (int, float)) and s < 0.7
+            ]
+            await log_asi_decision_fn(
+                session_id=session_id,
+                stage="666",
+                query=query,
+                asi_output=align_data,
+                verdict=result["verdict"],
+                floors_checked=["F1", "F5", "F6", "F9"],
+                floors_failed=floors_failed,
+            )
+        except Exception as e:
+            logger.warning(f"[666] Failed to log ASI incident: {e}")
+
         return result
 
     except Exception as e:
@@ -314,7 +345,6 @@ async def run_stage_888_judge(
     session_id: str,
     agi_result: dict[str, Any] | None = None,
     asi_result: dict[str, Any] | None = None,
-    context: dict[str, Any] | None = None,
     *,
     get_stage_result_fn: GetStageResult = _default_get_stage_result,
     store_stage_result_fn: StoreStageResult = _default_store_stage_result,
@@ -323,8 +353,29 @@ async def run_stage_888_judge(
     Stage 888: APEX Judge Metabolic Layer - Executive veto / final judgment.
     """
     try:
-        judge_out = await core_organs.judge(session_id=session_id, verdict_candidate="SEAL")
+        agi_result = agi_result or _get_first_stage_result(
+            get_stage_result_fn, session_id, "agi", "think"
+        )
+        asi_result = asi_result or _get_first_stage_result(
+            get_stage_result_fn, session_id, "asi", "empathy"
+        )
 
+        # Derive candidate: pick most restrictive between Mind and Heart
+        candidate = "SEAL"
+        v1 = str(agi_result.get("verdict", "SEAL")).upper()
+        v2 = str(asi_result.get("verdict", "SEAL")).upper()
+
+        # Simple monotone safety priority
+        if "VOID" in (v1, v2):
+            candidate = "VOID"
+        elif "HOLD" in (v1, v2):
+            candidate = "HOLD_888"
+        elif "SABAR" in (v1, v2):
+            candidate = "SABAR"
+        elif "PARTIAL" in (v1, v2):
+            candidate = "PARTIAL"
+
+        judge_out = await core_organs.judge(session_id=session_id, verdict_candidate=candidate)
         judge_data = _as_dict(judge_out)
         verdict = judge_data.get("verdict", "VOID")
         if hasattr(verdict, "value"):
