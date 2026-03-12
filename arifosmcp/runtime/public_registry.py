@@ -1,11 +1,10 @@
 from __future__ import annotations
 
+import tomllib
 from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
 from typing import Any
-
-import tomllib
 
 ROOT = Path(__file__).resolve().parents[2]
 PYPROJECT_PATH = ROOT / "pyproject.toml"
@@ -70,7 +69,7 @@ def release_version() -> str:
 
 
 def release_version_label() -> str:
-    return f"{release_version()}-SEAL"
+    return f"{release_version()}-v60-FORGED"
 
 
 def release_version_compact() -> str:
@@ -91,8 +90,8 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
         role="Main orchestrator",
         layer="Execution",
         description=(
-            "The arifOS Intelligence Kernel. Runs the full constitutional reasoning "
-            "pipeline and should be the primary entrypoint for non-trivial tasks."
+            "The arifOS Intelligence Kernel. Runs the full metabolic reasoning "
+            "pipeline (000-999) and governs high-stakes execution tasks."
         ),
         trinity="ALL",
         floors=("F1-F13",),
@@ -209,7 +208,7 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
         stage="000_INIT",
         role="Telemetry",
         layer="Governance",
-        description="Read-only system health snapshot, reporting diagnostics and vitality signals.",
+        description="Read system vitality, including thermodynamic budget and redacted capability map.",
         trinity="Ω Omega",
         floors=("F4", "F5", "F7"),
         input_schema={

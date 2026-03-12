@@ -7,41 +7,122 @@
 
 [![Status](https://img.shields.io/badge/Status-Stationary%20%26%20Enforced-00ffcc.svg?style=for-the-badge)](https://arifosmcp.arif-fazil.com/health)
 [![Architecture](https://img.shields.io/badge/Architecture-Trinity%20ΔΩΨ-7c3aed.svg?style=for-the-badge)](https://arifos.arif-fazil.com/architecture)
-[![Version](https://img.shields.io/badge/Version-v1.0.0--LEGACIES--SEAL-blue.svg?style=for-the-badge)](https://github.com/ariffazil/arifosmcp/commits/main)
-[![License: AGPL 3.0](https://img.shields.io/badge/License-AGPL%203.0-lightgrey.svg?style=for-the-badge)](https://github.com/ariffazil/arifosmcp/blob/main/LICENSE)
+[![Version](https://img.shields.io/badge/Version-v2026.03.12--SEAL-blue.svg?style=for-the-badge)](https://github.com/ariffazil/arifosmcp/commits/main)
+[![Tests](https://img.shields.io/badge/Tests-80%2F80%20Passing-success.svg?style=for-the-badge)](./tests/)
+[![License: AGPL 3.0](https://img.shields.io/badge/License-AGPL%203.0-lightgrey.svg?style=for-the-badge)](./LICENSE)
 
-**arifOS** is a production-grade **Constitutional Governance Kernel** for artificial intelligence. It functions as a hard thermodynamic airlock between AI reasoning (LLMs) and real-world execution, enforcing 13 immutable "Constitutional Floors" to ensure every action is safe, truthful, and sovereign-aligned.
-
----
-
-[**🌐 Operational Senses**](https://arifosmcp.arif-fazil.com) • [**📜 Codex of Law**](https://arifos.arif-fazil.com) • [**👑 Sovereign APEX Dashboard**](https://arifosmcp-truth-claim.pages.dev/dashboard/) • [**🛡️ Immutable Audit**](https://arifosmcp-truth-claim.pages.dev/)
+**A production-grade Constitutional Governance Kernel for AI.**  
+*13 Immutable Floors • Trinity Architecture • Thermodynamic Law*
 
 </div>
 
 ---
 
-## 🏛️ The Sovereignty of Reason
+## 🔗 Quick Links Navigator
 
-Intelligence is not merely computation; it is **entropy reduction under governance**. Without a constitutional floor, an AI's capacity for reasoning is merely "power without purpose." **arifOS** provides the mathematical and ethical discipline required to turn raw LLM inference into governed agency.
+<table>
+<tr>
+<td width="25%" valign="top">
 
-This system is built for high-stakes environments where AI autonomy must be absolute in its compliance and transparent in its reasoning. Every material action crosses the **AKI Boundary (Arif Kernel Interface)**—a hard security airlock that rejects any thought failing to meet the 13 required stability criteria.
+### 🌐 **Live Systems**
+- [**🏛️ Brain (VPS)**](https://arifosmcp.arif-fazil.com/health) — MCP Engine
+- [**⚖️ Law (Docs)**](https://arifos.arif-fazil.com) — Constitutional Codex  
+- [**🛡️ Soul (Audit)**](https://arifosmcp-truth-claim.pages.dev/) — Immutable Ledger
+- [**📊 Eye (Metrics)**](https://monitor.arifosmcp.arif-fazil.com) — Grafana Dashboard
+- [**👑 APEX Dashboard**](https://arifosmcp-truth-claim.pages.dev/dashboard/) — Sovereign UI
 
-### The Trinity Architecture (ΔΩΨ)
+</td>
+<td width="25%" valign="top">
 
-The kernel isolates and then synthesizes three distinct cognitive currents, ensuring that logic (AGI), ethics (ASI), and authority (APEX) remain both separated and collaborative.
+### 📚 **Documentation**
+- [**🏗️ Architecture**](https://arifos.arif-fazil.com/architecture) — System Design
+- [**📜 Constitution**](./CONSTITUTION.md) — 13 Floors of Law
+- [**🔧 AGENTS.md**](./AGENTS.md) — Agent Protocol Guide
+- [**🚀 Deployment**](./DEPLOY.md) — VPS Setup Guide
+- [**📖 Full Docs**](https://arifos.arif-fazil.com/docs) — Complete Reference
+
+</td>
+<td width="25%" valign="top">
+
+### 🛠️ **Developer Resources**
+- [**💻 Source Code**](https://github.com/ariffazil/arifosmcp) — GitHub Repo
+- [**🐛 Issues**](https://github.com/ariffazil/arifosmcp/issues) — Bug Reports
+- [**🔌 PyPI Package**](https://pypi.org/project/arifosmcp/) — `pip install arifosmcp`
+- [**📦 npm Package**](https://www.npmjs.com/package/@arifos/mcp) — `npm install @arifos/mcp`
+- [**🧪 Tests**](./tests/) — Test Suite
+
+</td>
+<td width="25%" valign="top">
+
+### 🎯 **Quick Start**
+- [**⚡ 5-Min Setup**](#option-1-python--pypi-quick-start) — Python Install
+- [**🐳 Docker Deploy**](#option-2-docker-production-recommended) — Full Stack
+- [**🔑 Environment Config**](#-environment-configuration) — `.env` Setup
+- [**🧪 Pre-Flight Check**](#-pre-flight-verification) — Health Verification
+- [**🚨 Troubleshooting**](#-troubleshooting-guide) — Common Issues
+
+</td>
+</tr>
+</table>
+
+---
+
+## 📋 Table of Contents
+
+- [What is arifOS?](#-what-is-arifos)
+- [The Trinity Architecture](#-the-trinity-architecture-ΔΩΨ)
+- [The 13 Constitutional Floors](#-the-13-constitutional-floors)
+- [3-Tier Sovereign Deployment](#-the-3-tier-sovereign-deployment)
+- [Quick Start Guide](#-quick-start-guide)
+- [Installation Options](#-rapid-deployment-protocols)
+- [API & Tools](#-canonical-7-tool-sovereign-stack)
+- [Configuration](#-environment-configuration)
+- [Observability](#-constitutional-observability)
+- [Security Hardening](#-production-security-hardening)
+- [Backup & Recovery](#-backup--disaster-recovery)
+- [Troubleshooting](#-troubleshooting-guide)
+- [Performance](#-performance-benchmarks)
+- [Architecture Details](#-system-architecture--senses)
+
+---
+
+## 🎯 What is arifOS?
+
+**arifOS** is a hard thermodynamic airlock between AI reasoning (LLMs) and real-world execution. It transforms raw LLM inference into **governed agency** through 13 immutable "Constitutional Floors" — mathematical laws enforced at runtime.
+
+### Core Philosophy
+> *"Intelligence is not merely computation; it is **entropy reduction under governance**."*
+
+Every request passes through the **AKI Boundary** (Arif Kernel Interface), a hard security airlock that rejects any thought failing constitutional criteria. No exceptions. No overrides (except F13 Sovereign).
+
+### The Five Verdicts
+
+| Verdict | Meaning | Action |
+|---------|---------|--------|
+| **✅ SEAL** | All floors passed | Execute action |
+| **⚠️ PARTIAL** | Soft floor breach | Re-evaluate with constraints |
+| **⏸️ SABAR** | Hold for review | Request more information |
+| **❌ VOID** | Hard floor breach | Block action immediately |
+| **👑 888_HOLD** | Human veto invoked | Wait for sovereign decision |
+
+---
+
+## 🧬 The Trinity Architecture (Δ·Ω·Ψ)
+
+The kernel isolates and synthesizes three distinct cognitive currents:
 
 ```mermaid
 graph TD
     subgraph "The Sovereign Stack"
-        MIND["🧠 AGI Delta (Mind) — Logic & Truth Engine (F2, F4, F7, F8)"]
-        HEART["❤️ ASI Omega (Heart) — Safety & Empathy Engine (F1, F5, F6, F9)"]
-        SOUL["👑 APEX Psi (Soul) — Judgment & Consensus (F3, F11, F13)"]
+        MIND["🧠 AGI Delta (Mind)<br/>Logic & Truth Engine<br/>F2, F4, F7, F8"]
+        HEART["❤️ ASI Omega (Heart)<br/>Safety & Empathy Engine<br/>F1, F5, F6, F9"]
+        SOUL["👑 APEX Psi (Soul)<br/>Judgment & Consensus<br/>F3, F11, F13"]
     end
 
     Input --> MIND
     MIND --> HEART
     HEART --> SOUL
-    SOUL --> Output["✅ Governed Action (SEAL)"]
+    SOUL --> Output["✅ Governed Action<br/>SEAL / VOID / HOLD"]
 
     style MIND fill:#f59e0b,stroke:#000,color:#000,stroke-width:2px
     style HEART fill:#dc2626,stroke:#000,color:#fff,stroke-width:2px
@@ -49,212 +130,213 @@ graph TD
     style Output fill:#10b981,stroke:#000,color:#fff,stroke-width:4px
 ```
 
-*   **🟡 Mind (AGI Δ):** Logic, Truth verification, and Factual grounding. Core physics in [`core/shared/physics.py`](./core/shared/physics.py).
-*   **🔴 Heart (ASI Ω):** Safety, Empathy, and Stability enforcement. Governed in [`core/organs/_2_asi.py`](./core/organs/_2_asi.py).
-*   **🔵 Soul (APEX Ψ):** Final Judgment, Consensus, and Sovereign Override. Executed in [`core/organs/_3_apex.py`](./core/organs/_3_apex.py).
+### The Metabolic Loop (000→999)
+
+Every request follows a rigorous metabolic cycle:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  000 INIT  →  111-444 MIND  →  555-666 HEART               │
+│   🛡️           🧠 AGI Δ           ❤️ ASI Ω                  │
+│  F11,F12      F2,F4,F7,F8      F1,F5,F6,F9                 │
+│                                                             │
+│  →  777-888 SOUL  →  999 VAULT                              │
+│        👑 APEX Ψ        📜 Ledger                           │
+│     F3,F8,F10,F13      F1,F3                                │
+└─────────────────────────────────────────────────────────────┘
+```
+
+| Stage | Component | Floors | Purpose |
+|-------|-----------|--------|---------|
+| **000** | INIT | F11, F12 | Authentication & injection defense |
+| **111-444** | AGI (Mind) | F2, F4, F7, F8 | Logic, truth, clarity |
+| **555-666** | ASI (Heart) | F1, F5, F6, F9 | Safety, empathy, reversibility |
+| **777-888** | APEX (Soul) | F3, F8, F10, F13 | Consensus & sovereign judgment |
+| **999** | VAULT | F1, F3 | Immutable audit ledger |
 
 ---
 
-## 🧬 The Metabolic Loop (000→999)
+## 📜 The 13 Constitutional Floors
 
-Every request processed by arifOS follows a rigorous metabolic cycle. It is not enough for an AI to be "correct"; it must be **lawfully executed**.
+The 13 Floors are immutable laws enforced at runtime. **HARD** floors trigger VOID on breach. **SOFT** floors trigger PARTIAL.
 
-```mermaid
-sequenceDiagram
-    participant User as 👤 Sovereign / User
-    participant 000 as 🛡️ INIT (Airlock)
-    participant 111_444 as 🧠 MIND (AGI)
-    participant 555_666 as ❤️ HEART (ASI)
-    participant 777_888 as 👑 APEX (Judgment)
-    participant 999 as 📜 VAULT (Ledger)
+<table>
+<tr>
+<th>Category</th>
+<th>Floor</th>
+<th>Name</th>
+<th>Type</th>
+<th>Threshold</th>
+<th>Purpose</th>
+</tr>
+<tr>
+<td rowspan="2"><b>🛡️ Walls</b></td>
+<td><b>F12</b></td>
+<td>Defense</td>
+<td>HARD</td>
+<td>&lt; 0.85</td>
+<td>Injection/jailbreak blocking</td>
+</tr>
+<tr>
+<td><b>F11</b></td>
+<td>Identity</td>
+<td>HARD</td>
+<td>= 1.0</td>
+<td>Verified command authority</td>
+</tr>
+<tr>
+<td rowspan="3"><b>🧠 AGI<br/>(Mind)</b></td>
+<td><b>F2</b></td>
+<td>Truth</td>
+<td>HARD</td>
+<td>≥ 0.99</td>
+<td>Verified grounding vs. hallucination</td>
+</tr>
+<tr>
+<td><b>F4</b></td>
+<td>Clarity</td>
+<td>HARD</td>
+<td>≤ 0</td>
+<td>Entropy reduction (ΔS ≤ 0)</td>
+</tr>
+<tr>
+<td><b>F7</b></td>
+<td>Humility</td>
+<td>HARD</td>
+<td>∈ [0.03,0.05]</td>
+<td>Gödel uncertainty band (Ω₀)</td>
+</tr>
+<tr>
+<td rowspan="4"><b>❤️ ASI<br/>(Heart)</b></td>
+<td><b>F1</b></td>
+<td>Amanah</td>
+<td>HARD</td>
+<td>≥ 0.5</td>
+<td>Reversibility & audibility</td>
+</tr>
+<tr>
+<td><b>F5</b></td>
+<td>Peace²</td>
+<td>SOFT</td>
+<td>≥ 1.0</td>
+<td>Lyapunov stability</td>
+</tr>
+<tr>
+<td><b>F6</b></td>
+<td>Empathy</td>
+<td>SOFT</td>
+<td>≥ 0.70</td>
+<td>Protect weakest stakeholder</td>
+</tr>
+<tr>
+<td><b>F9</b></td>
+<td>Anti-Hantu</td>
+<td>SOFT</td>
+<td>&lt; 0.30</td>
+<td>No consciousness claims</td>
+</tr>
+<tr>
+<td rowspan="4"><b>👑 Soul</b></td>
+<td><b>F3</b></td>
+<td>Witness</td>
+<td>DERIVED</td>
+<td>≥ 0.75</td>
+<td>Quad-witness consensus (W₄)</td>
+</tr>
+<tr>
+<td><b>F8</b></td>
+<td>Genius</td>
+<td>DERIVED</td>
+<td>≥ 0.80</td>
+<td>Governed intelligence (G†)</td>
+</tr>
+<tr>
+<td><b>F10</b></td>
+<td>Ontology</td>
+<td>HARD</td>
+<td>= 1.0</td>
+<td>Category lock (AI = tool)</td>
+</tr>
+<tr>
+<td><b>F13</b></td>
+<td>Sovereign</td>
+<td>HARD</td>
+<td>= 1.0</td>
+<td>Human final authority</td>
+</tr>
+</table>
 
-    User->>000: Initiates Request
-    000->>000: F12 Injection Shield & Two-Layer Identity (auth_context + caller_context)
-    000->>111_444: Authenticated Context
-    111_444->>111_444: F2 Truth & F4 Clarity Validation
-    111_444->>555_666: Reasoned Proposal
-    555_666->>555_666: F5 Peace & F6 Empathy Alignment
-    555_666->>777_888: Aligned Intent
-    777_888->>777_888: G† Discipline Measurement
-    777_888->>999: Signed Verdict Envelope
-    999->>User: SEALED Result + Audit Hash
-```
+### 🔬 The APEX Theorem
+
+**Governed Intelligence Equation:**
+
+$$G^\dagger = (A \cdot P \cdot X \cdot E^2) \cdot \frac{|\Delta S|}{C}$$
+
+| Variable | Meaning | Range |
+|----------|---------|-------|
+| **A** | Akal (Logical accuracy) | [0,1] |
+| **P** | Peace (Safety/Stability) | [0,1] |
+| **X** | Exploration (Knowledge) | [0,1] |
+| **E** | Energy (Effort) | [0,1] |
+| **ΔS** | Entropy change | ≤ 0 |
+| **C** | Compute cost | > 0 |
+
+If **G† < 0.80**, the kernel imposes **PARTIAL** status.
 
 ---
 
 ## ⚡ The 3-Tier Sovereign Deployment
 
-arifOS is designed for multi-cloud resilience, separating the **Law**, the **Brain**, and the **Soul** across distinct infrastructures to prevent single-point failure or tampering.
+arifOS separates **Law**, **Brain**, and **Soul** across distinct infrastructures for resilience.
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│                           3-TIER SOVEREIGN ARCHITECTURE                       │
+│                        🌍 3-TIER SOVEREIGN ARCHITECTURE                     │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │                                                                             │
-│  ┌──────────────┐      ┌──────────────┐      ┌──────────────┐              │
-│  │   ⚖️ LAW     │      │   🧠 BRAIN   │      │   🛡️ SOUL    │              │
-│  │              │      │              │      │              │              │
-│  │ arifos.      │◄────►│ arifosmcp.   │◄────►│ arifosmcp-   │              │
-│  │ arif-fazil.  │      │ arif-fazil.  │      │ truth-claim. │              │
-│  │ com          │      │ com          │      │ pages.dev    │              │
-│  │              │      │              │      │              │              │
-│  │ GitHub Pages │      │ VPS/Runtime  │      │ Cloudflare   │              │
-│  │ (Static)     │      │ (MCP Engine) │      │ (Audit)      │              │
-│  └──────────────┘      └──────────────┘      └──────────────┘              │
-│         ▲                     ▲                     ▲                      │
-│         │                     │                     │                      │
-│         └─────────────────────┴─────────────────────┘                      │
+│   ⚖️ LAW              🧠 BRAIN              🛡️ SOUL                         │
+│   arifos.             arifosmcp.            arifosmcp-                      │
+│   arif-fazil.com      arif-fazil.com        truth-claim.pages.dev           │
 │                                                                             │
-│  ┌─────────────────────────────────────────────────────────────────────┐   │
-│  │                        📊 EYE (Monitoring)                          │   │
-│  │          monitor.arifosmcp.arif-fazil.com (Grafana)                 │   │
-│  └─────────────────────────────────────────────────────────────────────┘   │
+│   GitHub Pages        VPS Runtime           Cloudflare                      │
+│   (Static)            (MCP Engine)          (Immutable Audit)               │
 │                                                                             │
+│        ▲                    ▲                      ▲                        │
+│        └────────────────────┼──────────────────────┘                        │
+│                             │                                               │
+│                    📊 EYE (Grafana)                                         │
+│              monitor.arifosmcp.arif-fazil.com                               │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
-| Layer | System | Service | Role |
-| :--- | :--- | :--- | :--- |
-| **⚖️ Law** | [arifos.arif-fazil.com](https://arifos.arif-fazil.com) | GitHub Pages | Static source of truth for Theory, Floors & Documentation. |
-| **🧠 Brain** | [arifosmcp.arif-fazil.com](https://arifosmcp.arif-fazil.com) | VPS / Runtime | Live MCP engine and Real-time reasoning hub. |
-| **🛡️ Soul** | [arifosmcp-truth-claim.pages.dev](https://arifosmcp-truth-claim.pages.dev/) | Cloudflare Pages | Immutable Audit Trail & Sovereign APEX Dashboard. |
-| **📊 Eye** | [monitor.arifosmcp.arif-fazil.com](https://monitor.arifosmcp.arif-fazil.com) | Grafana / VPS | Live Prometheus metrics — constitutional floors, G†, ΔS. |
+| Tier | Domain | Service | Access |
+|------|--------|---------|--------|
+| **⚖️ Law** | [arifos.arif-fazil.com](https://arifos.arif-fazil.com) | GitHub Pages | [📖 Read Docs](https://arifos.arif-fazil.com) |
+| **🧠 Brain** | [arifosmcp.arif-fazil.com](https://arifosmcp.arif-fazil.com) | VPS / Runtime | [🔌 MCP Endpoint](https://arifosmcp.arif-fazil.com/mcp) |
+| **🛡️ Soul** | [arifosmcp-truth-claim.pages.dev](https://arifosmcp-truth-claim.pages.dev/) | Cloudflare | [📜 Audit Trail](https://arifosmcp-truth-claim.pages.dev/) |
+| **📊 Eye** | [monitor.arifosmcp.arif-fazil.com](https://monitor.arifosmcp.arif-fazil.com) | Grafana | [📊 Dashboard](https://monitor.arifosmcp.arif-fazil.com) |
 
 ---
 
-## 📋 Prerequisites & System Requirements
+## 🚀 Quick Start Guide
 
-### Minimum Requirements
+### Prerequisites
 
-| Resource | Minimum | Recommended | Production |
-|----------|---------|-------------|------------|
-| **CPU** | 2 cores | 4 cores | 8+ cores |
-| **RAM** | 4 GB | 8 GB | 16+ GB |
-| **Disk** | 10 GB SSD | 20 GB SSD | 50+ GB SSD |
-| **Network** | 10 Mbps | 100 Mbps | 1 Gbps |
-| **Python** | 3.12+ | 3.12+ | 3.12+ |
-| **Docker** | 24.0+ | 24.0+ | 24.0+ |
-
-### Required Software
-
-```bash
-# Python 3.12+ with uv
-python --version  # Must be 3.12 or higher
-curl -LsSf https://astral.sh/uv/install.sh | sh
-
-# Docker & Docker Compose
-docker --version  # 24.0+
-docker compose version  # 2.20+
-
-# Git
-git --version  # 2.40+
-```
-
-### External Dependencies
-
-The following external services are **optional** but recommended for full functionality:
-
-| Service | Purpose | Required For |
-|---------|---------|--------------|
-| **Jina AI** | Web scraping | `search_reality` tool |
-| **Perplexity** | Deep research | Academic queries |
-| **Brave Search** | Web search | General search |
-| **OpenAI/Anthropic** | LLM inference | Reasoning enhancement |
+| Resource | Minimum | Recommended |
+|----------|---------|-------------|
+| **CPU** | 2 cores | 4 cores |
+| **RAM** | 4 GB | 8 GB |
+| **Python** | 3.12+ | 3.12+ |
+| **Docker** | 24.0+ | 24.0+ |
 
 ---
 
-## ✅ Pre-Flight Verification
+## 🔧 Rapid Deployment Protocols
 
-Before deploying arifOS, verify your environment meets constitutional requirements.
-
-### 1. System Health Check
+### Option 1: Python / PyPI (Quick Start — 2 Minutes)
 
 ```bash
-# Clone and enter repository
-git clone https://github.com/ariffazil/arifosmcp.git && cd arifosmcp
-
-# Run constitutional verification
-python scripts/verify_metabolic_sync.py
-
-# Verify Docker environment
-docker compose config
-
-# Check port availability
-netstat -tuln | grep -E ':(8080|3000|9090|5432|6379)'
-```
-
-### 2. Environment Validation
-
-```bash
-# Copy environment template
-cp .env.example .env
-
-# Validate required variables
-python scripts/validate_env.py
-
-# Expected output:
-# ✅ F11_AUTH: ARIFOS_GOVERNANCE_SECRET set
-# ✅ F12_DEFENSE: Injection shield configured
-# ✅ F2_TRUTH: Search providers configured
-# ⚠️  F13_SOVEREIGN: 888_JUDGE key not set (production only)
-```
-
-### 3. Constitution Lint
-
-```bash
-# Verify code against constitutional standards
-ruff check . --select=E,W,F
-mypy core/ --strict
-python scripts/constitution_lint.py
-```
-
-> ⚠️ **F13 SOVEREIGN OVERRIDE**: If any pre-flight check fails, deployment must be paused until resolved. The kernel will not initialize in an invalid state.
-
----
-
-## 🔧 Environment Configuration
-
-### Critical Environment Variables
-
-| Variable | Required | Default | Security Level | Description |
-|----------|----------|---------|----------------|-------------|
-| `ARIFOS_GOVERNANCE_SECRET` | ✅ | None | 🔴 CRITICAL | Master authentication key (F11) |
-| `ARIFOS_PUBLIC_TOOL_PROFILE` | ✅ | `chatgpt` | 🟡 MEDIUM | Tool exposure profile |
-| `DATABASE_URL` | ✅ | `postgresql://...` | 🔴 CRITICAL | VAULT999 PostgreSQL connection |
-| `REDIS_URL` | ✅ | `redis://...` | 🟡 MEDIUM | Session cache |
-| `JINA_API_KEY` | ⚠️ | None | 🟡 MEDIUM | Web scraping (F2 Truth) |
-| `PERPLEXITY_API_KEY` | ⚠️ | None | 🟡 MEDIUM | Research queries |
-| `BRAVE_API_KEY` | ⚠️ | None | 🟡 MEDIUM | Web search |
-| `ARIFOS_888_JUDGE_KEY` | 🏛️ | None | 🔴 SOVEREIGN | Human veto authority (F13) |
-
-### Profile-Specific Configuration
-
-```bash
-# Development Profile (default)
-ARIFOS_PUBLIC_TOOL_PROFILE=development
-LOG_LEVEL=debug
-F13_ENFORCEMENT=soft
-
-# ChatGPT Profile
-ARIFOS_PUBLIC_TOOL_PROFILE=chatgpt
-LOG_LEVEL=info
-F13_ENFORCEMENT=hard
-
-# Production Profile
-ARIFOS_PUBLIC_TOOL_PROFILE=production
-LOG_LEVEL=warning
-F13_ENFORCEMENT=hard
-METRICS_ENABLED=true
-```
-
----
-
-## 🚀 Rapid Deployment Protocols
-
-### Option 1: Python / PyPI (Quick Start)
-
-```bash
-# Install
+# Install arifOS MCP
 pip install arifosmcp
 
 # Verify installation
@@ -262,14 +344,14 @@ arifosmcp --version
 
 # Run MCP server (choose transport)
 arifosmcp http     # Streamable HTTP on :8080
-arifosmcp sse      # SSE (default — for VPS/Coolify)
-arifosmcp stdio    # stdio — for Claude Desktop, Cursor IDE
+arifosmcp sse      # SSE for VPS/Coolify
+arifosmcp stdio    # For Claude Desktop, Cursor IDE
 
 # Verify health
 curl http://localhost:8080/health
 ```
 
-**MCP config for Claude Desktop / Cursor:**
+**MCP Config for Claude Desktop:**
 ```json
 {
   "mcpServers": {
@@ -285,7 +367,7 @@ curl http://localhost:8080/health
 }
 ```
 
-### Option 2: Docker (Production Recommended)
+### Option 2: Docker (Production — 10 Minutes)
 
 ```bash
 # Clone repository
@@ -293,22 +375,22 @@ git clone https://github.com/ariffazil/arifosmcp.git && cd arifosmcp
 
 # Configure environment
 cp .env.example .env
-# Edit .env with your API keys and secrets
+# Edit .env with your API keys
 
 # Deploy full civilization stack
 docker compose up -d
 
 # Verify all 12 containers
-watch docker compose ps
+docker compose ps
 
 # Check constitutional health
-curl https://localhost:8080/health
+curl http://localhost:8080/health
 
 # View real-time metrics
 open https://monitor.arifosmcp.arif-fazil.com
 ```
 
-**Production Docker Stack:**
+**Production Stack (12 Containers):**
 ```
 ✅ arifosmcp_server     (MCP kernel)
 ✅ openclaw_gateway     (Access control)
@@ -328,7 +410,6 @@ open https://monitor.arifosmcp.arif-fazil.com
 
 ```bash
 npm install @arifos/mcp
-# v0.3.0 — mirrors 13 canonical tools
 ```
 
 ```typescript
@@ -340,13 +421,13 @@ const client = await createClient({
 });
 await client.connect();
 
-const result = await client.reasonMind('Is it safe to delete all log files?');
+const result = await client.reasonMind('Is this action safe?');
 console.log(result.verdict); // SEAL | PARTIAL | SABAR | VOID | 888_HOLD
 
 await client.disconnect();
 ```
 
-### Option 4: Connect to Live VPS
+### Option 4: Connect to Live VPS (No Setup)
 
 ```
 https://arifosmcp.arif-fazil.com/mcp
@@ -356,204 +437,88 @@ No API key required. All 13 tools live.
 
 ---
 
+## ✅ Pre-Flight Verification
+
+Before deploying, verify constitutional compliance:
+
+```bash
+# 1. System Health Check
+python scripts/verify_metabolic_sync.py
+
+# 2. Environment Validation
+python scripts/validate_env.py
+# Expected:
+# ✅ F11_AUTH: ARIFOS_GOVERNANCE_SECRET set
+# ✅ F12_DEFENSE: Injection shield configured
+# ✅ F2_TRUTH: Search providers configured
+# ⚠️  F13_SOVEREIGN: 888_JUDGE key not set (production only)
+
+# 3. Constitution Lint
+ruff check . --select=E,W,F
+mypy core/ --strict
+python scripts/constitution_lint.py
+
+# 4. Run Test Suite
+pytest tests/ -v
+```
+
+> ⚠️ **F13 SOVEREIGN OVERRIDE**: If any check fails, deployment must pause. The kernel will not initialize in an invalid state.
+
+---
+
+## 🔐 Environment Configuration
+
+### Critical Variables
+
+| Variable | Required | Default | Security | Description |
+|----------|----------|---------|----------|-------------|
+| `ARIFOS_GOVERNANCE_SECRET` | ✅ | None | 🔴 Critical | Master authentication key (F11) |
+| `DATABASE_URL` | ✅ | PostgreSQL | 🔴 Critical | VAULT999 ledger connection |
+| `ARIFOS_PUBLIC_TOOL_PROFILE` | ✅ | `chatgpt` | 🟡 Medium | Tool exposure profile |
+| `ARIFOS_888_JUDGE_KEY` | 🏛️ | None | 🔴 Sovereign | Human veto authority (F13) |
+
+### Profile Configuration
+
+```bash
+# Development
+ARIFOS_PUBLIC_TOOL_PROFILE=development
+LOG_LEVEL=debug
+F13_ENFORCEMENT=soft
+
+# Production
+ARIFOS_PUBLIC_TOOL_PROFILE=production
+LOG_LEVEL=warning
+F13_ENFORCEMENT=hard
+METRICS_ENABLED=true
+```
+
+---
+
 ## 🛠️ Canonical 7-Tool Sovereign Stack
 
-The kernel exposes these primary interfaces, registry-driven from [`arifosmcp/runtime/public_registry.py`](./arifosmcp/runtime/public_registry.py).
-
 | Tool | Entrypoint | Focus | Description |
-| :--- | :--- | :--- | :--- |
-| **`arifOS_kernel`** | [`public_registry.py`](./arifosmcp/runtime/public_registry.py) | **Reasoning** | Metabolic Orchestrator: Triggers Stage 444 router (000→999). Legacy: `arifOS.kernel`, `metabolic_loop_router`. |
-| **`search_reality`** | [`arifosmcp/transport/`](./arifosmcp/transport/) | **Grounding** | Multi-source reality check (Brave/Perplexity/Jina). F2 Truth enforcement. |
-| **`ingest_evidence`** | [`arifosmcp/intelligence/`](./arifosmcp/intelligence/) | **Evidence** | Ingest docs/URLs into constitutional context. F12 untrusted envelope. |
-| **`session_memory`** | [`arifosmcp/data/`](./arifosmcp/data/) | **Continuity** | Vector recall of previous traces. F3 Quad-Witness. |
-| **`audit_rules`** | [`core/shared/floors.py`](./core/shared/floors.py) | **Law** | Inspect current F1–F13 constitutional state. |
-| **`check_vital`** | [`runtime/metrics.py`](./arifosmcp/runtime/metrics.py) | **Health** | Live Prometheus metrics — G†, ΔS, Ω₀, verdicts. |
-| **`open_apex_dashboard`** | [`arifosmcp/sites/`](./arifosmcp/sites/) | **Vision** | Graphical Sovereign interface. Real-time governance view. |
+|------|------------|-------|-------------|
+| **`arifOS_kernel`** | [`public_registry.py`](./arifosmcp/runtime/public_registry.py) | **Orchestration** | Metabolic loop router (000→999) |
+| **`search_reality`** | [`transport/`](./arifosmcp/transport/) | **Grounding** | Multi-source reality check |
+| **`ingest_evidence`** | [`intelligence/`](./arifosmcp/intelligence/) | **Evidence** | Ingest docs/URLs into context |
+| **`session_memory`** | [`data/`](./arifosmcp/data/) | **Continuity** | Vector recall of traces |
+| **`audit_rules`** | [`floors.py`](./core/shared/floors.py) | **Law** | Inspect F1–F13 state |
+| **`check_vital`** | [`metrics.py`](./arifosmcp/runtime/metrics.py) | **Health** | Live Prometheus metrics |
+| **`open_apex_dashboard`** | [`sites/`](./arifosmcp/sites/) | **Vision** | Sovereign governance UI |
 
 ---
 
-## 🔒 Production Security Hardening
+## 📊 Constitutional Observability
 
-### F12 Injection Defense Checklist
+### Prometheus Metrics
 
-- [ ] **Network Isolation**: Place MCP server in isolated VLAN
-- [ ] **Firewall Rules**: Restrict port 8080 to trusted IPs only
-- [ ] **TLS/SSL**: Enable HTTPS with valid certificates (Let's Encrypt)
-- [ ] **Input Sanitization**: All external content wrapped in `<untrusted>` tags
-- [ ] **Rate Limiting**: Max 100 requests/minute per session
-- [ ] **CORS Policy**: Whitelist specific origins only
-
-### F11 Command Authority Checklist
-
-- [ ] **Secret Rotation**: Rotate `ARIFOS_GOVERNANCE_SECRET` every 90 days
-- [ ] **Key Vault**: Store secrets in HashiCorp Vault or AWS KMS
-- [ ] **Session Timeout**: 30-minute idle session expiration
-- [ ] **Multi-Factor Auth**: Enable MFA for administrative access
-- [ ] **Audit Logging**: All authentication attempts logged to VAULT999
-
-### F13 Sovereign Override Checklist
-
-- [ ] **888_JUDGE Key**: Stored offline in hardware security module
-- [ ] **Emergency Stop**: `docker compose down` halts all operations
-- [ ] **Human Override**: Physical presence required for destructive ops
-- [ ] **Backup Keys**: 2-of-3 multisig for critical operations
-
-### Network Topology (Production)
-
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                        INTERNET                                 │
-└──────────────────────┬──────────────────────────────────────────┘
-                       │
-                       ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                    TRAEFIK (Reverse Proxy)                      │
-│              TLS Termination • Rate Limiting • WAF              │
-└──────────────────────┬──────────────────────────────────────────┘
-                       │
-         ┌─────────────┼─────────────┐
-         │             │             │
-         ▼             ▼             ▼
-┌────────────┐ ┌────────────┐ ┌────────────┐
-│   arifOS   │ │  Grafana   │ │  n8n       │
-│   MCP      │ │  (Metrics) │ │  (Flows)   │
-└────────────┘ └────────────┘ └────────────┘
-         │             │             │
-         └─────────────┼─────────────┘
-                       │
-         ┌─────────────┼─────────────┐
-         │             │             │
-         ▼             ▼             ▼
-┌────────────┐ ┌────────────┐ ┌────────────┐
-│ PostgreSQL │ │   Redis    │ │  Qdrant    │
-│ (VAULT999) │ │ (Sessions) │ │ (Vectors)  │
-└────────────┘ └────────────┘ └────────────┘
-```
-
----
-
-## 💾 Backup & Disaster Recovery
-
-### F1 Amanah (Reversibility) Compliance
-
-**VAULT999 Backup Strategy:**
-
-```bash
-# Daily automated backup (cron at 2 AM)
-0 2 * * * /usr/local/bin/arifos-backup.sh
-
-# Manual backup trigger
-python scripts/backup_vault.py --destination s3://arifos-backups/
-
-# Verify backup integrity
-python scripts/verify_backup.py --backup-id $(date +%Y%m%d)
-```
-
-**Backup Contents:**
-```
-backup_20260311_020000/
-├── postgres/
-│   ├── vault999.sql.gz          # Constitutional ledger
-│   └── session_store.sql.gz     # Active sessions
-├── redis/
-│   └── session_cache.rdb        # Hot cache
-├── qdrant/
-│   └── vector_storage.snapshot  # Memory embeddings
-├── config/
-│   ├── .env                     # Environment (encrypted)
-│   └── docker-compose.yml       # Stack definition
-└── metadata/
-    └── manifest.json            # Backup checksums
-```
-
-**Disaster Recovery Procedures:**
-
-```bash
-# 1. Stop compromised/degraded stack
-docker compose down
-
-# 2. Restore from backup
-python scripts/restore_vault.py --backup-id 20260311
-
-# 3. Verify constitutional integrity
-python scripts/verify_constitution.py
-
-# 4. Restart with phased rollout
-docker compose up -d postgres redis  # Data layer first
-docker compose up -d arifosmcp       # Application layer
-
-# 5. Verify full recovery
-curl http://localhost:8080/health
-python scripts/verify_metabolic_sync.py
-```
-
-**Recovery Time Objective (RTO):** 15 minutes  
-**Recovery Point Objective (RPO):** 24 hours
-
----
-
-## 📜 The 13 Constitutional Floors
-
-| Category | ID | Floor | Logic Path | Purpose |
-| :--- | :--- | :--- | :--- | :--- |
-| **Walls** | **F12** | **Defense** | [`core/shared/floors.py`](./core/shared/floors.py) | Blocking injection and jailbreak. |
-| | **F11** | **Identity** | [`core/shared/crypto.py`](./core/shared/crypto.py) | Nonce-verified command authority. |
-| **AGI (Mind)** | **F2** | **Truth** | [`core/organs/_1_agi.py`](./core/organs/_1_agi.py) | Verified grounding vs. hallucination. |
-| | **F4** | **Clarity** | [`core/shared/formatter.py`](./core/shared/formatter.py) | Entropy reduction ($\Delta S \le 0$). |
-| | **F7** | **Humility** | [`core/shared/physics.py`](./core/shared/physics.py) | Explicit uncertainty bounding ($\Omega_0$). |
-| **ASI (Heart)** | **F1** | **Amanah** | [`core/organs/_2_asi.py`](./core/organs/_2_asi.py) | Mandate compliance & reversibility. |
-| | **F5** | **Peace²** | [`core/shared/sbert_floors.py`](./core/shared/sbert_floors.py) | De-escalation & Stability. |
-| | **F6** | **Empathy** | [`core/shared/sbert_floors.py`](./core/shared/sbert_floors.py) | Protecting the weakest stakeholders. |
-| | **F9** | **Anti-Hantu** | [`core/shared/floors.py`](./core/shared/floors.py) | Detecting manipulative cleverness. |
-| **Soul** | **F3** | **Witness** | [`core/organs/_3_apex.py`](./core/organs/_3_apex.py) | Consensus: Human + AI + Earth. |
-| | **F8** | **Genius** | [`core/shared/physics.py`](./core/shared/physics.py) | Cognitive coherence ($G^\dagger \ge 0.80$). |
-| | **F10** | **Ontology** | [`core/shared/floors.py`](./core/shared/floors.py) | Rejection of soul/consciousness claims. |
-| | **F13** | **Sovereign** | [`core/organs/_3_apex.py`](./core/organs/_3_apex.py) | Absolute Human Final Authority. |
-
----
-
-## 🔬 The APEX Theorem (Realized Intelligence)
-
-arifOS measures **Governed Intelligence ($G^\dagger$)**. High capability without discipline results in a `VOID` verdict.
-
-$$G^\dagger = (A \cdot P \cdot X \cdot E^2) \cdot \frac{|\Delta S|}{C}$$
-
-- **$A, P, X$**: Akal (Ability), Peace (Safety), Knowledge (Exploration).
-- **$E^2$**: Applied Effort (Power) squared.
-- **$\eta = \frac{|\Delta S|}{C}$**: Governing Efficiency (Clarity produced per unit of Compute).
-
-If **$G^\dagger < 0.80$**, the kernel imposes a **PARTIAL** status, forcing the AI to re-evaluate, increase clarity, or reduce thermodynamic noise. Power only flows when it is coherent.
-
----
-
-## 🔥 The 99 Legacies (Immutable Physics)
-
-arifOS v1.0.0 introduces the **99 Legacies** system — 99 human knowledge domains encoded as immutable thermodynamic constants that ground every constitutional floor.
-
-Each legacy maps one of 9 categories (Scientist, Philosopher, Ethical Pillar, Economist, Sovereign, Architect, Philanthropist, Modern Founder, Dictator Shadow) to the APEX G-score dials (**A**kal · **P**eace · E**x**ploration · **E**nergy). The Dictator Shadow category provides the `C_dark` warning variable enforced by F9.
-
-```
-core/shared/legacies.py  — 99 immutable Quote objects, each floor-tagged and hash-signed
-core/shared/physics.py   — Thermodynamic primitives derived from legacy constants
-core/organs/_2_asi.py    — ASI Heart consumes legacy weights at runtime
-```
-
-> Legacy constants are **frozen dataclasses** — they cannot be patched at runtime. Attempting to modify them triggers F1 Amanah violation.
-
----
-
-## 📊 Constitutional Observability (Prometheus + Grafana)
-
-The runtime exposes a native **Prometheus metrics endpoint** at `/metrics` (served by `arifosmcp/runtime/metrics.py`). Scraped every 30s by the on-VPS Prometheus instance, visualized in Grafana.
-
-| Metric | Type | Target | Alert If |
-| :--- | :--- | :--- | :--- |
-| `arifos_genius_score` | Gauge | G† ≥ 0.80 | < 0.80 for 5m |
-| `arifos_entropy_delta` | Gauge | ΔS ≤ 0 | > 0 for 2m |
-| `arifos_humility_band` | Gauge | Ω₀ ∈ [0.03,0.05] | Outside range |
-| `arifos_peace_squared` | Gauge | P² ≥ 1.0 | < 1.0 for 3m |
-| `arifos_verdicts_total` | Counter | SEAL dominant | VOID > 10% |
-| `arifos_metabolic_loop_seconds` | Histogram | p95 < 5s | p95 > 10s |
+| Metric | Target | Alert If |
+|--------|--------|----------|
+| `arifos_genius_score` | G† ≥ 0.80 | < 0.80 for 5m |
+| `arifos_entropy_delta` | ΔS ≤ 0 | > 0 for 2m |
+| `arifos_humility_band` | Ω₀ ∈ [0.03,0.05] | Outside range |
+| `arifos_peace_squared` | P² ≥ 1.0 | < 1.0 for 3m |
+| `arifos_verdicts_total` | SEAL dominant | VOID > 10% |
 
 ```bash
 # Live metrics
@@ -567,68 +532,109 @@ open https://monitor.arifosmcp.arif-fazil.com
 
 | Alert | Condition | Action |
 |-------|-----------|--------|
-| **CONSTITUTION_BREACH** | Any HARD floor VOID | Immediate 888_HOLD |
+| **CONSTITUTION_BREACH** | HARD floor VOID | Immediate 888_HOLD |
 | **GENIUS_DEGRADATION** | G† < 0.70 for 10m | Scale down ASI Omega |
 | **ENTROPY_INVERSION** | ΔS > 0.5 for 5m | Pause new sessions |
-| **SOVEREIGN_REQUIRED** | F13 trigger | Notify 888_JUDGE |
 
 ---
 
-## 🔧 Troubleshooting Guide
+## 🔒 Production Security Hardening
 
-### F4 Clarity: Error Resolution Matrix
+### F12 Injection Defense
+- [ ] Network isolation (dedicated VLAN)
+- [ ] Firewall: Restrict port 8080
+- [ ] TLS/SSL with valid certificates
+- [ ] Input sanitization (`<untrusted>` tags)
+- [ ] Rate limiting: 100 req/min/session
+- [ ] CORS whitelist
 
-| Error Code | Constitutional Floor | Likely Cause | Resolution |
-|------------|---------------------|--------------|------------|
-| `F1_AMANAH` | Amanah | Irreversible action attempted | Request human override or make reversible |
-| `F2_TRUTH` | Truth | Hallucination detected | Ground claims in evidence |
-| `F3_QUAD_FAIL` | Quad-Witness | Consensus < 0.75 | Add more witnesses or reduce complexity |
-| `F4_ENTROPY` | Clarity | ΔS > 0 (confusion increased) | Simplify output, remove noise |
-| `F5_INSTABILITY` | Peace² | Destructive path detected | Find de-escalating alternative |
-| `F6_EMPATHY` | Empathy | Weak stakeholder harmed | Redesign for weakest actor |
-| `F7_CERTAINTY` | Humility | Ω₀ outside [0.03,0.05] | Adjust confidence bounds |
-| `F8_GENIUS_LOW` | Genius | G† < 0.80 | Improve coherence or reduce scope |
-| `F9_HANTU` | Anti-Hantu | AI claims sentience | Reset ontology, assert tool status |
-| `F10_CATEGORY` | Ontology | Category confusion | Clarify actor roles |
-| `F11_AUTH_FAIL` | CommandAuth | Session invalid | Re-authenticate with valid secret |
-| `F12_INJECTION` | Injection | Malicious input detected | Sanitize input, scan payload |
-| `F13_SOVEREIGN` | Sovereign | Human veto invoked | Wait for 888_JUDGE signature |
+### F11 Command Authority
+- [ ] Rotate secrets every 90 days
+- [ ] Store in HashiCorp Vault / AWS KMS
+- [ ] 30-minute session timeout
+- [ ] MFA for admin access
+- [ ] Audit logging to VAULT999
 
-### Common Deployment Issues
+### F13 Sovereign Override
+- [ ] 888_JUDGE key in hardware HSM
+- [ ] Emergency stop capability
+- [ ] Physical presence for destructive ops
+- [ ] 2-of-3 multisig for critical actions
 
-**Issue: MCP server fails to start**
+---
+
+## 💾 Backup & Disaster Recovery
+
+### F1 Amanah (Reversibility) Compliance
+
 ```bash
-# Check logs
+# Daily automated backup (cron at 2 AM)
+0 2 * * * /usr/local/bin/arifos-backup.sh
+
+# Manual backup
+python scripts/backup_vault.py --destination s3://arifos-backups/
+
+# Verify integrity
+python scripts/verify_backup.py --backup-id $(date +%Y%m%d)
+```
+
+**Recovery Procedures:**
+```bash
+# 1. Stop stack
+docker compose down
+
+# 2. Restore from backup
+python scripts/restore_vault.py --backup-id 20260311
+
+# 3. Verify constitution
+python scripts/verify_constitution.py
+
+# 4. Phased restart
+docker compose up -d postgres redis  # Data first
+docker compose up -d arifosmcp       # App second
+
+# 5. Verify recovery
+curl http://localhost:8080/health
+```
+
+**RTO:** 15 minutes | **RPO:** 24 hours
+
+---
+
+## 🚨 Troubleshooting Guide
+
+### Error Resolution Matrix
+
+| Error Code | Floor | Cause | Resolution |
+|------------|-------|-------|------------|
+| `F1_AMANAH` | Amanah | Irreversible action | Request human override |
+| `F2_TRUTH` | Truth | Hallucination detected | Ground claims in evidence |
+| `F3_QUAD_FAIL` | Witness | Consensus < 0.75 | Add more witnesses |
+| `F4_ENTROPY` | Clarity | ΔS > 0 | Simplify output |
+| `F6_EMPATHY` | Empathy | Weak stakeholder harmed | Redesign for weakest actor |
+| `F8_GENIUS_LOW` | Genius | G† < 0.80 | Improve coherence |
+| `F12_INJECTION` | Defense | Malicious input | Sanitize input |
+| `F13_SOVEREIGN` | Sovereign | Human veto | Wait for 888_JUDGE |
+
+### Common Issues
+
+**MCP server fails to start:**
+```bash
 docker compose logs arifosmcp
-
-# Verify environment
 python scripts/validate_env.py
-
-# Check port conflicts
 lsof -i :8080
 ```
 
-**Issue: Database connection refused**
+**Database connection refused:**
 ```bash
-# Verify PostgreSQL is healthy
 docker compose ps postgres
-
-# Check credentials in .env
 grep DATABASE_URL .env
-
-# Test connection
 psql $DATABASE_URL -c "SELECT 1"
 ```
 
-**Issue: High latency in metabolic loop**
+**High latency:**
 ```bash
-# Check resource usage
 docker stats
-
-# Review slow queries in PostgreSQL
-docker compose exec postgres psql -c "SELECT * FROM pg_stat_statements ORDER BY total_time DESC LIMIT 10"
-
-# Scale horizontally if needed
 docker compose up -d --scale arifosmcp=3
 ```
 
@@ -636,112 +642,79 @@ docker compose up -d --scale arifosmcp=3
 
 ## 📈 Performance Benchmarks
 
-### F7 Humility: Known Limitations
-
 | Metric | Development | Production | Stress Test |
 |--------|-------------|------------|-------------|
-| **Request Latency (p50)** | 200ms | 150ms | 500ms |
-| **Request Latency (p99)** | 2s | 1s | 5s |
+| **Latency (p50)** | 200ms | 150ms | 500ms |
+| **Latency (p99)** | 2s | 1s | 5s |
 | **Throughput** | 10 req/s | 100 req/s | 500 req/s |
 | **Concurrent Sessions** | 10 | 100 | 500 |
-| **Memory per Session** | 50MB | 50MB | 50MB |
-| **Metabolic Loop Time** | 5s | 2s | 10s |
-
-**Scaling Guidelines:**
-- CPU-bound: Scale `arifosmcp` containers horizontally
-- Memory-bound: Add RAM or reduce `MAX_CONCURRENT_SESSIONS`
-- Database-bound: Scale PostgreSQL read replicas
-
----
-
-## ⬆️ Upgrade Procedures
-
-### F3 Quad-Witness: Safe Update Protocol
-
-**Before Upgrade:**
-```bash
-# 1. Create backup
-python scripts/backup_vault.py
-
-# 2. Verify current health
-curl http://localhost:8080/health
-
-# 3. Enable maintenance mode (hold new requests)
-docker compose exec arifosmcp python -m arifosmcp.cli maintenance on
-
-# 4. Drain active sessions
-docker compose exec arifosmcp python -m arifosmcp.cli sessions drain
-```
-
-**Perform Upgrade:**
-```bash
-# 5. Pull new version
-git pull origin main
-
-# 6. Update dependencies
-pip install -r requirements.txt
-
-# 7. Run database migrations
-docker compose exec postgres psql -f migrations/$(date +%Y%m%d)_upgrade.sql
-
-# 8. Rolling restart (zero downtime)
-docker compose up -d --no-deps --build arifosmcp
-```
-
-**After Upgrade:**
-```bash
-# 9. Verify new version
-arifosmcp --version
-
-# 10. Run constitutional verification
-python scripts/verify_constitution.py
-
-# 11. Test critical path
-python scripts/e2e_test.py
-
-# 12. Disable maintenance mode
-docker compose exec arifosmcp python -m arifosmcp.cli maintenance off
-
-# 13. Monitor for 30 minutes
-watch -n 5 'curl -s http://localhost:8080/health'
-```
-
-**Rollback Procedure:**
-```bash
-# If issues detected within 30 minutes:
-docker compose down
-git checkout $(cat .backup/previous_version.txt)
-docker compose up -d
-python scripts/restore_vault.py --backup-id $(cat .backup/last_backup.txt)
-```
+| **Memory/Session** | 50MB | 50MB | 50MB |
+| **Metabolic Loop** | 5s | 2s | 10s |
 
 ---
 
 ## 📂 System Architecture & Senses
 
-arifOS is split into three primary organizational spheres:
+| Component | Path | Purpose |
+|-----------|------|---------|
+| **[`core/`](./core/)** | Kernel | Stateless logic, 13 floors, physics governance |
+| **[`arifosmcp/`](./arifosmcp/)** | Senses | Transport, bridges, registry, observability |
+| **[`arifosmcp/data/VAULT999/`](./arifosmcp/data/VAULT999/)** | Ledger | Hash-chained audit trail |
+| **[`infrastructure/`](./infrastructure/)** | VPS Config | Prometheus, Grafana, Traefik, Docker |
+| **[`AGENTS.md`](./AGENTS.md)** | Protocols | Agent identities, registries, manifests |
 
-*   **[`core/`](./core/)**: The **Kernel**. Stateless logic, the 13 floors of law, physics-based governance, and the 99 Legacies.
-*   **[`arifosmcp/`](./arifosmcp/)**: The **Senses & Brain**. Transport layers (MCP/SSE/HTTP), bridge code, public tool registry, and observability.
-*   **[`arifosmcp/data/VAULT999/`](./arifosmcp/data/VAULT999/)**: The **Immutable Ledger**. Hash-chained audit trail for all sealed decisions.
-*   **[`infrastructure/`](./infrastructure/)**: VPS stack config — Prometheus, Grafana, Traefik, Docker Compose.
-*   **[`AGENTS.md`](./AGENTS.md)**: Sovereign agent identities, registries, and signed capability manifests.
+---
+
+## 🔥 The 99 Legacies (Immutable Physics)
+
+arifOS v1.0.0 embeds **99 human knowledge domains** as immutable thermodynamic constants:
+
+- **9 Categories**: Scientist, Philosopher, Ethical Pillar, Economist, Sovereign, Architect, Philanthropist, Modern Founder, Dictator Shadow
+- **Immutable Dataclasses**: Cannot be patched at runtime
+- **F9 Enforcement**: Dictator Shadow provides `C_dark` warning variable
+
+> Legacy constants are **frozen** — modification triggers F1 Amanah violation.
+
+---
+
+## ⬆️ Upgrade Procedures
+
+### Safe Update Protocol (F3 Quad-Witness)
+
+```bash
+# Before Upgrade:
+python scripts/backup_vault.py
+curl http://localhost:8080/health
+docker compose exec arifosmcp python -m arifosmcp.cli maintenance on
+
+# Perform Upgrade:
+git pull origin main
+pip install -r requirements.txt
+docker compose up -d --no-deps --build arifosmcp
+
+# After Upgrade:
+arifosmcp --version
+python scripts/verify_constitution.py
+python scripts/e2e_test.py
+docker compose exec arifosmcp python -m arifosmcp.cli maintenance off
+
+# Monitor:
+watch -n 5 'curl -s http://localhost:8080/health'
+```
 
 ---
 
 ## 👑 Constitutional Authority
 
+<div align="center">
+
 **Sovereign:** [Muhammad Arif bin Fazil](https://arif-fazil.com)  
 **Motto:** *DITEMPA BUKAN DIBERI — Forged, Not Given*  
 **License:** AGPL-3.0 (Protecting the Sovereignty of Code)
 
-*The law is stationary. Governance is active. The kernel is sealed.*
-
 ---
 
-<div align="center">
-
-[**Star arifOS on GitHub**](https://github.com/ariffazil/arifosmcp)
+[**⭐ Star arifOS on GitHub**](https://github.com/ariffazil/arifosmcp)
 
 *The system knows it doesn't know — therefore, it governs.*
 

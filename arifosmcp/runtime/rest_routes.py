@@ -107,7 +107,8 @@ WELCOME_HTML = """\
        letter-spacing:.08em;text-transform:uppercase}
     .pill{display:inline-block;background:#00ff8822;color:#00ff88;
           border:1px solid #00ff8855;border-radius:99px;
-          padding:.1rem .75rem;font-size:.75rem;margin-bottom:2rem}
+          padding:.1rem .6rem;font-size:.65rem;margin-left:.75rem;
+          vertical-align:middle;position:relative;top:-2px}
     section{margin-bottom:2.5rem}
     h3{color:#e6c25d;font-size:.8rem;letter-spacing:.1em;text-transform:uppercase;
        border-bottom:1px solid #333;padding-bottom:.4rem;margin-bottom:.75rem}
@@ -129,9 +130,8 @@ WELCOME_HTML = """\
   </style>
 </head>
 <body>
-  <h1>arifOS MCP</h1>
-  <h2>arifOS Constitutional Kernel</h2>
-  <div class="pill">&#9679; ONLINE</div>
+  <h1>arifOS MCP <span class="pill">&#9679; ONLINE</span></h1>
+  <h2>Metabolic Intelligence Kernel</h2>
 
   <div class="nav">
     <a href="/tools">/tools</a>
@@ -197,11 +197,9 @@ LLMS_TXT = """\
 
 ## What this server does
 
-arifOS is an MCP server exposing a canonical 7-tool constitutional AI pipeline.
+arifOS is an MCP server exposing a canonical 7-tool metabolic AI pipeline.
 Every tool call passes through 13 governance floors (F1-F13) and returns
-a structured RuntimeEnvelope with verdict, telemetry, and Tri-Witness scores.
-Agents should reason from the runtime capability map, not from raw secrets,
-tokens, passwords, or environment-variable values.
+a structured RuntimeEnvelope with verdict, thermodynamic telemetry, and Tri-Witness scores. Agents reason from the capability map (Known Constraints).
 
 ## MCP connection
 
