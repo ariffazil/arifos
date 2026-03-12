@@ -15,7 +15,7 @@ This page is generated from `arifosmcp.runtime.public_registry`. It is the only 
 
 ## Public MCP Contract
 
-- Public tools: `8`
+- Public tools: `9`
 - Protocol: `2025-11-25`
 - Transports: `http`, `stdio`
 - Public profile: `chatgpt` / `agnostic_public`
@@ -32,6 +32,7 @@ This page is generated from `arifosmcp.runtime.public_registry`. It is the only 
 | `check_vital` | `000_INIT` | Telemetry | yes | Read system vitality, including thermodynamic budget and redacted capability map. |
 | `open_apex_dashboard` | `888_JUDGE` | Visualizer | yes | Open the APEX constitutional dashboard for live metrics and trace visibility. |
 | `bootstrap_identity` | `000_INIT` | Onboarding | no | Declare user identity and initiate session grounding (Onboarding). |
+| `verify_vault_ledger` | `999_VAULT` | Auditor | yes | Verify the SHA-256 Merkle chain integrity of the VAULT999 immutable ledger. |
 
 ### Internal / Dev-only Stage Tools
 

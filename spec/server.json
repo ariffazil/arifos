@@ -67,6 +67,11 @@
       "name": "bootstrap_identity",
       "stage": "000_INIT",
       "role": "Onboarding"
+    },
+    {
+      "name": "verify_vault_ledger",
+      "stage": "999_VAULT",
+      "role": "Auditor"
     }
   ]
 }

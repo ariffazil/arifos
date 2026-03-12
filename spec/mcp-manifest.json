@@ -316,6 +316,29 @@
         },
         "additionalProperties": false
       }
+    },
+    "verify_vault_ledger": {
+      "stage": "999_VAULT",
+      "trinity": "Ψ Psi",
+      "floors": [
+        "F13"
+      ],
+      "description": "Verify the SHA-256 Merkle chain integrity of the VAULT999 immutable ledger.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "session_id": {
+            "type": "string",
+            "default": "global"
+          },
+          "full_scan": {
+            "type": "boolean",
+            "default": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "readonly": true
     }
   },
   "prompts": [
@@ -599,6 +622,20 @@
             "description": "Optional session ID."
           },
           "human_approval": {
+            "type": "boolean",
+            "default": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "verify_vault_ledger": {
+        "type": "object",
+        "properties": {
+          "session_id": {
+            "type": "string",
+            "default": "global"
+          },
+          "full_scan": {
             "type": "boolean",
             "default": true
           }
