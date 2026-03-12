@@ -193,6 +193,8 @@ VALID_ACTORS: set[str] = {
     "user",
     "operator",
     "arif-fazil",
+    "ariffazil",
+    "arif",
     "system",
     "agent",
     "cli",
@@ -206,6 +208,8 @@ ACTOR_AUTHORITY: dict[str, AuthorityLevel] = {
     "test_user": AuthorityLevel.USER,
     "operator": AuthorityLevel.OPERATOR,
     "arif-fazil": AuthorityLevel.SOVEREIGN,
+    "ariffazil": AuthorityLevel.SOVEREIGN,
+    "arif": AuthorityLevel.SOVEREIGN,
     "system": AuthorityLevel.SYSTEM,
     "anonymous": AuthorityLevel.ANONYMOUS,
 }

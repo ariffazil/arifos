@@ -60,9 +60,14 @@ ENV GIT_SHA=${GIT_SHA}
 ENV BUILD_TIME=${BUILD_TIME}
 ENV HF_HOME=/usr/src/app/models
 
-# Install only runtime deps
+# Install runtime deps & document forge toolchain (Marp, Mermaid, ImageMagick)
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl ca-certificates \
+    curl ca-certificates gnupg fontconfig fonts-inter fonts-roboto \
+    && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+    && apt-get install -y --no-install-recommends \
+       nodejs \
+       imagemagick \
+    && npm install -g @marp-team/marp-cli @mermaid-js/mermaid-cli \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy Python environment from build (includes all deps)

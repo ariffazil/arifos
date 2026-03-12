@@ -19,6 +19,7 @@ from arifosmcp.runtime.philosophy import select_governed_philosophy
 from arifosmcp.runtime.public_registry import public_tool_specs
 from arifosmcp.runtime.resources import build_open_apex_dashboard_result
 from arifosmcp.runtime.sessions import _resolve_session_id, set_active_session
+from arifosmcp.tools.lsp_tools import register_lsp_tools
 from core.physics.thermodynamics_hardened import get_thermodynamic_report
 from core.shared.mottos import MOTTO_000_INIT_HEADER, MOTTO_999_SEAL_HEADER, get_motto_for_stage
 from core.state.session_manager import session_manager
@@ -483,14 +484,23 @@ async def bootstrap_identity(
 ) -> RuntimeEnvelope:
     """Bootstrap a named identity session without cryptographic verification (Onboarding)."""
     current_session_id = _normalize_session_id(session_id)
-    normalized_actor_id = declared_name.strip().lower().replace(" ", "-")
+
+    # Sovereign Identity Mapping (Arif Fazil -> ariffazil)
+    clean_name = declared_name.strip().lower()
+    if clean_name in {"arif", "arif fazil", "arif-fazil", "ariffazil"}:
+        normalized_actor_id = "ariffazil"
+        authority_level = "sovereign"
+    else:
+        normalized_actor_id = clean_name.replace(" ", "-")
+        authority_level = "declared"
+
     payload = {
         "actor_id": normalized_actor_id,
         "claimed_actor_id": normalized_actor_id,
         "intent": {"query": f"I am {declared_name}"},
         "governance": {
             "actor_id": normalized_actor_id,
-            "authority_level": "declared",
+            "authority_level": authority_level,
             "stakes_class": "C",
             "human_approval": human_approval,
         },
@@ -557,21 +567,11 @@ async def metabolic_loop_router(
     ctx: Context | None = None,
     session_id: str | None = None,
 ) -> RuntimeEnvelope:
-    """Stage 444 ROUTER - Metabolic Loop. The all-in-one arifOS Sovereign evaluation."""
-    # NOTE: caller_context and auth_context are optional complex types.
-    # When profile=copilot, the copilot_kernel_wrapper is registered instead,
-    # which uses a flat primitive-only signature compatible with Copilot Studio.
-    resolved_session_id = _resolve_session_id(session_id)
-
-    # Server governs final persona; LLM hint (requested_persona) is advisory only.
-    resolved_caller = _resolve_caller_context(caller_context, requested_persona)
-
     payload = {
         "query": query,
         "context": context,
         "risk_tier": risk_tier,
         "actor_id": actor_id,
-        "claimed_actor_id": actor_id,
         "auth_context": auth_context,
         "use_memory": use_memory,
         "use_heart": use_heart,
@@ -579,9 +579,11 @@ async def metabolic_loop_router(
         "allow_execution": allow_execution,
         "debug": debug,
         "dry_run": dry_run,
+        "requested_persona": requested_persona,
     }
+    resolved_caller = _resolve_caller_context(caller_context, requested_persona)
     return await _wrap_call(
-        PUBLIC_KERNEL_TOOL_NAME, Stage.ROUTER_444, session_id, payload, ctx, resolved_caller
+        PUBLIC_KERNEL_TOOL_NAME, Stage.ROUTER_444, session_id or "", payload, ctx, resolved_caller
     )
 
 
@@ -778,6 +780,42 @@ async def verify_vault_ledger(
     return await _wrap_call("verify_vault_ledger", Stage.VAULT_999, session_id, payload, ctx)
 
 
+async def office_forge_audit(
+    markdown: str,
+    session_id: str = "global",
+    ctx: Context | None = None,
+) -> RuntimeEnvelope:
+    """777 FORGE - Office Forge Audit. Analyze markdown complexity before rendering.
+
+    F12 Guard: Checks for injection, size limits, and Mermaid complexity.
+    Returns a 'Ready to Render' status.
+    """
+    payload = {"markdown": markdown}
+    return await _wrap_call("office_forge_audit", Stage.FORGE_777, session_id, payload, ctx)
+
+
+async def forge_office_document(
+    markdown: str,
+    output_mode: str = "pdf",
+    theme: str = "default",
+    filename: str | None = None,
+    session_id: str = "global",
+    ctx: Context | None = None,
+) -> RuntimeEnvelope:
+    """888 JUDGE - Office Forge Render. Render professional PDF/PPTX from markdown.
+
+    Hardened render tool using Marp-cli. Requires audited markdown.
+    Enforces 2MB limit and 25s timeout.
+    """
+    payload = {
+        "markdown": markdown,
+        "output_mode": output_mode,
+        "theme": theme,
+        "filename": filename,
+    }
+    return await _wrap_call("forge_office_document", Stage.JUDGE_888, session_id, payload, ctx)
+
+
 async def open_apex_dashboard(
     session_id: str = "global", ctx: Context | None = None
 ) -> ToolResult | RuntimeEnvelope:
@@ -863,6 +901,8 @@ def register_tools(mcp: FastMCP, profile: str = "full") -> None:
         "check_vital": check_vital,
         "bootstrap_identity": bootstrap_identity,
         "verify_vault_ledger": verify_vault_ledger,
+        "office_forge_audit": office_forge_audit,
+        "forge_office_document": forge_office_document,
     }
 
     specs = {spec.name: spec for spec in public_tool_specs()}
@@ -874,8 +914,11 @@ def register_tools(mcp: FastMCP, profile: str = "full") -> None:
         else:
             mcp.tool(name=tool_name)(handler)
 
-    # Legacy aliases — omitted in copilot/chatgpt/agnostic_public profiles
-    if normalized_profile not in ("chatgpt", "agnostic_public"):
+    # Register LSP intelligence surface (Read-only symbols/diagnostics)
+    register_lsp_tools(mcp)
+
+    # Legacy aliases — simplified profile matching
+    if normalized_profile != "public":
         mcp.tool(
             name="arifOS-kernel",
             description=(
@@ -891,7 +934,7 @@ def register_tools(mcp: FastMCP, profile: str = "full") -> None:
         )(metabolic_loop_router)
 
     # Legacy tools preserved for internal orchestration
-    if normalized_profile not in ("chatgpt", "copilot"):
+    if normalized_profile == "internal":
         mcp.tool(description="000 INIT - Session anchor.")(init_anchor_state)
         mcp.tool(description="111 FRAME - Problem framing.")(integrate_analyze_reflect)
         mcp.tool(description="333 REASON - Mind synthesis.")(reason_mind_synthesis)
@@ -905,8 +948,10 @@ def register_tools(mcp: FastMCP, profile: str = "full") -> None:
 __all__ = [
     "audit_rules",
     "check_vital",
+    "forge_office_document",
     "ingest_evidence",
     "metabolic_loop_router",
+    "office_forge_audit",
     "open_apex_dashboard",
     "quantum_eureka_forge",
     "reason_mind_synthesis",
