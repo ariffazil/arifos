@@ -329,9 +329,13 @@ class AGIEngine:
         # but wrapped to match the Remote structure.
 
         try:
-            sense_out = await core_organs.sense(query, session_id)
-            think_out = await core_organs.think(query, sense_out, session_id)
-            tensor, thoughts = await core_organs.reason(query, think_out, session_id)
+            sense_out = await core_organs.sense(query, session_id, action="sense")
+            think_out = await core_organs.think(query, session_id, action="think")
+            agi_out = await core_organs.reason(query, session_id, action="reason")
+
+            # Extract tensor from AgiOutput
+            tensor = _agi_output_to_tensor(agi_out)
+            thoughts = getattr(agi_out, "steps", [])
 
             # ConstitutionalTensor fields are direct
             truth_score = getattr(tensor, "truth_score", 0.95)
@@ -393,9 +397,9 @@ class ASIEngine:
         self, query: str, session_id: str
     ) -> tuple[ConstitutionalTensor, str]:
         """Recompute AGI tensor and context for ASI input."""
-        sense_out = await core_organs.sense(query, session_id)
-        think_out = await core_organs.think(query, sense_out, session_id)
-        tensor, thoughts = await core_organs.reason(query, think_out, session_id)
+        agi_out = await core_organs.agi(query, session_id, action="full")
+        tensor = _agi_output_to_tensor(agi_out)
+        thoughts = getattr(agi_out, "steps", [])
 
         # Synthesize thoughts into context string
         context = "\n".join([f"- {t.thought}" for t in thoughts]) if thoughts else ""
@@ -405,7 +409,9 @@ class ASIEngine:
         """Stage 555: Stakeholder empathy analysis."""
         try:
             agi_tensor, context = await self._core_agi_process(query, session_id)
-            emp_out = await core_organs.empathize(query, agi_tensor, session_id, context=context)
+            emp_out = await core_organs.empathize(
+                action="simulate_heart", session_id=session_id, scenario=query
+            )
             # v60 compliance: use floor_scores for metrics
             kappa_r = emp_out.floor_scores.f6_empathy if hasattr(emp_out, "floor_scores") else 0.7
             # Phase A: Only APEX has verdict authority
@@ -428,8 +434,12 @@ class ASIEngine:
         """Stage 666: Constitutional alignment check."""
         try:
             agi_tensor, context = await self._core_agi_process(query, session_id)
-            emp_out = await core_organs.empathize(query, agi_tensor, session_id, context=context)
-            align_out = await core_organs.align(query, emp_out.model_dump(), agi_tensor, session_id)
+            emp_out = await core_organs.empathize(
+                action="simulate_heart", session_id=session_id, scenario=query
+            )
+            align_out = await core_organs.align(
+                action="full", session_id=session_id, scenario=query
+            )
             kappa_r = (
                 align_out.floor_scores.f6_empathy if hasattr(align_out, "floor_scores") else 0.7
             )
@@ -504,9 +514,8 @@ class APEXEngine:
             asi_res = asi_result or await asi_engine.align(query, session_id)
 
             # Build tensors for apex
-            sense_out = await core_organs.sense(query, session_id)
-            think_out = await core_organs.think(query, sense_out, session_id)
-            agi_tensor, _ = await core_organs.reason(query, think_out, session_id)
+            agi_out = await core_organs.agi(query, session_id, action="full")
+            agi_tensor = _agi_output_to_tensor(agi_out)
 
             asi_output = {
                 "kappa_r": asi_res.get("kappa_r", asi_res.get("empathy_kappa_r", 0.7)),
@@ -515,7 +524,9 @@ class APEXEngine:
                 "verdict": asi_res.get("verdict", "SEAL"),
             }
 
-            apex_out = await core_organs.apex(agi_tensor, asi_output, session_id, action="full")
+            apex_out = await core_organs.apex(
+                action="judge", session_id=session_id, verdict_candidate="SEAL", intent=query
+            )
 
             return {
                 "verdict": apex_out.verdict.value,

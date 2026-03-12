@@ -50,7 +50,7 @@ jobs:
         run: |
           python scripts/run_evals.py
         env:
-          ARIFOS_PHYSICS_DISABLED: 1
+          ARIFOS_PHYSICS_DISABLED: 0
           ARIFOS_ALLOW_LEGACY_SPEC: 1
           PYTHONUNBUFFERED: 1
 

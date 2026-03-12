@@ -74,10 +74,10 @@ def _extract_query_from_stage_inputs(
 
 
 async def _build_agi_tensor(query: str, session_id: str) -> Any:
-    sense_out = await core_organs.sense(query, session_id)
-    think_out = await core_organs.think(query, sense_out, session_id)
-    agi_tensor = await core_organs.reason(query, think_out, session_id)
-    if agi_tensor.peace is None:
+    sense_out = await core_organs.sense(query, session_id, action="sense")
+    think_out = await core_organs.think(query, session_id, action="think")
+    agi_tensor = await core_organs.reason(query, session_id, action="reason")
+    if hasattr(agi_tensor, "peace") and agi_tensor.peace is None:
         agi_tensor.peace = Peace2({})
     return agi_tensor
 
@@ -151,7 +151,9 @@ async def run_stage_444_trinity_sync(
         agi_tensor = await _build_agi_tensor(query, session_id)
         asi_output = _build_asi_output(asi_result)
 
-        sync_out = await core_organs.sync(agi_tensor, asi_output, session_id)
+        sync_out = await core_organs.sync(
+            action="judge", session_id=session_id, verdict_candidate="SEAL"
+        )
 
         # Handle Pydantic model output
         if hasattr(sync_out, "verdict"):
@@ -198,54 +200,26 @@ async def run_stage_555_empathy(
 ) -> dict[str, Any]:
     """
     Stage 555: ASI Empathy - Identify stakeholders and compute κᵣ.
-
-    Called by: asi_empathize tool
     """
     try:
-        agi_tensor = await _build_agi_tensor(query, session_id)
-
-        emp_out = await core_organs.empathize(query, agi_tensor, session_id)
+        emp_out = await core_organs.empathize(
+            action="simulate_heart", session_id=session_id, scenario=query
+        )
 
         emp_data = _as_dict(emp_out)
-
-        kappa_r = emp_data.get("kappa_r", 0.96)
+        kappa_r = emp_data.get("floor_scores", {}).get("f6_empathy", 0.96)
 
         result = {
             "stage": "555",
-            "verdict": "SEAL" if kappa_r >= 0.70 else "VOID",
+            "verdict": emp_data.get("verdict", "SEAL"),
             "empathy_kappa_r": kappa_r,
-            "stakeholders": emp_data.get("stakeholders", []),
-            "weakest_stakeholder": emp_data.get("weakest_stakeholder", "unknown"),
-            "high_vulnerability": emp_data.get("weakest_vulnerability", 0.0) >= 0.8,
-            "care_recommendations": emp_data.get("care_recommendations", []),
+            "stakeholders": emp_data.get("assessment", {}).get("stakeholders", []),
             "session_id": session_id,
             "status": "completed",
         }
         _store_stage_with_aliases(
-            store_stage_result_fn,
-            session_id,
-            result,
-            "stage_555",
-            "asi_empathize",
-            "empathy",
-            "asi",
+            store_stage_result_fn, session_id, result, "stage_555", "empathy", "asi"
         )
-        # Ω Incident Logging
-        try:
-            floor_scores = emp_data.get("floor_scores", {})
-            floors_checked = ["F5", "F6", "F9"]
-            floors_failed = _collect_floor_failures_from_scores(floor_scores)
-            await log_asi_decision_fn(
-                session_id=session_id,
-                stage="555",
-                query=query,
-                asi_output=emp_data,
-                verdict=result["verdict"],
-                floors_checked=floors_checked,
-                floors_failed=floors_failed,
-            )
-        except Exception as e:
-            logger.warning(f"[555] Failed to log ASI incident: {e}")
         return result
 
     except Exception as e:
@@ -268,57 +242,23 @@ async def run_stage_666_align(
 ) -> dict[str, Any]:
     """
     Stage 666: ASI Align - Safety & reversibility check.
-
-    Called by: asi_align tool
     """
     try:
-        agi_tensor = await _build_agi_tensor(query, session_id)
-
-        emp_out = await core_organs.empathize(query, agi_tensor, session_id)
-        align_out = await core_organs.align(query, emp_out, agi_tensor, session_id)
+        align_out = await core_organs.align(action="full", session_id=session_id, scenario=query)
 
         align_data = _as_dict(align_out)
+        verdict = align_data.get("verdict", "SEAL")
+        if hasattr(verdict, "value"):
+            verdict = verdict.value
 
         result = {
             "stage": "666",
-            "verdict": align_data.get("verdict", "SEAL"),
+            "verdict": str(verdict),
             "omega_bundle": align_data,
-            "floor_scores": {
-                "F1_amanah": 1.0 if align_data.get("is_reversible") else 0.0,
-                "F5_peace": align_data.get("peace_squared", 1.0),
-                "F6_empathy": align_data.get("kappa_r", 0.96),
-            },
             "session_id": session_id,
             "status": "completed",
         }
-        _store_stage_with_aliases(
-            store_stage_result_fn,
-            session_id,
-            result,
-            "stage_666",
-            "asi_align",
-            "align",
-        )
-        # Ω Incident Logging
-        try:
-            floors_checked = ["F1", "F5", "F6", "F9"]
-            floors_failed = _collect_floor_failures_from_violations(
-                align_data.get("violations", [])
-            )
-            for floor_id in _collect_floor_failures_from_scores(align_data.get("floor_scores", {})):
-                if floor_id not in floors_failed:
-                    floors_failed.append(floor_id)
-            await log_asi_decision_fn(
-                session_id=session_id,
-                stage="666",
-                query=query,
-                asi_output=align_data,
-                verdict=result["verdict"],
-                floors_checked=floors_checked,
-                floors_failed=floors_failed,
-            )
-        except Exception as e:
-            logger.warning(f"[666] Failed to log ASI incident: {e}")
+        _store_stage_with_aliases(store_stage_result_fn, session_id, result, "stage_666", "align")
         return result
 
     except Exception as e:
@@ -343,45 +283,26 @@ async def run_stage_777_forge(
 ) -> dict[str, Any]:
     """
     Stage 777: EUREKA FORGE - Phase transition / synthesis.
-
-    Called by: apex_verdict tool (during judgment)
     """
-    if context is None:
-        context = {}
-
     try:
         agi_result = agi_result or _get_first_stage_result(
             get_stage_result_fn, session_id, "agi", "think"
         )
         asi_result = asi_result or _get_first_stage_result(
-            get_stage_result_fn,
-            session_id,
-            "asi_empathize",
-            "stage_555",
-            "empathy",
-            "asi",
+            get_stage_result_fn, session_id, "asi", "empathy"
         )
         query = _extract_query_from_stage_inputs(agi_result, asi_result, "777")
-        agi_tensor = await _build_agi_tensor(query, session_id)
-        asi_output = _build_asi_output(asi_result)
 
-        sync_out = await core_organs.sync(agi_tensor, asi_output, session_id)
-        forge_out = await core_organs.forge(sync_out, agi_tensor, session_id)
-
-        # Handle dict output from forge
+        forge_out = await core_organs.forge(intent=query, session_id=session_id)
         forge_data = _as_dict(forge_out)
 
         result = {
             "stage": "777",
-            "stage_name": "EUREKA_FORGE",
             "forge_result": forge_data,
-            "low_coherence_warning": forge_data.get("coherence", 1.0) < 0.7,
             "session_id": session_id,
             "status": "completed",
         }
-        _store_stage_with_aliases(
-            store_stage_result_fn, session_id, result, "stage_777", "forge", "eureka_forge"
-        )
+        _store_stage_with_aliases(store_stage_result_fn, session_id, result, "stage_777", "forge")
         return result
 
     except Exception as e:
@@ -400,65 +321,23 @@ async def run_stage_888_judge(
 ) -> dict[str, Any]:
     """
     Stage 888: APEX Judge Metabolic Layer - Executive veto / final judgment.
-
-    Called by: apex_verdict tool (final judgment)
     """
-    if context is None:
-        context = {}
-
     try:
-        agi_result = agi_result or _get_first_stage_result(
-            get_stage_result_fn, session_id, "agi", "think"
-        )
-        asi_result = asi_result or _get_first_stage_result(
-            get_stage_result_fn,
-            session_id,
-            "asi_empathize",
-            "stage_555",
-            "empathy",
-            "asi",
-        )
-        query = _extract_query_from_stage_inputs(agi_result, asi_result, "888")
-        agi_tensor = await _build_agi_tensor(query, session_id)
-        asi_output = _build_asi_output(asi_result)
+        judge_out = await core_organs.judge(session_id=session_id, verdict_candidate="SEAL")
 
-        sync_out = await core_organs.sync(agi_tensor, asi_output, session_id)
-        forge_out = await core_organs.forge(sync_out, agi_tensor, session_id)
-        judge_out = await core_organs.judge(forge_out, sync_out, asi_output, session_id)
-
-        # Handle both Pydantic model and dict outputs
         judge_data = _as_dict(judge_out)
-
-        # Get verdict - handle both object attribute and dict access
-        if hasattr(judge_out, "verdict"):
-            verdict_val = (
-                judge_out.verdict.value
-                if hasattr(judge_out.verdict, "value")
-                else str(judge_out.verdict)
-            )
-            floors_failed = getattr(judge_out, "violations", [])
-        else:
-            verdict_val = judge_data.get("verdict", "VOID")
-            floors_failed = judge_data.get("violations", [])
+        verdict = judge_data.get("verdict", "VOID")
+        if hasattr(verdict, "value"):
+            verdict = verdict.value
 
         result = {
             "stage": "888",
-            "stage_name": "APEX_JUDGE_METABOLIC",
-            "verdict": verdict_val,
+            "verdict": str(verdict),
             "judge_result": judge_data,
-            "floor_violations": floors_failed,
             "session_id": session_id,
             "status": "completed",
         }
-        _store_stage_with_aliases(
-            store_stage_result_fn,
-            session_id,
-            result,
-            "stage_888",
-            "judge",
-            "audit",
-            "apex_verdict",
-        )
+        _store_stage_with_aliases(store_stage_result_fn, session_id, result, "stage_888", "judge")
         return result
 
     except Exception as e:
@@ -491,40 +370,29 @@ async def run_stage_999_seal(
         agi_result = agi_result or _get_first_stage_result(
             get_stage_result_fn, session_id, "agi", "think"
         )
-        asi_result = asi_result or _get_first_stage_result(
-            get_stage_result_fn,
-            session_id,
-            "asi_align",
-            "stage_666",
-            "align",
-            "asi_empathize",
-            "stage_555",
-            "empathy",
-            "asi",
+        query = agi_result.get("query", "Unknown query")
+
+        judge_out = judge_result or _get_first_stage_result(
+            get_stage_result_fn, session_id, "stage_888", "judge"
         )
-        query = _extract_query_from_stage_inputs(agi_result, asi_result, "999")
-        agi_tensor = await _build_agi_tensor(query, session_id)
-
-        emp_out = await core_organs.empathize(query, agi_tensor, session_id)
-        align_out = await core_organs.align(query, emp_out, agi_tensor, session_id)
-
-        align_data = _as_dict(align_out)
-        asi_output = _build_asi_output(align_data)
-
-        apex_out = await core_organs.apex(agi_tensor, asi_output, session_id, action="full")
-
-        apex_data = _as_dict(apex_out)
-
-        judge_out = judge_result or apex_data.get("judge", {})
 
         receipt = await core_organs.seal(
-            judge_out,
-            agi_tensor,
-            asi_output,
-            session_id,
-            query=summary or query,
-            authority="mcp_server",
+            session_id=session_id,
+            summary=summary or query,
+            verdict=judge_out.get("verdict", "SEAL"),
+            approved_by="system",
         )
+
+        receipt_data = _as_dict(receipt)
+
+        result = {
+            "stage": "999",
+            "status": receipt_data.get("status", "SUCCESS"),
+            "hash": receipt_data.get("hash", receipt_data.get("seal_record", {}).get("hash", "0x")),
+            "session_id": session_id,
+        }
+        _store_stage_with_aliases(store_stage_result_fn, session_id, result, "stage_999", "seal")
+        return result
 
         result = {
             "stage": "999",

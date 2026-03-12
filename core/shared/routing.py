@@ -1,30 +1,29 @@
 """
-Compatibility routing adapter.
-k now 
+core/shared/routing.py — Compatibility routing adapter.
 
-This module preserves the historical `core.shared.routing` API while delegating
-refusal detection to the canonical router in `core.enforcement.routing`.
+DEPRECATED: Use core.enforcement.routing for all new code.
+This module is kept for legacy compatibility and will be removed in v2026.04.
 """
 
 from __future__ import annotations
+import warnings
 
-from core.enforcement.routing import compatibility_category_for_domain, detect_refusal_rule
-
-FACTUAL_INDICATORS = (
-    "what is",
-    "who is",
-    "when did",
-    "where is",
-    "how many",
-    "why did",
-    "is it true",
-    "fact",
-    "statistics",
-    "data",
-    "research",
-    "study",
+from core.enforcement.routing import (
+    compatibility_category_for_domain, 
+    detect_refusal_rule, 
+    should_reality_check as canonical_should_reality_check,
+    FACTUAL_INDICATORS as CANONICAL_FACTUAL_INDICATORS
 )
 
+# Issue deprecation warning on import
+warnings.warn(
+    "core.shared.routing is deprecated. "
+    "Use core.enforcement.routing instead.",
+    DeprecationWarning,
+    stacklevel=2
+)
+
+FACTUAL_INDICATORS = CANONICAL_FACTUAL_INDICATORS
 
 def route_refuse(query: str) -> dict[str, object]:
     """
@@ -52,8 +51,4 @@ def route_refuse(query: str) -> dict[str, object]:
 
 def should_reality_check(query: str) -> tuple[bool, str | None]:
     """Determine if query needs reality (web) checking."""
-    query_lower = query.lower()
-    for indicator in FACTUAL_INDICATORS:
-        if indicator in query_lower:
-            return True, f"Factual query detected: '{indicator}'"
-    return False, None
+    return canonical_should_reality_check(query)

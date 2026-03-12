@@ -318,30 +318,25 @@ def shannon_entropy(data: str | list[str] | bytes) -> float:
     Returns:
         Entropy in bits per symbol [0, log₂(n)]
     """
-    if isinstance(data, str):
-        symbols = list(data.encode("utf-8"))
-    elif isinstance(data, bytes):
-        symbols = list(data)
+    if isinstance(data, (str, bytes)):
+        # For strings/bytes, symbols are just byte integers
+        symbols = data.encode("utf-8") if isinstance(data, str) else data
     elif isinstance(data, list):
-        # Convert tokens to bytes for hashing
-        symbols = []
-        for token in data:
-            h = hashlib.md5(str(token).encode()).digest()[0]
-            symbols.append(h)
+        # Directly use data as symbols (tokens are usually hashable)
+        symbols = data
     else:
         raise ThermodynamicViolation(f"Invalid entropy input type: {type(data)}")
 
     if not symbols:
         return 0.0
 
-    # Count frequencies
-    freq: dict[int, int] = {}
-    for symbol in symbols:
-        freq[symbol] = freq.get(symbol, 0) + 1
+    # Count frequencies directly in one pass (optimised for speed)
+    from collections import Counter
 
+    freq = Counter(symbols)
     n = len(symbols)
-    entropy = 0.0
 
+    entropy = 0.0
     for count in freq.values():
         p = count / n
         entropy -= p * math.log2(p)

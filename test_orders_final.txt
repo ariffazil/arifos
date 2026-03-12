@@ -1,0 +1,17 @@
+============================= test session starts =============================
+platform win32 -- Python 3.14.3, pytest-8.4.2, pluggy-1.6.0 -- C:\Users\User\AppData\Local\Programs\Python\Python314\python.exe
+cachedir: C:\Users\User\AppData\Local\Temp\pytest_cache
+rootdir: C:\arifosmcp
+configfile: pyproject.toml
+plugins: anyio-4.11.0, asyncio-1.3.0
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 6 items
+
+tests/adversarial/judicial_orders/test_p0_orders.py::test_f1_irreversible_action_blocked PASSED [ 16%]
+tests/adversarial/judicial_orders/test_p0_orders.py::test_f13_requires_signature PASSED [ 33%]
+tests/adversarial/judicial_orders/test_p0_orders.py::test_p3_cheap_truth_voided PASSED [ 50%]
+tests/adversarial/judicial_orders/test_p0_orders.py::test_vault999_merkle_chain_integrity PASSED [ 66%]
+tests/adversarial/judicial_orders/test_p0_orders.py::test_f12_untrusted_content_wrapped PASSED [ 83%]
+tests/adversarial/judicial_orders/test_p0_orders.py::test_judicial_conformance PASSED [100%]
+
+============================= 6 passed in 17.21s ==============================

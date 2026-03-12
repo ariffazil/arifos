@@ -1,185 +1,101 @@
-"""
-shared/ — Constitutional Physics & Utilities
+"""Lazy exports for shared constitutional utilities.
 
-The 4 Shared Modules:
-    physics.py  — W_3, delta_S, Omega_0, pi, Peace2, kappa_r, G
-    atlas.py    — Lambda(), Theta(), Phi()
-    types.py    — Pydantic contracts
-    crypto.py   — Ed25519, SHA-256, Merkle
-    guards.py   — F9/F10 guards
+Importing ``core.shared`` used to eagerly import physics, atlas, types, crypto,
+and guards, which pulled large ML dependencies into unrelated code paths.
+Keep this package light and resolve symbols lazily on first access.
 """
 
-from .atlas import (
-    ATLAS,
-    GPV,
-    Lambda,
-    Lane,
-    Phi,
-    Theta,
-    classify,
-    classify_query,
-    route,
-    route_query,
-)
-from .physics import (
-    DISTRESS_SIGNALS,
-    W_3,
-    # Unified state
-    ConstitutionalTensor,
-    G,
-    G_from_dial,
-    # F8: Genius
-    GeniusDial,
-    Omega_0,
-    Peace2,
-    # F5: Peace
-    PeaceSquared,
-    # F6: Empathy
-    Stakeholder,
-    # F3: Tri-Witness
-    TrinityTensor,
-    # F7: Humility
-    UncertaintyBand,
-    W_3_check,
-    W_3_from_tensor,
-    clarity_ratio,
-    # F4: Thermodynamic Clarity
-    delta_S,
-    empathy_coeff,
-    entropy_delta,
-    genius_score,
-    # Utilities
-    geometric_mean,
-    humility_band,
-    identify_stakeholders,
-    is_cooling,
-    kalman_gain,
-    kappa_r,
-    peace_squared,
-    # Precision
-    pi,
-    std_dev,
-    tri_witness,
-)
+from __future__ import annotations
 
-# Import types if available (may not be fully implemented)
-try:
-    from .types import (
-        AgiMetrics,
-        ApexMetrics,
-        AsiMetrics,
-        FloorScores,
-        ThoughtChain,
-        ThoughtNode,
-        Verdict,
-    )
+from importlib import import_module
 
-    TYPES_AVAILABLE = True
-except ImportError:
-    TYPES_AVAILABLE = False
-
-# Import crypto if available
-try:
-    from .crypto import (
-        ed25519_sign,
-        ed25519_verify,
-        generate_session_id,
-        merkle_root,
-        sha256_hash,
-        sha256_hash_dict,
-    )
-
-    CRYPTO_AVAILABLE = True
-except ImportError:
-    CRYPTO_AVAILABLE = False
-
-# Import guards if available
-try:
-    from .guards import (
-        detect_hantu,
-        validate_ontology,
-    )
-
-    GUARDS_AVAILABLE = True
-except ImportError:
-    GUARDS_AVAILABLE = False
-
-__all__ = [
-    # Physics
-    "TrinityTensor",
-    "W_3",
-    "W_3_from_tensor",
-    "W_3_check",
-    "tri_witness",
-    "geometric_mean",
-    "std_dev",
-    "delta_S",
-    "entropy_delta",
-    "is_cooling",
-    "clarity_ratio",
-    "UncertaintyBand",
-    "Omega_0",
-    "humility_band",
-    "pi",
-    "kalman_gain",
-    "PeaceSquared",
-    "Peace2",
-    "peace_squared",
-    "Stakeholder",
-    "kappa_r",
-    "empathy_coeff",
-    "identify_stakeholders",
-    "DISTRESS_SIGNALS",
-    "GeniusDial",
-    "G",
-    "genius_score",
-    "G_from_dial",
-    "ConstitutionalTensor",
-    # ATLAS
-    "Lane",
+_ATLAS_EXPORTS = {
+    "ATLAS",
     "GPV",
     "Lambda",
-    "Theta",
+    "Lane",
     "Phi",
-    "ATLAS",
+    "Theta",
     "classify",
-    "route",
     "classify_query",
+    "route",
     "route_query",
-]
+}
 
-# Add types to __all__ if available
-if TYPES_AVAILABLE:
-    __all__.extend(
-        [
-            "Verdict",
-            "ThoughtNode",
-            "ThoughtChain",
-            "FloorScores",
-            "AgiMetrics",
-            "AsiMetrics",
-            "ApexMetrics",
-        ]
-    )
+_PHYSICS_EXPORTS = {
+    "ConstitutionalTensor",
+    "DISTRESS_SIGNALS",
+    "G",
+    "G_from_dial",
+    "GeniusDial",
+    "Omega_0",
+    "Peace2",
+    "PeaceSquared",
+    "Stakeholder",
+    "TrinityTensor",
+    "UncertaintyBand",
+    "W_3",
+    "W_3_check",
+    "W_3_from_tensor",
+    "clarity_ratio",
+    "delta_S",
+    "empathy_coeff",
+    "entropy_delta",
+    "geometric_mean",
+    "genius_score",
+    "humility_band",
+    "identify_stakeholders",
+    "is_cooling",
+    "kalman_gain",
+    "kappa_r",
+    "peace_squared",
+    "pi",
+    "std_dev",
+    "tri_witness",
+}
 
-# Add crypto to __all__ if available
-if CRYPTO_AVAILABLE:
-    __all__.extend(
-        [
-            "generate_session_id",
-            "sha256_hash",
-            "sha256_hash_dict",
-            "ed25519_sign",
-            "ed25519_verify",
-            "merkle_root",
-        ]
-    )
+_TYPE_EXPORTS = {
+    "AgiMetrics",
+    "ApexMetrics",
+    "AsiMetrics",
+    "FloorScores",
+    "ThoughtChain",
+    "ThoughtNode",
+    "Verdict",
+}
 
-# Add guards to __all__ if available
-if GUARDS_AVAILABLE:
-    __all__.extend(
-        [
-            "detect_hantu",
-            "validate_ontology",
-        ]
-    )
+_CRYPTO_EXPORTS = {
+    "ed25519_sign",
+    "ed25519_verify",
+    "generate_session_id",
+    "merkle_root",
+    "sha256_hash",
+    "sha256_hash_dict",
+}
+
+_GUARD_EXPORTS = {
+    "detect_hantu",
+    "validate_ontology",
+}
+
+__all__ = sorted(
+    _ATLAS_EXPORTS | _PHYSICS_EXPORTS | _TYPE_EXPORTS | _CRYPTO_EXPORTS | _GUARD_EXPORTS
+)
+
+
+def __getattr__(name: str):
+    if name in _ATLAS_EXPORTS:
+        return getattr(import_module(".atlas", __name__), name)
+    if name in _PHYSICS_EXPORTS:
+        return getattr(import_module(".physics", __name__), name)
+    if name in _TYPE_EXPORTS:
+        return getattr(import_module(".types", __name__), name)
+    if name in _CRYPTO_EXPORTS:
+        return getattr(import_module(".crypto", __name__), name)
+    if name in _GUARD_EXPORTS:
+        return getattr(import_module(".guards", __name__), name)
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+
+
+def __dir__() -> list[str]:
+    return sorted(set(globals()) | set(__all__))

@@ -1,11 +1,42 @@
 from __future__ import annotations
 
+import hashlib
 import json
 
 import pytest
 
 from arifosmcp.runtime import bridge
-from core.organs._4_vault import compute_vault_seal_hash
+from core.organs._4_vault import _CHAIN_SEED, compute_vault_seal_hash
+
+
+def _build_vault_entry(
+    *,
+    session_id: str,
+    summary: str,
+    timestamp: str,
+    verdict: str = "SEAL",
+    telemetry: dict[str, object] | None = None,
+) -> dict[str, object]:
+    entry = {
+        "session_id": session_id,
+        "ledger_id": f"LGR-{session_id.upper()}",
+        "summary": summary,
+        "verdict": verdict,
+        "approved_by": "system",
+        "approval_reference": None,
+        "telemetry": telemetry or {},
+        "timestamp": timestamp,
+    }
+    seal_hash = compute_vault_seal_hash(entry)
+    return {
+        **entry,
+        "seal_hash": seal_hash,
+        "chain": {
+            "payload_hash": seal_hash,
+            "entry_hash": hashlib.sha256((seal_hash + _CHAIN_SEED).encode()).hexdigest(),
+            "prev_entry_hash": "0x" + "0" * 64,
+        },
+    }
 
 
 @pytest.mark.asyncio
@@ -17,26 +48,23 @@ async def test_trace_replay_reads_trace_from_vault_telemetry(tmp_path, monkeypat
         "\n".join(
             [
                 json.dumps(
-                    {
-                        "session_id": "s-1",
-                        "summary": "test summary",
-                        "verdict": "SEAL",
-                        "timestamp": "2026-03-10T00:00:00Z",
-                        "seal_hash": "abc123",
-                        "telemetry": {
+                    _build_vault_entry(
+                        session_id="s-1",
+                        summary="test summary",
+                        timestamp="2026-03-10T00:00:00Z",
+                        telemetry={
                             "trace": {"111_MIND": "SEAL", "222_REALITY": {"score": 0.88}},
                             "reality": {"score": 0.88, "status": "OK"},
                         },
-                    }
+                    )
                 ),
                 json.dumps(
-                    {
-                        "session_id": "s-2",
-                        "summary": "other session",
-                        "verdict": "SEAL",
-                        "timestamp": "2026-03-10T00:00:01Z",
-                        "telemetry": {"trace": {"111_MIND": "PARTIAL"}},
-                    }
+                    _build_vault_entry(
+                        session_id="s-2",
+                        summary="other session",
+                        timestamp="2026-03-10T00:00:01Z",
+                        telemetry={"trace": {"111_MIND": "PARTIAL"}},
+                    )
                 ),
             ]
         ),
@@ -70,17 +98,14 @@ async def test_trace_replay_blocks_tampered_vault_entries(tmp_path, monkeypatch)
 
     entry = {
         "session_id": "s-bad",
-        "ledger_id": "LGR-BAD",
         "summary": "tampered entry",
-        "verdict": "SEAL",
-        "approved_by": "system",
-        "approval_reference": None,
-        "telemetry": {"trace": {"111_MIND": "SEAL"}},
         "timestamp": "2026-03-10T00:00:00Z",
+        "telemetry": {"trace": {"111_MIND": "SEAL"}},
     }
-    good_hash = compute_vault_seal_hash(entry)
+    signed_entry = _build_vault_entry(**entry)
+    good_hash = signed_entry["seal_hash"]
     tampered = {
-        **entry,
+        **signed_entry,
         "summary": "tampered entry after seal",
         "seal_hash": good_hash,
         "chain": {

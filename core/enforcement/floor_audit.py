@@ -1,17 +1,25 @@
 """
-aclip_cai/core/floor_audit.py — Forwarding Stub
+core/enforcement/floor_audit.py — Forwarding Stub
 
-This file has been deprecated as a standalone module. The LIVE floor
-auditor has been moved to its canonical location in core.shared.floor_audit.
-It is imported here intact to preserve backwards compatibility for existing
-aclip_cai agents and triad functions.
+DEPRECATED: Use core.shared.floor_audit for all new code.
+This module is kept for legacy compatibility and will be removed in v2026.04.
 """
 
+from __future__ import annotations
+import warnings
 from core.shared.floor_audit import (
     AuditResult,
     FloorAuditor,
     FloorResult,
     Verdict,
+)
+
+# Issue deprecation warning on import
+warnings.warn(
+    "core.enforcement.floor_audit is deprecated. "
+    "Use core.shared.floor_audit instead.",
+    DeprecationWarning,
+    stacklevel=2
 )
 
 __all__ = ["Verdict", "FloorResult", "AuditResult", "FloorAuditor"]

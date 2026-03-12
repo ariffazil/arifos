@@ -169,7 +169,7 @@ def _trace_replay_envelope(
         "session_id": session_id,
         "stage": "999_VAULT",
         "verdict": verdict_map.get(replay_status, "SABAR"),
-        "status": "ERROR" if replay_status == "ERROR" else "SUCCESS",
+        "status": "ERROR" if replay_status in {"ERROR", "TAMPERED"} else "SUCCESS",
         "metrics": {},
         "trace": {},
         "authority": {

@@ -16,10 +16,11 @@ core/ = decision logic (this package)
 aaa_mcp/ = transport only (no decisions)
 """
 
-__version__ = "2026.03.10"
+from __future__ import annotations
 
-# Expose kernel components for import
-from . import enforcement, governance_kernel, judgment, organs, telemetry, uncertainty_engine
+from importlib import import_module
+
+__version__ = "2026.03.10"
 
 __all__ = [
     "enforcement",
@@ -29,3 +30,13 @@ __all__ = [
     "judgment",
     "organs",
 ]
+
+
+def __getattr__(name: str):
+    if name in __all__:
+        return import_module(f".{name}", __name__)
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+
+
+def __dir__() -> list[str]:
+    return sorted(set(globals()) | set(__all__))

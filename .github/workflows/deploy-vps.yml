@@ -38,7 +38,7 @@ jobs:
         run: python -m arifosmcp.transport.selftest
         env:
           GOVERNANCE_MODE: HARD
-          ARIFOS_PHYSICS_DISABLED: "1"
+          ARIFOS_PHYSICS_DISABLED: "0"
           ARIFOS_ALLOW_LEGACY_SPEC: "1"
 
   deploy:

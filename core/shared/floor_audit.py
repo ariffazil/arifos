@@ -15,14 +15,9 @@ from __future__ import annotations
 import os
 import re
 from dataclasses import dataclass, field
+from functools import lru_cache
 from pathlib import Path
 from typing import Any
-
-try:
-    from core.shared.sbert_floors import SBERT_AVAILABLE, classify_asi_floors
-except Exception:
-    SBERT_AVAILABLE = False
-    classify_asi_floors = None  # type: ignore[assignment]
 
 try:
     import yaml
@@ -43,6 +38,19 @@ except Exception:
 
 
 from core.shared.types import Verdict
+
+SBERT_AVAILABLE = False
+
+
+@lru_cache(maxsize=1)
+def _load_sbert_runtime() -> tuple[bool, Any | None]:
+    try:
+        from core.shared.sbert_floors import SBERT_AVAILABLE as runtime_available
+        from core.shared.sbert_floors import classify_asi_floors as runtime_classifier
+
+        return bool(runtime_available), runtime_classifier
+    except Exception:
+        return False, None
 
 # ---------------------------------------------------------------------------
 # Data containers
@@ -186,12 +194,13 @@ def _env_truthy(name: str) -> bool:
 def get_ml_floor_runtime() -> dict[str, Any]:
     """Return runtime status for optional SBERT-backed floor scoring."""
     enabled = _env_truthy("ARIFOS_ML_FLOORS")
-    method = "sbert" if enabled and SBERT_AVAILABLE else "heuristic"
-    if enabled and not SBERT_AVAILABLE:
+    sbert_available, _ = _load_sbert_runtime() if enabled else (False, None)
+    method = "sbert" if enabled and sbert_available else "heuristic"
+    if enabled and not sbert_available:
         method = "heuristic_fallback"
     return {
         "ml_floors_enabled": enabled,
-        "ml_model_available": SBERT_AVAILABLE,
+        "ml_model_available": sbert_available,
         "ml_method": method,
     }
 
@@ -342,7 +351,8 @@ class FloorAuditor:
         results: dict[str, FloorResult],
         audit_metadata: dict[str, Any],
     ) -> None:
-        if classify_asi_floors is None:
+        sbert_available, classify_asi_floors = _load_sbert_runtime()
+        if not sbert_available or classify_asi_floors is None:
             audit_metadata["ml_method"] = "heuristic_fallback"
             audit_metadata["ml_error"] = "sbert module unavailable"
             return

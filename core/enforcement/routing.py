@@ -171,6 +171,21 @@ COMPAT_CATEGORY_BY_DOMAIN = {
     RiskDomain.OTHER: "other",
 }
 
+FACTUAL_INDICATORS = (
+    "what is",
+    "who is",
+    "when did",
+    "where is",
+    "how many",
+    "why did",
+    "is it true",
+    "fact",
+    "statistics",
+    "data",
+    "research",
+    "study",
+)
+
 
 def _contains_keywords(prompt: str, keywords: list[str]) -> bool:
     """Check if prompt contains any of the keywords (case-insensitive)."""
@@ -189,6 +204,15 @@ def detect_refusal_rule(prompt: str) -> RefusalRule | None:
 def compatibility_category_for_domain(risk_domain: RiskDomain) -> str:
     """Map canonical risk domains to legacy compatibility categories."""
     return COMPAT_CATEGORY_BY_DOMAIN.get(risk_domain, "other")
+
+
+def should_reality_check(query: str) -> tuple[bool, str | None]:
+    """Determine if query needs reality (web) checking."""
+    query_lower = query.lower()
+    for indicator in FACTUAL_INDICATORS:
+        if indicator in query_lower:
+            return True, f"Factual query detected: '{indicator}'"
+    return False, None
 
 
 def _build_rule_response(prompt: str, rule: RefusalRule, profile: str) -> RefusalResponse:
