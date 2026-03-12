@@ -1,25 +1,22 @@
 # arifOS Secrets Directory
 
-**WARNING:** This directory contains sensitive cryptographic material.
-**DO NOT** commit these files to Git.
+This directory documents the expected secret layout only.
+No live secret file should ever be committed here.
 
-## Files
+## Canonical VPS Secret Path
 
-- `governance.secret` - The ARIFOS_GOVERNANCE_SECRET for signing auth_context\n## Usage
+```bash
+/opt/arifos/secrets/governance.secret
+```
 
-Set in your environment:
+## Use
+
 ```bash
 export ARIFOS_GOVERNANCE_SECRET_FILE=/opt/arifos/secrets/governance.secret
 ```
 
-Or use the .env.production file which references this path.
+## Rules
 
-## Rotation
-
-To rotate the secret:
-1. Generate new secret: `python -c "import secrets; print(secrets.token_hex(32))"`
-2. Write to governance.secret.new
-3. Set ARIFOS_GOVERNANCE_SECRET_PREVIOUS_FILE to old secret path
-4. Update governance.secret with new content
-5. Restart service
-6. Remove old secret after verifying new signatures work
+- Forge or securely copy the secret onto the VPS outside Git.
+- Keep permissions at `600` for the file and `700` for the directory.
+- Use `ARIFOS_GOVERNANCE_SECRET_PREVIOUS_FILE` only during rotation grace periods.

@@ -1,10 +1,9 @@
 """
-aaa_mcp.tools — Canonical MCP tool wrappers with proper signatures
+aaa_mcp.tools - legacy compatibility wrappers.
 
-This module provides the canonical 13-tool MCP surface with correct signatures
-that align with the arifOS core expectations.
-
-DITEMPA BUKAN DIBERI — Forged, Not Given
+This module exists only for older integrations that still import the historical
+AAA tool names. It is not the public/main MCP contract. Model-facing clients
+should use arifosmcp.runtime.public_registry and the 8-tool public surface.
 """
 
 from __future__ import annotations

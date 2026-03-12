@@ -1,82 +1,77 @@
 #!/bin/bash
 # arifOS Production Deployment Script
-# DITEMPA BUKAN DIBERI — Forged, Not Given
 
 set -euo pipefail
 
-ARIFOS_ROOT="/opt/arifos"
-SECRETS_DIR="$ARIFOS_ROOT/secrets"
-SERVICE_NAME="arifos-mcp"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ARIFOS_ROOT="${ARIFOS_ROOT:-$(cd "$SCRIPT_DIR/.." && pwd)}"
+SECRETS_DIR="${ARIFOS_SECRETS_DIR:-/opt/arifos/secrets}"
+SERVICE_NAME="${ARIFOS_SERVICE_NAME:-arifos-mcp}"
+PORT="${PORT:-8080}"
+PYTHON_BIN="${ARIFOS_PYTHON_BIN:-$ARIFOS_ROOT/.venv/bin/python}"
 
-echo "🏛️  arifOS Production Deployment"
-echo "================================"
-
-# 1. Check prerequisites
-echo "📋 Checking prerequisites..."
-command -v python3 >/dev/null 2>&1 || { echo "❌ python3 required"; exit 1; }
-command -v systemctl >/dev/null 2>&1 || { echo "⚠️  systemctl not found (non-systemd system)"; }
-
-# 2. Verify governance secret
-echo "🔐 Verifying governance secret..."
-if [ -f "$SECRETS_DIR/governance.secret" ]; then
-    echo "✅ Governance secret file exists"
-    SECRET_CHECK=$(python3 -c "
-import os
-os.environ['ARIFOS_GOVERNANCE_SECRET_FILE'] = '$SECRETS_DIR/governance.secret'
-from core.enforcement.auth_continuity import _load_governance_token_secret
-secret = _load_governance_token_secret()
-print('VALID' if len(secret) == 64 else 'INVALID')
-" 2>/dev/null || echo "CHECK_FAILED")
-    
-    if [ "$SECRET_CHECK" = "VALID" ]; then
-        echo "✅ Secret validation passed"
-    else
-        echo "⚠️  Secret validation warning - continuing anyway"
-    fi
-else
-    echo "❌ Governance secret file not found at $SECRETS_DIR/governance.secret"
-    echo "   Run: python3 -c \"import secrets; print(secrets.token_hex(32))\" > $SECRETS_DIR/governance.secret"
-    exit 1
+if [ ! -x "$PYTHON_BIN" ]; then
+  PYTHON_BIN="$(command -v python3)"
 fi
 
-# 3. Install dependencies
-echo "📦 Installing dependencies..."
-cd "$ARIFOS_ROOT"
-pip3 install -e ".[dev]" --quiet
+echo "arifOS Production Deployment"
+echo "==========================="
+echo "Repo root: $ARIFOS_ROOT"
+echo "Secrets : $SECRETS_DIR"
 
-# 4. Run pre-flight tests
-echo "🧪 Running pre-flight tests..."
-python3 -m pytest tests/test_constitutional_core.py -q --tb=short || {
-    echo "❌ Constitutional tests failed - aborting deployment"
-    exit 1
+command -v "$PYTHON_BIN" >/dev/null 2>&1 || {
+  echo "ERROR: python runtime not found"
+  exit 1
+}
+command -v curl >/dev/null 2>&1 || {
+  echo "ERROR: curl required"
+  exit 1
 }
 
-# 5. Restart service
-echo "🔄 Restarting arifOS MCP service..."
-if systemctl is-active --quiet "$SERVICE_NAME" 2>/dev/null; then
-    sudo systemctl restart "$SERVICE_NAME"
-    echo "✅ Service restarted via systemctl"
-else
-    echo "⚠️  Service not running via systemctl - manual restart required"
-    echo "   Command: pkill -f 'python.*arifosmcp' && python3 -m arifosmcp.runtime http"
+if [ ! -f "$SECRETS_DIR/governance.secret" ]; then
+  echo "ERROR: governance secret missing at $SECRETS_DIR/governance.secret"
+  exit 1
 fi
 
-# 6. Health check
-echo "🏥 Health check..."
-sleep 2
-HEALTH_STATUS=$(curl -s http://localhost:8080/health | python3 -c "import sys, json; print(json.load(sys.stdin).get('status', 'UNKNOWN'))" 2>/dev/null || echo "UNREACHABLE")
+echo "Verifying governance secret..."
+ARIFOS_GOVERNANCE_SECRET_FILE="$SECRETS_DIR/governance.secret" \
+  "$PYTHON_BIN" "$ARIFOS_ROOT/scripts/verify-secrets.py"
 
-if [ "$HEALTH_STATUS" = "healthy" ]; then
-    echo "✅ Health check passed"
+echo "Installing runtime dependencies..."
+cd "$ARIFOS_ROOT"
+"$PYTHON_BIN" -m pip install -e ".[dev]"
+
+echo "Regenerating public specs and docs..."
+"$PYTHON_BIN" "$ARIFOS_ROOT/scripts/generate_public_specs.py"
+"$PYTHON_BIN" "$ARIFOS_ROOT/scripts/generate_public_contract_docs.py"
+
+echo "Running targeted deploy validation..."
+ARIFOS_GOVERNANCE_SECRET_FILE="$SECRETS_DIR/governance.secret" \
+  "$PYTHON_BIN" -m pytest \
+    tests/test_public_registry.py \
+    tests/test_deploy_production.py \
+    tests/test_runtime_prompts.py \
+    tests/test_auth_continuity_file_secret.py \
+    tests/test_runtime_capability_map.py \
+    -q
+
+echo "Restarting service..."
+if command -v systemctl >/dev/null 2>&1 && systemctl list-unit-files | grep -q "^${SERVICE_NAME}\.service"; then
+  systemctl restart "$SERVICE_NAME"
+  systemctl --no-pager --full status "$SERVICE_NAME" || true
 else
-    echo "⚠️  Health check returned: $HEALTH_STATUS"
+  pkill -f "python.*arifosmcp.runtime" || true
+  ARIFOS_GOVERNANCE_SECRET_FILE="$SECRETS_DIR/governance.secret" \
+    AAA_MCP_TRANSPORT=http \
+    nohup "$PYTHON_BIN" -m arifosmcp.runtime http >/tmp/arifosmcp.log 2>&1 &
 fi
 
-echo ""
-echo "🎯 Deployment Complete!"
-echo "======================="
-echo "Secret: File-based ($SECRETS_DIR/governance.secret)"
-echo "Health: http://localhost:8080/health"
-echo "Tools:  http://localhost:8080/tools"
-echo ""
-echo "DITEMPA BUKAN DIBERI — Forged, Not Given 🔥"
+echo "Health check..."
+sleep 3
+curl -fsS "http://127.0.0.1:${PORT}/health"
+
+echo
+echo "Deploy validation complete."
+echo "Expected follow-up checks:"
+echo "  curl -fsS http://127.0.0.1:${PORT}/health"
+echo "  curl -fsS http://127.0.0.1:${PORT}/.well-known/mcp/server.json"

@@ -4,7 +4,7 @@ arifosmcp/runtime/server.py — arifOS APEX-G MCP Hub
 CANONICAL EXTERNAL ENTRYPOINT for the arifOS MCP surface.
 
 Phase split:
-  - Core constitutional stack (7 tools): the only tools used by the new
+  - Core constitutional stack (8 tools): the only tools used by the new
     constitutional kernel surface and deploy validation.
   - External capability tools (Phase 2 integration): legacy capability
     tools such as ACLIP sensors, reality search, evidence ingest.

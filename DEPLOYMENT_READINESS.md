@@ -1,191 +1,91 @@
-# 🚀 arifOS Deployment Readiness — v2026.03.12-FORGED
+# arifOS VPS Deployment Readiness
 
-**Status:** ✅ **GREENLIT FOR PRODUCTION**  
-**Date:** 2026-03-12  
-**Motto:** *Ditempa Bukan Diberi — Forged, Not Given*
+This file is an operator runbook for agents deploying arifOS on a VPS.
+It is not a proof that production is already updated.
 
----
+## Canonical Layout
 
-## ✅ Pre-Flight Checklist
+| Item | Canonical path |
+|------|----------------|
+| Git working tree | `/srv/arifosmcp` |
+| Python virtualenv | `/srv/arifosmcp/.venv` |
+| Governance secret directory | `/opt/arifos/secrets` |
+| Governance secret file | `/opt/arifos/secrets/governance.secret` |
+| Public MCP endpoint | `https://arifosmcp.arif-fazil.com/mcp` |
+| Public docs contract | `https://arifos.arif-fazil.com/public-contract` |
 
-| Item | Status | Notes |
-|------|--------|-------|
-| E2E Tests | ✅ 171/171 PASS | Constitutional + Temporal + Adversarial |
-| Landauer Hardening | ✅ VERIFIED | Temporal grounding active |
-| aaa_mcp Compatibility | ✅ WORKING | Shim layer imports verified |
-| Governance Secret | ✅ LOCKED IN | File-based secret configured |
-| systemd Service | ✅ READY | arifos-mcp.service template |
-| Deploy Script | ✅ READY | `scripts/deploy-production.sh` |
+## What Must Match Current arifOS Core
 
----
+- Runtime entrypoint: `python -m arifosmcp.runtime http`
+- Public tool contract: 8 tools from `arifosmcp/runtime/public_registry.py`
+- Public transports: `http`, `stdio`
+- Governance secret loading: `core/enforcement/auth_continuity.py` must read `ARIFOS_GOVERNANCE_SECRET_FILE`
+- Compatibility shim: `aaa_mcp/rest.py` is legacy import support only, not a second public contract
 
-## 🔐 Governance Secret — CONFIGURED
+## Required Preflight
 
-**Method:** File-based (hardened path)  
-**Location:** `secrets/governance.secret`  
-**Format:** 32-byte hex (64 characters)  
-**Verified:** ✅ Loaded correctly by auth_continuity module
+Run on the VPS inside `/srv/arifosmcp`:
 
-### Deployment Configuration
-
-Create on your VPS:
 ```bash
-# 1. Create directory
-sudo mkdir -p /opt/arifos/secrets
-sudo chown arifos:arifos /opt/arifos/secrets
-sudo chmod 700 /opt/arifos/secrets
-
-# 2. Copy secret file
-sudo cp secrets/governance.secret /opt/arifos/secrets/
-sudo chown arifos:arifos /opt/arifos/secrets/governance.secret
-sudo chmod 600 /opt/arifos/secrets/governance.secret
-
-# 3. Set environment
-export ARIFOS_GOVERNANCE_SECRET_FILE=/opt/arifos/secrets/governance.secret
+python scripts/generate_public_specs.py
+python scripts/generate_public_contract_docs.py
+ARIFOS_GOVERNANCE_SECRET_FILE=/opt/arifos/secrets/governance.secret \
+  python scripts/verify-secrets.py
+ARIFOS_GOVERNANCE_SECRET_FILE=/opt/arifos/secrets/governance.secret \
+  pytest \
+    tests/test_public_registry.py \
+    tests/test_deploy_production.py \
+    tests/test_runtime_prompts.py \
+    tests/test_auth_continuity_file_secret.py \
+    tests/test_runtime_capability_map.py \
+    -q
 ```
 
----
+## Deploy
 
-## 🚀 Deployment Commands
-
-### Option 1: Using Deploy Script (Recommended)
+Preferred:
 
 ```bash
-# On VPS
-sudo ./scripts/deploy-production.sh
+sudo /srv/arifosmcp/scripts/deploy-production.sh
 ```
 
-### Option 2: Manual Deployment
+systemd path:
 
 ```bash
-# 1. Copy code
-cd /opt/arifos
-git pull origin main
-
-# 2. Install
-pip install -e ".[dev]"
-
-# 3. Verify secret is loaded
-python -c "
-import os
-os.environ['ARIFOS_GOVERNANCE_SECRET_FILE'] = '/opt/arifos/secrets/governance.secret'
-from core.enforcement.auth_continuity import _load_governance_token_secret
-print('Secret:', _load_governance_token_secret()[:16] + '...')
-"
-
-# 4. Restart
-sudo systemctl restart arifos-mcp
-# OR (if not using systemd)
-pkill -f "python.*arifosmcp"
-python -m arifosmcp.runtime http
-
-# 5. Health check
-curl http://localhost:8080/health | jq .
-```
-
-### Option 3: Using systemd Service
-
-```bash
-# 1. Install service
-sudo cp infrastructure/systemd/arifos-mcp.service /etc/systemd/system/
+sudo cp /srv/arifosmcp/infrastructure/systemd/arifos-mcp.service /etc/systemd/system/
 sudo systemctl daemon-reload
-
-# 2. Enable and start
 sudo systemctl enable arifos-mcp
-sudo systemctl start arifos-mcp
-
-# 3. Check status
-sudo systemctl status arifos-mcp
-sudo journalctl -u arifos-mcp -f
-```
-
----
-
-## 🧪 Post-Deploy Verification
-
-Run these to confirm deployment:
-
-```bash
-# Health endpoint
-curl http://localhost:8080/health | jq .
-
-# Expected output:
-# {
-#   "status": "healthy",
-#   "service": "arifos-aaa-mcp",
-#   "version": "2026.03.12-FORGED",
-#   "capability_map": { ... }
-# }
-
-# Verify no ephemeral warning
-python -c "
-from core.enforcement.auth_continuity import _GOVERNANCE_TOKEN_SECRET
-print('✅ Secret loaded from stable source')
-"
-
-# Test seal_vault works
-python -c "
-from aaa_mcp import vault
-print('✅ vault import working')
-"
-```
-
----
-
-## 📊 What Changed
-
-### New Files (Not in Git)
-- `secrets/governance.secret` — 32-byte governance key 🔐
-- `secrets/README.md` — Secret management docs
-- `.env.production` — Production environment template
-
-### New Files (In Git)
-- `aaa_mcp/` — Compatibility shim for legacy imports
-- `scripts/deploy-production.sh` — Automated deploy script
-- `infrastructure/systemd/arifos-mcp.service` — systemd unit
-- `DEPLOYMENT_READINESS.md` — This file
-
-### Modified Files (In Git — Already Tested)
-- All 46 modified files tested ✅
-- Bridge.py — Temporal grounding
-- Governance kernel — P-dial stability
-- Physics — Landauer enforcement
-- Tests — All 171 passing
-
----
-
-## 🎯 Rollback Plan
-
-If issues arise:
-
-```bash
-# Rollback to previous version
-git log --oneline -5  # Find previous commit
-git checkout <previous-commit>
 sudo systemctl restart arifos-mcp
-
-# Or restore ephemeral secret temporarily
-unset ARIFOS_GOVERNANCE_SECRET_FILE
-# (Service will use ephemeral but show warning)
 ```
 
----
+Manual fallback:
 
-## 🏛️ Final Sign-Off
+```bash
+cd /srv/arifosmcp
+ARIFOS_GOVERNANCE_SECRET_FILE=/opt/arifos/secrets/governance.secret \
+AAA_MCP_TRANSPORT=http \
+python -m arifosmcp.runtime http
+```
 
-| Criterion | Verification |
-|-----------|-------------|
-| **Code** | 171/171 tests pass |
-| **Physics** | Landauer + P-dial hardened |
-| **Security** | File-based governance secret |
-| **Compatibility** | aaa_mcp shim working |
-| **Deploy** | Script + systemd ready |
+## Post-Deploy Checks
 
-**Status:** ✅ **READY TO PUSH TO MAIN**
+```bash
+curl -fsS http://127.0.0.1:8080/health
+curl -fsS http://127.0.0.1:8080/.well-known/mcp/server.json
+curl -fsS http://127.0.0.1:8080/mcp \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","id":"1","method":"tools/list","params":{}}'
+```
 
----
+Expected:
 
-**DITEMPA BUKAN DIBERI — Forged, Not Given** 🔥
+- health version matches the deployed Git commit lineage
+- discovery reports 8 public tools
+- `tools/list` returns the 8-tool public contract
+- no ephemeral-secret fallback is used
 
-The kernel is temporally grounded, physically verified, and constitutionally compliant.
-**GREENLIT FOR DEPLOYMENT.**
+## Notes For Agents
+
+- Do not infer deploy readiness from stale counts like `171/171` unless you reran them now.
+- Do not deploy from `/opt/arifos` as the repo root; that path is for secrets/data, not code.
+- Do not treat `aaa_mcp/tools.py` as the public contract. It is legacy compatibility only.
