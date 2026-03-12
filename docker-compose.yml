@@ -546,3 +546,18 @@ networks:
   arifos_trinity:
     external: true
     name: arifos_arifos_trinity
+
+  # ── arifOS Office Forge Watcher ──────────────────────────
+  inbox_watcher:
+    build:
+      context: .
+      dockerfile: Dockerfile.watcher
+    container_name: arifos_inbox_watcher
+    volumes:
+      - /srv/syncthing:/watch
+      - /srv/arifosmcp:/app
+    environment:
+      - ARIFOS_ML_FLOORS=1
+    restart: unless-stopped
+    depends_on:
+      - arifosmcp_server

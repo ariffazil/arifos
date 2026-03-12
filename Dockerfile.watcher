@@ -1,0 +1,14 @@
+FROM node:20-slim
+
+# Install Python and essentials
+RUN apt-get update && apt-get install -y python3 python3-pip python3-venv curl git imagemagick chromium && rm -rf /var/lib/apt/lists/*
+
+# Install Marp
+RUN npm install -g @marp-team/marp-cli
+
+# Set up workspace
+WORKDIR /app
+ENV CHROME_PATH=/usr/bin/chromium
+
+# Set up entrypoint
+CMD ["python3", "scripts/inbox_watcher.py"]
