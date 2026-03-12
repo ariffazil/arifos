@@ -16,6 +16,7 @@ from typing import Any
 
 from pydantic import ValidationError
 
+from arifosmcp.intelligence.tools.office_forge_engine import audit_markdown, render_office_document
 from arifosmcp.intelligence.tools.reality_grounding import open_web_page, reality_check
 from arifosmcp.runtime.contracts import REQUIRES_SESSION
 from core.enforcement.auth_continuity import mint_auth_context, verify_auth_context_cached
@@ -45,6 +46,8 @@ TOOL_MAP = {
     "seal_vault_commit": "seal_vault",
     "session_memory": "session_memory",
     "verify_vault_ledger": "verify_vault_ledger",
+    "office_forge_audit": "office_forge_audit",
+    "forge_office_document": "office_forge",
 }
 
 AUTO_BOOTSTRAP_RISK_TIERS = frozenset({"low", "medium"})
@@ -404,6 +407,20 @@ async def call_kernel(
                 "message": reason or "Chain Integrity: VERIFIED (SHA-256 Merkle)",
                 "path": str(DEFAULT_VAULT_PATH),
             }
+
+        elif canonical_name == "office_forge_audit":
+            result = await audit_markdown(
+                markdown=payload.get("markdown") or query_input
+            )
+
+        elif canonical_name == "office_forge":
+            result = await render_office_document(
+                session_id=session_id,
+                markdown=payload.get("markdown") or query_input,
+                mode=payload.get("output_mode", "pdf"),
+                theme=payload.get("theme", "default"),
+                filename=payload.get("filename"),
+            )
 
         elif canonical_name == "metabolic_loop":
             from arifosmcp.runtime.orchestrator import metabolic_loop

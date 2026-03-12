@@ -549,9 +549,18 @@ def public_tool_names() -> tuple[str, ...]:
 
 
 def tool_names_for_profile(profile: str) -> tuple[str, ...]:
-    normalized = profile.strip().lower() or "full"
-    if normalized in {"chatgpt", "agnostic_public"}:
+    """
+    Resolve tool surface based on transport profile.
+    - public: Safe universal external surface (e.g. ChatGPT, Agnostic MCP clients).
+    - internal: Richer trusted agent surface (includes stage tools).
+    """
+    normalized = profile.strip().lower() or "public"
+    
+    # Mapping legacy names to canonical transport profiles
+    if normalized in {"chatgpt", "agnostic_public", "public"}:
         return public_tool_names()
+    
+    # Internal surface includes all public tools + internal metabolic stage tools
     return public_tool_names() + INTERNAL_STAGE_TOOL_NAMES
 
 

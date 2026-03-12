@@ -1,8 +1,11 @@
 # arifOS TODO — Active Sector Tracking
 
-**Operational Status:** ✅ FORGE DEPLOYED  
+**Operational Status:** ✅ LSP/ACP SEALED TO VAULT999 — 2026.03.13
+**Latest Forge:** LSP + ACP Constitutional Integration v1.0
+**Git Commit:** 36713d5ce
+**VAULT999 Seal:** ACTIVE
 **Authority:** 888 Judge — Muhammad Arif bin Fazil  
-**Version:** 2026.03.12-FORGED  
+**Version:** 2026.03.13-FORGED  
 **Coverage:** ~64% (Target: 80%)  
 **Motto:** *Ditempa Bukan Diberi — Forged, Not Given*
 
@@ -25,6 +28,18 @@
 - [x] **Vault Integrity Enforcement:** `trace_replay` now rejects tampered ledger entries with a hard failure.
 - [x] **Import/Test Hang Isolation:** Removed eager ML imports from `core.enforcement` and `core.shared.floor_audit`; added regression coverage for `aki_contract` import boundaries.
 - [x] **Coverage Gap Matrix:** Forged a repo-grounded audit at `docs/COVERAGE_GAP_MATRIX_2026-03-12.md`.
+
+---
+
+## 🔥 Strategic Forge (2026.03.13) — COMPLETED ✅
+
+- [x] **LSP Bridge Implementation:** Read-only code intelligence for Python/TS/Rust.
+- [x] **ACP Server Implementation:** Agent Client Protocol for editor integration (Zed/Cursor).
+- [x] **Governed LSP Tools:** `lsp_rename` (888_HOLD) and `lsp_query` MCP tools active.
+- [x] **Office Forge Engine:** Hardened Markdown -> PDF/PPTX render engine.
+- [x] **Identity Resolution Fix:** "Arif Fazil" sovereign identity mapping resolved.
+- [x] **ACP Hardening:** Disabled `fileSystem` and `terminals` for editor-facing agents (F5).
+- [x] **Integrate Metabolic Loop:** ACP `agent/prompt` now routes through 000-999 pipeline.
 
 ---
 
@@ -115,12 +130,14 @@
 
 ---
 
-## 🎯 Next Forge Priority (P0)
+## 🎯 Next Forge Priority (P0) — POST-LSP/ACP
 
-1. **Complete H1.3 Test Recovery** — Add ~70 tests for remaining 5 zero-coverage modules
-2. **External Evaluation Rubric** — Standardized answers for capability claims
-3. **Semantic Health Separation** — Distinguish governance vs semantic backend in health checks
-4. **888_signer CLI** — Human ratification token utility
+1. **VPS Deployment Verification** — Confirm LSP/ACP live on production (`docker logs | grep -E "(LSP|ACP)"`).
+2. **Editor Integration** — Connect Zed, VS Code:, Antigravity, OpenCode to arifOS via ACP.
+3. **Code Intelligence Workflow** — Build "analyze codebase → generate architecture doc" pipeline.
+4. **E2E Visualizer Validation** — Verify LSP metrics show up in Constitutional Dashboard.
+5. **888_signer CLI** — Human ratification token utility for ACP session approval.
+6. **Complete H1.3 Test Recovery** — Add ~70 tests for zero-coverage modules.
 
 ---
 
@@ -135,6 +152,6 @@ git stash pop
 
 ---
 
-**Last SEALed:** 2026.03.12-FORGED  
-**Commit:** `966409d11`  
+**Last SEALed:** 2026.03.13-FORGED  
+**Commit:** `2b7e5f13`  
 *"Ditempa bukan diberi"* 🔥
