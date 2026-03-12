@@ -1,8 +1,14 @@
 """
-arifosmcp/runtime/contracts.py — Unified arifOS AAA MCP Contracts
+arifosmcp/runtime/contracts.py — Unified arifOS MCP Contracts
 
-This module is the single source of truth for the active AAA MCP public
-surface, its governance metadata, and input validation guards.
+Public/main contract:
+  - the 8-tool surface generated from arifosmcp.runtime.public_registry
+
+Internal/dev compatibility:
+  - stage tools and legacy aliases retained for orchestration and transition
+
+This module keeps governance metadata and input validation aligned with that
+split. It is not the hand-authored public contract page.
 """
 
 from __future__ import annotations
@@ -12,13 +18,12 @@ from typing import Any
 from .public_registry import public_tool_input_contracts, public_tool_names
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# CANONICAL TOOL SURFACE (L4)
+# TOOL SURFACES
 # ═══════════════════════════════════════════════════════════════════════════════
 
 AAA_PUBLIC_TOOLS: tuple[str, ...] = public_tool_names()
 
-AAA_CANONICAL_TOOLS: tuple[str, ...] = (
-    *AAA_PUBLIC_TOOLS,
+AAA_INTERNAL_STAGE_TOOLS: tuple[str, ...] = (
     "anchor_session",
     "reason_mind",
     "vector_memory",
@@ -28,6 +33,11 @@ AAA_CANONICAL_TOOLS: tuple[str, ...] = (
     "apex_judge",
     "seal_vault",
     "metabolic_loop",
+)
+
+AAA_CANONICAL_TOOLS: tuple[str, ...] = (
+    *AAA_PUBLIC_TOOLS,
+    *AAA_INTERNAL_STAGE_TOOLS,
 )
 
 REQUIRES_SESSION: set[str] = {

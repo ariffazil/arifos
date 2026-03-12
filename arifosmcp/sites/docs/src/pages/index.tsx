@@ -20,22 +20,22 @@ const FLOORS = [
 
 const ENDPOINT_SURFACES = [
   {
-    path: '/',
-    role: 'Canonical 13-tool surface',
-    when: 'Default entrypoint for governed agent sessions.',
-    includes: 'anchor_session, reason_mind, simulate_heart, critique_thought, apex_judge, seal_vault.',
-  },
-  {
     path: '/mcp',
-    role: 'Runtime MCP protocol surface',
-    when: 'Use when your MCP client expects runtime protocol routing.',
-    includes: 'Same governance runtime, protocol-first transport behavior.',
+    role: 'Public MCP contract',
+    when: 'Use for model-agnostic MCP clients and keep all tool calls on this single surface.',
+    includes: '8 public tools: arifOS_kernel, bootstrap_identity, search_reality, ingest_evidence, session_memory, audit_rules, check_vital, open_apex_dashboard.',
   },
   {
-    path: '/tools',
-    role: 'Full capability surface with compatibility shims',
-    when: 'Use for broad tool coverage and legacy/client compatibility.',
-    includes: 'Extended tools plus shims for older integrations.',
+    path: '/health',
+    role: 'Operator health surface',
+    when: 'Use for runtime liveness, version, and capability checks.',
+    includes: 'Health snapshot, version, transport, and capability map summary.',
+  },
+  {
+    path: '/dashboard/',
+    role: 'Observability surface',
+    when: 'Use for human monitoring, verdict visibility, and trace inspection.',
+    includes: 'APEX dashboard and live governance telemetry.',
   },
 ];
 
@@ -133,12 +133,12 @@ export default function Home() {
           </div>
 
           <div className="callflow-panel">
-            <h3 className="callflow-heading">Recommended Call Order</h3>
+            <h3 className="callflow-heading">Recommended Public Flow</h3>
             <ol className="callflow-list">
-              <li><code>anchor_session</code> to initialize and get a stable session id.</li>
-              <li><code>reason_mind</code> / <code>simulate_heart</code> / <code>critique_thought</code> for analysis passes.</li>
-              <li><code>apex_judge</code> to synthesize verdict and governance token.</li>
-              <li><code>seal_vault</code> to finalize and persist session outcomes.</li>
+              <li><code>bootstrap_identity</code> if you need explicit named onboarding.</li>
+              <li><code>arifOS_kernel</code> for the main governed task path.</li>
+              <li><code>search_reality</code>, <code>ingest_evidence</code>, <code>session_memory</code>, or <code>audit_rules</code> only when you need a focused support tool.</li>
+              <li><code>check_vital</code> and <code>open_apex_dashboard</code> for operator visibility, not execution.</li>
             </ol>
           </div>
         </div>
@@ -160,7 +160,7 @@ export default function Home() {
             </a>
           </p>
           <p className="troubleshoot-note">
-            Session terminated? Most cases come from mixing <code>/</code>, <code>/mcp</code>, and <code>/tools</code> in one run or skipping <code>anchor_session</code>. Start with <code>anchor_session</code> and keep one endpoint surface for the whole session.
+            Session terminated? Most cases come from mixing health/dashboard URLs with the MCP endpoint or from targeting legacy tool names. Keep the whole session on <code>/mcp</code> and use the 8 public tool names only.
           </p>
         </div>
       </div>

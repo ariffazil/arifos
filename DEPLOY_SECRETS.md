@@ -79,9 +79,9 @@ $secret | Set-Content -Path "C:\arifos\secrets\governance.secret" -NoNewline
 
 ```bash
 # Linux equivalent
-mkdir -p /etc/arifos/secrets
-tr -dc 'A-Za-z0-9' < /dev/urandom | head -c 64 > /etc/arifos/secrets/governance.secret
-chmod 600 /etc/arifos/secrets/governance.secret
+mkdir -p /opt/arifos/secrets
+tr -dc 'A-Za-z0-9' < /dev/urandom | head -c 64 > /opt/arifos/secrets/governance.secret
+chmod 600 /opt/arifos/secrets/governance.secret
 ```
 
 ### Pattern C: Environment Variable (Development Only)
@@ -198,7 +198,7 @@ Write-Host "✓ Add to environment: ARIFOS_GOVERNANCE_SECRET_FILE=$governanceFil
 #!/bin/bash
 # scripts/init-secrets.sh
 
-SECRETS_DIR="/etc/arifos/secrets"
+SECRETS_DIR="/opt/arifos/secrets"
 GOVERNANCE_FILE="$SECRETS_DIR/governance.secret"
 
 # Create directory with restricted permissions

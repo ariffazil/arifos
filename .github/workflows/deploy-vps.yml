@@ -11,7 +11,7 @@ on:
   workflow_dispatch:
 
 env:
-  VPS_PATH: /srv/arifOS
+  VPS_PATH: /srv/arifosmcp
   SSH_PORT: ${{ secrets.VPS_SSH_PORT || '22' }}
   TARGET_HOST: ${{ secrets.VPS_TAILSCALE_IP || secrets.VPS_HOST }}
 
@@ -82,18 +82,21 @@ jobs:
           
           echo '📥 Syncing code from GitHub...'
           git fetch origin main
-          git reset --hard origin/main
+          git checkout main
+          git pull --ff-only origin main
           
-          if [ ! -e /root/arifOS ]; then
-            sudo ln -s '${VPS_PATH}' /root/arifOS || true
-          fi
+          echo '🧾 Regenerating public specs from runtime registry...'
+          python scripts/generate_public_specs.py
+
+          echo '🔐 Verifying governance secret configuration...'
+          python scripts/verify-secrets.py
           
           echo '🧹 Cleaning up old Docker artifacts...'
           sudo docker system prune -f
           
           echo '🏗️ Rebuilding and restarting arifosmcp container...'
           # Use sudo for docker compose to ensure permissions
-          sudo docker compose -f docker-compose.yml up -d --build arifosmcp
+          sudo docker compose --env-file .env.docker -f docker-compose.yml up -d --build arifosmcp
         "
       timeout-minutes: 35
 

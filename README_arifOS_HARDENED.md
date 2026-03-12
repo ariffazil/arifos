@@ -20,6 +20,8 @@
 
 ---
 
+> **Contract notice (2026.03.12):** This document contains historical material from the earlier 13-tool AAA era. The current public/main MCP contract is the generated 8-tool surface from `arifosmcp.runtime.public_registry`. Use the public contract docs and live `tools/list` output as the model-facing source of truth.
+
 ## The Core Insight: arifOS is the TCP Layer for AI Agents
 
 In the 1970s, the internet had a routing problem: IP could deliver packets, but nothing guaranteed they would arrive in order, intact, or at all. The solution was **TCP** — a reliability layer that made the chaotic network trustworthy.
@@ -76,7 +78,7 @@ The definitive intelligence kernel is governed by these 7 core documents:
 > 💡 Use the [_OUTLINE.md](./docs/10_THEORY/000_THEORY/_OUTLINE.md) for a complete map of all theory files.
 
 ### 🔌 Technical Reference
-- **13 Tools Reference:** [docs/AAA_MCP_TOOLS_REFERENCE.md](./docs/AAA_MCP_TOOLS_REFERENCE.md)
+- **Historical 13-Tool Reference:** [docs/AAA_MCP_TOOLS_REFERENCE.md](./docs/AAA_MCP_TOOLS_REFERENCE.md)
 - **MCP Implementation:** [aaa_mcp/README.md](./aaa_mcp/README.md)
 - **Deployment Guide:** [docs/COMPLETE_DEPLOYMENT_GUIDE.md](./docs/COMPLETE_DEPLOYMENT_GUIDE.md)
 
@@ -115,10 +117,10 @@ The definitive intelligence kernel is governed by these 7 core documents:
     }
   },
   "mcp_server": {
-    "transport": ["stdio", "sse", "streamable-http"],
+    "historical_transport": ["stdio", "sse", "streamable-http"],
     "health_endpoint": "https://arifosmcp.arif-fazil.com/health",
-    "tools_count": 13,
-    "tools_canonical": [
+    "historical_tools_count": 13,
+    "historical_tools_canonical": [
       "anchor_session", "reason_mind", "search_reality", "ingest_evidence",
       "audit_rules", "vector_memory", "simulate_heart", "critique_thought",
       "check_vital", "apex_judge", "eureka_forge", "seal_vault", "metabolic_loop"
@@ -390,9 +392,9 @@ Previous iterations killed AI exploration if an early thought violated a floor. 
 
 ---
 
-## 🔌 The 13 Canonical MCP Tools
+## 🔌 Historical 13-Tool MCP Surface
 
-arifOS exposes exactly **13 tools** — no more, no less. The count is a runtime assertion: `assert len(AAA_CANONICAL_TOOLS) == 13`.
+Historically, arifOS exposed exactly **13 tools** in the earlier AAA profile. The current public/main contract is the generated 8-tool surface.
 
 | Tool | Band | Action | Function | Primary Floors |
 |------|------|--------|----------|----------------|
@@ -431,7 +433,7 @@ arifOS is available as a typed npm package for use in any TypeScript or JavaScri
 
 ```bash
 npm install @arifos/mcp
-# v0.3.0 — mirrors 13 canonical tools
+# v0.3.0 — historical 13-tool mirror
 ```
 
 ```typescript
@@ -468,7 +470,7 @@ const governedTool = new ArifOSGovernanceTool({
 });
 ```
 
-The TypeScript SDK exports full types — `ArifOSToolName`, `Verdict`, `ArifOSMCPClient`, `ConstitutionalFloor`. All 13 canonical tool names are compile-time checked.
+The TypeScript SDK exports full types — `ArifOSToolName`, `Verdict`, `ArifOSMCPClient`, `ConstitutionalFloor`. Earlier versions mirrored the 13-tool surface; current public integrations should follow the generated 8-tool contract.
 
 ---
 
@@ -589,7 +591,7 @@ The production server is always running. Point your MCP client directly:
 https://arifosmcp.arif-fazil.com/mcp
 ```
 
-No API key required. All 13 tools live.
+Historical note: the earlier public surface exposed 13 tools. The current public/main contract exposes 8.
 
 ---
 
@@ -597,7 +599,7 @@ No API key required. All 13 tools live.
 
 | Resource | Status |
 |----------|--------|
-| **MCP Server** | `healthy` — 13 tools, streamable-http |
+| **MCP Server** | historical snapshot — 13 tools, streamable-http |
 | **Containers** | 12/12 running — arifosmcp, postgres, redis, qdrant, grafana, n8n, traefik, ollama, openclaw, webhook, headless_browser, prometheus |
 | **Test Suite** | 437+ passing, 39%+ coverage |
 | **npm** | `@arifos/mcp@0.3.0` (latest) |

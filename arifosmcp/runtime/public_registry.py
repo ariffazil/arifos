@@ -44,6 +44,14 @@ class ResourceSpec:
     description: str
 
 
+@dataclass(frozen=True)
+class CompatibilitySpec:
+    legacy_name: str
+    public_route: str
+    status: str
+    notes: str
+
+
 @lru_cache(maxsize=1)
 def _read_pyproject() -> dict[str, Any]:
     return tomllib.loads(PYPROJECT_PATH.read_text(encoding="utf-8"))
@@ -256,7 +264,7 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
     ),
 )
 
-NON_CHATGPT_EXTRA_TOOL_NAMES: tuple[str, ...] = (
+INTERNAL_STAGE_TOOL_NAMES: tuple[str, ...] = (
     "init_anchor_state",
     "integrate_analyze_reflect",
     "reason_mind_synthesis",
@@ -265,6 +273,137 @@ NON_CHATGPT_EXTRA_TOOL_NAMES: tuple[str, ...] = (
     "quantum_eureka_forge",
     "apex_judge_verdict",
     "seal_vault_commit",
+)
+
+NON_CHATGPT_EXTRA_TOOL_NAMES: tuple[str, ...] = INTERNAL_STAGE_TOOL_NAMES
+
+PUBLIC_COMPATIBILITY_SPECS: tuple[CompatibilitySpec, ...] = (
+    CompatibilitySpec(
+        legacy_name="anchor_session",
+        public_route="bootstrap_identity",
+        status="removed",
+        notes="Explicit onboarding moved to bootstrap_identity; one-call governed work moved to arifOS_kernel.",
+    ),
+    CompatibilitySpec(
+        legacy_name="reason_mind",
+        public_route="arifOS_kernel",
+        status="removed",
+        notes="Reasoning is now internal to the kernel pipeline rather than a separate public step.",
+    ),
+    CompatibilitySpec(
+        legacy_name="recall_memory",
+        public_route="session_memory",
+        status="removed",
+        notes="Public memory access is exposed only through session_memory operations.",
+    ),
+    CompatibilitySpec(
+        legacy_name="vector_memory",
+        public_route="session_memory",
+        status="removed",
+        notes="Public memory operations were consolidated under session_memory.",
+    ),
+    CompatibilitySpec(
+        legacy_name="simulate_heart",
+        public_route="arifOS_kernel",
+        status="internal",
+        notes="Heart analysis is still executed, but only as an internal kernel stage.",
+    ),
+    CompatibilitySpec(
+        legacy_name="critique_thought",
+        public_route="arifOS_kernel",
+        status="internal",
+        notes="Critique remains available only inside the governed pipeline.",
+    ),
+    CompatibilitySpec(
+        legacy_name="eureka_forge",
+        public_route="arifOS_kernel",
+        status="internal",
+        notes="Forge behavior is policy-gated inside the kernel; no standalone public tool.",
+    ),
+    CompatibilitySpec(
+        legacy_name="apex_judge",
+        public_route="arifOS_kernel",
+        status="internal",
+        notes="Judgment is emitted by the kernel envelope rather than a public standalone step.",
+    ),
+    CompatibilitySpec(
+        legacy_name="seal_vault",
+        public_route="arifOS_kernel",
+        status="internal",
+        notes="Vault sealing remains internal/dev-only and is not part of the public model-facing contract.",
+    ),
+    CompatibilitySpec(
+        legacy_name="fetch_content",
+        public_route="ingest_evidence",
+        status="removed",
+        notes="Evidence intake is consolidated under ingest_evidence.",
+    ),
+    CompatibilitySpec(
+        legacy_name="inspect_file",
+        public_route="ingest_evidence",
+        status="removed",
+        notes="Public file/document intake is consolidated under ingest_evidence.",
+    ),
+    CompatibilitySpec(
+        legacy_name="metabolic_loop",
+        public_route="arifOS_kernel",
+        status="deprecated",
+        notes="Use arifOS_kernel as the only supported public kernel name.",
+    ),
+    CompatibilitySpec(
+        legacy_name="metabolic_loop_router",
+        public_route="arifOS_kernel",
+        status="deprecated",
+        notes="Legacy internal alias retained only for compatibility profiles.",
+    ),
+    CompatibilitySpec(
+        legacy_name="init_anchor_state",
+        public_route="bootstrap_identity",
+        status="internal",
+        notes="Stage tool remains available only in internal/dev profiles.",
+    ),
+    CompatibilitySpec(
+        legacy_name="integrate_analyze_reflect",
+        public_route="arifOS_kernel",
+        status="internal",
+        notes="Stage tool remains available only in internal/dev profiles.",
+    ),
+    CompatibilitySpec(
+        legacy_name="reason_mind_synthesis",
+        public_route="arifOS_kernel",
+        status="internal",
+        notes="Stage tool remains available only in internal/dev profiles.",
+    ),
+    CompatibilitySpec(
+        legacy_name="assess_heart_impact",
+        public_route="arifOS_kernel",
+        status="internal",
+        notes="Stage tool remains available only in internal/dev profiles.",
+    ),
+    CompatibilitySpec(
+        legacy_name="critique_thought_audit",
+        public_route="arifOS_kernel",
+        status="internal",
+        notes="Stage tool remains available only in internal/dev profiles.",
+    ),
+    CompatibilitySpec(
+        legacy_name="quantum_eureka_forge",
+        public_route="arifOS_kernel",
+        status="internal",
+        notes="Stage tool remains available only in internal/dev profiles.",
+    ),
+    CompatibilitySpec(
+        legacy_name="apex_judge_verdict",
+        public_route="arifOS_kernel",
+        status="internal",
+        notes="Stage tool remains available only in internal/dev profiles.",
+    ),
+    CompatibilitySpec(
+        legacy_name="seal_vault_commit",
+        public_route="arifOS_kernel",
+        status="internal",
+        notes="Stage tool remains available only in internal/dev profiles.",
+    ),
 )
 
 PUBLIC_PROMPT_SPECS: tuple[PromptSpec, ...] = (
@@ -394,7 +533,7 @@ def tool_names_for_profile(profile: str) -> tuple[str, ...]:
     normalized = profile.strip().lower() or "full"
     if normalized in {"chatgpt", "agnostic_public"}:
         return public_tool_names()
-    return public_tool_names() + NON_CHATGPT_EXTRA_TOOL_NAMES
+    return public_tool_names() + INTERNAL_STAGE_TOOL_NAMES
 
 
 def deployment_tool_contract(profile: str) -> tuple[int, tuple[str, ...]]:
@@ -424,6 +563,96 @@ def public_resource_uris() -> list[str]:
 
 def public_prompt_names() -> tuple[str, ...]:
     return tuple(spec.name for spec in PUBLIC_PROMPT_SPECS)
+
+
+def public_compatibility_specs() -> tuple[CompatibilitySpec, ...]:
+    return PUBLIC_COMPATIBILITY_SPECS
+
+
+def build_public_contract_markdown() -> str:
+    lines: list[str] = [
+        "---",
+        "id: public-contract",
+        "title: Public Contract",
+        "slug: /public-contract",
+        "description: Auto-generated arifOS public MCP contract for model-agnostic clients.",
+        "---",
+        "",
+        "<!-- AUTO-GENERATED: edit arifosmcp/runtime/public_registry.py and rerun scripts/generate_public_contract_docs.py -->",
+        "",
+        "# Public Contract",
+        "",
+        f"Runtime version: `{release_version_label()}`",
+        "",
+        "This page is generated from `arifosmcp.runtime.public_registry`. It is the only supported public/main MCP contract for model-agnostic clients.",
+        "",
+        "## Public MCP Contract",
+        "",
+        f"- Public tools: `{len(PUBLIC_TOOL_SPECS)}`",
+        f"- Protocol: `{MCP_PROTOCOL_VERSION}`",
+        "- Transports: `http`, `stdio`",
+        "- Public profile: `chatgpt` / `agnostic_public`",
+        "",
+        "### Public Tools",
+        "",
+        "| Tool | Stage | Role | Read-only | Description |",
+        "|------|-------|------|-----------|-------------|",
+    ]
+    for spec in PUBLIC_TOOL_SPECS:
+        readonly = "yes" if spec.readonly else "no"
+        lines.append(
+            f"| `{spec.name}` | `{spec.stage}` | {spec.role} | {readonly} | {spec.description} |"
+        )
+    lines.extend(
+        [
+            "",
+            "### Internal / Dev-only Stage Tools",
+            "",
+            "These tools are available only in internal/dev-style profiles. They are not part of the public model-facing contract and should not be treated as stable external API.",
+            "",
+            "| Tool | Status |",
+            "|------|--------|",
+        ]
+    )
+    for tool_name in INTERNAL_STAGE_TOOL_NAMES:
+        lines.append(f"| `{tool_name}` | internal/dev-only |")
+    lines.extend(
+        [
+            "",
+            "### Compatibility Mapping",
+            "",
+            "| Legacy name | New public route | Status | Notes |",
+            "|-------------|------------------|--------|-------|",
+        ]
+    )
+    for spec in PUBLIC_COMPATIBILITY_SPECS:
+        lines.append(
+            f"| `{spec.legacy_name}` | `{spec.public_route}` | `{spec.status}` | {spec.notes} |"
+        )
+    lines.extend(
+        [
+            "",
+            "### Prompts",
+            "",
+            "| Prompt | Target tool |",
+            "|--------|-------------|",
+        ]
+    )
+    for spec in PUBLIC_PROMPT_SPECS:
+        lines.append(f"| `{spec.name}` | `{spec.target_tool}` |")
+    lines.extend(
+        [
+            "",
+            "### Resources",
+            "",
+            "| Resource | Description |",
+            "|----------|-------------|",
+        ]
+    )
+    for spec in PUBLIC_RESOURCE_SPECS:
+        lines.append(f"| `{spec.uri}` | {spec.description} |")
+    lines.append("")
+    return "\n".join(lines)
 
 
 def build_server_json(public_base_url: str = DEFAULT_PUBLIC_BASE_URL) -> dict[str, Any]:

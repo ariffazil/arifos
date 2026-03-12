@@ -235,6 +235,7 @@ async def metabolic_loop(
                 session_id=current_session_id,
                 governance={"actor_id": "anonymous", "stakes_class": stakes_class},
                 caller_context=caller_context,
+                dry_run=dry_run,
             )
             auth_ctx = _extract_auth_context(init_res)
             caller_ctx = _extract_caller_context(init_res, caller_context)
@@ -351,6 +352,7 @@ async def metabolic_loop(
                 "authority": policy_res.authority.model_dump(mode="json"),
                 "final_verdict": "AUTH_FAIL" if init_failed else policy_verdict.value,
                 "auth_state": auth_state,
+                "auth_context": auth_ctx,
                 "grounding": reality_summary,
                 "vault_seal": trace.get(Stage.VAULT_999.value) == Verdict.SEAL.value,
                 "caller_context": _dump_caller_context(caller_ctx),

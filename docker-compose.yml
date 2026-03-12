@@ -200,7 +200,7 @@ services:
       - /opt/arifos/data/openclaw:/root/.openclaw
       - /opt/arifos/data/openclaw/bin:/root/.local/bin
       - /opt/arifos/data/openclaw/npm-global:/root/.npm-global
-      - /srv/arifOS:/mnt/arifos:rw
+      - /srv/arifosmcp:/mnt/arifos:rw
       - /opt/arifos/APEX-THEORY:/mnt/apex:rw
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /usr/bin/docker:/usr/bin/docker:ro
@@ -276,6 +276,7 @@ services:
         required: false
     volumes:
       - /opt/arifos/data/core:/usr/src/app/data:rw
+      - /opt/arifos/secrets:/opt/arifos/secrets:ro
       - arifosmcp_telemetry:/usr/src/app/telemetry:rw
       - arifosmcp_vault:/usr/src/app/VAULT999:rw
       - arifosmcp_memory:/usr/src/app/memory:rw
@@ -291,7 +292,10 @@ services:
       AGENT_ZERO_URL: http://agent-zero:80
       DASHBOARD_ENABLED: "true"
       AAA_MCP_TRANSPORT: http
-      ARIFOS_GOVERNANCE_SECRET: ${ARIFOS_GOVERNANCE_SECRET}
+      ARIFOS_GOVERNANCE_SECRET_FILE: ${ARIFOS_GOVERNANCE_SECRET_FILE:-}
+      ARIFOS_GOVERNANCE_SECRET: ${ARIFOS_GOVERNANCE_SECRET:-}
+      ARIFOS_GOVERNANCE_SECRET_PREVIOUS_FILE: ${ARIFOS_GOVERNANCE_SECRET_PREVIOUS_FILE:-}
+      ARIFOS_GOVERNANCE_SECRET_PREVIOUS: ${ARIFOS_GOVERNANCE_SECRET_PREVIOUS:-}
       ARIFOS_PUBLIC_TOOL_PROFILE: ${ARIFOS_PUBLIC_TOOL_PROFILE:-chatgpt}
       ARIFOS_MCP_PATH: ${ARIFOS_MCP_PATH:-/mcp}
       UVICORN_WORKERS: ${UVICORN_WORKERS:-1}
@@ -353,7 +357,7 @@ services:
       - '--web.enable-lifecycle'
       - '--log.level=warn'
     volumes:
-      - /srv/arifOS/infrastructure/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - /srv/arifosmcp/infrastructure/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - /opt/arifos/data/prometheus:/prometheus
     networks:
       - arifos_trinity
@@ -387,7 +391,7 @@ services:
       GF_ANALYTICS_REPORTING_ENABLED: "false"
     volumes:
       - /opt/arifos/data/grafana:/var/lib/grafana
-      - /srv/arifOS/infrastructure/grafana/datasources/prometheus.yml:/etc/grafana/provisioning/datasources/prometheus.yml:ro
+      - /srv/arifosmcp/infrastructure/grafana/datasources/prometheus.yml:/etc/grafana/provisioning/datasources/prometheus.yml:ro
     networks:
       - arifos_trinity
     labels:
@@ -461,9 +465,9 @@ services:
     init: true
     command: ["-verbose", "-hooks=/etc/webhook/hooks.json", "-hotreload"]
     volumes:
-      - /srv/arifOS/deployment/hooks.json:/etc/webhook/hooks.json:ro
-      - /srv/arifOS/infrastructure/deploy_from_git.sh:/var/scripts/deploy_from_git.sh:ro
-      - /srv/arifOS:/usr/src/app:rw
+      - /srv/arifosmcp/deployment/hooks.json:/etc/webhook/hooks.json:ro
+      - /srv/arifosmcp/infrastructure/deploy_from_git.sh:/var/scripts/deploy_from_git.sh:ro
+      - /srv/arifosmcp:/usr/src/app:rw
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /usr/bin/docker:/usr/bin/docker:ro
       - /usr/libexec/docker:/usr/libexec/docker:ro

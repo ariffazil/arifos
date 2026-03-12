@@ -2,7 +2,7 @@
 
 Public naming is semantic-first. The authoritative external execution name is `arifOS_kernel`.
 
-## Public Interface Tools (7)
+## Public Interface Tools (8)
 
 1. `arifOS_kernel` - core constitutional intelligence engine and execution authority.
 2. `search_reality` - external fact discovery and grounding.
@@ -11,13 +11,14 @@ Public naming is semantic-first. The authoritative external execution name is `a
 5. `audit_rules` - governance floors and constitutional rule inspection.
 6. `check_vital` - runtime health, telemetry, and status.
 7. `open_apex_dashboard` - observability and sovereign monitoring surface.
+8. `bootstrap_identity` - explicit onboarding and identity declaration.
 
-Legacy compatibility:
+Compatibility-only aliases:
 - legacy internal alias: `metabolic_loop_router`
 - legacy public alias: `arifOS.kernel`
 - canonical semantic name: `arifOS_kernel`
 
-## Internal Execution Stack (10)
+## Internal / Dev-only Stage Tools
 
 1. init_anchor_state (000)
 2. integrate_analyze_reflect (111)

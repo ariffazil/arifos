@@ -1,95 +1,73 @@
 /**
- * @arifos/mcp — Main Entry Point
- * 
- * Constitutional AI Governance System — TypeScript Client Adapter
- * 
- * L2 Skills Layer: Cable, not Kernel.
- * Governance authority resides in PyPI arifos package ONLY.
- * 
- * @packageDocumentation
- * @module @arifos/mcp
+ * @arifos/mcp - Main Entry Point
+ *
+ * Public 8-tool MCP client adapter for model-agnostic integrations.
  */
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// Core Exports
-// ═══════════════════════════════════════════════════════════════════════════════
-
 export {
-  // Client factory
   createClient,
   quickConnect,
-  // Types from client
   type ArifOSMCPClient,
   type Transport,
-} from './client.js';
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// Type Exports
-// ═══════════════════════════════════════════════════════════════════════════════
+} from "./client.js";
 
 export {
-  // Verdicts
+  PUBLIC_STAGES,
+  PUBLIC_TOOL_METADATA,
+  PUBLIC_TOOL_NAMES,
+  type ArifOSClientConfig,
+  type ArifOSKernelInput,
+  type ArifOSMetadata,
+  type ArifOSToolName,
+  type ArifOSTransport,
+  type AuthContext,
+  type AuditRulesInput,
+  type BootstrapIdentityInput,
+  type CheckVitalInput,
+  type FloorCode,
+  type IngestEvidenceInput,
+  type OpenApexDashboardInput,
+  type PublicToolDefinition,
+  type RuntimeAuthority,
+  type RuntimeEnvelope,
+  type RuntimeErrorEntry,
+  type RuntimeMeta,
+  type RuntimeMetrics,
+  type RuntimeStatus,
+  type RuntimeTrace,
+  type SearchRealityInput,
+  type SessionMemoryInput,
+  type Stage,
+  type ToolInputMap,
+  type ToolMeta,
+  type ToolPayloadMap,
   type Verdict,
   type VerdictEnvelope,
-  
-  // Floors
-  type FloorCode,
-  type FloorType,
-  type FloorResult,
-  FLOOR_TYPES,
-  
-  // Stages
-  type Stage,
-  type StageMeta,
-  STAGE_METADATA,
-  
-  // Truth & Evidence
-  type TruthClaim,
-  type Evidence,
-  type Source,
-  
-  // Session & Config
-  type ArifOSMetadata,
-  type ArifOSClientConfig,
-  
-  // Tools
-  type ArifOSToolName,
-  type ToolMeta,
-  
-  // Errors
-  type ArifOSErrorCode,
   ArifOSError,
-} from './types.js';
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// Version
-// ═══════════════════════════════════════════════════════════════════════════════
+  isPublicToolName,
+} from "./types.js";
 
 /**
  * Package version.
- * 0.4.0 — Dynamic Metabolic Routing (Stage 444) + 000→999 sequential lifecycle
+ * 0.5.0 - public contract narrowed to the 8 canonical model-facing tools.
  */
-export const VERSION = '0.4.0';
+export const VERSION = "0.5.0";
 
 /**
- * Compatible arifOS PyPI versions.
+ * Compatible runtime labels.
  */
 export const ARIFOS_COMPATIBILITY = [
-  '2026.2.17',    // Canonical stable
-  '2026.2.28',    // Published
-  '2026.3.1',     // Dev/Sync
-  '2026.3.7',     // ARCH-SEAL (13 tools verified)
-  '2026.3.10',    // Current — METABOLIC-ROUTER-SEAL
+  "2026.03.10-FORGED",
+  "2026.03.12-FORGED",
 ] as const;
 
 /**
- * Canonical arifOS MCP server endpoints.
+ * Canonical public endpoints.
  */
 export const ENDPOINTS = {
-  /** Official VPS endpoint */
-  VPS: 'https://arifosmcp.arif-fazil.com/mcp',
-  /** Health check endpoint */
-  HEALTH: 'https://arifosmcp.arif-fazil.com/health',
-  /** SSE fallback */
-  SSE: 'https://arifosmcp.arif-fazil.com/sse',
+  VPS: "https://arifosmcp.arif-fazil.com/mcp",
+  HEALTH: "https://arifosmcp.arif-fazil.com/health",
+  DISCOVERY: "https://arifosmcp.arif-fazil.com/.well-known/mcp/server.json",
+  DASHBOARD: "https://arifosmcp.arif-fazil.com/dashboard/",
+  DOCS: "https://arifos.arif-fazil.com/public-contract",
 } as const;

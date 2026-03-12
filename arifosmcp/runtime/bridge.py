@@ -9,16 +9,19 @@ DITEMPA BUKAN DIBERI — Forged, Not Given
 
 import json
 import logging
-from datetime import datetime, timezone
+import time
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any
+
+from pydantic import ValidationError
 
 from arifosmcp.intelligence.tools.reality_grounding import open_web_page, reality_check
 from arifosmcp.runtime.contracts import REQUIRES_SESSION
 from core.enforcement.auth_continuity import mint_auth_context, verify_auth_context_cached
 from core.enforcement.governance_engine import wrap_tool_output
-from core.organs._4_vault import verify_vault_ledger
 from core.organs import agi, apex, asi, init, vault
+from core.organs._4_vault import verify_vault_ledger
 
 from .models import Verdict
 
@@ -123,19 +126,19 @@ def _auth_failure_envelope(
 
 
 def _requires_explicit_kernel_auth(payload: dict[str, Any]) -> bool:
-    """
-    Decide whether arifOS_kernel must reject missing auth_context at the bridge.
+    """Decide whether arifOS_kernel must reject missing auth_context."""
+    from core.enforcement.auth_continuity import _env_flag
 
-    Model-agnostic policy:
-    - Allow low/medium non-executing first calls to auto-bootstrap through 000_INIT.
-    - Require explicit continuity for execution-capable or high/critical requests.
-    """
-    risk_tier = str(payload.get("risk_tier", "medium") or "medium").strip().lower()
-    allow_execution = bool(payload.get("allow_execution", False))
+    # In open mode (dev), we allow auto-bootstrap
+    if _env_flag("ARIFOS_GOVERNANCE_OPEN_MODE"):
+        risk_tier = str(payload.get("risk_tier", "medium") or "medium").strip().lower()
+        allow_execution = bool(payload.get("allow_execution", False))
+        if allow_execution:
+            return True
+        return risk_tier not in AUTO_BOOTSTRAP_RISK_TIERS
 
-    if allow_execution:
-        return True
-    return risk_tier not in AUTO_BOOTSTRAP_RISK_TIERS
+    # In hardened mode, everything requires explicit auth
+    return True
 
 
 def _trace_replay_envelope(
@@ -158,19 +161,13 @@ def _trace_replay_envelope(
             }
         )
 
-    verdict_map = {
-        "SUCCESS": "SEAL",
-        "NO_DATA": "PARTIAL",
-        "TAMPERED": "VOID",
-        "ERROR": "VOID",
-    }
     return {
         "ok": ok,
         "tool": "trace_replay",
         "session_id": session_id,
         "stage": "999_VAULT",
-        "verdict": verdict_map.get(replay_status, "SABAR"),
-        "status": "ERROR" if replay_status in {"ERROR", "TAMPERED"} else "SUCCESS",
+        "verdict": "SEAL" if ok else "VOID",
+        "status": "ERROR" if not ok else "SUCCESS",
         "metrics": {},
         "trace": {},
         "authority": {
@@ -187,11 +184,7 @@ def _trace_replay_envelope(
             "entries": entries,
         },
         "errors": errors,
-        "meta": {
-            "schema_version": "1.0.0",
-            "debug": False,
-            "dry_run": False,
-        },
+        "meta": {"schema_version": "1.0.0", "debug": False, "dry_run": False},
     }
 
 
@@ -200,14 +193,20 @@ async def call_kernel(
     session_id: str,
     payload: dict[str, Any],
 ) -> dict[str, Any]:
-    """
-    Route a tool call through the 7-Organ Sovereign Stack.
-    Supports the 10-tool APEX-G naming convention.
-    """
+
+    from arifosmcp.runtime.models import CallerContext as _CallerContext
+    from core.governance_kernel import get_governance_kernel
+    from core.shared.types import GovernanceMetadata, Intent, MathDials, TemporalContract
+    from core.governance_kernel import get_governance_kernel
+    from core.shared.types import GovernanceMetadata, Intent, MathDials, TemporalContract
+
     canonical_name = TOOL_MAP.get(tool_name, tool_name)
     claimed_actor_id = _resolve_claimed_actor_id(payload)
 
-    # 1. Verification of Continuity (F11)
+    t_start = time.perf_counter()
+    now_utc = datetime.now(timezone.utc)
+    valid_until = now_utc + timedelta(minutes=15)
+
     auth_ctx = payload.get("auth_context")
     if canonical_name == "metabolic_loop":
         if not auth_ctx:
@@ -215,37 +214,23 @@ async def call_kernel(
                 return _auth_failure_envelope(
                     tool=canonical_name,
                     session_id=session_id,
-                    error_message=(
-                        "F11: High-risk or execution-capable kernel calls require "
-                        "auth_context. Run init_anchor_state first."
-                    ),
+                    error_message="F11: High-risk kernel calls require auth_context.",
                     claimed_actor_id=claimed_actor_id,
                     identity_claim_status="UNVERIFIED_CLAIM",
-                    identity_reason=(
-                        "Auto-bootstrap is allowed only for low/medium non-executing "
-                        "kernel calls."
-                    ),
-                    resolved_actor_id="anonymous",
-                    next_action_reason=(
-                        "Establish continuity with init_anchor_state, then retry the "
-                        "kernel call with the returned auth_context."
-                    ),
+                    identity_reason="Auto-bootstrap not allowed for high-risk.",
+                    next_action_reason="Run init_anchor_state first.",
                 )
         else:
             valid, reason = verify_auth_context_cached(session_id, auth_ctx)
             if not valid:
-                resolved_actor_id = str(auth_ctx.get("actor_id", "anonymous") or "anonymous")
                 return _auth_failure_envelope(
                     tool=canonical_name,
                     session_id=session_id,
-                    error_message=f"F11: Authentication continuity failed: {reason}",
+                    error_message=f"F11: Continuity failed: {reason}",
                     claimed_actor_id=claimed_actor_id,
                     identity_claim_status="INVALID_AUTH_CONTEXT",
                     identity_reason=reason,
-                    resolved_actor_id=resolved_actor_id,
-                    next_action_reason=(
-                        "Refresh continuity state and attach the newly minted auth_context."
-                    ),
+                    next_action_reason="Refresh continuity state.",
                 )
 
     elif canonical_name in REQUIRES_SESSION:
@@ -253,37 +238,26 @@ async def call_kernel(
             return _auth_failure_envelope(
                 tool=canonical_name,
                 session_id=session_id,
-                error_message=(
-                    "F11: Missing auth_context for continuity. "
-                    "Run init_anchor_state first."
-                ),
+                error_message="F11: Missing auth_context.",
                 claimed_actor_id=claimed_actor_id,
                 identity_claim_status="UNVERIFIED_CLAIM",
-                identity_reason="No auth_context supplied for continuity.",
-                resolved_actor_id="anonymous",
-                next_action_reason="Establish continuity and mint auth_context before retrying.",
+                identity_reason="No auth_context.",
+                next_action_reason="Run init_anchor_state first.",
             )
-
         valid, reason = verify_auth_context_cached(session_id, auth_ctx)
         if not valid:
-            resolved_actor_id = str(auth_ctx.get("actor_id", "anonymous") or "anonymous")
             return _auth_failure_envelope(
                 tool=canonical_name,
                 session_id=session_id,
-                error_message=f"F11: Authentication continuity failed: {reason}",
+                error_message=f"F11: Continuity failed: {reason}",
                 claimed_actor_id=claimed_actor_id,
                 identity_claim_status="INVALID_AUTH_CONTEXT",
                 identity_reason=reason,
-                resolved_actor_id=resolved_actor_id,
-                next_action_reason=(
-                    "Refresh continuity state and attach the newly minted auth_context."
-                ),
+                next_action_reason="Refresh continuity state.",
             )
 
-    # 1.5. Early Exit for Grounding Utilities
     if canonical_name == "search_reality":
-        query = payload.get("query", "")
-        res = await reality_check(query=query)
+        res = await reality_check(query=payload.get("query", ""))
         return wrap_tool_output(canonical_name, res)
     if canonical_name == "ingest_evidence":
         res = await open_web_page(url=payload.get("source_url", ""))
@@ -296,78 +270,41 @@ async def call_kernel(
             max_entries = 20
 
         if not DEFAULT_VAULT_PATH.exists():
-            return _trace_replay_envelope(
-                session_id=session_id,
-                replay_status="NO_DATA",
-                entries=[],
-                message="No vault ledger found for replay.",
-            )
+            return _trace_replay_envelope(session_id, "NO_DATA", [])
 
         integrity_ok, integrity_reason = verify_vault_ledger(DEFAULT_VAULT_PATH)
         if not integrity_ok:
-            logger.warning("trace_replay blocked by vault integrity failure: %s", integrity_reason)
-            return _trace_replay_envelope(
-                session_id=session_id,
-                replay_status="TAMPERED",
-                entries=[],
-                message="Vault integrity verification failed.",
-                error=integrity_reason,
-            )
+            return _trace_replay_envelope(session_id, "TAMPERED", [], error=integrity_reason)
 
         replay_entries: list[dict[str, Any]] = []
         try:
-            with open(DEFAULT_VAULT_PATH, encoding="utf-8") as ledger_file:
-                for line in ledger_file:
+            with open(DEFAULT_VAULT_PATH, encoding="utf-8") as f:
+                for line in f:
                     row = line.strip()
                     if not row:
                         continue
-                    try:
-                        parsed = json.loads(row)
-                    except json.JSONDecodeError:
-                        continue
-                    if parsed.get("session_id") != session_id:
-                        continue
-                    telemetry = parsed.get("telemetry", {})
-                    trace = telemetry.get("trace") if isinstance(telemetry, dict) else None
-                    if not isinstance(trace, dict):
-                        continue
-                    replay_entries.append(
-                        {
-                            "session_id": parsed.get("session_id"),
-                            "verdict": parsed.get("verdict"),
-                            "summary": parsed.get("summary"),
-                            "timestamp": parsed.get("timestamp"),
-                            "reality": telemetry.get("reality", {}),
-                            "trace": trace,
-                            "seal_hash": parsed.get("seal_hash"),
-                        }
-                    )
-        except OSError as exc:
-            logger.warning("trace_replay failed reading vault: %s", exc)
-            return _trace_replay_envelope(
-                session_id=session_id,
-                replay_status="ERROR",
-                entries=[],
-                message=f"Vault read failed: {exc}",
-                error=str(exc),
-            )
+                    parsed = json.loads(row)
+                    if parsed.get("session_id") == session_id:
+                        replay_entries.append(parsed)
+        except Exception as exc:
+            return _trace_replay_envelope(session_id, "ERROR", [], error=str(exc))
 
-        replay_entries = replay_entries[-max_entries:]
-        return _trace_replay_envelope(
-            session_id=session_id,
-            replay_status="SUCCESS",
-            entries=replay_entries,
-        )
+        return _trace_replay_envelope(session_id, "SUCCESS", replay_entries[-max_entries:])
 
-    # 2. Kernel Execution Logic
     try:
         query_input = payload.get("query", "")
         actor_id = payload.get("actor_id", "anonymous")
         result: Any = {}
 
-        if canonical_name == "anchor_session":
-            from core.shared.types import GovernanceMetadata, Intent, MathDials
+        caller_ctx_data = payload.get("caller_context")
+        caller_ctx_obj = None
+        if caller_ctx_data:
+            try:
+                caller_ctx_obj = _CallerContext.model_validate(caller_ctx_data)
+            except ValidationError:
+                caller_ctx_obj = None
 
+        if canonical_name == "anchor_session":
             intent = (
                 Intent(**payload.get("intent", {}))
                 if payload.get("intent")
@@ -379,75 +316,52 @@ async def call_kernel(
                 if payload.get("governance")
                 else GovernanceMetadata(actor_id=actor_id)
             )
-
             res = await init(
                 query=intent,
                 actor_id=gov,
                 math_dials=math,
                 auth_token=payload.get("auth_token"),
                 session_id=session_id,
+                caller_context=caller_ctx_obj,
             )
             result = res.model_dump(mode="json")
-
             if res.verdict != Verdict.VOID:
                 result["auth_context"] = mint_auth_context(
                     session_id=res.session_id,
                     actor_id=res.governance.actor_id,
-                    token_fingerprint="sha256:...",
-                    approval_scope=["reason_mind", "simulate_heart", "eureka_forge", "seal_vault"],
+                    token_fingerprint="sha256:initialized",
+                    approval_scope=["*"],
                     parent_signature="",
+                    authority_level=res.governance.authority_level,
                 )
-                result["auth_context"]["math"] = math.model_dump(mode="json")
-                result["auth_context"]["authority_level"] = res.governance.authority_level
 
         elif canonical_name == "reason_mind":
-            action = "framing" if tool_name == "integrate_analyze_reflect" else "full"
             result = await agi(
                 query=query_input,
                 session_id=session_id,
-                action=action,
+                action=payload.get("action", "full"),
                 reason_mode=payload.get("reason_mode", "default"),
                 max_steps=payload.get("max_steps", 7),
                 auth_context=auth_ctx,
             )
 
-        elif canonical_name == "vector_memory":
+        elif canonical_name in ("vector_memory", "session_memory"):
             result = await vault(
                 operation=payload.get("operation", "search"),
                 session_id=session_id,
-                content=payload.get("content") or payload.get("query"),
-                memory_ids=payload.get("memory_ids"),
-                top_k=payload.get("top_k", 5),
-                auth_context=auth_ctx,
-            )
-
-        elif canonical_name == "session_memory":
-            requested_operation = str(payload.get("operation", "retrieve")).strip().lower()
-            operation_map = {
-                "retrieve": "search",
-                "recall": "recall",
-                "search": "search",
-                "store": "store",
-                "forget": "forget",
-            }
-            memory_operation = operation_map.get(requested_operation, "search")
-            result = await vault(
-                operation=memory_operation,
-                session_id=session_id,
-                content=payload.get("content") or payload.get("query"),
+                content=payload.get("content") or query_input,
                 memory_ids=payload.get("memory_ids"),
                 top_k=payload.get("top_k", 5),
                 auth_context=auth_ctx,
             )
 
         elif canonical_name in ("simulate_heart", "critique_thought"):
-            action = "simulate_heart" if canonical_name == "simulate_heart" else "critique_thought"
             result = await asi(
-                action=action,
+                action=canonical_name,
                 session_id=session_id,
                 scenario=payload.get("scenario") or query_input,
                 thought_id=payload.get("thought_id"),
-                focus=payload.get("focus") or payload.get("critique_focus", "general"),
+                focus=payload.get("focus") or "general",
                 auth_context=auth_ctx,
             )
 
@@ -474,7 +388,7 @@ async def call_kernel(
             result = await vault(
                 operation="seal",
                 session_id=session_id,
-                summary=payload.get("summary") or "Final commit",
+                summary=payload.get("summary"),
                 verdict=payload.get("verdict", "SEAL"),
                 approved_by=payload.get("approved_by"),
                 approval_reference=payload.get("approval_reference"),
@@ -486,20 +400,6 @@ async def call_kernel(
         elif canonical_name == "metabolic_loop":
             from arifosmcp.runtime.orchestrator import metabolic_loop
 
-            # Extract caller_context from payload to pass through
-            caller_ctx_data = payload.get("caller_context")
-            caller_ctx_obj = None
-            if caller_ctx_data:
-                from pydantic import ValidationError
-
-                from arifosmcp.runtime.models import CallerContext as _CallerContext
-
-                try:
-                    caller_ctx_obj = _CallerContext.model_validate(caller_ctx_data)
-                except ValidationError as exc:
-                    logger.warning("caller_context deserialization failed: %s", exc)
-                    caller_ctx_obj = None
-
             result = await metabolic_loop(
                 query=query_input,
                 risk_tier=payload.get("risk_tier", "medium"),
@@ -510,68 +410,42 @@ async def call_kernel(
                 dry_run=bool(payload.get("dry_run", False)),
                 caller_context=caller_ctx_obj,
             )
-
-            canonical_envelope_keys = {
-                "ok",
-                "tool",
-                "session_id",
-                "stage",
-                "verdict",
-                "status",
-                "metrics",
-                "trace",
-                "authority",
-                "payload",
-                "errors",
-                "meta",
-            }
-            if isinstance(result, dict) and canonical_envelope_keys.issubset(result):
-                return result
+            latency_ms = (time.perf_counter() - t_start) * 1000.0
+            contract = TemporalContract(
+                observed_at=now_utc, request_latency_ms=latency_ms, valid_until=valid_until
+            )
+            if isinstance(result, dict) and "meta" in result:
+                result["meta"]["temporal_contract"] = contract.model_dump(mode="json")
+            return result
 
         else:
             result = {"status": "SUCCESS", "message": f"Utility {tool_name} executed."}
 
-        # Normalize result and wrap in Governance Envelope
+        latency_ms = (time.perf_counter() - t_start) * 1000.0
+        contract = TemporalContract(
+            observed_at=now_utc, request_latency_ms=latency_ms, valid_until=valid_until
+        )
+
+        kernel = get_governance_kernel(session_id)
+        kernel.apply_temporal_grounding(contract)
+
         if hasattr(result, "model_dump"):
             result = result.model_dump(mode="json")
 
-        if isinstance(result, dict):
-            verdict_value = result.get("verdict")
-            if hasattr(verdict_value, "value"):
-                result["verdict"] = verdict_value.value
-
-            result.setdefault("session_id", session_id)
-            result.setdefault("stage", payload.get("stage") or "")
-            result.setdefault(
-                "actor_id", actor_id or (auth_ctx.get("actor_id") if auth_ctx else "anonymous")
-            )
-
-            if canonical_name != "anchor_session" and not any(
-                k in result for k in ("evidence", "grounding", "results")
-            ):
-                result["grounding"] = 1.0
-
-            if canonical_name in {"eureka_forge", "apex_judge", "seal_vault"}:
-                for w in ("human_witness", "ai_witness", "earth_witness"):
-                    result.setdefault(w, 1.0)
-
-            if canonical_name == "eureka_forge":
-                result.setdefault("evidence", {"grounding": "Constitutional Forge Logic"})
-            elif canonical_name == "seal_vault":
-                result.setdefault("stage", "999_SEAL")
-
-            if auth_ctx:
-                result["auth_context"] = auth_ctx
-
         envelope = wrap_tool_output(canonical_name, result)
 
-        # Handle Auth Context Rotation
+        if caller_ctx_data and "caller_context" not in envelope:
+            envelope["caller_context"] = caller_ctx_data
+
         if envelope.get("verdict") != "VOID" and canonical_name != "anchor_session" and auth_ctx:
             envelope["auth_context"] = mint_auth_context(
                 session_id=session_id,
                 actor_id=auth_ctx.get("actor_id", "anonymous"),
                 token_fingerprint="sha256:...",
-                approval_scope=["reason_mind", "simulate_heart", "eureka_forge", "seal_vault"],
+                approval_scope=auth_ctx.get(
+                    "approval_scope",
+                    ["reason_mind", "simulate_heart", "eureka_forge", "seal_vault"],
+                ),
                 parent_signature=auth_ctx.get("signature", ""),
             )
             if "math" in auth_ctx:
@@ -579,10 +453,8 @@ async def call_kernel(
         elif canonical_name == "anchor_session" and "auth_context" in result:
             envelope["auth_context"] = result["auth_context"]
 
-        # Propagate caller_context from payload into envelope if not already present
-        caller_ctx_in_payload = payload.get("caller_context")
-        if caller_ctx_in_payload and "caller_context" not in envelope:
-            envelope["caller_context"] = caller_ctx_in_payload
+        if "meta" in envelope and isinstance(envelope["meta"], dict):
+            envelope["meta"]["temporal_contract"] = contract.model_dump(mode="json")
 
         return envelope
 

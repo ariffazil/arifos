@@ -8,6 +8,20 @@ def _env_present(*names: str) -> bool:
     return any(os.getenv(name, "").strip() for name in names)
 
 
+def _secret_file_present(*names: str) -> bool:
+    for name in names:
+        file_path = os.getenv(name, "").strip()
+        if not file_path:
+            continue
+        try:
+            with open(file_path, encoding="utf-8") as handle:
+                if handle.read().strip():
+                    return True
+        except OSError:
+            continue
+    return False
+
+
 def _env_truthy(name: str) -> bool:
     return os.getenv(name, "").strip().lower() in {"1", "true", "yes", "on"}
 
@@ -36,7 +50,10 @@ def build_runtime_capability_map() -> dict[str, Any]:
     open_mode = _env_truthy("ARIFOS_GOVERNANCE_OPEN_MODE")
     if open_mode:
         continuity_signing = "open_dev_mode"
-    elif _env_present("ARIFOS_GOVERNANCE_SECRET", "ARIFOS_GOVERNANCE_TOKEN_SECRET"):
+    elif _secret_file_present(
+        "ARIFOS_GOVERNANCE_SECRET_FILE",
+        "ARIFOS_GOVERNANCE_TOKEN_SECRET_FILE",
+    ) or _env_present("ARIFOS_GOVERNANCE_SECRET", "ARIFOS_GOVERNANCE_TOKEN_SECRET"):
         continuity_signing = "configured"
     else:
         continuity_signing = "ephemeral_process_local"

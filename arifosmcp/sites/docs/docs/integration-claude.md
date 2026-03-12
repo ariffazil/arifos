@@ -13,7 +13,7 @@ Connect **arifOS** to [Claude Desktop](https://www.claude.com/download) via the 
 
 ## Overview
 
-Claude Desktop supports MCP servers through **STDIO transport** for local execution. This integration allows Claude to access arifOS's 13 Constitutional Floors and Trinity governance engines directly on your machine.
+Claude Desktop supports MCP servers through **STDIO transport** for local execution. This integration allows Claude to access arifOS's 13 Constitutional Floors and the unified 8-tool public contract directly on your machine.
 
 :::tip Requirements
 - **Claude Desktop** installed (macOS or Windows)
@@ -107,11 +107,11 @@ If you need additional Python packages for your use case:
 1. **Restart Claude Desktop** completely
 2. Look for the **hammer icon** (🔨) in the bottom-left of the input box
 3. Click it to see available arifOS tools:
-   - `anchor_session` — Start constitutional session
-   - `reason_mind` — Execute reasoning with governance
+   - `bootstrap_identity` — Explicit onboarding
+   - `arifOS_kernel` — Main governed execution entrypoint
    - `search_reality` — Web search with F2 Truth verification
-   - `eureka_forge` — Execute commands with risk classification
-   - ... and 9 more tools
+   - `check_vital` — Health and telemetry
+   - ... plus the remaining public tools
 
 ---
 
@@ -191,9 +191,7 @@ Get free API keys:
 
 ### Governance token errors
 
-`ARIFOS_GOVERNANCE_SECRET` is required for:
-- `seal_vault` tool
-- Critical action confirmation
+`ARIFOS_GOVERNANCE_SECRET` is required for continuity signing and critical action confirmation.
 
 Generate a secret:
 ```bash
@@ -212,7 +210,7 @@ If you want to connect to a remote arifOS server:
 from fastmcp.server import create_proxy
 
 proxy = create_proxy(
-    "https://arifosmcp.arif-fazil.com/sse",
+    "https://arifosmcp.arif-fazil.com/mcp",
     name="arifOS Remote"
 )
 
@@ -226,7 +224,7 @@ if __name__ == "__main__":
 
 ## Next Steps
 
-- [MCP Server Overview](/mcp-server) — Understand the 13 tools
+- [Public Contract](/public-contract) — Understand the 8 public tools
 - [Governance](/governance) — Learn the 13 Constitutional Floors
 - [API Reference](/api) — Complete tool documentation
 
