@@ -10,10 +10,10 @@ on:
       - 'Dockerfile'
       - 'pyproject.toml'
       - 'requirements*.txt'
-      - 'arifosmcp.transport/**'
-      - 'arifosmcp.runtime/**'
+      - 'arifosmcp/transport/**'
+      - 'arifosmcp/runtime/**'
       - 'core/**'
-      - 'arifosmcp.intelligence/**'
+      - 'arifosmcp/intelligence/**'
   release:
     types: [published]
   workflow_dispatch:
