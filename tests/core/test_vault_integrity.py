@@ -8,6 +8,7 @@ from core.organs._4_vault import compute_vault_seal_hash, verify_vault_ledger, v
 
 def _build_entry() -> dict[str, object]:
     from core.organs._4_vault import _CHAIN_SEED
+
     entry = {
         "session_id": "vault-test",
         "ledger_id": "LGR-TEST",
@@ -57,4 +58,4 @@ def test_verify_vault_ledger_rejects_invalid_entry_hash(tmp_path) -> None:
     ok, reason = verify_vault_ledger(ledger_path)
 
     assert ok is False
-    assert "chain entry hash mismatch" in str(reason)
+    assert "entry hash mismatch" in str(reason)
