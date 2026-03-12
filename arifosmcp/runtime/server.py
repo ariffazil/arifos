@@ -20,7 +20,6 @@ import os
 from fastmcp import FastMCP
 from starlette.middleware.cors import CORSMiddleware
 from starlette.staticfiles import StaticFiles
-from prometheus_client import make_asgi_app
 
 from arifosmcp.runtime.fastmcp_ext.transports import (
     _build_http_middleware,
@@ -123,10 +122,6 @@ app.add_middleware(
 _dashboard_dir = os.path.join(os.path.dirname(__file__), "..", "sites", "apex-dashboard")
 if os.path.isdir(_dashboard_dir):
     _mcp_app.mount("/dashboard", StaticFiles(directory=_dashboard_dir, html=True), name="dashboard")
-
-# Add Prometheus metrics endpoint (H1.1 Observability)
-_mcp_app.mount("/metrics", make_asgi_app())
-
 
 def create_aaa_mcp_server() -> FastMCP:
     """Return the fully configured arifOS MCP hub."""

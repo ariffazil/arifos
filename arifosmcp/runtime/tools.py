@@ -25,6 +25,8 @@ from core.shared.mottos import (
     get_motto_for_stage,
 )
 from core.state.session_manager import session_manager
+from core.physics.thermodynamics_hardened import get_thermodynamic_report
+from core.telemetry import check_adaptation_status, get_current_hysteresis
 
 from .bridge import call_kernel
 
@@ -690,7 +692,34 @@ async def audit_rules(session_id: str = "global", ctx: Context | None = None) ->
 
 async def check_vital(session_id: str = "global", ctx: Context | None = None) -> RuntimeEnvelope:
     """Kernel health monitor. Reports system health, metrics, and constitutional vitality."""
-    return await _wrap_call("check_vital", Stage.INIT_000, session_id, {}, ctx)
+    session_id = _normalize_session_id(session_id)
+    envelope = await _wrap_call("check_vital", Stage.INIT_000, session_id, {}, ctx)
+
+    # Enhance payload with real-time thermo-budget and telemetry (H1.1)
+    try:
+        from core.physics.thermodynamics_hardened import ThermodynamicViolation
+        try:
+            thermo_report = get_thermodynamic_report(session_id)
+        except ThermodynamicViolation:
+            thermo_report = {"status": "no_active_budget", "note": "Session has not initialized thermodynamics."}
+            
+        adaptation = check_adaptation_status()
+        hysteresis = get_current_hysteresis()
+
+        envelope.payload.update(
+            {
+                "thermodynamic_vitality": thermo_report,
+                "constitutional_telemetry": {
+                    "adaptation_status": adaptation,
+                    "hysteresis_penalty": hysteresis,
+                },
+                "system_status": "HEALTHY",
+            }
+        )
+    except Exception as e:
+        envelope.payload["vital_error"] = f"Failed to fetch detailed vitals: {e}"
+
+    return envelope
 
 
 async def open_apex_dashboard(
