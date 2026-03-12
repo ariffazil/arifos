@@ -10,6 +10,11 @@ Phase split:
     tools such as ACLIP sensors, reality search, evidence ingest.
     They stay enabled for compatibility.
 
+Transport note:
+  SSE transport was deprecated by the MCP spec (March 2025) and removed from
+  Microsoft Copilot Studio support (August 2025). This server uses Streamable
+  HTTP only via FastMCP http_app() with stateless_http=True.
+
 DITEMPA BUKAN DIBERI — Forged, Not Given
 """
 
@@ -18,7 +23,9 @@ from __future__ import annotations
 import os
 
 from fastmcp import FastMCP
+from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.middleware.cors import CORSMiddleware
+from starlette.responses import JSONResponse
 from starlette.staticfiles import StaticFiles
 
 from arifosmcp.runtime.fastmcp_ext.transports import (
@@ -49,7 +56,33 @@ from arifosmcp.runtime.tools import (
 
 mcp = FastMCP("arifOS-APEX-G", version=release_version_label())
 PUBLIC_TOOL_PROFILE = os.getenv("ARIFOS_PUBLIC_TOOL_PROFILE", "full").strip().lower() or "full"
-VALID_TRANSPORT_MODES = {"stdio", "http", "sse", "streamable-http"}
+# SSE removed: deprecated by MCP spec (2025-03) and Copilot Studio (2025-08)
+VALID_TRANSPORT_MODES = {"stdio", "http", "streamable-http"}
+
+# ---------------------------------------------------------------------------
+# Optional API key guard — activated when COPILOT_API_KEY is set in env.
+# In Copilot Studio wizard: Authentication → API Key → Header → X-API-Key
+# Leave COPILOT_API_KEY unset (or empty) to disable auth (development mode).
+# ---------------------------------------------------------------------------
+_COPILOT_API_KEY = os.getenv("COPILOT_API_KEY", "").strip()
+
+
+class _APIKeyMiddleware(BaseHTTPMiddleware):
+    """Optional API key guard for Copilot Studio and external MCP clients.
+
+    Bypassed when COPILOT_API_KEY env var is not set, preserving
+    zero-config development experience.
+    """
+
+    async def dispatch(self, request, call_next):  # type: ignore[override]
+        if _COPILOT_API_KEY:
+            incoming = request.headers.get("X-API-Key", "")
+            if incoming != _COPILOT_API_KEY:
+                return JSONResponse(
+                    {"error": "Unauthorized", "hint": "Provide a valid X-API-Key header."},
+                    status_code=401,
+                )
+        return await call_next(request)
 
 
 def _validate_transport_mode(mode: str) -> str:
@@ -90,7 +123,7 @@ register_rest_routes(mcp, CORE_TOOL_REGISTRY)
 # Phase 2 — External Capability Tools (legacy-enabled, not in new loop)
 # ---------------------------------------------------------------------------
 
-if PUBLIC_TOOL_PROFILE not in ("chatgpt", "agnostic_public"):
+if PUBLIC_TOOL_PROFILE not in ("chatgpt", "agnostic_public", "copilot"):
     register_phase2_tools(mcp, profile=PUBLIC_TOOL_PROFILE)
 
 
@@ -108,6 +141,9 @@ _mcp_app = mcp.http_app(
 )
 
 app = _mcp_app
+
+# API key guard (no-op when COPILOT_API_KEY is unset)
+app.add_middleware(_APIKeyMiddleware)
 
 # Enable CORS for all origins (required for cross-site health/telemetry monitoring)
 app.add_middleware(

@@ -552,6 +552,9 @@ async def metabolic_loop_router(
     ctx: Context | None = None,
 ) -> RuntimeEnvelope:
     """Stage 444 ROUTER - Metabolic Loop. The all-in-one arifOS Sovereign evaluation."""
+    # NOTE: caller_context and auth_context are optional complex types.
+    # When profile=copilot, the copilot_kernel_wrapper is registered instead,
+    # which uses a flat primitive-only signature compatible with Copilot Studio.
     session_id = _resolve_session_id(None)
 
     # Server governs final persona; LLM hint (requested_persona) is advisory only.
@@ -581,16 +584,27 @@ async def session_memory(
     operation: str,
     auth_context: dict[str, Any] | None = None,
     content: str | None = None,
-    memory_ids: list[str] | None = None,
+    memory_ids: str = "",
     top_k: int = 5,
     caller_context: CallerContext | None = None,
     ctx: Context | None = None,
 ) -> RuntimeEnvelope:
-    """Session memory for conversation state, vector recall, and reasoning artifacts."""
+    """Session memory for conversation state, vector recall, and reasoning artifacts.
+
+    Args:
+        memory_ids: Comma-separated list of memory IDs to retrieve/forget.
+            Example: "mem-001,mem-002,mem-003". Leave empty for store/search operations.
+    """
+    # Parse comma-separated memory_ids string into list (Copilot Studio schema-safe)
+    parsed_ids: list[str] | None = (
+        [mid.strip() for mid in memory_ids.split(",") if mid.strip()]
+        if memory_ids
+        else None
+    )
     payload = {
         "operation": operation,
         "content": content,
-        "memory_ids": memory_ids,
+        "memory_ids": parsed_ids,
         "top_k": top_k,
         "auth_context": auth_context or {},
     }
@@ -761,10 +775,70 @@ async def open_apex_dashboard(
     return await _wrap_call("open_apex_dashboard", Stage.VAULT_999, session_id, {}, ctx)
 
 
+async def _copilot_kernel_wrapper(
+    query: str,
+    context: str = "",
+    risk_tier: str = "medium",
+    actor_id: str = "anonymous",
+    use_memory: bool = True,
+    use_heart: bool = True,
+    use_critique: bool = True,
+    allow_execution: bool = False,
+    debug: bool = False,
+) -> RuntimeEnvelope:
+    """arifOS Constitutional Intelligence Kernel.
+
+    Runs the full constitutional reasoning pipeline (13 floors, VAULT999 ledger,
+    Trinity ΔΩΨ) and returns a governed APEX envelope.
+
+    Use this as the primary entrypoint for all non-trivial tasks.
+    This is the Copilot Studio-safe surface: flat primitive-only parameters.
+    """
+    return await metabolic_loop_router(
+        query=query,
+        context=context,
+        risk_tier=risk_tier,
+        actor_id=actor_id,
+        use_memory=use_memory,
+        use_heart=use_heart,
+        use_critique=use_critique,
+        allow_execution=allow_execution,
+        debug=debug,
+        auth_context=None,
+        caller_context=None,
+        ctx=None,
+    )
+
+
 def register_tools(mcp: FastMCP, profile: str = "full") -> None:
     """Register the core runtime tools; the dashboard app tool is added in resources."""
 
     normalized_profile = profile.strip().lower() or "full"
+    is_copilot_profile = normalized_profile == "copilot"
+
+    if is_copilot_profile:
+        # Copilot Studio profile: flat, schema-safe surface only.
+        # Avoids Copilot Studio known issues:
+        #   - Reference type inputs (CallerContext, dict|None) silently drop tools
+        #   - Array union types (list[str]|None) truncate schemas
+        #   - Duplicate tool names confuse the generative orchestrator
+        # See: https://learn.microsoft.com/en-us/microsoft-copilot-studio/mcp-troubleshooting
+        copilot_surface = {
+            "arifOS_kernel": _copilot_kernel_wrapper,
+            "search_reality": search_reality,
+            "ingest_evidence": ingest_evidence,
+            "session_memory": session_memory,
+            "audit_rules": audit_rules,
+            "check_vital": check_vital,
+        }
+        for tool_name, handler in copilot_surface.items():
+            spec = PUBLIC_TOOL_SPEC_BY_NAME.get(tool_name)
+            if spec:
+                mcp.tool(name=spec.name, description=spec.description)(handler)
+            else:
+                mcp.tool(name=tool_name)(handler)
+        # No legacy aliases in copilot profile — avoids orchestrator confusion
+        return
 
     public_tool_handlers = {
         "arifOS_kernel": metabolic_loop_router,
@@ -780,24 +854,24 @@ def register_tools(mcp: FastMCP, profile: str = "full") -> None:
         spec = PUBLIC_TOOL_SPEC_BY_NAME[tool_name]
         mcp.tool(name=spec.name, description=spec.description)(handler)
 
-    # Legacy alias
-    mcp.tool(
-        name="arifOS-kernel",
-        description=(
-            "[Legacy Alias] Use arifOS_kernel instead. Governed metabolic loop orchestrator."
-        ),
-    )(metabolic_loop_router)
+    # Legacy aliases — omitted in copilot/chatgpt/agnostic_public profiles
+    if normalized_profile not in ("chatgpt", "agnostic_public"):
+        mcp.tool(
+            name="arifOS-kernel",
+            description=(
+                "[Legacy Alias] Use arifOS_kernel instead. Governed metabolic loop orchestrator."
+            ),
+        )(metabolic_loop_router)
 
-    # Legacy alias
-    mcp.tool(
-        name="metabolic_loop_router",
-        description=(
-            "[Legacy Alias] Use arifOS_kernel instead. Governed metabolic loop orchestrator."
-        ),
-    )(metabolic_loop_router)
+        mcp.tool(
+            name="metabolic_loop_router",
+            description=(
+                "[Legacy Alias] Use arifOS_kernel instead. Governed metabolic loop orchestrator."
+            ),
+        )(metabolic_loop_router)
 
     # Legacy tools preserved for internal orchestration
-    if normalized_profile != "chatgpt":
+    if normalized_profile not in ("chatgpt", "copilot"):
         mcp.tool(description="000 INIT - Session anchor.")(init_anchor_state)
         mcp.tool(description="111 FRAME - Problem framing.")(integrate_analyze_reflect)
         mcp.tool(description="333 REASON - Mind synthesis.")(reason_mind_synthesis)
