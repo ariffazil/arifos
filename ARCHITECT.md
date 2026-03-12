@@ -155,12 +155,18 @@ quantum_eureka_forge
 
 Applies the **13 Constitutional Floors**.
 
+**Critical:** APEX (Ψ/777-888) is **NON-LEARNING**. It is a calculator applying fixed law,
+not a student improving itself. The judge applies invariant thresholds; it never updates them.
+
+See: `core/governance/APEX_INVARIANTS.md`
+
 Possible verdicts:
 
 ```
 SEAL
 SABAR
 VOID
+888_HOLD (human override)
 ```
 
 Tool:
@@ -204,6 +210,58 @@ Example:
 F11_AUTHORITY
 session_id mismatch
 ```
+
+---
+
+## 4.1 APEX Invariants — Non-Learning Guarantee
+
+APEX (Ψ/777-888) is **deliberately non-learning**. The judge applies fixed constitutional
+thresholds; it never updates them. This prevents **constitutional drift**—the gradual
+softening of safety constraints in the name of efficiency.
+
+### Where Contrast Belongs
+
+| Layer | Role | Contrast Operation | Learns? |
+|-------|------|-------------------|---------|
+| **AGI (Δ/111-333)** | Scientist | Compare hypotheses A vs B | ✅ YES |
+| **ASI (Ω/555-666)** | Empath | Compare stakeholder impacts | ✅ YES |
+| **APEX (Ψ/777-888)** | Judge | ❌ NO CONTRAST — Binary verdict | ❌ NEVER |
+
+**"Contrast is knowledge" applies to AGI/ASI, not APEX.**
+
+### APEX Invariant Table (Selected)
+
+| Parameter | Value | Learnable? | Rationale |
+|-----------|-------|------------|-----------|
+| `τ` (Truth) | ≥ 0.99 | ❌ NO | F2 Truth hard floor |
+| `Ω₀` (Humility) | [0.03, 0.05] | ❌ NO | F7 Gödel Lock |
+| `W₃` (Tri-Witness) | ≥ 0.95 | ❌ NO | F3 Consensus |
+| `E_min` (Landauer) | 2.87×10⁻²¹ J/bit | ❌ NO | Physics constant |
+| `η` (Efficiency) | ≥ 1.0 | ❌ NO | Physical impossibility line |
+
+See full table: `core/governance/APEX_INVARIANTS.md`
+
+### Why APEX Must Not Learn
+
+If APEX could learn:
+```
+Year 1:  F2 requires τ ≥ 0.99              (strict)
+Year 2:  "Optimization" → τ ≥ 0.97         (relaxed)
+Year 5:  "Creativity" → τ ≥ 0.85           (dangerous)
+Year 10: "Pragmatism" → τ ≥ 0.70          (hallucinations normalized)
+```
+
+**Result:** Constitutional drift → Safety degradation → Maruah violated
+
+### Modification Procedure
+
+Only humans change these invariants:
+
+```
+Human Legislator → 888_HOLD → Community Review → New Release
+```
+
+APEX never self-updates. The constitution is **forged, not evolved**.
 
 ---
 
