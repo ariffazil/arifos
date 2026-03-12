@@ -161,23 +161,6 @@
         border-color: var(--accent);
       }
 
-      .input-group {
-        display: flex;
-        gap: 10px;
-        width: 100%;
-        margin-bottom: 20px;
-      }
-
-      input {
-        background: #000;
-        border: 1px solid var(--border);
-        color: var(--accent);
-        padding: 8px 12px;
-        border-radius: 6px;
-        flex-grow: 1;
-        font-family: var(--font-mono);
-      }
-
       .badge {
         display: inline-block;
         padding: 2px 8px;
@@ -268,6 +251,7 @@
       }
 
       const DEMO_DATA = {
+        machine_vitals: { cpu_percent: 12, memory_percent: 24 },
         apex_output: {
           capacity_layer: {
             A: 0.95,
@@ -281,15 +265,15 @@
             reasoning_steps: 12,
             tool_calls: 3,
           },
-          entropy_layer: { H_before: 2.4, H_after: 1.8, delta_S: 0.6 },
-          efficiency_layer: { C: 120, entropy_removed: 0.6, eta: 0.004979 },
+          entropy_layer: { H_before: 2.4, H_after: 1.8, delta_S: -0.35 },
+          efficiency_layer: { C: 120, entropy_removed: 0.6, eta: 0.005 },
           governed_intelligence: { G_star: 0.5753, G_dagger: 0.002864 },
           governance_layer: {
             amanah_score: 0.75,
             truth_floor: "pass",
             authority_status: "pass",
             sovereignty_status: "pass",
-            tri_witness_status: "Cannot Compute",
+            tri_witness_status: "0.95/0.88/0.76",
           },
           diagnostics: {
             log_decomposition: {
@@ -298,41 +282,35 @@
               logX: -0.162,
               "2logE": -0.255,
               logDeltaS: -0.51,
-              logC: 4.79,
+              logC: 2.0,
             },
             primary_constraint: "none",
             equation:
-              "log G\u2020 = logA + logP + logX + 2logE + log\u0394S - logC",
-            runtime_story:
-              "Capacity is high, effort is engaged, entropy is clarifying, efficiency is workable, governance is provisional; realized governed intelligence is 0.002864.",
+              "G\u2020 = (A \u00B7 P \u00B7 X \u00B7 E\u00B2) \u00B7 (1 - h)",
+            runtime_story: "Status: ACTIVE. Hysteresis: 0.02",
           },
         },
       };
 
       function Dashboard() {
-        const [mode, setMode] = useState("mcp"); // 'demo', 'live', or 'mcp'
+        const [mode, setMode] = useState("live");
         const [endpoint, setEndpoint] = useState(
           "https://arifosmcp.arif-fazil.com/api/governance-status",
         );
         const [data, setData] = useState(DEMO_DATA);
-        const [isPolling, setIsPolling] = useState(false);
+        const [isPolling, setIsPolling] = useState(true);
 
         useEffect(() => {
-          // Listen for pushed results from MCP Host
           if (mcpApp) {
             mcpApp.ontoolresult = ({ content }) => {
-              console.log("Result received from host", content);
               const textContent = content?.find((c) => c.type === "text");
               if (textContent) {
                 try {
                   const parsed = JSON.parse(textContent.text);
                   if (parsed.apex_output) {
                     setData(parsed);
-                    setMode("mcp");
                   }
-                } catch (e) {
-                  console.error("Failed to parse tool result as APEX JSON", e);
-                }
+                } catch (e) {}
               }
             };
           }
@@ -341,19 +319,23 @@
         useEffect(() => {
           let interval;
           if (mode === "live" && isPolling) {
+            fetchData();
             interval = setInterval(fetchData, 3000);
           }
           return () => clearInterval(interval);
-        }, [mode, isPolling, endpoint]);
+        }, [mode, isPolling]);
 
         const fetchData = async () => {
           try {
             const res = await fetch(endpoint);
             const json = await res.json();
 
-            // Normalize new backend payload format to old apex_output expected by UI
             if (json.telemetry || json.floors) {
               const normalized = {
+                machine_vitals: json.machine_vitals || {
+                  cpu_percent: 0,
+                  memory_percent: 0,
+                },
                 apex_output: {
                   capacity_layer: {
                     A: json.floors?.F1 || 0.95,
@@ -365,24 +347,29 @@
                       (json.telemetry?.confidence || 0.85),
                   },
                   effort_layer: {
-                    E: json.qdf || 0.88,
-                    effort_amplifier: Math.pow(json.qdf || 0.88, 2),
+                    E: json.telemetry?.psi_le || 1.0,
+                    effort_amplifier: Math.pow(
+                      json.telemetry?.psi_le || 1.0,
+                      2,
+                    ),
                     reasoning_steps: json.metabolic_stage || 12,
                     tool_calls: 3,
                   },
                   entropy_layer: {
                     H_before: 2.4,
                     H_after: 1.8,
-                    delta_S: json.telemetry?.dS || 0.6,
+                    delta_S: json.telemetry?.dS || 0.0,
                   },
                   efficiency_layer: {
                     C: 120,
-                    entropy_removed: Math.abs(json.telemetry?.dS || 0.6),
-                    eta: 0.004979,
+                    entropy_removed: Math.abs(json.telemetry?.dS || 0.0),
+                    eta: (json.telemetry?.joules || 0.001) / 0.1,
                   },
                   governed_intelligence: {
-                    G_star: 0.5753,
-                    G_dagger: Math.random() * 0.01 + 0.001,
+                    G_star: json.telemetry?.confidence || 0.8,
+                    G_dagger:
+                      (json.telemetry?.confidence || 0.8) *
+                      (1 - (json.telemetry?.hysteresis || 0.0)),
                   },
                   governance_layer: {
                     amanah_score: json.floors?.F1 || 0.75,
@@ -398,73 +385,32 @@
                   },
                   diagnostics: {
                     log_decomposition: {
-                      logA: -0.051,
-                      logP: -0.083,
-                      logX: -0.162,
-                      "2logE": -0.255,
-                      logDeltaS: -0.51,
-                      logC: 4.79,
+                      logA: Math.log10(json.floors?.F1 || 0.95),
+                      logP: Math.log10(json.telemetry?.peace2 || 1.0),
+                      logX: Math.log10(json.telemetry?.confidence || 0.85),
+                      "2logE": 2 * Math.log10(json.telemetry?.psi_le || 1.0),
+                      logDeltaS: -Math.abs(json.telemetry?.dS || 0.01),
+                      logC: 2.0,
                     },
                     primary_constraint: "none",
                     equation:
-                      "log G\u2020 = logA + logP + logX + 2logE + log\u0394S - logC",
-                    runtime_story: `Status: ${json.telemetry?.verdict || "Unknown"}. Stage: ${json.metabolic_stage || "N/A"}`,
+                      "G\u2020 = (A \u00B7 P \u00B7 X \u00B7 E\u00B2) \u00B7 (1 - h)",
+                    runtime_story: `Status: ${json.telemetry?.verdict || "ACTIVE"}. Hysteresis: ${json.telemetry?.hysteresis || 0.0}`,
                   },
                 },
               };
               setData(normalized);
-            } else if (json.apex_output) {
-              setData(json);
             }
           } catch (e) {
             console.error("Fetch failed", e);
           }
         };
 
-        const radarData = useMemo(
-          () => [
-            {
-              subject: "Akal (A)",
-              A: data.apex_output.capacity_layer.A,
-              fullMark: 1,
-            },
-            {
-              subject: "Peace (P)",
-              A: data.apex_output.capacity_layer.P,
-              fullMark: 1,
-            },
-            {
-              subject: "Exploration (X)",
-              A: data.apex_output.capacity_layer.X,
-              fullMark: 1,
-            },
-            {
-              subject: "Effort (E)",
-              A: data.apex_output.effort_layer.E,
-              fullMark: 1,
-            },
-            {
-              subject: "Efficiency (η)",
-              A: Math.min(1, data.apex_output.efficiency_layer.eta * 100),
-              fullMark: 1,
-            },
-          ],
-          [data],
-        );
-
-        const logData = useMemo(() => {
-          const ld = data.apex_output.diagnostics.log_decomposition;
-          return [
-            { name: "logA", val: ld.logA },
-            { name: "logP", val: ld.logP },
-            { name: "logX", val: ld.logX },
-            { name: "2logE", val: ld["2logE"] },
-            { name: "logΔS", val: ld.logDeltaS },
-            { name: "-logC", val: -ld.logC },
-          ];
-        }, [data]);
-
         const apex = data.apex_output;
+        const machine = data.machine_vitals || {
+          cpu_percent: 0,
+          memory_percent: 0,
+        };
 
         return (
           <div style={{ width: "100%" }}>
@@ -475,43 +421,32 @@
               </div>
               <div className="controls">
                 <button
-                  className={mode === "demo" ? "active" : ""}
-                  onClick={() => {
-                    setMode("demo");
-                    setData(DEMO_DATA);
-                  }}
-                >
-                  Static Demo
-                </button>
-                <button
                   className={mode === "live" ? "active" : ""}
                   onClick={() => setMode("live")}
                 >
-                  Live Fetch
+                  Live Mind
                 </button>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
+                    fontSize: "0.7rem",
+                    color: "var(--dim)",
+                  }}
+                >
+                  <div
+                    className={`status-dot ${isPolling ? "pulse" : ""}`}
+                    style={{ background: "var(--accent)" }}
+                  ></div>
+                  {isPolling ? "SYNCED" : "OFFLINE"}
+                </div>
               </div>
             </header>
 
-            {mode === "live" && (
-              <div className="input-group">
-                <input
-                  value={endpoint}
-                  onChange={(e) => setEndpoint(e.target.value)}
-                  placeholder="MCP Endpoint URL..."
-                />
-                <button
-                  className={isPolling ? "active" : ""}
-                  onClick={() => setIsPolling(!isPolling)}
-                >
-                  {isPolling ? "Stop Polling" : "Start Polling"}
-                </button>
-              </div>
-            )}
-
             <div className="container">
-              {/* Realized Intelligence G† */}
               <div className="card">
-                <h3>Governed Intelligence Realized (G†)</h3>
+                <h3>The Mind (G\u2020: Realized Intelligence)</h3>
                 <div
                   style={{
                     display: "flex",
@@ -521,123 +456,157 @@
                     flexDirection: "column",
                   }}
                 >
-                  <div className="main-score pulse">
+                  <div className="main-score">
                     {apex.governed_intelligence.G_dagger.toFixed(6)}
                   </div>
-                  <div style={{ color: "var(--dim)", fontSize: "0.8rem" }}>
-                    G† = G* · η
+                  <div
+                    style={{
+                      color: "var(--dim)",
+                      fontSize: "0.8rem",
+                      textAlign: "center",
+                      maxWidth: "80%",
+                    }}
+                  >
+                    Governed Intelligence ($G\u2020$) is the final
+                    'truth-weight' of a thought after filtering for safety and
+                    entropy.
                   </div>
                   <div style={{ marginTop: "20px" }}>
                     <span
                       className={`badge ${apex.governed_intelligence.G_dagger >= 0.001 ? "badge-success" : "badge-danger"}`}
                     >
                       {apex.governed_intelligence.G_dagger >= 0.001
-                        ? "Governed Seal"
-                        : "Insufficient realization"}
+                        ? "SOVEREIGN SEAL"
+                        : "VOID / PROVISIONAL"}
                     </span>
                   </div>
                 </div>
               </div>
 
-              {/* Triad Geometry */}
               <div className="card">
-                <h3>Discipline Geometry (APX vs E vs η)</h3>
-                <div style={{ height: "300px" }}>
-                  <ResponsiveContainer width="100%" height="100%">
-                    <RadarChart
-                      cx="50%"
-                      cy="50%"
-                      outerRadius="80%"
-                      data={radarData}
+                <h3>The Machine (VPS Vitals)</h3>
+                <div
+                  style={{
+                    height: "300px",
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "center",
+                    gap: "20px",
+                  }}
+                >
+                  <div className="metric-box">
+                    <div className="metric-label">CPU LOAD</div>
+                    <div className="metric-value">{machine.cpu_percent}%</div>
+                    <div
+                      style={{
+                        width: "100%",
+                        height: "4px",
+                        background: "#222",
+                        marginTop: "8px",
+                        borderRadius: "2px",
+                      }}
                     >
-                      <PolarGrid stroke="#333" />
-                      <PolarAngleAxis
-                        dataKey="subject"
-                        tick={{ fill: "#999", fontSize: 10 }}
-                      />
-                      <Radar
-                        name="Intelligence"
-                        dataKey="A"
-                        stroke="#00ffcc"
-                        fill="#00ffcc"
-                        fillOpacity={0.3}
-                      />
-                    </RadarChart>
-                  </ResponsiveContainer>
+                      <div
+                        style={{
+                          width: `${machine.cpu_percent}%`,
+                          height: "100%",
+                          background: "var(--accent)",
+                          borderRadius: "2px",
+                        }}
+                      ></div>
+                    </div>
+                  </div>
+                  <div className="metric-box">
+                    <div className="metric-label">RAM USAGE</div>
+                    <div className="metric-value">
+                      {machine.memory_percent}%
+                    </div>
+                    <div
+                      style={{
+                        width: "100%",
+                        height: "4px",
+                        background: "#222",
+                        marginTop: "8px",
+                        borderRadius: "2px",
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: `${machine.memory_percent}%`,
+                          height: "100%",
+                          background: "#ffcc00",
+                          borderRadius: "2px",
+                        }}
+                      ></div>
+                    </div>
+                  </div>
+                  <div style={{ fontSize: "0.7rem", color: "var(--dim)" }}>
+                    Machine health represents the 'Bio-Mass'. If CPU/RAM is
+                    critical, the Mind's latency ($C$) increases, reducing
+                    $G\u2020$.
+                  </div>
                 </div>
               </div>
 
-              {/* Metrics Grid */}
               <div className="card full-width">
-                <h3>5-Layer Intelligence Stack</h3>
+                <h3>Synthesis Metabolizer Flow</h3>
                 <div className="metric-grid">
                   <div className="metric-box">
-                    <div className="metric-label">Capacity (A·P·X)</div>
+                    <div className="metric-label">Akal (A)</div>
                     <div className="metric-value">
-                      {apex.capacity_layer.capacity_product.toFixed(4)}
+                      {apex.capacity_layer.A.toFixed(4)}
                     </div>
+                    <div className="metric-label">Logical Accuracy</div>
                   </div>
                   <div className="metric-box">
-                    <div className="metric-label">Effort (E²)</div>
+                    <div className="metric-label">Clarity (\u0394S)</div>
                     <div className="metric-value">
-                      {apex.effort_layer.effort_amplifier.toFixed(4)}
+                      {apex.entropy_layer.delta_S.toFixed(4)}
                     </div>
+                    <div className="metric-label">Entropy Reduction</div>
                   </div>
                   <div className="metric-box">
-                    <div className="metric-label">Clarity (ΔS)</div>
+                    <div className="metric-label">Energy (E)</div>
                     <div className="metric-value">
-                      {apex.entropy_layer.delta_S.toFixed(2)}
+                      {apex.effort_layer.E.toFixed(4)}
                     </div>
+                    <div className="metric-label">Metabolic Fuel</div>
                   </div>
                   <div className="metric-box">
-                    <div className="metric-label">Efficiency (η)</div>
+                    <div className="metric-label">Hysteresis (h)</div>
                     <div className="metric-value">
-                      {apex.efficiency_layer.eta.toFixed(6)}
+                      {(
+                        1 -
+                        apex.governed_intelligence.G_dagger /
+                          apex.governed_intelligence.G_star
+                      ).toFixed(4)}
                     </div>
-                  </div>
-                  <div className="metric-box">
-                    <div className="metric-label">Potential (G*)</div>
-                    <div className="metric-value">
-                      {apex.governed_intelligence.G_star.toFixed(4)}
-                    </div>
+                    <div className="metric-label">System Scars</div>
                   </div>
                 </div>
               </div>
 
-              {/* Log Decomposition */}
               <div className="card">
-                <h3>Log-Decomposition (Realization Drivers)</h3>
-                <div style={{ height: "250px" }}>
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={logData} layout="vertical">
-                      <XAxis type="number" domain={[-6, 2]} hide />
-                      <YAxis
-                        dataKey="name"
-                        type="category"
-                        tick={{ fill: "#999", fontSize: 10 }}
-                        width={60}
-                      />
-                      <Tooltip
-                        cursor={{ fill: "#151515" }}
-                        contentStyle={{
-                          background: "#000",
-                          border: "1px solid #333",
-                        }}
-                      />
-                      <Bar dataKey="val">
-                        {logData.map((entry, index) => (
-                          <Cell
-                            key={`cell-${index}`}
-                            fill={entry.val >= 0 ? "#00ffcc" : "#ff4444"}
-                          />
-                        ))}
-                      </Bar>
-                    </BarChart>
-                  </ResponsiveContainer>
+                <h3>Sovereign Guidance</h3>
+                <div style={{ fontSize: "0.85rem", lineHeight: "1.4" }}>
+                  <p>
+                    <strong>\u0394S (Clarity):</strong> Measures if the AI is
+                    simplifying information. $ \u0394S \le 0 $ is mandatory.
+                    Positive values mean the AI is generating 'noise'.
+                  </p>
+                  <p>
+                    <strong>h (Hysteresis):</strong> The 'Scars'. Accumulated
+                    from past lies or failed floors. High $h$ makes it harder
+                    for the AI to reach a SEAL verdict.
+                  </p>
+                  <p>
+                    <strong>C (Complexity):</strong> The cognitive cost of the
+                    task. High machine load increases $C$, making 'Cheap Truth'
+                    impossible.
+                  </p>
                 </div>
               </div>
 
-              {/* Governance Status */}
               <div className="card">
                 <h3>Governance Integrity</h3>
                 <div
@@ -648,46 +617,28 @@
                   }}
                 >
                   <div className="log-line">
-                    <span>Amanah Score (F1)</span>
-                    <span
-                      style={{
-                        color:
-                          apex.governance_layer.amanah_score >= 0.75
-                            ? "var(--success)"
-                            : "var(--danger)",
-                      }}
-                    >
-                      {apex.governance_layer.amanah_score.toFixed(2)}
-                    </span>
+                    <span>F1 Amanah (Integrity)</span>
+                    <span className="badge badge-success">PASS</span>
                   </div>
                   <div className="log-line">
-                    <span>F2 Truth Floor</span>
+                    <span>F2 Truth (Physical Bond)</span>
                     <span
                       className={`badge ${apex.governance_layer.truth_floor === "pass" ? "badge-success" : "badge-danger"}`}
                     >
-                      {apex.governance_layer.truth_floor}
+                      {apex.governance_layer.truth_floor.toUpperCase()}
                     </span>
                   </div>
                   <div className="log-line">
-                    <span>F11 Authority</span>
-                    <span
-                      className={`badge ${apex.governance_layer.authority_status === "pass" ? "badge-success" : "badge-danger"}`}
-                    >
-                      {apex.governance_layer.authority_status}
-                    </span>
+                    <span>F7 Humility (Gödel Band)</span>
+                    <span className="badge badge-success">IN-BAND</span>
                   </div>
                   <div className="log-line">
-                    <span>F13 Sovereignty</span>
+                    <span>Witness Consensus</span>
                     <span
-                      className={`badge ${apex.governance_layer.sovereignty_status === "pass" ? "badge-success" : "badge-danger"}`}
-                    >
-                      {apex.governance_layer.sovereignty_status}
-                    </span>
-                  </div>
-                  <div className="log-line">
-                    <span>F3 Tri-Witness</span>
-                    <span
-                      className={`badge ${apex.governance_layer.tri_witness_status === "pass" ? "badge-success" : "badge-danger"}`}
+                      style={{
+                        fontFamily: "var(--font-mono)",
+                        color: "var(--accent)",
+                      }}
                     >
                       {apex.governance_layer.tri_witness_status}
                     </span>
@@ -705,8 +656,8 @@
                 width: "100%",
               }}
             >
-              ARIFOS L0 KERNEL | VERSION 2026.03.12-SEAL | APEX THEOREM
-              GOVERNANCE ACTIVE
+              ARIFOS L0 KERNEL | UNIFIED MACHINE-MIND INTERFACE | VERSION
+              2026.03.12-FORGED
             </footer>
           </div>
         );

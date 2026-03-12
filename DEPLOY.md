@@ -17,7 +17,7 @@ Canonical source of truth:
 | TLS state | `/opt/arifos/traefik/acme.json` | Traefik certificate store |
 | Public base URL | `https://arifosmcp.arif-fazil.com` | Main public MCP domain |
 | MCP endpoint | `https://arifosmcp.arif-fazil.com/mcp` | Streamable HTTP MCP |
-| SSE endpoint | `https://arifosmcp.arif-fazil.com/sse` | SSE transport |
+| APEX Dashboard | `https://arifosmcp.arif-fazil.com/dashboard/` | Unified Machine-Mind Interface |
 | Public discovery | `https://arifosmcp.arif-fazil.com/.well-known/mcp/server.json` | Generated from runtime registry |
 
 Known drift:

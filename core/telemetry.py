@@ -292,6 +292,35 @@ def get_current_hysteresis() -> float:
     return telemetry_store.calculate_hysteresis_penalty()
 
 
+def get_system_vitals() -> dict[str, float]:
+    """
+    Retrieve machine-level performance metrics (The Machine).
+    These represent the underlying 'bio-mass' of the intelligence.
+    """
+    try:
+        import psutil
+
+        cpu = psutil.cpu_percent(interval=None)
+        mem = psutil.virtual_memory()
+        disk = psutil.disk_usage("/")
+
+        return {
+            "cpu_percent": cpu,
+            "memory_percent": mem.percent,
+            "memory_used_gb": round(mem.used / (1024**3), 2),
+            "memory_total_gb": round(mem.total / (1024**3), 2),
+            "disk_percent": disk.percent,
+            "load_avg": getattr(os, "getloadavg", lambda: (0, 0, 0))(),
+        }
+    except Exception:
+        return {
+            "cpu_percent": 0.0,
+            "memory_percent": 0.0,
+            "disk_percent": 0.0,
+            "load_avg": (0, 0, 0),
+        }
+
+
 def get_actual_joules(duration_ms: float) -> float:
     """
     HARDWARE GROUNDING: Estimate actual Joules consumed by the CPU.

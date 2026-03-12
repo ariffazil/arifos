@@ -1,6 +1,6 @@
 {
   "name": "io.github.ariffazil/arifos-mcp",
-  "version": "2026.03.12-SEAL",
+  "version": "2026.03.12-FORGED",
   "description": "Constitutional AI governance server — 8 canonical public MCP tools with F1-F13 floor enforcement, metabolic Stage 444 routing, prompts, and resources.",
   "vendor": {
     "name": "Muhammad Arif bin Fazil",
@@ -15,10 +15,6 @@
       "url": "https://arifosmcp.arif-fazil.com/mcp"
     },
     {
-      "type": "sse",
-      "url": "https://arifosmcp.arif-fazil.com/sse"
-    },
-    {
       "type": "stdio",
       "command": "python -m arifosmcp.runtime stdio"
     }
@@ -28,7 +24,7 @@
     "metabolic_routing": true,
     "vault999": "postgresql+redis+merkle",
     "vector_memory": "qdrant+bge-m3-1024dim",
-    "prompts": 7,
+    "prompts": 8,
     "resources": 15
   },
   "tools": [
@@ -66,6 +62,11 @@
       "name": "open_apex_dashboard",
       "stage": "888_JUDGE",
       "role": "Visualizer"
+    },
+    {
+      "name": "bootstrap_identity",
+      "stage": "000_INIT",
+      "role": "Onboarding"
     }
   ]
 }

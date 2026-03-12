@@ -1,7 +1,7 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.ariffazil/arifos-mcp",
-  "version": "2026.03.12-SEAL",
+  "version": "2026.03.12-FORGED",
   "title": "arifOS Sovereign Governance MCP",
   "description": "Constitutional AI governance server with a 8-tool public surface, 8 public prompts, 14 public resources, Trinity engines (ΔΩΨ), and F1-F13 floor enforcement.",
   "websiteUrl": "https://arifos.arif-fazil.com",
@@ -32,7 +32,7 @@
     {
       "registryType": "pypi",
       "identifier": "arifos",
-      "version": "2026.03.12-SEAL",
+      "version": "2026.03.12-FORGED",
       "transport": {
         "type": "stdio"
       }
@@ -48,10 +48,6 @@
   ],
   "remotes": [
     {
-      "type": "sse",
-      "url": "https://arifosmcp.arif-fazil.com/sse"
-    },
-    {
       "type": "streamable-http",
       "url": "https://arifosmcp.arif-fazil.com/mcp",
       "authentication": {
@@ -66,7 +62,7 @@
       "floors": [
         "F1-F13"
       ],
-      "description": "The arifOS Intelligence Kernel. Runs the full constitutional reasoning pipeline and should be the primary entrypoint for non-trivial tasks.",
+      "description": "The arifOS Intelligence Kernel. Runs the full metabolic reasoning pipeline (000-999) and governs high-stakes execution tasks.",
       "inputSchema": {
         "type": "object",
         "required": [
@@ -258,7 +254,7 @@
         "F5",
         "F7"
       ],
-      "description": "Read-only system health snapshot, reporting diagnostics and vitality signals.",
+      "description": "Read system vitality, including thermodynamic budget and redacted capability map.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -291,6 +287,35 @@
         "additionalProperties": false
       },
       "readonly": true
+    },
+    "bootstrap_identity": {
+      "stage": "000_INIT",
+      "trinity": "Δ Delta",
+      "floors": [
+        "F11"
+      ],
+      "description": "Declare user identity and initiate session grounding (Onboarding).",
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "declared_name"
+        ],
+        "properties": {
+          "declared_name": {
+            "type": "string",
+            "description": "User name (e.g. Arif)."
+          },
+          "session_id": {
+            "type": "string",
+            "description": "Optional session ID."
+          },
+          "human_approval": {
+            "type": "boolean",
+            "default": true
+          }
+        },
+        "additionalProperties": false
+      }
     }
   },
   "prompts": [
@@ -325,9 +350,14 @@
       "description": "Read health and vitality telemetry."
     },
     {
-      "name": "open_apex_dashboard_prompt",
+      "name": "open_apex_dashboard",
       "targetTool": "open_apex_dashboard",
       "description": "Open the dashboard surface for live governed metrics."
+    },
+    {
+      "name": "bootstrap_identity_prompt",
+      "targetTool": "bootstrap_identity",
+      "description": "Declare your identity to the arifOS kernel."
     }
   ],
   "resources": [
@@ -550,6 +580,27 @@
           "session_id": {
             "type": "string",
             "default": "global"
+          }
+        },
+        "additionalProperties": false
+      },
+      "bootstrap_identity": {
+        "type": "object",
+        "required": [
+          "declared_name"
+        ],
+        "properties": {
+          "declared_name": {
+            "type": "string",
+            "description": "User name (e.g. Arif)."
+          },
+          "session_id": {
+            "type": "string",
+            "description": "Optional session ID."
+          },
+          "human_approval": {
+            "type": "boolean",
+            "default": true
           }
         },
         "additionalProperties": false

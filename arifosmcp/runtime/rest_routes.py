@@ -136,6 +136,7 @@ WELCOME_HTML = """\
   <div class="nav">
     <a href="/tools">/tools</a>
     <a href="/health">/health</a>
+    <a href="/dashboard">/dashboard</a>
     <a href="/version">/version</a>
     <a href="/openapi.json">/openapi.json</a>
     <a href="/llms.txt">/llms.txt</a>
@@ -691,12 +692,21 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
                 "verdict": verdict,
             }
 
+            # P3: Add machine vitals (The Machine)
+            try:
+                from core.telemetry import get_system_vitals
+
+                machine_vitals = get_system_vitals()
+            except Exception:
+                machine_vitals = {"cpu_percent": 0.0, "memory_percent": 0.0}
+
             return JSONResponse(
                 {
                     "telemetry": resolved_telemetry,
                     "witness": resolved_witness,
                     "qdf": qdf or _DEFAULT_QDF,
                     "floors": resolved_floors,
+                    "machine_vitals": machine_vitals,
                     "session_id": session_id or f"sess_{uuid.uuid4().hex[:8]}",
                     "timestamp": datetime.now(timezone.utc).isoformat(),
                     "metabolic_stage": metabolic_stage or _DEFAULT_METABOLIC_STAGE,

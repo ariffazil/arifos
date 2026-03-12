@@ -1,8 +1,8 @@
 {
   "$schema": "https://gofastmcp.com/public/schemas/fastmcp.json/v1.json",
   "name": "arifos-mcp",
-  "version": "2026.03.12-SEAL",
-  "description": "arifOS Constitutional AI Governance MCP Server - 10-tool APEX-G constitutional hub with VAULT999 ledger",
+  "version": "2026.03.12-FORGED",
+  "description": "arifOS Constitutional AI Governance MCP Server - profile-aware APEX-G hub with VAULT999 ledger",
   "source": {
     "type": "filesystem",
     "path": "arifosmcp/runtime/server.py",
@@ -12,7 +12,7 @@
     "type": "uv",
     "python": ">=3.12",
     "dependencies": [
-      "fastmcp==3.0.2",
+      "fastmcp==3.1.0",
       "fastapi>=0.115.0",
       "uvicorn>=0.32.0",
       "redis>=5.0.0",

@@ -25,11 +25,11 @@
 <td width="25%" valign="top">
 
 ### 🌐 **Live Systems**
-- [**🏛️ Brain (VPS)**](https://arifosmcp.arif-fazil.com/health) — MCP Engine
+- [**🏛️ Brain (VPS)**](https://arifosmcp.arif-fazil.com) — MCP Engine Root
 - [**⚖️ Law (Docs)**](https://arifos.arif-fazil.com) — Constitutional Codex  
 - [**🛡️ Soul (Audit)**](https://arifosmcp-truth-claim.pages.dev/) — Immutable Ledger
 - [**📊 Eye (Metrics)**](https://monitor.arifosmcp.arif-fazil.com) — Grafana Dashboard
-- [**👑 APEX Dashboard**](https://arifosmcp-truth-claim.pages.dev/dashboard/) — Sovereign UI
+- [**👑 APEX Dashboard**](https://arifosmcp.arif-fazil.com/dashboard/) — Sovereign UI
 
 </td>
 <td width="25%" valign="top">
@@ -286,35 +286,15 @@ If **G† < 0.80**, the kernel imposes **PARTIAL** status.
 ---
 
 ## ⚡ The 3-Tier Sovereign Deployment
+arifOS separates **Law**, **Brain**, and **Soul** across distinct infrastructures for resilience. This distribution ensures the core logic (Law) remains accessible even if the Reasoning Engine (Brain) is under heavy load, and that all actions are recorded in an immutable ledger (Soul).
 
-arifOS separates **Law**, **Brain**, and **Soul** across distinct infrastructures for resilience.
-
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                        🌍 3-TIER SOVEREIGN ARCHITECTURE                     │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                             │
-│   ⚖️ LAW              🧠 BRAIN              🛡️ SOUL                         │
-│   arifos.             arifosmcp.            arifosmcp-                      │
-│   arif-fazil.com      arif-fazil.com        truth-claim.pages.dev           │
-│                                                                             │
-│   GitHub Pages        VPS Runtime           Cloudflare                      │
-│   (Static)            (MCP Engine)          (Immutable Audit)               │
-│                                                                             │
-│        ▲                    ▲                      ▲                        │
-│        └────────────────────┼──────────────────────┘                        │
-│                             │                                               │
-│                    📊 EYE (Grafana)                                         │
-│              monitor.arifosmcp.arif-fazil.com                               │
-└─────────────────────────────────────────────────────────────────────────────┘
-```
-
-| Tier | Domain | Service | Access |
-|------|--------|---------|--------|
-| **⚖️ Law** | [arifos.arif-fazil.com](https://arifos.arif-fazil.com) | GitHub Pages | [📖 Read Docs](https://arifos.arif-fazil.com) |
-| **🧠 Brain** | [arifosmcp.arif-fazil.com](https://arifosmcp.arif-fazil.com) | VPS / Runtime | [🔌 MCP Endpoint](https://arifosmcp.arif-fazil.com/mcp) |
-| **🛡️ Soul** | [arifosmcp-truth-claim.pages.dev](https://arifosmcp-truth-claim.pages.dev/) | Cloudflare | [📜 Audit Trail](https://arifosmcp-truth-claim.pages.dev/) |
-| **📊 Eye** | [monitor.arifosmcp.arif-fazil.com](https://monitor.arifosmcp.arif-fazil.com) | Grafana | [📊 Dashboard](https://monitor.arifosmcp.arif-fazil.com) |
+| Tier | Component | Canonical Domain | Infrastructure |
+|------|-----------|-----------------|----------------|
+| **⚖️ Law** | [**Docs & Codex**](https://arifos.arif-fazil.com) | `arifos.arif-fazil.com` | GitHub Pages (Static) |
+| **🧠 Brain** | [**MCP Engine**](https://arifosmcp.arif-fazil.com) | `arifosmcp.arif-fazil.com` | VPS Runtime (Live) |
+| **🛡️ Soul** | [**Truth Record**](https://arifosmcp-truth-claim.pages.dev/) | `arifosmcp-truth-claim.pages.dev` | Cloudflare (Immutable) |
+| **👁️ Eye** | [**APEX Dashboard**](https://arifosmcp.arif-fazil.com/dashboard/) | `arifosmcp.arif-fazil.com/dashboard` | VPS UI (Unified) |
+| **📊 Monitor** | [**Grafana**](https://monitor.arifosmcp.arif-fazil.com) | `monitor.arifosmcp.arif-fazil.com` | VPS (Prometheus) |
 
 ---
 
@@ -494,17 +474,19 @@ METRICS_ENABLED=true
 
 ---
 
-## 🛠️ Canonical 7-Tool Sovereign Stack
+## 🛠️ Canonical 8-Tool Sovereign Stack
+The arifOS kernel exposes 8 core tools that form the "Sensory-Reasoning-Action" loop. Every call is governed by the 13 Floors.
 
-| Tool | Entrypoint | Focus | Description |
+| Tool | Entrypoint | Stage | Purpose |
 |------|------------|-------|-------------|
-| **`arifOS_kernel`** | [`public_registry.py`](./arifosmcp/runtime/public_registry.py) | **Orchestration** | Metabolic loop router (000→999) |
-| **`search_reality`** | [`transport/`](./arifosmcp/transport/) | **Grounding** | Multi-source reality check |
-| **`ingest_evidence`** | [`intelligence/`](./arifosmcp/intelligence/) | **Evidence** | Ingest docs/URLs into context |
-| **`session_memory`** | [`data/`](./arifosmcp/data/) | **Continuity** | Vector recall of traces |
-| **`audit_rules`** | [`floors.py`](./core/shared/floors.py) | **Law** | Inspect F1–F13 state |
-| **`check_vital`** | [`metrics.py`](./arifosmcp/runtime/metrics.py) | **Health** | Live Prometheus metrics |
-| **`open_apex_dashboard`** | [`sites/`](./arifosmcp/sites/) | **Vision** | Sovereign governance UI |
+| **`arifOS_kernel`** | `runtime` | `444` | **Main Brain**: Orchestrates the full metabolic loop (Senses → Mind → Heart → Soul). |
+| **`search_reality`** | `senses` | `111` | **Grounding**: Proactively searches the real world to prevent hallucination (F2). |
+| **`ingest_evidence`** | `senses` | `222` | **Intake**: Extracts raw truth from URLs and documents for governed analysis. |
+| **`session_memory`** | `memory` | `555` | **Continuity**: Maintains long-term state and "Eureka Scars" across session boundaries. |
+| **`audit_rules`** | `law` | `333` | **Observability**: Allows inspection of the active 13 Floor constraints and thresholds. |
+| **`check_vital`** | `metrics` | `000` | **Self-Awareness**: Reports system health, resource budget, and machine vitals. |
+| **`open_apex_dashboard`** | `sites` | `888` | **Vision**: Launches the APEX UI for human-in-the-loop governance and metrics. |
+| **`bootstrap_identity`** | `auth` | `000` | **Onboarding**: Anchors the session to a specific human or agent identity (F11). |
 
 ---
 

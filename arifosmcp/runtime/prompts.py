@@ -86,10 +86,20 @@ def register_prompts(mcp: FastMCP) -> None:
         )
 
     @mcp.prompt()
-    def open_apex_dashboard_prompt() -> str:
+    def open_apex_dashboard() -> str:
         """Open the dashboard surface for live governed metrics."""
-        tool_name = PROMPT_SPEC_BY_NAME["open_apex_dashboard_prompt"].target_tool
+        tool_name = PROMPT_SPEC_BY_NAME["open_apex_dashboard"].target_tool
         return (
             f"Use '{tool_name}' to view the live APEX constitutional dashboard, "
             "displaying pipeline traces, floor scores, and telemetry."
+        )
+
+    @mcp.prompt()
+    def bootstrap_identity_prompt(declared_name: str) -> str:
+        """Declare identity to the kernel before anchored follow-up calls."""
+        tool_name = PROMPT_SPEC_BY_NAME["bootstrap_identity_prompt"].target_tool
+        return (
+            f"Use '{tool_name}' to declare identity and mint a governed session context.\n\n"
+            f"  Declared name: {declared_name}\n\n"
+            "This is the onboarding path for continuity-aware follow-up calls."
         )
