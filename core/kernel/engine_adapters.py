@@ -225,17 +225,19 @@ class InitEngine:
                 "status": token.status,
                 "session_id": token.session_id,
                 "engine_mode": "core",
-                "authority": token.authority.value if hasattr(token.authority, "value") else "none",
-                "floors_passed": token.floors_passed,
-                "floors_failed": token.floors_failed,
-                "violations": token.floors_failed,
-                "injection_risk": token.injection_risk,
-                "injection_score": token.injection_risk,
-                "reason": token.reason,
+                "authority": (
+                    token.governance.authority_level if hasattr(token, "governance") else "none"
+                ),
+                "floors_passed": list(token.floors.keys()) if hasattr(token, "floors") else [],
+                "floors_failed": token.floors_failed if hasattr(token, "floors_failed") else [],
+                "violations": token.floors_failed if hasattr(token, "floors_failed") else [],
+                "injection_risk": getattr(token, "injection_score", 0.0),
+                "injection_score": getattr(token, "injection_score", 0.0),
+                "reason": getattr(token, "reason", "Init completed"),
                 "actor_id": actor_id,
                 "query_type": query_type_str,
                 "f2_threshold": getattr(token, "f2_threshold", 0.99),
-                "motto": getattr(token, "motto", "DITEMPA BUKAN DIBERI"),
+                "motto": getattr(token, "banner", "DITEMPA BUKAN DIBERI"),
             }
         except Exception as e:
             logger.warning(f"Core init failed: {e}")
