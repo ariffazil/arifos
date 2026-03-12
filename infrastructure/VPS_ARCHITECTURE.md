@@ -255,3 +255,6 @@ curl -s https://arifosmcp.arif-fazil.com/health | python3 -m json.tool
 | VPS and GitHub main aligned at `1af6d53b` | ✅ SEALED |
 
 *Last verified: 2026-03-12 by Claude Code (claude-sonnet-4-6)*
+
+---
+**See Also:** [VPS Capabilities Map](./VPS_CAPABILITIES_MAP.md) for detailed toolchains and Office Forge capabilities.
