@@ -366,3 +366,43 @@ console.log('%cDITEMPA BUKAN DIBERI — Forged, Not Given', 'font-size: 11px; fo
 
 // Export H1 state for debugging
 window.H1State = H1State;
+
+// ── API REFERENCE TABS ──────────────────────────────────────
+(function initApiTabs() {
+  const tabContainer = document.getElementById('apiTabs');
+  if (!tabContainer) return;
+
+  tabContainer.addEventListener('click', (e) => {
+    const btn = e.target.closest('.api-tab');
+    if (!btn) return;
+
+    const target = btn.dataset.apiTab;
+
+    // Update tab buttons
+    tabContainer.querySelectorAll('.api-tab').forEach(t => t.classList.remove('api-tab--active'));
+    btn.classList.add('api-tab--active');
+
+    // Update panels
+    document.querySelectorAll('.api-panel').forEach(p => p.classList.remove('api-panel--active'));
+    const panel = document.getElementById('api-' + target);
+    if (panel) panel.classList.add('api-panel--active');
+  });
+})();
+
+// ── COPY BUTTON — extended for new code blocks ──────────────
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest('.copy-btn[data-copy-text]');
+  if (!btn) return;
+
+  const id = btn.dataset.copyText;
+  const pre = document.getElementById(id);
+  if (!pre) return;
+
+  const text = pre.textContent || pre.innerText;
+  navigator.clipboard.writeText(text.trim()).then(() => {
+    const orig = btn.textContent;
+    btn.textContent = 'Copied ✓';
+    btn.style.color = '#4ade80';
+    setTimeout(() => { btn.textContent = orig; btn.style.color = ''; }, 1800);
+  });
+});
