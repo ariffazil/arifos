@@ -32,6 +32,7 @@ class AuthorityLevel(Enum):
     OPERATOR = "operator"
     SOVEREIGN = "sovereign"
     SYSTEM = "system"
+    APEX = "apex"
 
 
 # ─── Anchor Logic ────────────────────────────────────────────────────────────
@@ -47,7 +48,7 @@ class AnchorEngine:
         # In a real system, these would be loaded from a secure registry
         self.valid_actors = {"human", "operator", "arif-fazil", "system", "agent", "cli"}
         self.actor_authority = {
-            "arif-fazil": AuthorityLevel.SOVEREIGN,
+            "arif-fazil": AuthorityLevel.APEX,
             "system": AuthorityLevel.SYSTEM,
             "operator": AuthorityLevel.OPERATOR,
         }
@@ -87,7 +88,7 @@ class AnchorEngine:
 
         # 3. F13: High-Stakes Check
         if require_sovereign or self._is_high_stakes(query):
-            if level != AuthorityLevel.SOVEREIGN:
+            if level != AuthorityLevel.APEX:
                 return self._build_hold_output(
                     "F13", "Sovereign approval required for high-stakes operation", actor_id
                 )

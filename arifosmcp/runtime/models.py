@@ -22,6 +22,7 @@ class RuntimeStatus(str, Enum):
     ERROR = "ERROR"
     TIMEOUT = "TIMEOUT"
     DRY_RUN = "DRY_RUN"
+    SABAR = "SABAR"
 
 
 class Stage(str, Enum):
@@ -46,6 +47,7 @@ class AuthorityLevel(str, Enum):
     OPERATOR = "operator"
     SOVEREIGN = "sovereign"
     DECLARED = "declared"
+    APEX = "apex"
 
 
 class PersonaRole(str, Enum):

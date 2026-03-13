@@ -63,7 +63,7 @@ REQUIRES_SESSION: set[str] = {
 }
 
 READ_ONLY_TOOLS: set[str] = {
-    "search_reality",
+    "reality_compass",
     "ingest_evidence",
     "audit_rules",
     "check_vital",
@@ -84,6 +84,8 @@ AAA_TOOL_STAGE_MAP: dict[str, str] = {
     "apex_judge": "888_JUDGE",
     "judge_soul": "888_JUDGE",
     "seal_vault": "999_VAULT",
+    "reality_compass": "111_SENSE",
+    "reality_atlas": "222_REALITY",
     "search_reality": "111_SENSE",
     "ingest_evidence": "222_REALITY",
     "audit_rules": "333_MIND",
@@ -113,6 +115,8 @@ TRINITY_BY_TOOL: dict[str, str] = {
     "judge_soul": "Psi",
     "eureka_forge": "Psi",
     "seal_vault": "Psi",
+    "reality_compass": "Delta",
+    "reality_atlas": "Delta",
     "search_reality": "Delta",
     "ingest_evidence": "Delta",
     "audit_rules": "Delta",
@@ -192,6 +196,8 @@ AAA_TOOL_LAW_BINDINGS: dict[str, list[str]] = {
         "F13_SOVEREIGNTY",
     ],
     "seal_vault": ["F1_AMANAH", "F3_TRI_WITNESS", "F10_ONTOLOGY_LOCK", "F13_SOVEREIGNTY"],
+    "reality_compass": ["F2_TRUTH", "F4_CLARITY", "F12_DEFENSE"],
+    "reality_atlas": ["F2_TRUTH", "F4_CLARITY", "F11_AUTHORITY"],
     "search_reality": ["F2_TRUTH", "F4_CLARITY", "F12_DEFENSE"],
     "ingest_evidence": ["F1_AMANAH", "F2_TRUTH", "F4_CLARITY", "F11_AUTHORITY", "F12_DEFENSE"],
     "audit_rules": ["F2_TRUTH", "F8_GENIUS", "F10_ONTOLOGY_LOCK", "F12_DEFENSE"],
@@ -235,7 +241,11 @@ AAA_TOOL_ALIASES: dict[str, str] = {
     "judge_soul": "apex_judge",
     "sovereign_actuator": "eureka_forge",
     "vault_seal": "seal_vault",
-    "search": "search_reality",
+    "search": "reality_compass",
+    "compass": "reality_compass",
+    "atlas": "reality_atlas",
+    "reality_atlas": "reality_atlas",
+    "search_reality": "reality_compass",
     "fetch": "ingest_evidence",
     "fetch_content": "ingest_evidence",
     "inspect_file": "ingest_evidence",
@@ -308,9 +318,9 @@ AUTH_CONTEXT_SCHEMA: dict[str, Any] = {
             "type": "string",
             "description": "Human or org identity (e.g. 'arif', 'petronas_ciso').",
         },
-        "authority_level": {
+        "token_fingerprint": {"type": "string", "description": "Cryptographic session fingerprint."}, "authority_level": {
             "type": "string",
-            "enum": ["viewer", "editor", "judge", "admin", "root"],
+            "enum": ["anonymous", "user", "admin", "apex"],
             "description": "Permission or approval scope.",
         },
         "continuity": {
@@ -319,7 +329,7 @@ AUTH_CONTEXT_SCHEMA: dict[str, Any] = {
             "description": "Continuity anchor for audit/logging.",
         },
     },
-    "required": ["actor_id", "authority_level"],
+    "required": ["actor_id", "authority_level", "token_fingerprint"],
 }
 
 #: JSON Schema for the AI runtime identity layer.
