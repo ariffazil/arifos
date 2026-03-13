@@ -1,408 +1,218 @@
-/* arifOS MCP — Developer Portal JS (H1 Higher Intelligence State) */
+/* ============================================================
+   arifOS MCP Developer Documentation — App JavaScript
+   Sidebar, copy buttons, search, mobile menu, tabs, TOC
+   ============================================================ */
 
-// ═════════════════════════════════════════════════════════════════════════════
-// H1 STATE INITIALIZATION
-// ═════════════════════════════════════════════════════════════════════════════
-const H1State = {
-  telemetry: { exploration: 0, entropy: 0, eureka: 0 },
-  w3Score: 0,
-  metabolicStage: '000_INIT',
-  floorScores: {},
-  sessionActive: false,
-  initTimestamp: Date.now()
-};
-
-// ── Theme Toggle ────────────────────────────────────────────────────────────
 (function () {
-  const html = document.documentElement;
-  const toggle = document.querySelector('[data-theme-toggle]');
-  let theme = html.getAttribute('data-theme') || 'dark';
+  'use strict';
 
-  function applyTheme(t) {
-    theme = t;
-    html.setAttribute('data-theme', t);
-    if (toggle) {
-      toggle.setAttribute('aria-label', `Switch to ${t === 'dark' ? 'light' : 'dark'} mode`);
-      toggle.innerHTML = t === 'dark'
-        ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>'
-        : '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
-    }
-    // Emit theme change for 3E visualizations
-    document.dispatchEvent(new CustomEvent('h1:themechange', { detail: { theme: t } }));
-  }
-
-  if (toggle) {
-    toggle.addEventListener('click', () => applyTheme(theme === 'dark' ? 'light' : 'dark'));
-  }
-  applyTheme(theme);
-})();
-
-// ── H1 Live Health Polling with 3E Telemetry ────────────────────────────────
-async function pollHealth() {
-  const dot = document.getElementById('statusDot');
-  const label = document.getElementById('statusLabel');
-  const version = document.getElementById('statusVersion');
-  if (!dot) return;
-
-  try {
-    const res = await fetch('https://arifosmcp.arif-fazil.com/health', {
-      method: 'GET',
-      mode: 'cors',
-      cache: 'no-store',
-      signal: AbortSignal.timeout(5000)
+  // --- Copy-to-clipboard for code blocks ---
+  function initCopyButtons() {
+    document.querySelectorAll('.copy-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var wrapper = btn.closest('.code-block-wrapper');
+        var code = wrapper ? wrapper.querySelector('code') : null;
+        if (!code) return;
+        var text = code.textContent;
+        navigator.clipboard.writeText(text).then(function () {
+          btn.textContent = 'Copied!';
+          btn.classList.add('copied');
+          setTimeout(function () {
+            btn.textContent = 'Copy';
+            btn.classList.remove('copied');
+          }, 2000);
+        }).catch(function () {
+          // Fallback
+          var ta = document.createElement('textarea');
+          ta.value = text;
+          ta.style.position = 'fixed';
+          ta.style.opacity = '0';
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand('copy');
+          document.body.removeChild(ta);
+          btn.textContent = 'Copied!';
+          btn.classList.add('copied');
+          setTimeout(function () {
+            btn.textContent = 'Copy';
+            btn.classList.remove('copied');
+          }, 2000);
+        });
+      });
     });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
-
-    dot.className = 'status-dot healthy';
-    label.textContent = `${data.status || 'healthy'} · ${data.tools_loaded || 12} tools`;
-    version.textContent = data.version || '2026.03.13-FORGED';
-
-    // H1: Update dashboard metrics if available
-    if (data.version) {
-      const vEl = document.querySelector('.footer-version');
-      if (vEl) vEl.textContent = `${data.version} · AGPL-3.0`;
-    }
-
-    // H1: Update constitutional metrics if provided
-    if (data.w3_score !== undefined) {
-      updateW3Gauge(data.w3_score);
-    }
-    if (data.metabolic_stage) {
-      updateMetabolicStage(data.metabolic_stage);
-    }
-
-    H1State.sessionActive = true;
-    document.dispatchEvent(new CustomEvent('h1:healthupdate', { detail: data }));
-
-  } catch (e) {
-    dot.className = 'status-dot degraded';
-    label.textContent = 'Unreachable from browser (CORS) — use /health directly';
-    version.textContent = '2026.03.13-FORGED';
-    H1State.sessionActive = false;
   }
-}
 
-pollHealth();
-setInterval(pollHealth, 30000);
-
-// ── H1 3E Telemetry Visualization ───────────────────────────────────────────
-function render3ETelemetry(containerId, telemetry) {
-  const container = document.getElementById(containerId);
-  if (!container) return;
-
-  const { exploration = {}, entropy = {}, eureka = {} } = telemetry;
-
-  container.innerHTML = `
-    <div class="telem-grid">
-      <div class="telem-card telem-exploration">
-        <div class="telem-header">
-          <span class="telem-icon">🔭</span>
-          <span class="telem-name">Exploration</span>
-        </div>
-        <div class="telem-metric">
-          <span class="telem-val">${exploration.sources_consulted || 0}</span>
-          <span class="telem-unit">sources</span>
-        </div>
-        <div class="telem-bar">
-          <div class="telem-fill" style="width: ${Math.min((exploration.breadth_score || 0) * 100, 100)}%"></div>
-        </div>
-        <div class="telem-label">Breadth: ${((exploration.breadth_score || 0) * 100).toFixed(0)}%</div>
-      </div>
-      
-      <div class="telem-card telem-entropy">
-        <div class="telem-header">
-          <span class="telem-icon">⚡</span>
-          <span class="telem-name">Entropy</span>
-        </div>
-        <div class="telem-metric">
-          <span class="telem-val">${((entropy.uncertainty_index || 0) * 100).toFixed(1)}</span>
-          <span class="telem-unit">%</span>
-        </div>
-        <div class="telem-bar telem-bar-entropy">
-          <div class="telem-fill" style="width: ${Math.min((entropy.uncertainty_index || 0) * 100, 100)}%"></div>
-        </div>
-        <div class="telem-label">${entropy.contradiction_count || 0} contradictions</div>
-      </div>
-      
-      <div class="telem-card telem-eureka">
-        <div class="telem-header">
-          <span class="telem-icon">💡</span>
-          <span class="telem-name">Eureka</span>
-        </div>
-        <div class="telem-metric">
-          <span class="telem-val">${((eureka.novelty_score || 0) * 100).toFixed(0)}</span>
-          <span class="telem-unit">% novel</span>
-        </div>
-        <div class="telem-bar telem-bar-eureka">
-          <div class="telem-fill" style="width: ${Math.min((eureka.novelty_score || 0) * 100, 100)}%"></div>
-        </div>
-        <div class="telem-label">${eureka.crystallisation_flag ? '✓ Crystallized' : '○ Forming'}</div>
-      </div>
-    </div>
-  `;
-}
-
-// ── H1 W3 Tri-Witness Gauge ────────────────────────────────────────────────
-function updateW3Gauge(w3Score) {
-  H1State.w3Score = w3Score;
-  const gauge = document.getElementById('w3Gauge');
-  const value = document.getElementById('w3Value');
-  const verdict = document.getElementById('w3Verdict');
-  
-  if (!gauge || !value || !verdict) return;
-
-  // W3 = (w_H·s_H × w_A·s_A × w_E·s_E)^(1/3)
-  const percentage = Math.min(w3Score * 100, 100);
-  gauge.style.setProperty('--w3-progress', `${percentage}%`);
-  value.textContent = w3Score.toFixed(3);
-
-  // Verdict thresholds
-  let verdictClass = 'verdict-void';
-  let verdictText = '888_HOLD';
-  
-  if (w3Score >= 0.95) {
-    verdictClass = 'verdict-seal';
-    verdictText = 'SEAL';
-  } else if (w3Score >= 0.75) {
-    verdictClass = 'verdict-partial';
-    verdictText = 'PARTIAL';
-  } else if (w3Score >= 0.50) {
-    verdictClass = 'verdict-sabar';
-    verdictText = 'SABAR';
+  // --- Sidebar collapsible groups ---
+  function initSidebarGroups() {
+    document.querySelectorAll('.sidebar-group-title').forEach(function (title) {
+      title.addEventListener('click', function () {
+        var group = title.closest('.sidebar-group');
+        if (group) group.classList.toggle('collapsed');
+      });
+    });
   }
-  
-  verdict.className = `w3-verdict ${verdictClass}`;
-  verdict.textContent = verdictText;
-}
 
-// ── H1 Metabolic Stage Indicator ────────────────────────────────────────────
-function updateMetabolicStage(stage) {
-  H1State.metabolicStage = stage;
-  const indicator = document.getElementById('metabolicStage');
-  if (!indicator) return;
+  // --- Sidebar search filter ---
+  function initSidebarSearch() {
+    var input = document.querySelector('.sidebar-search input');
+    if (!input) return;
+    input.addEventListener('input', function () {
+      var query = input.value.toLowerCase().trim();
+      document.querySelectorAll('.sidebar-group').forEach(function (group) {
+        var links = group.querySelectorAll('.sidebar-link');
+        var anyVisible = false;
+        links.forEach(function (link) {
+          var text = link.textContent.toLowerCase();
+          if (!query || text.indexOf(query) !== -1) {
+            link.style.display = '';
+            anyVisible = true;
+          } else {
+            link.style.display = 'none';
+          }
+        });
+        // Show group if any link matches
+        if (query) {
+          group.classList.remove('collapsed');
+          group.style.display = anyVisible ? '' : 'none';
+        } else {
+          group.style.display = '';
+        }
+      });
+    });
+  }
 
-  // Parse stage number (000_INIT → 000)
-  const stageNum = stage.match(/(\d+)/)?.[0] || '000';
-  const stageName = stage.replace(/^\d+_/, '');
-  
-  indicator.innerHTML = `
-    <div class="stage-indicator">
-      <div class="stage-num">${stageNum}</div>
-      <div class="stage-name">${stageName}</div>
-      <div class="stage-bar">
-        ${Array.from({length: 11}, (_, i) => {
-          const num = String(i * 111).padStart(3, '0');
-          const active = parseInt(num) <= parseInt(stageNum);
-          return `<div class="stage-dot ${active ? 'active' : ''}"></div>`;
-        }).join('')}
-      </div>
-    </div>
-  `;
-}
+  // --- Sidebar active state ---
+  function initSidebarActive() {
+    var path = window.location.pathname;
+    var hash = window.location.hash;
+    document.querySelectorAll('.sidebar-link').forEach(function (link) {
+      var href = link.getAttribute('href');
+      if (!href) return;
+      // Match by page path
+      if (path.indexOf(href.replace(/^\.\.\//, '/').replace(/^\.\//, '/')) !== -1) {
+        link.classList.add('active');
+        // Ensure parent group is expanded
+        var group = link.closest('.sidebar-group');
+        if (group) group.classList.remove('collapsed');
+      }
+      // Match by hash on same page
+      if (hash && href.indexOf(hash) !== -1) {
+        document.querySelectorAll('.sidebar-link.active').forEach(function (a) {
+          a.classList.remove('active');
+        });
+        link.classList.add('active');
+      }
+    });
+  }
 
-// ── H1 Constitutional Floor Monitor ─────────────────────────────────────────
-function updateFloorMonitor(floorScores) {
-  H1State.floorScores = floorScores || {};
-  const monitor = document.getElementById('floorMonitor');
-  if (!monitor) return;
+  // --- Mobile hamburger menu ---
+  function initMobileMenu() {
+    var hamburger = document.querySelector('.nav-hamburger');
+    var sidebar = document.querySelector('.sidebar');
+    var overlay = document.querySelector('.sidebar-overlay');
+    if (!hamburger || !sidebar) return;
 
-  const floors = [
-    { id: 'F1', name: 'Amanah', score: floorScores.F1 || 1.0 },
-    { id: 'F2', name: 'Truth', score: floorScores.F2 || 0.99 },
-    { id: 'F3', name: 'Witness', score: floorScores.F3 || 0.95 },
-    { id: 'F6', name: 'Empathy', score: floorScores.F6 || 0.95 },
-    { id: 'F7', name: 'Humility', score: floorScores.F7 || 0.05 },
-    { id: 'F8', name: 'Genius', score: floorScores.F8 || 0.80 },
-    { id: 'F9', name: 'Anti-Hantu', score: floorScores.F9 || 0.30 },
-    { id: 'F11', name: 'Command', score: floorScores.F11 || 1.0 },
-    { id: 'F12', name: 'Injection', score: floorScores.F12 || 1.0 },
-  ];
+    hamburger.addEventListener('click', function () {
+      sidebar.classList.toggle('open');
+      if (overlay) overlay.classList.toggle('active');
+    });
 
-  monitor.innerHTML = floors.map(f => `
-    <div class="floor-item ${f.score >= 0.95 ? 'floor-pass' : f.score >= 0.80 ? 'floor-warn' : 'floor-fail'}">
-      <span class="floor-id">${f.id}</span>
-      <span class="floor-name">${f.name}</span>
-      <div class="floor-bar">
-        <div class="floor-fill" style="width: ${f.score * 100}%"></div>
-      </div>
-      <span class="floor-score">${(f.score * 100).toFixed(0)}%</span>
-    </div>
-  `).join('');
-}
-
-// ── Tab Switching ───────────────────────────────────────────────────────────
-document.querySelectorAll('[data-tab]').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const tabId = btn.getAttribute('data-tab');
-    const parent = btn.closest('.tabs');
-    if (!parent) return;
-
-    parent.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('tab-btn--active'));
-    parent.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('tab-panel--active'));
-
-    btn.classList.add('tab-btn--active');
-    const panel = document.getElementById(`tab-${tabId}`);
-    if (panel) panel.classList.add('tab-panel--active');
-    
-    // H1: Emit tab change event
-    document.dispatchEvent(new CustomEvent('h1:tabchange', { detail: { tab: tabId } }));
-  });
-});
-
-// ── Copy Buttons ────────────────────────────────────────────────────────────
-document.querySelectorAll('.copy-btn').forEach(btn => {
-  btn.addEventListener('click', async () => {
-    const targetId = btn.getAttribute('data-copy');
-    const pre = document.getElementById(targetId);
-    if (!pre) return;
-
-    const text = pre.innerText || pre.textContent;
-    try {
-      await navigator.clipboard.writeText(text);
-      const orig = btn.textContent;
-      btn.textContent = 'Copied!';
-      btn.classList.add('copied');
-      setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 2000);
-    } catch (e) {
-      const range = document.createRange();
-      range.selectNodeContents(pre);
-      window.getSelection().removeAllRanges();
-      window.getSelection().addRange(range);
-    }
-  });
-});
-
-// ── Nav scroll active state ─────────────────────────────────────────────────
-const sections = document.querySelectorAll('section[id]');
-const navLinks = document.querySelectorAll('.nav-link:not(.nav-link-external)');
-
-const observer = new IntersectionObserver(entries => {
-  entries.forEach(e => {
-    if (e.isIntersecting) {
-      const id = e.target.id;
-      navLinks.forEach(link => {
-        link.style.color = link.getAttribute('href') === `#${id}`
-          ? 'var(--color-accent)' : '';
+    if (overlay) {
+      overlay.addEventListener('click', function () {
+        sidebar.classList.remove('open');
+        overlay.classList.remove('active');
       });
     }
-  });
-}, { rootMargin: '-20% 0px -70% 0px' });
 
-sections.forEach(s => observer.observe(s));
-
-// ── Animate numbers in hero stats ───────────────────────────────────────────
-function animateValue(el, target, duration = 800) {
-  if (!el || isNaN(target)) return;
-  const start = 0;
-  const startTime = performance.now();
-  function update(now) {
-    const progress = Math.min((now - startTime) / duration, 1);
-    const eased = 1 - Math.pow(1 - progress, 3);
-    el.textContent = Math.round(start + (target - start) * eased).toString();
-    if (progress < 1) requestAnimationFrame(update);
+    // Close sidebar on link click (mobile)
+    sidebar.querySelectorAll('.sidebar-link').forEach(function (link) {
+      link.addEventListener('click', function () {
+        if (window.innerWidth <= 768) {
+          sidebar.classList.remove('open');
+          if (overlay) overlay.classList.remove('active');
+        }
+      });
+    });
   }
-  requestAnimationFrame(update);
-}
 
-// Animate hero stats on load
-window.addEventListener('load', () => {
-  document.querySelectorAll('.stat-val').forEach(el => {
-    const target = parseInt(el.textContent);
-    if (!isNaN(target)) animateValue(el, target, 1200);
-  });
-});
+  // --- Integration Tabs ---
+  function initTabs() {
+    document.querySelectorAll('.tab-container').forEach(function (container) {
+      var btns = container.querySelectorAll('.tab-btn');
+      var panels = container.querySelectorAll('.tab-panel');
+      btns.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var target = btn.getAttribute('data-tab');
+          btns.forEach(function (b) { b.classList.remove('active'); });
+          panels.forEach(function (p) { p.classList.remove('active'); });
+          btn.classList.add('active');
+          var panel = container.querySelector('#' + target);
+          if (panel) panel.classList.add('active');
+        });
+      });
+    });
+  }
 
-// ── H1 Entrance animation for cards ─────────────────────────────────────────
-const cardObserver = new IntersectionObserver(entries => {
-  entries.forEach((e, i) => {
-    if (e.isIntersecting) {
-      e.target.style.opacity = '1';
-      e.target.style.transform = 'translateY(0)';
-      cardObserver.unobserve(e.target);
+  // --- Right-side TOC scroll tracking ---
+  function initTocTracking() {
+    var tocLinks = document.querySelectorAll('.toc a');
+    if (!tocLinks.length) return;
+
+    var headings = [];
+    tocLinks.forEach(function (link) {
+      var href = link.getAttribute('href');
+      if (href && href.startsWith('#')) {
+        var el = document.getElementById(href.slice(1));
+        if (el) headings.push({ el: el, link: link });
+      }
+    });
+
+    if (!headings.length) return;
+
+    function update() {
+      var scrollY = window.scrollY + 120;
+      var current = headings[0];
+      for (var i = 0; i < headings.length; i++) {
+        if (headings[i].el.offsetTop <= scrollY) {
+          current = headings[i];
+        }
+      }
+      tocLinks.forEach(function (l) { l.classList.remove('active'); });
+      if (current) current.link.classList.add('active');
+    }
+
+    window.addEventListener('scroll', update, { passive: true });
+    update();
+  }
+
+  // --- Smooth scroll for anchor links ---
+  function initSmoothScroll() {
+    document.querySelectorAll('a[href^="#"]').forEach(function (a) {
+      a.addEventListener('click', function (e) {
+        var target = document.getElementById(a.getAttribute('href').slice(1));
+        if (target) {
+          e.preventDefault();
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          history.replaceState(null, '', a.getAttribute('href'));
+        }
+      });
+    });
+  }
+
+  // --- Initialize all on DOMContentLoaded ---
+  document.addEventListener('DOMContentLoaded', function () {
+    initCopyButtons();
+    initSidebarGroups();
+    initSidebarSearch();
+    initSidebarActive();
+    initMobileMenu();
+    initTabs();
+    initTocTracking();
+    initSmoothScroll();
+
+    // Re-run Prism if loaded
+    if (window.Prism) {
+      Prism.highlightAll();
     }
   });
-}, { threshold: 0, rootMargin: '0px 0px -5% 0px' });
-
-document.querySelectorAll('.tool-card, .floor-card, .doc-card, .endpoint-card').forEach((card, i) => {
-  card.style.opacity = '0';
-  card.style.transform = 'translateY(16px)';
-  card.style.transition = `opacity 0.4s ease ${i * 0.04}s, transform 0.4s ease ${i * 0.04}s, border-color 180ms cubic-bezier(0.16,1,0.3,1), box-shadow 180ms cubic-bezier(0.16,1,0.3,1)`;
-  cardObserver.observe(card);
-});
-
-// ── H1 Simulated 3E Demo (for showcase) ─────────────────────────────────────
-document.addEventListener('DOMContentLoaded', () => {
-  // Simulate a 3E telemetry update for demo purposes
-  const demo3E = {
-    exploration: { sources_consulted: 5, depth_level: 3, breadth_score: 0.85 },
-    entropy: { uncertainty_index: 0.12, contradiction_count: 1, resolution_confidence: 0.88 },
-    eureka: { insight_delta: 0.72, novelty_score: 0.85, crystallisation_flag: true }
-  };
-  
-  // If there's a demo container, populate it
-  if (document.getElementById('demo3ETelemetry')) {
-    render3ETelemetry('demo3ETelemetry', demo3E);
-  }
-  
-  // Initialize W3 gauge with demo value
-  updateW3Gauge(0.87);
-  
-  // Initialize metabolic stage
-  updateMetabolicStage('777_EUREKA');
-  
-  // Initialize floor monitor
-  updateFloorMonitor({
-    F1: 1.0, F2: 0.99, F3: 0.96, F6: 0.98, F7: 0.04, 
-    F8: 0.87, F9: 0.15, F11: 1.0, F12: 1.0
-  });
-});
-
-// ── H1 Console Greeting ─────────────────────────────────────────────────────
-console.log('%c🛡️ arifOS MCP', 'font-size: 24px; font-weight: bold; color: #2563eb;');
-console.log('%cH1 Higher Intelligence State — Developer Portal', 'font-size: 14px; color: #8896ab;');
-console.log('%c3E Telemetry · W3 Tri-Witness · 13 Constitutional Floors', 'font-size: 12px; color: #5a6a7d;');
-console.log('%cDITEMPA BUKAN DIBERI — Forged, Not Given', 'font-size: 11px; font-style: italic; color: #4a5a6d;');
-
-// Export H1 state for debugging
-window.H1State = H1State;
-
-// ── API REFERENCE TABS ──────────────────────────────────────
-(function initApiTabs() {
-  const tabContainer = document.getElementById('apiTabs');
-  if (!tabContainer) return;
-
-  tabContainer.addEventListener('click', (e) => {
-    const btn = e.target.closest('.api-tab');
-    if (!btn) return;
-
-    const target = btn.dataset.apiTab;
-
-    // Update tab buttons
-    tabContainer.querySelectorAll('.api-tab').forEach(t => t.classList.remove('api-tab--active'));
-    btn.classList.add('api-tab--active');
-
-    // Update panels
-    document.querySelectorAll('.api-panel').forEach(p => p.classList.remove('api-panel--active'));
-    const panel = document.getElementById('api-' + target);
-    if (panel) panel.classList.add('api-panel--active');
-  });
 })();
-
-// ── COPY BUTTON — extended for new code blocks ──────────────
-document.addEventListener('click', (e) => {
-  const btn = e.target.closest('.copy-btn[data-copy-text]');
-  if (!btn) return;
-
-  const id = btn.dataset.copyText;
-  const pre = document.getElementById(id);
-  if (!pre) return;
-
-  const text = pre.textContent || pre.innerText;
-  navigator.clipboard.writeText(text.trim()).then(() => {
-    const orig = btn.textContent;
-    btn.textContent = 'Copied ✓';
-    btn.style.color = '#4ade80';
-    setTimeout(() => { btn.textContent = orig; btn.style.color = ''; }, 1800);
-  });
-});

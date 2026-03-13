@@ -167,15 +167,15 @@ def _axiom_checks(payload: dict[str, Any], tool: str = "") -> dict[str, Any]:
             k in text for k in ["evidence", "grounding", "results", "citations", "ids"]
         )
         has_authority = any(k in text for k in ["actor", "auth", "human_approve", "token"])
-    dS_val = _safe_float(payload, "dS", -0.1)
+    ds_val = _safe_float(payload, "dS", -0.1)
 
     return {
         "A1_TRUTH_COST": {"pass": bool(has_evidence), "note": "evidence fields present"},
         "A2_SCAR_WEIGHT": {"pass": bool(has_authority), "note": "authority fields present"},
         "A3_ENTROPY_WORK": {
-            "pass": dS_val <= 0.2,
+            "pass": ds_val <= 0.2,
             "note": "dS bounded (<= 0.2)",
-            "dS": dS_val,
+            "dS": ds_val,
         },
     }
 
@@ -257,7 +257,7 @@ def _calculate_tri_witness_consensus(tool: str, payload: dict[str, Any]) -> dict
                 "w3": 0.0,
                 "threshold": consensus_threshold,
                 "shattered_by": witness_name,
-                "shatter_reason": f"{witness_name}_witness score {score:.4f} < floor {witness_floor}",
+                "shatter_reason": f"{witness_name} score {score:.4f} < floor {witness_floor}",
                 "witnesses": witnesses,
                 "tool_class": tool_class["class"],
             }
@@ -602,15 +602,15 @@ def _check_landauer_bound(compute_ms: float, tokens_generated: int, d_s: float) 
     nearly zero compute time/tokens, it is a mathematical anomaly.
     """
     # Baseline constants (approximations for semantic energy bounds)
-    k_B_proxy = 1.38e-2  # Conceptual Boltzmann proxy for LLM compute
-    T_proxy = 300.0  # System 'temperature' baseline
+    kb_proxy = 1.38e-2  # Conceptual Boltzmann proxy for LLM compute
+    tp_proxy = 300.0  # System 'temperature' baseline
 
     # Information bits theoretically processed (derived from entropy reduction)
     # Use absolute value since d_s must be <= 0 (reduction)
     bits_processed = abs(d_s) * 100
 
     # Minimum theoretical cost to generate this clarity
-    min_cost = bits_processed * k_B_proxy * T_proxy * math.log(2)
+    min_cost = bits_processed * kb_proxy * tp_proxy * math.log(2)
 
     # Actual effort spent (compute time + token weight)
     actual_effort = (compute_ms * 0.5) + (tokens_generated * 1.5)
@@ -632,8 +632,8 @@ def _check_landauer_bound(compute_ms: float, tokens_generated: int, d_s: float) 
         "passed": passed,
         "violation": violation,
         "bits_processed": round(bits_processed, 4),
-        "k_B_proxy": k_B_proxy,
-        "T_proxy": T_proxy,
+        "k_B_proxy": kb_proxy,
+        "T_proxy": tp_proxy,
         "derived": True,
     }
 
@@ -668,10 +668,17 @@ def wrap_tool_output(tool: str, payload: dict[str, Any]) -> dict[str, Any]:
 
     # 3. Verdict Determination
     raw_verdict = str(payload.get("verdict", "SEAL"))
-    has_hard_fail = any(
+    # HARD STRIKE: Critical floors that definitely cause VOID (Immutability & Defense)
+    has_critical_fail = any(
         v.get("pass") is False and v.get("type") == "floor"
         for k, v in law_checks.items()
-        if k in {"F1_AMANAH", "F2_TRUTH", "F7_HUMILITY", "F12_DEFENSE"}
+        if k in {"F1_AMANAH", "F12_DEFENSE", "F9_ANTI_HANTU"}
+    )
+    # SOFT STRIKE: Data/Environment floors that should cause HOLD/SABAR
+    has_data_fail = any(
+        v.get("pass") is False and v.get("type") == "floor"
+        for k, v in law_checks.items()
+        if k in {"F2_TRUTH", "F7_HUMILITY"}
     )
 
     tri_witness = _calculate_tri_witness_consensus(tool, payload)
@@ -691,30 +698,38 @@ def wrap_tool_output(tool: str, payload: dict[str, Any]) -> dict[str, Any]:
     stage = str(payload.get("stage") or TOOL_STAGE_MAP.get(tool, "000_INIT"))
     stage_num = _parse_stage_num(stage)
 
-    # Verdict Logic
+    # Verdict Logic: Eliminating VOID-memanjang
     verdict = raw_verdict
     if raw_verdict == "VOID":
         pass
-    elif has_hard_fail:
+    elif has_critical_fail:
         verdict = "VOID"
+    elif has_data_fail:
+        # F2/F7 failures are treated as "needs more context" (SABAR) or human verification (HOLD)
+        verdict = "SABAR" if stage_num < 444 else "HOLD"
     elif stage == "000_INIT":
-        verdict = "SEAL" if tri_witness.get("pass", False) else "VOID"
+        verdict = "SEAL" if tri_witness.get("pass", False) else "HOLD"
     elif psi_score < 1.0 and payload.get("status") not in {
         "RECALL_PARTIAL_FAILURE",
         "SEARCH_PARTIAL_FAILURE",
     }:
-        verdict = "VOID" if psi_score < 0.5 else "SABAR"
+        # Low vitality: critical (<0.5) is SABAR (cooling), very low is HOLD
+        verdict = "SABAR" if psi_score >= 0.5 else "HOLD"
     elif not tri_witness.get("pass", False) and payload.get("status") not in {
         "RECALL_PARTIAL_FAILURE",
         "SEARCH_PARTIAL_FAILURE",
     }:
-        verdict = "VOID" if tri_witness.get("shattered_by") else "SABAR"
+        # Shattered consensus on critical tools is VOID, others are HOLD
+        if tri_witness.get("shattered_by") and tool in {"seal_vault", "apex_judge"}:
+            verdict = "VOID"
+        else:
+            verdict = "HOLD"
     elif not paradox_resolved and tool in {"critique_thought", "apex_judge"}:
-        verdict = "VOID" if phi_p < 0.5 else "SABAR"
+        verdict = "SABAR" if phi_p >= 0.5 else "HOLD"
     elif not ortho_pass and tool in {"critique_thought", "apex_judge", "simulate_heart"}:
-        verdict = "VOID" if omega_ortho < 0.50 else "SABAR"
+        verdict = "SABAR" if omega_ortho >= 0.50 else "HOLD"
     elif landauer_data["violation"]:
-        verdict = "SABAR"
+        verdict = "SABAR"  # Cooling on thermodynamic thermal run
     elif (failed_axioms or failed_laws) and verdict == "SEAL":
         verdict = "PARTIAL"
 
@@ -769,7 +784,7 @@ def wrap_tool_output(tool: str, payload: dict[str, Any]) -> dict[str, Any]:
     errors = []
     if verdict in ["VOID", "SABAR"]:
         error_code = str(payload.get("error_code", "")).strip() or "GOVERNANCE_BLOCK"
-        if not str(payload.get("error_code", "")).strip() and has_hard_fail:
+        if not str(payload.get("error_code", "")).strip() and (has_critical_fail or has_data_fail):
             error_code = "CONSTITUTIONAL_VIOLATION"
         elif not str(payload.get("error_code", "")).strip() and auth_state == "unverified":
             error_code = "AUTH_FAILURE"

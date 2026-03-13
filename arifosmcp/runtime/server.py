@@ -175,6 +175,11 @@ _dashboard_dir = os.path.join(os.path.dirname(__file__), "..", "sites", "apex-da
 if os.path.isdir(_dashboard_dir):
     _mcp_app.mount("/dashboard", StaticFiles(directory=_dashboard_dir, html=True), name="dashboard")
 
+# Mount H1 Developer Portal
+_developer_dir = os.path.join(os.path.dirname(__file__), "..", "sites", "developer")
+if os.path.isdir(_developer_dir):
+    _mcp_app.mount("/developer", StaticFiles(directory=_developer_dir, html=True), name="developer")
+
 
 def create_aaa_mcp_server() -> FastMCP:
     """Return the fully configured arifOS MCP hub."""
