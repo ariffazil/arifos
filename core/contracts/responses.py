@@ -274,7 +274,7 @@ class GovernedResponse(BaseModel):
 # ---------------------------------------------------------
 def runtime_envelope_to_governed(runtime_env: dict[str, Any]) -> GovernedResponse:
     """Convert legacy RuntimeEnvelope to strict MGI GovernedResponse."""
-    
+
     # Extract machine state
     machine = MachineEnvelope(
         status="READY" if runtime_env.get("ok") else "BLOCKED",
@@ -282,7 +282,7 @@ def runtime_envelope_to_governed(runtime_env: dict[str, Any]) -> GovernedRespons
         session_id=runtime_env.get("session_id", "global"),
         continuity_state="VERIFIED" if runtime_env.get("auth_context") else "UNVERIFIED",
     )
-    
+
     # Extract governance state
     verdict_map = {
         "SEAL": "APPROVED",
@@ -298,7 +298,7 @@ def runtime_envelope_to_governed(runtime_env: dict[str, Any]) -> GovernedRespons
         reason=runtime_env.get("status", "Unknown"),
         authority_state="VERIFIED" if runtime_env.get("auth_context") else "UNVERIFIED",
     )
-    
+
     # Extract intelligence state (if present)
     intel_data = runtime_env.get("intelligence_state", {})
     intelligence = IntelligenceEnvelope(
@@ -321,7 +321,7 @@ def runtime_envelope_to_governed(runtime_env: dict[str, Any]) -> GovernedRespons
             decision_required=intel_data.get("decision_required", []),
         ),
     )
-    
+
     return GovernedResponse(
         machine=machine,
         governance=governance,
@@ -333,14 +333,14 @@ def runtime_envelope_to_governed(runtime_env: dict[str, Any]) -> GovernedRespons
 
 def governed_to_runtime_envelope(governed: GovernedResponse) -> dict[str, Any]:
     """Convert strict MGI GovernedResponse to legacy RuntimeEnvelope format."""
-    
+
     verdict_map = {
         "APPROVED": "SEAL",
         "PARTIAL": "PARTIAL",
         "HOLD": "HOLD",
         "REJECTED": "VOID",
     }
-    
+
     return {
         "ok": governed.machine.status == "READY",
         "tool": governed.payload.get("tool", "unknown"),
