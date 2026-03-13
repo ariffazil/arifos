@@ -361,6 +361,12 @@ async def _wrap_call(
                 "debug": bool(payload.get("debug")),
                 "dry_run": bool(payload.get("dry_run")),
             }
+        else:
+            # Ensure payload flags are reflected even when kernel returns its own meta
+            if payload.get("dry_run") and not kernel_res["meta"].get("dry_run"):
+                kernel_res["meta"]["dry_run"] = True
+            if payload.get("debug") and not kernel_res["meta"].get("debug"):
+                kernel_res["meta"]["debug"] = True
 
         # Carry caller_context into envelope from payload or argument
         if "caller_context" not in kernel_res and caller_context is not None:
