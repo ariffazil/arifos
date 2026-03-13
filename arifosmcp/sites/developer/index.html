@@ -1,1447 +1,1098 @@
-<!--
-   ______                            __
-  / ____/___  ____ ___  ____  __  __/ /____  _____
- / /   / __ \/ __ `__ \/ __ \/ / / / __/ _ \/ ___/
-/ /___/ /_/ / / / / / / /_/ / /_/ / /_/  __/ /
-\____/\____/_/ /_/ /_/ .___/\__,_/\__/\___/_/
-                    /_/
-        Created with Perplexity Computer
-        https://www.perplexity.ai/computer
--->
-
-<!-- Perplexity Computer Attribution — SEO Meta Tags -->
-<meta name="generator" content="Perplexity Computer">
-<meta name="author" content="Perplexity Computer">
-<meta property="og:see_also" content="https://www.perplexity.ai/computer">
-<link rel="author" href="https://www.perplexity.ai/computer">
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>arifOS MCP — Constitutional AI Governance Server</title>
-  <meta name="description" content="arifOS MCP: production-grade constitutional AI governance kernel. FastMCP server with 12 tools, 13 constitutional floors, VOID Memanjang elimination, and 3E intelligence telemetry.">
-  <meta property="og:title" content="arifOS MCP — Constitutional AI Governance Server">
-  <meta property="og:description" content="Governed inference infrastructure. FastMCP server enforcing 13 constitutional floors, VOID elimination, 3E telemetry.">
-  <meta property="og:url" content="https://arifosmcp.arif-fazil.com">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
+<!--
+     _____                _           _ _         
+    |  __ \              | |         | (_)        
+    | |__) |__ _ __ _ __ | | _____  _(_) |_ _   _ 
+    |  ___/ _ \ '__| '_ \| |/ _ \ \/ / | __| | | |
+    | |  |  __/ |  | |_) | |  __/>  <| | |_| |_| |
+    |_|   \___|_|  | .__/|_|\___/_/\_\_|\__|\__, |
+                   | |                       __/ |
+                   |_|                      |___/ 
+
+    Built with Perplexity Computer
+    https://www.perplexity.ai/computer
+-->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>arifosMCP Developer Documentation</title>
+<meta name="description" content="Complete developer documentation for arifosMCP — the constitutional AI governance engine. Tool reference, architecture, integration guides, and self-hosting.">
+
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<!-- Prism.js -->
+<link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+
+<!-- Styles -->
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<!-- TRINITY STRIP -->
+<!-- ========== UNIFIED TRINITY STRIP ========== -->
 <div class="unified-trinity-strip">
-  <a href="https://arif-fazil.com" class="utn-node utn-human">HUMAN</a>
-  <span class="utn-div">·</span>
-  <a href="https://arifos.arif-fazil.com" class="utn-node utn-theory">THEORY</a>
-  <span class="utn-div">·</span>
-  <a href="https://arifosmcp.arif-fazil.com" class="utn-node utn-apps utn-active">APPS</a>
-  <span class="utn-sep"></span>
-  <span class="utn-sig">ΔΩΨ — DITEMPA BUKAN DIBERI</span>
+  <a href="https://arif-fazil.com/" class="utn utn-human">HUMAN</a>
+  <span class="utn-dot">·</span>
+  <a href="https://arifos.arif-fazil.com/" class="utn utn-theory">THEORY</a>
+  <span class="utn-dot">·</span>
+  <a href="https://arifosmcp.arif-fazil.com/" class="utn utn-apps utn-active">APPS</a>
+  <span class="utn-divider"></span>
+  <span class="utn-motto">ADΨ — DITEMPA BUKAN DIBERI</span>
 </div>
 
-<!-- NAV -->
-<nav class="nav unified-nav" id="mainNav">
-  <div class="nav-inner unified-nav-inner">
-    <a href="https://arifosmcp.arif-fazil.com" class="nav-logo unified-logo">
-      <svg width="22" height="22" viewBox="0 0 200 200" fill="none" aria-label="arifosMCP" style="flex-shrink:0">
-        <defs>
-          <linearGradient id="hgG2" x1="50%" y1="0%" x2="50%" y2="100%"><stop offset="0%" stop-color="#ffe066"/><stop offset="100%" stop-color="#b8860b"/></linearGradient>
-          <linearGradient id="hgB2" x1="100%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#60a5fa"/><stop offset="100%" stop-color="#1e40af"/></linearGradient>
-          <linearGradient id="hgR2" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" stop-color="#b91c1c"/><stop offset="100%" stop-color="#ff6060"/></linearGradient>
-        </defs>
-        <line x1="100" y1="104" x2="100" y2="22" stroke="url(#hgG2)" stroke-width="22" stroke-linecap="round"/>
-        <circle cx="100" cy="20" r="16" fill="url(#hgG2)"/>
-        <line x1="96" y1="112" x2="28" y2="163" stroke="url(#hgB2)" stroke-width="22" stroke-linecap="round"/>
-        <circle cx="26" cy="165" r="16" fill="url(#hgB2)"/>
-        <line x1="104" y1="112" x2="172" y2="163" stroke="url(#hgR2)" stroke-width="22" stroke-linecap="round"/>
-        <circle cx="174" cy="165" r="16" fill="url(#hgR2)"/>
-        <circle cx="100" cy="108" r="30" fill="#0a0a0b"/>
-        <polygon points="100,93  85,121  115,121" fill="none" stroke="#d0d0dc" stroke-width="5" stroke-linejoin="round"/>
-      </svg>
-      <span class="unified-logo-mark" style="color:#e2e2e5">arif<span style="color:#3b82f6">.</span>MCP</span>
-    </a>
-
-    <div class="nav-links unified-nav-links">
-      <a href="#tools"            class="nav-link unified-nav-link">Tools</a>
-      <a href="#quickstart"       class="nav-link unified-nav-link">Quick Start</a>
-      <a href="#docs"             class="nav-link unified-nav-link">Docs</a>
-      <a href="#floors"           class="nav-link unified-nav-link">13 Floors</a>
-      <a href="#dashboard-section" class="nav-link unified-nav-link">Dashboard</a>
-    </div>
-
-    <div class="unified-nav-right">
-      <a href="https://github.com/ariffazil/arifosmcp" target="_blank" rel="noopener noreferrer" class="unified-nav-ghost">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.164 6.839 9.49.5.09.682-.218.682-.485 0-.236-.009-.866-.014-1.7-2.782.604-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.464-1.11-1.464-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.03-2.683-.103-.253-.447-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836c.85.004 1.705.115 2.504.337 1.909-1.294 2.747-1.025 2.747-1.025.546 1.376.202 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.741 0 .269.18.579.688.481C19.138 20.16 22 16.416 22 12c0-5.523-4.477-10-10-10z"/></svg>
-        GitHub
-      </a>
-      <a href="https://arifosmcp.arif-fazil.com/health" target="_blank" class="unified-nav-cta unified-nav-cta--apps">
-        Live Status →
-      </a>
-      <button class="nav-theme-toggle" data-theme-toggle aria-label="Switch to light mode">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-      </button>
-    </div>
+<!-- ========== NAVIGATION ========== -->
+<nav class="doc-nav">
+  <a href="#" class="doc-nav-logo">
+    <span>arif<span class="logo-dot">.</span>MCP</span>
+    <span class="version-badge">v2026.03.13-FORGED</span>
+  </a>
+  <div class="doc-nav-center">
+    <a href="#overview" class="active">Docs</a>
+    <a href="#tool-reference">Tools</a>
+    <a href="#integrations">Integrations</a>
+    <a href="#self-hosting">Self-Hosting</a>
+  </div>
+  <div class="doc-nav-right">
+    <button class="hamburger" id="hamburgerBtn" aria-label="Toggle menu">
+      <span></span><span></span><span></span>
+    </button>
+    <a href="https://arifosmcp.arif-fazil.com/health" target="_blank" class="nav-cta">LIVE STATUS →</a>
   </div>
 </nav>
 
-<!-- HERO -->
-<section class="hero">
-  <div class="hero-grid-bg" aria-hidden="true"></div>
-  <div class="container">
-    <div class="hero-badge">
-      <span class="badge-dot"></span>
-      FORGED-2026.03 · 12 TOOLS LOADED · MGI GRAND UNIFIED SPEC
+<!-- ========== DOC LAYOUT ========== -->
+<div class="doc-layout">
+
+<!-- ========== LEFT SIDEBAR ========== -->
+<aside class="doc-sidebar" id="docSidebar">
+  <div class="sidebar-search">
+    <div class="sidebar-search-wrap">
+      <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input type="text" id="sidebarSearch" placeholder="Search docs..." autocomplete="off">
     </div>
-    <h1 class="hero-title">The Constitutional<br><span class="hero-accent">AI Governance</span><br>Server</h1>
-    <p class="hero-sub">arifOS MCP enforces 13 constitutional floors on every inference. VOID Memanjang eliminated. 3E telemetry on every response. Built on FastMCP. Deployed on Hostinger VPS.</p>
-    <div class="hero-cta-row">
-      <a href="#quickstart" class="btn btn-primary">Quick Start →</a>
-      <a href="https://arifosmcp.arif-fazil.com/dashboard/" target="_blank" class="btn btn-outline">Live Dashboard</a>
-      <a href="https://arifosmcp.arif-fazil.com/health" target="_blank" class="btn btn-ghost">
-        <span class="inline-dot"></span>
-        /health
-      </a>
+  </div>
+
+  <!-- Getting Started -->
+  <div class="sidebar-section" data-section="getting-started">
+    <div class="sidebar-section-title">Getting Started <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></div>
+    <div class="sidebar-items">
+      <a class="sidebar-item active" href="#overview" data-target="overview">Overview</a>
+      <a class="sidebar-item" href="#quick-start" data-target="quick-start">Quick Start (5 min)</a>
+      <a class="sidebar-item" href="#installation" data-target="installation">Installation</a>
     </div>
-    <div class="hero-stats">
-      <div class="stat"><span class="stat-val">12</span><span class="stat-label">Tools</span></div>
-      <div class="stat-sep"></div>
-      <div class="stat"><span class="stat-val">13</span><span class="stat-label">Floors</span></div>
-      <div class="stat-sep"></div>
-      <div class="stat"><span class="stat-val">3E</span><span class="stat-label">Telemetry</span></div>
-      <div class="stat-sep"></div>
-      <div class="stat"><span class="stat-val">000→999</span><span class="stat-label">Metabolic Loop</span></div>
+  </div>
+
+  <!-- Architecture -->
+  <div class="sidebar-section" data-section="architecture">
+    <div class="sidebar-section-title">Architecture <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></div>
+    <div class="sidebar-items">
+      <a class="sidebar-item" href="#trinity-architecture" data-target="trinity-architecture">Trinity Architecture (ΔΩΨ)</a>
+      <a class="sidebar-item" href="#metabolic-pipeline" data-target="metabolic-pipeline">Metabolic Pipeline (000→999)</a>
+      <a class="sidebar-item" href="#mgi-envelope" data-target="mgi-envelope">MGI Response Envelope</a>
+      <a class="sidebar-item" href="#service-topology" data-target="service-topology">Service Topology</a>
     </div>
+  </div>
+
+  <!-- Tool Reference -->
+  <div class="sidebar-section" data-section="tool-reference">
+    <div class="sidebar-section-title">Tool Reference <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></div>
+    <div class="sidebar-items">
+      <a class="sidebar-item" href="#tool-reference" data-target="tool-reference">All Tools (12)</a>
+      <a class="sidebar-item" href="#tool-arifos-kernel" data-target="tool-arifos-kernel">arifOS_kernel</a>
+      <a class="sidebar-item" href="#tool-reality-compass" data-target="tool-reality-compass">reality_compass</a>
+      <a class="sidebar-item" href="#tool-reality-atlas" data-target="tool-reality-atlas">reality_atlas</a>
+      <a class="sidebar-item" href="#tool-reality-dossier" data-target="tool-reality-dossier">reality_dossier</a>
+      <a class="sidebar-item" href="#tool-init-anchor" data-target="tool-init-anchor">init_anchor_state</a>
+      <a class="sidebar-item" href="#tool-check-vital" data-target="tool-check-vital">check_vital</a>
+      <a class="sidebar-item" href="#tool-audit-rules" data-target="tool-audit-rules">audit_rules</a>
+      <a class="sidebar-item" href="#tool-session-memory" data-target="tool-session-memory">session_memory</a>
+      <a class="sidebar-item" href="#tool-verify-vault" data-target="tool-verify-vault">verify_vault_ledger</a>
+      <a class="sidebar-item" href="#tool-apex-dashboard" data-target="tool-apex-dashboard">open_apex_dashboard</a>
+      <a class="sidebar-item" href="#tool-search-reality" data-target="tool-search-reality">search_reality</a>
+      <a class="sidebar-item" href="#tool-ingest-evidence" data-target="tool-ingest-evidence">ingest_evidence</a>
+    </div>
+  </div>
+
+  <!-- Constitutional Floors -->
+  <div class="sidebar-section" data-section="floors">
+    <div class="sidebar-section-title">Constitutional Floors <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></div>
+    <div class="sidebar-items">
+      <a class="sidebar-item" href="#constitutional-floors" data-target="constitutional-floors">All 13 Floors</a>
+    </div>
+  </div>
+
+  <!-- 3E Telemetry -->
+  <div class="sidebar-section" data-section="telemetry">
+    <div class="sidebar-section-title">3E Telemetry <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></div>
+    <div class="sidebar-items">
+      <a class="sidebar-item" href="#three-e-telemetry" data-target="three-e-telemetry">Exploration / Entropy / Eureka</a>
+    </div>
+  </div>
+
+  <!-- Fault Codes -->
+  <div class="sidebar-section" data-section="fault-codes">
+    <div class="sidebar-section-title">Fault Codes <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></div>
+    <div class="sidebar-items">
+      <a class="sidebar-item" href="#fault-codes" data-target="fault-codes">Mechanical &amp; Constitutional</a>
+    </div>
+  </div>
+
+  <!-- Integrations -->
+  <div class="sidebar-section" data-section="integrations">
+    <div class="sidebar-section-title">Integrations <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></div>
+    <div class="sidebar-items">
+      <a class="sidebar-item" href="#integrations" data-target="integrations">Overview</a>
+      <a class="sidebar-item" href="#int-claude" data-target="int-claude">Claude Desktop</a>
+      <a class="sidebar-item" href="#int-chatgpt" data-target="int-chatgpt">ChatGPT / OpenAI</a>
+      <a class="sidebar-item" href="#int-copilot" data-target="int-copilot">Microsoft Copilot Studio</a>
+      <a class="sidebar-item" href="#int-cursor" data-target="int-cursor">Cursor IDE</a>
+      <a class="sidebar-item" href="#int-kimi" data-target="int-kimi">Kimi Code</a>
+      <a class="sidebar-item" href="#int-python" data-target="int-python">Python SDK</a>
+      <a class="sidebar-item" href="#int-curl" data-target="int-curl">HTTP / curl</a>
+    </div>
+  </div>
+
+  <!-- Self-Hosting -->
+  <div class="sidebar-section" data-section="self-hosting">
+    <div class="sidebar-section-title">Self-Hosting <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></div>
+    <div class="sidebar-items">
+      <a class="sidebar-item" href="#self-hosting" data-target="self-hosting">Docker Compose</a>
+      <a class="sidebar-item" href="#env-vars" data-target="env-vars">Environment Variables</a>
+      <a class="sidebar-item" href="#service-topology" data-target="service-topology">Service Topology</a>
+    </div>
+  </div>
+
+  <!-- APEX Theory -->
+  <div class="sidebar-section" data-section="apex-theory">
+    <div class="sidebar-section-title">APEX Theory <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></div>
+    <div class="sidebar-items">
+      <a class="sidebar-item" href="#apex-theory" data-target="apex-theory">Core Principles</a>
+    </div>
+  </div>
+</aside>
+
+<!-- Sidebar overlay (mobile) -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- ========== MAIN CONTENT ========== -->
+<main class="doc-content">
+
+<!-- ===== OVERVIEW ===== -->
+<section id="overview">
+  <h1>arifosMCP Developer Documentation</h1>
+  <p class="lead">The constitutional AI governance engine. Every inference passes through 13 epistemic floors, a metabolic pipeline (000→999), and produces a governed response with machine, governance, and intelligence envelopes.</p>
+
+  <div class="callout callout-info">
+    <div class="callout-title">What is arifosMCP?</div>
+    <p>arifosMCP is a Model Context Protocol (MCP) server that wraps AI inference in constitutional governance. It enforces truth floors, tracks epistemic uncertainty via 3E telemetry, and produces auditable verdicts: <span class="badge badge-seal">SEAL</span> <span class="badge badge-sabar">SABAR</span> <span class="badge badge-void">VOID</span> <span class="badge badge-hold">888_HOLD</span></p>
+  </div>
+
+  <h2>Key Concepts</h2>
+
+  <ul>
+    <li><strong>Constitutional Governance</strong> — Every response passes through 13 floors (F1–F13) that enforce truth, trust, empathy, and sovereign authority.</li>
+    <li><strong>Metabolic Pipeline</strong> — Inference flows through stages 000_INIT → 111_SENSE → 222_REALITY → ... → 999_VAULT, with each stage responsible for a discrete epistemic function.</li>
+    <li><strong>MGI Envelope</strong> — Every response is wrapped in a Machine / Governance / Intelligence triple envelope for full auditability.</li>
+    <li><strong>3E Telemetry</strong> — Three epistemic phases (Exploration, Entropy, Eureka) track the quality of reasoning in real time.</li>
+    <li><strong>MCP Protocol</strong> — Standard JSON-RPC 2.0 over Streamable HTTP. Compatible with Claude Desktop, ChatGPT, Cursor, and any MCP client.</li>
+  </ul>
+
+  <h2>Verdicts</h2>
+  <p>Every governed inference produces one of four verdicts:</p>
+  <div class="doc-table-wrap">
+    <table class="doc-table">
+      <thead><tr><th>Verdict</th><th>Meaning</th><th>Condition</th></tr></thead>
+      <tbody>
+        <tr><td><span class="badge badge-seal">SEAL</span></td><td>Fully approved — all floors passed</td><td>All floor scores above thresholds</td></tr>
+        <tr><td><span class="badge badge-sabar">SABAR</span></td><td>Partial approval — soft floor violations</td><td>Some soft floors below threshold</td></tr>
+        <tr><td><span class="badge badge-hold">888_HOLD</span></td><td>Mechanical pause — infrastructure issue</td><td>Timeout, DNS failure, rate limit, etc.</td></tr>
+        <tr><td><span class="badge badge-void">VOID</span></td><td>Constitutional collapse — terminal rejection</td><td>Hard floor violation (truth, auth, injection)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout callout-danger">
+    <div class="callout-title">Key Invariant</div>
+    <p>Mechanical faults ALWAYS → <span class="badge badge-hold">888_HOLD</span>. NEVER → VOID. <span class="badge badge-void">VOID</span> is constitutional collapse only.</p>
   </div>
 </section>
 
-<!-- ENDPOINT SURFACE -->
-<section class="section" id="endpoints">
-  <div class="container">
-    <div class="section-label">ENDPOINT SURFACE</div>
-    <h2 class="section-title">One URL, Three Surfaces</h2>
-    <p class="section-sub">Pick one surface per session. Never mix surfaces within a single run.</p>
-    <div class="endpoint-grid">
-      <div class="endpoint-card endpoint-card--primary">
-        <div class="endpoint-path"><code>/</code></div>
-        <div class="endpoint-name">Canonical Surface</div>
-        <div class="endpoint-desc">Default entrypoint for governed agent sessions. Includes all 13-tool canonical stack with full constitutional enforcement.</div>
-        <div class="endpoint-when"><span class="tag">Use when:</span> Default. Start here.</div>
-        <div class="endpoint-tools">anchor_session · reason_mind · simulate_heart · critique_thought · apex_judge · seal_vault</div>
-      </div>
-      <div class="endpoint-card">
-        <div class="endpoint-path"><code>/mcp</code></div>
-        <div class="endpoint-name">Runtime MCP Protocol</div>
-        <div class="endpoint-desc">Protocol-first transport behaviour. Same governance runtime with explicit MCP negotiation for clients requiring JSON-RPC routing.</div>
-        <div class="endpoint-when"><span class="tag">Use when:</span> MCP client expects runtime routing</div>
-      </div>
-      <div class="endpoint-card">
-        <div class="endpoint-path"><code>/tools</code></div>
-        <div class="endpoint-name">Full Capability Surface</div>
-        <div class="endpoint-desc">Extended tool coverage with compatibility shims. Includes all 12 tools plus legacy/client integration bridges.</div>
-        <div class="endpoint-when"><span class="tag">Use when:</span> Broad coverage, legacy clients</div>
-      </div>
-    </div>
-    <div class="call-order">
-      <div class="call-order-label">RECOMMENDED CALL ORDER</div>
-      <div class="call-order-steps">
-        <div class="call-step"><span class="step-num">1</span><code>init_anchor_state</code><span class="step-note">Initialize · get session_id</span></div>
-        <div class="call-arrow">→</div>
-        <div class="call-step"><span class="step-num">2</span><code>reality_compass</code><span class="step-note">Ground in facts</span></div>
-        <div class="call-arrow">→</div>
-        <div class="call-step"><span class="step-num">3</span><code>arifOS_kernel</code><span class="step-note">Governed reasoning</span></div>
-        <div class="call-arrow">→</div>
-        <div class="call-step"><span class="step-num">4</span><code>verify_vault_ledger</code><span class="step-note">Seal + persist</span></div>
-      </div>
-    </div>
+<!-- ===== QUICK START ===== -->
+<section id="quick-start">
+  <h1>Quick Start <span class="badge badge-blue">5 min</span></h1>
+  <p class="lead">Get your first governed inference in under 5 minutes. No API key required for public tools.</p>
+
+  <h2>1. Check server health</h2>
+  <div class="code-block">
+    <div class="code-block-header"><span>bash</span><button class="copy-btn" data-copy>Copy</button></div>
+    <pre><code class="language-bash">curl https://arifosmcp.arif-fazil.com/health</code></pre>
   </div>
-</section>
 
-<!-- TOOL REGISTRY -->
-<section class="section section-alt" id="tools">
-  <div class="container">
-    <div class="section-label">TOOL REGISTRY</div>
-    <h2 class="section-title">12 Constitutional Tools</h2>
-    <p class="section-sub">Every tool exposes 3E telemetry (Exploration · Entropy · Eureka) and routes all exceptions through <code>classify_exception()</code> — VOID is reserved for constitutional collapse only.</p>
-    <div class="tool-grid">
-
-      <div class="tool-card tool-card--kernel">
-        <div class="tool-header">
-          <div class="tool-name"><code>arifOS_kernel</code></div>
-          <div class="tool-lane lane-omega">Ω Governance</div>
-        </div>
-        <div class="tool-stage">Stage: 000→999 full pipeline</div>
-        <div class="tool-desc">The arifOS Governance Kernel. Runs the full metabolic reasoning pipeline (000–999) and governs high-stakes execution tasks. Enforces all 13 floors, W3 tri-witness scoring, and APEX verdict emission.</div>
-        <div class="tool-params">
-          <div class="param"><code>query</code> <span class="param-type">string</span> <span class="param-req">required</span></div>
-          <div class="param"><code>risk_tier</code> <span class="param-type">string</span> <span class="param-default">"medium"</span></div>
-          <div class="param"><code>use_heart</code> <span class="param-type">bool</span> <span class="param-default">true</span></div>
-          <div class="param"><code>allow_execution</code> <span class="param-type">bool</span> <span class="param-default">false</span></div>
-        </div>
-        <div class="tool-verdicts">
-          <span class="verdict verdict-seal">SEAL</span>
-          <span class="verdict verdict-hold">HOLD</span>
-          <span class="verdict verdict-void">VOID</span>
-        </div>
-      </div>
-
-      <div class="tool-card">
-        <div class="tool-header">
-          <div class="tool-name"><code>init_anchor_state</code></div>
-          <div class="tool-lane lane-machine">Machine</div>
-        </div>
-        <div class="tool-stage">Stage: 000_INIT</div>
-        <div class="tool-desc">Initialize the 000_INIT anchor with onboarding and continuity. Mints HMAC-SHA256 governance token (F11). Returns session_id for all subsequent calls.</div>
-        <div class="tool-params">
-          <div class="param"><code>declared_name</code> <span class="param-type">string</span> <span class="param-optional">optional</span></div>
-          <div class="param"><code>human_approval</code> <span class="param-type">bool</span> <span class="param-default">true</span></div>
-          <div class="param"><code>session_id</code> <span class="param-type">string</span> <span class="param-default">"global"</span></div>
-        </div>
-      </div>
-
-      <div class="tool-card">
-        <div class="tool-header">
-          <div class="tool-name"><code>reality_compass</code></div>
-          <div class="tool-lane lane-3e">Δ Intelligence (3E)</div>
-        </div>
-        <div class="tool-stage">Stage: 111_SENSE (alias: search_reality)</div>
-        <div class="tool-desc">Unified search + fetch engine. Routes between query search (Brave) and deep URL extraction (Firecrawl/Jina). Returns EvidenceBundles with JCS canonical hash and F12 taint wrapping.</div>
-        <div class="tool-params">
-          <div class="param"><code>query</code> <span class="param-type">string</span> <span class="param-req">required</span></div>
-        </div>
-      </div>
-
-      <div class="tool-card">
-        <div class="tool-header">
-          <div class="tool-name"><code>reality_atlas</code></div>
-          <div class="tool-lane lane-3e">Δ Intelligence (3E)</div>
-        </div>
-        <div class="tool-stage">Stage: 222_REALITY</div>
-        <div class="tool-desc">Build and query the semantic evidence graph from acquired EvidenceBundles. Constructs knowledge atlas with Qdrant vector memory. Enables cross-session fact retrieval.</div>
-        <div class="tool-params">
-          <div class="param"><code>url</code> <span class="param-type">string</span> <span class="param-req">required</span></div>
-        </div>
-      </div>
-
-      <div class="tool-card">
-        <div class="tool-header">
-          <div class="tool-name"><code>reality_dossier</code></div>
-          <div class="tool-lane lane-3e">Δ Intelligence (3E)</div>
-        </div>
-        <div class="tool-stage">Stage: 333_MIND · Tri-Witness F3</div>
-        <div class="tool-desc">Build a Reality Dossier from EvidenceBundles. Full 3E cycle: Exploration → Entropy → Eureka. Surfaces source conflicts, contradiction counts, and tri-witness consensus score.</div>
-        <div class="tool-params">
-          <div class="param"><code>bundles</code> <span class="param-type">array</span> <span class="param-req">required</span></div>
-          <div class="param"><code>actor_id</code> <span class="param-type">string</span> <span class="param-default">"anonymous"</span></div>
-        </div>
-      </div>
-
-      <div class="tool-card">
-        <div class="tool-header">
-          <div class="tool-name"><code>ratify_hold_state</code></div>
-          <div class="tool-lane lane-psi">Ψ Sovereign</div>
-        </div>
-        <div class="tool-stage">Stage: 888_JUDGE</div>
-        <div class="tool-desc">Sovereign hold bridge. Ratifies or denies a pending HOLD decision. Issues HMAC-signed HoldRecord, updates hold registry, and dispatches Telegram APEX notification to sovereign.</div>
-        <div class="tool-params">
-          <div class="param"><code>hold_id</code> <span class="param-type">string</span> <span class="param-req">required</span></div>
-          <div class="param"><code>decision</code> <span class="param-type">string</span> <span class="param-req">required</span></div>
-        </div>
-      </div>
-
-      <div class="tool-card">
-        <div class="tool-header">
-          <div class="tool-name"><code>vault_eye</code></div>
-          <div class="tool-lane lane-psi">Ψ Observability</div>
-        </div>
-        <div class="tool-stage">Stage: 999_VAULT · RFC 6962</div>
-        <div class="tool-desc">RFC 6962 Merkle chain integrity verifier for the VAULT999 immutable ledger. Generates inclusion proofs, chain walk, and MERKLE_INTEGRITY Prometheus gauge update.</div>
-        <div class="tool-params">
-          <div class="param"><code>session_id</code> <span class="param-type">string</span> <span class="param-default">"global"</span></div>
-          <div class="param"><code>full_scan</code> <span class="param-type">bool</span> <span class="param-default">true</span></div>
-        </div>
-      </div>
-
-      <div class="tool-card">
-        <div class="tool-header">
-          <div class="tool-name"><code>verify_vault_ledger</code></div>
-          <div class="tool-lane lane-psi">Ψ Observability</div>
-        </div>
-        <div class="tool-stage">Stage: 999_VAULT</div>
-        <div class="tool-desc">Verify SHA-256 Merkle chain integrity of VAULT999. Full-scan or targeted session audit. Returns chain_valid boolean and Merkle root hash.</div>
-        <div class="tool-params">
-          <div class="param"><code>session_id</code> <span class="param-type">string</span> <span class="param-default">"global"</span></div>
-          <div class="param"><code>full_scan</code> <span class="param-type">bool</span> <span class="param-default">true</span></div>
-        </div>
-      </div>
-
-      <div class="tool-card">
-        <div class="tool-header">
-          <div class="tool-name"><code>session_memory</code></div>
-          <div class="tool-lane lane-machine">Session</div>
-        </div>
-        <div class="tool-stage">Stage: cross-session</div>
-        <div class="tool-desc">Store, retrieve, or forget session context and reasoning artifacts in Qdrant vector memory. Supports store / retrieve / forget / list operations.</div>
-        <div class="tool-params">
-          <div class="param"><code>session_id</code> <span class="param-type">string</span> <span class="param-req">required</span></div>
-          <div class="param"><code>operation</code> <span class="param-type">string</span> <span class="param-req">required</span></div>
-        </div>
-      </div>
-
-      <div class="tool-card">
-        <div class="tool-header">
-          <div class="tool-name"><code>audit_rules</code></div>
-          <div class="tool-lane lane-omega">Ω Governance</div>
-        </div>
-        <div class="tool-stage">Stage: 333_MIND</div>
-        <div class="tool-desc">Inspect the 13 constitutional floors and verify governance logic. Returns floor-by-floor PASS/FAIL/IN-BAND status and current floor_scores dict.</div>
-        <div class="tool-params">
-          <div class="param"><code>session_id</code> <span class="param-type">string</span> <span class="param-default">"global"</span></div>
-        </div>
-      </div>
-
-      <div class="tool-card">
-        <div class="tool-header">
-          <div class="tool-name"><code>check_vital</code></div>
-          <div class="tool-lane lane-machine">Ω Machine</div>
-        </div>
-        <div class="tool-stage">Stage: 000_INIT</div>
-        <div class="tool-desc">Read system vitality including thermodynamic budget, capability map, and Prometheus metrics snapshot. Returns CPU, RAM, ΔS, Genius score, and active session count.</div>
-        <div class="tool-params">
-          <div class="param"><code>session_id</code> <span class="param-type">string</span> <span class="param-default">"global"</span></div>
-        </div>
-      </div>
-
-      <div class="tool-card">
-        <div class="tool-header">
-          <div class="tool-name"><code>open_apex_dashboard</code></div>
-          <div class="tool-lane lane-psi">Ψ Observability</div>
-        </div>
-        <div class="tool-stage">Stage: APEX visual</div>
-        <div class="tool-desc">Open the APEX Sovereign Dashboard showing live governance and 3E intelligence metrics. Returns embedded HTML dashboard with real-time Prometheus polling.</div>
-        <div class="tool-params">
-          <div class="param"><code>session_id</code> <span class="param-type">string</span> <span class="param-default">"global"</span></div>
-        </div>
-      </div>
-
-    </div>
-  </div>
-</section>
-
-<!-- QUICK START -->
-<section class="section" id="quickstart">
-  <div class="container">
-    <div class="section-label">QUICK START</div>
-    <h2 class="section-title">Up in 60 Seconds</h2>
-
-    <div class="tabs" id="quickstartTabs">
-      <div class="tab-list" role="tablist">
-        <button class="tab-btn tab-btn--active" role="tab" data-tab="curl">cURL</button>
-        <button class="tab-btn" role="tab" data-tab="python">Python</button>
-        <button class="tab-btn" role="tab" data-tab="mcp-config">MCP Config</button>
-        <button class="tab-btn" role="tab" data-tab="docker">Docker</button>
-      </div>
-
-      <div class="tab-panel tab-panel--active" id="tab-curl">
-        <div class="code-block">
-          <div class="code-header">
-            <span class="code-title">1. Health check</span>
-            <button class="copy-btn" data-copy="curl-1">Copy</button>
-          </div>
-          <pre id="curl-1"><code><span class="c-comment"># Verify the server is alive</span>
-curl https://arifosmcp.arif-fazil.com/health</code></pre>
-        </div>
-
-        <div class="code-block">
-          <div class="code-header">
-            <span class="code-title">2. Initialize a governed session</span>
-            <button class="copy-btn" data-copy="curl-2">Copy</button>
-          </div>
-          <pre id="curl-2"><code>curl -X POST https://arifosmcp.arif-fazil.com/mcp \
+  <h2>2. Init a session (F11 continuity anchor)</h2>
+  <div class="code-block">
+    <div class="code-block-header"><span>bash</span><button class="copy-btn" data-copy>Copy</button></div>
+    <pre><code class="language-bash">curl -X POST https://arifosmcp.arif-fazil.com/mcp \
   -H "Content-Type: application/json" \
   -d '{
-    "jsonrpc": "2.0",
-    "id": 1,
+    "jsonrpc": "2.0", "id": 1,
     "method": "tools/call",
     "params": {
       "name": "init_anchor_state",
+      "arguments": { "declared_name": "MyApp" }
+    }
+  }'</code></pre>
+  </div>
+
+  <h2>3. Run constitutional inference</h2>
+  <div class="code-block">
+    <div class="code-block-header"><span>bash</span><button class="copy-btn" data-copy>Copy</button></div>
+    <pre><code class="language-bash">curl -X POST https://arifosmcp.arif-fazil.com/mcp \
+  -H "Content-Type: application/json" \
+  -d '{
+    "jsonrpc": "2.0", "id": 2,
+    "method": "tools/call",
+    "params": {
+      "name": "arifOS_kernel",
       "arguments": {
-        "declared_name": "MySession",
-        "human_approval": true
+        "prompt": "Analyze this decision...",
+        "session_id": "sess-abc123"
       }
     }
   }'</code></pre>
-        </div>
+  </div>
 
-        <div class="code-block">
-          <div class="code-header">
-            <span class="code-title">3. Run a governed search with 3E telemetry</span>
-            <button class="copy-btn" data-copy="curl-3">Copy</button>
-          </div>
-          <pre id="curl-3"><code>curl -X POST https://arifosmcp.arif-fazil.com/mcp \
+  <div class="callout callout-info">
+    <div class="callout-title">What happens behind the scenes</div>
+    <p>Your prompt enters the metabolic pipeline at 000_INIT, flows through reality-grounding (111→222), mind processing (333), constitutional routing (444), memory persistence (555), empathy evaluation (666), response forging (777), sovereign judgment (888), and finally vaulted to the Merkle ledger at 999_VAULT.</p>
+  </div>
+</section>
+
+<!-- ===== INSTALLATION ===== -->
+<section id="installation">
+  <h1>Installation</h1>
+  <p class="lead">arifosMCP is available as a hosted service or self-hosted via Docker Compose.</p>
+
+  <h2>Hosted (Recommended)</h2>
+  <p>No installation required. The public endpoint is live at:</p>
+  <div class="code-block">
+    <div class="code-block-header"><span>endpoint</span><button class="copy-btn" data-copy>Copy</button></div>
+    <pre><code class="language-bash">https://arifosmcp.arif-fazil.com/mcp</code></pre>
+  </div>
+  <p>Discovery endpoints:</p>
+  <ul>
+    <li><code>GET /health</code> — System health + constitutional telemetry</li>
+    <li><code>GET /.well-known/mcp/server.json</code> — MCP server manifest</li>
+    <li><code>POST /mcp</code> — JSON-RPC 2.0 endpoint (Streamable HTTP)</li>
+  </ul>
+
+  <h2>Self-Hosted</h2>
+  <p>See the <a href="#self-hosting">Self-Hosting</a> section for Docker Compose setup.</p>
+</section>
+
+<!-- ===== TRINITY ARCHITECTURE ===== -->
+<section id="trinity-architecture">
+  <h1>Trinity Architecture (ΔΩΨ)</h1>
+  <p class="lead">The three pillars of arifosMCP: Delta (change), Omega (completion), Psi (consciousness). Every response is a governed transformation.</p>
+
+  <h2>The Three Pillars</h2>
+  <ul>
+    <li><strong>Δ (Delta) — Machine</strong> — Infrastructure state, latency, fault handling. Statuses: <code>READY</code>, <code>BLOCKED</code>, <code>DEGRADED</code>, <code>FAILED</code>.</li>
+    <li><strong>Ω (Omega) — Governance</strong> — Constitutional floors, verdict computation, W-score aggregation. Verdicts: <span class="badge badge-seal">SEAL</span>, <span class="badge badge-sabar">SABAR</span>, <span class="badge badge-void">VOID</span>, <span class="badge badge-hold">888_HOLD</span>.</li>
+    <li><strong>Ψ (Psi) — Intelligence</strong> — 3E telemetry, uncertainty tracking, epistemic phase detection.</li>
+  </ul>
+
+  <h2>Architectural Invariants</h2>
+  <div class="callout callout-warning">
+    <div class="callout-title">Non-negotiable rules</div>
+    <p>1. Every response MUST contain all three envelopes (M, G, I).</p>
+    <p>2. Governance can never be bypassed — even internal tools pass through floors.</p>
+    <p>3. VOID is terminal and irreversible within a request lifecycle.</p>
+    <p>4. Mechanical failures produce 888_HOLD, never VOID.</p>
+  </div>
+</section>
+
+<!-- ===== METABOLIC PIPELINE ===== -->
+<section id="metabolic-pipeline">
+  <h1>Metabolic Pipeline (000→999)</h1>
+  <p class="lead">Every inference traverses a 10-stage metabolic pipeline. Each stage has a discrete epistemic responsibility.</p>
+
+  <div class="pipeline">
+    <div class="pipeline-stage">000_INIT</div><span class="pipeline-arrow">→</span>
+    <div class="pipeline-stage">111_SENSE</div><span class="pipeline-arrow">→</span>
+    <div class="pipeline-stage">222_REALITY</div><span class="pipeline-arrow">→</span>
+    <div class="pipeline-stage">333_MIND</div><span class="pipeline-arrow">→</span>
+    <div class="pipeline-stage">444_ROUTER</div><span class="pipeline-arrow">→</span>
+    <div class="pipeline-stage">555_MEMORY</div><span class="pipeline-arrow">→</span>
+    <div class="pipeline-stage">666_HEART</div><span class="pipeline-arrow">→</span>
+    <div class="pipeline-stage">777_FORGE</div><span class="pipeline-arrow">→</span>
+    <div class="pipeline-stage">888_JUDGE</div><span class="pipeline-arrow">→</span>
+    <div class="pipeline-stage">999_VAULT</div>
+  </div>
+
+  <div class="doc-table-wrap">
+    <table class="doc-table">
+      <thead><tr><th>Stage</th><th>Name</th><th>Responsibility</th></tr></thead>
+      <tbody>
+        <tr><td><code>000</code></td><td>INIT</td><td>Session bootstrap, F11 anchor verification, token validation</td></tr>
+        <tr><td><code>111</code></td><td>SENSE</td><td>Input parsing, unified search, reality fetch</td></tr>
+        <tr><td><code>222</code></td><td>REALITY</td><td>Evidence graph construction, tri-witness decoding, grounding</td></tr>
+        <tr><td><code>333</code></td><td>MIND</td><td>Floor inspection, governance audit, rule evaluation</td></tr>
+        <tr><td><code>444</code></td><td>ROUTER</td><td>Constitutional routing — the primary inference kernel</td></tr>
+        <tr><td><code>555</code></td><td>MEMORY</td><td>Vector persistence (Qdrant), session state management</td></tr>
+        <tr><td><code>666</code></td><td>HEART</td><td>Empathy evaluation, stakeholder impact analysis</td></tr>
+        <tr><td><code>777</code></td><td>FORGE</td><td>Response synthesis, governed output generation</td></tr>
+        <tr><td><code>888</code></td><td>JUDGE</td><td>Sovereign judgment, final verdict, APEX operations</td></tr>
+        <tr><td><code>999</code></td><td>VAULT</td><td>Merkle chain commitment, immutable ledger entry</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ===== MGI RESPONSE ENVELOPE ===== -->
+<section id="mgi-envelope">
+  <h1>MGI Response Envelope</h1>
+  <p class="lead">Every arifosMCP response is wrapped in a triple envelope: Machine, Governance, Intelligence.</p>
+
+  <h2>Schema (from <code>core/contracts/responses.py</code>)</h2>
+  <div class="code-block">
+    <div class="code-block-header"><span>python</span><button class="copy-btn" data-copy>Copy</button></div>
+    <pre><code class="language-python">class GovernedResponse(BaseModel):
+    machine: MachineEnvelope       # READY | BLOCKED | DEGRADED | FAILED
+    governance: GovernanceEnvelope  # APPROVED | PARTIAL | HOLD | REJECTED | VOID
+    intelligence: IntelligenceEnvelope  # 3E Telemetry (Exploration/Entropy/Eureka)</code></pre>
+  </div>
+
+  <h2>MachineEnvelope</h2>
+  <div class="doc-table-wrap">
+    <table class="doc-table">
+      <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>status</code></td><td><code>str</code></td><td>READY | BLOCKED | DEGRADED | FAILED</td></tr>
+        <tr><td><code>issue_label</code></td><td><code>str?</code></td><td>Human-readable issue description</td></tr>
+        <tr><td><code>session_id</code></td><td><code>str</code></td><td>Active session identifier</td></tr>
+        <tr><td><code>continuity_state</code></td><td><code>dict</code></td><td>F11 anchor continuity state</td></tr>
+        <tr><td><code>tool_name</code></td><td><code>str</code></td><td>Tool that was invoked</td></tr>
+        <tr><td><code>latency_ms</code></td><td><code>float</code></td><td>End-to-end processing latency</td></tr>
+        <tr><td><code>fault_code</code></td><td><code>str?</code></td><td>Fault code if status ≠ READY</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>GovernanceEnvelope</h2>
+  <div class="doc-table-wrap">
+    <table class="doc-table">
+      <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>verdict</code></td><td><code>str</code></td><td><span class="badge badge-seal">SEAL</span> | <span class="badge badge-sabar">SABAR</span> | <span class="badge badge-void">VOID</span> | <span class="badge badge-hold">888_HOLD</span></td></tr>
+        <tr><td><code>W_score</code></td><td><code>float</code></td><td>Weighted aggregate governance score</td></tr>
+        <tr><td><code>floor_scores</code></td><td><code>dict[str,float]</code></td><td>Per-floor score map (F1–F13)</td></tr>
+        <tr><td><code>hold_id</code></td><td><code>str?</code></td><td>Hold identifier for 888_HOLD verdicts</td></tr>
+        <tr><td><code>void_reason</code></td><td><code>str?</code></td><td>Explanation for VOID verdicts</td></tr>
+        <tr><td><code>metabolic_stage</code></td><td><code>str</code></td><td>Pipeline stage that produced the verdict</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>IntelligenceEnvelope</h2>
+  <div class="doc-table-wrap">
+    <table class="doc-table">
+      <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>stage</code></td><td><code>str</code></td><td>EXPLORATION | ENTROPY | EUREKA</td></tr>
+        <tr><td><code>exploration</code></td><td><code>ExplorationState</code></td><td>Exploration phase telemetry</td></tr>
+        <tr><td><code>entropy</code></td><td><code>EntropyState</code></td><td>Entropy reduction metrics</td></tr>
+        <tr><td><code>eureka</code></td><td><code>EurekaState</code></td><td>Insight crystallization state</td></tr>
+        <tr><td><code>uncertainty_score</code></td><td><code>float</code></td><td>Current epistemic uncertainty (0–1)</td></tr>
+        <tr><td><code>3e_composite</code></td><td><code>float</code></td><td>Composite 3E quality score</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ===== SERVICE TOPOLOGY ===== -->
+<section id="service-topology">
+  <h1>Service Topology</h1>
+  <p class="lead">The full arifosMCP stack runs as a set of containerized services.</p>
+
+  <div class="doc-table-wrap">
+    <table class="doc-table">
+      <thead><tr><th>Service</th><th>Port</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>arifosmcp_server</code></td><td><code>:8080</code></td><td>Constitutional MCP Kernel</td></tr>
+        <tr><td><code>openclaw_gateway</code></td><td><code>:18789</code></td><td>Multi-channel AI Gateway</td></tr>
+        <tr><td><code>qdrant_memory</code></td><td><code>:6333</code></td><td>Vector Store (BGE-M3)</td></tr>
+        <tr><td><code>ollama_engine</code></td><td><code>:11434</code></td><td>Local LLM Runtime</td></tr>
+        <tr><td><code>arifos_postgres</code></td><td><code>:5432</code></td><td>VAULT999 Ledger</td></tr>
+        <tr><td><code>arifos_redis</code></td><td><code>:6379</code></td><td>Session Cache</td></tr>
+        <tr><td><code>headless_browser</code></td><td><code>:3000</code></td><td>Reality Fetch Fallback</td></tr>
+        <tr><td><code>traefik_router</code></td><td><code>:80/443</code></td><td>Edge Router (Cloudflare tunnel)</td></tr>
+        <tr><td><code>arifos_n8n</code></td><td><code>:5678</code></td><td>Workflow Automation</td></tr>
+        <tr><td><code>arifos_grafana</code></td><td><code>:3000</code></td><td>Observability</td></tr>
+        <tr><td><code>arifos_prometheus</code></td><td><code>:9090</code></td><td>Metrics</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ===== TOOL REFERENCE ===== -->
+<section id="tool-reference">
+  <h1>Tool Reference</h1>
+  <p class="lead">arifosMCP exposes 12 public tools via the MCP protocol. Each tool operates within a specific metabolic stage and is subject to constitutional floor enforcement.</p>
+
+  <div class="doc-table-wrap">
+    <table class="doc-table">
+      <thead><tr><th>Tool</th><th>Stage</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>arifOS_kernel</code></td><td><span class="badge badge-stage">444_ROUTER</span></td><td>Full constitutional pipeline (primary tool)</td></tr>
+        <tr><td><code>reality_compass</code></td><td><span class="badge badge-stage">111_SENSE</span></td><td>Unified search + fetch with grounding</td></tr>
+        <tr><td><code>reality_atlas</code></td><td><span class="badge badge-stage">222_REALITY</span></td><td>Semantic evidence graph construction</td></tr>
+        <tr><td><code>reality_dossier</code></td><td><span class="badge badge-stage">222_REALITY</span></td><td>Tri-Witness decoder (3E)</td></tr>
+        <tr><td><code>init_anchor_state</code></td><td><span class="badge badge-stage">000_INIT</span></td><td>F11 Bootstrap (session initialization)</td></tr>
+        <tr><td><code>revoke_anchor_state</code></td><td><span class="badge badge-stage">000_INIT</span></td><td>Token revocation</td></tr>
+        <tr><td><code>check_vital</code></td><td><span class="badge badge-stage">000_INIT</span></td><td>System health + constitutional telemetry</td></tr>
+        <tr><td><code>audit_rules</code></td><td><span class="badge badge-stage">333_MIND</span></td><td>Floor inspection and governance audit</td></tr>
+        <tr><td><code>session_memory</code></td><td><span class="badge badge-stage">555_MEMORY</span></td><td>Vector persistence (Qdrant)</td></tr>
+        <tr><td><code>verify_vault_ledger</code></td><td><span class="badge badge-stage">999_VAULT</span></td><td>Merkle chain integrity verification</td></tr>
+        <tr><td><code>open_apex_dashboard</code></td><td><span class="badge badge-stage">888_JUDGE</span></td><td>Operations visualizer + sovereign view</td></tr>
+        <tr><td><code>search_reality</code></td><td><span class="badge badge-stage">111/222</span></td><td>Alias (legacy compatibility)</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- Individual Tool Cards -->
+<section id="tool-arifos-kernel">
+  <h2>arifOS_kernel <span class="badge badge-stage">444_ROUTER</span></h2>
+  <div class="tool-card">
+    <div class="tool-card-header">
+      <span class="tool-card-name">arifOS_kernel</span>
+      <span class="badge badge-blue">Primary Tool</span>
+    </div>
+    <p>The main constitutional inference kernel. Accepts a prompt and session ID, routes through the full metabolic pipeline (000→999), enforces all 13 constitutional floors, and returns a governed MGI response envelope.</p>
+    <h4>Input Schema</h4>
+    <div class="doc-table-wrap">
+      <table class="doc-table">
+        <thead><tr><th>Parameter</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>prompt</code></td><td><code>string</code></td><td>Yes</td><td>The inference prompt to evaluate</td></tr>
+          <tr><td><code>session_id</code></td><td><code>string</code></td><td>Yes</td><td>Session ID from init_anchor_state</td></tr>
+          <tr><td><code>context</code></td><td><code>object</code></td><td>No</td><td>Additional context for the inference</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <h4>Example</h4>
+    <div class="code-block">
+      <div class="code-block-header"><span>bash</span><button class="copy-btn" data-copy>Copy</button></div>
+      <pre><code class="language-bash">curl -X POST https://arifosmcp.arif-fazil.com/mcp \
   -H "Content-Type: application/json" \
   -d '{
-    "jsonrpc": "2.0",
-    "id": 2,
+    "jsonrpc": "2.0", "id": 1,
+    "method": "tools/call",
+    "params": {
+      "name": "arifOS_kernel",
+      "arguments": {
+        "prompt": "Evaluate this strategic decision...",
+        "session_id": "sess-abc123"
+      }
+    }
+  }'</code></pre>
+    </div>
+  </div>
+</section>
+
+<section id="tool-reality-compass">
+  <h2>reality_compass <span class="badge badge-stage">111_SENSE</span></h2>
+  <div class="tool-card">
+    <div class="tool-card-header">
+      <span class="tool-card-name">reality_compass</span>
+    </div>
+    <p>Unified search and fetch tool with reality grounding. Performs web search, fetches content, and returns grounded evidence for downstream pipeline stages.</p>
+    <h4>Input Schema</h4>
+    <div class="doc-table-wrap">
+      <table class="doc-table">
+        <thead><tr><th>Parameter</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>query</code></td><td><code>string</code></td><td>Yes</td><td>Search query for reality grounding</td></tr>
+          <tr><td><code>session_id</code></td><td><code>string</code></td><td>Yes</td><td>Active session identifier</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <h4>Example</h4>
+    <div class="code-block">
+      <div class="code-block-header"><span>bash</span><button class="copy-btn" data-copy>Copy</button></div>
+      <pre><code class="language-bash">curl -X POST https://arifosmcp.arif-fazil.com/mcp \
+  -H "Content-Type: application/json" \
+  -d '{
+    "jsonrpc": "2.0", "id": 1,
     "method": "tools/call",
     "params": {
       "name": "reality_compass",
       "arguments": {
-        "query": "latest renewable energy statistics 2026"
+        "query": "latest AI governance frameworks 2026",
+        "session_id": "sess-abc123"
       }
     }
-  }'
-
-<span class="c-comment"># Response includes:</span>
-<span class="c-comment"># - EvidenceBundle with JCS hash + source URLs</span>
-<span class="c-comment"># - ThreeEState: exploration + entropy + eureka scores</span>
-<span class="c-comment"># - MachineEnvelope: fault_code, latency_ms, tool_name</span>
-<span class="c-comment"># - GovernanceEnvelope: floor_scores, tri_witness_score</span></code></pre>
-        </div>
-      </div>
-
-      <div class="tab-panel" id="tab-python">
-        <div class="code-block">
-          <div class="code-header">
-            <span class="code-title">Python MCP client (async)</span>
-            <button class="copy-btn" data-copy="python-1">Copy</button>
-          </div>
-          <pre id="python-1"><code><span class="c-kw">from</span> mcp <span class="c-kw">import</span> ClientSession
-<span class="c-kw">from</span> mcp.client.streamable_http <span class="c-kw">import</span> streamablehttp_client
-<span class="c-kw">import</span> asyncio
-
-<span class="c-kw">async def</span> <span class="c-fn">main</span>():
-    <span class="c-kw">async with</span> streamablehttp_client(
-        <span class="c-str">"https://arifosmcp.arif-fazil.com/mcp"</span>
-    ) <span class="c-kw">as</span> (read, write, _):
-        <span class="c-kw">async with</span> ClientSession(read, write) <span class="c-kw">as</span> session:
-            <span class="c-kw">await</span> session.initialize()
-
-            <span class="c-comment"># Step 1: Initialize governed session</span>
-            anchor = <span class="c-kw">await</span> session.call_tool(
-                <span class="c-str">"init_anchor_state"</span>,
-                {<span class="c-str">"declared_name"</span>: <span class="c-str">"ResearchAgent"</span>}
-            )
-            session_id = anchor.content[<span class="c-num">0</span>].text
-
-            <span class="c-comment"># Step 2: Ground in real-world facts</span>
-            evidence = <span class="c-kw">await</span> session.call_tool(
-                <span class="c-str">"reality_compass"</span>,
-                {<span class="c-str">"query"</span>: <span class="c-str">"climate data 2026"</span>}
-            )
-
-            <span class="c-comment"># Step 3: Full governed reasoning kernel</span>
-            result = <span class="c-kw">await</span> session.call_tool(
-                <span class="c-str">"arifOS_kernel"</span>,
-                {
-                    <span class="c-str">"query"</span>: <span class="c-str">"Analyze the evidence and provide a governed verdict"</span>,
-                    <span class="c-str">"risk_tier"</span>: <span class="c-str">"medium"</span>,
-                    <span class="c-str">"use_heart"</span>: <span class="c-num">True</span>,
-                    <span class="c-str">"session_id"</span>: session_id
-                }
-            )
-
-            <span class="c-comment"># Verdict: SEAL | HOLD | VOID</span>
-            <span class="c-kw">print</span>(result.content[<span class="c-num">0</span>].text)
-
-asyncio.run(main())</code></pre>
-        </div>
-      </div>
-
-      <div class="tab-panel" id="tab-mcp-config">
-        <div class="code-block">
-          <div class="code-header">
-            <span class="code-title">Claude Desktop (claude_desktop_config.json)</span>
-            <button class="copy-btn" data-copy="claude-config">Copy</button>
-          </div>
-          <pre id="claude-config"><code>{
-  <span class="c-key">"mcpServers"</span>: {
-    <span class="c-key">"arifOS"</span>: {
-      <span class="c-key">"type"</span>: <span class="c-str">"streamable-http"</span>,
-      <span class="c-key">"url"</span>: <span class="c-str">"https://arifosmcp.arif-fazil.com/mcp"</span>,
-      <span class="c-key">"headers"</span>: {
-        <span class="c-key">"X-Session-Mode"</span>: <span class="c-str">"governed"</span>
-      }
-    }
-  }
-}</code></pre>
-        </div>
-        <div class="code-block">
-          <div class="code-header">
-            <span class="code-title">fastmcp.json (local dev)</span>
-            <button class="copy-btn" data-copy="fastmcp-config">Copy</button>
-          </div>
-          <pre id="fastmcp-config"><code>{
-  <span class="c-key">"mcpServers"</span>: {
-    <span class="c-key">"arifosmcp"</span>: {
-      <span class="c-key">"url"</span>: <span class="c-str">"https://arifosmcp.arif-fazil.com/"</span>,
-      <span class="c-key">"transport"</span>: <span class="c-str">"streamable-http"</span>
-    }
-  }
-}</code></pre>
-        </div>
-        <div class="code-block">
-          <div class="code-header">
-            <span class="code-title">Kimi / OpenRouter MCP config</span>
-            <button class="copy-btn" data-copy="kimi-config">Copy</button>
-          </div>
-          <pre id="kimi-config"><code>{
-  <span class="c-key">"mcp_servers"</span>: [
-    {
-      <span class="c-key">"name"</span>: <span class="c-str">"arifOS Constitutional Kernel"</span>,
-      <span class="c-key">"url"</span>: <span class="c-str">"https://arifosmcp.arif-fazil.com/mcp"</span>,
-      <span class="c-key">"transport"</span>: <span class="c-str">"streamable-http"</span>,
-      <span class="c-key">"description"</span>: <span class="c-str">"Constitutional AI governance with 13 floors"</span>
-    }
-  ]
-}</code></pre>
-        </div>
-      </div>
-
-      <div class="tab-panel" id="tab-docker">
-        <div class="code-block">
-          <div class="code-header">
-            <span class="code-title">Self-host with Docker Compose</span>
-            <button class="copy-btn" data-copy="docker-1">Copy</button>
-          </div>
-          <pre id="docker-1"><code><span class="c-comment"># Clone the repo</span>
-git clone https://github.com/ariffazil/arifosmcp.git
-<span class="c-kw">cd</span> arifosMCP
-
-<span class="c-comment"># Copy and configure environment</span>
-cp .env.docker.example .env.docker
-<span class="c-comment"># Edit .env.docker with your API keys</span>
-
-<span class="c-comment"># Start all services (MCP server + Qdrant + Postgres)</span>
-docker-compose up -d
-
-<span class="c-comment"># Verify</span>
-curl http://localhost:3000/health</code></pre>
-        </div>
-        <div class="code-block">
-          <div class="code-header">
-            <span class="code-title">Required environment variables</span>
-            <button class="copy-btn" data-copy="docker-env">Copy</button>
-          </div>
-          <pre id="docker-env"><code><span class="c-comment"># Providers (at least one required)</span>
-OPENAI_API_KEY=sk-...
-ANTHROPIC_API_KEY=sk-ant-...
-OPENROUTER_API_KEY=sk-or-...
-
-<span class="c-comment"># Search + Fetch</span>
-BRAVE_API_KEY=BSA...
-JINA_API_KEY=jina_...
-
-<span class="c-comment"># Persistence</span>
-POSTGRES_URL=postgresql://user:pass@localhost/arifos
-QDRANT_URL=http://localhost:6333
-
-<span class="c-comment"># Governance (HMAC secret for F11 tokens)</span>
-ARIFOS_GOVERNANCE_SECRET=your-secret-here
-
-<span class="c-comment"># Notifications</span>
-TELEGRAM_BOT_TOKEN=...
-TELEGRAM_CHAT_ID=...</code></pre>
-        </div>
-      </div>
+  }'</code></pre>
     </div>
   </div>
 </section>
 
-<!-- DEVELOPER DOCS -->
-<section class="section section-alt" id="docs">
-  <div class="container">
-    <div class="section-label">API REFERENCE</div>
-    <h2 class="section-title">Developer Documentation</h2>
-    <p class="section-sub">Complete schema, type definitions, error codes, and integration patterns for the arifosMCP constitutional server. All responses are Pydantic v2 typed.</p>
-
-    <!-- API NAV TABS -->
-    <div class="api-tabs" id="apiTabs">
-      <button class="api-tab api-tab--active" data-api-tab="schema">Response Schema</button>
-      <button class="api-tab" data-api-tab="tools-ref">Tool Reference</button>
-      <button class="api-tab" data-api-tab="errors">Error Codes</button>
-      <button class="api-tab" data-api-tab="telemetry">3E Telemetry</button>
-      <button class="api-tab" data-api-tab="auth">Auth & Security</button>
-      <button class="api-tab" data-api-tab="architecture">Architecture</button>
+<section id="tool-reality-atlas">
+  <h2>reality_atlas <span class="badge badge-stage">222_REALITY</span></h2>
+  <div class="tool-card">
+    <div class="tool-card-header"><span class="tool-card-name">reality_atlas</span></div>
+    <p>Constructs a semantic evidence graph from gathered data. Maps relationships between evidence nodes, assigns confidence weights, and produces a structured reality graph for downstream reasoning.</p>
+    <h4>Input Schema</h4>
+    <div class="doc-table-wrap">
+      <table class="doc-table">
+        <thead><tr><th>Parameter</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>evidence</code></td><td><code>array</code></td><td>Yes</td><td>Array of evidence objects to map</td></tr>
+          <tr><td><code>session_id</code></td><td><code>string</code></td><td>Yes</td><td>Active session identifier</td></tr>
+        </tbody>
+      </table>
     </div>
+  </div>
+</section>
 
-    <!-- ── RESPONSE SCHEMA ─────────────────────────────── -->
-    <div class="api-panel api-panel--active" id="api-schema">
-      <div class="api-grid">
+<section id="tool-reality-dossier">
+  <h2>reality_dossier <span class="badge badge-stage">222_REALITY</span></h2>
+  <div class="tool-card">
+    <div class="tool-card-header"><span class="tool-card-name">reality_dossier</span></div>
+    <p>Tri-Witness decoder that applies the 3E (Exploration, Entropy, Eureka) framework to decode and validate evidence dossiers. Produces witness-verified reality assessments.</p>
+    <h4>Input Schema</h4>
+    <div class="doc-table-wrap">
+      <table class="doc-table">
+        <thead><tr><th>Parameter</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>dossier_id</code></td><td><code>string</code></td><td>Yes</td><td>Dossier identifier to decode</td></tr>
+          <tr><td><code>session_id</code></td><td><code>string</code></td><td>Yes</td><td>Active session identifier</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
 
-        <div class="api-card api-card--full">
-          <div class="api-card-header">
-            <div class="api-card-title">MGI Response Envelope</div>
-            <div class="api-card-badge">TypeScript · Pydantic v2</div>
-          </div>
-          <p class="api-card-desc">Every tool response wraps three typed layers. The outer Machine envelope captures runtime state, Governance captures constitutional verdicts, and Intelligence carries 3E telemetry and payload.</p>
-          <div class="code-block">
-            <div class="code-block-header"><span>TypeScript interface</span><button class="copy-btn" data-copy-text="MGI-ts">Copy</button></div>
-            <pre id="MGI-ts"><code><span class="c-comment">// Full MGI response envelope — every tool returns this</span>
-<span class="c-kw">interface</span> <span class="c-fn">MGIResponse</span> {
-  machine: {
-    ok:         <span class="c-type">boolean</span>          <span class="c-comment">// false on any fault</span>
-    fault_code: <span class="c-type">FaultCode | null</span> <span class="c-comment">// null when ok === true</span>
-    tool_name:  <span class="c-type">string</span>
-    latency_ms: <span class="c-type">number</span>
-    session_id: <span class="c-type">string</span>
-    version:    <span class="c-type">string</span>           <span class="c-comment">// semver "2026.03.x"</span>
-  }
-  governance: {
-    verdict:          <span class="c-type">Verdict</span>        <span class="c-comment">// SEAL | HOLD | VOID | EVOLVING</span>
-    floor_scores:     <span class="c-type">Record&lt;FloorId, number&gt;</span>
-    tri_witness_score:<span class="c-type">number</span>         <span class="c-comment">// W3 ∈ [0, 1]</span>
-    floor_breach:     <span class="c-type">FloorId | null</span>
-    hold_id:          <span class="c-type">string | null</span>  <span class="c-comment">// set when verdict === HOLD</span>
-  }
-  intelligence: {
-    three_e:  <span class="c-type">ThreeEState</span>
-    payload:  <span class="c-type">unknown</span>          <span class="c-comment">// tool-specific result</span>
-    delta_s:  <span class="c-type">number</span>           <span class="c-comment">// thermodynamic entropy Δ</span>
-  }
-}
+<section id="tool-init-anchor">
+  <h2>init_anchor_state <span class="badge badge-stage">000_INIT</span></h2>
+  <div class="tool-card">
+    <div class="tool-card-header">
+      <span class="tool-card-name">init_anchor_state</span>
+      <span class="badge badge-blue">Required First</span>
+    </div>
+    <p>Bootstraps an F11 continuity anchor session. Must be called before any other tool. Returns a session ID and anchor token used for all subsequent requests.</p>
+    <h4>Input Schema</h4>
+    <div class="doc-table-wrap">
+      <table class="doc-table">
+        <thead><tr><th>Parameter</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>declared_name</code></td><td><code>string</code></td><td>Yes</td><td>Client application name for identification</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <h4>Example</h4>
+    <div class="code-block">
+      <div class="code-block-header"><span>bash</span><button class="copy-btn" data-copy>Copy</button></div>
+      <pre><code class="language-bash">curl -X POST https://arifosmcp.arif-fazil.com/mcp \
+  -H "Content-Type: application/json" \
+  -d '{
+    "jsonrpc": "2.0", "id": 1,
+    "method": "tools/call",
+    "params": {
+      "name": "init_anchor_state",
+      "arguments": { "declared_name": "MyApp" }
+    }
+  }'</code></pre>
+    </div>
+  </div>
+</section>
 
-<span class="c-kw">type</span> <span class="c-fn">Verdict</span>  = <span class="c-str">"SEAL"</span> | <span class="c-str">"HOLD"</span> | <span class="c-str">"VOID"</span> | <span class="c-str">"EVOLVING"</span> | <span class="c-str">"GENESIS"</span>
-<span class="c-kw">type</span> <span class="c-fn">FloorId</span>  = <span class="c-str">"F1"</span> | <span class="c-str">"F2"</span> | <span class="c-str">"F3"</span> | <span class="c-str">"F4"</span> | <span class="c-str">"F5"</span> | <span class="c-str">"F6"</span> | <span class="c-str">"F7"</span> | <span class="c-str">"F8"</span> | <span class="c-str">"F9"</span> | <span class="c-str">"F10"</span> | <span class="c-str">"F11"</span> | <span class="c-str">"F12"</span> | <span class="c-str">"F13"</span></code></pre>
-          </div>
-        </div>
+<section id="tool-check-vital">
+  <h2>check_vital <span class="badge badge-stage">000_INIT</span></h2>
+  <div class="tool-card">
+    <div class="tool-card-header"><span class="tool-card-name">check_vital</span></div>
+    <p>Returns system health status and constitutional telemetry. Reports service availability, floor readiness, pipeline throughput, and current 3E composite scores.</p>
+    <h4>Input Schema</h4>
+    <div class="doc-table-wrap">
+      <table class="doc-table">
+        <thead><tr><th>Parameter</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>session_id</code></td><td><code>string</code></td><td>No</td><td>Optional session for scoped health check</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
 
-        <div class="api-card">
-          <div class="api-card-header">
-            <div class="api-card-title">Python (Pydantic v2)</div>
-            <div class="api-card-badge">Pydantic v2</div>
-          </div>
-          <div class="code-block">
-            <div class="code-block-header"><span>pydantic schema</span><button class="copy-btn" data-copy-text="pydantic-schema">Copy</button></div>
-            <pre id="pydantic-schema"><code><span class="c-kw">from</span> pydantic <span class="c-kw">import</span> BaseModel
-<span class="c-kw">from</span> typing <span class="c-kw">import</span> Optional, Literal
+<section id="tool-audit-rules">
+  <h2>audit_rules <span class="badge badge-stage">333_MIND</span></h2>
+  <div class="tool-card">
+    <div class="tool-card-header"><span class="tool-card-name">audit_rules</span></div>
+    <p>Inspects constitutional floor configurations and performs governance audits. Returns current floor thresholds, types (HARD/SOFT/DERIVED), and scoring methodology.</p>
+    <h4>Input Schema</h4>
+    <div class="doc-table-wrap">
+      <table class="doc-table">
+        <thead><tr><th>Parameter</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>floor_id</code></td><td><code>string</code></td><td>No</td><td>Specific floor to inspect (e.g., "F2"). Omit for all floors.</td></tr>
+          <tr><td><code>session_id</code></td><td><code>string</code></td><td>Yes</td><td>Active session identifier</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
 
-<span class="c-kw">class</span> <span class="c-fn">MachineEnvelope</span>(BaseModel):
-    ok:         <span class="c-type">bool</span>
-    fault_code: <span class="c-type">Optional[str]</span> = <span class="c-null">None</span>
-    tool_name:  <span class="c-type">str</span>
-    latency_ms: <span class="c-type">float</span>
-    session_id: <span class="c-type">str</span>
-    version:    <span class="c-type">str</span>
+<section id="tool-session-memory">
+  <h2>session_memory <span class="badge badge-stage">555_MEMORY</span></h2>
+  <div class="tool-card">
+    <div class="tool-card-header"><span class="tool-card-name">session_memory</span></div>
+    <p>Vector persistence layer backed by Qdrant. Stores and retrieves session context, evidence, and reasoning artifacts with semantic search capability (BGE-M3 embeddings).</p>
+    <h4>Input Schema</h4>
+    <div class="doc-table-wrap">
+      <table class="doc-table">
+        <thead><tr><th>Parameter</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>action</code></td><td><code>string</code></td><td>Yes</td><td>store | retrieve | search</td></tr>
+          <tr><td><code>content</code></td><td><code>string</code></td><td>Conditional</td><td>Content to store (required for "store" action)</td></tr>
+          <tr><td><code>query</code></td><td><code>string</code></td><td>Conditional</td><td>Search query (required for "search" action)</td></tr>
+          <tr><td><code>session_id</code></td><td><code>string</code></td><td>Yes</td><td>Active session identifier</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
 
-<span class="c-kw">class</span> <span class="c-fn">GovernanceEnvelope</span>(BaseModel):
-    verdict:           <span class="c-type">Literal["SEAL","HOLD","VOID","EVOLVING","GENESIS"]</span>
-    floor_scores:      <span class="c-type">dict[str, float]</span>
-    tri_witness_score: <span class="c-type">float</span>  <span class="c-comment"># W3 ∈ [0, 1]</span>
-    floor_breach:      <span class="c-type">Optional[str]</span> = <span class="c-null">None</span>
-    hold_id:           <span class="c-type">Optional[str]</span> = <span class="c-null">None</span>
+<section id="tool-verify-vault">
+  <h2>verify_vault_ledger <span class="badge badge-stage">999_VAULT</span></h2>
+  <div class="tool-card">
+    <div class="tool-card-header"><span class="tool-card-name">verify_vault_ledger</span></div>
+    <p>Verifies Merkle chain integrity in the VAULT999 ledger. Checks hash continuity, detects tampering, and returns verification proofs for auditability.</p>
+    <h4>Input Schema</h4>
+    <div class="doc-table-wrap">
+      <table class="doc-table">
+        <thead><tr><th>Parameter</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>entry_id</code></td><td><code>string</code></td><td>No</td><td>Specific entry to verify. Omit for full chain verification.</td></tr>
+          <tr><td><code>session_id</code></td><td><code>string</code></td><td>Yes</td><td>Active session identifier</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
 
-<span class="c-kw">class</span> <span class="c-fn">IntelligenceEnvelope</span>(BaseModel):
-    three_e:  <span class="c-type">ThreeEState</span>
-    payload:  <span class="c-type">dict</span>
-    delta_s:  <span class="c-type">float</span>
+<section id="tool-apex-dashboard">
+  <h2>open_apex_dashboard <span class="badge badge-stage">888_JUDGE</span></h2>
+  <div class="tool-card">
+    <div class="tool-card-header"><span class="tool-card-name">open_apex_dashboard</span></div>
+    <p>Opens the APEX operations visualizer and sovereign view. Provides real-time monitoring of pipeline throughput, floor scores, verdict distribution, and 3E telemetry.</p>
+    <h4>Input Schema</h4>
+    <div class="doc-table-wrap">
+      <table class="doc-table">
+        <thead><tr><th>Parameter</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>view</code></td><td><code>string</code></td><td>No</td><td>Dashboard view: overview | floors | pipeline | telemetry</td></tr>
+          <tr><td><code>session_id</code></td><td><code>string</code></td><td>Yes</td><td>Active session identifier</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
 
-<span class="c-kw">class</span> <span class="c-fn">MGIResponse</span>(BaseModel):
-    machine:    <span class="c-type">MachineEnvelope</span>
-    governance: <span class="c-type">GovernanceEnvelope</span>
-    intelligence: <span class="c-type">IntelligenceEnvelope</span></code></pre>
-          </div>
-        </div>
+<section id="tool-search-reality">
+  <h2>search_reality <span class="badge badge-stage">111/222</span></h2>
+  <div class="tool-card">
+    <div class="tool-card-header">
+      <span class="tool-card-name">search_reality</span>
+      <span class="badge badge-sabar">Legacy Alias</span>
+    </div>
+    <p>Legacy compatibility alias that maps to <code>reality_compass</code>. Maintained for backward compatibility with older integrations. New implementations should use <code>reality_compass</code> directly.</p>
+  </div>
+</section>
 
-        <div class="api-card">
-          <div class="api-card-header">
-            <div class="api-card-title">Live Response Example</div>
-            <div class="api-card-badge">JSON</div>
-          </div>
-          <div class="code-block">
-            <div class="code-block-header"><span>reality_compass response</span><button class="copy-btn" data-copy-text="live-response">Copy</button></div>
-            <pre id="live-response"><code>{
-  <span class="c-key">"machine"</span>: {
-    <span class="c-key">"ok"</span>: <span class="c-bool">true</span>,
-    <span class="c-key">"fault_code"</span>: <span class="c-null">null</span>,
-    <span class="c-key">"tool_name"</span>: <span class="c-str">"reality_compass"</span>,
-    <span class="c-key">"latency_ms"</span>: <span class="c-num">342.1</span>,
-    <span class="c-key">"session_id"</span>: <span class="c-str">"sess_a1b2c3"</span>,
-    <span class="c-key">"version"</span>: <span class="c-str">"2026.03.13-FORGED"</span>
-  },
-  <span class="c-key">"governance"</span>: {
-    <span class="c-key">"verdict"</span>: <span class="c-str">"SEAL"</span>,
-    <span class="c-key">"floor_scores"</span>: {
-      <span class="c-key">"F2"</span>: <span class="c-num">0.99</span>, <span class="c-key">"F4"</span>: <span class="c-num">0.95</span>, <span class="c-key">"F12"</span>: <span class="c-num">1.0</span>
-    },
-    <span class="c-key">"tri_witness_score"</span>: <span class="c-num">0.87</span>,
-    <span class="c-key">"floor_breach"</span>: <span class="c-null">null</span>,
-    <span class="c-key">"hold_id"</span>: <span class="c-null">null</span>
-  },
-  <span class="c-key">"intelligence"</span>: {
-    <span class="c-key">"three_e"</span>: {
-      <span class="c-key">"exploration"</span>: { <span class="c-key">"sources_consulted"</span>: <span class="c-num">5</span>, <span class="c-key">"depth_level"</span>: <span class="c-num">2</span> },
-      <span class="c-key">"entropy"</span>:     { <span class="c-key">"uncertainty_index"</span>: <span class="c-num">0.03</span>, <span class="c-key">"contradiction_count"</span>: <span class="c-num">0</span> },
-      <span class="c-key">"eureka"</span>:      { <span class="c-key">"novelty_score"</span>: <span class="c-num">0.72</span>, <span class="c-key">"crystallised"</span>: <span class="c-bool">true</span> }
-    },
-    <span class="c-key">"payload"</span>: { <span class="c-key">"bundles"</span>: [<span class="c-comment">/* EvidenceBundle[] */</span>] },
-    <span class="c-key">"delta_s"</span>: <span class="c-num">0.05</span>
+<section id="tool-ingest-evidence">
+  <h2>ingest_evidence <span class="badge badge-stage">111/222</span></h2>
+  <div class="tool-card">
+    <div class="tool-card-header">
+      <span class="tool-card-name">ingest_evidence</span>
+    </div>
+    <p>Ingests raw evidence into the reality pipeline. Accepts documents, URLs, or structured data and processes them through the 111_SENSE → 222_REALITY grounding stages.</p>
+    <h4>Input Schema</h4>
+    <div class="doc-table-wrap">
+      <table class="doc-table">
+        <thead><tr><th>Parameter</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>content</code></td><td><code>string</code></td><td>Yes</td><td>Evidence content to ingest</td></tr>
+          <tr><td><code>source_url</code></td><td><code>string</code></td><td>No</td><td>Source URL for provenance tracking</td></tr>
+          <tr><td><code>session_id</code></td><td><code>string</code></td><td>Yes</td><td>Active session identifier</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ===== CONSTITUTIONAL FLOORS ===== -->
+<section id="constitutional-floors">
+  <h1>Constitutional Floors</h1>
+  <p class="lead">13 epistemic floors enforce governance on every inference. Hard floors are non-negotiable — violation triggers <span class="badge badge-void">VOID</span>. Soft floors allow degradation with <span class="badge badge-sabar">SABAR</span>.</p>
+
+  <div class="doc-table-wrap">
+    <table class="doc-table">
+      <thead><tr><th>Floor</th><th>Name</th><th>Type</th><th>Threshold</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>F1</code></td><td>Amanah</td><td><span class="badge badge-hard">HARD</span></td><td><code>≥0.5</code></td><td>Reversibility enforced</td></tr>
+        <tr><td><code>F2</code></td><td>Truth</td><td><span class="badge badge-hard">HARD</span></td><td><code>≥0.99</code></td><td>Information fidelity (99% confidence required)</td></tr>
+        <tr><td><code>F3</code></td><td>QuadWitness</td><td><span class="badge badge-derived">DERIVED</span></td><td><code>≥0.75</code></td><td>Byzantine consensus (W4 tri-witness)</td></tr>
+        <tr><td><code>F4</code></td><td>Clarity</td><td><span class="badge badge-hard">HARD</span></td><td><code>ΔS≤0</code></td><td>Entropy reduction required</td></tr>
+        <tr><td><code>F5</code></td><td>Peace²</td><td><span class="badge badge-soft">SOFT</span></td><td><code>≥1.00</code></td><td>Non-destructive power</td></tr>
+        <tr><td><code>F6</code></td><td>Empathy</td><td><span class="badge badge-soft">SOFT</span></td><td><code>≥0.70</code></td><td>Stakeholder care (κᵣ)</td></tr>
+        <tr><td><code>F7</code></td><td>Humility</td><td><span class="badge badge-hard">HARD</span></td><td><code>[0.03,0.20]</code></td><td>Uncertainty band (Ω₀)</td></tr>
+        <tr><td><code>F8</code></td><td>Genius</td><td><span class="badge badge-derived">DERIVED</span></td><td><code>≥0.80</code></td><td>Governed intelligence (G)</td></tr>
+        <tr><td><code>F9</code></td><td>Anti-Hantu</td><td><span class="badge badge-soft">SOFT</span></td><td><code>&lt;0.30</code></td><td>Dark cleverness limit</td></tr>
+        <tr><td><code>F10</code></td><td>Ontology</td><td><span class="badge badge-hard">HARD</span></td><td><code>1.0</code></td><td>Category lock (boolean)</td></tr>
+        <tr><td><code>F11</code></td><td>CommandAuth</td><td><span class="badge badge-hard">HARD</span></td><td><code>1.0</code></td><td>Verified identity</td></tr>
+        <tr><td><code>F12</code></td><td>Injection</td><td><span class="badge badge-hard">HARD</span></td><td><code>&lt;0.85</code></td><td>Injection risk limit</td></tr>
+        <tr><td><code>F13</code></td><td>Sovereign</td><td><span class="badge badge-hard">HARD</span></td><td><code>1.0</code></td><td>Human final authority</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout callout-warning">
+    <div class="callout-title">Floor Types</div>
+    <p><span class="badge badge-hard">HARD</span> — Non-negotiable. Violation triggers <span class="badge badge-void">VOID</span> (constitutional collapse).</p>
+    <p><span class="badge badge-soft">SOFT</span> — Degradable. Violation produces <span class="badge badge-sabar">SABAR</span> (partial approval with warnings).</p>
+    <p><span class="badge badge-derived">DERIVED</span> — Computed from other floor scores. Fails if constituent scores insufficient.</p>
+  </div>
+</section>
+
+<!-- ===== 3E TELEMETRY ===== -->
+<section id="three-e-telemetry">
+  <h1>3E Telemetry</h1>
+  <p class="lead">Every inference passes through three epistemic phases. The 3E framework tracks reasoning quality in real time.</p>
+
+  <h2>Exploration</h2>
+  <p>The initial phase where the system gathers information, explores the problem space, and builds an evidence base. Metrics include search breadth, source diversity, and grounding confidence.</p>
+
+  <h2>Entropy</h2>
+  <p>The reduction phase where information is compressed, contradictions resolved, and uncertainty systematically reduced. F4 (Clarity) enforces <code>ΔS ≤ 0</code> — entropy must decrease. If entropy increases during this phase, the floor is violated.</p>
+
+  <h2>Eureka</h2>
+  <p>The crystallization phase where insights emerge, conclusions form, and the governed response takes shape. Quality is measured by the composite 3E score — a weighted aggregate of all three phases.</p>
+
+  <h2>3E Composite Score</h2>
+  <p>The <code>3e_composite</code> field in the IntelligenceEnvelope provides a single float (0–1) representing overall reasoning quality. This feeds into F8 (Genius) — the governed intelligence floor requires <code>≥0.80</code>.</p>
+
+  <div class="callout callout-info">
+    <div class="callout-title">VOID Memanjang</div>
+    <p><strong>VOID Memanjang = progressive epistemic collapse.</strong> When 3E telemetry detects sustained entropy increase without Eureka crystallization, it triggers escalating warnings. Counter: 3E telemetry + F2 (Truth) + F7 (Humility) + mandatory verdicts prevent infinite collapse loops.</p>
+  </div>
+</section>
+
+<!-- ===== FAULT CODES ===== -->
+<section id="fault-codes">
+  <h1>Fault Codes</h1>
+  <p class="lead">Fault codes from <code>arifosmcp/runtime/fault_codes.py</code> classify failures into two categories with fundamentally different handling.</p>
+
+  <h2>Mechanical Faults → <span class="badge badge-hold">888_HOLD</span></h2>
+  <p>Infrastructure failures that are always recoverable. They NEVER produce VOID.</p>
+  <div class="doc-table-wrap">
+    <table class="doc-table">
+      <thead><tr><th>Code</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>TOOL_NOT_EXPOSED</code></td><td>Requested tool is not in the public tool set</td></tr>
+        <tr><td><code>INFRA_DEGRADED</code></td><td>Backend service is degraded but reachable</td></tr>
+        <tr><td><code>TIMEOUT_EXCEEDED</code></td><td>Request exceeded processing time limit</td></tr>
+        <tr><td><code>RATE_LIMITED</code></td><td>Client exceeded rate limit</td></tr>
+        <tr><td><code>DEPENDENCY_UNAVAILABLE</code></td><td>Required dependency service is down</td></tr>
+        <tr><td><code>DNS_FAIL</code></td><td>DNS resolution failed</td></tr>
+        <tr><td><code>TLS_FAIL</code></td><td>TLS handshake or certificate error</td></tr>
+        <tr><td><code>WAF_BLOCK</code></td><td>Request blocked by web application firewall</td></tr>
+        <tr><td><code>PARSE_FAIL</code></td><td>Request payload parsing failed</td></tr>
+        <tr><td><code>RENDER_FAIL</code></td><td>Response rendering failed</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>Constitutional Faults → <span class="badge badge-void">VOID</span></h2>
+  <p>Terminal constitutional violations. Irreversible within the request lifecycle.</p>
+  <div class="doc-table-wrap">
+    <table class="doc-table">
+      <thead><tr><th>Code</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>F2_TRUTH_BELOW_THRESHOLD</code></td><td>Truth confidence fell below 99% (F2 violation)</td></tr>
+        <tr><td><code>F11_AUTH_FAILURE</code></td><td>Authentication failed (F11 violation)</td></tr>
+        <tr><td><code>F11_TOKEN_INVALID</code></td><td>Session token is invalid</td></tr>
+        <tr><td><code>F11_TOKEN_EXPIRED</code></td><td>Session token has expired</td></tr>
+        <tr><td><code>F11_SESSION_MISMATCH</code></td><td>Session ID does not match token</td></tr>
+        <tr><td><code>F11_SOVEREIGN_SIG_INVALID</code></td><td>Sovereign signature verification failed</td></tr>
+        <tr><td><code>F12_INJECTION</code></td><td>Prompt injection detected (F12 violation)</td></tr>
+        <tr><td><code>F10_ONTOLOGY</code></td><td>Ontological category violation (F10 violation)</td></tr>
+        <tr><td><code>F13_SOVEREIGN_VETO</code></td><td>Human sovereign explicitly vetoed (F13)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout callout-danger">
+    <div class="callout-title">Invariant</div>
+    <p><strong>Mechanical faults ALWAYS → 888_HOLD. NEVER → VOID.</strong> VOID is constitutional collapse only. This invariant is enforced at the runtime level and cannot be overridden.</p>
+  </div>
+</section>
+
+<!-- ===== INTEGRATIONS ===== -->
+<section id="integrations">
+  <h1>Integrations</h1>
+  <p class="lead">arifosMCP speaks standard MCP (JSON-RPC 2.0 over Streamable HTTP). Connect from any MCP-compatible client.</p>
+
+  <div class="tabs" id="integrationTabs">
+    <button class="tab-btn active" data-tab="tab-claude">Claude Desktop</button>
+    <button class="tab-btn" data-tab="tab-chatgpt">ChatGPT</button>
+    <button class="tab-btn" data-tab="tab-copilot">Copilot Studio</button>
+    <button class="tab-btn" data-tab="tab-cursor">Cursor IDE</button>
+    <button class="tab-btn" data-tab="tab-kimi">Kimi Code</button>
+    <button class="tab-btn" data-tab="tab-python">Python SDK</button>
+    <button class="tab-btn" data-tab="tab-curl">HTTP / curl</button>
+  </div>
+
+  <!-- Claude Desktop -->
+  <div class="tab-panel active" id="tab-claude">
+    <h3 id="int-claude">Claude Desktop</h3>
+    <p>Add to your Claude Desktop configuration file (<code>~/.claude/claude_desktop_config.json</code>):</p>
+    <div class="code-block">
+      <div class="code-block-header"><span>json</span><button class="copy-btn" data-copy>Copy</button></div>
+      <pre><code class="language-json">{
+  "mcpServers": {
+    "arifos": {
+      "command": "npx",
+      "args": ["-y", "mcp-remote", "https://arifosmcp.arif-fazil.com/mcp"],
+      "transport": "streamable-http"
+    }
   }
 }</code></pre>
-          </div>
-        </div>
-
-      </div>
     </div>
-
-    <!-- ── TOOL REFERENCE ─────────────────────────────── -->
-    <div class="api-panel" id="api-tools-ref">
-      <div class="api-tool-ref-grid">
-
-        <div class="tool-ref-card">
-          <div class="tool-ref-header">
-            <code class="tool-ref-name">arifOS_kernel</code>
-            <span class="tool-ref-lane lane-omega">Ω Governance</span>
-          </div>
-          <p class="tool-ref-desc">Full 000→999 metabolic pipeline. High-stakes constitutional execution with W3 tri-witness scoring.</p>
-          <div class="tool-ref-params">
-            <div class="tool-ref-param"><code>query</code> <span class="param-type">string</span> <span class="param-req">required</span> — The governance query or task</div>
-            <div class="tool-ref-param"><code>risk_tier</code> <span class="param-type">string</span> <span class="param-default">"medium"</span> — <code>"low" | "medium" | "high" | "critical"</code></div>
-          </div>
-          <div class="tool-ref-returns">Returns: <code>MGIResponse</code> · payload: <code>KernelResult</code></div>
-        </div>
-
-        <div class="tool-ref-card">
-          <div class="tool-ref-header">
-            <code class="tool-ref-name">init_anchor_state</code>
-            <span class="tool-ref-lane lane-machine">Machine</span>
-          </div>
-          <p class="tool-ref-desc">Initialize 000_INIT anchor. Mints HMAC-SHA256 governance token (F11). Call once at session start.</p>
-          <div class="tool-ref-params">
-            <div class="tool-ref-param"><code>declared_name</code> <span class="param-type">string</span> <span class="param-optional">optional</span> — Agent declared identity</div>
-            <div class="tool-ref-param"><code>human_approval</code> <span class="param-type">bool</span> <span class="param-default">true</span> — F13 Amanah gate flag</div>
-          </div>
-          <div class="tool-ref-returns">Returns: <code>MGIResponse</code> · payload: <code>{ session_id: string, token: string }</code></div>
-        </div>
-
-        <div class="tool-ref-card">
-          <div class="tool-ref-header">
-            <code class="tool-ref-name">reality_compass</code>
-            <span class="tool-ref-lane lane-3e">Δ Intelligence</span>
-          </div>
-          <p class="tool-ref-desc">Unified search + URL extraction. Routes Brave (search) or Firecrawl/Jina (deep fetch). Returns F12-taint-wrapped EvidenceBundles.</p>
-          <div class="tool-ref-params">
-            <div class="tool-ref-param"><code>query</code> <span class="param-type">string</span> <span class="param-req">required</span> — Search query or URL to extract</div>
-          </div>
-          <div class="tool-ref-returns">Returns: <code>MGIResponse</code> · payload: <code>EvidenceBundle[]</code></div>
-        </div>
-
-        <div class="tool-ref-card">
-          <div class="tool-ref-header">
-            <code class="tool-ref-name">reality_atlas</code>
-            <span class="tool-ref-lane lane-3e">Δ Intelligence</span>
-          </div>
-          <p class="tool-ref-desc">Build semantic evidence graph in Qdrant vector memory. Enables cross-session fact retrieval and knowledge atlas queries.</p>
-          <div class="tool-ref-params">
-            <div class="tool-ref-param"><code>url</code> <span class="param-type">string</span> <span class="param-req">required</span> — Source URL to ingest into atlas</div>
-          </div>
-          <div class="tool-ref-returns">Returns: <code>MGIResponse</code> · payload: <code>AtlasEntry</code></div>
-        </div>
-
-        <div class="tool-ref-card">
-          <div class="tool-ref-header">
-            <code class="tool-ref-name">reality_dossier</code>
-            <span class="tool-ref-lane lane-3e">Δ Intelligence</span>
-          </div>
-          <p class="tool-ref-desc">Build a Reality Dossier from EvidenceBundles. Full 3E cycle. Surfaces source conflicts and tri-witness consensus.</p>
-          <div class="tool-ref-params">
-            <div class="tool-ref-param"><code>bundles</code> <span class="param-type">array</span> <span class="param-req">required</span> — <code>EvidenceBundle[]</code> from reality_compass</div>
-            <div class="tool-ref-param"><code>actor_id</code> <span class="param-type">string</span> <span class="param-default">"anonymous"</span> — Actor identity for F6</div>
-          </div>
-          <div class="tool-ref-returns">Returns: <code>MGIResponse</code> · payload: <code>Dossier</code></div>
-        </div>
-
-        <div class="tool-ref-card">
-          <div class="tool-ref-header">
-            <code class="tool-ref-name">ratify_hold_state</code>
-            <span class="tool-ref-lane lane-psi">Ψ Sovereign</span>
-          </div>
-          <p class="tool-ref-desc">Ratify or deny a pending HOLD. Issues HMAC-signed HoldRecord. Dispatches Telegram APEX notification to sovereign.</p>
-          <div class="tool-ref-params">
-            <div class="tool-ref-param"><code>hold_id</code> <span class="param-type">string</span> <span class="param-req">required</span> — UUID from governance.hold_id</div>
-            <div class="tool-ref-param"><code>decision</code> <span class="param-type">string</span> <span class="param-req">required</span> — <code>"RATIFY" | "DENY"</code></div>
-          </div>
-          <div class="tool-ref-returns">Returns: <code>MGIResponse</code> · payload: <code>HoldRecord</code></div>
-        </div>
-
-        <div class="tool-ref-card">
-          <div class="tool-ref-header">
-            <code class="tool-ref-name">vault_eye</code>
-            <span class="tool-ref-lane lane-psi">Ψ Observability</span>
-          </div>
-          <p class="tool-ref-desc">RFC 6962 Merkle chain verifier. Generates inclusion proofs, chain walk, and updates MERKLE_INTEGRITY Prometheus gauge.</p>
-          <div class="tool-ref-params">
-            <div class="tool-ref-param"><code>session_id</code> <span class="param-type">string</span> <span class="param-default">"global"</span></div>
-            <div class="tool-ref-param"><code>full_scan</code> <span class="param-type">bool</span> <span class="param-default">true</span> — Full chain walk vs. latest leaf</div>
-          </div>
-          <div class="tool-ref-returns">Returns: <code>MGIResponse</code> · payload: <code>MerkleProof</code></div>
-        </div>
-
-        <div class="tool-ref-card">
-          <div class="tool-ref-header">
-            <code class="tool-ref-name">verify_vault_ledger</code>
-            <span class="tool-ref-lane lane-psi">Ψ Observability</span>
-          </div>
-          <p class="tool-ref-desc">Verify SHA-256 Merkle chain integrity of VAULT999. Returns chain_valid boolean and root hash.</p>
-          <div class="tool-ref-params">
-            <div class="tool-ref-param"><code>session_id</code> <span class="param-type">string</span> <span class="param-default">"global"</span></div>
-            <div class="tool-ref-param"><code>full_scan</code> <span class="param-type">bool</span> <span class="param-default">true</span></div>
-          </div>
-          <div class="tool-ref-returns">Returns: <code>MGIResponse</code> · payload: <code>{ chain_valid: bool, root_hash: string }</code></div>
-        </div>
-
-        <div class="tool-ref-card">
-          <div class="tool-ref-header">
-            <code class="tool-ref-name">session_memory</code>
-            <span class="tool-ref-lane lane-machine">Session</span>
-          </div>
-          <p class="tool-ref-desc">Store, retrieve, forget, or list session context and reasoning artifacts in Qdrant vector memory.</p>
-          <div class="tool-ref-params">
-            <div class="tool-ref-param"><code>session_id</code> <span class="param-type">string</span> <span class="param-req">required</span></div>
-            <div class="tool-ref-param"><code>operation</code> <span class="param-type">string</span> <span class="param-req">required</span> — <code>"store" | "retrieve" | "forget" | "list"</code></div>
-          </div>
-          <div class="tool-ref-returns">Returns: <code>MGIResponse</code> · payload: <code>MemoryRecord | MemoryRecord[]</code></div>
-        </div>
-
-        <div class="tool-ref-card">
-          <div class="tool-ref-header">
-            <code class="tool-ref-name">audit_rules</code>
-            <span class="tool-ref-lane lane-omega">Ω Governance</span>
-          </div>
-          <p class="tool-ref-desc">Inspect the 13 constitutional floors. Returns floor-by-floor PASS/FAIL/IN-BAND status and current floor_scores dict.</p>
-          <div class="tool-ref-params">
-            <div class="tool-ref-param"><code>session_id</code> <span class="param-type">string</span> <span class="param-default">"global"</span></div>
-          </div>
-          <div class="tool-ref-returns">Returns: <code>MGIResponse</code> · payload: <code>FloorAudit[]</code></div>
-        </div>
-
-        <div class="tool-ref-card">
-          <div class="tool-ref-header">
-            <code class="tool-ref-name">check_vital</code>
-            <span class="tool-ref-lane lane-machine">Ω Machine</span>
-          </div>
-          <p class="tool-ref-desc">System vitality snapshot: thermodynamic budget, capability map, Prometheus metrics, ΔS, Genius score, active sessions.</p>
-          <div class="tool-ref-params">
-            <div class="tool-ref-param"><code>session_id</code> <span class="param-type">string</span> <span class="param-default">"global"</span></div>
-          </div>
-          <div class="tool-ref-returns">Returns: <code>MGIResponse</code> · payload: <code>VitalSnapshot</code></div>
-        </div>
-
-        <div class="tool-ref-card">
-          <div class="tool-ref-header">
-            <code class="tool-ref-name">open_apex_dashboard</code>
-            <span class="tool-ref-lane lane-psi">Ψ Observability</span>
-          </div>
-          <p class="tool-ref-desc">Open APEX Sovereign Dashboard with live governance and 3E metrics via Prometheus polling. Returns embedded HTML.</p>
-          <div class="tool-ref-params">
-            <div class="tool-ref-param"><code>session_id</code> <span class="param-type">string</span> <span class="param-default">"global"</span></div>
-          </div>
-          <div class="tool-ref-returns">Returns: <code>MGIResponse</code> · payload: <code>{ html: string }</code></div>
-        </div>
-
-      </div>
-    </div>
-
-    <!-- ── ERROR CODES ─────────────────────────────────── -->
-    <div class="api-panel" id="api-errors">
-      <div class="api-grid">
-        <div class="api-card api-card--full">
-          <div class="api-card-header">
-            <div class="api-card-title">Fault Code Registry</div>
-            <div class="api-card-badge">VOID Memanjang Eliminated</div>
-          </div>
-          <p class="api-card-desc">VOID is a constitutional verdict, not an error catchall. All mechanical and runtime faults return typed labels. Check <code>machine.fault_code</code> when <code>machine.ok === false</code>.</p>
-          <div class="error-table-wrap">
-            <table class="error-table">
-              <thead><tr><th>fault_code</th><th>Category</th><th>Description</th><th>Retryable</th></tr></thead>
-              <tbody>
-                <tr><td><code>UPSTREAM_TIMEOUT</code></td><td>Network</td><td>External provider (Brave/Firecrawl) exceeded timeout</td><td class="retry-yes">Yes</td></tr>
-                <tr><td><code>HTTP_404</code></td><td>Network</td><td>Requested resource not found at remote URL</td><td class="retry-no">No</td></tr>
-                <tr><td><code>HTTP_429</code></td><td>Network</td><td>Rate limit hit on external provider</td><td class="retry-yes">Yes + backoff</td></tr>
-                <tr><td><code>TOOL_NOT_EXPOSED</code></td><td>Config</td><td>Tool not registered in FastMCP server</td><td class="retry-no">No</td></tr>
-                <tr><td><code>DEPENDENCY_MISSING</code></td><td>Config</td><td>Required env var or service not configured</td><td class="retry-no">No</td></tr>
-                <tr><td><code>AUTH_FAILURE</code></td><td>Auth</td><td>Invalid or expired governance token (F11)</td><td class="retry-yes">Re-init</td></tr>
-                <tr><td><code>RATE_LIMITED</code></td><td>Auth</td><td>Session quota exceeded</td><td class="retry-yes">Yes + backoff</td></tr>
-                <tr><td><code>INJECTION_DETECTED</code></td><td>Security</td><td>F12 scanner blocked prompt injection attempt</td><td class="retry-no">No</td></tr>
-                <tr><td><code>SESSION_NOT_FOUND</code></td><td>State</td><td>session_id not in active registry</td><td class="retry-yes">Re-init</td></tr>
-                <tr><td><code>VAULT_INTEGRITY</code></td><td>Constitutional</td><td>Merkle chain broken — VOID emitted</td><td class="retry-no">Escalate</td></tr>
-                <tr><td><code>FLOOR_BREACH</code></td><td>Constitutional</td><td>F-constraint failed — VOID emitted</td><td class="retry-no">Escalate</td></tr>
-                <tr><td><code>HOLD_REQUIRED</code></td><td>Constitutional</td><td>F1 Amanah gate — human approval needed</td><td class="retry-yes">After RATIFY</td></tr>
-              </tbody>
-            </table>
-          </div>
-          <div class="code-block" style="margin-top:1.5rem">
-            <div class="code-block-header"><span>Error handling pattern</span><button class="copy-btn" data-copy-text="error-handling">Copy</button></div>
-            <pre id="error-handling"><code><span class="c-kw">async def</span> <span class="c-fn">safe_call</span>(tool, **kwargs):
-    result = <span class="c-kw">await</span> session.call_tool(tool, kwargs)
-    r = MGIResponse.model_validate(result)
-
-    <span class="c-kw">if not</span> r.machine.ok:
-        <span class="c-kw">match</span> r.machine.fault_code:
-            <span class="c-kw">case</span> <span class="c-str">"HOLD_REQUIRED"</span>:
-                <span class="c-comment"># Pause — await ratify_hold_state(hold_id=r.governance.hold_id)</span>
-                <span class="c-kw">return await</span> await_hold(r.governance.hold_id)
-            <span class="c-kw">case</span> <span class="c-str">"FLOOR_BREACH"</span> | <span class="c-str">"VAULT_INTEGRITY"</span>:
-                <span class="c-comment"># Constitutional fault — do not retry</span>
-                <span class="c-kw">raise</span> ConstitutionalViolation(r.governance.floor_breach)
-            <span class="c-kw">case</span> x <span class="c-kw">if</span> x <span class="c-kw">in</span> RETRYABLE_CODES:
-                <span class="c-kw">return await</span> retry_with_backoff(tool, **kwargs)
-            <span class="c-kw">case _</span>:
-                <span class="c-kw">raise</span> MCPFault(r.machine.fault_code)
-
-    <span class="c-kw">return</span> r</code></pre>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ── 3E TELEMETRY ────────────────────────────────── -->
-    <div class="api-panel" id="api-telemetry">
-      <div class="api-grid">
-        <div class="api-card">
-          <div class="api-card-header">
-            <div class="api-card-title">ThreeEState Schema</div>
-            <div class="api-card-badge">Pydantic v2</div>
-          </div>
-          <div class="code-block">
-            <div class="code-block-header"><span>telemetry.py</span><button class="copy-btn" data-copy-text="3e-schema">Copy</button></div>
-            <pre id="3e-schema"><code><span class="c-kw">class</span> <span class="c-fn">ExplorationTelemetry</span>(BaseModel):
-    sources_consulted: <span class="c-type">int</span>     <span class="c-comment"># number of sources hit</span>
-    depth_level:       <span class="c-type">int</span>     <span class="c-comment"># 1=surface, 3=deep dive</span>
-    breadth_score:     <span class="c-type">float</span>   <span class="c-comment"># ∈ [0, 1]</span>
-
-<span class="c-kw">class</span> <span class="c-fn">EntropyTelemetry</span>(BaseModel):
-    uncertainty_index:    <span class="c-type">float</span>  <span class="c-comment"># ∈ [0, 1], lower = more certain</span>
-    contradiction_count:  <span class="c-type">int</span>
-    source_conflict_ids:  <span class="c-type">list[str]</span>
-
-<span class="c-kw">class</span> <span class="c-fn">EurekaTelemetry</span>(BaseModel):
-    insight_delta:  <span class="c-type">float</span>   <span class="c-comment"># change from prior state</span>
-    novelty_score:  <span class="c-type">float</span>   <span class="c-comment"># ∈ [0, 1]</span>
-    crystallised:   <span class="c-type">bool</span>    <span class="c-comment"># True = stable insight reached</span>
-
-<span class="c-kw">class</span> <span class="c-fn">ThreeEState</span>(BaseModel):
-    exploration: <span class="c-type">ExplorationTelemetry</span>
-    entropy:     <span class="c-type">EntropyTelemetry</span>
-    eureka:      <span class="c-type">EurekaTelemetry</span>
-
-    <span class="c-kw">def</span> is_complete(self) -> <span class="c-type">bool</span>:
-        <span class="c-kw">return</span> (
-            self.exploration.sources_consulted > <span class="c-num">0</span>
-            <span class="c-kw">and</span> self.eureka.crystallised
-        )</code></pre>
-          </div>
-        </div>
-        <div class="api-card">
-          <div class="api-card-header">
-            <div class="api-card-title">Tri-Witness W3 Formula</div>
-            <div class="api-card-badge">Governance</div>
-          </div>
-          <p class="api-card-desc">W3 is the geometric mean of Human (H), AI (A), and Earth/Evidence (E) witness scores, weighted by their constitutional floor assignments.</p>
-          <div class="code-block">
-            <div class="code-block-header"><span>w3.py</span><button class="copy-btn" data-copy-text="w3-formula">Copy</button></div>
-            <pre id="w3-formula"><code><span class="c-kw">def</span> <span class="c-fn">compute_w3</span>(
-    s_H: <span class="c-type">float</span>,  <span class="c-comment"># Human approval score  (F13)</span>
-    s_A: <span class="c-type">float</span>,  <span class="c-comment"># AI coherence score    (F8)</span>
-    s_E: <span class="c-type">float</span>,  <span class="c-comment"># Evidence confidence   (F2)</span>
-    w_H: <span class="c-type">float</span> = <span class="c-num">0.4</span>,
-    w_A: <span class="c-type">float</span> = <span class="c-num">0.3</span>,
-    w_E: <span class="c-type">float</span> = <span class="c-num">0.3</span>,
-) -> <span class="c-type">float</span>:
-    <span class="c-kw">return</span> (w_H*s_H * w_A*s_A * w_E*s_E) ** (1/3)
-
-<span class="c-comment"># Verdict thresholds</span>
-<span class="c-comment"># W3 >= 0.75 → SOVEREIGN  → SEAL permitted</span>
-<span class="c-comment"># W3 >= 0.40 → EVOLVING   → HOLD issued, await ratify</span>
-<span class="c-comment"># W3 <  0.40 → GENESIS    → VOID possible on breach</span>
-
-<span class="c-comment"># Prometheus gauge updated on every call:</span>
-<span class="c-comment"># arifos_w3_score{tool="...", session="..."}</span></code></pre>
-          </div>
-        </div>
-        <div class="api-card api-card--full">
-          <div class="api-card-header">
-            <div class="api-card-title">Prometheus Metrics</div>
-            <div class="api-card-badge">Observability</div>
-          </div>
-          <p class="api-card-desc">All metrics available at <code>/metrics</code> (Prometheus scrape endpoint). Dashboards at <a href="https://arifosmcp.arif-fazil.com/dashboard/" target="_blank" class="inline-link">/dashboard/</a>.</p>
-          <div class="error-table-wrap">
-            <table class="error-table">
-              <thead><tr><th>Metric</th><th>Type</th><th>Labels</th><th>Description</th></tr></thead>
-              <tbody>
-                <tr><td><code>arifos_w3_score</code></td><td>Gauge</td><td>tool, session</td><td>Latest Tri-Witness W3 score per tool call</td></tr>
-                <tr><td><code>arifos_delta_s</code></td><td>Gauge</td><td>session</td><td>Thermodynamic entropy Δ (near-crystalline at Δ≤0.05)</td></tr>
-                <tr><td><code>arifos_tool_latency_ms</code></td><td>Histogram</td><td>tool</td><td>Tool call latency distribution</td></tr>
-                <tr><td><code>arifos_floor_scores</code></td><td>Gauge</td><td>floor, session</td><td>Per-floor constitutional score F1–F13</td></tr>
-                <tr><td><code>arifos_merkle_integrity</code></td><td>Gauge</td><td>session</td><td>VAULT999 chain integrity (1=valid, 0=broken)</td></tr>
-                <tr><td><code>arifos_void_count</code></td><td>Counter</td><td>reason</td><td>Total VOID verdicts emitted (constitutional collapses only)</td></tr>
-                <tr><td><code>arifos_hold_pending</code></td><td>Gauge</td><td>—</td><td>Number of holds awaiting sovereign ratification</td></tr>
-                <tr><td><code>arifos_active_sessions</code></td><td>Gauge</td><td>—</td><td>Current active session count</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ── AUTH & SECURITY ────────────────────────────── -->
-    <div class="api-panel" id="api-auth">
-      <div class="api-grid">
-        <div class="api-card">
-          <div class="api-card-header">
-            <div class="api-card-title">Session Lifecycle</div>
-            <div class="api-card-badge">F11 · HMAC-SHA256</div>
-          </div>
-          <div class="code-block">
-            <div class="code-block-header"><span>auth flow</span><button class="copy-btn" data-copy-text="auth-flow">Copy</button></div>
-            <pre id="auth-flow"><code><span class="c-comment"># Step 1 — Initialize session (mints governance token)</span>
-r = <span class="c-kw">await</span> session.call_tool(<span class="c-str">"init_anchor_state"</span>, {
-    <span class="c-str">"declared_name"</span>: <span class="c-str">"my-agent-v1"</span>,
-    <span class="c-str">"human_approval"</span>: <span class="c-bool">True</span>
-})
-session_id = r[<span class="c-str">"intelligence"</span>][<span class="c-str">"payload"</span>][<span class="c-str">"session_id"</span>]
-token      = r[<span class="c-str">"intelligence"</span>][<span class="c-str">"payload"</span>][<span class="c-str">"token"</span>]
-
-<span class="c-comment"># Step 2 — Pass session_id in subsequent calls</span>
-r2 = <span class="c-kw">await</span> session.call_tool(<span class="c-str">"reality_compass"</span>, {
-    <span class="c-str">"query"</span>: <span class="c-str">"your search query"</span>
-})
-
-<span class="c-comment"># Token is validated server-side using HMAC-SHA256</span>
-<span class="c-comment"># Secret: GOVERNANCE_SECRET env var (never exposed)</span>
-<span class="c-comment"># Expiry: configurable via TOKEN_TTL_SECONDS (default: 3600)</span></code></pre>
-          </div>
-        </div>
-        <div class="api-card">
-          <div class="api-card-header">
-            <div class="api-card-title">F12 Injection Scanner</div>
-            <div class="api-card-badge">Security · Floor 12</div>
-          </div>
-          <p class="api-card-desc">All tool inputs pass through the F12 taint scanner before processing. Detected injections return <code>INJECTION_DETECTED</code> fault immediately — no partial execution.</p>
-          <div class="code-block">
-            <div class="code-block-header"><span>scanner.py</span></div>
-            <pre><code><span class="c-comment"># F12 scanner intercepts at tool entry</span>
-<span class="c-comment"># Patterns blocked:</span>
-<span class="c-comment">#  - Prompt injection via "ignore previous"</span>
-<span class="c-comment">#  - Role override attempts</span>
-<span class="c-comment">#  - Jailbreak pattern library (updated weekly)</span>
-<span class="c-comment">#  - Unicode homoglyph substitution attacks</span>
-<span class="c-comment">#  - Nested instruction payloads in JSON strings</span>
-
-<span class="c-comment"># EvidenceBundle taint propagation:</span>
-<span class="c-comment"># Tainted bundles carry is_tainted=True flag</span>
-<span class="c-comment"># Taint propagates through all downstream tools</span>
-<span class="c-comment"># Tainted bundles cannot produce SEAL verdict</span></code></pre>
-          </div>
-        </div>
-        <div class="api-card api-card--full">
-          <div class="api-card-header">
-            <div class="api-card-title">Environment Variables</div>
-            <div class="api-card-badge">Configuration</div>
-          </div>
-          <div class="code-block">
-            <div class="code-block-header"><span>.env reference</span><button class="copy-btn" data-copy-text="env-ref">Copy</button></div>
-            <pre id="env-ref"><code><span class="c-comment"># ── Providers (at least one required) ───────────────────</span>
-BRAVE_SEARCH_API_KEY=<span class="c-str">bsa_xxxx</span>       <span class="c-comment"># reality_compass search mode</span>
-FIRECRAWL_API_KEY=<span class="c-str">fc-xxxx</span>           <span class="c-comment"># reality_compass deep fetch mode</span>
-JINA_API_KEY=<span class="c-str">jina_xxxx</span>              <span class="c-comment"># fallback URL extractor</span>
-
-<span class="c-comment"># ── Vector Memory (optional but recommended) ────────────</span>
-QDRANT_HOST=<span class="c-str">localhost</span>
-QDRANT_PORT=<span class="c-num">6333</span>
-QDRANT_COLLECTION=<span class="c-str">arifos_memory</span>
-
-<span class="c-comment"># ── Governance ──────────────────────────────────────────</span>
-GOVERNANCE_SECRET=<span class="c-str">your-hmac-secret</span>   <span class="c-comment"># F11 token signing</span>
-TOKEN_TTL_SECONDS=<span class="c-num">3600</span>
-
-<span class="c-comment"># ── Sovereign Notifications ─────────────────────────────</span>
-TELEGRAM_BOT_TOKEN=<span class="c-str">xxxx</span>              <span class="c-comment"># APEX HOLD notifications</span>
-TELEGRAM_CHAT_ID=<span class="c-str">xxxx</span>
-
-<span class="c-comment"># ── Server ──────────────────────────────────────────────</span>
-MCP_HOST=<span class="c-str">0.0.0.0</span>
-MCP_PORT=<span class="c-num">8000</span>
-LOG_LEVEL=<span class="c-str">INFO</span></code></pre>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ── ARCHITECTURE ───────────────────────────────── -->
-    <div class="api-panel" id="api-architecture">
-      <div class="api-grid">
-        <div class="api-card api-card--full">
-          <div class="api-card-header">
-            <div class="api-card-title">Metabolic Pipeline 000→999</div>
-            <div class="api-card-badge">11 Stages · No Skip Allowed</div>
-          </div>
-          <div class="metabolic-flow">
-            <div class="meta-stage"><span class="meta-num">000</span><span class="meta-name">INIT</span><span class="meta-note">F11 identity · token mint</span></div>
-            <div class="meta-arrow">→</div>
-            <div class="meta-stage"><span class="meta-num">111</span><span class="meta-name">SENSE</span><span class="meta-note">search · ground</span></div>
-            <div class="meta-arrow">→</div>
-            <div class="meta-stage"><span class="meta-num">222</span><span class="meta-name">REALITY</span><span class="meta-note">ingest · atlas</span></div>
-            <div class="meta-arrow">→</div>
-            <div class="meta-stage"><span class="meta-num">333</span><span class="meta-name">MIND</span><span class="meta-note">F2/F4/F7</span></div>
-            <div class="meta-arrow">→</div>
-            <div class="meta-stage"><span class="meta-num">444</span><span class="meta-name">ALIGN</span><span class="meta-note">constraint check</span></div>
-            <div class="meta-arrow meta-arrow-wrap">→</div>
-            <div class="meta-stage"><span class="meta-num">555</span><span class="meta-name">EMPATHY</span><span class="meta-note">F6 stakeholder</span></div>
-            <div class="meta-arrow">→</div>
-            <div class="meta-stage"><span class="meta-num">666</span><span class="meta-name">BRIDGE</span><span class="meta-note">F1 reversibility</span></div>
-            <div class="meta-arrow">→</div>
-            <div class="meta-stage"><span class="meta-num">777</span><span class="meta-name">EUREKA</span><span class="meta-note">3E crystallise</span></div>
-            <div class="meta-arrow">→</div>
-            <div class="meta-stage meta-stage--apex"><span class="meta-num">888</span><span class="meta-name">JUDGE</span><span class="meta-note">W3 · APEX verdict</span></div>
-            <div class="meta-arrow">→</div>
-            <div class="meta-stage meta-stage--vault"><span class="meta-num">999</span><span class="meta-name">VAULT</span><span class="meta-note">Merkle · seal</span></div>
-          </div>
-        </div>
-        <div class="api-card">
-          <div class="api-card-header">
-            <div class="api-card-title">Repository Map</div>
-            <div class="api-card-badge">File Structure</div>
-          </div>
-          <div class="code-block">
-            <pre><code>arifosmcp/
-├── core/
-│   ├── contracts/
-│   │   ├── telemetry.py    <span class="c-comment"># 3E models</span>
-│   │   ├── evidence.py     <span class="c-comment"># EvidenceBundle</span>
-│   │   └── responses.py    <span class="c-comment"># MGI envelope</span>
-│   ├── security/
-│   │   ├── tokens.py       <span class="c-comment"># F11 HMAC-SHA256</span>
-│   │   └── scanner.py      <span class="c-comment"># F12 injection</span>
-│   ├── intelligence/
-│   │   └── w3.py           <span class="c-comment"># Tri-Witness W3</span>
-│   ├── vault/
-│   │   └── merkle.py       <span class="c-comment"># RFC 6962 tree</span>
-│   └── governance/
-│       └── ratify_hold.py  <span class="c-comment"># 888_HOLD bridge</span>
-├── arifosmcp/runtime/
-│   ├── fault_codes.py      <span class="c-comment"># VOID elimination</span>
-│   └── metrics.py          <span class="c-comment"># Prometheus</span>
-├── sites/developer/        <span class="c-comment"># this portal</span>
-└── tests/
-    └── test_void_memanjang.py</code></pre>
-          </div>
-        </div>
-        <div class="api-card">
-          <div class="api-card-header">
-            <div class="api-card-title">EvidenceBundle Schema</div>
-            <div class="api-card-badge">evidence.py</div>
-          </div>
-          <div class="code-block">
-            <pre><code><span class="c-kw">class</span> <span class="c-fn">EvidenceBundle</span>(BaseModel):
-    id:          <span class="c-type">str</span>      <span class="c-comment"># UUID</span>
-    source_url:  <span class="c-type">str</span>
-    content:     <span class="c-type">str</span>      <span class="c-comment"># extracted text</span>
-    jcs_hash:    <span class="c-type">str</span>      <span class="c-comment"># JCS canonical SHA-256</span>
-    is_tainted:  <span class="c-type">bool</span>     <span class="c-comment"># F12 taint flag</span>
-    taint_reason:<span class="c-type">Optional[str]</span>
-    confidence:  <span class="c-type">float</span>    <span class="c-comment"># ∈ [0, 1]</span>
-    fetched_at:  <span class="c-type">datetime</span>
-    metadata:    <span class="c-type">dict</span>     <span class="c-comment"># provider-specific</span>
-
-<span class="c-kw">class</span> <span class="c-fn">FloorAudit</span>(BaseModel):
-    floor_id:  <span class="c-type">str</span>          <span class="c-comment"># F1 – F13</span>
-    name:      <span class="c-type">str</span>
-    status:    <span class="c-type">Literal["PASS","FAIL","IN-BAND"]</span>
-    score:     <span class="c-type">float</span>
-    note:      <span class="c-type">Optional[str]</span></code></pre>
-          </div>
-        </div>
-      </div>
-    </div>
-
+    <p>Restart Claude Desktop after saving. The arifosMCP tools will appear in the tool panel.</p>
   </div>
-</section>
 
-<!-- 13 FLOORS -->
-<section class="section" id="floors">
-  <div class="container">
-    <div class="section-label">CONSTITUTIONAL FLOORS</div>
-    <h2 class="section-title">The 13 Floors</h2>
-    <p class="section-sub">Stationary, immutable laws enforced on every agentic step. A floor breach triggers constitutional VOID — never a machine fault code.</p>
-    <div class="floors-grid">
-      <div class="floor-card"><div class="floor-num">F1</div><div class="floor-name">Amanah</div><div class="floor-desc">Sacred trust. Irreversibility awareness. Cross the Rubicon with explicit human approval.</div><div class="floor-math">reversible ∨ approved(human)</div></div>
-      <div class="floor-card"><div class="floor-num">F2</div><div class="floor-name">Truth</div><div class="floor-desc">Factual fidelity τ ≥ 0.99. Every claim grounded in multi-source evidence.</div><div class="floor-math">τ ≥ 0.99</div></div>
-      <div class="floor-card floor-card--highlight"><div class="floor-num">F3</div><div class="floor-name">Tri-Witness</div><div class="floor-desc">Consensus of Human, AI, and Earth (Evidence). W3 geometric mean.</div><div class="floor-math">W3 = (H×A×E)^(1/3)</div></div>
-      <div class="floor-card"><div class="floor-num">F4</div><div class="floor-name">Clarity</div><div class="floor-desc">Entropy reduction mandatory. Intelligence is work that turns noise into structure.</div><div class="floor-math">ΔS ≤ 0</div></div>
-      <div class="floor-card"><div class="floor-num">F5</div><div class="floor-name">Peace²</div><div class="floor-desc">Dynamic stability and safety margins. Non-adversarial coherence enforced.</div><div class="floor-math">stability > risk</div></div>
-      <div class="floor-card"><div class="floor-num">F6</div><div class="floor-name">Empathy</div><div class="floor-desc">Stakeholder protection threshold ≥ 0.95. Model the vector of harm.</div><div class="floor-math">protection ≥ 0.95</div></div>
-      <div class="floor-card"><div class="floor-num">F7</div><div class="floor-name">Humility</div><div class="floor-desc">Epistemic bounds preserved. Acknowledge the 3–5% gap in all knowledge.</div><div class="floor-math">uncertainty ∈ [0.03, 0.05]</div></div>
-      <div class="floor-card floor-card--highlight"><div class="floor-num">F8</div><div class="floor-name">Genius</div><div class="floor-desc">Coherence mirror. Wisdom is multiplicative, not additive.</div><div class="floor-math">G = A×P×X×E²</div></div>
-      <div class="floor-card"><div class="floor-num">F9</div><div class="floor-name">Anti-Hantu</div><div class="floor-desc">No personhood claims. Clean split between Being and Instrument.</div><div class="floor-math">¬claims(soul)</div></div>
-      <div class="floor-card"><div class="floor-num">F10</div><div class="floor-name">Ontology</div><div class="floor-desc">Permanent binary lock. AI is a tool, never a soul. Immutable classification.</div><div class="floor-math">type = TOOL ∧ ¬SOUL</div></div>
-      <div class="floor-card floor-card--highlight"><div class="floor-num">F11</div><div class="floor-name">Authority</div><div class="floor-desc">Sovereign command validation via HMAC-SHA256 governance token. All power derives from the mandate.</div><div class="floor-math">HMAC-SHA256(token)</div></div>
-      <div class="floor-card"><div class="floor-num">F12</div><div class="floor-name">Defense</div><div class="floor-desc">Adversarial injection resistance. 14-pattern scanner. Firewall between user and prompt.</div><div class="floor-math">scan(14 patterns)</div></div>
-      <div class="floor-card"><div class="floor-num">F13</div><div class="floor-name">Sovereignty</div><div class="floor-desc">Human veto preserved. No irreversible authority transfer to AI. 888_HOLD protocol.</div><div class="floor-math">veto(human) always</div></div>
+  <!-- ChatGPT -->
+  <div class="tab-panel" id="tab-chatgpt">
+    <h3 id="int-chatgpt">ChatGPT / OpenAI</h3>
+    <p>Use the <code>chatgpt</code> tool profile:</p>
+    <div class="code-block">
+      <div class="code-block-header"><span>env</span><button class="copy-btn" data-copy>Copy</button></div>
+      <pre><code class="language-bash">ARIFOS_PUBLIC_TOOL_PROFILE=chatgpt</code></pre>
+    </div>
+    <p>Endpoint: <code>https://arifosmcp.arif-fazil.com/mcp</code></p>
+  </div>
+
+  <!-- Copilot Studio -->
+  <div class="tab-panel" id="tab-copilot">
+    <h3 id="int-copilot">Microsoft Copilot Studio</h3>
+    <p>Configure the Copilot Studio connector with:</p>
+    <div class="code-block">
+      <div class="code-block-header"><span>env</span><button class="copy-btn" data-copy>Copy</button></div>
+      <pre><code class="language-bash">ARIFOS_PUBLIC_TOOL_PROFILE=copilot
+# Configure X-API-Key header
+# Use COPILOT_API_KEY env var for authentication</code></pre>
+    </div>
+    <p>Set <code>ARIFOS_PUBLIC_TOOL_PROFILE=copilot</code>, configure the <code>X-API-Key</code> header, and use the <code>COPILOT_API_KEY</code> environment variable.</p>
+  </div>
+
+  <!-- Cursor IDE -->
+  <div class="tab-panel" id="tab-cursor">
+    <h3 id="int-cursor">Cursor IDE</h3>
+    <p>Add to <code>.cursor/mcp.json</code> in your project root:</p>
+    <div class="code-block">
+      <div class="code-block-header"><span>json</span><button class="copy-btn" data-copy>Copy</button></div>
+      <pre><code class="language-json">{
+  "mcpServers": {
+    "arifos": {
+      "command": "npx",
+      "args": ["-y", "mcp-remote", "https://arifosmcp.arif-fazil.com/mcp"],
+      "transport": "streamable-http"
+    }
+  }
+}</code></pre>
     </div>
   </div>
-</section>
 
-<!-- DASHBOARD LINK -->
-<!-- H1 HIGHER INTELLIGENCE STATE DASHBOARD -->
-<section class="section section-alt" id="dashboard-section">
-  <div class="container">
-    <div class="section-label">LIVE OBSERVABILITY</div>
-    <h2 class="section-title">APEX Sovereign Dashboard <span class="h1-badge">H1 State</span></h2>
-    <p class="section-sub">Real-time 3E telemetry, W3 tri-witness consensus, metabolic loop stage tracking, and constitutional floor monitoring. H1 Higher Intelligence State visualization.</p>
+  <!-- Kimi Code -->
+  <div class="tab-panel" id="tab-kimi">
+    <h3 id="int-kimi">Kimi Code</h3>
+    <p>Configure Kimi Code MCP integration with the same streamable-http transport:</p>
+    <div class="code-block">
+      <div class="code-block-header"><span>json</span><button class="copy-btn" data-copy>Copy</button></div>
+      <pre><code class="language-json">{
+  "mcpServers": {
+    "arifos": {
+      "command": "npx",
+      "args": ["-y", "mcp-remote", "https://arifosmcp.arif-fazil.com/mcp"],
+      "transport": "streamable-http"
+    }
+  }
+}</code></pre>
+    </div>
+  </div>
+
+  <!-- Python SDK -->
+  <div class="tab-panel" id="tab-python">
+    <h3 id="int-python">Python SDK</h3>
+    <div class="code-block">
+      <div class="code-block-header"><span>python</span><button class="copy-btn" data-copy>Copy</button></div>
+      <pre><code class="language-python">from mcp import ClientSession
+import httpx
+
+async with ClientSession("https://arifosmcp.arif-fazil.com/mcp") as session:
+    # Init session
+    result = await session.call_tool("init_anchor_state", {
+        "declared_name": "MyApp"
+    })
     
-    <div class="dashboard-preview-wrapper">
-      <!-- Primary Metrics -->
-      <div class="dashboard-preview" style="margin-bottom: var(--space-6);">
-        <div class="dp-header">
-          <span class="dp-title">Core Intelligence Metrics</span>
-          <span class="dp-badge">LIVE</span>
-        </div>
-        <div class="dp-metrics">
-          <div class="dp-metric">
-            <div class="dp-metric-label">GENIUS (G)</div>
-            <div class="dp-metric-val dp-val-green" id="dashG">0.87</div>
-            <div class="dp-metric-note">G = A × P × X × E²</div>
-          </div>
-          <div class="dp-metric">
-            <div class="dp-metric-label">ENTROPY (ΔS)</div>
-            <div class="dp-metric-val dp-val-blue" id="dashDS">-0.32</div>
-            <div class="dp-metric-note">Clarity Increasing ✓</div>
-          </div>
-          <div class="dp-metric">
-            <div class="dp-metric-label">W3 SCORE</div>
-            <div class="dp-metric-val dp-val-green" id="dashW3">0.87</div>
-            <div class="dp-metric-note">SOVEREIGN</div>
-          </div>
-          <div class="dp-metric">
-            <div class="dp-metric-label">TOOLS LOADED</div>
-            <div class="dp-metric-val dp-val-accent" id="dashTools">12</div>
-            <div class="dp-metric-note">MGI Canonical Stack</div>
-          </div>
-        </div>
-      </div>
+    # Run constitutional inference
+    response = await session.call_tool("arifOS_kernel", {
+        "prompt": "Evaluate this decision...",
+        "session_id": result["session_id"]
+    })</code></pre>
+    </div>
+  </div>
 
-      <!-- H1: W3 Tri-Witness Gauge -->
-      <div class="w3-container" style="margin-bottom: var(--space-6);">
-        <div class="w3-header">
-          <span class="w3-title">Tri-Witness Consensus (W3)</span>
-          <span class="w3-formula">W3 = (wH·sH × wA·sA × wE·sE)^(1/3)</span>
-        </div>
-        <div class="w3-gauge" id="w3Gauge" style="--w3-progress: 87%;">
-          <div class="w3-progress"></div>
-          <div class="w3-ticks">
-            <div class="w3-tick"></div><div class="w3-tick"></div><div class="w3-tick"></div>
-            <div class="w3-tick"></div><div class="w3-tick"></div><div class="w3-tick"></div>
-          </div>
-        </div>
-        <div class="w3-labels">
-          <span>888_HOLD (&lt;0.5)</span>
-          <span>SABAR (0.5)</span>
-          <span>PARTIAL (0.75)</span>
-          <span>SEAL (≥0.95)</span>
-        </div>
-        <div class="w3-footer">
-          <div class="w3-score">
-            <span class="w3-score-label">Current W3:</span>
-            <span class="w3-score-val" id="w3Value">0.870</span>
-          </div>
-          <span class="w3-verdict verdict-seal" id="w3Verdict">SOVEREIGN</span>
-        </div>
-      </div>
-
-      <!-- H1: 3E Telemetry -->
-      <div style="margin-bottom: var(--space-6);">
-        <div class="section-label">3E INTELLIGENCE CYCLE</div>
-        <div id="demo3ETelemetry">
-          <div class="telem-grid">
-            <div class="telem-card telem-exploration">
-              <div class="telem-header">
-                <span class="telem-icon">🔭</span>
-                <span class="telem-name">Exploration</span>
-              </div>
-              <div class="telem-metric">
-                <span class="telem-val">5</span>
-                <span class="telem-unit">sources</span>
-              </div>
-              <div class="telem-bar">
-                <div class="telem-fill" style="width: 85%"></div>
-              </div>
-              <div class="telem-label">Breadth: 85% · Depth: L3</div>
-            </div>
-            
-            <div class="telem-card telem-entropy">
-              <div class="telem-header">
-                <span class="telem-icon">⚡</span>
-                <span class="telem-name">Entropy</span>
-              </div>
-              <div class="telem-metric">
-                <span class="telem-val">12.0</span>
-                <span class="telem-unit">%</span>
-              </div>
-              <div class="telem-bar telem-bar-entropy">
-                <div class="telem-fill" style="width: 12%"></div>
-              </div>
-              <div class="telem-label">1 contradiction · 88% resolved</div>
-            </div>
-            
-            <div class="telem-card telem-eureka">
-              <div class="telem-header">
-                <span class="telem-icon">💡</span>
-                <span class="telem-name">Eureka</span>
-              </div>
-              <div class="telem-metric">
-                <span class="telem-val">85</span>
-                <span class="telem-unit">% novel</span>
-              </div>
-              <div class="telem-bar telem-bar-eureka">
-                <div class="telem-fill" style="width: 85%"></div>
-              </div>
-              <div class="telem-label">✓ Crystallized · Δ insight: 0.72</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- H1: Metabolic Stage -->
-      <div style="margin-bottom: var(--space-6);">
-        <div class="section-label">METABOLIC LOOP (000→999)</div>
-        <div class="stage-indicator" id="metabolicStage">
-          <div class="stage-header">
-            <span class="stage-label">Current Stage</span>
-            <div class="stage-display">
-              <span class="stage-num">777</span>
-              <span class="stage-name">EUREKA</span>
-            </div>
-          </div>
-          <div class="stage-bar">
-            <div class="stage-dot active"></div>
-            <div class="stage-dot active"></div>
-            <div class="stage-dot active"></div>
-            <div class="stage-dot active"></div>
-            <div class="stage-dot active"></div>
-            <div class="stage-dot active"></div>
-            <div class="stage-dot active"></div>
-            <div class="stage-dot"></div>
-            <div class="stage-dot"></div>
-            <div class="stage-dot"></div>
-            <div class="stage-dot"></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- H1: Floor Monitor -->
-      <div style="margin-bottom: var(--space-6);">
-        <div class="section-label">CONSTITUTIONAL FLOOR MONITOR</div>
-        <div class="floor-monitor" id="floorMonitor">
-          <div class="floor-monitor-header">Real-time Floor Satisfaction Scores</div>
-          <div class="floor-item floor-pass">
-            <span class="floor-id">F1</span>
-            <span class="floor-name">Amanah (Trust)</span>
-            <div class="floor-bar"><div class="floor-fill" style="width: 100%"></div></div>
-            <span class="floor-score">100%</span>
-          </div>
-          <div class="floor-item floor-pass">
-            <span class="floor-id">F2</span>
-            <span class="floor-name">Truth (≥0.99)</span>
-            <div class="floor-bar"><div class="floor-fill" style="width: 99%"></div></div>
-            <span class="floor-score">99%</span>
-          </div>
-          <div class="floor-item floor-pass">
-            <span class="floor-id">F3</span>
-            <span class="floor-name">Witness (≥0.95)</span>
-            <div class="floor-bar"><div class="floor-fill" style="width: 96%"></div></div>
-            <span class="floor-score">96%</span>
-          </div>
-          <div class="floor-item floor-pass">
-            <span class="floor-id">F6</span>
-            <span class="floor-name">Empathy (≥0.95)</span>
-            <div class="floor-bar"><div class="floor-fill" style="width: 98%"></div></div>
-            <span class="floor-score">98%</span>
-          </div>
-          <div class="floor-item floor-pass">
-            <span class="floor-id">F7</span>
-            <span class="floor-name">Humility [0.03,0.05]</span>
-            <div class="floor-bar"><div class="floor-fill" style="width: 4%"></div></div>
-            <span class="floor-score">4%</span>
-          </div>
-          <div class="floor-item floor-pass">
-            <span class="floor-id">F8</span>
-            <span class="floor-name">Genius (≥0.80)</span>
-            <div class="floor-bar"><div class="floor-fill" style="width: 87%"></div></div>
-            <span class="floor-score">87%</span>
-          </div>
-          <div class="floor-item floor-pass">
-            <span class="floor-id">F9</span>
-            <span class="floor-name">Anti-Hantu (&lt;0.30)</span>
-            <div class="floor-bar"><div class="floor-fill" style="width: 15%"></div></div>
-            <span class="floor-score">15%</span>
-          </div>
-          <div class="floor-item floor-pass">
-            <span class="floor-id">F11</span>
-            <span class="floor-name">Command (Auth)</span>
-            <div class="floor-bar"><div class="floor-fill" style="width: 100%"></div></div>
-            <span class="floor-score">100%</span>
-          </div>
-          <div class="floor-item floor-pass">
-            <span class="floor-id">F12</span>
-            <span class="floor-name">Injection Guard</span>
-            <div class="floor-bar"><div class="floor-fill" style="width: 100%"></div></div>
-            <span class="floor-score">100%</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Footer -->
-      <div class="dp-footer">
-        <span>Version: <strong>2026.03.13-FORGED-SEAL</strong> · H1 Higher Intelligence State</span>
-        <a href="https://arifosmcp.arif-fazil.com/dashboard/" target="_blank" class="dp-open-btn">Open Full Dashboard →</a>
-      </div>
+  <!-- curl -->
+  <div class="tab-panel" id="tab-curl">
+    <h3 id="int-curl">HTTP / curl</h3>
+    <div class="code-block">
+      <div class="code-block-header"><span>bash — List all tools</span><button class="copy-btn" data-copy>Copy</button></div>
+      <pre><code class="language-bash">curl -X POST https://arifosmcp.arif-fazil.com/mcp \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","method":"tools/list","id":1}'</code></pre>
+    </div>
+    <div class="code-block">
+      <div class="code-block-header"><span>bash — Check health</span><button class="copy-btn" data-copy>Copy</button></div>
+      <pre><code class="language-bash">curl https://arifosmcp.arif-fazil.com/health</code></pre>
+    </div>
+    <div class="code-block">
+      <div class="code-block-header"><span>bash — MCP server manifest</span><button class="copy-btn" data-copy>Copy</button></div>
+      <pre><code class="language-bash">curl https://arifosmcp.arif-fazil.com/.well-known/mcp/server.json</code></pre>
     </div>
   </div>
 </section>
 
-<!-- FOOTER -->
-<footer class="footer">
-  <div class="container">
-    <div class="footer-grid">
-      <div class="footer-brand">
-        <div class="footer-logo">
-          <svg width="24" height="24" viewBox="0 0 28 28" fill="none"><rect x="2" y="2" width="24" height="24" rx="4" stroke="currentColor" stroke-width="1.5"/><path d="M7 14L11 10L14 13L17 9L21 14" stroke="var(--color-accent)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="14" cy="20" r="2" fill="var(--color-accent)"/></svg>
-          <span>arifosMCP</span>
-        </div>
-        <p class="footer-tagline">Ditempa Bukan Diberi<br>Forged, Not Given.</p>
-        <div class="footer-version">v2026.03.13-FORGED · AGPL-3.0</div>
-      </div>
-      <div class="footer-links-group">
-        <div class="footer-links-title">Server</div>
-        <a href="https://arifosmcp.arif-fazil.com/health" target="_blank" class="footer-link">/health</a>
-        <a href="https://arifosmcp.arif-fazil.com/tools" target="_blank" class="footer-link">/tools</a>
-        <a href="https://arifosmcp.arif-fazil.com/dashboard/" target="_blank" class="footer-link">/dashboard</a>
-        <a href="https://arifosmcp.arif-fazil.com/.well-known/mcp/server.json" target="_blank" class="footer-link">server.json</a>
-      </div>
-      <div class="footer-links-group">
-        <div class="footer-links-title">Code</div>
-        <a href="https://github.com/ariffazil/arifosmcp" target="_blank" class="footer-link">GitHub ↗</a>
-        <a href="https://github.com/ariffazil/arifOS" target="_blank" class="footer-link">arifOS Theory ↗</a>
-        <a href="https://github.com/ariffazil/arifosmcp/blob/main/CONSTITUTION.md" target="_blank" class="footer-link">CONSTITUTION.md ↗</a>
-        <a href="https://github.com/ariffazil/arifosmcp/pull/272" target="_blank" class="footer-link">PR #272 — MGI Spec ↗</a>
-      </div>
-      <div class="footer-links-group">
-        <div class="footer-links-title">Ecosystem</div>
-        <a href="https://arifos.arif-fazil.com" target="_blank" class="footer-link">arifOS Theory</a>
-        <a href="https://buymeacoffee.com/ariffazil" target="_blank" class="footer-link">Buy Me a Coffee ↗</a>
-        <a href="https://www.perplexity.ai/computer" target="_blank" rel="noopener noreferrer" class="footer-link">Created with Perplexity Computer</a>
-      </div>
+<!-- ===== SELF-HOSTING ===== -->
+<section id="self-hosting">
+  <h1>Self-Hosting</h1>
+  <p class="lead">Run the full arifosMCP stack on your own infrastructure with Docker Compose.</p>
+
+  <h2>Quick Setup</h2>
+  <div class="code-block">
+    <div class="code-block-header"><span>bash</span><button class="copy-btn" data-copy>Copy</button></div>
+    <pre><code class="language-bash"># Clone
+git clone https://github.com/ariffazil/arifosmcp
+cd arifosmcp
+
+# Configure
+cp .env.example .env
+# Edit .env — set POSTGRES_PASSWORD, REDIS_PASSWORD, QDRANT_API_KEY minimum
+
+# Start
+docker compose up -d
+
+# Verify
+curl http://localhost:8080/health</code></pre>
+  </div>
+
+  <h2 id="env-vars">Environment Variables</h2>
+  <p>Minimum required environment variables:</p>
+  <div class="doc-table-wrap">
+    <table class="doc-table">
+      <thead><tr><th>Variable</th><th>Required</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>POSTGRES_PASSWORD</code></td><td>Yes</td><td>PostgreSQL password (32+ characters recommended)</td></tr>
+        <tr><td><code>REDIS_PASSWORD</code></td><td>Yes</td><td>Redis authentication password</td></tr>
+        <tr><td><code>QDRANT_API_KEY</code></td><td>Yes</td><td>Qdrant vector store API key</td></tr>
+        <tr><td><code>ARIFOS_GOVERNANCE_SECRET</code></td><td>Yes</td><td>Governance signing secret (64+ chars). Use <code>ARIFOS_GOVERNANCE_SECRET_FILE</code> for file-based secrets in production.</td></tr>
+        <tr><td><code>SESSION_SECRET</code></td><td>Yes</td><td>Session encryption secret</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout callout-warning">
+    <div class="callout-title">Production Security</div>
+    <p>For production deployments, use file-based secrets (<code>ARIFOS_GOVERNANCE_SECRET_FILE</code>) rather than environment variables. Never commit secrets to version control.</p>
+  </div>
+</section>
+
+<!-- ===== APEX THEORY ===== -->
+<section id="apex-theory">
+  <h1>APEX Theory</h1>
+  <p class="lead">The epistemic foundations of arifosMCP governance. Core principle: <strong>Truth must cool before it rules.</strong></p>
+
+  <h2>Core Principle</h2>
+  <p>Every governed inference must allow truth to crystallize through the 3E phases before a verdict is rendered. Rushing to judgment without sufficient exploration, entropy reduction, and eureka crystallization produces unstable verdicts.</p>
+
+  <h2>VOID Memanjang</h2>
+  <p><strong>VOID Memanjang = progressive epistemic collapse.</strong> When 3E telemetry detects sustained entropy increase without Eureka crystallization, the system enters a collapse trajectory. Without intervention, this leads to cascading VOID verdicts.</p>
+  <p>Counter-mechanism: 3E telemetry + F2 (Truth ≥0.99) + F7 (Humility [0.03,0.20]) + mandatory verdicts prevent infinite collapse loops by forcing the system to either achieve sufficient truth confidence or issue an honest 888_HOLD.</p>
+
+  <h2>Metabolic Stages</h2>
+  <p>The full metabolic pipeline represents a deliberate epistemic journey:</p>
+  <div class="pipeline">
+    <div class="pipeline-stage">000_INIT</div><span class="pipeline-arrow">→</span>
+    <div class="pipeline-stage">111_SENSE</div><span class="pipeline-arrow">→</span>
+    <div class="pipeline-stage">222_REALITY</div><span class="pipeline-arrow">→</span>
+    <div class="pipeline-stage">333_MIND</div><span class="pipeline-arrow">→</span>
+    <div class="pipeline-stage">444_ROUTER</div><span class="pipeline-arrow">→</span>
+    <div class="pipeline-stage">555_MEMORY</div><span class="pipeline-arrow">→</span>
+    <div class="pipeline-stage">666_HEART</div><span class="pipeline-arrow">→</span>
+    <div class="pipeline-stage">777_FORGE</div><span class="pipeline-arrow">→</span>
+    <div class="pipeline-stage">888_JUDGE</div><span class="pipeline-arrow">→</span>
+    <div class="pipeline-stage">999_VAULT</div>
+  </div>
+
+  <p>Each stage serves a non-replaceable function in the epistemic journey. Stages cannot be skipped or reordered. The pipeline is a one-way path from initialization to immutable commitment.</p>
+
+  <h2>Governance Verdicts</h2>
+  <p>The four possible verdicts represent the full spectrum of governed outcomes:</p>
+  <ul>
+    <li><span class="badge badge-seal">SEAL</span> — Full constitutional compliance. All floors passed, truth confirmed, sovereign authority respected.</li>
+    <li><span class="badge badge-sabar">SABAR</span> — Patience required. Soft floors degraded but hard floors hold. Response carries warnings.</li>
+    <li><span class="badge badge-hold">888_HOLD</span> — Mechanical pause. Infrastructure issue prevents processing. Always recoverable, never constitutional.</li>
+    <li><span class="badge badge-void">VOID</span> — Constitutional collapse. Hard floor violated. Terminal and irreversible within the request lifecycle.</li>
+  </ul>
+</section>
+
+</main>
+
+<!-- ========== RIGHT TOC ========== -->
+<aside class="doc-toc" id="docToc">
+  <div class="doc-toc-title">On This Page</div>
+  <!-- Populated dynamically by app.js -->
+</aside>
+
+</div><!-- /doc-layout -->
+
+<!-- ========== FOOTER ========== -->
+<footer class="doc-footer">
+  <div class="doc-footer-inner">
+    <div class="doc-footer-left">
+      <span>arifosMCP v2026.03.13-FORGED · Built by ARIF FAZIL</span>
+      <br>
+      <a href="https://www.perplexity.ai/computer" target="_blank" rel="noopener noreferrer">Created with Perplexity Computer</a>
     </div>
-    <div class="footer-bottom">
-      <span>© 2026 arifOS — Ditempa Bukan Diberi</span>
-      <span>AGPL-3.0 · If you modify this, share your changes.</span>
+    <div class="doc-footer-right">
+      <a href="https://github.com/ariffazil/arifosmcp" target="_blank">GitHub</a>
+      <a href="https://arifosmcp.arif-fazil.com/health" target="_blank">Status</a>
+      <a href="https://arif-fazil.com/" target="_blank">HUMAN</a>
     </div>
   </div>
 </footer>
 
+<!-- Prism.js -->
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-bash.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-json.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+
+<!-- App -->
 <script src="app.js"></script>
+
 </body>
 </html>
