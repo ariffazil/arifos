@@ -31,6 +31,8 @@ from core.state.session_manager import session_manager
 from core.telemetry import check_adaptation_status, get_current_hysteresis
 
 from .bridge import call_kernel
+from .reality_models import EvidenceBundle, RealityAtlas, BundleInput, Policy
+from .reality_handlers import handler as reality_handler
 
 PUBLIC_TOOL_SPEC_BY_NAME = {spec.name: spec for spec in public_tool_specs()}
 PUBLIC_KERNEL_TOOL_NAME = "arifOS_kernel"
@@ -488,7 +490,7 @@ async def init_anchor_state(
         "intent": intent,
         "math": math,
         "governance": governance,
-        "auth_token": auth_token,
+        "auth_token": auth_token, "token_fingerprint": uuid.uuid4().hex[:16],
         "dry_run": dry_run,
     }
     return await _wrap_call(
@@ -523,7 +525,7 @@ async def bootstrap_identity(
             "actor_id": normalized_actor_id,
             "authority_level": authority_level,
             "stakes_class": "C",
-            "human_approval": human_approval,
+            "human_approval": human_approval, "token_fingerprint": uuid.uuid4().hex[:16],
         },
     }
     return await _wrap_call(
@@ -738,27 +740,97 @@ async def seal_vault_commit(
     )
 
 
-async def search_reality(query: str, ctx: Context | None = None) -> RuntimeEnvelope:
-    """External knowledge discovery. Finds real-world sources and evidence before reasoning."""
-    return await _wrap_call("search_reality", Stage.SENSE_111, "global", {"query": query}, ctx)
 
 
-async def ingest_evidence(url: str, ctx: Context | None = None) -> RuntimeEnvelope:
-    """Evidence ingestion. Loads URLs, documents, and datasets into context."""
-    return await _wrap_call(
-        "ingest_evidence", Stage.REALITY_222, "global", {"source_url": url}, ctx
+async def reality_compass(
+    input: str,
+    session_id: str = "global",
+    actor_id: str = "anonymous",
+    authority_level: str = "anonymous",
+    mode: str = "auto",
+    top_k: int = 5,
+    fetch_top_k: int = 2,
+    render: str = "auto",
+    budget_ms: int = 15000,
+    atlas: bool = True,
+    policy: dict[str, Any] | None = None,
+    debug_profile: str = "none",
+    region: str = "MY",
+    locale: str = "en-MY",
+    ctx: Context | None = None,
+) -> RuntimeEnvelope:
+    """Unified reality entrypoint: query→search, url→fetch. Emits EvidenceBundle."""
+    import hashlib
+    b_input = BundleInput(
+        type="url" if input.startswith(("http://", "https://")) else "query",
+        value=input,
+        mode=mode,
+        top_k=top_k,
+        fetch_top_k=fetch_top_k,
+        render=render,
+        budget_ms=budget_ms,
+        policy=Policy(**(policy or {}))
+    )
+    auth_ctx = {
+        "actor_id": actor_id,
+        "authority_level": authority_level,
+        "token_fingerprint": hashlib.sha256(f"{session_id}:{actor_id}".encode()).hexdigest()[:16]
+    }
+    bundle = await reality_handler.handle_compass(b_input, auth_ctx)
+    
+    # Wrap in RuntimeEnvelope
+    return RuntimeEnvelope(
+        tool="reality_compass",
+        session_id=session_id,
+        stage=Stage.SENSE_111.value,
+        verdict=bundle.status.verdict,
+        status=bundle.status.state,
+        payload=bundle.model_dump(mode="json"),
+        auth_context=auth_ctx
     )
 
 
+async def reality_atlas(
+    operation: str,
+    session_id: str = "global",
+    bundles: list[Any] = [],
+    query: dict[str, Any] = {},
+    ctx: Context | None = None,
+) -> RuntimeEnvelope:
+    """Build, merge, and query the Reality Atlas over EvidenceBundles."""
+    payload = {
+        "operation": operation,
+        "bundles": bundles,
+        "query": query,
+    }
+    return await _wrap_call("reality_atlas", Stage.REALITY_222, session_id, payload, ctx)
+async def search_reality(query: str, ctx: Context | None = None) -> RuntimeEnvelope:
+    """Alias to reality_compass(mode='search')."""
+    return await reality_compass(input=query, mode="search", ctx=ctx)
+
+async def ingest_evidence(url: str, ctx: Context | None = None) -> RuntimeEnvelope:
+    """Alias to reality_compass(mode='fetch')."""
+    return await reality_compass(input=url, mode="fetch", ctx=ctx)
 async def audit_rules(session_id: str = "global", ctx: Context | None = None) -> RuntimeEnvelope:
     """Constitutional audit. Inspects governance floors and system rules logic."""
-    return await _wrap_call("audit_rules", Stage.MIND_333, session_id, {}, ctx)
-
-
+    envelope = await _wrap_call("audit_rules", Stage.MIND_333, session_id, {}, ctx)
+    # P4: Add floor_runtime_hooks mapping
+    if envelope.ok:
+        envelope.payload["floor_runtime_hooks"] = {
+            "F1_AMANAH": "core.enforcement.reversibility",
+            "F2_TRUTH": "arifosmcp.intelligence.fact_checker",
+            "F3_TRI_WITNESS": "core.shared.consensus",
+            "F4_CLARITY": "core.physics.entropy",
+            "F5_PEACE2": "core.shared.vitality",
+            "F11_AUTHORITY": "core.enforcement.auth_continuity",
+            "F12_DEFENSE": "core.enforcement.injection_scanner"
+        }
+    return envelope
 async def check_vital(session_id: str = "global", ctx: Context | None = None) -> RuntimeEnvelope:
     """Kernel health monitor. Reports system health, metrics, and constitutional vitality."""
     session_id = _normalize_session_id(session_id)
     envelope = await _wrap_call("check_vital", Stage.INIT_000, session_id, {}, ctx)
+    envelope.tool = "check_vital" # Ensure stable external name (Drift fix)
 
     # Enhance payload with real-time thermo-budget and telemetry (H1.1)
     try:
@@ -914,6 +986,27 @@ async def open_apex_dashboard(
     # Fallback if Prefab not available
     return await _wrap_call("open_apex_dashboard", Stage.VAULT_999, session_id, {}, ctx)
 
+
+
+async def _copilot_reality_compass_wrapper(
+    input: str,
+    session_id: str = "global",
+    mode: str = "auto",
+    top_k: int = 5,
+    fetch_top_k: int = 2,
+    budget_ms: int = 15000,
+    atlas: bool = True,
+) -> RuntimeEnvelope:
+    """Unified reality entrypoint: query→search, url→fetch. (Copilot-safe flat surface)"""
+    return await reality_compass(
+        input=input,
+        session_id=session_id,
+        mode=mode,
+        top_k=top_k,
+        fetch_top_k=fetch_top_k,
+        budget_ms=budget_ms,
+        atlas=atlas,
+    )
 
 async def _copilot_kernel_wrapper(
     query: str,

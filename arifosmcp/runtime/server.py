@@ -123,6 +123,8 @@ CORE_TOOL_REGISTRY = {
     "session_memory": session_memory,
     "audit_rules": audit_rules,
     "check_vital": check_vital,
+    "reality_compass": reality_compass,
+    "reality_atlas": reality_atlas,
     "open_apex_dashboard": open_apex_dashboard,
     "init_anchor_state": init_anchor_state,
     "verify_vault_ledger": verify_vault_ledger,
