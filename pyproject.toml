@@ -1,7 +1,11 @@
 [project]
 name = "arifosmcp"
-version = "2026.3.12"
+version = "2026.3.13"
 # T000 Versioning: YYYY.MM.DD — see T000_VERSIONING.md and CHANGELOG.md for full history
+# 2026.03.13 — Kernel Coverage Forge (v2026.03.13-FORGED)
+#   Stationary kernel at 90%+ coverage. 450+ tests. 888_JUDGE ratification.
+#   Added: test_constants.py, test_judgment.py, test_governance_engine.py
+#   Fixed: ThermodynamicViolation export in thermodynamics_hardened.py
 # 2026.03.07 — Architectural Formalization Seal
 #   Formalized 4-layer taxonomy (L0-L3), Metabolic Scheduler (Ω), Triple-Hash Merkle Vault, and Phoenix Recovery.
 # 2026.3.6 — Hardened Trinity Forge Release
@@ -24,7 +28,7 @@ version = "2026.3.12"
 # 2026.1.26 — Live constitutional metrics; 13/13 floors passing
 # 2026.1.24 — Unified core: arifosmcp.transport pure transport, all logic in core/
 # 2026.1.18 — Constitutional Forge: 13 floors F1-F13, Trinity ΔΩΨ, VAULT999, 9-tool MCP
-description = "arifOS - The World's First Production-Grade Constitutional AI Governance System. Mathematical enforcement of ethical constraints with 13 stationary floors (F1-F13), Axiom Engine for physics-grounded truth, and immutable VAULT999 ledger. Trinity architecture (ΔΩΨ): AGI Mind, ASI Heart, APEX Soul. MCP-compatible. Install: pip install arifosmcp. https://arifos.arif-fazil.com/"
+description = "arifOS v2026.03.13-FORGED — The World's First Production-Grade Constitutional AI Governance System. 90%+ kernel coverage, 450+ tests. Mathematical enforcement of ethical constraints with 13 stationary floors (F1-F13), Axiom Engine for physics-grounded truth, and immutable VAULT999 ledger. Trinity architecture (ΔΩΨ): AGI Mind, ASI Heart, APEX Soul. MCP-compatible. Install: pip install arifosmcp. https://arifos.arif-fazil.com/"
 readme = "README.md"
 requires-python = ">=3.12"
 license = "AGPL-3.0-only"
