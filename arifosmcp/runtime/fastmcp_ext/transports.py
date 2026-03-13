@@ -322,7 +322,7 @@ class ConstitutionalErrorMiddleware:
             await self.app(scope, receive, send)
             return
 
-        from arifosmcp.runtime.exceptions import ArifOSError
+        from arifosmcp.runtime.models import ArifOSError
 
         try:
             await self.app(scope, receive, send)
@@ -356,7 +356,7 @@ def _build_http_middleware() -> list[Middleware]:
 
     # Add default Accept header for universal compatibility (must be first)
     middleware.append(Middleware(AgnosticAcceptMiddleware))
-    
+
     # Catch arifOS errors early
     middleware.append(Middleware(ConstitutionalErrorMiddleware))
 
