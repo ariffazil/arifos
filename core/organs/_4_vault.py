@@ -28,6 +28,10 @@ DEFAULT_VAULT_PATH = Path("VAULT999/vault999.jsonl")
 _CHAIN_SEED = "0x" + "0" * 64
 VAULT_VERSION = "v1"
 
+# Serialises the read-prev_hash → compute → append sequence so concurrent
+# coroutines cannot interleave and produce a broken Merkle chain.
+_vault_write_lock = asyncio.Lock()
+
 
 def _canonical_entry_payload(payload: dict[str, Any]) -> dict[str, Any]:
     """Return the canonical fields used to derive a vault seal hash."""
@@ -203,28 +207,46 @@ async def seal(
         hash=entry_hash,
     )
 
-    # 4. Build Tamper-Evident Hash Chain (THE FORGE)
-    prev_hash = get_last_vault_entry_hash(DEFAULT_VAULT_PATH)
-    # Entry Hash Protocol: sha256(prev_hash + entry_hash)
-    entry_chain_hash = hashlib.sha256((prev_hash + entry_hash).encode()).hexdigest()
-
-    chain = HashChain(
-        payload_hash=entry_hash,
-        entry_hash=entry_chain_hash,
-        prev_entry_hash=prev_hash,
-        vault_version=VAULT_VERSION,
-    )
-
-    # 5. Persist to VAULT999
+    # 4 & 5. Build Tamper-Evident Hash Chain + Persist (THE FORGE)
+    # Serialised under _vault_write_lock: concurrent seals must not interleave
+    # the prev-hash read and the append, or the Merkle chain breaks.
     try:
         if seal_mode == "final":
-            await asyncio.to_thread(
-                _append_vault_record,
-                DEFAULT_VAULT_PATH,
-                {**entry_data, "seal_hash": entry_hash, "chain": chain.model_dump()},
+            async with _vault_write_lock:
+                prev_hash = get_last_vault_entry_hash(DEFAULT_VAULT_PATH)
+                entry_chain_hash = hashlib.sha256((prev_hash + entry_hash).encode()).hexdigest()
+                chain = HashChain(
+                    payload_hash=entry_hash,
+                    entry_hash=entry_chain_hash,
+                    prev_entry_hash=prev_hash,
+                    vault_version=VAULT_VERSION,
+                )
+                await asyncio.to_thread(
+                    _append_vault_record,
+                    DEFAULT_VAULT_PATH,
+                    {**entry_data, "seal_hash": entry_hash, "chain": chain.model_dump()},
+                )
+        else:
+            # Non-final modes don't persist; still build chain for the return value
+            prev_hash = get_last_vault_entry_hash(DEFAULT_VAULT_PATH)
+            entry_chain_hash = hashlib.sha256((prev_hash + entry_hash).encode()).hexdigest()
+            chain = HashChain(
+                payload_hash=entry_hash,
+                entry_hash=entry_chain_hash,
+                prev_entry_hash=prev_hash,
+                vault_version=VAULT_VERSION,
             )
     except Exception as e:
         logger.error("Vault persistence failure: %s", e)
+        # Fallback chain so the rest of the function can proceed
+        prev_hash = _CHAIN_SEED
+        entry_chain_hash = hashlib.sha256((prev_hash + entry_hash).encode()).hexdigest()
+        chain = HashChain(
+            payload_hash=entry_hash,
+            entry_hash=entry_chain_hash,
+            prev_entry_hash=prev_hash,
+            vault_version=VAULT_VERSION,
+        )
 
     # 6. Thermodynamic Cleanup
     final_report = cleanup_thermodynamic_budget(session_id)
