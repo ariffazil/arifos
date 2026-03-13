@@ -44,6 +44,8 @@ from arifosmcp.runtime.public_registry import (
 )
 from arifosmcp.runtime.resources import register_resources
 from arifosmcp.runtime.rest_routes import register_rest_routes
+from arifosmcp.apps.apex_score import _register as _register_apex_score_app
+from arifosmcp.apps.stage_pipeline import _register as _register_stage_pipeline_app
 from arifosmcp.runtime.tools import (
     agi_reason,
     agi_reflect,
@@ -155,6 +157,10 @@ register_tools(mcp, profile=PUBLIC_TOOL_PROFILE)
 register_resources(mcp)
 register_prompts(mcp)
 
+# ── FastMCP Prefab UI Apps (Human Interface) ─────────────────────────────────
+_register_apex_score_app(mcp)     # APEX G-Score card: metrics + philosophy + verdict
+_register_stage_pipeline_app(mcp) # 000→999 Sacred Chain pipeline visualiser
+
 # Sync Mind to Body (Dynamic Connection)
 sync_runtime_floors()
 
@@ -258,6 +264,9 @@ __all__ = [
     "PUBLIC_TOOL_PROFILE",
     "register_tools",
     "search_reality",
+    # FastMCP Apps
+    "apex_score_app",
+    "stage_pipeline_app",
 ]
 
 
