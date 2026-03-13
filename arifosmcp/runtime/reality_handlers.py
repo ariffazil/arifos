@@ -26,6 +26,17 @@ from .reality_models import (
 )
 from .models import RuntimeEnvelope, Stage, Verdict as RuntimeVerdict
 
+# Vector auto-sync bridge (SEALTRIWITNESS Phase 2)
+try:
+    from ..intelligence.tools.vector_bridge import auto_sync_bundle
+    VECTOR_SYNC_AVAILABLE = True
+except ImportError:
+    VECTOR_SYNC_AVAILABLE = False
+
+    async def auto_sync_bundle(*args, **kwargs):
+        """No-op when vector bridge not available."""
+        pass
+
 logger = logging.getLogger(__name__)
 
 # Constants from server.py / tools.py
@@ -306,6 +317,20 @@ class RealityHandler:
             bundle.status.state = "ERROR"
             bundle.status.message = f"Critical handler failure: {str(e)}"
             bundle.status.errors.append(StatusError(code="SCHEMA_FAIL", detail=str(e)))
+
+        # SEALTRIWITNESS Phase 2: Auto-sync to vector memory (fire-and-forget)
+        if VECTOR_SYNC_AVAILABLE and bundle.status.state == "SUCCESS":
+            try:
+                # Run async without blocking response
+                asyncio.create_task(
+                    auto_sync_bundle(
+                        bundle=bundle,
+                        session_id=auth_context.get("session_id", "global"),
+                        actor_id=auth_context.get("actor_id", "anonymous"),
+                    )
+                )
+            except Exception as sync_e:
+                logger.warning(f"Vector auto-sync failed (non-blocking): {sync_e}")
 
         return bundle
 

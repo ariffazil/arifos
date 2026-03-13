@@ -212,9 +212,23 @@ def _normalize_auth_context(payload: dict[str, Any], auth_context: Any) -> dict[
     return normalized
 
 
-def _requires_explicit_kernel_auth(payload: dict[str, Any]) -> bool:
+# Bootstrap tools that can run without prior auth_context (Phase 1 initialization)
+BOOTSTRAP_WHITELIST: set[str] = {
+    "anchor_session",        # init_anchor_state → mints auth token
+    "revoke_anchor_state",   # revokes session
+    "check_vital",           # system health check
+    "sense_health",          # check_vital alias
+}
+
+
+def _requires_explicit_kernel_auth(payload: dict[str, Any], canonical_tool: str | None = None) -> bool:
     """Decide whether arifOS_kernel must reject missing auth_context."""
     from core.enforcement.auth_continuity import _env_flag
+
+    # F11 Bootstrap Whitelist: These tools can run without prior auth
+    # They are the tools that ESTABLISH auth, so they cannot require it
+    if canonical_tool in BOOTSTRAP_WHITELIST:
+        return False
 
     # In open mode (dev), we allow auto-bootstrap
     if _env_flag("ARIFOS_GOVERNANCE_OPEN_MODE"):
@@ -224,7 +238,7 @@ def _requires_explicit_kernel_auth(payload: dict[str, Any]) -> bool:
             return True
         return risk_tier not in AUTO_BOOTSTRAP_RISK_TIERS
 
-    # In hardened mode, everything requires explicit auth
+    # In hardened mode, everything requires explicit auth (except whitelisted bootstrap tools)
     return True
 
 
@@ -446,7 +460,7 @@ async def call_kernel(
                 auth_ctx = _mint_auto_anchor_auth_context(session_id, claimed_actor_id)
                 payload["auth_context"] = auth_ctx
                 payload.setdefault("identity_resolution", {})
-            elif _requires_explicit_kernel_auth(payload):
+            elif _requires_explicit_kernel_auth(payload, canonical_name):
                 return _auth_failure_envelope(
                     tool=canonical_name,
                     session_id=session_id,
@@ -471,7 +485,7 @@ async def call_kernel(
                     machine_issue="TOKEN_EXPIRED",
                 )
 
-    elif canonical_name in REQUIRES_SESSION:
+    elif canonical_name in REQUIRES_SESSION and canonical_name not in BOOTSTRAP_WHITELIST:
         if not auth_ctx:
             return _auth_failure_envelope(
                 tool=canonical_name,
