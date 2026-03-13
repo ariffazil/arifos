@@ -360,3 +360,7 @@ docker-compose.override.yml
 
 # Local app directories not in scope
 333_APPS/
+
+# Git backup directories (Windows Forge artifacts)
+.git_mind_backup/
+.git_*_backup/

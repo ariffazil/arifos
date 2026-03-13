@@ -1,1 +1,0 @@
-feat: Add Redis-backed SABAR vault storage and Phoenix-72 cooling ledger with JSONL fallback.
