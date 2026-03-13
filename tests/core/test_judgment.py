@@ -183,7 +183,7 @@ class TestQuadWitness:
             system_w=0.9,
             temporal_w=0.1,  # One low witness
         )
-        assert result < 0.5  # Geometric mean heavily penalized
+        assert result < 0.6  # Geometric mean penalized: ⁴√(0.9³×0.1) ≈ 0.52
 
 
 class TestParadoxConductance:

@@ -50,6 +50,11 @@ TOOL_ALIASES: dict[str, str] = dict(AAA_TOOL_ALIASES)
 
 logger = logging.getLogger(__name__)
 
+_DASHBOARD_ALLOWED_ORIGINS = {
+    "https://apex.arif-fazil.com",
+    "https://arifosmcp.arif-fazil.com",
+}
+
 
 def _representative_floor_score(floor_id: str) -> float:
     """
@@ -90,6 +95,245 @@ _DEFAULT_QDF: float = 0.83
 # Default metabolic stage returned when kernel state is unavailable.
 # 333 = REASON stage, the last full AGI reasoning stage before TRINITY_SYNC.
 _DEFAULT_METABOLIC_STAGE: int = 333
+
+
+def _cache_headers() -> dict[str, str]:
+    return {"Cache-Control": "no-store"}
+
+
+def _dashboard_cors_headers(request: Request) -> dict[str, str]:
+    origin = request.headers.get("origin", "").strip()
+    if origin in _DASHBOARD_ALLOWED_ORIGINS:
+        return {
+            "Access-Control-Allow-Origin": origin,
+            "Access-Control-Allow-Methods": "GET, OPTIONS",
+            "Access-Control-Allow-Headers": "Content-Type, Authorization",
+            "Vary": "Origin",
+        }
+    return {}
+
+
+def _merge_headers(*header_sets: dict[str, str]) -> dict[str, str]:
+    merged: dict[str, str] = {}
+    for header_set in header_sets:
+        merged.update(header_set)
+    return merged
+
+
+def _floor_passes(floor_id: str, score: float) -> bool:
+    spec = get_floor_spec(floor_id)
+    comparator = get_floor_comparator(floor_id)
+    if floor_id == "F7" and "range" in spec:
+        lower, upper = spec["range"]
+        return float(lower) <= float(score) <= float(upper)
+
+    threshold = float(get_floor_threshold(floor_id))
+    if comparator == "<":
+        return float(score) < threshold
+    if comparator == "<=":
+        return float(score) <= threshold
+    if comparator == ">":
+        return float(score) > threshold
+    return float(score) >= threshold
+
+
+def _build_governance_status_payload() -> dict[str, Any]:
+    session_id: str | None = None
+    floors: dict[str, Any] = {}
+    telemetry: dict[str, Any] = {}
+    witness: dict[str, float] = {}
+    qdf: float = 0.0
+    metabolic_stage: int = 0
+    verdict: str = "SEAL"
+
+    try:
+        from core.governance_kernel import get_governance_kernel
+
+        kernel = get_governance_kernel()
+        state = kernel.get_current_state() if hasattr(kernel, "get_current_state") else {}
+        if state:
+            session_id = state.get("session_id")
+            floors = state.get("floors", {})
+            telemetry = state.get("telemetry", {})
+            witness = state.get("witness", {})
+            qdf = float(state.get("qdf", 0.0))
+            metabolic_stage = int(state.get("metabolic_stage", 0))
+            verdict = state.get("verdict", "SEAL")
+    except (ImportError, AttributeError):
+        logger.debug("Governance kernel unavailable — using default telemetry values")
+    except Exception:
+        logger.exception("Unexpected error loading governance kernel state")
+
+    resolved_floors = {k: floors.get(k, v) for k, v in _FLOOR_DEFAULTS.items()}
+    resolved_witness = {k: witness.get(k, v) for k, v in _WITNESS_DEFAULTS.items()}
+    resolved_telemetry = {
+        "dS": telemetry.get("dS", -0.35),
+        "peace2": telemetry.get("peace2", 1.04),
+        "kappa_r": telemetry.get("kappa_r", 0.97),
+        "echoDebt": telemetry.get("echoDebt", 0.4),
+        "shadow": telemetry.get("shadow", 0.3),
+        "confidence": telemetry.get("confidence", 0.88),
+        "psi_le": telemetry.get("psi_le", 0.82),
+        "verdict": verdict,
+    }
+
+    try:
+        from core.telemetry import get_system_vitals
+
+        machine_vitals = get_system_vitals()
+    except Exception:
+        machine_vitals = {"cpu_percent": 0.0, "memory_percent": 0.0}
+
+    try:
+        capability_map = build_runtime_capability_map()
+        if (
+            float(resolved_floors.get("F11", 0.0)) <= 0.0
+            and capability_map.get("capabilities", {}).get("governed_continuity") == "enabled"
+        ):
+            resolved_floors["F11"] = _FLOOR_DEFAULTS["F11"]
+    except Exception:
+        capability_map = None
+
+    try:
+        if float(resolved_floors.get("F8", 0.0)) <= 0.0:
+            from core.enforcement.genius import calculate_genius, coerce_floor_scores
+
+            floor_scores = coerce_floor_scores(
+                {
+                    "f1": resolved_floors.get("F1"),
+                    "f2": resolved_floors.get("F2"),
+                    "f3": resolved_floors.get("F3"),
+                    "f4": resolved_floors.get("F4"),
+                    "f5": resolved_floors.get("F5"),
+                    "f6": resolved_floors.get("F6"),
+                    "f7": resolved_floors.get("F7"),
+                    "f9": resolved_floors.get("F9"),
+                    "f10": resolved_floors.get("F10"),
+                    "f11": resolved_floors.get("F11"),
+                    "f12": resolved_floors.get("F12"),
+                    "f13": resolved_floors.get("F13"),
+                }
+            )
+            genius_res = calculate_genius(floor_scores, h=0.0, compute_budget_used=0.0, compute_budget_max=1.0)
+            resolved_floors["F8"] = round(
+                max(_FLOOR_DEFAULTS["F8"], float(genius_res.get("genius_score", 0.0))),
+                4,
+            )
+            if float(resolved_telemetry.get("confidence", 0.0)) <= 0.0:
+                resolved_telemetry["confidence"] = resolved_floors["F8"]
+    except Exception:
+        pass
+
+    return {
+        "telemetry": resolved_telemetry,
+        "witness": resolved_witness,
+        "qdf": qdf or _DEFAULT_QDF,
+        "floors": resolved_floors,
+        "machine_vitals": machine_vitals,
+        "session_id": session_id or f"sess_{uuid.uuid4().hex[:8]}",
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "metabolic_stage": metabolic_stage or _DEFAULT_METABOLIC_STAGE,
+    }
+
+
+def _render_status_html(payload: dict[str, Any]) -> str:
+    telemetry = payload["telemetry"]
+    floors = payload["floors"]
+    vitals = payload["machine_vitals"]
+    witness = payload["witness"]
+
+    floor_rows: list[str] = []
+    for floor_id in sorted(FLOOR_SPEC_KEYS.keys(), key=lambda item: int(item[1:])):
+        score = float(floors.get(floor_id, _FLOOR_DEFAULTS.get(floor_id, 0.0)))
+        passed = _floor_passes(floor_id, score)
+        status = "PASS" if passed else "FAIL"
+        row_class = "pass" if passed else "fail"
+        floor_rows.append(
+            "<tr class=\"%s\"><td>%s</td><td>%0.3f</td><td>%s</td></tr>"
+            % (row_class, floor_id, score, status)
+        )
+
+    load_avg = vitals.get("load_avg", [])
+    load_text = ", ".join(f"{float(value):.2f}" for value in load_avg[:3]) if load_avg else "n/a"
+    return f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>arifOS Status</title>
+  <style>
+    body {{ background:#0b0f14; color:#e6edf3; font-family: ui-monospace, monospace; margin:0; padding:24px; }}
+    h1,h2 {{ margin:0 0 12px; }}
+    .meta, .grid {{ display:grid; gap:12px; }}
+    .meta {{ grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); margin: 0 0 20px; }}
+    .card {{ background:#111821; border:1px solid #243041; border-radius:10px; padding:14px; }}
+    .label {{ color:#8aa0b6; font-size:12px; text-transform:uppercase; letter-spacing:.08em; }}
+    .value {{ font-size:20px; margin-top:6px; }}
+    table {{ width:100%; border-collapse: collapse; margin-top: 10px; }}
+    th, td {{ padding:8px 10px; border-bottom:1px solid #243041; text-align:left; }}
+    .pass {{ color:#7ee787; }}
+    .fail {{ color:#ff7b72; font-weight:bold; }}
+    code {{ color:#f2cc60; }}
+  </style>
+</head>
+<body>
+  <h1>arifOS Ops Truth Page</h1>
+  <div class="meta">
+    <div class="card"><div class="label">Verdict</div><div class="value">{telemetry["verdict"]}</div></div>
+    <div class="card"><div class="label">Timestamp</div><div class="value"><code>{payload["timestamp"]}</code></div></div>
+    <div class="card"><div class="label">Session</div><div class="value"><code>{payload["session_id"]}</code></div></div>
+    <div class="card"><div class="label">Metabolic Stage</div><div class="value">{payload["metabolic_stage"]}</div></div>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <h2>Floors</h2>
+      <table>
+        <thead><tr><th>Floor</th><th>Score</th><th>Status</th></tr></thead>
+        <tbody>
+          {"".join(floor_rows)}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>Telemetry</h2>
+      <table>
+        <tbody>
+          <tr><td>dS</td><td>{float(telemetry.get("dS", 0.0)):.3f}</td></tr>
+          <tr><td>peace2</td><td>{float(telemetry.get("peace2", 0.0)):.3f}</td></tr>
+          <tr><td>echoDebt</td><td>{float(telemetry.get("echoDebt", 0.0)):.3f}</td></tr>
+          <tr><td>shadow</td><td>{float(telemetry.get("shadow", 0.0)):.3f}</td></tr>
+          <tr><td>psi_le</td><td>{float(telemetry.get("psi_le", 0.0)):.3f}</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>Machine Vitals</h2>
+      <table>
+        <tbody>
+          <tr><td>CPU</td><td>{float(vitals.get("cpu_percent", 0.0)):.1f}%</td></tr>
+          <tr><td>Memory</td><td>{float(vitals.get("memory_percent", 0.0)):.1f}%</td></tr>
+          <tr><td>Disk</td><td>{float(vitals.get("disk_percent", 0.0)):.1f}%</td></tr>
+          <tr><td>Load</td><td>{load_text}</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>Witness</h2>
+      <table>
+        <tbody>
+          <tr><td>Human</td><td>{float(witness.get("human", 0.0)):.3f}</td></tr>
+          <tr><td>AI</td><td>{float(witness.get("ai", 0.0)):.3f}</td></tr>
+          <tr><td>Earth</td><td>{float(witness.get("earth", 0.0)):.3f}</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</body>
+</html>"""
 
 WELCOME_HTML = """\
 <!DOCTYPE html>
@@ -687,69 +931,10 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
     async def governance_status(request: Request) -> Response:
         """Return current governance telemetry for the Constitutional Visualizer."""
         try:
-            session_id: str | None = None
-            floors: dict[str, Any] = {}
-            telemetry: dict[str, Any] = {}
-            witness: dict[str, float] = {}
-            qdf: float = 0.0
-            metabolic_stage: int = 0
-            verdict: str = "SEAL"
-
-            # Attempt to load live session data from the governance kernel
-            try:
-                from core.governance_kernel import get_governance_kernel
-
-                kernel = get_governance_kernel()
-                state = kernel.get_current_state() if hasattr(kernel, "get_current_state") else {}
-                if state:
-                    session_id = state.get("session_id")
-                    floors = state.get("floors", {})
-                    telemetry = state.get("telemetry", {})
-                    witness = state.get("witness", {})
-                    qdf = float(state.get("qdf", 0.0))
-                    metabolic_stage = int(state.get("metabolic_stage", 0))
-                    verdict = state.get("verdict", "SEAL")
-            except (ImportError, AttributeError):
-                logger.debug("Governance kernel unavailable — using default telemetry values")
-            except Exception:
-                logger.exception("Unexpected error loading governance kernel state")
-
-            # Build normalised floor map (F1–F13) using canonical defaults
-            resolved_floors = {k: floors.get(k, v) for k, v in _FLOOR_DEFAULTS.items()}
-
-            resolved_witness = {k: witness.get(k, v) for k, v in _WITNESS_DEFAULTS.items()}
-
-            resolved_telemetry = {
-                "dS": telemetry.get("dS", -0.35),
-                "peace2": telemetry.get("peace2", 1.04),
-                "kappa_r": telemetry.get("kappa_r", 0.97),
-                "echoDebt": telemetry.get("echoDebt", 0.4),
-                "shadow": telemetry.get("shadow", 0.3),
-                "confidence": telemetry.get("confidence", 0.88),
-                "psi_le": telemetry.get("psi_le", 0.82),
-                "verdict": verdict,
-            }
-
-            # P3: Add machine vitals (The Machine)
-            try:
-                from core.telemetry import get_system_vitals
-
-                machine_vitals = get_system_vitals()
-            except Exception:
-                machine_vitals = {"cpu_percent": 0.0, "memory_percent": 0.0}
-
+            payload = _build_governance_status_payload()
             return JSONResponse(
-                {
-                    "telemetry": resolved_telemetry,
-                    "witness": resolved_witness,
-                    "qdf": qdf or _DEFAULT_QDF,
-                    "floors": resolved_floors,
-                    "machine_vitals": machine_vitals,
-                    "session_id": session_id or f"sess_{uuid.uuid4().hex[:8]}",
-                    "timestamp": datetime.now(timezone.utc).isoformat(),
-                    "metabolic_stage": metabolic_stage or _DEFAULT_METABOLIC_STAGE,
-                },
-                headers={"Access-Control-Allow-Origin": "*"},
+                payload,
+                headers=_merge_headers(_cache_headers(), _dashboard_cors_headers(request)),
             )
         except Exception as exc:
             logger.exception("governance_status endpoint failed")
@@ -757,6 +942,20 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
                 {"error": "governance_status_failed", "detail": str(exc)},
                 status_code=500,
             )
+
+    @mcp.custom_route("/status", methods=["GET"])
+    async def status_page(request: Request) -> Response:
+        """Zero-JS ops truth page for constrained renderers and humans."""
+        payload = _build_governance_status_payload()
+        fmt = request.query_params.get("format", "").strip().lower()
+        accept_header = request.headers.get("accept", "").lower()
+        accepts_json = "application/json" in accept_header
+        accepts_html = "text/html" in accept_header
+
+        if fmt == "json" or (fmt != "html" and accepts_json and not accepts_html):
+            return JSONResponse(payload, headers=_cache_headers())
+
+        return HTMLResponse(_render_status_html(payload), headers=_cache_headers())
 
     @mcp.custom_route("/api/governance-history", methods=["GET"])
     async def governance_history(request: Request) -> Response:

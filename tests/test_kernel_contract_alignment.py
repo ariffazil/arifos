@@ -11,6 +11,7 @@ from arifosmcp.runtime.tools import (
     audit_rules,
     bootstrap_identity,
     check_vital,
+    init_anchor_state,
     metabolic_loop_router,
     reason_mind_synthesis,
 )
@@ -54,6 +55,16 @@ def test_manifest_kernel_schema_exposes_auth_context():
 
     assert "auth_context" in tool_properties
     assert "auth_context" in schema_properties
+
+
+def test_public_registry_exposes_init_anchor_state():
+    init_spec = next(spec for spec in PUBLIC_TOOL_SPECS if spec.name == "init_anchor_state")
+    assert init_spec.input_schema["required"] == ["intent"]
+
+
+def test_public_runtime_exports_init_anchor_state():
+    signature = inspect.signature(init_anchor_state)
+    assert "intent" in signature.parameters
 
 
 @pytest.mark.asyncio
@@ -187,6 +198,37 @@ async def test_explicit_human_approval_bootstraps_kernel_without_crypto(monkeypa
         query="Explain the current runtime authority posture.",
         actor_id="chat-operator",
         auth_context=init_env.auth_context,
+        risk_tier="low",
+        dry_run=True,
+        session_id=session_id,
+    )
+
+    assert envelope.auth_context is not None
+    assert envelope.auth_context["actor_id"] == "chat-operator"
+    assert not any(error.code == "AUTH_FAILURE" for error in envelope.errors)
+
+
+@pytest.mark.asyncio
+async def test_nested_continuity_actor_id_is_promoted_to_auth_context_root():
+    session_id = "nested-continuity-root-promotion"
+    init_env = await bootstrap_identity(
+        declared_name="Chat Operator",
+        session_id=session_id,
+        human_approval=True,
+    )
+
+    nested_auth_context = dict(init_env.auth_context or {})
+    actor_id = nested_auth_context.pop("actor_id")
+    nested_auth_context["continuity"] = {
+        "actor_id": actor_id,
+        "method": "minted_auth_context",
+        "issuer": "init_anchor_state",
+    }
+
+    envelope = await metabolic_loop_router(
+        query="Explain the runtime continuity posture.",
+        actor_id="chat-operator",
+        auth_context=nested_auth_context,
         risk_tier="low",
         dry_run=True,
         session_id=session_id,

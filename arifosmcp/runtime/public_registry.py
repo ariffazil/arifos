@@ -283,6 +283,31 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
         },
     ),
     ToolSpec(
+        name="init_anchor_state",
+        stage="000_INIT",
+        role="Continuity anchor",
+        layer="Global Context",
+        description="Mint a governed continuity envelope for follow-up kernel calls.",
+        trinity="Δ Delta",
+        floors=("F11", "F12", "F13"),
+        input_schema={
+            "type": "object",
+            "required": ["intent"],
+            "properties": {
+                "intent": {
+                    "type": "object",
+                    "description": "Intent envelope for the initial governed anchor call.",
+                },
+                "math": {"type": "object"},
+                "governance": {"type": "object"},
+                "auth_token": {"type": "string"},
+                "session_id": {"type": "string"},
+                "dry_run": {"type": "boolean", "default": False},
+            },
+            "additionalProperties": False,
+        },
+    ),
+    ToolSpec(
         name="verify_vault_ledger",
         stage="999_VAULT",
         role="Auditor",

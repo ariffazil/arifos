@@ -56,6 +56,28 @@ def test_governance_status_endpoint():
     assert "session_id" in data
 
 
+def test_status_endpoint_html():
+    """Verify that /status renders a no-JS HTML truth page."""
+    client = TestClient(server_app)
+    response = client.get("/status", headers={"Accept": "text/html"})
+    assert response.status_code == 200
+    assert "text/html" in response.headers.get("content-type", "")
+    assert response.headers.get("cache-control") == "no-store"
+    assert "arifOS Ops Truth Page" in response.text
+
+
+def test_status_endpoint_json_format():
+    """Verify that /status can emit the same telemetry payload as JSON."""
+    client = TestClient(server_app)
+    response = client.get("/status?format=json")
+    assert response.status_code == 200
+    assert response.headers.get("cache-control") == "no-store"
+    data = response.json()
+    assert "telemetry" in data
+    assert "floors" in data
+    assert "machine_vitals" in data
+
+
 def test_metrics_endpoint_available():
     """Verify that the Prometheus /metrics endpoint is exposed."""
     client = TestClient(server_app)

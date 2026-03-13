@@ -1,9 +1,9 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.ariffazil/arifos-mcp",
-  "version": "2026.03.12-FORGED",
+  "version": "2026.03.13-FORGED",
   "title": "arifOS Sovereign Governance MCP",
-  "description": "Constitutional AI governance server with a 9-tool public surface, 8 public prompts, 14 public resources, Trinity engines (ΔΩΨ), and F1-F13 floor enforcement.",
+  "description": "Constitutional AI governance server with a 9-tool public surface, 8 public prompts, 14 public resources, Trinity engines (\u0394\u03a9\u03a8), and F1-F13 floor enforcement.",
   "websiteUrl": "https://arifos.arif-fazil.com",
   "vendor": {
     "name": "arifOS",
@@ -32,14 +32,14 @@
     {
       "registryType": "pypi",
       "identifier": "arifos",
-      "version": "2026.03.12-FORGED",
+      "version": "2026.03.13-FORGED",
       "transport": {
         "type": "stdio"
       }
     },
     {
       "registryType": "oci",
-      "identifier": "docker.io/arifazil/arifosmcp:forge-20260312",
+      "identifier": "docker.io/arifazil/arifosmcp:forge-20260313",
       "transport": {
         "type": "streamable-http",
         "url": "https://arifosmcp.arif-fazil.com/mcp"
@@ -134,7 +134,7 @@
     },
     "search_reality": {
       "stage": "111_SENSE",
-      "trinity": "Δ Delta",
+      "trinity": "\u0394 Delta",
       "floors": [
         "F2",
         "F12"
@@ -157,7 +157,7 @@
     },
     "ingest_evidence": {
       "stage": "222_REALITY",
-      "trinity": "Δ Delta",
+      "trinity": "\u0394 Delta",
       "floors": [
         "F2",
         "F11",
@@ -181,7 +181,7 @@
     },
     "session_memory": {
       "stage": "555_MEMORY",
-      "trinity": "Ω Omega",
+      "trinity": "\u03a9 Omega",
       "floors": [
         "F4",
         "F7",
@@ -227,7 +227,7 @@
     },
     "audit_rules": {
       "stage": "333_MIND",
-      "trinity": "Δ Delta",
+      "trinity": "\u0394 Delta",
       "floors": [
         "F2",
         "F8",
@@ -248,7 +248,7 @@
     },
     "check_vital": {
       "stage": "000_INIT",
-      "trinity": "Ω Omega",
+      "trinity": "\u03a9 Omega",
       "floors": [
         "F4",
         "F5",
@@ -269,7 +269,7 @@
     },
     "open_apex_dashboard": {
       "stage": "888_JUDGE",
-      "trinity": "Ψ Psi",
+      "trinity": "\u03a8 Psi",
       "floors": [
         "F3",
         "F8",
@@ -290,7 +290,7 @@
     },
     "bootstrap_identity": {
       "stage": "000_INIT",
-      "trinity": "Δ Delta",
+      "trinity": "\u0394 Delta",
       "floors": [
         "F11"
       ],
@@ -317,9 +317,48 @@
         "additionalProperties": false
       }
     },
+    "init_anchor_state": {
+      "stage": "000_INIT",
+      "trinity": "\u0394 Delta",
+      "floors": [
+        "F11",
+        "F12",
+        "F13"
+      ],
+      "description": "Mint a governed continuity envelope for follow-up kernel calls.",
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "intent"
+        ],
+        "properties": {
+          "intent": {
+            "type": "object",
+            "description": "Intent envelope for the initial governed anchor call."
+          },
+          "math": {
+            "type": "object"
+          },
+          "governance": {
+            "type": "object"
+          },
+          "auth_token": {
+            "type": "string"
+          },
+          "session_id": {
+            "type": "string"
+          },
+          "dry_run": {
+            "type": "boolean",
+            "default": false
+          }
+        },
+        "additionalProperties": false
+      }
+    },
     "verify_vault_ledger": {
       "stage": "999_VAULT",
-      "trinity": "Ψ Psi",
+      "trinity": "\u03a8 Psi",
       "floors": [
         "F13"
       ],
@@ -628,6 +667,35 @@
         },
         "additionalProperties": false
       },
+      "init_anchor_state": {
+        "type": "object",
+        "required": [
+          "intent"
+        ],
+        "properties": {
+          "intent": {
+            "type": "object",
+            "description": "Intent envelope for the initial governed anchor call."
+          },
+          "math": {
+            "type": "object"
+          },
+          "governance": {
+            "type": "object"
+          },
+          "auth_token": {
+            "type": "string"
+          },
+          "session_id": {
+            "type": "string"
+          },
+          "dry_run": {
+            "type": "boolean",
+            "default": false
+          }
+        },
+        "additionalProperties": false
+      },
       "verify_vault_ledger": {
         "type": "object",
         "properties": {
@@ -645,7 +713,7 @@
     },
     "output": {
       "type": "object",
-      "description": "RuntimeEnvelope (v1.0.0) — common return shape for all public arifOS tools.",
+      "description": "RuntimeEnvelope (v1.0.0) \u2014 common return shape for all public arifOS tools.",
       "required": [
         "ok",
         "tool",
@@ -801,7 +869,7 @@
   },
   "trinity": {
     "delta": {
-      "symbol": "Δ",
+      "symbol": "\u0394",
       "name": "Mind",
       "role": "AGI Reasoning",
       "stages": [
@@ -817,7 +885,7 @@
       ]
     },
     "omega": {
-      "symbol": "Ω",
+      "symbol": "\u03a9",
       "name": "Heart",
       "role": "ASI Safety",
       "stages": [
@@ -831,7 +899,7 @@
       ]
     },
     "psi": {
-      "symbol": "Ψ",
+      "symbol": "\u03a8",
       "name": "Soul",
       "role": "APEX Judgment",
       "stages": [

@@ -973,6 +973,7 @@ def register_tools(mcp: FastMCP, profile: str = "full") -> None:
         "audit_rules": audit_rules,
         "check_vital": check_vital,
         "bootstrap_identity": bootstrap_identity,
+        "init_anchor_state": init_anchor_state,
         "verify_vault_ledger": verify_vault_ledger,
     }
 
