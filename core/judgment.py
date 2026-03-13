@@ -118,6 +118,34 @@ def _calculate_tri_witness(
     return (human_score * ai_score * earth_score) ** (1 / 3)
 
 
+def _calculate_quad_witness(
+    human_w: float,
+    ai_w: float,
+    system_w: float,
+    temporal_w: float,
+) -> float:
+    """
+    W₄ (Quad-Witness Consensus) — 4th-root geometric mean.
+    F3: W₄ ≥ 0.75 required for constitutional witness threshold.
+    All four witnesses must agree; a single low score drags the mean.
+    """
+    return (human_w * ai_w * system_w * temporal_w) ** 0.25
+
+
+def _check_paradox_conductance(
+    paradox_flags: list,
+    resolved_count: int,
+    total_count: int,
+) -> float:
+    """
+    Φₚ (Paradox Conductance) — simple resolution ratio for floor evaluation.
+    Returns 1.0 when no paradoxes exist or all are resolved, 0.0 when none resolved.
+    """
+    if not paradox_flags or total_count == 0:
+        return 1.0
+    return resolved_count / total_count
+
+
 def _calculate_paradox_conductance(
     delta_p: float,
     omega_p: float,

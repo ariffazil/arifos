@@ -56,6 +56,18 @@ TOOL_MAP = {
 
 AUTO_BOOTSTRAP_RISK_TIERS = frozenset({"low", "medium"})
 PROTECTED_AUTO_ANCHOR_IDS = frozenset({"arif", "arif-fazil", "ariffazil"})
+_AUTH_CONTEXT_CONTINUITY_KEYS = (
+    "session_id",
+    "actor_id",
+    "authority_level",
+    "token_fingerprint",
+    "nonce",
+    "iat",
+    "exp",
+    "approval_scope",
+    "parent_signature",
+    "signature",
+)
 
 
 def _resolve_claimed_actor_id(payload: dict[str, Any]) -> str:
@@ -169,6 +181,32 @@ def _mint_auto_anchor_auth_context(session_id: str, actor_id: str) -> dict[str, 
     )
 
 
+def _normalize_auth_context(payload: dict[str, Any], auth_context: Any) -> dict[str, Any] | None:
+    if not isinstance(auth_context, dict):
+        return None
+
+    normalized = dict(auth_context)
+    continuity = normalized.get("continuity")
+    if isinstance(continuity, dict):
+        for key in _AUTH_CONTEXT_CONTINUITY_KEYS:
+            if key not in normalized and key in continuity:
+                normalized[key] = continuity[key]
+
+    identity_claim = normalized.get("identity_claim")
+    if isinstance(identity_claim, dict):
+        if not normalized.get("actor_id") and identity_claim.get("actor_id"):
+            normalized["actor_id"] = identity_claim["actor_id"]
+        if not normalized.get("authority_level") and identity_claim.get("authority_level"):
+            normalized["authority_level"] = identity_claim["authority_level"]
+
+    if not normalized.get("actor_id"):
+        fallback_actor_id = payload.get("actor_id") or payload.get("claimed_actor_id")
+        if fallback_actor_id:
+            normalized["actor_id"] = str(fallback_actor_id)
+
+    return normalized
+
+
 def _requires_explicit_kernel_auth(payload: dict[str, Any]) -> bool:
     """Decide whether arifOS_kernel must reject missing auth_context."""
     from core.enforcement.auth_continuity import _env_flag
@@ -249,7 +287,9 @@ async def call_kernel(
     now_utc = datetime.now(timezone.utc)
     valid_until = now_utc + timedelta(minutes=15)
 
-    auth_ctx = payload.get("auth_context")
+    auth_ctx = _normalize_auth_context(payload, payload.get("auth_context"))
+    if auth_ctx is not None:
+        payload["auth_context"] = auth_ctx
     if canonical_name == "metabolic_loop":
         if not auth_ctx:
             if _can_auto_anchor_declared_identity(payload, claimed_actor_id):

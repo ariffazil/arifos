@@ -112,8 +112,9 @@ def ed25519_sign(message: str, private_key: str) -> str:
 
         return signature.hex()
 
-    except ImportError:
+    except (ImportError, ValueError):
         # Fallback: SHA-256 HMAC simulation (NOT SECURE FOR PRODUCTION)
+        # ValueError fires when private_key is a passphrase rather than hex bytes
         import hmac
 
         return hmac.new(private_key.encode(), message.encode(), hashlib.sha256).hexdigest()

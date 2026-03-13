@@ -1,260 +1,291 @@
 # arifOS VPS — Unified Architecture Snapshot
 
-**Last verified:** 2026-03-12 by Claude Code (claude-sonnet-4-6)
-**Git HEAD:** `1af6d53b` — fix(deploy): add scripts/run_evals.py [2026.03.12-SEAL]
-**Server version:** `2026.03.10-FORGED`
-**Status:** ✅ ALL 12 CONTAINERS RUNNING — VPS = GitHub = Live
+**Last verified:** 2026-03-13 by Codex (GPT-5)  
+**Repo HEAD:** `06bbda10cf35d2cc24e584b17e041bb43cd0e58b`  
+**Public MCP version:** `2026.03.12-FORGED`  
+**Status:** 12 containers running, MCP healthy, OpenClaw healthy, Git not aligned with GitHub main
 
-> Single source of truth for VPS state. All agents update this file after significant changes.
+> Production dossier for the live VPS. This file describes the actual runtime topology, not the intended one.
 
 ---
 
-## 1. Server Facts
+## 1. Host Facts
 
 | Item | Value |
 |------|-------|
 | Hostname | `srv1325122` |
-| Public IPv6 | `2a02:4780:5e:dbf6::1` |
-| OS | Linux 6.17.0-14-generic |
-| Disk | 85GB / 193GB used (44%) |
-| RAM | 3.5GB / 15GB used |
-| Load avg | ~0.1–0.4 (idle) |
-| Deploy path | `/srv/arifosmcp/` (symlinked from `/srv/arifOS/`) |
-| Compose file | `/srv/arifosmcp/docker-compose.yml` |
+| OS / Kernel | Linux `6.17.0-14-generic` |
+| Deploy path | `/srv/arifosmcp/` |
+| Repo alias | `/srv/arifOS` -> `/srv/arifosmcp` |
+| Compose files | `/srv/arifosmcp/docker-compose.yml`, `/srv/arifosmcp/docker-compose.override.yml` |
+| Disk | `107G / 193G` used (`56%`), `87G` free |
+| RAM | `4.7Gi / 15Gi` used, `10Gi` available |
+| Swap | `1.1Gi / 4.0Gi` used |
+| Load avg | `0.04 0.07 0.17` |
+| Uptime at verification | ~`3h 06m` |
 
 ---
 
-## 2. Git Sync State
+## 2. Git Reality
 
-| Location | Commit | Status |
-|----------|--------|--------|
-| VPS `/srv/arifosmcp` | `1af6d53b` | ✅ |
-| GitHub `ariffazil/arifosmcp` main | `1af6d53b` | ✅ |
-| **Alignment** | **Identical** | ✅ **SEALED** |
+| Item | Value |
+|------|-------|
+| Branch | `main` |
+| Local HEAD | `06bbda10cf35d2cc24e584b17e041bb43cd0e58b` |
+| Divergence vs `origin/main` | `ahead 7`, `behind 2` |
+| Worktree | dirty |
+| Alignment | ❌ not aligned with GitHub main |
 
-Remote URL uses HTTPS + token (no SSH key on VPS):
-```bash
-GITHUB_TOKEN=$(grep GITHUB_TOKEN .env | head -1 | cut -d= -f2)
-git pull "https://ariffazil:${GITHUB_TOKEN}@github.com/ariffazil/arifosmcp.git" main
-git push "https://ariffazil:${GITHUB_TOKEN}@github.com/ariffazil/arifosmcp.git" main
-```
+Modified files observed live:
+- `arifosmcp/runtime/__init__.py`
+- `core/judgment.py`
+- `core/shared/crypto.py`
+- `docker-compose.yml`
+- `infrastructure/VPS_ARCHITECTURE.md`
+- `spec/mcp-manifest.json`
+- `spec/server.json`
+- `tests/core/test_judgment.py`
+- `uv.lock`
 
----
-
-## 3. Containers — Live State
-
-| Container | Image | Status | Memory | Port Binding |
-|-----------|-------|--------|--------|--------------|
-| `arifosmcp_server` | `arifos/arifosmcp:latest` | ✅ healthy | 93MB / 3GB | `127.0.0.1:8080` |
-| `traefik_router` | `traefik:v3.6.9` | ✅ up | 85MB / 128MB | `0.0.0.0:80,443` |
-| `arifos_postgres` | `postgres:16-alpine` | ✅ healthy | 18MB / 1GB | `127.0.0.1:5432` |
-| `arifos_redis` | `redis:7-alpine` | ✅ healthy | 4MB / 128MB | `127.0.0.1:6379` |
-| `arifos_grafana` | `grafana/grafana:latest` | ✅ healthy | 91MB / 1GB | internal only |
-| `arifos_prometheus` | `prom/prometheus:latest` | ✅ up | 35MB / 1GB | internal only |
-| `openclaw_gateway` | `ghcr.io/openclaw/openclaw:latest` | ✅ healthy | 563MB / 2GB | `127.0.0.1:18789` |
-| `qdrant_memory` | `qdrant/qdrant:latest` | ✅ up | 159MB / 1GB | internal only |
-| `ollama_engine` | `ollama/ollama:latest` | ✅ up | 296MB / 1.5GB | internal only |
-| `headless_browser` | `ghcr.io/browserless/chromium:latest` | ✅ healthy | 91MB / 1GB | internal only |
-| `agent_zero_reasoner` | `agent0ai/agent-zero:latest` | ✅ up | 784MB / 1GB | internal only |
-| `arifos_n8n` | `n8nio/n8n:latest` | ✅ up | 317MB / 1GB | internal only |
-
-**Network:** `arifos_arifos_trinity` bridge — `10.0.10.0/24`
-
-**Security posture:**
-- Postgres (`5432`) and Redis (`6379`) bound to `127.0.0.1` only ✅
-- MCP server (`8080`) bound to `127.0.0.1` only — exposed via Traefik ✅
-- Only ports 80 and 443 are public-facing ✅
+Implication:
+- the VPS is not a clean deploy of current GitHub `main`
+- any “latest GitHub main” claim is false until fetch/merge/redeploy is done explicitly
 
 ---
 
-## 4. Public URLs
+## 3. Live Runtime Topology
 
-| Layer | Name | URL | Hosting |
-|-------|------|-----|---------|
-| Brain | MCP server | https://arifosmcp.arif-fazil.com/mcp | VPS (Traefik) |
-| Brain | Health | https://arifosmcp.arif-fazil.com/health | VPS |
-| Brain | Tools | https://arifosmcp.arif-fazil.com/tools | VPS |
-| Brain | Discovery | https://arifosmcp.arif-fazil.com/.well-known/mcp/server.json | VPS |
-| Law | arifOS docs | https://arifos.arif-fazil.com | GitHub Pages |
-| Soul | APEX Theory | https://apex.arif-fazil.com | Cloudflare Pages |
-| Soul | APEX Dashboard | https://arifosmcp-truth-claim.pages.dev | Cloudflare Pages (⚠️ 404) |
-| Eye | Monitoring | https://monitor.arifosmcp.arif-fazil.com | Grafana on VPS |
+### 3.1 Containers Running Now
+
+| Container | Image | State | Mem Usage | Exposure |
+|-----------|-------|-------|-----------|----------|
+| `arifosmcp_server` | `arifos/arifosmcp:latest` | ✅ healthy | `316.6MiB / 3GiB` | `127.0.0.1:8080` |
+| `traefik_router` | `traefik:v3.6.9` | ✅ up | `84.87MiB / 128MiB` | public `80/443` |
+| `arifos_postgres` | `postgres:16-alpine` | ✅ healthy | `29.07MiB / 1GiB` | `127.0.0.1:5432` |
+| `arifos_redis` | `redis:7-alpine` | ✅ healthy | `5.08MiB / 128MiB` | `127.0.0.1:6379` |
+| `qdrant_memory` | `qdrant/qdrant:latest` | ✅ up | `215.9MiB / 1GiB` | internal only |
+| `ollama_engine` | `ollama/ollama:latest` | ✅ healthy | `1.989GiB / 2GiB` | internal only |
+| `openclaw_gateway` | `arifos/openclaw-forged:2026.03.13` | ✅ healthy | `455.9MiB / 2GiB` | `127.0.0.1:18789` |
+| `headless_browser` | `ghcr.io/browserless/chromium:latest` | ✅ healthy | `87.68MiB / 1GiB` | internal only |
+| `arifos_prometheus` | `prom/prometheus:latest` | ✅ up | `34.03MiB / 1GiB` | internal only |
+| `arifos_grafana` | `grafana/grafana:latest` | ✅ healthy | `94.81MiB / 1GiB` | internal only |
+| `arifos_n8n` | `n8nio/n8n:latest` | ✅ up | `332MiB / 1GiB` | internal only |
+| `agent_zero_reasoner` | `agent0ai/agent-zero:latest` | ✅ up | `1.02GiB / 2GiB` | internal only, routed by Traefik label |
+
+### 3.2 Actual Agent State
+
+| Agent / Service | Current state | What is proven |
+|-----------------|---------------|----------------|
+| `arifosmcp_server` | healthy | public `/health`, `/tools`, discovery doc all respond |
+| `openclaw_gateway` | healthy | `http://127.0.0.1:18789/healthz` returns `ok`; Telegram provider starts |
+| `agent_zero_reasoner` | running | booted and serving internally; no strong evidence of real user traffic |
+| `arifos_n8n` | running | container is up; workflow usage not verified in this pass |
+| `ollama_engine` | healthy but near memory ceiling | reachable and generation was previously proven from OpenClaw |
+| `qdrant_memory` | up | reachable on internal network |
+| `headless_browser` | healthy | Browserless available for agents |
+
+### 3.3 Compose Drift
+
+The runtime does not match the checked-in topology cleanly:
+- `agent_zero_reasoner` is running with Compose labels from service `agent-zero`
+- current `docker-compose.yml` does not cleanly reflect that live runtime as a first-class declared service
+- `webhook` is declared in compose history, but no `arifos_webhook` container is running now
+- OpenClaw name drift is now corrected; the live container is back to the stable name `openclaw_gateway`
+
+This is operational drift, not just cosmetic drift.
 
 ---
 
-## 5. arifosmcp Server — Intelligence Kernel
+## 4. Network and Exposure
 
-**Version:** `2026.03.10-FORGED`
-**Transport:** `streamable-http` (MCP 2025-11-25 spec)
-**Auth:** Open — `api_bearer_auth: not_configured` (zero friction for adoption)
-**ML floors:** `ml_floors_enabled: false` — heuristic mode (SBERT not loaded)
+### 4.1 Public Surface
 
-### 8 Public Tools
+Only these host ports are publicly bound:
+- `80`
+- `443`
+
+All core stateful services remain private or loopback-bound:
+- Postgres: loopback only
+- Redis: loopback only
+- arifosmcp app port: loopback only, fronted by Traefik
+- OpenClaw: loopback only
+- Ollama / Qdrant / Browserless / n8n: internal Docker network
+
+### 4.2 External URLs
+
+| Layer | URL | State |
+|------|-----|-------|
+| arifosmcp health | `https://arifosmcp.arif-fazil.com/health` | ✅ live |
+| arifosmcp MCP | `https://arifosmcp.arif-fazil.com/mcp` | ✅ live |
+| arifosmcp tools | `https://arifosmcp.arif-fazil.com/tools` | ✅ live |
+| arifosmcp discovery | `https://arifosmcp.arif-fazil.com/.well-known/mcp/server.json` | ✅ live |
+| arifOS docs | `https://arifos.arif-fazil.com` | expected live |
+| APEX Theory | `https://apex.arif-fazil.com` | expected live |
+| Grafana | `https://monitor.arifosmcp.arif-fazil.com` | expected live |
+| Agent Zero intended route | `https://brain.arifosmcp.arif-fazil.com` | ⚠️ historical DNS/ACME failure evidence |
+
+### 4.3 Agent Zero Exposure Reality
+
+Traefik labels on the live container define:
+- router rule: `Host(\`brain.arifosmcp.arif-fazil.com\`)`
+- service port: `80`
+
+But historical Traefik logs show repeated ACME failures because `brain.arifosmcp.arif-fazil.com` returned `NXDOMAIN`.
+
+Implication:
+- Agent Zero is running internally
+- its public route has not been proven healthy
+- no reliable evidence of real user traffic was found in this verification pass
+
+---
+
+## 5. arifosmcp Server Snapshot
+
+Live health response on 2026-03-13:
+
+| Field | Value |
+|------|-------|
+| Service | `arifos-aaa-mcp` |
+| Version | `2026.03.12-FORGED` |
+| Status | `healthy` |
+| Transport | `streamable-http` |
+| Tools loaded | `9` |
+| ML floors | disabled |
+| ML method | `heuristic` |
+| API bearer auth | `not_configured` |
+
+### 5.1 Public Tool Surface
 
 | Tool | Stage | Role |
 |------|-------|------|
-| `arifOS_kernel` | 444_ROUTER | Main metabolic orchestrator (000→999 pipeline) |
-| `search_reality` | 111_SENSE | Web grounding via Perplexity/Brave/Jina |
-| `ingest_evidence` | 222_REALITY | Extract and load evidence from URLs |
-| `session_memory` | — | Governed session continuity (Qdrant-backed) |
-| `audit_rules` | 333_MIND | Inspect all 13 constitutional floors |
-| `check_vital` | 000_INIT | System vitality, thermo-budget, capability map |
-| `bootstrap_identity` | 000_INIT | Declare user identity — onboarding entry point (new) |
-| `open_apex_dashboard` | — | Open live governed metrics dashboard |
+| `arifOS_kernel` | `444_ROUTER` | Main orchestrator |
+| `search_reality` | `111_SENSE` | Grounding |
+| `ingest_evidence` | `222_REALITY` | Ingestion |
+| `session_memory` | `555_MEMORY` | Continuity |
+| `audit_rules` | `333_MIND` | Governance |
+| `check_vital` | `000_INIT` | Telemetry |
+| `bootstrap_identity` | `000_INIT` | Onboarding |
+| `open_apex_dashboard` | `888_JUDGE` | Visualizer |
+| `verify_vault_ledger` | `999_VAULT` | Auditor |
 
-### Discovery Doc
-```
-GET /.well-known/mcp/server.json
-transports: [http, stdio]   ← SSE removed (was advertised but 404)
-auth: none
-tools: 8
-```
+### 5.2 Discovery Doc Highlights
 
-### Metabolic Loop (000 → 999)
-```
-000 INIT    — Airlock, injection shield (F12), identity grounding
-111–333     — MIND: truth (F2), clarity (F4), humility (F7), genius (F8)
-444         — ROUTER: constitutional routing via arifOS_kernel
-555–666     — HEART: peace (F5), empathy (F6), anti-hantu (F9)
-777–888     — APEX: discipline, Quad-Witness BFT, verdict
-999 VAULT   — Merkle-hash seal to PostgreSQL+Redis ledger
+```json
+{
+  "name": "io.github.ariffazil/arifos-mcp",
+  "version": "2026.03.12-FORGED",
+  "protocolVersion": "2025-11-25",
+  "tools": 9,
+  "vector_memory": "qdrant+bge-m3-1024dim",
+  "authentication": { "type": "none" }
+}
 ```
 
 ---
 
-## 6. Ollama — Local LLMs
+## 6. OpenClaw Runtime
 
-| Model | Size | Purpose |
-|-------|------|---------|
-| `bge-m3:latest` | 1.2GB | Embeddings (768-dim) for Qdrant vector memory |
-| `nomic-embed-text:latest` | 274MB | Lightweight embeddings |
-| `qwen2.5:3b` | 1.9GB | Local reasoning / fallback LLM |
+### 6.1 Proven Runtime State
 
----
+| Item | Value |
+|------|-------|
+| Health | `{"ok":true,"status":"live"}` |
+| Agent model in live log | `kimi/kimi-k2-5` |
+| Telegram provider | starts for `@arifOS_bot` |
+| Browser control | `127.0.0.1:18791` with token auth |
+| MCP bridge to arifosmcp | healthy |
+| `mcporter` | sees `arifos` with `9 tools` |
 
-## 7. Observability
+### 6.2 OpenClaw Capability Wiring
 
-### Prometheus Scrape Targets
-| Job | Status | Notes |
-|-----|--------|-------|
-| `arifos-mcp` | ✅ up | Scrapes `/metrics` — constitutional metrics live |
-| `prometheus` | ✅ up | Self-monitoring |
-| `qdrant` | ✅ up | Vector DB metrics |
-| `traefik` | ❌ down | Port 8082 not enabled (low priority) |
+Confirmed reachable from inside the OpenClaw container:
+- Docker socket
+- `/mnt/arifos`
+- `/mnt/apex`
+- arifosmcp MCP bridge
+- Browserless
+- internal Docker network services
+- mounted host CLIs and helper wrappers
 
-### Key Prometheus Metrics
-- `arifos_genius_score` — G† per session/tool
-- `arifos_entropy_delta` — ΔS clarity metric
-- `arifos_humility_band` — Ω₀ uncertainty band
-- `arifos_verdicts_total` — SEAL/VOID/HOLD_888/PARTIAL counts
-- `arifos_metabolic_loop_seconds` — pipeline latency histogram
-- `arifos_requests_total` — request counter
+### 6.3 OpenClaw Stability Notes
 
----
-
-## 8. Request Flow
-
-```
-Internet → Cloudflare (CDN + DDoS) → VPS :443
-  → Traefik v3.6.9 (TLS termination, routing)
-    → arifosmcp_server :8080 (FastMCP + FastAPI)
-      → Constitutional floors F1–F13
-        → Trinity engines (Δ Mind / Ω Heart / Ψ APEX)
-          → Tool execution
-            → VAULT999 (Postgres + Redis, Merkle-hashed)
-```
+- OpenClaw is healthy now
+- container naming is drifting because current recreate flow produces generated names
+- gateway log still shows a Venice model catalog timeout during provider discovery, but runtime continues
+- this is not the same as user-visible Venice credit failure
 
 ---
 
-## 9. Key File Paths
+## 7. Memory and Intelligence Subsystems
+
+| Component | State | Notes |
+|-----------|-------|-------|
+| PostgreSQL 16 | healthy | VAULT / ledger persistence |
+| Redis 7 | healthy | cache / session support |
+| Qdrant | up | vector memory backend for arifosmcp |
+| Ollama | healthy but memory-heavy | local runtime and embeddings |
+| `qwen2.5:3b` | available | local fallback model |
+| `bge-m3` | available | embedding model |
+| `nomic-embed-text` | available | secondary embedding option |
+
+Live arifosmcp discovery reports:
+- `vault999: postgresql+redis+merkle`
+- `vector_memory: qdrant+bge-m3-1024dim`
+
+---
+
+## 8. Observability
+
+| Component | State |
+|-----------|-------|
+| Prometheus | up |
+| Grafana | healthy |
+| arifosmcp health endpoint | healthy |
+| OpenClaw health endpoint | healthy |
+| Traefik metrics port `8082` | still treated as unresolved / not proven fixed |
+
+---
+
+## 9. Key Paths
 
 | Path | Purpose |
 |------|---------|
-| `/srv/arifosmcp/` | Main repo (symlinked from `/srv/arifOS/`) |
-| `/srv/arifosmcp/docker-compose.yml` | Container orchestration |
-| `/srv/arifosmcp/.env` | Runtime secrets (never commit) |
-| `/srv/arifosmcp/.env.docker` | Docker-injected env (never commit) |
-| `/srv/arifosmcp/arifosmcp/runtime/` | FastMCP server, routes, tools, registry |
-| `/srv/arifosmcp/core/` | Trinity engines, floors, physics, vault |
-| `/srv/arifosmcp/scripts/run_evals.py` | Constitutional Dashboard eval generator |
-| `/opt/arifos/data/core/` | Persistent data volume (mounted into container) |
-| `/root/CONTEXT.md` | Shared agent context — read first |
-| `/root/CLAUDE.md` | Claude Code instructions |
-| `/root/AGENTS.md` | All AI agents guide |
+| `/srv/arifosmcp/` | production repo |
+| `/srv/arifosmcp/docker-compose.yml` | declared topology |
+| `/srv/arifosmcp/docker-compose.override.yml` | local overrides / mounts |
+| `/srv/arifosmcp/.env` | runtime secrets |
+| `/srv/arifosmcp/.env.docker` | Docker-injected env for containers |
+| `/srv/arifosmcp/infrastructure/VPS_ARCHITECTURE.md` | architecture dossier |
+| `/srv/arifosmcp/infrastructure/VPS_CAPABILITIES_MAP.md` | live capability matrix |
+| `/opt/arifos/data/openclaw/` | OpenClaw persistent data |
+| `/opt/arifos/data/openclaw/workspace/config/mcporter.json` | MCP config used by OpenClaw |
+| `/root/CONTEXT.md` | owner / VPS context |
+| `/root/AGENTS.md` | agent operating instructions |
 
 ---
 
-## 10. Critical Environment Variables
+## 10. Active Risks
 
-| Variable | Purpose | Set? |
-|----------|---------|------|
-| `ARIFOS_GOVERNANCE_SECRET` | Core auth secret | ✅ |
-| `DATABASE_URL` | PostgreSQL connection | ✅ |
-| `REDIS_URL` | Cache connection | ✅ |
-| `GITHUB_TOKEN` | GitHub API + push | ✅ |
-| `OPENCLAW_GATEWAY_TOKEN` | OpenClaw auth | ✅ |
-| `ARIFOS_888_JUDGE_KEY` | Sovereign human veto | ✅ |
-| `ARIFOS_API_KEY` | Bearer auth for MCP | ❌ not set = open access (intentional) |
-| `COPILOT_API_KEY` | Copilot Studio X-API-Key | ❌ not set (optional) |
-| `ARIFOS_PUBLIC_TOOL_PROFILE` | Tool surface profile | `chatgpt` |
+| Risk | Severity | Current state |
+|------|----------|---------------|
+| Git divergence from `origin/main` | High | `ahead 7`, `behind 2`, dirty |
+| Compose/runtime drift | High | running Agent Zero + generated OpenClaw name do not cleanly match desired compose state |
+| Ollama near memory limit | Medium | `1.989GiB / 2GiB` |
+| Agent Zero public route | Medium | historical DNS/ACME failures; usage unproven |
+| API bearer auth disabled on public MCP | Medium | discovery still reports `authentication: none` |
+| ML floors disabled | Info | heuristic mode active |
+| Grafana constitutional dashboards | Info | still not fully proven in this pass |
 
 ---
 
-## 11. Common Commands
+## 11. Bottom Line
 
-```bash
-cd /srv/arifosmcp
+The VPS is operational and the main public brain surface is healthy:
+- `arifosmcp` is live and serving `9` tools
+- OpenClaw is healthy and wired to arifosmcp
+- Agent Zero exists and runs, but it is not yet a proven public-facing production agent
 
-# Sync with GitHub
-GITHUB_TOKEN=$(grep GITHUB_TOKEN .env | head -1 | cut -d= -f2)
-git pull "https://ariffazil:${GITHUB_TOKEN}@github.com/ariffazil/arifosmcp.git" main
-
-# Restart MCP server (picks up code from mounted volume instantly)
-docker restart arifosmcp_server
-
-# Restart any service
-docker compose up -d --no-deps <service>
-
-# Tail logs
-docker logs -f arifosmcp_server
-
-# Full status
-docker ps && docker stats --no-stream
-
-# Health check
-curl -s https://arifosmcp.arif-fazil.com/health | python3 -m json.tool
-```
-
----
-
-## 12. Known Issues
-
-| Issue | Severity | Notes |
-|-------|----------|-------|
-| Traefik metrics port 8082 unreachable | ⚠️ Low | App unaffected |
-| APEX Dashboard 404 | ⚠️ Low | Cloudflare Pages deploy broken |
-| ML floors disabled | ℹ️ Info | Set `ARIFOS_ML_FLOORS=1` to enable SBERT |
-| Grafana dashboards not wired | ℹ️ Info | Prometheus scraping works; dashboards need setup |
-| OpenClaw image models 404 | ⚠️ Low | claude-opus-4-5/4-6 model IDs changed |
-| arifOS LICENSE = CC0 vs AGPL docs | ⚠️ Medium | Needs reconciliation |
-
----
-
-## 13. Session Changes Log (2026-03-11/12)
-
-| Change | Status |
-|--------|--------|
-| Grafana restarted (was DOWN) | ✅ Done |
-| Postgres + Redis locked to 127.0.0.1 | ✅ Done |
-| GitHub MCP server installed (`github-mcp-server` v0.32.0) | ✅ Done |
-| OpenClaw qmd fixed (`@tobilu/qmd` v2.0.1) | ✅ Done |
-| OpenClaw auth-profiles.json restored | ✅ Done |
-| SSE removed from discovery doc | ✅ Done |
-| `/metrics` Prometheus scraping fixed | ✅ Done |
-| PR #268 merged (Copilot Studio + `bootstrap_identity` tool) | ✅ Done |
-| VPS and GitHub main aligned at `1af6d53b` | ✅ SEALED |
-
-*Last verified: 2026-03-12 by Claude Code (claude-sonnet-4-6)*
-
----
-**See Also:** [VPS Capabilities Map](./VPS_CAPABILITIES_MAP.md) for detailed toolchains and Office Forge capabilities.
+The system is not fully “aligned” in the strict sense:
+- Git is diverged
+- runtime topology has drift
+- some agent access paths are mounted but not uniformly stable

@@ -207,9 +207,10 @@ def build_open_apex_dashboard_result(
         "session_id": session_id,
         "dashboard": APEX_DASHBOARD_URI,
         "default_endpoint": APEX_DASHBOARD_DEFAULT_ENDPOINT,
+        "status_page": "https://arifosmcp.arif-fazil.com/status",
         "note": (
             "Unified Prefab dashboard ready. Use /api/governance-status for live telemetry "
-            "or /dashboard/ for the deployed HTML surface."
+            "/status for zero-JS ops truth, or /dashboard/ for the deployed HTML surface."
         ),
     }
     content = [{"type": "text", "text": json.dumps(payload, ensure_ascii=False)}]

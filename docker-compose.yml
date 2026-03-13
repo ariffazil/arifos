@@ -192,41 +192,49 @@ services:
 
   # --- Gateways & Reasoning ---
   openclaw:
-    image: ghcr.io/openclaw/openclaw:latest
+    build:
+      context: .
+      dockerfile: infrastructure/openclaw/Dockerfile
+    image: arifos/openclaw-forged:2026.03.13
     container_name: openclaw_gateway
     init: true
     user: root  # AGI-level executive power
+    env_file:
+      - path: .env.docker
+        required: true
     volumes:
       - /opt/arifos/data/openclaw:/root/.openclaw
       - /opt/arifos/data/openclaw/bin:/root/.local/bin
       - /opt/arifos/data/openclaw/npm-global:/root/.npm-global
+      - /opt/arifos/data/openclaw/gitconfig:/root/.gitconfig:ro
       - /srv/arifosmcp:/mnt/arifos:rw
       - /opt/arifos/APEX-THEORY:/mnt/apex:rw
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /usr/bin/docker:/usr/bin/docker:ro
       - /usr/libexec/docker:/usr/libexec/docker:ro
+      - /usr/local:/host/usr-local:ro
+      - /root/.local:/host/root-local:ro
+      - /root/.claude:/host/root-claude:ro
       - /opt/arifos/data/openclaw/models:/home/node/.node-llama-cpp/models
-      - /usr/local/bin/opencode:/usr/local/bin/opencode:ro
-      - /usr/local/lib/node_modules/opencode-ai:/usr/local/lib/node_modules/opencode-ai:ro
+      - /opt/arifos/data/openclaw/bin/arifos:/usr/local/bin/arifos:ro
+      - /opt/arifos/data/openclaw/bin/claude:/usr/local/bin/claude:ro
+      - /opt/arifos/data/openclaw/bin/codex:/usr/local/bin/codex:ro
+      - /opt/arifos/data/openclaw/bin/gemini:/usr/local/bin/gemini:ro
+      - /opt/arifos/data/openclaw/bin/jq:/usr/local/bin/jq:ro
+      - /opt/arifos/data/openclaw/bin/gh:/usr/local/bin/gh:ro
+      - /opt/arifos/data/openclaw/bin/rg:/usr/local/bin/rg:ro
+      - /opt/arifos/data/openclaw/bin/mcporter:/usr/local/bin/mcporter:ro
+      - /opt/arifos/data/openclaw/bin/oracle:/usr/local/bin/oracle:ro
+      - /opt/arifos/data/openclaw/bin/oracle-mcp:/usr/local/bin/oracle-mcp:ro
+      - /opt/arifos/data/openclaw/bin/xurl:/usr/local/bin/xurl:ro
       - /opt/arifos/data/openclaw/bin-wrappers:/host/clis:ro
     environment:
-      - OPENCLAW_GATEWAY_TOKEN=${OPENCLAW_GATEWAY_TOKEN}
       - OLLAMA_URL=http://ollama:11434
       - REDIS_URL=redis://redis:6379
-      - KIMI_API_KEY=${KIMI_API_KEY}
-      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
-      - VENICE_API_KEY=${VENICE_API_KEY}
-      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
       - NODE_OPTIONS=--max-old-space-size=1536
-      - PATH=/root/.local/bin:/root/.npm-global/bin:/host/clis:/host/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+      - PATH=/usr/local/sbin:/usr/local/bin:/root/.local/bin:/root/.npm-global/bin:/host/clis:/host/bin:/usr/sbin:/usr/bin:/sbin:/bin
       - GH_TOKEN=${GITHUB_TOKEN:-}
-      - FIRECRAWL_API_KEY=${FIRECRAWL_API_KEY:-}
-      - X_BEARER_TOKEN=${X_BEARER_TOKEN:-}
-      - APIFY_API_TOKEN=${APIFY_API_TOKEN:-}
       - BROWSERLESS_URL=http://headless_browser:3000
-      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
-      - GOOGLE_API_KEY=${GOOGLE_API_KEY:-}
-      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
       - OLLAMA_API_BASE=http://ollama:11434
     networks:
       - arifos_trinity

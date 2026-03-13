@@ -47,6 +47,7 @@ from arifosmcp.runtime.tools import (
     audit_rules,
     check_vital,
     ingest_evidence,
+    init_anchor_state,
     metabolic_loop_router,
     open_apex_dashboard,
     register_tools,
@@ -123,6 +124,7 @@ CORE_TOOL_REGISTRY = {
     "audit_rules": audit_rules,
     "check_vital": check_vital,
     "open_apex_dashboard": open_apex_dashboard,
+    "init_anchor_state": init_anchor_state,
     "verify_vault_ledger": verify_vault_ledger,
 }
 
