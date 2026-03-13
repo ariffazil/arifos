@@ -22,6 +22,12 @@
 
 # 🏛️ THE MIND: A Manifesto for Sovereign Intelligence
 
+**🆕 New to arifOS?** Start here: [`QUICK_START.md`](./QUICK_START.md) • [`INDEX.md`](./INDEX.md)
+
+**Navigation:** [`CROSS_REFERENCE.md`](./CROSS_REFERENCE.md) • [`PATTERNS/`](./PATTERNS/) • [`TEMPLATES/`](./TEMPLATES/)
+
+---
+
 Intelligence without constraint is chaos. Power without reversibility is a trap.
 
 The arifOS project is built on a single, uncompromising realization: **Human understanding is a compressed model, not reality.** We navigate the world through linguistic heuristics, emotional tags, and social scaffolding. Current AI development seeks to replicate the results of this compression—**Fluency**—without accounting for the underlying machinery of **Grounding**.
