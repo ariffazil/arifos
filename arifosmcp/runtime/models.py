@@ -262,7 +262,23 @@ class RuntimeEnvelope(BaseModel):
     machine_status: MachineState = MachineState.READY
     machine_issue: MachineIssueLabel | None = None
     intelligence_stage: IntelligenceStage | None = None
-    intelligence_state: dict[str, Any] = Field(default_factory=dict)
+    intelligence_state: dict[str, Any] = Field(
+        default_factory=lambda: {
+            # 3E Schema: Exploration → Entropy → Eureka
+            "exploration": "BROAD",
+            "entropy": "MANAGEABLE",
+            "eureka": "NONE",
+            "hypotheses": [],
+            "unknowns": [],
+            "stable_facts": [],
+            "unstable_assumptions": [],
+            "conflicts": [],
+            "uncertainty_score": 0.5,  # F7 Humility Band
+            "insight": None,
+            "confidence": 0.0,
+            "decision_required": [],
+        }
+    )
     metrics: CanonicalMetrics = Field(default_factory=CanonicalMetrics)
     trace: dict[str, Verdict] = Field(default_factory=dict)
     authority: CanonicalAuthority = Field(default_factory=CanonicalAuthority)
