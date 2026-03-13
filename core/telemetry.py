@@ -258,7 +258,9 @@ def log_telemetry(
         gate_reason=(
             "uncertainty"
             if omega_0 > 0.06
-            else "irreversibility" if irreversibility_index > 0.6 else ""
+            else "irreversibility"
+            if irreversibility_index > 0.6
+            else ""
         ),
         human_override_requested=human_override,
         predicted_risk=predicted_risk,

@@ -407,7 +407,7 @@ class _HealthEndpointMiddleware:
         if path == "/metrics" and method == "GET":
             from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
             from starlette.responses import Response
-            
+
             response = Response(
                 generate_latest(),
                 status_code=200,

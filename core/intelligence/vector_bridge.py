@@ -7,14 +7,12 @@ vector embeddings and syncs them to Qdrant for long-term memory continuity.
 DITEMPA BUKAN DIBERI — Forged, Not Given
 """
 
-import asyncio
 import hashlib
-import json
 import logging
 import os
 import time
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import httpx
 
@@ -25,8 +23,8 @@ logger = logging.getLogger(__name__)
 class VectorEntry:
     id: str
     text: str
-    embedding: Optional[List[float]] = None
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    embedding: list[float] | None = None
+    metadata: dict[str, Any] = field(default_factory=dict)
     session_id: str = "global"
     actor_id: str = "anonymous"
     source: str = "reality_compass"
@@ -40,7 +38,7 @@ class IngestionResult:
     success: bool
     points_upserted: int = 0
     collection: str = ""
-    error: Optional[str] = None
+    error: str | None = None
     latency_ms: float = 0.0
 
 
@@ -90,7 +88,7 @@ class QdrantVectorBridge:
 
         return False
 
-    async def embed_text(self, text: str) -> Optional[List[float]]:
+    async def embed_text(self, text: str) -> list[float] | None:
         if not text or len(text.strip()) < 3:
             return None
 
@@ -118,7 +116,7 @@ class QdrantVectorBridge:
 
         return None
 
-    def _fallback_embedding(self, text: str) -> List[float]:
+    def _fallback_embedding(self, text: str) -> list[float]:
         text_hash = hashlib.sha256(text.encode()).hexdigest()
         embedding = []
         for i in range(0, min(64, len(text_hash)), 2):
@@ -128,7 +126,7 @@ class QdrantVectorBridge:
             embedding.append(0.0)
         return embedding[: self.embedding_dimension]
 
-    async def upsert_vectors(self, entries: List[VectorEntry]) -> IngestionResult:
+    async def upsert_vectors(self, entries: list[VectorEntry]) -> IngestionResult:
         start_time = time.time()
 
         if not entries:
@@ -192,11 +190,11 @@ class QdrantVectorBridge:
 
     async def search_similar(
         self,
-        query_embedding: List[float],
+        query_embedding: list[float],
         top_k: int = 5,
         score_threshold: float = 0.7,
-        session_filter: Optional[str] = None,
-    ) -> List[Dict[str, Any]]:
+        session_filter: str | None = None,
+    ) -> list[dict[str, Any]]:
         await self.ensure_collection()
         client = await self._get_client()
 
@@ -237,11 +235,11 @@ class QdrantVectorBridge:
 
     async def ingest_from_evidence_bundle(
         self,
-        bundle: Dict[str, Any],
+        bundle: dict[str, Any],
         session_id: str = "global",
         actor_id: str = "anonymous",
     ) -> IngestionResult:
-        entries: List[VectorEntry] = []
+        entries: list[VectorEntry] = []
 
         claims = bundle.get("claims", [])
         for claim in claims:
@@ -288,10 +286,10 @@ qdrant_bridge = QdrantVectorBridge()
 
 
 async def vector_memory_embedding(
-    texts: List[str],
+    texts: list[str],
     session_id: str = "global",
     actor_id: str = "anonymous",
-    metadata: Optional[Dict[str, Any]] = None,
+    metadata: dict[str, Any] | None = None,
 ) -> IngestionResult:
     entries = []
     for i, text in enumerate(texts):
@@ -313,8 +311,8 @@ async def vector_memory_embedding(
 async def vector_memory_search(
     query: str,
     top_k: int = 5,
-    session_id: Optional[str] = None,
-) -> List[Dict[str, Any]]:
+    session_id: str | None = None,
+) -> list[dict[str, Any]]:
     embedding = await qdrant_bridge.embed_text(query)
     if embedding is None:
         return []

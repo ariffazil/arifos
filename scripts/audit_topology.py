@@ -71,8 +71,7 @@ def scan_file(filepath: Path, role: str) -> list[str]:
                     base_module = alias.name.split(".")[0]
                     if base_module in FORBIDDEN_CORE_IMPORTS:
                         violations.append(
-                            f"[Line {node.lineno}] Transport leak in core: "
-                            f"import '{alias.name}'"
+                            f"[Line {node.lineno}] Transport leak in core: import '{alias.name}'"
                         )
 
             elif isinstance(node, ast.ImportFrom):

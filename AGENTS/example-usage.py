@@ -12,8 +12,8 @@ This runtime: /arifosmcp/AGENTS/ (operational control plane)
 """
 
 from execution_controller import (
-    ExecutionController,
     AgentRole,
+    ExecutionController,
     check_quarantined,
 )
 
@@ -23,21 +23,21 @@ def example_1_agent_identity():
     print("=" * 60)
     print("EXAMPLE 1: Agent Identity + Policy")
     print("=" * 60)
-    
+
     controller = ExecutionController()
-    
+
     # Check what A-ENGINEER can do
     engineer = controller.get_agent_identity(AgentRole.ENGINEER)
-    print(f"\nA-ENGINEER Identity:")
+    print("\nA-ENGINEER Identity:")
     print(f"  UUID: {engineer.uuid}")
     print(f"  Can write: {engineer.can_write}")
     print(f"  Can deploy: {engineer.can_deploy}")
     print(f"  Allowed tools: {len(engineer.tools_allowed)}")
     print(f"  Forbidden tools: {len(engineer.tools_forbidden)}")
-    
+
     # Check what A-VALIDATOR can do
     validator = controller.get_agent_identity(AgentRole.VALIDATOR)
-    print(f"\nA-VALIDATOR Identity:")
+    print("\nA-VALIDATOR Identity:")
     print(f"  Can write: {validator.can_write}")
     print(f"  Can deploy: {validator.can_deploy}")
     print(f"  Can issue SEAL: {validator.can_issue_seal}")
@@ -48,9 +48,9 @@ def example_2_policy_enforcement():
     print("\n" + "=" * 60)
     print("EXAMPLE 2: Policy Enforcement")
     print("=" * 60)
-    
+
     controller = ExecutionController()
-    
+
     # A-ENGINEER tries to deploy (should fail)
     print("\nA-ENGINEER attempting deploy:")
     receipt = controller.execute(
@@ -61,8 +61,8 @@ def example_2_policy_enforcement():
         dry_run=True,
     )
     print(f"  Verdict: {receipt.verdict.value}")
-    print(f"  Reason: Only A-VALIDATOR can deploy")
-    
+    print("  Reason: Only A-VALIDATOR can deploy")
+
     # A-VALIDATOR attempts deploy (would need approval)
     print("\nA-VALIDATOR attempting deploy:")
     receipt = controller.execute(
@@ -81,13 +81,13 @@ def example_3_quarantined_paths():
     print("\n" + "=" * 60)
     print("EXAMPLE 3: Quarantined Broken Paths")
     print("=" * 60)
-    
+
     quarantined = [
         "kimi_inside_openclaw",
         "aider_inside_openclaw",
         "opencode_inside_openclaw",
     ]
-    
+
     for path in quarantined:
         ok, msg = check_quarantined(path)
         print(f"\n  {path}:")
@@ -100,9 +100,9 @@ def example_4_execution_receipt():
     print("\n" + "=" * 60)
     print("EXAMPLE 4: Execution Receipt (VAULT999)")
     print("=" * 60)
-    
+
     controller = ExecutionController()
-    
+
     receipt = controller.execute(
         agent_role=AgentRole.ARCHITECT,
         intent="Design memory subsystem",
@@ -110,7 +110,7 @@ def example_4_execution_receipt():
         files=["memory.py"],
         dry_run=True,
     )
-    
+
     print(f"\n  Receipt ID: {receipt.receipt_id}")
     print(f"  Agent: {receipt.agent_id}")
     print(f"  Verdict: {receipt.verdict.value}")
@@ -123,9 +123,9 @@ def example_5_hard_separation():
     print("\n" + "=" * 60)
     print("EXAMPLE 5: Hard Separation Matrix")
     print("=" * 60)
-    
+
     controller = ExecutionController()
-    
+
     actions = ["read_file", "write_file", "file_delete", "docker_deploy"]
     agents = [
         ("ARCHITECT", AgentRole.ARCHITECT),
@@ -133,11 +133,11 @@ def example_5_hard_separation():
         ("AUDITOR", AgentRole.AUDITOR),
         ("VALIDATOR", AgentRole.VALIDATOR),
     ]
-    
+
     print("\n  Permission Matrix:")
     print(f"  {'Action':<20} {'ARCH':<8} {'ENG':<8} {'AUD':<8} {'VAL':<8}")
     print("  " + "-" * 60)
-    
+
     for action in actions:
         row = f"  {action:<20}"
         for _, role in agents:
@@ -152,13 +152,13 @@ def main():
     print("arifOS Constitutional Agent Control Plane")
     print("6 Blindspots Fixed - Demonstration")
     print("🛡️ " * 20 + "\n")
-    
+
     example_1_agent_identity()
     example_2_policy_enforcement()
     example_3_quarantined_paths()
     example_4_execution_receipt()
     example_5_hard_separation()
-    
+
     print("\n" + "=" * 60)
     print("SUMMARY: 6 Blindspots Addressed")
     print("=" * 60)

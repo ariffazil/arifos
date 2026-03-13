@@ -61,5 +61,5 @@ def require_sovereign(feature: str):
     """Decorator to require sovereign mode for feature."""
     if not is_sovereign():
         raise RuntimeError(
-            f"Feature '{feature}' requires SOVEREIGN mode. " f"Current mode: {CONFIG['mode'].value}"
+            f"Feature '{feature}' requires SOVEREIGN mode. Current mode: {CONFIG['mode'].value}"
         )

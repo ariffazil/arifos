@@ -52,6 +52,7 @@ def _load_sbert_runtime() -> tuple[bool, Any | None]:
     except Exception:
         return False, None
 
+
 # ---------------------------------------------------------------------------
 # Data containers
 # ---------------------------------------------------------------------------

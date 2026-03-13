@@ -4,6 +4,7 @@ run_evals.py - Constitutional Dashboard Generator for arifOS MCP.
 Standard: 2026.03.12-SEAL
 Generates test-reports/index.html (Truth Claim audit log dashboard).
 """
+
 import datetime
 import hashlib
 import json
@@ -78,7 +79,7 @@ def verify_vault_chain():
     try:
         count = 0
         prev_entry_hash = "0x" + "0" * 64
-        with open(ledger_path, "r", encoding="utf-8") as f:
+        with open(ledger_path, encoding="utf-8") as f:
             for line_no, line in enumerate(f, 1):
                 row = line.strip()
                 if not row:
@@ -124,11 +125,11 @@ def build_html(records, title="Constitutional Dashboard", is_apex=False):
         rows += f"""
         <tr>
           <td>{i}</td>
-          <td><code>{rec['path']}</code></td>
-          <td>{rec['size']:,} bytes</td>
-          <td>{rec['modified']}</td>
+          <td><code>{rec["path"]}</code></td>
+          <td>{rec["size"]:,} bytes</td>
+          <td>{rec["modified"]}</td>
           <td><code>{short_hash}</code></td>
-          <td>{rec['type']}</td>
+          <td>{rec["type"]}</td>
           <td>{note}</td>
         </tr>"""
 
@@ -325,7 +326,7 @@ def build_html(records, title="Constitutional Dashboard", is_apex=False):
 
 
 def main():
-    print(f"[run_evals.py] Starting Constitutional Dashboard generation...")
+    print("[run_evals.py] Starting Constitutional Dashboard generation...")
     print(f"[run_evals.py] Seal: {SEAL_ID}")
     print(f"[run_evals.py] Generated at: {GENERATED_AT}")
 

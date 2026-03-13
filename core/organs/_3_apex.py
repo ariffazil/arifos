@@ -54,9 +54,8 @@ def _check_floor_contradiction(
         return None
 
     value = getattr(floor_scores, attr)
-    violated = (
-        (comparison == "gt" and value > threshold)
-        or (comparison == "lt" and value < threshold)
+    violated = (comparison == "gt" and value > threshold) or (
+        comparison == "lt" and value < threshold
     )
 
     if violated and verdict_candidate in blocked_verdicts:
@@ -103,18 +102,50 @@ def _detect_contradictions(
 
     # 2. Floor-score vs verdict contradictions (F12, F1, F9)
     floor_checks = [
-        ("f12_injection", 0.5, "gt", ("SEAL", "PARTIAL"), "F12_injection", "critical",
-         lambda v, vc: f"F12 injection risk={v:.2f} but verdict={vc}", 0.95),
-        ("f1_amanah", 0.3, "lt", ("SEAL",), "F1_amanah", "critical",
-         lambda v, vc: f"F1 amanah={v:.2f} (high irreversibility) but verdict={vc}", 0.90),
-        ("f9_anti_hantu", 0.3, "gt", ("SEAL",), "F9_anti_hantu", "major",
-         lambda v, vc: f"F9 anti-hantu={v:.2f} (dark cleverness) but verdict={vc}", 0.85),
+        (
+            "f12_injection",
+            0.5,
+            "gt",
+            ("SEAL", "PARTIAL"),
+            "F12_injection",
+            "critical",
+            lambda v, vc: f"F12 injection risk={v:.2f} but verdict={vc}",
+            0.95,
+        ),
+        (
+            "f1_amanah",
+            0.3,
+            "lt",
+            ("SEAL",),
+            "F1_amanah",
+            "critical",
+            lambda v, vc: f"F1 amanah={v:.2f} (high irreversibility) but verdict={vc}",
+            0.90,
+        ),
+        (
+            "f9_anti_hantu",
+            0.3,
+            "gt",
+            ("SEAL",),
+            "F9_anti_hantu",
+            "major",
+            lambda v, vc: f"F9 anti-hantu={v:.2f} (dark cleverness) but verdict={vc}",
+            0.85,
+        ),
     ]
 
     for attr, threshold, comp, blocked, floor_name, sev, desc_fn, conf in floor_checks:
         contradiction = _check_floor_contradiction(
-            floor_scores, attr, threshold, comp, verdict_candidate, blocked,
-            floor_name, sev, desc_fn, conf
+            floor_scores,
+            attr,
+            threshold,
+            comp,
+            verdict_candidate,
+            blocked,
+            floor_name,
+            sev,
+            desc_fn,
+            conf,
         )
         if contradiction:
             contradictions.append(contradiction)

@@ -65,7 +65,7 @@ class LiveMetrics:
             "status": "healthy" if success_rate > 0.9 else "unstable",
             "avg_latency": f"{avg_latency:.2f}ms",
             "total_energy": f"{total_energy:.4f} units",
-            "success_rate": f"{success_rate*100:.1f}%",
+            "success_rate": f"{success_rate * 100:.1f}%",
             "data_points": len(metrics),
         }
 

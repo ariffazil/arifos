@@ -7,14 +7,13 @@ the Sovereign via n8n webhook, Telegram, or APEX Dashboard push.
 DITEMPA BUKAN DIBERI — Forged, Not Given
 """
 
-import asyncio
 import json
 import logging
 import os
 import time
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Dict, Optional
+from typing import Any
 
 import httpx
 
@@ -42,14 +41,14 @@ class HoldEvent:
     session_id: str
     reason: HoldReason
     issue_label: str
-    context: Dict[str, Any]
+    context: dict[str, Any]
     actor_id: str = "anonymous"
     authority_level: str = "anonymous"
     tool: str = "unknown"
     stage: str = "888_JUDGE"
     timestamp: float = field(default_factory=time.time)
-    evidence_bundle: Optional[Dict[str, Any]] = None
-    telemetry: Dict[str, Any] = field(default_factory=dict)
+    evidence_bundle: dict[str, Any] | None = None
+    telemetry: dict[str, Any] = field(default_factory=dict)
 
 
 class APEXNotificationBridge:
@@ -72,8 +71,8 @@ class APEXNotificationBridge:
         return channels
 
     async def emit_sovereign_hold(
-        self, event: HoldEvent, channels: Optional[list[NotificationChannel]] = None
-    ) -> Dict[str, Any]:
+        self, event: HoldEvent, channels: list[NotificationChannel] | None = None
+    ) -> dict[str, Any]:
         target_channels = channels or self._enabled_channels
         results = {}
 
@@ -99,7 +98,7 @@ class APEXNotificationBridge:
             "timestamp": event.timestamp,
         }
 
-    async def _send_n8n_webhook(self, event: HoldEvent) -> Dict[str, Any]:
+    async def _send_n8n_webhook(self, event: HoldEvent) -> dict[str, Any]:
         if not self.n8n_webhook_url:
             return {"success": False, "error": "N8N_WEBHOOK_URL not configured"}
 
@@ -122,7 +121,7 @@ class APEXNotificationBridge:
             response = await client.post(self.n8n_webhook_url, json=payload)
             return {"success": response.status_code == 200, "status_code": response.status_code}
 
-    async def _send_telegram(self, event: HoldEvent) -> Dict[str, Any]:
+    async def _send_telegram(self, event: HoldEvent) -> dict[str, Any]:
         if not self.telegram_bot_token or not self.telegram_chat_id:
             return {"success": False, "error": "Telegram credentials not configured"}
 
@@ -140,7 +139,7 @@ class APEXNotificationBridge:
             )
             return {"success": response.status_code == 200, "status_code": response.status_code}
 
-    async def _send_apex_dashboard(self, event: HoldEvent) -> Dict[str, Any]:
+    async def _send_apex_dashboard(self, event: HoldEvent) -> dict[str, Any]:
         if not self.apex_dashboard_url:
             return {"success": False, "error": "APEX_DASHBOARD_URL not configured"}
 
@@ -163,7 +162,7 @@ class APEXNotificationBridge:
             )
             return {"success": response.status_code == 200, "status_code": response.status_code}
 
-    def _log_hold(self, event: HoldEvent) -> Dict[str, Any]:
+    def _log_hold(self, event: HoldEvent) -> dict[str, Any]:
         logger.warning(
             f"888_HOLD: session={event.session_id} reason={event.reason.value} "
             f"issue={event.issue_label} actor={event.actor_id} tool={event.tool}"
@@ -195,14 +194,14 @@ async def emit_sovereign_hold(
     session_id: str,
     reason: HoldReason | str,
     issue_label: str,
-    context: Dict[str, Any],
+    context: dict[str, Any],
     actor_id: str = "anonymous",
     authority_level: str = "anonymous",
     tool: str = "unknown",
     stage: str = "888_JUDGE",
-    telemetry: Optional[Dict[str, Any]] = None,
-    channels: Optional[list[NotificationChannel]] = None,
-) -> Dict[str, Any]:
+    telemetry: dict[str, Any] | None = None,
+    channels: list[NotificationChannel] | None = None,
+) -> dict[str, Any]:
     if isinstance(reason, str):
         reason = HoldReason(reason)
 

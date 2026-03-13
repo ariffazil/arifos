@@ -5,6 +5,7 @@ It reads the list of commits to be pushed (provided via stdin by Git) and checks
 the VAULT999/commits.log file for a matching entry.
 If any commit lacks a signature, the script exits with non‑zero status, aborting the push.
 """
+
 import json
 import sys
 from pathlib import Path

@@ -9,8 +9,7 @@ DITEMPA BUKAN DIBERI — Forged, Not Given
 
 from __future__ import annotations
 
-import time
-from prometheus_client import Counter, Gauge, Histogram, Summary
+from prometheus_client import Counter, Gauge, Histogram
 
 # ---------------------------------------------------------------------------
 # CONSTITUTIONAL METRICS (ΔΩΨ)

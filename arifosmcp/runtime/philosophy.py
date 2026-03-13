@@ -149,8 +149,7 @@ PHILOSOPHY_REGISTRY: list[Quote] = [
         "category": "power",
         "author": "Winston Churchill",
         "text": (
-            "Success is not final, failure is not fatal: it is the courage to "
-            "continue that counts."
+            "Success is not final, failure is not fatal: it is the courage to continue that counts."
         ),
     },
     {
@@ -164,8 +163,7 @@ PHILOSOPHY_REGISTRY: list[Quote] = [
         "category": "power",
         "author": "George S. Patton",
         "text": (
-            "A good plan violently executed now is better than a perfect plan "
-            "executed next week."
+            "A good plan violently executed now is better than a perfect plan executed next week."
         ),
     },
     {

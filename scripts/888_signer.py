@@ -2,7 +2,7 @@
 """
 scripts/888_signer.py — Sovereign Ratification Tool
 
-CLI utility for Muhammad Arif bin Fazil (888_JUDGE) to sign session hashes 
+CLI utility for Muhammad Arif bin Fazil (888_JUDGE) to sign session hashes
 and audit claims for the VAULT999 ledger.
 
 DITEMPA BUKAN DIBERI — Forged, Not Given
@@ -26,7 +26,7 @@ def main():
     parser.add_argument("--session", "-s", help="Session ID to sign")
     parser.add_argument("--env", help="Path to .env file", default=".env")
     parser.add_argument("--generate", action="store_true", help="Generate a new Ed25519 keypair")
-    
+
     args = parser.parse_args()
 
     if args.generate:
@@ -40,14 +40,15 @@ def main():
 
     # Load from env if available
     from dotenv import load_dotenv
+
     load_dotenv(args.env)
-    
+
     priv_key = os.getenv("ARIFOS_GOVERNANCE_SECRET")
-    
+
     if not priv_key:
         print("ARIFOS_GOVERNANCE_SECRET not found in environment.")
         priv_key = getpass("Enter Governance Private Key (hex): ")
-        
+
     if not priv_key:
         print("Error: No private key provided.")
         sys.exit(1)
@@ -55,7 +56,7 @@ def main():
     target = args.message or args.session
     if not target:
         target = input("Enter message or hash to sign: ")
-        
+
     if not target:
         print("Error: Nothing to sign.")
         sys.exit(1)
@@ -63,17 +64,17 @@ def main():
     # Sign the target
     try:
         signature = ed25519_sign(target, priv_key)
-        
+
         print("\n--- 888_JUDGE RATIFICATION SEAL ---")
         print(f"Target:    {target}")
         print(f"Signature: {signature}")
         print("Verdict:   888_RATIFIED")
         print("------------------------------------\n")
-        
+
         print("Verification Command:")
-        print(f"  curl -X POST https://arifosmcp.arif-fazil.com/approve \\")
-        print(f"    -H \"Content-Type: application/json\" \\")
-        print(f"    -d '{{\"target\": \"{target}\", \"signature\": \"{signature}\"}}'")
+        print("  curl -X POST https://arifosmcp.arif-fazil.com/approve \\")
+        print('    -H "Content-Type: application/json" \\')
+        print(f'    -d \'{{"target": "{target}", "signature": "{signature}"}}\'')
 
     except Exception as e:
         print(f"Error signing message: {e}")

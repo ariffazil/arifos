@@ -34,6 +34,7 @@ VAULT_DIR = Path("VAULT999")
 
 class Verdict(Enum):
     """Constitutional verdicts."""
+
     SEAL = "SEAL"
     VOID = "VOID"
     HOLD = "888_HOLD"
@@ -43,6 +44,7 @@ class Verdict(Enum):
 
 class AgentRole(Enum):
     """Constitutional agent roles."""
+
     ARCHITECT = "A-ARCHITECT"
     ENGINEER = "A-ENGINEER"
     AUDITOR = "A-AUDITOR"
@@ -53,16 +55,17 @@ class AgentRole(Enum):
 # AGENT IDENTITY
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 @dataclass
 class AgentIdentity:
     """Immutable agent identity with policy bindings."""
-    
+
     role: AgentRole
     uuid: str
     fingerprint: str
     created: datetime
     owner: str = "Muhammad Arif bin Fazil"
-    
+
     # Policy bindings
     can_read: bool = True
     can_write: bool = False
@@ -70,14 +73,14 @@ class AgentIdentity:
     can_deploy: bool = False
     can_issue_seal: bool = False
     can_issue_void: bool = False
-    
+
     # Tool permissions
     tools_allowed: list[str] = field(default_factory=list)
     tools_forbidden: list[str] = field(default_factory=list)
-    
+
     # Constitutional thresholds
     floor_thresholds: dict[str, float] = field(default_factory=dict)
-    
+
     def has_permission(self, action: str) -> tuple[bool, str]:
         """Check if agent has permission for action."""
         if action in self.tools_forbidden:
@@ -119,7 +122,6 @@ AGENT_REGISTRY: dict[AgentRole, AgentIdentity] = {
         ],
         floor_thresholds={"F1": 0.5, "F2": 0.99, "F4": 0.0, "F7": 0.04},
     ),
-    
     AgentRole.ENGINEER: AgentIdentity(
         role=AgentRole.ENGINEER,
         uuid="agent://arifos/engineer",
@@ -146,7 +148,6 @@ AGENT_REGISTRY: dict[AgentRole, AgentIdentity] = {
         ],
         floor_thresholds={"F1": 0.5, "F2": 0.99, "F4": 0.0, "F6": 0.70, "F8": 0.80},
     ),
-    
     AgentRole.AUDITOR: AgentIdentity(
         role=AgentRole.AUDITOR,
         uuid="agent://arifos/auditor",
@@ -178,7 +179,6 @@ AGENT_REGISTRY: dict[AgentRole, AgentIdentity] = {
         ],
         floor_thresholds={"F2": 0.99, "F3": 0.95, "F4": 0.0, "F8": 0.80, "F9": 0.30},
     ),
-    
     AgentRole.VALIDATOR: AgentIdentity(
         role=AgentRole.VALIDATOR,
         uuid="agent://arifos/validator",
@@ -209,8 +209,14 @@ AGENT_REGISTRY: dict[AgentRole, AgentIdentity] = {
             "shell_execute",  # Never allowed to any agent
         ],
         floor_thresholds={
-            "F1": 0.5, "F2": 0.99, "F3": 0.95, "F4": 0.0,
-            "F6": 0.70, "F8": 0.80, "F11": 1.0, "F13": 1.0,
+            "F1": 0.5,
+            "F2": 0.99,
+            "F3": 0.95,
+            "F4": 0.0,
+            "F6": 0.70,
+            "F8": 0.80,
+            "F11": 1.0,
+            "F13": 1.0,
         },
     ),
 }
@@ -254,41 +260,42 @@ def check_quarantined(path: str) -> tuple[bool, str]:
 # EXECUTION RECEIPT
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 @dataclass
 class ExecutionReceipt:
     """Immutable receipt for every agent action."""
-    
+
     receipt_id: str
     timestamp: datetime
     agent_id: str
     session_id: str
-    
+
     # Request
     intent: str
     tools_requested: list[str]
     files_accessed: list[str]
-    
+
     # Policy check
     agent_authorized: bool
     tools_allowed: bool
     within_boundaries: bool
     constitutional_passed: bool
-    
+
     # Execution
     tools_executed: list[str]
     files_modified: list[str]
     files_created: list[str]
     files_deleted: list[str]
-    
+
     # Verdict
     verdict: Verdict
     floors_triggered: list[str]
     human_approval: str  # APPROVED|PENDING|REQUIRED
-    
+
     # Vault
     sealed_to_vault999: bool = False
     merkle_hash: str = ""
-    
+
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for serialization."""
         return {
@@ -323,7 +330,7 @@ class ExecutionReceipt:
                 "merkle_hash": self.merkle_hash,
             },
         }
-    
+
     def compute_hash(self) -> str:
         """Compute merkle hash of receipt."""
         data = json.dumps(self.to_dict(), sort_keys=True)
@@ -334,13 +341,14 @@ class ExecutionReceipt:
 # EXECUTION CONTROLLER
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 class ExecutionController:
     """Governed execution layer for constitutional agents."""
-    
+
     def __init__(self):
         self.receipts: list[ExecutionReceipt] = []
         self.vault_path = VAULT_DIR / "execution-receipts.jsonl"
-    
+
     def validate_agent(
         self,
         agent_role: AgentRole,
@@ -348,42 +356,46 @@ class ExecutionController:
         intent: str,
     ) -> tuple[bool, str, dict[str, Any]]:
         """Validate agent has permission for requested action."""
-        
+
         # Get agent identity
         agent = AGENT_REGISTRY.get(agent_role)
         if not agent:
             return False, f"Unknown agent role: {agent_role}", {}
-        
+
         # Check quarantined paths first
         for tool in requested_tools:
             ok, msg = check_quarantined(tool)
             if not ok:
                 return False, msg, {}
-        
+
         # Check tool permissions
         forbidden_tools = []
         for tool in requested_tools:
             ok, msg = agent.has_permission(tool)
             if not ok:
                 forbidden_tools.append(tool)
-        
+
         if forbidden_tools:
             return False, f"Tools forbidden: {forbidden_tools}", {}
-        
+
         # Check if write operations need approval
         write_tools = {"write_file", "edit_file", "file_delete", "docker_deploy", "git_push"}
         requires_approval = any(t in write_tools for t in requested_tools)
-        
+
         # Check if deploy operations
         if "docker_deploy" in requested_tools and agent_role != AgentRole.VALIDATOR:
             return False, "Only A-VALIDATOR can deploy", {}
-        
-        return True, "Validation passed", {
-            "agent": agent,
-            "requires_approval": requires_approval,
-            "floor_thresholds": agent.floor_thresholds,
-        }
-    
+
+        return (
+            True,
+            "Validation passed",
+            {
+                "agent": agent,
+                "requires_approval": requires_approval,
+                "floor_thresholds": agent.floor_thresholds,
+            },
+        )
+
     def execute(
         self,
         agent_role: AgentRole,
@@ -393,13 +405,13 @@ class ExecutionController:
         dry_run: bool = False,
     ) -> ExecutionReceipt:
         """Execute governed action and generate receipt."""
-        
+
         session_id = str(uuid.uuid4())
         receipt_id = str(uuid.uuid4())
-        
+
         # Validate
         ok, msg, context = self.validate_agent(agent_role, tools, intent)
-        
+
         # Create receipt
         receipt = ExecutionReceipt(
             receipt_id=receipt_id,
@@ -421,28 +433,28 @@ class ExecutionController:
             floors_triggered=[],
             human_approval="REQUIRED" if context.get("requires_approval") else "NOT_REQUIRED",
         )
-        
+
         # Compute hash
         receipt.merkle_hash = receipt.compute_hash()
-        
+
         # Seal to vault
         if ok and not dry_run:
             self._seal_to_vault(receipt)
             receipt.sealed_to_vault999 = True
-        
+
         self.receipts.append(receipt)
         return receipt
-    
+
     def _seal_to_vault(self, receipt: ExecutionReceipt) -> None:
         """Seal receipt to VAULT999."""
         VAULT_DIR.mkdir(parents=True, exist_ok=True)
         with open(self.vault_path, "a") as f:
             f.write(json.dumps(receipt.to_dict()) + "\n")
-    
+
     def get_agent_identity(self, role: AgentRole) -> AgentIdentity | None:
         """Get identity for an agent role."""
         return AGENT_REGISTRY.get(role)
-    
+
     def list_quarantined(self) -> dict[str, dict[str, Any]]:
         """List all quarantined capabilities."""
         return QUARANTINED_PATHS.copy()
@@ -452,22 +464,23 @@ class ExecutionController:
 # CLI INTERFACE
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 def main():
     """CLI for execution controller."""
     import argparse
-    
+
     parser = argparse.ArgumentParser(description="arifOS Execution Controller")
     parser.add_argument("--agent", choices=[r.value for r in AgentRole], required=True)
     parser.add_argument("--intent", required=True)
     parser.add_argument("--tools", nargs="+", required=True)
     parser.add_argument("--files", nargs="*", default=[])
     parser.add_argument("--dry-run", action="store_true")
-    
+
     args = parser.parse_args()
-    
+
     controller = ExecutionController()
     role = AgentRole(args.agent)
-    
+
     receipt = controller.execute(
         agent_role=role,
         intent=args.intent,
@@ -475,9 +488,9 @@ def main():
         files=args.files,
         dry_run=args.dry_run,
     )
-    
+
     print(json.dumps(receipt.to_dict(), indent=2))
-    
+
     if receipt.verdict == Verdict.VOID:
         exit(1)
 

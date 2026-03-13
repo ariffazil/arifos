@@ -179,7 +179,7 @@ def create_housekeeping_report():
     report_path = ARCHIVE / "HOUSEKEEPING_REPORT.md"
     report_content = f"""# arifOS v52.5.1 Housekeeping Report
 
-**Date:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S UTC')}  
+**Date:** {datetime.now().strftime("%Y-%m-%d %H:%M:%S UTC")}  
 **Authority:** Muhammad Arif bin Fazil  
 **Status:** COMPLETED
 

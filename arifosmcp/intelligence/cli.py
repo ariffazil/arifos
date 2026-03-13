@@ -52,6 +52,7 @@ def main() -> None:
     # For HTTP mode, use fastmcp's direct runner if needed or the standardized run_server
     if mode in ("http", "streamable-http"):
         import uvicorn
+
         # Note: Static files or extra middleware can be added here if needed
         app = mcp.http_app(stateless_http=True)
         uvicorn.run(app, host=host, port=port, log_level="info")

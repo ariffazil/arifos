@@ -6,7 +6,7 @@ CANONICAL_THERMOBUDGET = True
 Tracks ΔS (entropy delta), Peace² (safety margins), and Ω₀ (uncertainty
 band) per session, enforcing the Genius Equation G = A × P × X × E² ≥ 0.80.
 
-APEX Extension: 
+APEX Extension:
   G* = Architecture × Parameters × DataQuality × Effort²
   G† = G* × η (Governed Intelligence Realized)
   η = |ΔS_reduction| / TokenCost
@@ -31,7 +31,6 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from typing import Any
 
 # ---------------------------------------------------------------------------
 # Landauer's Principle constants (EUREKA Layer 3)
@@ -48,10 +47,14 @@ BITS_PER_BYTE = 8
 # Context Helpers (ported from APEX)
 # ---------------------------------------------------------------------------
 
+
 def _band(value: float, low: float, high: float) -> str:
-    if value < low: return "low"
-    if value < high: return "moderate"
+    if value < low:
+        return "low"
+    if value < high:
+        return "moderate"
     return "high"
+
 
 def _capacity_context(capacity_product: float) -> tuple[str, str]:
     status = _band(capacity_product, 0.25, 0.60)
@@ -62,6 +65,7 @@ def _capacity_context(capacity_product: float) -> tuple[str, str]:
     }
     return status, meanings[status]
 
+
 def _effort_context(effort: float) -> tuple[str, str]:
     status = "idle" if effort < 1.5 else "engaged" if effort < 4.0 else "intensive"
     meanings = {
@@ -71,19 +75,38 @@ def _effort_context(effort: float) -> tuple[str, str]:
     }
     return status, meanings[status]
 
+
 def _entropy_context(delta_s: float, h_before: float, h_after: float) -> tuple[str, str]:
     if delta_s < 0:
-        return ("clarifying", f"Entropy fell from {h_before:.3f} to {h_after:.3f}; the session produced clarity.")
+        return (
+            "clarifying",
+            f"Entropy fell from {h_before:.3f} to {h_after:.3f}; the session produced clarity.",
+        )
     if delta_s > 0:
-        return ("diffusing", f"Entropy rose from {h_before:.3f} to {h_after:.3f}; the session added disorder.")
+        return (
+            "diffusing",
+            f"Entropy rose from {h_before:.3f} to {h_after:.3f}; the session added disorder.",
+        )
     return "flat", "Entropy did not materially move; the session is informationally flat."
 
+
 def _efficiency_context(eta: float, token_cost: int, entropy_removed: float) -> tuple[str, str]:
-    if entropy_removed <= 0: return "stalled", "No entropy was removed, so efficiency is effectively stalled."
-    if token_cost <= 0: return "unmetered", "Clarity changed, but compute cost is missing so efficiency is provisional."
-    if eta >= 0.01: return "dense", "The runtime is removing a lot of entropy per unit of compute."
-    if eta >= 0.001: return "workable", "The runtime is producing some clarity per compute, but not efficiently yet."
+    if entropy_removed <= 0:
+        return "stalled", "No entropy was removed, so efficiency is effectively stalled."
+    if token_cost <= 0:
+        return (
+            "unmetered",
+            "Clarity changed, but compute cost is missing so efficiency is provisional.",
+        )
+    if eta >= 0.01:
+        return "dense", "The runtime is removing a lot of entropy per unit of compute."
+    if eta >= 0.001:
+        return (
+            "workable",
+            "The runtime is producing some clarity per compute, but not efficiently yet.",
+        )
     return "thin", "The runtime is spending compute faster than it is removing entropy."
+
 
 def _governance_context(
     amanah_score: float,
@@ -92,15 +115,25 @@ def _governance_context(
     sovereignty_status: str,
     tri_witness_status: str,
 ) -> tuple[str, str]:
-    states = {truth_floor.lower(), authority_status.lower(), sovereignty_status.lower(), tri_witness_status.lower()}
-    if "fail" in states: return "failed", "A governance floor is failing."
-    if {"estimate only", "cannot compute"} & states: return "provisional", "Governance is only partially observed."
-    if amanah_score >= 0.8 and states <= {"pass"}: return "attested", "Governance floors are aligned."
+    states = {
+        truth_floor.lower(),
+        authority_status.lower(),
+        sovereignty_status.lower(),
+        tri_witness_status.lower(),
+    }
+    if "fail" in states:
+        return "failed", "A governance floor is failing."
+    if {"estimate only", "cannot compute"} & states:
+        return "provisional", "Governance is only partially observed."
+    if amanah_score >= 0.8 and states <= {"pass"}:
+        return "attested", "Governance floors are aligned."
     return "mixed", "Governance signals are present but not strong enough for full attestation."
+
 
 # ---------------------------------------------------------------------------
 # ThermoSnapshot — Immutable thermodynamic state
 # ---------------------------------------------------------------------------
+
 
 @dataclass
 class ThermoSnapshot:
@@ -184,7 +217,7 @@ class ThermoSnapshot:
             truth_floor = "pass" if delta_s <= 0 else "warn"
 
         # Landauer bits
-        bits = (token_cost * BITS_PER_TOKEN)
+        bits = token_cost * BITS_PER_TOKEN
         min_j = bits * LANDAUER_LIMIT_JOULES
 
         return cls(
@@ -219,7 +252,7 @@ class ThermoSnapshot:
             sovereignty_status=sovereignty_status,
             tri_witness_status=tri_witness_status,
             bits_erased=bits,
-            min_energy_joules=min_j
+            min_energy_joules=min_j,
         )
 
     def as_apex_output(self) -> dict:
@@ -227,27 +260,54 @@ class ThermoSnapshot:
         capacity_product = round(self.architecture * self.parameters * self.data_quality, 6)
         capacity_status, capacity_meaning = _capacity_context(capacity_product)
         effort_status, effort_meaning = _effort_context(self.effort)
-        entropy_status, entropy_meaning = _entropy_context(self.delta_s, self.H_before, self.H_after)
-        efficiency_status, efficiency_meaning = _efficiency_context(self.eta, self.token_cost, self.entropy_removed)
-        governance_status, governance_meaning = _governance_context(
-            self.amanah_score, self.truth_floor, self.authority_status, self.sovereignty_status, self.tri_witness_status
+        entropy_status, entropy_meaning = _entropy_context(
+            self.delta_s, self.H_before, self.H_after
         )
-        
+        efficiency_status, efficiency_meaning = _efficiency_context(
+            self.eta, self.token_cost, self.entropy_removed
+        )
+        governance_status, governance_meaning = _governance_context(
+            self.amanah_score,
+            self.truth_floor,
+            self.authority_status,
+            self.sovereignty_status,
+            self.tri_witness_status,
+        )
+
         return {
-            "capacity_layer": {"status": capacity_status, "meaning": capacity_meaning, "product": capacity_product},
-            "effort_layer": {"status": effort_status, "meaning": effort_meaning, "E": self.effort},
-            "entropy_layer": {"status": entropy_status, "meaning": entropy_meaning, "delta_S": self.delta_s},
-            "efficiency_layer": {"status": efficiency_status, "meaning": efficiency_meaning, "eta": self.eta},
-            "governed_intelligence": {
-                "G_star": self.G_star, "G_dagger": self.G_dagger, 
-                "status": "passing" if self.G_dagger_pass else "subcritical"
+            "capacity_layer": {
+                "status": capacity_status,
+                "meaning": capacity_meaning,
+                "product": capacity_product,
             },
-            "governance_layer": {"status": governance_status, "meaning": governance_meaning, "amanah": self.amanah_score},
+            "effort_layer": {"status": effort_status, "meaning": effort_meaning, "E": self.effort},
+            "entropy_layer": {
+                "status": entropy_status,
+                "meaning": entropy_meaning,
+                "delta_S": self.delta_s,
+            },
+            "efficiency_layer": {
+                "status": efficiency_status,
+                "meaning": efficiency_meaning,
+                "eta": self.eta,
+            },
+            "governed_intelligence": {
+                "G_star": self.G_star,
+                "G_dagger": self.G_dagger,
+                "status": "passing" if self.G_dagger_pass else "subcritical",
+            },
+            "governance_layer": {
+                "status": governance_status,
+                "meaning": governance_meaning,
+                "amanah": self.amanah_score,
+            },
         }
+
 
 # ---------------------------------------------------------------------------
 # ThermoBudget — Tracks and enforces thermodynamic constraints
 # ---------------------------------------------------------------------------
+
 
 class ThermoBudget:
     GENIUS_THRESHOLD = 0.80
@@ -268,11 +328,21 @@ class ThermoBudget:
         entropy_baseline: float = 1.0,
     ) -> None:
         self._sessions[session_id] = {
-            "delta_s": 0.0, "peace2": 1.0, "omega0": 0.04,
-            "akal": initial_akal, "exploration": initial_exploration, "energy": initial_energy,
-            "step_count": 0, "tool_calls": 0, "token_cost": 0, "effort": 0.0,
-            "architecture": architecture, "parameters": parameters, "data_quality": data_quality,
-            "entropy_baseline": entropy_baseline, "history": []
+            "delta_s": 0.0,
+            "peace2": 1.0,
+            "omega0": 0.04,
+            "akal": initial_akal,
+            "exploration": initial_exploration,
+            "energy": initial_energy,
+            "step_count": 0,
+            "tool_calls": 0,
+            "token_cost": 0,
+            "effort": 0.0,
+            "architecture": architecture,
+            "parameters": parameters,
+            "data_quality": data_quality,
+            "entropy_baseline": entropy_baseline,
+            "history": [],
         }
 
     def record_step(
@@ -292,11 +362,15 @@ class ThermoBudget:
 
         state = self._sessions[session_id]
         state["delta_s"] += delta_s
-        if peace2 is not None: state["peace2"] = peace2
-        if omega0 is not None: state["omega0"] = omega0
-        if akal is not None: state["akal"] = akal
-        if exploration is not None: state["exploration"] = exploration
-        
+        if peace2 is not None:
+            state["peace2"] = peace2
+        if omega0 is not None:
+            state["omega0"] = omega0
+        if akal is not None:
+            state["akal"] = akal
+        if exploration is not None:
+            state["exploration"] = exploration
+
         e = energy if energy is not None else state["energy"]
         state["energy"] = max(0.01, e * 0.995)
         state["step_count"] += 1
@@ -319,15 +393,18 @@ class ThermoBudget:
             architecture=state["architecture"],
             parameters=state["parameters"],
             data_quality=state["data_quality"],
-            entropy_baseline=state["entropy_baseline"]
+            entropy_baseline=state["entropy_baseline"],
         )
 
-        state["history"].append({"step": state["step_count"], "G": snap.genius, "G_dagger": snap.G_dagger})
+        state["history"].append(
+            {"step": state["step_count"], "G": snap.genius, "G_dagger": snap.G_dagger}
+        )
         return snap
 
     def snapshot(self, session_id: str) -> ThermoSnapshot | None:
         state = self._sessions.get(session_id)
-        if not state: return None
+        if not state:
+            return None
         return ThermoSnapshot.compute(
             session_id=session_id,
             delta_s=state["delta_s"],
@@ -343,15 +420,16 @@ class ThermoBudget:
             architecture=state["architecture"],
             parameters=state["parameters"],
             data_quality=state["data_quality"],
-            entropy_baseline=state["entropy_baseline"]
+            entropy_baseline=state["entropy_baseline"],
         )
 
     def budget_summary(self, session_id: str) -> dict:
         snap = self.snapshot(session_id)
-        if not snap: return {"error": "not_found"}
+        if not snap:
+            return {"error": "not_found"}
         return {
             "session_id": session_id,
             "genius": round(snap.genius, 4),
             "G_dagger": round(snap.G_dagger, 4),
-            "apex": snap.as_apex_output()
+            "apex": snap.as_apex_output(),
         }

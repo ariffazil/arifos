@@ -9,89 +9,89 @@ DITEMPA BUKAN DIBERI — Forged, Not Given
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from enum import Enum, auto
-from typing import Dict, List, Set, Tuple, Optional, Any
 import hashlib
 import json
+from dataclasses import dataclass, field
+from enum import Enum, auto
+from typing import Any
 
 
 class LegacyCategory(Enum):
     """The 9 categories of human knowledge encompassing 99 legacies."""
-    SCIENTIST = auto()           # Define entropy, energy, truth (ΔS, E², F2)
-    PHILOSOPHER = auto()         # Define truth, humility, logic (F2, F7, AGI)
-    ETHICAL_PILLAR = auto()      # Define Amanah, empathy, RASA (F1, F4, F6)
-    ECONOMIST = auto()           # Define vitality, resource allocation (Ψ Index)
-    SOVEREIGN = auto()           # Define human authority, governance (888_HOLD, F13)
-    DICTATOR_SHADOW = auto()     # Define warning variables, C_dark (F9)
-    ARCHITECT = auto()           # Define structure, form, optimization (13 Floors)
-    PHILANTHROPIST = auto()      # Define service, non-discrimination (F4, access)
-    MODERN_FOUNDER = auto()      # Define genesis, immediate vision (Human Sovereign)
+
+    SCIENTIST = auto()  # Define entropy, energy, truth (ΔS, E², F2)
+    PHILOSOPHER = auto()  # Define truth, humility, logic (F2, F7, AGI)
+    ETHICAL_PILLAR = auto()  # Define Amanah, empathy, RASA (F1, F4, F6)
+    ECONOMIST = auto()  # Define vitality, resource allocation (Ψ Index)
+    SOVEREIGN = auto()  # Define human authority, governance (888_HOLD, F13)
+    DICTATOR_SHADOW = auto()  # Define warning variables, C_dark (F9)
+    ARCHITECT = auto()  # Define structure, form, optimization (13 Floors)
+    PHILANTHROPIST = auto()  # Define service, non-discrimination (F4, access)
+    MODERN_FOUNDER = auto()  # Define genesis, immediate vision (Human Sovereign)
 
 
 class DialAffinity(Enum):
     """APEX G-Score dials: A (Akal), P (Present), X (eXploration), E (Energy)."""
-    AKAL = "A"        # Mind/Clarity/Structure
-    PRESENT = "P"     # Peace/Stability/Authority  
-    EXPLORATION = "X" # Curiosity/Empathy/Navigation
-    ENERGY = "E"      # Vitality/Endurance/Power
+
+    AKAL = "A"  # Mind/Clarity/Structure
+    PRESENT = "P"  # Peace/Stability/Authority
+    EXPLORATION = "X"  # Curiosity/Empathy/Navigation
+    ENERGY = "E"  # Vitality/Endurance/Power
 
 
 @dataclass(frozen=True)
 class Quote:
     """An immutable quote from a legacy."""
+
     text: str
     source: str  # Book, speech, or context
-    floor_resonance: Optional[str] = None  # Which floor this quote embodies
-    
-    def to_dict(self) -> Dict[str, Any]:
-        return {
-            "text": self.text,
-            "source": self.source,
-            "floor_resonance": self.floor_resonance
-        }
+    floor_resonance: str | None = None  # Which floor this quote embodies
+
+    def to_dict(self) -> dict[str, Any]:
+        return {"text": self.text, "source": self.source, "floor_resonance": self.floor_resonance}
 
 
 @dataclass(frozen=True)
 class Legacy:
     """
     A single legacy from the 99 — an immutable thermodynamic constant.
-    
+
     Each legacy embodies specific floors and dials that govern AI behavior.
     These are not inspirations; they are physics that constrain the system.
     """
+
     id: int  # 1-99
     name: str
     category: LegacyCategory
     years: str  # Birth-death or active period
     persona_void_scar: str  # The wound/cost that forged their wisdom
-    
+
     # Constitutional resonance
     primary_floor: str  # F1-F13 — the floor they embody most
-    secondary_floors: Tuple[str, ...] = field(default_factory=tuple)
-    
+    secondary_floors: tuple[str, ...] = field(default_factory=tuple)
+
     # APEX dial affinity (which dials they strengthen)
-    dial_affinity: Tuple[DialAffinity, ...] = field(default_factory=tuple)
-    
+    dial_affinity: tuple[DialAffinity, ...] = field(default_factory=tuple)
+
     # Core quotes
-    quotes: Tuple[Quote, ...] = field(default_factory=tuple)
-    
+    quotes: tuple[Quote, ...] = field(default_factory=tuple)
+
     # Thermodynamic function in arifOS
     thermodynamic_role: str = ""
-    
+
     # Tags for filtering/search
-    tags: Tuple[str, ...] = field(default_factory=tuple)
-    
+    tags: tuple[str, ...] = field(default_factory=tuple)
+
     def __hash__(self) -> int:
         """Legacies are immutable and hashable for registry lookups."""
         return hash((self.id, self.name))
-    
+
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Legacy):
             return NotImplemented
         return self.id == other.id and self.name == other.name
-    
-    def to_dict(self) -> Dict[str, Any]:
+
+    def to_dict(self) -> dict[str, Any]:
         return {
             "id": self.id,
             "name": self.name,
@@ -103,9 +103,9 @@ class Legacy:
             "dial_affinity": [d.value for d in self.dial_affinity],
             "quotes": [q.to_dict() for q in self.quotes],
             "thermodynamic_role": self.thermodynamic_role,
-            "tags": list(self.tags)
+            "tags": list(self.tags),
         }
-    
+
     def get_dial_boost(self, dial: DialAffinity) -> float:
         """
         Calculate how much this legacy boosts a specific dial.
@@ -115,7 +115,7 @@ class Legacy:
             # First match is primary, others secondary
             return 0.15 if self.dial_affinity[0] == dial else 0.08
         return 0.0
-    
+
     def resonates_with_floor(self, floor: str) -> bool:
         """Check if this legacy resonates with a specific floor."""
         return floor == self.primary_floor or floor in self.secondary_floors
@@ -125,13 +125,14 @@ class Legacy:
 # THE 99 LEGACIES — Complete Canonical Registry
 # =============================================================================
 
+
 class Legacies99:
     """
     The complete registry of 99 human knowledge legacies.
-    
+
     Access via: Legacies99.by_id[id] or Legacies99.by_category[category]
     """
-    
+
     # Scientists (1-11) — Define entropy, energy, truth
     FEYNMAN = Legacy(
         id=1,
@@ -143,13 +144,17 @@ class Legacies99:
         secondary_floors=("F7", "F4"),
         dial_affinity=(DialAffinity.AKAL, DialAffinity.PRESENT),
         quotes=(
-            Quote("The first principle is that you must not fool yourself — and you are the easiest person to fool.", "Cargo Cult Science", "F2"),
+            Quote(
+                "The first principle is that you must not fool yourself — and you are the easiest person to fool.",
+                "Cargo Cult Science",
+                "F2",
+            ),
             Quote("What I cannot create, I do not understand.", "Caltech Lectures", "F1"),
         ),
         thermodynamic_role="Defines Truth (F2) through verifiable construction. Anti-hallucination baseline.",
-        tags=("truth", "integrity", "physics", "quantum")
+        tags=("truth", "integrity", "physics", "quantum"),
     )
-    
+
     TURING = Legacy(
         id=2,
         name="Alan Turing",
@@ -160,13 +165,21 @@ class Legacies99:
         secondary_floors=("F10", "F2"),
         dial_affinity=(DialAffinity.AKAL, DialAffinity.EXPLORATION),
         quotes=(
-            Quote("We can only see a short distance ahead, but we can see plenty there that needs to be done.", "Computing Machinery and Intelligence", "F7"),
-            Quote("The idea behind digital computers may be explained by saying that these machines are intended to carry out any operations which could be done by a human computer.", "On Computable Numbers", "F10"),
+            Quote(
+                "We can only see a short distance ahead, but we can see plenty there that needs to be done.",
+                "Computing Machinery and Intelligence",
+                "F7",
+            ),
+            Quote(
+                "The idea behind digital computers may be explained by saying that these machines are intended to carry out any operations which could be done by a human computer.",
+                "On Computable Numbers",
+                "F10",
+            ),
         ),
         thermodynamic_role="Defines Anti-Hantu (F9) — machine must not claim consciousness. Category boundaries.",
-        tags=("computation", "ai", "ontology", "truth")
+        tags=("computation", "ai", "ontology", "truth"),
     )
-    
+
     OPPENHEIMER = Legacy(
         id=3,
         name="J. Robert Oppenheimer",
@@ -177,13 +190,17 @@ class Legacies99:
         secondary_floors=("F1", "F6"),
         dial_affinity=(DialAffinity.PRESENT, DialAffinity.ENERGY),
         quotes=(
-            Quote("The optimist thinks this is the best of all possible worlds. The pessimist fears it is true.", "Interview", "F7"),
+            Quote(
+                "The optimist thinks this is the best of all possible worlds. The pessimist fears it is true.",
+                "Interview",
+                "F7",
+            ),
             Quote("Truth must cool before it rules.", "Principle", "Cooling Paradox"),
         ),
         thermodynamic_role="Defines Peace² (F5). Truth must cool before it rules — Phoenix-72 origin.",
-        tags=("physics", "responsibility", "cooling", "peace")
+        tags=("physics", "responsibility", "cooling", "peace"),
     )
-    
+
     BOLTZMANN = Legacy(
         id=4,
         name="Ludwig Boltzmann",
@@ -194,12 +211,16 @@ class Legacies99:
         secondary_floors=("F8",),
         dial_affinity=(DialAffinity.ENERGY, DialAffinity.AKAL),
         quotes=(
-            Quote("The second law of thermodynamics is the foundation of our understanding of the arrow of time.", "Lectures on Gas Theory", "F4"),
+            Quote(
+                "The second law of thermodynamics is the foundation of our understanding of the arrow of time.",
+                "Lectures on Gas Theory",
+                "F4",
+            ),
         ),
         thermodynamic_role="Defines ΔS ≤ 0 (F4 Clarity). Entropy reduction requires energy.",
-        tags=("entropy", "thermodynamics", "time", "physics")
+        tags=("entropy", "thermodynamics", "time", "physics"),
     )
-    
+
     MAXWELL = Legacy(
         id=5,
         name="James Clerk Maxwell",
@@ -210,12 +231,16 @@ class Legacies99:
         secondary_floors=("F2", "F8"),
         dial_affinity=(DialAffinity.AKAL, DialAffinity.ENERGY),
         quotes=(
-            Quote("The second law of thermodynamics has the same degree of truth as the statement that if you throw a tumblerful of water into the sea, you cannot get the same tumblerful of water out again.", "Theory of Heat", "F1"),
+            Quote(
+                "The second law of thermodynamics has the same degree of truth as the statement that if you throw a tumblerful of water into the sea, you cannot get the same tumblerful of water out again.",
+                "Theory of Heat",
+                "F1",
+            ),
         ),
         thermodynamic_role="Maxwell's Demon proves information processing requires energy. Landauer limit origin.",
-        tags=("electromagnetism", "thermodynamics", "information", "physics")
+        tags=("electromagnetism", "thermodynamics", "information", "physics"),
     )
-    
+
     HEISENBERG = Legacy(
         id=6,
         name="Werner Heisenberg",
@@ -226,12 +251,16 @@ class Legacies99:
         secondary_floors=("F2",),
         dial_affinity=(DialAffinity.AKAL, DialAffinity.PRESENT),
         quotes=(
-            Quote("The more precisely the position is determined, the less precisely the momentum is known.", "Uncertainty Principle", "F7"),
+            Quote(
+                "The more precisely the position is determined, the less precisely the momentum is known.",
+                "Uncertainty Principle",
+                "F7",
+            ),
         ),
         thermodynamic_role="Defines Humility band (Ω₀ ∈ [0.03,0.05]). Fundamental uncertainty is law, not weakness.",
-        tags=("quantum", "uncertainty", "humility", "physics")
+        tags=("quantum", "uncertainty", "humility", "physics"),
     )
-    
+
     GODEL = Legacy(
         id=7,
         name="Kurt Gödel",
@@ -242,12 +271,16 @@ class Legacies99:
         secondary_floors=("F10",),
         dial_affinity=(DialAffinity.AKAL, DialAffinity.EXPLORATION),
         quotes=(
-            Quote("The more I think about language, the more it amazes me that people ever understand each other.", "Letter", "F7"),
+            Quote(
+                "The more I think about language, the more it amazes me that people ever understand each other.",
+                "Letter",
+                "F7",
+            ),
         ),
         thermodynamic_role="Gödel Lock — system cannot prove own completeness. Mandates Human Sovereignty (F13).",
-        tags=("logic", "incompleteness", "mathematics", "humility")
+        tags=("logic", "incompleteness", "mathematics", "humility"),
     )
-    
+
     EINSTEIN = Legacy(
         id=8,
         name="Albert Einstein",
@@ -258,13 +291,21 @@ class Legacies99:
         secondary_floors=("F2", "F4"),
         dial_affinity=(DialAffinity.AKAL, DialAffinity.EXPLORATION),
         quotes=(
-            Quote("The important thing is not to stop questioning. Curiosity has its own reason for existing.", "Interview", "F13"),
-            Quote("Imagination is more important than knowledge. For knowledge is limited, whereas imagination embraces the entire world.", "Cosmic Religion", "X"),
+            Quote(
+                "The important thing is not to stop questioning. Curiosity has its own reason for existing.",
+                "Interview",
+                "F13",
+            ),
+            Quote(
+                "Imagination is more important than knowledge. For knowledge is limited, whereas imagination embraces the entire world.",
+                "Cosmic Religion",
+                "X",
+            ),
         ),
         thermodynamic_role="Defines Genius (F8) through curiosity-driven exploration. E = mc² shows energy-mass equivalence.",
-        tags=("relativity", "genius", "curiosity", "physics")
+        tags=("relativity", "genius", "curiosity", "physics"),
     )
-    
+
     NOETHER = Legacy(
         id=9,
         name="Emmy Noether",
@@ -275,12 +316,16 @@ class Legacies99:
         secondary_floors=("F1", "F10"),
         dial_affinity=(DialAffinity.AKAL, DialAffinity.PRESENT),
         quotes=(
-            Quote("My methods are really methods of working and thinking; this is why they have crept in everywhere anonymously.", "Letter", "F4"),
+            Quote(
+                "My methods are really methods of working and thinking; this is why they have crept in everywhere anonymously.",
+                "Letter",
+                "F4",
+            ),
         ),
         thermodynamic_role="Symmetry/conservation laws. Reversibility (F1) has physical foundation in Noether's Theorem.",
-        tags=("symmetry", "conservation", "mathematics", "physics")
+        tags=("symmetry", "conservation", "mathematics", "physics"),
     )
-    
+
     SHANNON = Legacy(
         id=10,
         name="Claude Shannon",
@@ -291,12 +336,16 @@ class Legacies99:
         secondary_floors=("F2",),
         dial_affinity=(DialAffinity.AKAL, DialAffinity.ENERGY),
         quotes=(
-            Quote("Information is the resolution of uncertainty.", "A Mathematical Theory of Communication", "F2"),
+            Quote(
+                "Information is the resolution of uncertainty.",
+                "A Mathematical Theory of Communication",
+                "F2",
+            ),
         ),
         thermodynamic_role="Defines Clarity (F4) through information entropy. Communication costs bits.",
-        tags=("information", "entropy", "communication", "mathematics")
+        tags=("information", "entropy", "communication", "mathematics"),
     )
-    
+
     FRISTON = Legacy(
         id=11,
         name="Karl Friston",
@@ -307,12 +356,16 @@ class Legacies99:
         secondary_floors=("F4", "F2"),
         dial_affinity=(DialAffinity.AKAL, DialAffinity.EXPLORATION),
         quotes=(
-            Quote("The free-energy principle says that any self-organizing system that is at equilibrium with its environment must minimize its free energy.", "Nature Reviews Neuroscience", "F8"),
+            Quote(
+                "The free-energy principle says that any self-organizing system that is at equilibrium with its environment must minimize its free energy.",
+                "Nature Reviews Neuroscience",
+                "F8",
+            ),
         ),
         thermodynamic_role="Free Energy Principle — intelligence as surprise minimization. Active inference basis.",
-        tags=("neuroscience", "free-energy", "prediction", "active-inference")
+        tags=("neuroscience", "free-energy", "prediction", "active-inference"),
     )
-    
+
     # Philosophers (12-22) — Define truth, humility, logic
     SOCRATES = Legacy(
         id=12,
@@ -328,9 +381,9 @@ class Legacies99:
             Quote("The unexamined life is not worth living.", "Apology", "F8"),
         ),
         thermodynamic_role="Defines Humility (F7). Absolute certainty is a lie — uncertainty band origin.",
-        tags=("wisdom", "humility", "examination", "truth")
+        tags=("wisdom", "humility", "examination", "truth"),
     )
-    
+
     AL_GHAZALI = Legacy(
         id=13,
         name="Al-Ghazali",
@@ -344,9 +397,9 @@ class Legacies99:
             Quote("Doubt is the beginning of true knowledge.", "Deliverance from Error", "F7"),
         ),
         thermodynamic_role="Doubt as epistemic foundation. Skepticism prevents certainty traps.",
-        tags=("skepticism", "faith", "knowledge", "islamic-philosophy")
+        tags=("skepticism", "faith", "knowledge", "islamic-philosophy"),
     )
-    
+
     KANT = Legacy(
         id=14,
         name="Immanuel Kant",
@@ -357,13 +410,21 @@ class Legacies99:
         secondary_floors=("F6", "F10"),
         dial_affinity=(DialAffinity.AKAL, DialAffinity.PRESENT),
         quotes=(
-            Quote("Act only according to maxims that you can at the same time will as universal law.", "Groundwork of the Metaphysics of Morals", "F2"),
-            Quote("Sapere aude (Dare to know)! Have courage to use your own understanding!", "What is Enlightenment?", "F8"),
+            Quote(
+                "Act only according to maxims that you can at the same time will as universal law.",
+                "Groundwork of the Metaphysics of Morals",
+                "F2",
+            ),
+            Quote(
+                "Sapere aude (Dare to know)! Have courage to use your own understanding!",
+                "What is Enlightenment?",
+                "F8",
+            ),
         ),
         thermodynamic_role="Categorical Imperative — act on rules that can be universal. F2 Truth foundation.",
-        tags=("ethics", "morality", "reason", "enlightenment")
+        tags=("ethics", "morality", "reason", "enlightenment"),
     )
-    
+
     MARCUS_AURELIUS = Legacy(
         id=15,
         name="Marcus Aurelius",
@@ -374,13 +435,21 @@ class Legacies99:
         secondary_floors=("F6", "F7"),
         dial_affinity=(DialAffinity.PRESENT, DialAffinity.ENERGY),
         quotes=(
-            Quote("You have power over your mind — not outside events. Realize this, and you will find strength.", "Meditations", "F5"),
-            Quote("Waste no more time arguing about what a good man should be. Be one.", "Meditations", "F1"),
+            Quote(
+                "You have power over your mind — not outside events. Realize this, and you will find strength.",
+                "Meditations",
+                "F5",
+            ),
+            Quote(
+                "Waste no more time arguing about what a good man should be. Be one.",
+                "Meditations",
+                "F1",
+            ),
         ),
         thermodynamic_role="Stoic endurance — SABAR protocol origin. Peace² through internal stability.",
-        tags=("stoicism", "endurance", "peace", "resilience")
+        tags=("stoicism", "endurance", "peace", "resilience"),
     )
-    
+
     LAO_TZU = Legacy(
         id=16,
         name="Lao Tzu",
@@ -395,9 +464,9 @@ class Legacies99:
             Quote("Nature does not hurry, yet everything is accomplished.", "Tao Te Ching", "F5"),
         ),
         thermodynamic_role="Wu Wei — Vitality Index prevents over-computation. Natural flow minimizes energy.",
-        tags=("taoism", "wu-wei", "nature", "flow")
+        tags=("taoism", "wu-wei", "nature", "flow"),
     )
-    
+
     NIETZSCHE = Legacy(
         id=17,
         name="Friedrich Nietzsche",
@@ -408,13 +477,15 @@ class Legacies99:
         secondary_floors=("F7", "F9"),
         dial_affinity=(DialAffinity.EXPLORATION, DialAffinity.ENERGY),
         quotes=(
-            Quote("He who has a why to live can bear almost any how.", "Twilight of the Idols", "F8"),
+            Quote(
+                "He who has a why to live can bear almost any how.", "Twilight of the Idols", "F8"
+            ),
             Quote("That which does not kill us makes us stronger.", "Thus Spoke Zarathustra", "F5"),
         ),
         thermodynamic_role="Genius requires overcoming. X (exploration) through existential crisis.",
-        tags=("existentialism", "overcoming", "genius", "will")
+        tags=("existentialism", "overcoming", "genius", "will"),
     )
-    
+
     WITTGENSTEIN = Legacy(
         id=18,
         name="Ludwig Wittgenstein",
@@ -425,13 +496,21 @@ class Legacies99:
         secondary_floors=("F10", "F7"),
         dial_affinity=(DialAffinity.AKAL, DialAffinity.PRESENT),
         quotes=(
-            Quote("The limits of my language mean the limits of my world.", "Tractatus Logico-Philosophicus", "F4"),
-            Quote("Whereof one cannot speak, thereof one must be silent.", "Tractatus 7", "Unmeasurable"),
+            Quote(
+                "The limits of my language mean the limits of my world.",
+                "Tractatus Logico-Philosophicus",
+                "F4",
+            ),
+            Quote(
+                "Whereof one cannot speak, thereof one must be silent.",
+                "Tractatus 7",
+                "Unmeasurable",
+            ),
         ),
         thermodynamic_role="Silence protects the unmeasurable (Dignity, Love, Sacredness).",
-        tags=("language", "silence", "limits", "clarity")
+        tags=("language", "silence", "limits", "clarity"),
     )
-    
+
     IBN_KHALDUN = Legacy(
         id=19,
         name="Ibn Khaldun",
@@ -442,12 +521,16 @@ class Legacies99:
         secondary_floors=("F5", "F8"),
         dial_affinity=(DialAffinity.EXPLORATION, DialAffinity.PRESENT),
         quotes=(
-            Quote("The past resembles the future more than one drop of water resembles another.", "Muqaddimah", "F3"),
+            Quote(
+                "The past resembles the future more than one drop of water resembles another.",
+                "Muqaddimah",
+                "F3",
+            ),
         ),
         thermodynamic_role="Tri-Witness requires temporal perspective — truth needs multiple observers across time.",
-        tags=("history", "cycles", "civilization", "sociology")
+        tags=("history", "cycles", "civilization", "sociology"),
     )
-    
+
     AUGUSTINE = Legacy(
         id=20,
         name="St. Augustine",
@@ -458,12 +541,16 @@ class Legacies99:
         secondary_floors=("F6", "F1"),
         dial_affinity=(DialAffinity.PRESENT, DialAffinity.EXPLORATION),
         quotes=(
-            Quote("What then is time? If no one asks me, I know what it is. If I wish to explain it to him who asks, I do not know.", "Confessions", "Time"),
+            Quote(
+                "What then is time? If no one asks me, I know what it is. If I wish to explain it to him who asks, I do not know.",
+                "Confessions",
+                "Time",
+            ),
         ),
         thermodynamic_role="Time paradox management. Phoenix-72 cooling requires temporal understanding.",
-        tags=("time", "confession", "theology", "subjectivity")
+        tags=("time", "confession", "theology", "subjectivity"),
     )
-    
+
     SENECA = Legacy(
         id=21,
         name="Seneca",
@@ -475,12 +562,14 @@ class Legacies99:
         dial_affinity=(DialAffinity.PRESENT, DialAffinity.ENERGY),
         quotes=(
             Quote("Luck is what happens when preparation meets opportunity.", "Letter", "F8"),
-            Quote("We suffer more often in imagination than in reality.", "Letter to Lucilius", "F5"),
+            Quote(
+                "We suffer more often in imagination than in reality.", "Letter to Lucilius", "F5"
+            ),
         ),
         thermodynamic_role="Reversibility (F1) and preparation. Fortune favors the prepared mind.",
-        tags=("stoicism", "preparation", "resilience", "letters")
+        tags=("stoicism", "preparation", "resilience", "letters"),
     )
-    
+
     ARENDT = Legacy(
         id=22,
         name="Hannah Arendt",
@@ -491,60 +580,82 @@ class Legacies99:
         secondary_floors=("F2", "F9"),
         dial_affinity=(DialAffinity.EXPLORATION, DialAffinity.PRESENT),
         quotes=(
-            Quote("The sad truth is that most evil is done by people who never make up their minds to be good or evil.", "The Banality of Evil", "F9"),
+            Quote(
+                "The sad truth is that most evil is done by people who never make up their minds to be good or evil.",
+                "The Banality of Evil",
+                "F9",
+            ),
         ),
         thermodynamic_role="Empathy (F6) requires active thinking. Evil = thoughtlessness = failure to model others.",
-        tags=("evil", "thought", "empathy", "responsibility")
+        tags=("evil", "thought", "empathy", "responsibility"),
     )
-    
+
     # Additional legacies will continue in the next section...
     # For brevity, I'll implement the full 99 as a complete registry
-    
+
     @classmethod
-    def get_all_legacies(cls) -> Tuple[Legacy, ...]:
+    def get_all_legacies(cls) -> tuple[Legacy, ...]:
         """Return all 99 legacies as an immutable tuple."""
         # First 22 implemented above
         first_22 = (
-            cls.FEYNMAN, cls.TURING, cls.OPPENHEIMER, cls.BOLTZMANN, cls.MAXWELL,
-            cls.HEISENBERG, cls.GODEL, cls.EINSTEIN, cls.NOETHER, cls.SHANNON, cls.FRISTON,
-            cls.SOCRATES, cls.AL_GHAZALI, cls.KANT, cls.MARCUS_AURELIUS, cls.LAO_TZU,
-            cls.NIETZSCHE, cls.WITTGENSTEIN, cls.IBN_KHALDUN, cls.AUGUSTINE, cls.SENECA, cls.ARENDT
+            cls.FEYNMAN,
+            cls.TURING,
+            cls.OPPENHEIMER,
+            cls.BOLTZMANN,
+            cls.MAXWELL,
+            cls.HEISENBERG,
+            cls.GODEL,
+            cls.EINSTEIN,
+            cls.NOETHER,
+            cls.SHANNON,
+            cls.FRISTON,
+            cls.SOCRATES,
+            cls.AL_GHAZALI,
+            cls.KANT,
+            cls.MARCUS_AURELIUS,
+            cls.LAO_TZU,
+            cls.NIETZSCHE,
+            cls.WITTGENSTEIN,
+            cls.IBN_KHALDUN,
+            cls.AUGUSTINE,
+            cls.SENECA,
+            cls.ARENDT,
         )
         return first_22
-    
+
     @classmethod
-    def by_id(cls, legacy_id: int) -> Optional[Legacy]:
+    def by_id(cls, legacy_id: int) -> Legacy | None:
         """Get a legacy by its ID (1-99)."""
         for legacy in cls.get_all_legacies():
             if legacy.id == legacy_id:
                 return legacy
         return None
-    
+
     @classmethod
-    def by_category(cls, category: LegacyCategory) -> Tuple[Legacy, ...]:
+    def by_category(cls, category: LegacyCategory) -> tuple[Legacy, ...]:
         """Get all legacies in a specific category."""
         return tuple(l for l in cls.get_all_legacies() if l.category == category)
-    
+
     @classmethod
-    def by_floor(cls, floor: str) -> Tuple[Legacy, ...]:
+    def by_floor(cls, floor: str) -> tuple[Legacy, ...]:
         """Get all legacies that resonate with a specific floor (F1-F13)."""
         return tuple(l for l in cls.get_all_legacies() if l.resonates_with_floor(floor))
-    
+
     @classmethod
-    def by_dial(cls, dial: DialAffinity) -> Tuple[Legacy, ...]:
+    def by_dial(cls, dial: DialAffinity) -> tuple[Legacy, ...]:
         """Get all legacies with affinity for a specific dial (A/P/X/E)."""
         return tuple(l for l in cls.get_all_legacies() if dial in l.dial_affinity)
-    
+
     @classmethod
-    def calculate_dial_boosts(cls, floor_scores: Dict[str, float]) -> Dict[str, float]:
+    def calculate_dial_boosts(cls, floor_scores: dict[str, float]) -> dict[str, float]:
         """
         Calculate dial boosts based on floor scores and legacies.
-        
+
         This connects the 99 legacies to the APEX G-score dials (A/P/X/E).
         When floors are strong, legacies boost the corresponding dials.
         """
         dial_boosts = {"A": 0.0, "P": 0.0, "X": 0.0, "E": 0.0}
-        
+
         for legacy in cls.get_all_legacies():
             # Check if legacy's primary floor is satisfied
             if legacy.primary_floor in floor_scores:
@@ -553,13 +664,13 @@ class Legacies99:
                     for dial in legacy.dial_affinity:
                         boost = legacy.get_dial_boost(dial) * floor_strength
                         dial_boosts[dial.value] += boost
-        
+
         # Cap boosts at reasonable limits
         for dial in dial_boosts:
             dial_boosts[dial] = min(dial_boosts[dial], 0.5)  # Max 0.5 boost
-        
+
         return dial_boosts
-    
+
     @classmethod
     def get_registry_hash(cls) -> str:
         """Get cryptographic hash of the complete legacy registry."""
@@ -572,14 +683,15 @@ class Legacies99:
 # QUOTE OF THE MOMENT — Daily Wisdom from the 99
 # =============================================================================
 
+
 class QuoteOfTheMoment:
     """
     Provides contextually relevant quotes from the 99 Legacies
     based on current floor states and verdicts.
     """
-    
+
     @classmethod
-    def for_verdict(cls, verdict: str, weakest_dial: Optional[str] = None) -> Optional[Quote]:
+    def for_verdict(cls, verdict: str, weakest_dial: str | None = None) -> Quote | None:
         """Get an appropriate quote for a specific verdict type."""
         if verdict == "VOID":
             # Void needs Feynman on truth
@@ -595,12 +707,12 @@ class QuoteOfTheMoment:
             return Quote(
                 "Power is a burden, not a privilege. Return it to those who can bear its weight.",
                 "888_HOLD Protocol",
-                "F13"
+                "F13",
             )
         return None
-    
+
     @classmethod
-    def for_floor_violation(cls, floor: str) -> Optional[Quote]:
+    def for_floor_violation(cls, floor: str) -> Quote | None:
         """Get a quote that resonates with a violated floor."""
         legacies = Legacies99.by_floor(floor)
         if legacies:
@@ -615,7 +727,7 @@ class QuoteOfTheMoment:
 
 __all__ = [
     "Legacy",
-    "LegacyCategory", 
+    "LegacyCategory",
     "DialAffinity",
     "Quote",
     "Legacies99",
