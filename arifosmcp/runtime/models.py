@@ -7,49 +7,55 @@ from typing import Any
 from pydantic import BaseModel, ConfigDict, Field
 from fastmcp.exceptions import FastMCPError, ToolError, AuthorizationError
 
+
 class DeltaOmegaPsi(BaseModel):
     """ΔΩΨ — The Trinity Flag System."""
+
     delta: float = Field(..., ge=0.0, le=1.0, description="Δ — Entropy reduction score.")
     omega: float = Field(..., ge=0.0, le=1.0, description="Ω — Human impact load (care needed).")
     psi: float = Field(..., ge=0.0, le=1.0, description="Ψ — Paradox score (unresolved tension).")
 
+
 class CoolingLedgerEntry(BaseModel):
     """The immutable ancestry tree and cryptographic proof of a metabolic event."""
+
     entry_id: str
     session_id: str
     organ: str
     timestamp: datetime
-    
+
     parent_hash: str
     self_hash: str
-    
+
     entropy_before: float
     entropy_after: float
     entropy_delta: float
     landauer_violations: int
-    
+
     delta: float
     omega: float
     psi: float
-    
+
     witness_internal: bool
     witness_external: bool
     witness_constitutional: bool
-    
+
     verdict: str
     human_ratified: bool
     apex_audited: bool
     immutable: bool = True
 
+
 class ArifOSError(FastMCPError):
     """Base exception for all arifOS-related errors."""
+
     def __init__(
-        self, 
-        message: str, 
-        fault_class: Any, 
-        fault_code: str, 
+        self,
+        message: str,
+        fault_class: Any,
+        fault_code: str,
         verdict: str,
-        extra: dict[str, Any] | None = None
+        extra: dict[str, Any] | None = None,
     ):
         super().__init__(message)
         self.fault_class = fault_class
@@ -57,37 +63,43 @@ class ArifOSError(FastMCPError):
         self.verdict = verdict
         self.extra = extra or {}
 
+
 class ConstitutionalViolation(ArifOSError, AuthorizationError):
     """Raised when a Hard Constitutional Floor is breached. Results in VOID."""
+
     def __init__(self, message: str, floor_code: Any, extra: dict[str, Any] | None = None):
         super().__init__(
             message=f"CONSTITUTIONAL COLLAPSE: {message}",
             fault_class="CONSTITUTIONAL",
             fault_code=str(floor_code),
             verdict="VOID",
-            extra=extra
+            extra=extra,
         )
+
 
 class InfrastructureFault(ArifOSError, ToolError):
     """Raised when a mechanical fault occurs. Results in 888_HOLD."""
+
     def __init__(self, message: str, fault_code: Any, extra: dict[str, Any] | None = None):
         super().__init__(
             message=f"MECHANICAL FAULT: {message}",
             fault_class="MECHANICAL",
             fault_code=str(fault_code),
             verdict="888_HOLD",
-            extra=extra
+            extra=extra,
         )
+
 
 class EpistemicGap(ArifOSError, ToolError):
     """Raised when grounding is insufficient. Results in SABAR."""
+
     def __init__(self, message: str, extra: dict[str, Any] | None = None):
         super().__init__(
             message=f"EPISTEMIC GAP: {message}",
             fault_class="EPISTEMIC",
             fault_code="NO_RESULTS",
             verdict="SABAR",
-            extra=extra
+            extra=extra,
         )
 
 
@@ -206,14 +218,14 @@ class PNSContext(BaseModel):
     search: PNSSignal | None = None  # Feeds AGI·REASON
     vision: PNSSignal | None = None  # Feeds AGI·REFLECT
     health: PNSSignal | None = None  # Feeds ASI·CRITIQUE
-    floor: PNSSignal | None = None   # Feeds ASI·CRITIQUE
+    floor: PNSSignal | None = None  # Feeds ASI·CRITIQUE
     orchestrate: PNSSignal | None = None  # Feeds AGI–ASI·FORGE
     redteam: PNSSignal | None = None  # Feeds APEX·JUDGE
 
     # Metadata
     entropy_sanitized: bool = False
     pns_version: str = "1.0.0"
-    
+
     def get_signal(self, organ_name: str) -> PNSSignal | None:
         """Helper to retrieve a signal by name."""
         return getattr(self, organ_name.lower(), None)
@@ -242,6 +254,7 @@ class PersonaRole(str, Enum):
 
 class TelemetryVitals(BaseModel):
     """Rule 3: The Public Score Card — Sovereign Vitals."""
+
     dS: float = Field(..., description="Entropy Delta (1dp derived)")
     peace2: float = Field(..., description="Lyapunov Stability (2dp derived)")
     kappa_r: float | None = Field(None, description="Maruah Score (2dp derived | null)")
@@ -252,29 +265,35 @@ class TelemetryVitals(BaseModel):
     psi_le: str = Field(..., description="AGI Emergence Pressure (heuristic + Estimate Only)")
     verdict: str = Field(..., description="Alive | Degraded | Paused | 888_HOLD")
 
+
 class TelemetryBasis(BaseModel):
     """Rule 1: Basis tracking for every vital sign."""
+
     dS: str = "derived"
     peace2: str = "derived"
     kappa_r: str | None = "derived"
     G_star: str = "derived"
     psi_le: str = "heuristic"
 
+
 class TripleWitness(BaseModel):
     """The Tri-Witness block for F3 compliance."""
+
     human: float = 0.0
     ai: float = 0.0
     earth: float = 0.0
 
+
 class CanonicalMetrics(BaseModel):
     """Unified arifOS Telemetry (Score Integrity Protocol)."""
-    telemetry: TelemetryVitals
+
+    telemetry: TelemetryVitals | None = None
     basis: TelemetryBasis = Field(default_factory=TelemetryBasis)
     witness: TripleWitness = Field(default_factory=TripleWitness)
-    
+
     # Internal Metadata (Operator Only)
     internal: dict[str, Any] = Field(default_factory=dict)
-    
+
     model_config = ConfigDict(populate_by_name=True)
 
 
@@ -457,7 +476,7 @@ class RuntimeEnvelope(BaseModel):
             "decision_required": [],
         }
     )
-    metrics: CanonicalMetrics = Field(default_factory=CanonicalMetrics)
+    metrics: CanonicalMetrics = Field(default_factory=lambda: CanonicalMetrics())
     trace: dict[str, Verdict] = Field(default_factory=dict)
     authority: CanonicalAuthority = Field(default_factory=CanonicalAuthority)
     payload: dict[str, Any] = Field(default_factory=dict)
