@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>arifOS APEX Dashboard</title>
+    <style>
+        :root {
+            --bg: #0a0a0f;
+            --card: #12121a;
+            --accent: #2563eb;
+            --accent-glow: rgba(37, 99, 235, 0.3);
+            --text: #e8e8f0;
+            --text-muted: #6b6b80;
+            --border: #1e1e2e;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+        
+        header {
+            text-align: center;
+            padding: 40px 0;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 40px;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(90deg, var(--text), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+        }
+        
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+        
+        .motto {
+            font-family: monospace;
+            color: var(--accent);
+            font-size: 0.8rem;
+            letter-spacing: 2px;
+            margin-top: 16px;
+            text-transform: uppercase;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+        
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            border-color: var(--accent);
+            box-shadow: 0 0 20px var(--accent-glow);
+        }
+        
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        
+        .card-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+        
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+        
+        .metric {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .metric:last-child {
+            border-bottom: none;
+        }
+        
+        .metric-label {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+        
+        .metric-value {
+            font-family: monospace;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+        
+        .status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .status.operational {
+            background: rgba(34, 197, 94, 0.1);
+            color: var(--success);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+        
+        .status.warning {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+        
+        .status.critical {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+        
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        
+        .status.operational .dot { background: var(--success); }
+        .status.warning .dot { background: var(--warning); }
+        .status.critical .dot { background: var(--danger); }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 40px 0;
+            border-top: 1px solid var(--border);
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+        }
+        
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>arifOS APEX</h1>
+            <p class="subtitle">Constitutional AI Governance Dashboard</p>
+            <p class="motto">Ditempa Bukan Diberi — Forged, Not Given</p>
+        </header>
+
+        <div id="content">
+            <div class="loading">
+                <div class="spinner"></div>
+                <p>Loading governance telemetry...</p>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>arifOS MCP v2026.03.14 | ΔΩΨ Trinity Architecture</p>
+            <p style="margin-top: 8px; font-size: 0.8rem;">
+                <a href="/" style="color: var(--accent); text-decoration: none;">Home</a> • 
+                <a href="/docs" style="color: var(--accent); text-decoration: none;">Documentation</a> • 
+                <a href="https://github.com/ariffazil/arifosmcp" style="color: var(--accent); text-decoration: none;">GitHub</a>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Simulated data - in production, this would fetch from your API
+        const dashboardData = {
+            system: {
+                version: "v2026.03.14-FORGED",
+                status: "operational",
+                uptime: "99.9%"
+            },
+            vitals: {
+                g_star: 0.87,
+                delta_s: -0.15,
+                peace2: 1.23,
+                truth: 0.99,
+                humility: 0.04
+            },
+            floors: [
+                { id: "F1", name: "Amanah", status: "pass", threshold: "LOCK" },
+                { id: "F2", name: "Truth", status: "pass", threshold: "≥0.99" },
+                { id: "F3", name: "Tri-Witness", status: "pass", threshold: "≥0.95" },
+                { id: "F4", name: "ΔS Clarity", status: "pass", threshold: "≤0" },
+                { id: "F7", name: "Humility", status: "pass", threshold: "0.03-0.20" },
+                { id: "F10", name: "Ontology", status: "pass", threshold: "LOCK" }
+            ],
+            telemetry: {
+                requests: 15247,
+                seals: 14892,
+                voids: 89,
+                partials: 266,
+                avg_latency: "45ms"
+            }
+        };
+
+        function renderDashboard() {
+            const content = document.getElementById('content');
+            
+            content.innerHTML = `
+                <div class="grid">
+                    <!-- System Status -->
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-icon">🛡️</div>
+                            <div class="card-title">System Status</div>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Status</span>
+                            <span class="status operational">
+                                <span class="dot"></span>
+                                ${dashboardData.system.status.toUpperCase()}
+                            </span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Version</span>
+                            <span class="metric-value">${dashboardData.system.version}</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Uptime</span>
+                            <span class="metric-value">${dashboardData.system.uptime}</span>
+                        </div>
+                    </div>
+
+                    <!-- Constitutional Floors -->
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-icon">⚖️</div>
+                            <div class="card-title">Active Floors</div>
+                        </div>
+                        ${dashboardData.floors.map(floor => `
+                            <div class="metric">
+                                <span class="metric-label">${floor.id} ${floor.name}</span>
+                                <span class="status ${floor.status === 'pass' ? 'operational' : 'critical'}">
+                                    <span class="dot"></span>
+                                    ${floor.status.toUpperCase()}
+                                </span>
+                            </div>
+                        `).join('')}
+                    </div>
+
+                    <!-- 3E Telemetry -->
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-icon">📊</div>
+                            <div class="card-title">3E Telemetry</div>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Total Requests</span>
+                            <span class="metric-value">${dashboardData.telemetry.requests.toLocaleString()}</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">SEAL Verdicts</span>
+                            <span class="metric-value" style="color: var(--success)">${dashboardData.telemetry.seals.toLocaleString()}</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">VOID Verdicts</span>
+                            <span class="metric-value" style="color: var(--danger)">${dashboardData.telemetry.voids.toLocaleString()}</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Avg Latency</span>
+                            <span class="metric-value">${dashboardData.telemetry.avg_latency}</span>
+                        </div>
+                    </div>
+
+                    <!-- Physics Engine -->
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-icon">⚡</div>
+                            <div class="card-title">Physics Engine</div>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">G* (Genius)</span>
+                            <span class="metric-value">${dashboardData.vitals.g_star.toFixed(2)}</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">ΔS (Entropy)</span>
+                            <span class="metric-value" style="color: ${dashboardData.vitals.delta_s < 0 ? 'var(--success)' : 'var(--warning)'}">
+                                ${dashboardData.vitals.delta_s > 0 ? '+' : ''}${dashboardData.vitals.delta_s.toFixed(2)}
+                            </span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Peace²</span>
+                            <span class="metric-value">${dashboardData.vitals.peace2.toFixed(2)}</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Truth Score</span>
+                            <span class="metric-value" style="color: var(--success)">${dashboardData.vitals.truth.toFixed(2)}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Simulate loading delay
+        setTimeout(renderDashboard, 800);
+
+        // In production, you would fetch real data:
+        // fetch('/api/v1/telemetry').then(r => r.json()).then(data => { ... });
+    </script>
+</body>
+</html>
