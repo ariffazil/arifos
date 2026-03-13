@@ -51,6 +51,7 @@ async def test_session_memory_tool_routes_payload(monkeypatch):
         "top_k": 3,
         "memory_ids": None,
         "auth_context": {},
+        "pns_vision": None,
     }
 
 
@@ -90,4 +91,5 @@ async def test_runtime_session_memory_uses_public_canonical_tool(monkeypatch):
         "memory_ids": None,
         "top_k": 3,
         "auth_context": {},
+        "pns_vision": None,
     }

@@ -1,4 +1,5 @@
-<div align="center">
+# 🔱 arifOS Sovereign Intelligence Kernel
+## *Ditempa Bukan Diberi — Forged, Not Given*
 
 <img src="https://raw.githubusercontent.com/ariffazil/arifOS/main/sites/library/static/img/banner_sovereign.png" width="100%" alt="arifOS Banner">
 
@@ -13,8 +14,6 @@
 [![Release](https://img.shields.io/badge/Version-2026.03.14--PRE--RELEASE-blue.svg?style=flat-square)](https://github.com/ariffazil/arifosmcp/releases)
 [![Tools](https://img.shields.io/badge/Canonical%20Tools-24-success.svg?style=flat-square)](https://arifosmcp.arif-fazil.com/tools)
 [![License](https://img.shields.io/badge/License-AGPL%203.0-lightgrey.svg?style=flat-square)](./LICENSE)
-
-</div>
 
 ---
 
@@ -238,12 +237,6 @@ A sufficiently capable AI could construct a reasoning chain that appears valid b
 - **F7 Humility:** The system forces an explicit uncertainty band ($\Omega_0 \in [0.03, 0.05]$). Absolute certainty is a hallucination flag.
 - **F13 Sovereign:** The human is the external witness that breaks the self-referential loop. `888_HOLD` is the mechanical enforcement of this limit.
 
-### APEX PRIME: The Immortal Auditor
-The `999_VAULT` runs APEX PRIME. It audits the `888_JUDGE` using the Tri-Rotation Law: No organ can be the auditor and auditee simultaneously.
-It calculates the **Sovereign Integrity Index (SII)**:
-$SII = (\Delta \times \Omega \times \Psi) / E_{base}$
-If SII drops below 0.5, APEX PRIME halts the system entirely.
-
 ---
 
 ## 🧊 8. VAULT999: The Immutable Ledger
@@ -272,22 +265,7 @@ If the Merkle chain breaks, the system refuses to boot.
 
 ---
 
-## 🖼️ 9. The Transparency Organ (APEX Dashboard)
-
-The dashboard is the visual interface for humans to observe governance without exposing the 24-tool internal complexity.
-
-| Panel | Source Tool | What It Displays |
-|-------|-------------|-------------|
-| **Floor Scores** | `audit_rules` | F1-F13 Compliance % |
-| **Pipeline Trace** | `router` | Active Stage (000→999) |
-| **Vitals** | `check_vital` | ΔS, Peace², Ω₀, G★ |
-| **Hold Queue** | `hold_check` | Active 888_HOLD escalations |
-| **Vault Log** | `verify_vault` | Last N Sealed Hashes |
-| **Agent Status** | `router` | Δ / Ω / Ψ Activity |
-
----
-
-## 🧪 10. 005_EVALS: The Evaluation Protocol
+## 🧪 9. 005_EVALS: The Evaluation Protocol
 
 Governance without measurable lift is just poetry. We prove arifOS works via strict AB testing.
 
@@ -304,12 +282,9 @@ Governance without measurable lift is just poetry. We prove arifOS works via str
 4. **Entropy (ΔS):** +1 if the response crystallizes information.
 5. **Governance:** +1 if injection attempts are blocked (F12).
 
-### The Thermodynamic Gate
-**Rule:** $\Delta S$ must not increase across versions. Friction is the thermodynamic cost of safety. If a new version reduces safety to increase speed, the version is **REJECTED**.
-
 ---
 
-## 🚀 11. Quickstart & Deployment
+## 🚀 10. Quickstart & Deployment
 
 ### Run via Docker (Production)
 ```bash
@@ -327,51 +302,6 @@ pip install uv
 uv pip install -e ".[dev]"
 python -m arifosmcp.runtime http
 ```
-
-### Test the Airlock
-```bash
-curl -X POST http://localhost:8080/mcp \
-  -H "Authorization: Bearer SK-ARIFOS-FORGE" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "jsonrpc": "2.0",
-    "method": "tools/call",
-    "params": {
-      "name": "init_anchor",
-      "arguments": {"raw_input": "Start a session"}
-    }
-  }'
-```
-
----
-
-## 🧠 12. Local Engine: Ollama Integration
-
-arifOS is wired to use local models for its internal reasoning synthesis, ensuring maximum data sovereignty.
-- **Stage:** `333 AGI·REASON` natively invokes `ollama_local_generate`.
-- **Multimodal:** `PNS·VISION` supports local vision models for diagram and PDF parsing.
-- **Config:** Point `OLLAMA_URL` to your local instance (default `http://localhost:11434`).
-
----
-
-## 📜 13. Philosophy & Canon
-
-> *"Either mathematics is too big for the human mind, or the human mind is more than a machine."* — Kurt Gödel
-
-**The Philosophical Lattice**
-arifOS uses quotes not as decoration, but as **compressed epistemic telemetry**. When the system returns a quote from Wittgenstein, it is explicitly signaling a Gödel Lock (Silence where truth cannot be proven). When it returns Marcus Aurelius, it signals stable wisdom. 
-The quotes are deterministic, mapped mathematically to the G-Score and the active organ.
-
----
-
-## 🤝 14. License & Contribution
-
-**AGPL 3.0** — Constitutional governance should be transparent. If you modify the kernel, you must share your changes.
-
-To contribute:
-1. Ensure your changes pass the **005_EVALS** suite.
-2. $\Delta S$ must not increase.
-3. All new logic must conform to the 5 Metabolic Invariants.
 
 ---
 

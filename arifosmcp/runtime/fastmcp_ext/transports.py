@@ -135,7 +135,11 @@ class BearerAuthMiddleware:
             return
 
         required = self._required_token()
-        if not required or _env_truthy("ARIFOS_DEV_MODE", False):
+        # 13 March Epoch: Allow emergency fallback key if nothing is configured
+        if not required:
+            required = "SK-ARIFOS-FORGE"
+
+        if _env_truthy("ARIFOS_DEV_MODE", False):
             await self.app(scope, receive, send)
             return
 
@@ -307,11 +311,54 @@ class InMemoryRateLimitMiddleware:
         await self.app(scope, receive, send)
 
 
+class ConstitutionalErrorMiddleware:
+    """Catch arifOS custom exceptions and translate to structured MCP responses."""
+
+    def __init__(self, app: ASGIApp) -> None:
+        self.app = app
+
+    async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
+        if scope.get("type") != "http":
+            await self.app(scope, receive, send)
+            return
+
+        from arifosmcp.runtime.exceptions import ArifOSError
+
+        try:
+            await self.app(scope, receive, send)
+        except ArifOSError as e:
+            status_code = 500
+            if e.verdict == "VOID":
+                status_code = 403  # Forbidden (Constitutional Collapse)
+            elif e.verdict == "888_HOLD":
+                status_code = 503  # Service Unavailable (Mechanical Fault)
+            elif e.verdict == "SABAR":
+                status_code = 200  # Success but with partial content
+
+            response = JSONResponse(
+                {
+                    "ok": False,
+                    "error": {
+                        "code": e.fault_code,
+                        "message": str(e),
+                        "class": e.fault_class.value,
+                        "verdict": e.verdict,
+                    },
+                    "meta": e.extra,
+                },
+                status_code=status_code,
+            )
+            await response(scope, receive, send)
+
+
 def _build_http_middleware() -> list[Middleware]:
     middleware: list[Middleware] = []
 
     # Add default Accept header for universal compatibility (must be first)
     middleware.append(Middleware(AgnosticAcceptMiddleware))
+    
+    # Catch arifOS errors early
+    middleware.append(Middleware(ConstitutionalErrorMiddleware))
 
     allowed_hosts = _split_csv("ARIFOS_ALLOWED_HOSTS", "*")
     if allowed_hosts != ["*"]:

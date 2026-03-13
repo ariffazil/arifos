@@ -1,0 +1,81 @@
+"""
+arifosmcp/helix/organs/inner/vault/metabolism.py — The Immutable Ledger
+
+Stage 999: VAULT·SEAL.
+Commits the sovereign verdict to VAULT999.
+Updates the Cooling Ledger with a hash-chain entry.
+Enforces F1 Amanah: only SEAL, HOLD_888, PARTIAL, and SABAR may be committed.
+VOID verdicts indicate constitutional collapse and cannot be sealed.
+
+DITEMPA BUKAN DIBERI — Forged, Not Given
+"""
+
+from __future__ import annotations
+
+from fastmcp.dependencies import CurrentContext
+
+from arifosmcp.runtime.exceptions import ConstitutionalViolation, InfrastructureFault
+from arifosmcp.runtime.fault_codes import ConstitutionalFaultCode, MechanicalFaultCode
+from arifosmcp.runtime.metrics import helix_tracer
+from arifosmcp.runtime.models import RuntimeEnvelope
+
+
+_SEALABLE_VERDICTS = {"SEAL", "HOLD_888", "PARTIAL", "SABAR"}
+
+
+async def vault_seal_metabolism(
+    verdict: str,
+    evidence: str,
+    ctx: CurrentContext,
+    session_id: str = "global",
+) -> RuntimeEnvelope:
+    """
+    Metabolic function for VAULT·SEAL (Stage 999).
+
+    1. Resolve session continuity.
+    2. Enforce F1 Amanah: only valid verdicts may seal.
+    3. Commit verdict + evidence to VAULT999 via governance kernel.
+    4. Emit organ span and constitutional event.
+    """
+    active_session = session_id or getattr(ctx, "session_id", None) or "global"
+
+    with helix_tracer.start_organ_span("VAULT\u00b7SEAL", active_session) as span:
+        # F1 Amanah: VOID cannot be sealed — it is evidence of collapse
+        if verdict not in _SEALABLE_VERDICTS:
+            raise ConstitutionalViolation(
+                message=(
+                    f"F1 Amanah: '{verdict}' cannot be committed to VAULT999. "
+                    f"Only {_SEALABLE_VERDICTS} may seal. VOID indicates collapse."
+                ),
+                floor_code=ConstitutionalFaultCode.F13_SOVEREIGN_VETO,
+                extra={"attempted_verdict": verdict},
+            )
+
+        from arifosmcp.runtime.bridge import call_kernel
+
+        payload = {
+            "summary": f"Sealed commit for session {active_session}",
+            "verdict": verdict,
+            "evidence": evidence,
+            "session_id": active_session,
+        }
+
+        try:
+            kernel_res = await call_kernel(
+                "seal_vault_commit", active_session, payload
+            )
+            envelope = RuntimeEnvelope(**kernel_res)
+        except Exception as e:
+            raise InfrastructureFault(
+                message=f"Vault seal failure in session {active_session}: {e}",
+                fault_code=MechanicalFaultCode.INFRA_DEGRADED,
+            )
+
+        if span:
+            helix_tracer.record_constitutional_event(
+                span,
+                "sealed",
+                {"verdict": verdict, "session_id": active_session},
+            )
+
+        return envelope
