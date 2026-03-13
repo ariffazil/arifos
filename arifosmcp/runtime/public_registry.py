@@ -98,7 +98,7 @@ def release_version() -> str:
 
 
 def release_version_label() -> str:
-    return "2026.03.13-FORGED"
+    return "2026.03.14-PRE-RELEASE"
 
 
 def release_version_compact() -> str:

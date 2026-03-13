@@ -89,6 +89,6 @@ version_gate:
 {
   "telemetry": { "verdict": "Alive", "status": "COHERENT", "eval_mode": "SHARPENED" },
   "witness": { "human": 1.0, "ai": 0.97, "earth": 0.91 },
-  "epoch": "2026-03-13-FORGED"
+  "epoch": "2026-03-14-PRE-RELEASE"
 }
 ```

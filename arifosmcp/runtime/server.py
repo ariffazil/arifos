@@ -72,7 +72,7 @@ from arifosmcp.runtime.tools import (
 from core.shared.manifest_loader import sync_runtime_floors
 
 # ---------------------------------------------------------------------------
-# Phase 1 — arifOS APEX-G Sovereign Hub (2026-03-13 Epoch)
+# Phase 1 — arifOS APEX-G Sovereign Hub (2026-03-14 Epoch)
 # ---------------------------------------------------------------------------
 
 CONSTITUTIONAL_INSTRUCTIONS = """
@@ -94,7 +94,7 @@ from contextlib import asynccontextmanager
 @asynccontextmanager
 async def arifos_lifespan(server: FastMCP):
     """Lifecycle management for the arifOS Double Helix organs."""
-    # Initialize Global Settings for the 2026-03-13 Epoch
+    # Initialize Global Settings for the 2026-03-14 Epoch
     server.settings.set_setting("constitutional__target_genius", 0.80)
     server.settings.set_setting("constitutional__max_entropy_delta", 0.0)
     server.settings.set_setting("constitutional__humility_band", [0.03, 0.05])
@@ -108,7 +108,7 @@ async def arifos_lifespan(server: FastMCP):
 
 mcp = FastMCP(
     "arifOS-APEX-G", 
-    version="2026.03.13-FORGED",
+    version="2026.03.14-PRE-RELEASE",
     instructions=CONSTITUTIONAL_INSTRUCTIONS,
     lifespan=arifos_lifespan
 )
