@@ -82,35 +82,52 @@ async def run_stage(
         )
 
     if stage_id == Stage.REALITY_222.value:
-        from arifosmcp.intelligence.tools.reality_grounding import reality_check
+        from arifosmcp.intelligence.tools.reality_dossier import reality_dossier
+        from core.governance_kernel import get_governance_kernel
 
-        reality_timeout = float(os.getenv("ARIFOS_REALITY_TIMEOUT_SECONDS", "15"))
+        reality_timeout = float(os.getenv("ARIFOS_REALITY_TIMEOUT_SECONDS", "30"))
         try:
-            reality_res = await asyncio.wait_for(
-                reality_check(query=query), timeout=reality_timeout
+            # P0 Strike: F03_WITNESS Earth Grounding
+            dossier = await asyncio.wait_for(
+                reality_dossier(query=query, session_id=session_id), timeout=reality_timeout
             )
-            score = float(reality_res.get("score", 0.0))
-            results_count = int(reality_res.get("results_count", 0))
-            status = str(reality_res.get("status", "OK"))
+            
+            earth_data = dossier.get("earth_witness", {})
+            score = float(earth_data.get("score", 0.0))
+            status = str(earth_data.get("status", "OK"))
+            
+            # Update Governance Kernel with Earth Witness (E)
+            kernel = get_governance_kernel(session_id)
+            kernel.earth_witness_score = score
+            
+            # W3 Consensus: (H * A * E)^(1/3)
+            # The kernel property 'tri_witness_consensus' will now reflect this.
+            
             reality_summary.update(
                 {
                     "executed": True,
                     "status": status,
                     "score": score,
-                    "results_count": results_count,
+                    "dossier_id": dossier.get("id"),
+                    "vitals": earth_data.get("vitals", {}),
                 }
             )
-            verdict = Verdict.SEAL if score >= 0.5 else Verdict.PARTIAL
+            
+            # W3 Consensus: (H * A * E)^(1/3)
+            # H = Sovereign (F13), A = Truth (F2), E = Earth (F3_earth)
+            # The orchestrator handles the transition, but the kernel maintains the scores.
+            verdict = Verdict.SEAL if score >= 0.7 else Verdict.PARTIAL
+            
         except Exception as exc:
             verdict = Verdict.PARTIAL
             reality_summary.update({"status": "ERROR", "error": str(exc), "executed": True})
 
         return RuntimeEnvelope(
-            tool="search_reality",
+            tool="reality_dossier",
             session_id=session_id,
             stage=Stage.REALITY_222.value,
             verdict=verdict,
-            payload={"reality": dict(reality_summary)},
+            payload={"dossier": dossier if 'dossier' in locals() else {"status": "error"}},
             auth_context=auth_ctx,
             caller_context=caller_ctx,
         )

@@ -9,21 +9,20 @@ DITEMPA BUKAN DIBERI — Forged, Not Given
 
 from __future__ import annotations
 
-import hashlib
 import time
 import uuid
-from typing import Any, Dict, List, Literal, Optional
+from typing import Any, Literal
 
 from pydantic import BaseModel, Field
 
-from .reality_models import EvidenceBundle, BundleStatus, RealityAtlas, Claim
+from .reality_models import BundleStatus, Claim, EvidenceBundle
 
 
 class Witness(BaseModel):
     source: Literal["human", "ai", "earth"]
     confidence: float = Field(ge=0.0, le=1.0)
     weight: float = Field(default=1.0, ge=0.0, le=2.0)
-    evidence_refs: List[str] = Field(default_factory=list)
+    evidence_refs: list[str] = Field(default_factory=list)
     notes: str = ""
 
 
@@ -31,10 +30,10 @@ class DossierVerdict(BaseModel):
     claim: str
     verdict: Literal["SUPPORTED", "CONTRADICTED", "UNCERTAIN", "INSUFFICIENT_EVIDENCE"]
     confidence: float = Field(ge=0.0, le=1.0)
-    witnesses: List[Witness] = Field(default_factory=list)
-    floor_impacts: Dict[str, Any] = Field(default_factory=dict)
-    evidence_chain: List[str] = Field(default_factory=list)
-    dissent: Optional[str] = None
+    witnesses: list[Witness] = Field(default_factory=list)
+    floor_impacts: dict[str, Any] = Field(default_factory=dict)
+    evidence_chain: list[str] = Field(default_factory=list)
+    dissent: str | None = None
 
 
 class DossierProvenance(BaseModel):
@@ -49,10 +48,10 @@ class IntelligenceState3E(BaseModel):
     exploration: Literal["BROAD", "SCOPED", "EXHAUSTED"] = "BROAD"
     entropy: Literal["LOW", "MANAGEABLE", "HIGH", "CRITICAL"] = "LOW"
     eureka: Literal["NONE", "PARTIAL", "FORGED"] = "NONE"
-    hypotheses: List[str] = Field(default_factory=list)
-    stable_facts: List[str] = Field(default_factory=list)
-    uncertainties: List[str] = Field(default_factory=list)
-    insight: Optional[str] = None
+    hypotheses: list[str] = Field(default_factory=list)
+    stable_facts: list[str] = Field(default_factory=list)
+    uncertainties: list[str] = Field(default_factory=list)
+    insight: str | None = None
 
 
 class RealityDossier(BaseModel):
@@ -63,12 +62,13 @@ class RealityDossier(BaseModel):
     
     status: BundleStatus
     intelligence: IntelligenceState3E = Field(default_factory=IntelligenceState3E)    
-    verdicts: List[DossierVerdict] = Field(default_factory=list)
-    claims: List[Claim] = Field(default_factory=list)
+    verdicts: list[DossierVerdict] = Field(default_factory=list)
+    claims: list[Claim] = Field(default_factory=list)
     provenance: DossierProvenance = Field(default_factory=DossierProvenance)
     
-    telemetry: Dict[str, Any] = Field(default_factory=dict)    machine_status: str = "READY"
-    machine_issue: Optional[str] = None
+    telemetry: dict[str, Any] = Field(default_factory=dict)
+    machine_status: str = "READY"
+    machine_issue: str | None = None
 
 
 class DossierEngine:
@@ -79,8 +79,8 @@ class DossierEngine:
             "F7_HUMILITY": 0.10,
         }
     
-    def _compute_witness_confidence(self, claim: Claim, bundles: List[EvidenceBundle]) -> List[Witness]:
-        witnesses: List[Witness] = []
+    def _compute_witness_confidence(self, claim: Claim, bundles: list[EvidenceBundle]) -> list[Witness]:
+        witnesses: list[Witness] = []
         total_confidence = claim.confidence
         
         human_witness = Witness(
@@ -112,7 +112,7 @@ class DossierEngine:
     def _compute_verdict(
         self, 
         claim: Claim, 
-        witnesses: List[Witness],        bundles: List[EvidenceBundle]
+        witnesses: list[Witness],        bundles: list[EvidenceBundle]
     ) -> DossierVerdict:
         support_count = 0
         contradict_count = 0
@@ -154,7 +154,8 @@ class DossierEngine:
             evidence_chain=[e.get("source", "unknown") for e in claim.evidence if isinstance(e, dict)],
         )
     
-    def _intelligence_exploration_phase(self, bundles: List[EvidenceBundle]) -> List[str]:"""
+    def _intelligence_exploration_phase(self, bundles: list[EvidenceBundle]) -> list[str]:
+        """
         E1: Exploration - gather candidate interpretations and hypotheses.
         """
         hypotheses = []
@@ -167,7 +168,7 @@ class DossierEngine:
                 hypotheses.append(f"Bundle {bundle.id[:8]} uncertain: state={bundle.status.state}")
         return hypotheses
     
-    def _intelligence_entropy_phase(self, bundles: List[EvidenceBundle]) -> Dict[str, Any]:
+    def _intelligence_entropy_phase(self, bundles: list[EvidenceBundle]) -> dict[str, Any]:
         """
         E2: Entropy - measure and metabolize uncertainty.
         """
@@ -203,9 +204,9 @@ class DossierEngine:
     
     def _intelligence_eureka_phase(
         self, 
-        verdicts: List[DossierVerdict], 
-        entropy_data: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        verdicts: list[DossierVerdict], 
+        entropy_data: dict[str, Any]
+    ) -> dict[str, Any]:
         """
         E3: Eureka - collapse confusion into coherent, decision-ready form.
         """
@@ -237,7 +238,7 @@ class DossierEngine:
     
     async def build_dossier(
         self,
-        bundles: List[EvidenceBundle],
+        bundles: list[EvidenceBundle],
         session_id: str = "global",
         actor_id: str = "anonymous",
         authority_level: str = "anonymous",
@@ -248,14 +249,14 @@ class DossierEngine:
         """
         start_time = time.time()
         
-        all_claims: List[Claim] = []
+        all_claims: list[Claim] = []
         for bundle in bundles:
             all_claims.extend(bundle.claims)
         
         hypotheses = self._intelligence_exploration_phase(bundles)
         entropy_data = self._intelligence_entropy_phase(bundles)
         
-        verdicts: List[DossierVerdict] = []
+        verdicts: list[DossierVerdict] = []
         for claim in all_claims:
             witnesses = self._compute_witness_confidence(claim, bundles)
             verdict = self._compute_verdict(claim, witnesses, bundles)

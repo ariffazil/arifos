@@ -14,7 +14,7 @@ DITEMPA BUKAN DIBERI — Forged, Not Given
 
 from __future__ import annotations
 
-from typing import Any, Dict, List, Literal, Optional
+from typing import Any, Literal
 
 from pydantic import BaseModel, Field
 
@@ -29,7 +29,7 @@ class MachineEnvelope(BaseModel):
         default="READY",
         description="Machine operational state",
     )
-    issue_label: Optional[str] = Field(
+    issue_label: str | None = Field(
         default=None,
         description="Machine-level issue code (e.g., AUTH_BOOTSTRAP_REQUIRED, TOOL_NOT_EXPOSED)",
     )
@@ -61,11 +61,11 @@ class GovernanceEnvelope(BaseModel):
         default="UNVERIFIED",
         description="F11 authority state - is actor cryptographically verified?",
     )
-    floors_checked: List[str] = Field(
+    floors_checked: list[str] = Field(
         default_factory=list,
         description="Which constitutional floors were evaluated",
     )
-    floors_failed: List[str] = Field(
+    floors_failed: list[str] = Field(
         default_factory=list,
         description="Which floors blocked execution (if any)",
     )
@@ -81,11 +81,11 @@ class ExplorationState(BaseModel):
         default="BROAD",
         description="How thoroughly has the hypothesis space been explored?",
     )
-    hypotheses: List[str] = Field(
+    hypotheses: list[str] = Field(
         default_factory=list,
         description="Candidate interpretations or solution paths considered",
     )
-    unknowns: List[str] = Field(
+    unknowns: list[str] = Field(
         default_factory=list,
         description="Explicitly acknowledged gaps in knowledge",
     )
@@ -98,15 +98,15 @@ class EntropyState(BaseModel):
         default="MANAGEABLE",
         description="Current entropy/uncertainty level",
     )
-    stable_facts: List[str] = Field(
+    stable_facts: list[str] = Field(
         default_factory=list,
         description="Claims with high confidence and solid evidence",
     )
-    unstable_assumptions: List[str] = Field(
+    unstable_assumptions: list[str] = Field(
         default_factory=list,
         description="Claims that rest on shaky ground - MUST be listed for F7 compliance",
     )
-    conflicts: List[str] = Field(
+    conflicts: list[str] = Field(
         default_factory=list,
         description="Contradictions or tensions in the evidence",
     )
@@ -125,7 +125,7 @@ class EurekaState(BaseModel):
         default="NONE",
         description="Has a coherent insight been synthesized?",
     )
-    insight: Optional[str] = Field(
+    insight: str | None = Field(
         default=None,
         description="The synthesized conclusion or proposal",
     )
@@ -135,7 +135,7 @@ class EurekaState(BaseModel):
         le=1.0,
         description="Confidence in the insight (0-1 scale)",
     )
-    decision_required: List[str] = Field(
+    decision_required: list[str] = Field(
         default_factory=list,
         description="Outstanding decisions needed from Sovereign or user",
     )
@@ -188,13 +188,13 @@ class GovernedResponse(BaseModel):
     )
 
     # Extension slot for tool-specific payload
-    payload: Dict[str, Any] = Field(
+    payload: dict[str, Any] = Field(
         default_factory=dict,
         description="Tool-specific result data",
     )
 
     # Audit trail
-    provenance: Dict[str, Any] = Field(
+    provenance: dict[str, Any] = Field(
         default_factory=dict,
         description="Chain of custody for this response",
     )
@@ -203,7 +203,7 @@ class GovernedResponse(BaseModel):
 # ---------------------------------------------------------
 # CONVERSION HELPERS (MGI ↔ RuntimeEnvelope)
 # ---------------------------------------------------------
-def runtime_envelope_to_governed(runtime_env: Dict[str, Any]) -> GovernedResponse:
+def runtime_envelope_to_governed(runtime_env: dict[str, Any]) -> GovernedResponse:
     """Convert legacy RuntimeEnvelope to strict MGI GovernedResponse."""
     
     # Extract machine state
@@ -262,7 +262,7 @@ def runtime_envelope_to_governed(runtime_env: Dict[str, Any]) -> GovernedRespons
     )
 
 
-def governed_to_runtime_envelope(governed: GovernedResponse) -> Dict[str, Any]:
+def governed_to_runtime_envelope(governed: GovernedResponse) -> dict[str, Any]:
     """Convert strict MGI GovernedResponse to legacy RuntimeEnvelope format."""
     
     verdict_map = {

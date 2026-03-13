@@ -400,11 +400,19 @@ One per public tool — each describes when and how to invoke it.
 
 ## 🧬 Trinity Architecture (ΔΩΨ)
 
-| Engine | Stages | Floors | Role |
-| :--- | :--- | :--- | :--- |
-| **Δ Delta (AGI Mind)** | 000, 111, 333 | F2, F4, F7, F8 | Reason, sense, ground |
-| **Ω Omega (ASI Heart)** | 555, 666 | F5, F6, F9 | Empathy, memory, ethics |
-| **Ψ Psi (APEX Soul)** | 777, 888, 999 | F1, F3, F10, F11, F13 | Forge, judge, seal |
+| Engine | Stages | Floors | Personas | Role |
+| :--- | :--- | :--- | :--- | :--- |
+| **Δ Delta (AGI Mind)** | 000, 111, 333 | F2, F4, F7, F8 | **ARCHITECT**, **ENGINEER** | Reason, sense, ground |
+| **Ω Omega (ASI Heart)** | 555, 666 | F5, F6, F9 | **AUDITOR** | Empathy, memory, ethics |
+| **Ψ Psi (APEX Soul)** | 777, 888, 999 | F1, F3, F10, F11, F13 | **VALIDATOR**, **ORCHESTRATOR** | Forge, judge, seal |
+
+### The Five Governance Personas
+Each persona carries a specific **Scar-Weight ($W_{beban}$)** to protect the system:
+- **ARCHITECT:** "Should this exist?" — Protects coherence and long-term truth.
+- **ENGINEER:** "Can we make it work?" — Protects execution reality.
+- **AUDITOR:** "What could break?" — Protects integrity and compliance.
+- **VALIDATOR:** "Is it actually true?" — Protects evidence and reproducibility.
+- **ORCHESTRATOR:** "In what order?" — Protects flow control and reversibility.
 
 ### VAULT999 — Merkle Ledger
 Append-only JSONL. Every entry: `session_id` → `seal_hash` (SHA-256) → `chain_hash` (prev + seal). Tamper = chain break. `verify_vault_ledger` detects it.

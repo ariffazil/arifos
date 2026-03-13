@@ -234,16 +234,20 @@ def geometric_mean(values: list[float]) -> float:
 
 
 def floors_to_dials(
-    floors: FloorScores, compute_budget_used: float = 0.5, compute_budget_max: float = 1.0
+    floors: FloorScores,
+    compute_budget_used: float = 0.5,
+    compute_budget_max: float = 1.0,
+    telemetry: dict[str, Any] | None = None,
 ) -> APEXDials:
     """
-    Project 13 Floors onto 4 Dials (A/P/X/E).
+    Project 13 Floors + Telemetry onto 4 Dials (A/P/X/E).
     """
     # 1. Helper to convert bool floors to floats
     f10 = 1.0 if floors.f10_ontology else 0.0
     f11 = 1.0 if floors.f11_command_auth else 0.0
 
     # 2. A = AKAL (Mind/Structure)
+    # P1 Strike: Akal = AI Confidence metric (F2) cluster
     f7_norm = (
         1.0
         if 0.03 <= floors.f7_humility <= 0.05
@@ -252,16 +256,13 @@ def floors_to_dials(
 
     akal = geometric_mean([floors.f2_truth, floors.f4_clarity, f7_norm, f10])
 
-    # 3. P = PRESENCE (Stability/Trust/Temporal PRESENT)
-    # APEX G Theorem: P is the stability of the Present State.
-    # It is dampened by high metabolic flux (haste) and jitter.
+    # 3. P = PRESENCE (Stability/Trust)
+    # P1 Strike: Present = Grounding/Truth score (F1, F5 cluster)
     presence_base = geometric_mean([floors.f1_amanah, floors.f5_peace, f11])
 
     # Temporal Dampening: P = P_base * Stability_t
-    # We retrieve the instantaneous stability from the governance kernel if available
     try:
         from core.governance_kernel import get_governance_kernel
-
         kernel = get_governance_kernel()
         stability_t = kernel.temporal_stability
     except Exception:
@@ -270,21 +271,40 @@ def floors_to_dials(
     presence = presence_base * stability_t
 
     # 4. X = EXPLORATION (Navigation/Heart)
+    # P1 Strike: X uses W3 (Tri-Witness) and Exploration breadth
     anti_hantu_compliance = 1.0 - floors.f9_anti_hantu
+    
+    # Use the programmatic Tri-Witness consensus W3 = (H * A * E)^(1/3)
+    w3 = floors.tri_witness_consensus
+    
+    # Incorporate exploration breadth if available in telemetry
+    x_breadth = 1.0
+    if telemetry and "exploration" in telemetry:
+        # If we have a hypothesis count, use it to boost/dampen X
+        hypotheses = telemetry["exploration"].get("hypotheses", [])
+        if len(hypotheses) > 0:
+            x_breadth = min(1.0, 0.5 + (len(hypotheses) * 0.1))
 
-    exploration = geometric_mean(
-        [floors.f3_tri_witness, floors.f6_empathy, floors.f8_genius, anti_hantu_compliance]
+    exploration = (
+        geometric_mean([w3, floors.f6_empathy, floors.f8_genius, anti_hantu_compliance]) * x_breadth
     )
 
-    # 5. E = ENERGY (Vitality/System)
+    # 5. E = ENERGY (Vitality/Entropy)
+    # P1 Strike: E cluster uses budget efficiency and uncertainty_score
     injection_compliance = 1.0 - floors.f12_injection
-
     energy_from_floors = geometric_mean([injection_compliance, floors.f13_sovereign])
 
+    # Thermodynamic Efficiency
     energy_ratio = 1.0 - (compute_budget_used / max(compute_budget_max, 1e-6))
     energy_ratio = max(0.0, min(1.0, energy_ratio))
-
-    energy = (energy_from_floors + energy_ratio) / 2.0
+    
+    # Uncertainty Dampening (Entropy)
+    uncertainty_penalty = 0.0
+    if telemetry and "entropy" in telemetry:
+        uncertainty_penalty = float(telemetry["entropy"].get("uncertainty_score", 0.0))
+    
+    energy_vitality = (energy_from_floors + energy_ratio) / 2.0
+    energy = max(0.0, energy_vitality - (uncertainty_penalty * 0.5))
 
     return APEXDials(A=akal, P=presence, X=exploration, E=energy)
 
@@ -294,26 +314,28 @@ def calculate_genius(
     h: float = 0.0,
     compute_budget_used: float = 0.5,
     compute_budget_max: float = 1.0,
+    telemetry: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """
     The Unified Genius Equation: G = (A × P × X × E²) × (1 - h)
     """
-    dials = floors_to_dials(floors, compute_budget_used, compute_budget_max)
+    dials = floors_to_dials(floors, compute_budget_used, compute_budget_max, telemetry=telemetry)
 
     akal = dials.A
     presence = dials.P
     exploration = dials.X
     energy = dials.E
 
-    base_g = akal * presence * exploration * (energy**2)
-    G = base_g * (1.0 - h)
+    # G = A * P * X * E^2 (APEX G Theorem)
+    g_gen = akal * presence * exploration * (energy**2)
+    final_g = g_gen * (1.0 - h)
 
     return {
-        "genius_score": round(G, 4),
+        "genius_score": round(final_g, 4),
         "dials": dials.to_dict(),
         "hysteresis": h,
-        "passed": G >= 0.80,
-        "verdict": "SEAL" if G >= 0.80 else "PARTIAL" if G >= 0.60 else "VOID",
+        "passed": final_g >= 0.80,
+        "verdict": "SEAL" if final_g >= 0.80 else "PARTIAL" if final_g >= 0.60 else "VOID",
     }
 
 

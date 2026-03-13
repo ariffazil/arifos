@@ -142,7 +142,25 @@ class CanonicalMeta(BaseModel):
 
 
 class PersonaId(str, Enum):
-    """Governed AI operational personas. F9-compliant: honest naming, no sovereign claim."""
+    """
+    Governed AI operational personas. F9-compliant: honest naming, no sovereign claim.
+
+    Scar-Weight Theory (W_beban):
+    — Each persona carries a specific burden to protect the system.
+    — Disagreement by design ensures constitutional coverage.
+    — Human (888 Judge) resolves irreconcilable conflicts.
+
+    Trinity Mapping:
+        AGI Mind (Δ):  ARCHITECT + ENGINEER → "Should & Can"
+        ASI Heart (Ω): AUDITOR → "What could break"
+        APEX Soul (Ψ): VALIDATOR + ORCHESTRATOR → "Is it true & In what order"
+
+    Scars (Burdens):
+        ARCHITECT: Accountability jangka panjang | "Should this exist?"
+        ENGINEER: Pager scars, outages | "Can we make it work?"
+        AUDITOR: "Batu api" reputation | "What could break / be abused?"
+        VALIDATOR: Approval pressure | "Is it actually true / correct?"
+    """
 
     ARCHITECT = "architect"
     ENGINEER = "engineer"

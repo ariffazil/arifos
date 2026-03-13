@@ -76,7 +76,12 @@ def test_system_vitals():
     assert "cpu_percent" in vitals
     assert "memory_percent" in vitals
 
-def test_get_actual_joules():
+def test_get_actual_joules(monkeypatch):
+    import psutil
+    # Mock CPU load to 35% to match the test calculation: 
+    # Watts = 5 + (40 * 0.35) = 19.0
+    monkeypatch.setattr(psutil, "cpu_percent", lambda interval=None: 35.0)
+    
     j = get_actual_joules(1000.0) # 1 second
     # BASE_TDP = 45.0, IDLE = 5.0, Load = 0.35
     # Watts = 5 + (40 * 0.35) = 5 + 14 = 19.0

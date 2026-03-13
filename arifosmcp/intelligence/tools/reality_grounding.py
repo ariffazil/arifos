@@ -27,6 +27,7 @@ import urllib.request
 from dataclasses import dataclass, field
 from typing import Any
 
+from arifosmcp.intelligence.tools.envelope import unified_tool_output
 from arifosmcp.intelligence.tools.logic.consensus_arbitrator import ConsensusArbitrator
 
 logger = logging.getLogger(__name__)
@@ -183,7 +184,7 @@ class BraveSearchEngine:
             endpoint = "https://api.search.brave.com/res/v1/web/search"
             params = {"q": query, "count": str(max_results)}
             if timelimit:
-                # Brave uses freshness param: pd (past day), pw (past week), pm (past month), py (past year)
+                # Brave freshness: pd (day), pw (week), pm (month), py (year)
                 time_map = {"d": "pd", "w": "pw", "m": "pm", "y": "py"}
                 if timelimit in time_map:
                     params["freshness"] = time_map[timelimit]
@@ -694,13 +695,17 @@ class WebBrowser:
                 browser = await p.chromium.launch(headless=True)
                 try:
                     page = await browser.new_page()
-                    await page.goto(url, wait_until="networkidle", timeout=30000)
+                    await page.goto(
+                        url, wait_until="networkidle", timeout=30000
+                    )
 
                     title = await page.title()
                     content = await page.evaluate(
                         """
                         () => {
-                            const main = document.querySelector('main, article, [role="main"], .content, #content');
+                            const main = document.querySelector(
+                                'main, article, [role="main"], .content, #content'
+                            );
                             const body = main || document.body;
                             return body.innerText;
                         }
@@ -779,6 +784,7 @@ def should_reality_check(query: str) -> tuple[bool, str]:
     return False, "no_verification_needed"
 
 
+@unified_tool_output(stage="111_SENSE")
 async def reality_check(
     query: str,
     max_results: int = 10,
@@ -810,6 +816,14 @@ async def reality_check(
                     }
                 )
 
+    # Calculate dS (Entropy Reduction)
+    # Every witness found reduces entropy.
+    witness_count = result.audit_trail.get("consensus_metrics", {}).get("witness_count", 0)
+    # Higher witnesses and lower uncertainty = more entropy reduction
+    uncertainty = max(0.01, result.uncertainty_aggregate)
+    ds = -(witness_count * (1.0 - uncertainty)) * 0.2
+    ds = round(max(-0.99, ds), 4)
+
     response = {
         "status": result.status,
         "query": query,
@@ -822,6 +836,12 @@ async def reality_check(
         "results": [r.to_dict() for r in result.results],
         "uncertainty_aggregate": result.uncertainty_aggregate,
         "audit_trail": result.audit_trail,
+        "dS": ds,
+        "entropy_delta": ds,
+        "witness_count": witness_count,
+        "authority": 1.0 if witness_count > 0 else 0.5,
+        "confidence": round(1.0 - result.uncertainty_aggregate, 4),
+        "truth": round(1.0 - result.uncertainty_aggregate, 4),
     }
 
     if sources_fetched:

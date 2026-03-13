@@ -18,6 +18,10 @@ from arifosmcp.runtime.models import (
     CanonicalAuthority,
     CanonicalError,
     CanonicalMetrics,
+    EntropyState,
+    EurekaState,
+    ExplorationState,
+    IntelligenceStage,
     MachineIssueLabel,
     MachineState,
     RuntimeEnvelope,
@@ -109,8 +113,56 @@ def unified_tool_output(
                     payload_keys = {"ok", "verdict", "status", "error", "issue", "trace"}
                     payload = {k: v for k, v in raw_result.items() if k not in payload_keys}
 
+                    # 3E Logic: Derive Intelligence State
+                    intel_state = raw_result.get("intelligence_state", {})
+                    hypotheses = intel_state.get("hypotheses", raw_result.get("hypotheses", []))
+                    
+                    if len(hypotheses) > 3:
+                        expl_state = ExplorationState.BROAD
+                    elif len(hypotheses) > 0:
+                        expl_state = ExplorationState.SCOPED
+                    else:
+                        expl_state = (
+                            ExplorationState.BROAD
+                            if "search" in detected_name
+                            else ExplorationState.SCOPED
+                        )
+
+                    # Estimate Entropy State (dS)
+                    ds = float(raw_result.get("dS", raw_result.get("entropy_delta", -0.1)))
+                    if ds <= -0.5:
+                        entr_state = EntropyState.LOW
+                    elif ds <= 0.0:
+                        entr_state = EntropyState.MANAGEABLE
+                    else:
+                        entr_state = EntropyState.HIGH
+
+                    # Estimate Eureka State
+                    is_forged = raw_result.get("eureka", False) or verdict == Verdict.SEAL
+                    eur_state = (
+                        EurekaState.FORGED
+                        if is_forged
+                        else EurekaState.PARTIAL if ok else EurekaState.NONE
+                    )
+
+                    # Map metrics to Canonical schema
+                    metrics = CanonicalMetrics(
+                        truth=float(raw_result.get("truth", 0.9 if ok else 0.5)),
+                        clarity_delta=ds,
+                        confidence=float(raw_result.get("confidence", 0.9 if ok else 0.1)),
+                        peace=float(raw_result.get("peace2", 1.0)),
+                        vitality=float(
+                            raw_result.get(
+                                "psi_le", 1.0 if machine_state == MachineState.READY else 0.5
+                            )
+                        ),
+                        entropy_delta=ds,
+                        authority=float(raw_result.get("authority", 1.0 if auth_ctx else 0.0)),
+                        risk=float(raw_result.get("risk", 0.0 if ok else 0.7)),
+                    )
+
                     # Build the RuntimeEnvelope
-                    return RuntimeEnvelope(
+                    envelope = RuntimeEnvelope(
                         ok=ok,
                         tool=detected_name,
                         session_id=session_id,
@@ -119,11 +171,18 @@ def unified_tool_output(
                         status=status,
                         machine_status=machine_state,
                         machine_issue=machine_issue,
-                        metrics=CanonicalMetrics(
-                            confidence=1.0 if ok else 0.0,
-                            vitality=1.0 if machine_state == MachineState.READY else 0.5,
-                            risk=0.0 if ok else 0.7,
+                        intelligence_stage=raw_result.get(
+                            "intel_stage", IntelligenceStage.EXPLORATION
                         ),
+                        intelligence_state={
+                            "exploration": expl_state,
+                            "entropy": entr_state,
+                            "eureka": eur_state,
+                            "hypotheses": hypotheses,
+                            "uncertainty_score": 1.0 - metrics.confidence,
+                            "dS": ds,
+                        },
+                        metrics=metrics,
                         payload=payload,
                         errors=errors,
                         authority=CanonicalAuthority(
@@ -136,6 +195,24 @@ def unified_tool_output(
                         else None,
                         auth_context=auth_ctx if auth_ctx else None,
                     )
+
+                    # P1 Strike: Sync with Governance Kernel if possible
+                    if session_id:
+                        try:
+                            from core.governance_kernel import get_governance_kernel
+                            kernel = get_governance_kernel(session_id)
+                            # Sync telemetry components
+                            kernel.consume_tool_call()
+                            if ds != 0:
+                                kernel.update_uncertainty(
+                                    safety_omega=1.0 - metrics.confidence,
+                                    display_omega=1.0 - metrics.confidence,
+                                    components={detected_name: ds}
+                                )
+                        except Exception:
+                            pass
+
+                    return envelope
 
                 # For any other return type, wrap as payload
                 return RuntimeEnvelope(

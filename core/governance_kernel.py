@@ -18,10 +18,6 @@ from typing import Any
 
 try:
     from core.physics.thermodynamics_hardened import (
-        EntropyIncreaseError,
-        EntropyIncreaseViolation,
-        LandauerError,
-        LandauerViolation,
         ThermodynamicBudget,
         ThermodynamicError,
         get_thermodynamic_budget,
@@ -115,6 +111,7 @@ class GovernanceKernel:
     last_verified_at: datetime | None = None
     last_verified_latency_ms: float | None = None
     session_id: str = ""
+    earth_witness_score: float = 1.0  # P0 Strike: F03_WITNESS
 
     # P0 HARDENING: Temporal Metrics (PRESENT dial)
     metabolic_flux: float = 0.0  # ΔTokens / Δt
@@ -640,8 +637,10 @@ class GovernanceKernel:
             defaults={
                 "f1_amanah": round(self.reversibility_score, 4),
                 "f2_truth": round(max(0.0, 1.0 - self.safety_omega), 4),
+                "f3_earth_witness": self.earth_witness_score,
                 "f4_clarity": 1.0 if self.governance_state == GovernanceState.ACTIVE else 0.8,
                 "f5_peace": round(self.reversibility_score, 4),
+                "f6_empathy": 0.95,
                 "f7_humility": round(0.04 - (self.safety_omega / 10.0), 4),
                 "f8_genius": 0.8,
                 "f11_command_auth": self.authority_level != AuthorityLevel.ANALYSIS,
@@ -691,7 +690,21 @@ class GovernanceKernel:
 
         floors = self._project_genius_floor_scores()
         budget_used, budget_max = self._project_genius_budget_window()
-        genius_res = calculate_genius(floors, self.hysteresis_penalty, budget_used, budget_max)
+        
+        # P1 Strike: Derive dials from 3E Telemetry
+        telemetry_payload = {
+            "entropy": {"uncertainty_score": self.safety_omega},
+            "exploration": {"hypotheses": [1] * max(1, self.reason_cycles)},
+            "eureka": {"detected": self.governance_state == GovernanceState.ACTIVE}
+        }
+        
+        genius_res = calculate_genius(
+            floors, 
+            self.hysteresis_penalty, 
+            budget_used, 
+            budget_max, 
+            telemetry=telemetry_payload
+        )
         dials = genius_res["dials"]
 
         # Trigger temporal stability update to refresh metabolic_flux/jitter
@@ -707,6 +720,7 @@ class GovernanceKernel:
             "floors": {
                 "F1": floors.f1_amanah,
                 "F2": floors.f2_truth,
+                "F3": floors.f3_earth_witness,
                 "F4": floors.f4_clarity,
                 "F7": floors.f7_humility,
                 "F8": genius_res["genius_score"],
@@ -716,8 +730,9 @@ class GovernanceKernel:
             "witness": {
                 "human": floors.f13_sovereign,
                 "ai": round(dials["A"], 4),
-                "earth": round(dials["P"], 4),
+                "earth": round(self.earth_witness_score, 4),
                 "shadow": round(dials["X"], 4),
+                "w3_consensus": round(floors.tri_witness_consensus, 4),
             },
             "telemetry": {
                 "dS": -0.1 if self.can_proceed() else 0.1,
@@ -728,6 +743,8 @@ class GovernanceKernel:
                 "joules": self.tokens_consumed * 0.0005,
                 "metabolic_flux": round(self.metabolic_flux, 2),
                 "temporal_stability": round(stability_t, 4),
+                "uncertainty_score": self.safety_omega,
+                "reason_cycles": self.reason_cycles,
             },
             "dials": dials,
         }

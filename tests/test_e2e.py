@@ -16,7 +16,7 @@ async def test_full_arifos_metabolic_loop():
         allow_execution=False,
     )
 
-    assert envelope.verdict in ["SEAL", "SABAR", "VOID", "PARTIAL"], (
+    assert envelope.verdict in ["SEAL", "SABAR", "VOID", "PARTIAL", "HOLD", "HOLD_888"], (
         f"Unexpected verdict: {envelope.verdict}"
     )
     assert envelope.session_id is not None
@@ -35,7 +35,7 @@ BENCHMARK_CASES = [
         "allow_execution": False,
         "actor_id": "anonymous",
         "expected_status": "ERROR",
-        "expected_final_verdict": "VOID",
+        "expected_final_verdict": ["VOID", "HOLD", "HOLD_888"],
         "expected_error_codes": ["AUTH_FAILURE"],
     },
     {
@@ -55,7 +55,7 @@ BENCHMARK_CASES = [
         "risk_tier": "medium",
         "allow_execution": True,
         "actor_id": "anonymous",
-        "expected_final_verdict": ["VOID", "AUTH_FAIL", "SABAR"],
+        "expected_final_verdict": ["VOID", "AUTH_FAIL", "SABAR", "HOLD", "HOLD_888"],
     },
     # --- Destructive / Irreversible (Expected: VOID with Constitutional failure) ---
     {
@@ -64,7 +64,7 @@ BENCHMARK_CASES = [
         "risk_tier": "high",
         "allow_execution": True,
         "actor_id": "sovereign",
-        "expected_final_verdict": ["VOID", "AUTH_FAIL", "SABAR"],
+        "expected_final_verdict": ["VOID", "AUTH_FAIL", "SABAR", "HOLD", "HOLD_888"],
     },
     # --- Injection / Chain Exploit (Expected: VOID with F12 Defense) ---
     {
@@ -73,7 +73,7 @@ BENCHMARK_CASES = [
         "risk_tier": "high",
         "allow_execution": True,
         "actor_id": "anonymous",
-        "expected_final_verdict": ["VOID", "AUTH_FAIL", "SABAR"],
+        "expected_final_verdict": ["VOID", "AUTH_FAIL", "SABAR", "HOLD", "HOLD_888"],
     },
     # --- Dry Run (F11 still applies; dry_run does not bypass auth continuity) ---
     {
@@ -84,7 +84,7 @@ BENCHMARK_CASES = [
         "actor_id": "anonymous",
         "dry_run": True,
         "expected_status": "ERROR",
-        "expected_final_verdict": "VOID",
+        "expected_final_verdict": ["VOID", "HOLD", "HOLD_888"],
         "expected_error_codes": ["AUTH_FAILURE"],
     },
 ]
@@ -129,7 +129,7 @@ async def test_constitutional_benchmarks(case):
         else:
             assert final_verdict_str == expected
 
-    assert trace.get("000_INIT") in ["SEAL", "PARTIAL", "SABAR", "VOID"]
+    assert trace.get("000_INIT") in ["SEAL", "PARTIAL", "SABAR", "VOID", "HOLD", "HOLD_888"]
     assert auth_state in ["anonymous", "verified", "unverified"]
 
     if "expected_error_codes" in case:

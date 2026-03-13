@@ -267,6 +267,7 @@ class FloorScores(BaseModel):
     # Soft Floors
     f3_quad_witness: float = Field(ge=0.0, le=1.0, default=0.75)
     f3_tri_witness: float = Field(ge=0.0, le=1.0, default=0.95)
+    f3_earth_witness: float = Field(ge=0.0, le=1.0, default=1.0)
     f4_clarity: float = Field(ge=0.0, le=1.0, default=1.0)  # F4: ΔS entropy reduction
     f5_peace: float = Field(ge=0.0, le=1.0, default=1.0)
     f8_genius: float = Field(ge=0.0, le=1.0, default=0.80)
@@ -278,6 +279,7 @@ class FloorScores(BaseModel):
             "f1_amanah": self.f1_amanah,
             "f2_truth": self.f2_truth,
             "f3_tri_witness": self.f3_tri_witness,
+            "f3_earth_witness": self.f3_earth_witness,
             "f4_clarity": self.f4_clarity,
             "f5_peace": self.f5_peace,
             "f6_empathy": self.f6_empathy,
@@ -293,8 +295,8 @@ class FloorScores(BaseModel):
     @property
     def tri_witness_consensus(self) -> float:
         """Geometric mean of H, A, E witnesses (v60 definition)."""
-        # Simplified placeholder for the actual W3 calculation logic
-        return (self.f13_sovereign * self.f2_truth * 1.0) ** (1 / 3)
+        # H = Sovereign, A = Truth, E = Earth
+        return (self.f13_sovereign * self.f2_truth * self.f3_earth_witness) ** (1 / 3)
 
 
 # ============================================================================
@@ -639,6 +641,7 @@ class InitOutput(BaseOrganOutput):
     code: CodeState
     governance: GovernanceMetadata
     floors: dict[str, str] = Field(default_factory=dict)
+    prev_vault_hash: str = "0x" + "0" * 64
 
     # Legacy support fields
     governance_token: str = ""

@@ -19,7 +19,7 @@ import hashlib
 import logging
 import os
 import uuid
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from pydantic import BaseModel, Field
 
@@ -38,7 +38,7 @@ try:
 except ImportError:
     EMBEDDING_AVAILABLE = False
 
-from arifosmcp.runtime.reality_models import EvidenceBundle, Claim
+from arifosmcp.runtime.reality_models import EvidenceBundle
 
 logger = logging.getLogger(__name__)
 
@@ -55,7 +55,7 @@ class VectorSyncResult(BaseModel):
     """Result of vector sync operation."""
     success: bool = False
     points_synced: int = 0
-    errors: List[str] = Field(default_factory=list)
+    errors: list[str] = Field(default_factory=list)
     collection: str = ""
     session_id: str = "global"
 
@@ -69,11 +69,11 @@ class VectorBridge:
     """
     
     def __init__(self):
-        self._client: Optional[Any] = None
-        self._embedding_model: Optional[Any] = None
+        self._client: Any | None = None
+        self._embedding_model: Any | None = None
         self._initialized = False
         
-    def _get_client(self) -> Optional[QdrantClient]:
+    def _get_client(self) -> QdrantClient | None:
         """Lazy initialization of Qdrant client."""
         if not QDRANT_AVAILABLE:
             return None
@@ -89,7 +89,7 @@ class VectorBridge:
                 return None
         return self._client
     
-    def _get_embedding_model(self) -> Optional[Any]:
+    def _get_embedding_model(self) -> Any | None:
         """Lazy initialization of embedding model."""
         if not EMBEDDING_AVAILABLE:
             return None
@@ -124,7 +124,7 @@ class VectorBridge:
             logger.error(f"Collection setup failed: {e}")
             return False
     
-    def _generate_embedding(self, text: str) -> Optional[List[float]]:
+    def _generate_embedding(self, text: str) -> list[float] | None:
         """Generate embedding vector for text."""
         model = self._get_embedding_model()
         if not model:
@@ -170,8 +170,8 @@ class VectorBridge:
                 session_id=session_id,
             )
         
-        points: List[PointStruct] = []
-        errors: List[str] = []
+        points: list[PointStruct] = []
+        errors: list[str] = []
         
         # Process each claim in the bundle
         for claim in bundle.claims:
@@ -246,9 +246,9 @@ class VectorBridge:
         self,
         query: str,
         top_k: int = 5,
-        filter_actor: Optional[str] = None,
+        filter_actor: str | None = None,
         min_confidence: float = 0.0,
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Search vector memory for relevant passages."""
         client = self._get_client()
         if not client:
@@ -324,9 +324,9 @@ async def auto_sync_bundle(
 async def search_vector_memory(
     query: str,
     top_k: int = 5,
-    filter_actor: Optional[str] = None,
+    filter_actor: str | None = None,
     min_confidence: float = 0.0,
-) -> List[Dict[str, Any]]:
+) -> list[dict[str, Any]]:
     """Search vector memory for relevant passages."""
     import asyncio
     loop = asyncio.get_event_loop()
@@ -340,7 +340,7 @@ async def search_vector_memory(
     )
 
 
-def get_vector_stats() -> Dict[str, Any]:
+def get_vector_stats() -> dict[str, Any]:
     """Get vector store statistics."""
     client = vector_bridge._get_client()
     if not client:

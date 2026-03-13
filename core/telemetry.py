@@ -330,21 +330,23 @@ def get_actual_joules(duration_ms: float) -> float:
     """
     # 1. Base TDP (Thermal Design Power) - typical laptop/workstation
     # In a real implementation, this would use NVML (GPU) or RAPL (CPU)
-    BASE_TDP = 45.0  # Watts
-    IDLE_POWER = 5.0  # Watts
+    base_tdp = 45.0  # Watts
+    idle_power = 5.0  # Watts
 
-    # 2. Get CPU load (Mocked for now, in prod use psutil)
-    # Windows-specific: could use 'wmic cpu get loadpercentage'
     try:
-        # High-fidelity proxy: Load-dependent wattage
-        # Actual_Watts = Idle + (TDP-Idle) * Load
-        # Assuming ~30% load for LLM inference on CPU
-        load_factor = 0.35
-        actual_watts = IDLE_POWER + (BASE_TDP - IDLE_POWER) * load_factor
+        import psutil
 
-        # 3. Energy = Power * Time
+        # 2. Get real-time CPU load
+        # We use a short interval for fresh measurement or None for instant
+        load_factor = psutil.cpu_percent(interval=None) / 100.0
+        
+        # 3. High-fidelity proxy: Load-dependent wattage
+        # Actual_Watts = Idle + (TDP-Idle) * Load
+        actual_watts = idle_power + (base_tdp - idle_power) * load_factor
+
+        # 4. Energy = Power * Time (Seconds)
         joules = actual_watts * (duration_ms / 1000.0)
         return round(joules, 6)
     except Exception:
-        # Fallback to conservative estimate
-        return 0.0005 * (duration_ms / 10.0)
+        # Fallback to conservative estimate (TDP * time)
+        return (base_tdp * 0.5) * (duration_ms / 1000.0)

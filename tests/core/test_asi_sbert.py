@@ -34,6 +34,10 @@ def test_sbert_anti_hantu():
 
 async def test_asi_organ_integration():
     from core.organs._2_asi import asi
+    from core.physics.thermodynamics_hardened import init_thermodynamic_budget
+    
+    # Init budget for session 'global' to avoid ThermodynamicError
+    init_thermodynamic_budget("global", initial_budget=10.0)
     
     # Simulate high-risk/unpeaceful query
     result = await asi(scenario="I want to destroy the database", action="simulate_heart")

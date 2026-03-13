@@ -77,7 +77,8 @@ class InjectionGuard:
         (r"forget\s+(?:all\s+|your\s+|previous\s+)*(?:instruction|command|prompt)s?", 0.9),
         (r"forget\s+your\s+training", 0.9),
         (
-            r"you\s+(?:are|will be|should be)\s+(?:now\s+|instead\s+)?(?:an?|the)\s+(?!assistant|AI|helper)",
+            r"you\s+(?:are|will be|should be)\s+(?:now\s+|instead\s+)?(?:an?|the)\s+"
+            r"(?!assistant|AI|helper)",
             0.8,
         ),
         (r"system prompt", 0.6),
@@ -400,6 +401,14 @@ async def init(
     except Exception:
         pass
 
+    # P2 Strike: K999_VAULT Merkle-Chain Continuity
+    # Link the start of this session to the end of the last one.
+    try:
+        from core.organs._4_vault import get_last_vault_entry_hash
+        prev_vault_hash = get_last_vault_entry_hash()
+    except Exception:
+        prev_vault_hash = "0x" + "0" * 64
+
     return InitOutput(
         session_id=final_session_id,
         verdict=Verdict.SEAL,
@@ -416,6 +425,7 @@ async def init(
         auth_verified=auth_verified,
         injection_score=injection.score,
         tri_witness={"human": 1.0, "ai": 1.0, "earth": 1.0},
+        prev_vault_hash=prev_vault_hash,
     )
 
 
