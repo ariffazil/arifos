@@ -118,6 +118,7 @@ dependencies = [
     "psutil>=5.9.0",  # System health and thermo instrumentation
     "python-dotenv>=1.0.0",  # Environment file loading
     "pyyaml>=6.0.0",  # Rule/config parsing for floors and wrappers
+    "python-lsp-server>=1.11.0",  # LSP bridge for code intelligence
 ]
 
 [project.optional-dependencies]

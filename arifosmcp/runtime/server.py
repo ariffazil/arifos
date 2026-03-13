@@ -36,7 +36,11 @@ from arifosmcp.runtime.fastmcp_ext.transports import (
 from arifosmcp.runtime.orchestrator import metabolic_loop
 from arifosmcp.runtime.phase2_tools import register_phase2_tools
 from arifosmcp.runtime.prompts import register_prompts
-from arifosmcp.runtime.public_registry import release_version_label
+from arifosmcp.runtime.public_registry import (
+    is_public_profile,
+    normalize_tool_profile,
+    release_version_label,
+)
 from arifosmcp.runtime.resources import register_resources
 from arifosmcp.runtime.rest_routes import register_rest_routes
 from arifosmcp.runtime.tools import (
@@ -48,6 +52,7 @@ from arifosmcp.runtime.tools import (
     register_tools,
     search_reality,
     session_memory,
+    verify_vault_ledger,
 )
 
 # ---------------------------------------------------------------------------
@@ -55,7 +60,7 @@ from arifosmcp.runtime.tools import (
 # ---------------------------------------------------------------------------
 
 mcp = FastMCP("arifOS-APEX-G", version=release_version_label())
-PUBLIC_TOOL_PROFILE = os.getenv("ARIFOS_PUBLIC_TOOL_PROFILE", "public").strip().lower() or "public"
+PUBLIC_TOOL_PROFILE = normalize_tool_profile(os.getenv("ARIFOS_PUBLIC_TOOL_PROFILE", "public"))
 # SSE removed: deprecated by MCP spec (2025-03) and Copilot Studio (2025-08)
 VALID_TRANSPORT_MODES = {"stdio", "http", "streamable-http"}
 
@@ -114,6 +119,7 @@ CORE_TOOL_REGISTRY = {
     "audit_rules": audit_rules,
     "check_vital": check_vital,
     "open_apex_dashboard": open_apex_dashboard,
+    "verify_vault_ledger": verify_vault_ledger,
 }
 
 register_rest_routes(mcp, CORE_TOOL_REGISTRY)
@@ -123,7 +129,7 @@ register_rest_routes(mcp, CORE_TOOL_REGISTRY)
 # Phase 2 — External Capability Tools (legacy-enabled, not in new loop)
 # ---------------------------------------------------------------------------
 
-if PUBLIC_TOOL_PROFILE != "public":
+if not is_public_profile(PUBLIC_TOOL_PROFILE):
     register_phase2_tools(mcp, profile=PUBLIC_TOOL_PROFILE)
 
 

@@ -57,10 +57,10 @@ def test_build_vps_overlay_script_contains_full_build_and_mount_check():
     assert "Dockerfile.deploy-overlay" not in script
 
 
-def test_deployment_tool_contract_matches_chatgpt_runtime_surface():
+def test_deployment_tool_contract_matches_public_runtime_surface():
     module = _load_module()
 
-    count, tools = module.deployment_tool_contract("chatgpt")
+    count, tools = module.deployment_tool_contract("public")
 
     assert count == len(module.PUBLIC_DEPLOYMENT_TOOLS)
     assert tools == module.PUBLIC_DEPLOYMENT_TOOLS

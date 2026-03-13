@@ -116,7 +116,7 @@ APEX_CORE_TOOLS: tuple[dict[str, str], ...] = tuple(_TOOLS)
 
 
 def apex_tools_html_rows() -> str:
-    """Return HTML table rows for the canonical 7-tool arifOS stack."""
+    """Return HTML table rows for the canonical public arifOS stack."""
     rows: list[str] = []
     for tool in APEX_CORE_TOOLS:
         rows.append(
@@ -128,9 +128,9 @@ def apex_tools_html_rows() -> str:
 
 
 def apex_tools_markdown_table() -> str:
-    """Return the canonical 7-tool arifOS stack as a Markdown table."""
-    header = "| Tool Name | Layer | Role |\n" "|-----------|-------|------|"
-    rows = [(f'| {tool["name"]} | {tool["type"]} | {tool["role"]} |') for tool in APEX_CORE_TOOLS]
+    """Return the canonical public arifOS stack as a Markdown table."""
+    header = "| Tool Name | Layer | Role |\n|-----------|-------|------|"
+    rows = [(f"| {tool['name']} | {tool['type']} | {tool['role']} |") for tool in APEX_CORE_TOOLS]
     return "\n".join([header, *rows])
 
 

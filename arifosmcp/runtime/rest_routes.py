@@ -28,7 +28,7 @@ from starlette.requests import Request
 from starlette.responses import HTMLResponse, JSONResponse, Response
 from starlette.staticfiles import StaticFiles
 
-from arifosmcp.runtime.public_registry import build_server_json
+from arifosmcp.runtime.public_registry import build_internal_server_json, build_server_json
 from arifosmcp.runtime.resources import apex_tools_html_rows, apex_tools_markdown_table
 from core.shared.floor_audit import get_ml_floor_runtime
 from core.shared.floors import (
@@ -131,7 +131,7 @@ WELCOME_HTML = """\
 </head>
 <body>
   <h1>arifOS MCP <span class="pill">&#9679; ONLINE</span></h1>
-  <h2>Metabolic Intelligence Kernel</h2>
+    <h2>Metabolic Intelligence Kernel</h2>
 
   <div class="nav">
     <a href="/tools">/tools</a>
@@ -147,7 +147,7 @@ WELCOME_HTML = """\
   </div>
 
   <section>
-    <h3>7-Tool arifOS Stack (Canonical Core)</h3>
+    <h3>Canonical Public arifOS Stack</h3>
     <table>
       <tr><th>Tool Name</th><th>Layer</th><th>Role</th></tr>
       __APEX_HTML_ROWS__
@@ -205,7 +205,7 @@ Domain: BRAIN / THE MIND (Ω)
 
 ## What this server does
 
-arifOS is an MCP server exposing a canonical 7-tool metabolic AI pipeline.
+arifOS is an MCP server exposing a canonical public metabolic AI pipeline.
 Every tool call passes through 13 governance floors (F1-F13) and returns
 a structured RuntimeEnvelope with verdict, thermodynamic telemetry, and Tri-Witness scores. 
 Agents reason from the capability map (Known Constraints).
@@ -217,7 +217,7 @@ Agents reason from the capability map (Known Constraints).
 - **Health**: `https://arifosmcp.arif-fazil.com/health`
 - **Registry**: `https://arifosmcp.arif-fazil.com/.well-known/mcp/server.json`
 
-## The 7-tool arifOS stack
+## The canonical public arifOS stack
 
 __APEX_MD_TABLE__
 
@@ -657,6 +657,28 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
             {
                 "type": "none",
                 "description": "No authentication required. actor_id is used for logging only.",
+            },
+        )
+        return JSONResponse(payload)
+
+    @mcp.custom_route("/.well-known/mcp/internal-server.json", methods=["GET"])
+    async def internal_well_known(request: Request) -> Response:
+        profile = os.getenv("ARIFOS_PUBLIC_TOOL_PROFILE", "public").strip().lower() or "public"
+        if profile in {"public", "chatgpt", "agnostic_public"}:
+            return JSONResponse(
+                {"error": "Internal contract disabled on public profile."}, status_code=404
+            )
+
+        payload = build_internal_server_json(_public_base_url(request))
+        payload.setdefault("protocolVersion", MCP_PROTOCOL_VERSION)
+        payload.setdefault("supportedProtocolVersions", MCP_SUPPORTED_PROTOCOL_VERSIONS)
+        payload.setdefault(
+            "authentication",
+            {
+                "type": "none",
+                "description": (
+                    "Internal profile contract. Use only on trusted local or stdio transports."
+                ),
             },
         )
         return JSONResponse(payload)

@@ -377,7 +377,7 @@ def deploy_railway() -> bool:
         "AAA_MCP_TRANSPORT": "http",
         "ARIFOS_CONSTITUTIONAL_MODE": "AAA",
         "ARIFOS_MCP_PATH": "/mcp",
-        "ARIFOS_PUBLIC_TOOL_PROFILE": "chatgpt",
+        "ARIFOS_PUBLIC_TOOL_PROFILE": "public",
     }
 
     for key, default in env_vars.items():
@@ -453,7 +453,7 @@ def deploy_docker() -> bool:
             "-e",
             "ARIFOS_MCP_PATH=/mcp",
             "-e",
-            "ARIFOS_PUBLIC_TOOL_PROFILE=chatgpt",
+            "ARIFOS_PUBLIC_TOOL_PROFILE=public",
             "--name",
             "arifos-mcp",
             "arifos-mcp:latest",
@@ -522,7 +522,7 @@ def generate_railway_template() -> None:
             "AAA_MCP_TRANSPORT": "http",
             "ARIFOS_CONSTITUTIONAL_MODE": "AAA",
             "ARIFOS_MCP_PATH": "/mcp",
-            "ARIFOS_PUBLIC_TOOL_PROFILE": "chatgpt",
+            "ARIFOS_PUBLIC_TOOL_PROFILE": "public",
         },
     }
 
@@ -563,8 +563,8 @@ def main() -> None:
     parser.add_argument("--prod-bind", default="127.0.0.1:8088:8080", help="Prod bind mapping")
     parser.add_argument(
         "--public-profile",
-        choices=["full", "chatgpt"],
-        default="chatgpt",
+        choices=["public", "full", "chatgpt"],
+        default="public",
         help="Expected public tool profile exposed by the runtime server",
     )
     parser.add_argument(

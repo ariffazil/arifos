@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+import os
 import uuid
 from typing import Any
 
+import httpx
 from fastmcp import Context, FastMCP
 from fastmcp.tools import ToolResult
 
@@ -16,10 +18,13 @@ from arifosmcp.runtime.models import (
     UserModelSource,
 )
 from arifosmcp.runtime.philosophy import select_governed_philosophy
-from arifosmcp.runtime.public_registry import public_tool_specs
+from arifosmcp.runtime.public_registry import (
+    is_public_profile,
+    normalize_tool_profile,
+    public_tool_specs,
+)
 from arifosmcp.runtime.resources import build_open_apex_dashboard_result
 from arifosmcp.runtime.sessions import _resolve_session_id, set_active_session
-from arifosmcp.tools.lsp_tools import register_lsp_tools
 from core.physics.thermodynamics_hardened import get_thermodynamic_report
 from core.shared.mottos import MOTTO_000_INIT_HEADER, MOTTO_999_SEAL_HEADER, get_motto_for_stage
 from core.state.session_manager import session_manager
@@ -30,6 +35,12 @@ from .bridge import call_kernel
 PUBLIC_TOOL_SPEC_BY_NAME = {spec.name: spec for spec in public_tool_specs()}
 PUBLIC_KERNEL_TOOL_NAME = "arifOS_kernel"
 LEGACY_KERNEL_TOOL_NAME = "arifOS-kernel"
+INTELLIGENCE_PROBE_URLS = {
+    "qdrant": ("QDRANT_URL", "/healthz"),
+    "ollama": ("OLLAMA_URL", "/api/tags"),
+    "openclaw": ("OPENCLAW_URL", "/healthz"),
+    "browserless": ("BROWSERLESS_URL", "/pressure"),
+}
 
 
 def _normalize_session_id(session_id: str | None) -> str:
@@ -767,7 +778,62 @@ async def check_vital(session_id: str = "global", ctx: Context | None = None) ->
     except Exception as e:
         envelope.payload["vital_error"] = f"Failed to fetch detailed vitals: {e}"
 
+    envelope.payload["intelligence_services"] = await _probe_intelligence_services()
+
     return envelope
+
+
+async def ollama_local_generate(
+    prompt: str,
+    model: str = "qwen2.5:3b",
+    system: str | None = None,
+    temperature: float = 0.2,
+    max_tokens: int = 512,
+    session_id: str = "global",
+    ctx: Context | None = None,
+) -> RuntimeEnvelope:
+    """333 MIND - Internal local-model prompt using the Ollama runtime."""
+    payload = {
+        "prompt": prompt,
+        "model": model,
+        "system": system,
+        "temperature": temperature,
+        "max_tokens": max_tokens,
+    }
+    return await _wrap_call("ollama_local_generate", Stage.MIND_333, session_id, payload, ctx)
+
+
+async def _probe_intelligence_services() -> dict[str, dict[str, Any]]:
+    results: dict[str, dict[str, Any]] = {}
+    async with httpx.AsyncClient(timeout=5.0) as client:
+        for service_name, (env_name, path) in INTELLIGENCE_PROBE_URLS.items():
+            client_base = os.getenv(env_name, "").strip()
+            if service_name == "browserless" and not client_base:
+                client_base = "http://headless_browser:3000"
+            if not client_base:
+                results[service_name] = {"status": "not_configured", "reachable": False}
+                continue
+            url = f"{client_base.rstrip('/')}{path}"
+            try:
+                response = await client.get(url)
+                payload: dict[str, Any] = {
+                    "status": "healthy" if response.status_code < 400 else "degraded",
+                    "reachable": response.status_code < 400,
+                    "status_code": response.status_code,
+                }
+                if service_name == "ollama" and response.status_code < 400:
+                    try:
+                        payload["model_count"] = len(response.json().get("models", []))
+                    except ValueError:
+                        payload["model_count"] = None
+                results[service_name] = payload
+            except Exception as exc:
+                results[service_name] = {
+                    "status": "unreachable",
+                    "reachable": False,
+                    "error": str(exc),
+                }
+    return results
 
 
 async def verify_vault_ledger(
@@ -865,8 +931,9 @@ async def _copilot_kernel_wrapper(
 def register_tools(mcp: FastMCP, profile: str = "full") -> None:
     """Register the core runtime tools; the dashboard app tool is added in resources."""
 
-    normalized_profile = profile.strip().lower() or "full"
+    normalized_profile = normalize_tool_profile(profile)
     is_copilot_profile = normalized_profile == "copilot"
+    public_surface = is_public_profile(normalized_profile)
 
     if is_copilot_profile:
         # Copilot Studio profile: flat, schema-safe surface only.
@@ -901,8 +968,6 @@ def register_tools(mcp: FastMCP, profile: str = "full") -> None:
         "check_vital": check_vital,
         "bootstrap_identity": bootstrap_identity,
         "verify_vault_ledger": verify_vault_ledger,
-        "office_forge_audit": office_forge_audit,
-        "forge_office_document": forge_office_document,
     }
 
     specs = {spec.name: spec for spec in public_tool_specs()}
@@ -914,11 +979,25 @@ def register_tools(mcp: FastMCP, profile: str = "full") -> None:
         else:
             mcp.tool(name=tool_name)(handler)
 
-    # Register LSP intelligence surface (Read-only symbols/diagnostics)
-    register_lsp_tools(mcp)
+    if not public_surface:
+        mcp.tool(
+            name="office_forge_audit", description="Internal markdown audit for office rendering."
+        )(office_forge_audit)
+        mcp.tool(
+            name="forge_office_document",
+            description="Internal office forge renderer for governed PDF/PPTX artifact generation.",
+        )(forge_office_document)
+        mcp.tool(
+            name="ollama_local_generate",
+            description="Internal bounded prompt execution against the local Ollama runtime.",
+        )(ollama_local_generate)
+
+        from arifosmcp.tools.lsp_tools import register_lsp_tools
+
+        register_lsp_tools(mcp)
 
     # Legacy aliases — simplified profile matching
-    if normalized_profile != "public":
+    if not public_surface:
         mcp.tool(
             name="arifOS-kernel",
             description=(

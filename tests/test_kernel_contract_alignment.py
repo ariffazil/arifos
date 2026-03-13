@@ -5,9 +5,9 @@ from pathlib import Path
 
 import pytest
 
+from arifosmcp.runtime import tools as runtime_tools
 from arifosmcp.runtime.philosophy import select_governed_philosophy
 from arifosmcp.runtime.public_registry import PUBLIC_TOOL_SPECS
-from arifosmcp.runtime import tools as runtime_tools
 from arifosmcp.runtime.tools import (
     audit_rules,
     bootstrap_identity,
@@ -57,27 +57,29 @@ def test_manifest_kernel_schema_exposes_auth_context():
 
 
 @pytest.mark.asyncio
-async def test_low_risk_open_mode_mints_context_but_keeps_unverified_authority(monkeypatch):
+async def test_low_risk_declared_identity_auto_anchors_continuity(monkeypatch):
     from core.physics.thermodynamics_hardened import init_thermodynamic_budget
-    monkeypatch.setenv("ARIFOS_GOVERNANCE_OPEN_MODE", "1")
-    
-    # We need a stable session_id to init budget
-    session_id = "test_low_risk_auto"
+
+    monkeypatch.delenv("ARIFOS_GOVERNANCE_OPEN_MODE", raising=False)
+    session_id = "test-low-risk-auto-anchor"
     init_thermodynamic_budget(session_id, initial_budget=1.0)
-    
+
     envelope = await metabolic_loop_router(
         query="Assess deployment readiness.",
-        actor_id="ARIF",
+        actor_id="guest-user",
         risk_tier="low",
         session_id=session_id,
+        dry_run=True,
+        use_memory=False,
+        use_heart=False,
+        use_critique=False,
     )
 
     assert envelope.tool == "arifOS_kernel"
     assert envelope.auth_context is not None
-    assert any(error.code == "AUTH_FAILURE" for error in envelope.errors)
-    assert envelope.verdict == "VOID"
-    assert envelope.authority.actor_id == "anonymous"
-    assert envelope.authority.auth_state == "unverified"
+    assert not any(error.code == "AUTH_FAILURE" for error in envelope.errors)
+    assert envelope.authority.actor_id == "guest-user"
+    assert envelope.authority.auth_state == "verified"
     assert envelope.trace.get("000_INIT") == "SEAL"
     assert envelope.philosophy is not None
     assert envelope.meta.motto is not None

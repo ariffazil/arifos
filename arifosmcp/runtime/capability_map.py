@@ -30,6 +30,10 @@ def _configured(*names: str) -> str:
     return "configured" if _env_present(*names) else "not_configured"
 
 
+def _url_configured(*names: str) -> str:
+    return "configured" if _env_present(*names) else "not_configured"
+
+
 def _aggregate_class_status(values: list[str]) -> str:
     configured = {"configured", "open_dev_mode"}
     if values and all(value in configured for value in values):
@@ -77,6 +81,7 @@ def build_runtime_capability_map() -> dict[str, Any]:
         "google": _configured("GOOGLE_API_KEY"),
         "openrouter": _configured("OPENROUTER_API_KEY"),
         "venice": _configured("VENICE_API_KEY"),
+        "ollama_local": _url_configured("OLLAMA_URL"),
         "brave": _configured("BRAVE_API_KEY"),
         "jina": _configured("JINA_API_KEY"),
         "perplexity": _configured("PPLX_API_KEY", "PERPLEXITY_API_KEY"),
@@ -97,6 +102,7 @@ def build_runtime_capability_map() -> dict[str, Any]:
         providers["google"],
         providers["openrouter"],
         providers["venice"],
+        providers["ollama_local"],
     ]
     grounding_provider_states = [
         providers["brave"],
@@ -117,6 +123,9 @@ def build_runtime_capability_map() -> dict[str, Any]:
         else "limited",
         "model_provider_access": "enabled"
         if any(state == "configured" for state in llm_provider_states)
+        else "disabled",
+        "local_model_runtime": "enabled"
+        if providers["ollama_local"] == "configured"
         else "disabled",
         "auto_deploy": "enabled" if ops["webhook_deploy"] == "configured" else "disabled",
     }

@@ -14,6 +14,7 @@ from typing import Any
 from fastmcp import FastMCP
 
 from .bridge import call_kernel
+from .public_registry import is_public_profile, normalize_tool_profile
 
 logger = logging.getLogger(__name__)
 
@@ -32,12 +33,12 @@ async def metabolic_loop(session_id: str = "global") -> dict[str, Any]:
 
 
 def _register_local_phase2_tools(mcp: FastMCP, profile: str = "full") -> None:
-    normalized_profile = profile.strip().lower() or "full"
+    normalized_profile = normalize_tool_profile(profile)
 
     # search_reality, ingest_evidence, audit_rules, check_vital, session_memory
     # have all been moved to the primary arifOS core tool surface.
 
-    if normalized_profile != "chatgpt":
+    if not is_public_profile(normalized_profile):
         mcp.tool(
             description=(
                 "Use this when you need to replay sealed stage traces for a given session_id "
@@ -60,9 +61,9 @@ def _register_aclip_tools(mcp: FastMCP) -> None:
 
 def register_phase2_tools(mcp: FastMCP, profile: str = "full") -> None:
     """Register legacy capability tools without wiring them into the new loop."""
-    normalized_profile = profile.strip().lower() or "full"
+    normalized_profile = normalize_tool_profile(profile)
     _register_local_phase2_tools(mcp, profile=normalized_profile)
-    if normalized_profile != "chatgpt":
+    if not is_public_profile(normalized_profile):
         _register_aclip_tools(mcp)
 
 

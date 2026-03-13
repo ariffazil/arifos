@@ -33,6 +33,16 @@ AAA_INTERNAL_STAGE_TOOLS: tuple[str, ...] = (
     "apex_judge",
     "seal_vault",
     "metabolic_loop",
+    "trace_replay",
+    "office_forge_audit",
+    "forge_office_document",
+    "ollama_local_generate",
+    "lsp_query_tool",
+    "lsp_get_symbols_tool",
+    "lsp_get_diagnostics_tool",
+    "lsp_go_to_definition_tool",
+    "lsp_find_references_tool",
+    "lsp_rename_tool",
 )
 
 AAA_CANONICAL_TOOLS: tuple[str, ...] = (
@@ -48,6 +58,8 @@ REQUIRES_SESSION: set[str] = {
     "apex_judge",
     "eureka_forge",
     "seal_vault",
+    "forge_office_document",
+    "ollama_local_generate",
 }
 
 READ_ONLY_TOOLS: set[str] = {
@@ -79,6 +91,16 @@ AAA_TOOL_STAGE_MAP: dict[str, str] = {
     "metabolic_loop": "444_ROUTER",
     "bootstrap_identity": "000_INIT",
     "verify_vault_ledger": "999_VAULT",
+    "trace_replay": "999_VAULT",
+    "office_forge_audit": "777_FORGE",
+    "forge_office_document": "777_FORGE",
+    "ollama_local_generate": "333_MIND",
+    "lsp_query_tool": "111_SENSE",
+    "lsp_get_symbols_tool": "111_SENSE",
+    "lsp_get_diagnostics_tool": "111_SENSE",
+    "lsp_go_to_definition_tool": "111_SENSE",
+    "lsp_find_references_tool": "111_SENSE",
+    "lsp_rename_tool": "111_SENSE",
 }
 
 TRINITY_BY_TOOL: dict[str, str] = {
@@ -98,6 +120,16 @@ TRINITY_BY_TOOL: dict[str, str] = {
     "metabolic_loop": "ALL",
     "bootstrap_identity": "Delta",
     "verify_vault_ledger": "Psi",
+    "trace_replay": "Psi",
+    "office_forge_audit": "Psi",
+    "forge_office_document": "Psi",
+    "ollama_local_generate": "Delta",
+    "lsp_query_tool": "Delta",
+    "lsp_get_symbols_tool": "Delta",
+    "lsp_get_diagnostics_tool": "Delta",
+    "lsp_go_to_definition_tool": "Delta",
+    "lsp_find_references_tool": "Delta",
+    "lsp_rename_tool": "Delta",
 }
 
 LAW_13_CATALOG: dict[str, dict[str, str]] = {
@@ -167,6 +199,28 @@ AAA_TOOL_LAW_BINDINGS: dict[str, list[str]] = {
     "metabolic_loop": ["F1_AMANAH", "F2_TRUTH", "F3_TRI_WITNESS", "F4_CLARITY", "F13_SOVEREIGNTY"],
     "bootstrap_identity": ["F11_AUTHORITY"],
     "verify_vault_ledger": ["F13_SOVEREIGNTY"],
+    "trace_replay": ["F2_TRUTH", "F3_TRI_WITNESS", "F13_SOVEREIGNTY"],
+    "office_forge_audit": ["F4_CLARITY", "F7_HUMILITY", "F12_DEFENSE"],
+    "forge_office_document": [
+        "F1_AMANAH",
+        "F4_CLARITY",
+        "F11_AUTHORITY",
+        "F12_DEFENSE",
+        "F13_SOVEREIGNTY",
+    ],
+    "ollama_local_generate": [
+        "F2_TRUTH",
+        "F4_CLARITY",
+        "F7_HUMILITY",
+        "F11_AUTHORITY",
+        "F12_DEFENSE",
+    ],
+    "lsp_query_tool": ["F2_TRUTH", "F4_CLARITY", "F12_DEFENSE"],
+    "lsp_get_symbols_tool": ["F2_TRUTH", "F4_CLARITY", "F12_DEFENSE"],
+    "lsp_get_diagnostics_tool": ["F2_TRUTH", "F4_CLARITY", "F12_DEFENSE"],
+    "lsp_go_to_definition_tool": ["F2_TRUTH", "F4_CLARITY", "F12_DEFENSE"],
+    "lsp_find_references_tool": ["F2_TRUTH", "F4_CLARITY", "F12_DEFENSE"],
+    "lsp_rename_tool": ["F1_AMANAH", "F2_TRUTH", "F11_AUTHORITY", "F12_DEFENSE", "F13_SOVEREIGNTY"],
 }
 
 AAA_TOOL_ALIASES: dict[str, str] = {
@@ -213,6 +267,24 @@ TOOL_INPUT_CONTRACTS: dict[str, dict[str, str]] = {
     "seal_vault": {"session_id": "str", "verdict": "str"},
     "trace_replay": {},
     "metabolic_loop": {"query": "str"},
+    "office_forge_audit": {"markdown": "str"},
+    "forge_office_document": {
+        "session_id": "str",
+        "markdown": "str",
+        "output_mode": "str",
+    },
+    "ollama_local_generate": {"prompt": "str", "model": "str"},
+    "lsp_query_tool": {"file_path": "str", "query_type": "str"},
+    "lsp_get_symbols_tool": {"file_path": "str"},
+    "lsp_get_diagnostics_tool": {"file_path": "str"},
+    "lsp_go_to_definition_tool": {"file_path": "str", "line": "int", "character": "int"},
+    "lsp_find_references_tool": {"file_path": "str", "line": "int", "character": "int"},
+    "lsp_rename_tool": {
+        "file_path": "str",
+        "line": "int",
+        "character": "int",
+        "new_name": "str",
+    },
 }
 
 # ═══════════════════════════════════════════════════════════════════════════════

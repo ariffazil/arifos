@@ -17,6 +17,8 @@ DEFAULT_HTTP_PATH = "/mcp"
 MCP_SERVER_NAME = "io.github.ariffazil/arifos-mcp"
 MCP_SERVER_TITLE = "arifOS Sovereign Governance MCP"
 MCP_PROTOCOL_VERSION = "2025-11-25"
+PUBLIC_PROFILE_ALIASES = {"", "public", "chatgpt", "agnostic_public"}
+INTERNAL_PROFILE_ALIASES = {"internal", "full"}
 
 
 @dataclass(frozen=True)
@@ -51,6 +53,23 @@ class CompatibilitySpec:
     public_route: str
     status: str
     notes: str
+
+
+def _profile_label(profile: str) -> str:
+    normalized = profile.strip().lower() or "public"
+    if normalized in PUBLIC_PROFILE_ALIASES:
+        return "public"
+    if normalized in INTERNAL_PROFILE_ALIASES:
+        return "internal"
+    return normalized
+
+
+def normalize_tool_profile(profile: str) -> str:
+    return _profile_label(profile)
+
+
+def is_public_profile(profile: str) -> bool:
+    return _profile_label(profile) == "public"
 
 
 @lru_cache(maxsize=1)
@@ -292,6 +311,11 @@ INTERNAL_STAGE_TOOL_NAMES: tuple[str, ...] = (
     "quantum_eureka_forge",
     "apex_judge_verdict",
     "seal_vault_commit",
+    "lsp_query_tool",
+    "lsp_get_symbols_tool",
+    "lsp_get_diagnostics_tool",
+    "lsp_go_to_definition_tool",
+    "lsp_find_references_tool",
 )
 
 NON_CHATGPT_EXTRA_TOOL_NAMES: tuple[str, ...] = INTERNAL_STAGE_TOOL_NAMES
@@ -301,13 +325,18 @@ PUBLIC_COMPATIBILITY_SPECS: tuple[CompatibilitySpec, ...] = (
         legacy_name="anchor_session",
         public_route="bootstrap_identity",
         status="removed",
-        notes="Explicit onboarding moved to bootstrap_identity; one-call governed work moved to arifOS_kernel.",
+        notes=(
+            "Explicit onboarding moved to bootstrap_identity; "
+            "one-call governed work moved to arifOS_kernel."
+        ),
     ),
     CompatibilitySpec(
         legacy_name="reason_mind",
         public_route="arifOS_kernel",
         status="removed",
-        notes="Reasoning is now internal to the kernel pipeline rather than a separate public step.",
+        notes=(
+            "Reasoning is now internal to the kernel pipeline rather than a separate public step."
+        ),
     ),
     CompatibilitySpec(
         legacy_name="recall_memory",
@@ -349,7 +378,10 @@ PUBLIC_COMPATIBILITY_SPECS: tuple[CompatibilitySpec, ...] = (
         legacy_name="seal_vault",
         public_route="arifOS_kernel",
         status="internal",
-        notes="Vault sealing remains internal/dev-only and is not part of the public model-facing contract.",
+        notes=(
+            "Vault sealing remains internal/dev-only and is not part of "
+            "the public model-facing contract."
+        ),
     ),
     CompatibilitySpec(
         legacy_name="fetch_content",
@@ -548,20 +580,363 @@ def public_tool_names() -> tuple[str, ...]:
     return tuple(spec.name for spec in PUBLIC_TOOL_SPECS)
 
 
+INTERNAL_TOOL_SPECS: tuple[ToolSpec, ...] = (
+    ToolSpec(
+        name="office_forge_audit",
+        stage="777_FORGE",
+        role="Render audit",
+        layer="Internal Forge",
+        description="Audit markdown complexity and safety before rendering office artifacts.",
+        trinity="Psi",
+        floors=("F4", "F7", "F12"),
+        input_schema={
+            "type": "object",
+            "required": ["markdown"],
+            "properties": {"markdown": {"type": "string"}},
+            "additionalProperties": False,
+        },
+        readonly=True,
+    ),
+    ToolSpec(
+        name="forge_office_document",
+        stage="777_FORGE",
+        role="Artifact render",
+        layer="Internal Forge",
+        description="Render governed markdown into PDF or PPTX artifacts for internal agents.",
+        trinity="Psi",
+        floors=("F1", "F4", "F11", "F12", "F13"),
+        input_schema={
+            "type": "object",
+            "required": ["session_id", "markdown"],
+            "properties": {
+                "session_id": {"type": "string"},
+                "markdown": {"type": "string"},
+                "output_mode": {
+                    "type": "string",
+                    "enum": ["pdf", "pptx", "preview"],
+                    "default": "pdf",
+                },
+                "theme": {"type": "string", "default": "default"},
+                "filename": {"type": "string"},
+            },
+            "additionalProperties": False,
+        },
+    ),
+    ToolSpec(
+        name="trace_replay",
+        stage="999_VAULT",
+        role="Trace replay",
+        layer="Internal Audit",
+        description="Replay sealed trace history for explainability and audit.",
+        trinity="Psi",
+        floors=("F2", "F3", "F13"),
+        input_schema={
+            "type": "object",
+            "properties": {
+                "session_id": {"type": "string", "default": "global"},
+                "limit": {"type": "integer", "minimum": 1, "default": 20},
+            },
+            "additionalProperties": False,
+        },
+        readonly=True,
+    ),
+    ToolSpec(
+        name="ollama_local_generate",
+        stage="333_MIND",
+        role="Local model generation",
+        layer="Internal Intelligence",
+        description=(
+            "Run a bounded prompt against the local Ollama runtime for trusted internal agents."
+        ),
+        trinity="Delta",
+        floors=("F2", "F4", "F7", "F11", "F12"),
+        input_schema={
+            "type": "object",
+            "required": ["prompt"],
+            "properties": {
+                "prompt": {"type": "string"},
+                "model": {"type": "string", "default": "qwen2.5:3b"},
+                "system": {"type": "string"},
+                "temperature": {"type": "number", "default": 0.2},
+                "max_tokens": {"type": "integer", "default": 512},
+            },
+            "additionalProperties": False,
+        },
+    ),
+    ToolSpec(
+        name="lsp_query_tool",
+        stage="111_SENSE",
+        role="Code intelligence",
+        layer="Internal Intelligence",
+        description=(
+            "Query the language server for hover, definition, references, symbols, or diagnostics."
+        ),
+        trinity="Delta",
+        floors=("F2", "F4", "F12"),
+        input_schema={
+            "type": "object",
+            "required": ["file_path", "query_type"],
+            "properties": {
+                "file_path": {"type": "string"},
+                "query_type": {
+                    "type": "string",
+                    "enum": ["hover", "definition", "references", "symbols", "diagnostics"],
+                },
+                "line": {"type": "integer", "default": 0},
+                "character": {"type": "integer", "default": 0},
+            },
+            "additionalProperties": False,
+        },
+        readonly=True,
+    ),
+    ToolSpec(
+        name="lsp_get_symbols_tool",
+        stage="111_SENSE",
+        role="Document symbols",
+        layer="Internal Intelligence",
+        description="List code symbols in a file via the language server.",
+        trinity="Delta",
+        floors=("F2", "F4", "F12"),
+        input_schema={
+            "type": "object",
+            "required": ["file_path"],
+            "properties": {"file_path": {"type": "string"}},
+            "additionalProperties": False,
+        },
+        readonly=True,
+    ),
+    ToolSpec(
+        name="lsp_get_diagnostics_tool",
+        stage="111_SENSE",
+        role="Diagnostics",
+        layer="Internal Intelligence",
+        description="Get diagnostics, warnings, and errors for a file via the language server.",
+        trinity="Delta",
+        floors=("F2", "F4", "F12"),
+        input_schema={
+            "type": "object",
+            "required": ["file_path"],
+            "properties": {"file_path": {"type": "string"}},
+            "additionalProperties": False,
+        },
+        readonly=True,
+    ),
+    ToolSpec(
+        name="lsp_go_to_definition_tool",
+        stage="111_SENSE",
+        role="Definition lookup",
+        layer="Internal Intelligence",
+        description="Find where a symbol is defined via the language server.",
+        trinity="Delta",
+        floors=("F2", "F4", "F12"),
+        input_schema={
+            "type": "object",
+            "required": ["file_path", "line", "character"],
+            "properties": {
+                "file_path": {"type": "string"},
+                "line": {"type": "integer"},
+                "character": {"type": "integer"},
+            },
+            "additionalProperties": False,
+        },
+        readonly=True,
+    ),
+    ToolSpec(
+        name="lsp_find_references_tool",
+        stage="111_SENSE",
+        role="Reference lookup",
+        layer="Internal Intelligence",
+        description="Find references to a symbol via the language server.",
+        trinity="Delta",
+        floors=("F2", "F4", "F12"),
+        input_schema={
+            "type": "object",
+            "required": ["file_path", "line", "character"],
+            "properties": {
+                "file_path": {"type": "string"},
+                "line": {"type": "integer"},
+                "character": {"type": "integer"},
+            },
+            "additionalProperties": False,
+        },
+        readonly=True,
+    ),
+    ToolSpec(
+        name="lsp_rename_tool",
+        stage="111_SENSE",
+        role="Rename proposal",
+        layer="Internal Intelligence",
+        description=(
+            "Propose a rename refactor via the language server. Requires 888_HOLD before execution."
+        ),
+        trinity="Delta",
+        floors=("F1", "F2", "F11", "F12", "F13"),
+        input_schema={
+            "type": "object",
+            "required": ["file_path", "line", "character", "new_name"],
+            "properties": {
+                "file_path": {"type": "string"},
+                "line": {"type": "integer"},
+                "character": {"type": "integer"},
+                "new_name": {"type": "string"},
+            },
+            "additionalProperties": False,
+        },
+    ),
+)
+
+
+def internal_tool_specs() -> tuple[ToolSpec, ...]:
+    return INTERNAL_TOOL_SPECS
+
+
+def internal_tool_names() -> tuple[str, ...]:
+    return tuple(spec.name for spec in INTERNAL_TOOL_SPECS)
+
+
+LEGACY_INTERNAL_TOOL_SPECS: tuple[ToolSpec, ...] = (
+    ToolSpec(
+        name="init_anchor_state",
+        stage="000_INIT",
+        role="Session anchor",
+        layer="Internal Legacy",
+        description="Legacy bootstrap tool for anchored internal sessions.",
+        trinity="Delta",
+        floors=("F11", "F12", "F13"),
+        input_schema={
+            "type": "object",
+            "required": ["declared_name"],
+            "properties": {"declared_name": {"type": "string"}, "session_id": {"type": "string"}},
+            "additionalProperties": False,
+        },
+    ),
+    ToolSpec(
+        name="integrate_analyze_reflect",
+        stage="111_FRAME",
+        role="Framing",
+        layer="Internal Legacy",
+        description="Legacy framing tool retained for internal orchestration compatibility.",
+        trinity="Delta",
+        floors=("F2", "F4", "F7"),
+        input_schema={
+            "type": "object",
+            "required": ["query", "session_id"],
+            "properties": {"query": {"type": "string"}, "session_id": {"type": "string"}},
+            "additionalProperties": False,
+        },
+    ),
+    ToolSpec(
+        name="reason_mind_synthesis",
+        stage="333_MIND",
+        role="Reason synthesis",
+        layer="Internal Legacy",
+        description="Legacy explicit reasoning stage for internal agents.",
+        trinity="Delta",
+        floors=("F2", "F4", "F7", "F8"),
+        input_schema={
+            "type": "object",
+            "required": ["query", "session_id"],
+            "properties": {"query": {"type": "string"}, "session_id": {"type": "string"}},
+            "additionalProperties": False,
+        },
+    ),
+    ToolSpec(
+        name="assess_heart_impact",
+        stage="555_HEART",
+        role="Impact assessment",
+        layer="Internal Legacy",
+        description="Legacy empathy and impact assessment stage.",
+        trinity="Omega",
+        floors=("F5", "F6", "F13"),
+        input_schema={
+            "type": "object",
+            "required": ["query", "session_id"],
+            "properties": {"query": {"type": "string"}, "session_id": {"type": "string"}},
+            "additionalProperties": False,
+        },
+    ),
+    ToolSpec(
+        name="critique_thought_audit",
+        stage="666_CRITIQUE",
+        role="Critique",
+        layer="Internal Legacy",
+        description="Legacy critique and audit stage for internal chain-of-thought governance.",
+        trinity="Omega",
+        floors=("F4", "F7", "F12"),
+        input_schema={
+            "type": "object",
+            "required": ["thought_id", "session_id"],
+            "properties": {"thought_id": {"type": "string"}, "session_id": {"type": "string"}},
+            "additionalProperties": False,
+        },
+    ),
+    ToolSpec(
+        name="quantum_eureka_forge",
+        stage="777_FORGE",
+        role="Forge synthesis",
+        layer="Internal Legacy",
+        description="Legacy forge stage for proposal shaping before judgment.",
+        trinity="Psi",
+        floors=("F5", "F6", "F7", "F13"),
+        input_schema={
+            "type": "object",
+            "required": ["session_id", "intent"],
+            "properties": {"session_id": {"type": "string"}, "intent": {"type": "string"}},
+            "additionalProperties": False,
+        },
+    ),
+    ToolSpec(
+        name="apex_judge_verdict",
+        stage="888_JUDGE",
+        role="Verdict",
+        layer="Internal Legacy",
+        description="Legacy APEX judgment stage retained for internal orchestration.",
+        trinity="Psi",
+        floors=("F1", "F2", "F3", "F10", "F13"),
+        input_schema={
+            "type": "object",
+            "required": ["session_id", "verdict_candidate"],
+            "properties": {
+                "session_id": {"type": "string"},
+                "verdict_candidate": {"type": "string"},
+            },
+            "additionalProperties": False,
+        },
+    ),
+    ToolSpec(
+        name="seal_vault_commit",
+        stage="999_VAULT",
+        role="Vault seal",
+        layer="Internal Legacy",
+        description="Legacy vault commit stage retained for internal orchestration.",
+        trinity="Psi",
+        floors=("F1", "F3", "F10", "F13"),
+        input_schema={
+            "type": "object",
+            "required": ["session_id", "verdict"],
+            "properties": {"session_id": {"type": "string"}, "verdict": {"type": "string"}},
+            "additionalProperties": False,
+        },
+    ),
+)
+
+
+def legacy_internal_tool_specs() -> tuple[ToolSpec, ...]:
+    return LEGACY_INTERNAL_TOOL_SPECS
+
+
 def tool_names_for_profile(profile: str) -> tuple[str, ...]:
     """
     Resolve tool surface based on transport profile.
     - public: Safe universal external surface (e.g. ChatGPT, Agnostic MCP clients).
     - internal: Richer trusted agent surface (includes stage tools).
     """
-    normalized = profile.strip().lower() or "public"
-    
-    # Mapping legacy names to canonical transport profiles
-    if normalized in {"chatgpt", "agnostic_public", "public"}:
+    normalized = _profile_label(profile)
+    if normalized == "public":
         return public_tool_names()
-    
-    # Internal surface includes all public tools + internal metabolic stage tools
-    return public_tool_names() + INTERNAL_STAGE_TOOL_NAMES
+
+    internal_names = tuple(spec.name for spec in LEGACY_INTERNAL_TOOL_SPECS) + internal_tool_names()
+    return tuple(dict.fromkeys(public_tool_names() + internal_names))
 
 
 def deployment_tool_contract(profile: str) -> tuple[int, tuple[str, ...]]:
@@ -606,20 +981,26 @@ def build_public_contract_markdown() -> str:
         "description: Auto-generated arifOS public MCP contract for model-agnostic clients.",
         "---",
         "",
-        "<!-- AUTO-GENERATED: edit arifosmcp/runtime/public_registry.py and rerun scripts/generate_public_contract_docs.py -->",
+        (
+            "<!-- AUTO-GENERATED: edit arifosmcp/runtime/public_registry.py "
+            "and rerun scripts/generate_public_contract_docs.py -->"
+        ),
         "",
         "# Public Contract",
         "",
         f"Runtime version: `{release_version_label()}`",
         "",
-        "This page is generated from `arifosmcp.runtime.public_registry`. It is the only supported public/main MCP contract for model-agnostic clients.",
+        (
+            "This page is generated from `arifosmcp.runtime.public_registry`. "
+            "It is the only supported public/main MCP contract for model-agnostic clients."
+        ),
         "",
         "## Public MCP Contract",
         "",
         f"- Public tools: `{len(PUBLIC_TOOL_SPECS)}`",
         f"- Protocol: `{MCP_PROTOCOL_VERSION}`",
         "- Transports: `http`, `stdio`",
-        "- Public profile: `chatgpt` / `agnostic_public`",
+        "- Public profile: `public` (aliases: `chatgpt`, `agnostic_public`)",
         "",
         "### Public Tools",
         "",
@@ -636,7 +1017,11 @@ def build_public_contract_markdown() -> str:
             "",
             "### Internal / Dev-only Stage Tools",
             "",
-            "These tools are available only in internal/dev-style profiles. They are not part of the public model-facing contract and should not be treated as stable external API.",
+            (
+                "These tools are available only in internal/dev-style profiles. "
+                "They are not part of the public model-facing contract and "
+                "should not be treated as stable external API."
+            ),
             "",
             "| Tool | Status |",
             "|------|--------|",
@@ -689,7 +1074,7 @@ def build_server_json(public_base_url: str = DEFAULT_PUBLIC_BASE_URL) -> dict[st
         "name": MCP_SERVER_NAME,
         "version": release_version_label(),
         "description": (
-            "Constitutional AI governance server — 8 canonical public MCP tools with "
+            "Constitutional AI governance server — 9 canonical public MCP tools with "
             "F1-F13 floor enforcement, metabolic Stage 444 routing, prompts, and resources."
         ),
         "vendor": {"name": "Muhammad Arif bin Fazil", "url": "https://arif-fazil.com"},
@@ -715,6 +1100,36 @@ def build_server_json(public_base_url: str = DEFAULT_PUBLIC_BASE_URL) -> dict[st
     }
 
 
+def build_internal_server_json(public_base_url: str = DEFAULT_PUBLIC_BASE_URL) -> dict[str, Any]:
+    base_url = public_base_url.rstrip("/")
+    specs = (*PUBLIC_TOOL_SPECS, *LEGACY_INTERNAL_TOOL_SPECS, *INTERNAL_TOOL_SPECS)
+    return {
+        "name": f"{MCP_SERVER_NAME}.internal",
+        "version": release_version_label(),
+        "description": (
+            "Internal arifOS agent contract. Includes public tools plus governed internal "
+            "LSP, forge, and audit capabilities for trusted agent workflows."
+        ),
+        "vendor": {"name": "Muhammad Arif bin Fazil", "url": "https://arif-fazil.com"},
+        "license": "AGPL-3.0-only",
+        "homepage": DEFAULT_REPOSITORY_URL,
+        "repository": DEFAULT_REPOSITORY_URL,
+        "transports": [
+            {"type": "http", "url": f"{base_url}{DEFAULT_HTTP_PATH}"},
+            {"type": "stdio", "command": DEFAULT_STDIO_COMMAND},
+        ],
+        "capabilities": {
+            "profile": "internal",
+            "constitutional_floors": 13,
+            "metabolic_routing": True,
+            "prompts": len(PUBLIC_PROMPT_SPECS),
+            "resources": len(PUBLIC_RESOURCE_SPECS),
+            "internal_tools": len(INTERNAL_TOOL_SPECS),
+        },
+        "tools": [{"name": spec.name, "stage": spec.stage, "role": spec.role} for spec in specs],
+    }
+
+
 def build_mcp_manifest(public_base_url: str = DEFAULT_PUBLIC_BASE_URL) -> dict[str, Any]:
     base_url = public_base_url.rstrip("/")
     manifest_tools: dict[str, Any] = {}
@@ -736,7 +1151,7 @@ def build_mcp_manifest(public_base_url: str = DEFAULT_PUBLIC_BASE_URL) -> dict[s
         "version": release_version_label(),
         "title": MCP_SERVER_TITLE,
         "description": (
-            "Constitutional AI governance server with a 8-tool public surface, 8 public prompts, "
+            "Constitutional AI governance server with a 9-tool public surface, 8 public prompts, "
             "14 public resources, Trinity engines (ΔΩΨ), and F1-F13 floor enforcement."
         ),
         "websiteUrl": DEFAULT_DOCS_URL,

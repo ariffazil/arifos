@@ -17,6 +17,9 @@ from typing import Any
 from pydantic import ValidationError
 
 from arifosmcp.intelligence.tools.office_forge_engine import audit_markdown, render_office_document
+from arifosmcp.intelligence.tools.ollama_local import (
+    ollama_local_generate as ollama_local_generate_call,
+)
 from arifosmcp.intelligence.tools.reality_grounding import open_web_page, reality_check
 from arifosmcp.runtime.contracts import REQUIRES_SESSION
 from core.enforcement.auth_continuity import mint_auth_context, verify_auth_context_cached
@@ -48,9 +51,11 @@ TOOL_MAP = {
     "verify_vault_ledger": "verify_vault_ledger",
     "office_forge_audit": "office_forge_audit",
     "forge_office_document": "office_forge",
+    "ollama_local_generate": "ollama_local_generate",
 }
 
 AUTO_BOOTSTRAP_RISK_TIERS = frozenset({"low", "medium"})
+PROTECTED_AUTO_ANCHOR_IDS = frozenset({"arif", "arif-fazil", "ariffazil"})
 
 
 def _resolve_claimed_actor_id(payload: dict[str, Any]) -> str:
@@ -127,6 +132,41 @@ def _auth_failure_envelope(
         },
         "auth_context": None,
     }
+
+
+def _can_auto_anchor_declared_identity(payload: dict[str, Any], claimed_actor_id: str) -> bool:
+    risk_tier = str(payload.get("risk_tier", "medium") or "medium").strip().lower()
+    allow_execution = bool(payload.get("allow_execution", False))
+    human_approval = payload.get("human_approval")
+    claimed = claimed_actor_id.strip().lower()
+
+    if claimed in {"", "anonymous"}:
+        return False
+    if claimed in PROTECTED_AUTO_ANCHOR_IDS:
+        return False
+    if allow_execution:
+        return False
+    if risk_tier not in AUTO_BOOTSTRAP_RISK_TIERS:
+        return False
+    if human_approval is False:
+        return False
+    return True
+
+
+def _mint_auto_anchor_auth_context(session_id: str, actor_id: str) -> dict[str, Any]:
+    return mint_auth_context(
+        session_id=session_id,
+        actor_id=actor_id,
+        token_fingerprint="sha256:auto-anchor",
+        approval_scope=[
+            "arifOS_kernel:reason",
+            "search_reality",
+            "ingest_evidence",
+            "session_memory",
+        ],
+        parent_signature="",
+        authority_level="declared",
+    )
 
 
 def _requires_explicit_kernel_auth(payload: dict[str, Any]) -> bool:
@@ -212,7 +252,11 @@ async def call_kernel(
     auth_ctx = payload.get("auth_context")
     if canonical_name == "metabolic_loop":
         if not auth_ctx:
-            if _requires_explicit_kernel_auth(payload):
+            if _can_auto_anchor_declared_identity(payload, claimed_actor_id):
+                auth_ctx = _mint_auto_anchor_auth_context(session_id, claimed_actor_id)
+                payload["auth_context"] = auth_ctx
+                payload.setdefault("identity_resolution", {})
+            elif _requires_explicit_kernel_auth(payload):
                 return _auth_failure_envelope(
                     tool=canonical_name,
                     session_id=session_id,
@@ -409,9 +453,7 @@ async def call_kernel(
             }
 
         elif canonical_name == "office_forge_audit":
-            result = await audit_markdown(
-                markdown=payload.get("markdown") or query_input
-            )
+            result = await audit_markdown(markdown=payload.get("markdown") or query_input)
 
         elif canonical_name == "office_forge":
             result = await render_office_document(
@@ -420,6 +462,15 @@ async def call_kernel(
                 mode=payload.get("output_mode", "pdf"),
                 theme=payload.get("theme", "default"),
                 filename=payload.get("filename"),
+            )
+
+        elif canonical_name == "ollama_local_generate":
+            result = await ollama_local_generate_call(
+                prompt=payload.get("prompt") or query_input,
+                model=payload.get("model", "qwen2.5:3b"),
+                system=payload.get("system"),
+                temperature=payload.get("temperature", 0.2),
+                max_tokens=payload.get("max_tokens", 512),
             )
 
         elif canonical_name == "metabolic_loop":
@@ -441,6 +492,23 @@ async def call_kernel(
             )
             if isinstance(result, dict) and "meta" in result:
                 result["meta"]["temporal_contract"] = contract.model_dump(mode="json")
+            if isinstance(result, dict) and result.get("verdict") != "VOID" and auth_ctx:
+                result["auth_context"] = mint_auth_context(
+                    session_id=session_id,
+                    actor_id=auth_ctx.get("actor_id", claimed_actor_id),
+                    token_fingerprint="sha256:...",
+                    approval_scope=auth_ctx.get(
+                        "approval_scope",
+                        [
+                            "arifOS_kernel:reason",
+                            "search_reality",
+                            "ingest_evidence",
+                            "session_memory",
+                        ],
+                    ),
+                    parent_signature=auth_ctx.get("signature", ""),
+                    authority_level=auth_ctx.get("authority_level", "declared"),
+                )
             return result
 
         else:

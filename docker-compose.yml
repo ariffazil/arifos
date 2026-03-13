@@ -142,7 +142,7 @@ services:
     networks:
       - arifos_trinity
     healthcheck:
-      test: ["CMD-SHELL", "curl -fsS http://localhost:6333/healthz || exit 1"]
+      test: ["CMD-SHELL", "bash -lc 'exec 3<>/dev/tcp/127.0.0.1/6333 && printf \"GET /healthz HTTP/1.1\\r\\nHost: localhost\\r\\nConnection: close\\r\\n\\r\\n\" >&3 && grep -q \"200 OK\" <&3'"]
       interval: 15s
       timeout: 5s
       retries: 3
@@ -173,7 +173,7 @@ services:
     networks:
       - arifos_trinity
     healthcheck:
-      test: ["CMD-SHELL", "curl -fsS http://localhost:11434/api/tags || exit 1"]
+      test: ["CMD-SHELL", "OLLAMA_HOST=http://127.0.0.1:11434 ollama list >/dev/null 2>&1 || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -288,6 +288,7 @@ services:
       REDIS_URL: redis://redis:6379/0
       QDRANT_URL: http://qdrant:6333
       OLLAMA_URL: http://ollama:11434
+      BROWSERLESS_URL: http://headless_browser:3000
       OPENCLAW_URL: http://openclaw:18789
       AGENT_ZERO_URL: http://agent-zero:80
       DASHBOARD_ENABLED: "true"
@@ -296,7 +297,7 @@ services:
       ARIFOS_GOVERNANCE_SECRET: ${ARIFOS_GOVERNANCE_SECRET:-}
       ARIFOS_GOVERNANCE_SECRET_PREVIOUS_FILE: ${ARIFOS_GOVERNANCE_SECRET_PREVIOUS_FILE:-}
       ARIFOS_GOVERNANCE_SECRET_PREVIOUS: ${ARIFOS_GOVERNANCE_SECRET_PREVIOUS:-}
-      ARIFOS_PUBLIC_TOOL_PROFILE: ${ARIFOS_PUBLIC_TOOL_PROFILE:-chatgpt}
+      ARIFOS_PUBLIC_TOOL_PROFILE: ${ARIFOS_PUBLIC_TOOL_PROFILE:-public}
       ARIFOS_MCP_PATH: ${ARIFOS_MCP_PATH:-/mcp}
       UVICORN_WORKERS: ${UVICORN_WORKERS:-1}
       UVICORN_TIMEOUT: ${UVICORN_TIMEOUT:-120}
@@ -338,9 +339,9 @@ services:
       redis:
         condition: service_healthy
       qdrant:
-        condition: service_healthy
+        condition: service_started
       ollama:
-        condition: service_healthy
+        condition: service_started
 
   # --- Monitoring Stack ---
   prometheus:
