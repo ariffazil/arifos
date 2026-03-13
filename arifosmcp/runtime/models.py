@@ -25,6 +25,53 @@ class RuntimeStatus(str, Enum):
     SABAR = "SABAR"
 
 
+class MachineState(str, Enum):
+    READY = "READY"
+    BLOCKED = "BLOCKED"
+    DEGRADED = "DEGRADED"
+    FAILED = "FAILED"
+
+
+class MachineIssueLabel(str, Enum):
+    AUTH_BOOTSTRAP_REQUIRED = "AUTH_BOOTSTRAP_REQUIRED"
+    AUTH_TOKEN_MISSING = "AUTH_TOKEN_MISSING"
+    TOKEN_EXPIRED = "TOKEN_EXPIRED"
+    TOOL_NOT_EXPOSED = "TOOL_NOT_EXPOSED"
+    BOOTSTRAP_ROUTE_MISSING = "BOOTSTRAP_ROUTE_MISSING"
+    DEPLOYMENT_CONFIG_ERROR = "DEPLOYMENT_CONFIG_ERROR"
+    SCHEMA_INVALID = "SCHEMA_INVALID"
+    INTERNAL_RUNTIME_ERROR = "INTERNAL_RUNTIME_ERROR"
+    TIMEOUT = "TIMEOUT"
+    DNS_FAIL = "DNS_FAIL"
+    TLS_FAIL = "TLS_FAIL"
+    WAF_BLOCK = "WAF_BLOCK"
+
+
+class IntelligenceStage(str, Enum):
+    EXPLORATION = "EXPLORATION"
+    ENTROPY = "ENTROPY"
+    EUREKA = "EUREKA"
+
+
+class ExplorationState(str, Enum):
+    BROAD = "BROAD"
+    SCOPED = "SCOPED"
+    EXHAUSTED = "EXHAUSTED"
+
+
+class EntropyState(str, Enum):
+    LOW = "LOW"
+    MANAGEABLE = "MANAGEABLE"
+    HIGH = "HIGH"
+    CRITICAL = "CRITICAL"
+
+
+class EurekaState(str, Enum):
+    NONE = "NONE"
+    PARTIAL = "PARTIAL"
+    FORGED = "FORGED"
+
+
 class Stage(str, Enum):
     INIT_000 = "000_INIT"
     SENSE_111 = "111_SENSE"
@@ -212,6 +259,10 @@ class RuntimeEnvelope(BaseModel):
     stage: str
     verdict: Verdict = Verdict.SABAR
     status: RuntimeStatus = RuntimeStatus.SUCCESS
+    machine_status: MachineState = MachineState.READY
+    machine_issue: MachineIssueLabel | None = None
+    intelligence_stage: IntelligenceStage | None = None
+    intelligence_state: dict[str, Any] = Field(default_factory=dict)
     metrics: CanonicalMetrics = Field(default_factory=CanonicalMetrics)
     trace: dict[str, Verdict] = Field(default_factory=dict)
     authority: CanonicalAuthority = Field(default_factory=CanonicalAuthority)
@@ -234,8 +285,5 @@ class RuntimeEnvelope(BaseModel):
         default=None,
         description="Optional governed quote layer selected by APEX-G.",
     )
-
-    # Optional Debug layer (only if meta.debug is True)
     debug: dict[str, Any] | None = None
-
     model_config = ConfigDict(extra="allow")
