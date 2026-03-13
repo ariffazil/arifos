@@ -54,6 +54,7 @@ from arifosmcp.runtime.tools import (
     session_memory,
     verify_vault_ledger,
 )
+from core.shared.manifest_loader import sync_runtime_floors
 
 # ---------------------------------------------------------------------------
 # Phase 1 — Canonical 7-Tool arifOS Stack
@@ -109,6 +110,9 @@ def _parse_port(raw_port: str) -> int:
 register_tools(mcp, profile=PUBLIC_TOOL_PROFILE)
 register_resources(mcp)
 register_prompts(mcp)
+
+# Sync Mind to Body (Dynamic Connection)
+sync_runtime_floors()
 
 CORE_TOOL_REGISTRY = {
     "arifOS_kernel": metabolic_loop_router,
