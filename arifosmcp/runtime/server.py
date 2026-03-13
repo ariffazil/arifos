@@ -51,6 +51,8 @@ from arifosmcp.runtime.tools import (
     metabolic_loop_router,
     open_apex_dashboard,
     register_tools,
+    reality_atlas,
+    reality_compass,
     search_reality,
     session_memory,
     verify_vault_ledger,

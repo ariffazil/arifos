@@ -132,8 +132,7 @@ Live health response on 2026-03-13:
 | `session_memory` | continuity memory |
 | `audit_rules` | floor and governance inspection |
 | `check_vital` | system vitality and capability map |
-| `bootstrap_identity` | onboarding and identity grounding |
-| `init_anchor_state` | continuity envelope minting |
+| `init_anchor_state` | onboarding + continuity anchor |
 | `verify_vault_ledger` | immutable ledger verification |
 | `open_apex_dashboard` | APEX UI entry point |
 

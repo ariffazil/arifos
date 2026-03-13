@@ -1,5 +1,5 @@
 """
-core.kernel — Intelligence Kernel Singleton
+core.kernel — Governance Kernel Singleton
 """
 
 from core.governance_kernel import get_governance_kernel

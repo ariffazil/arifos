@@ -9,7 +9,6 @@ from arifosmcp.runtime.philosophy import select_governed_philosophy
 from arifosmcp.runtime.public_registry import PUBLIC_TOOL_SPECS
 from arifosmcp.runtime.tools import (
     audit_rules,
-    bootstrap_identity,
     check_vital,
     init_anchor_state,
     metabolic_loop_router,
@@ -39,9 +38,9 @@ def test_public_kernel_router_accepts_auth_context():
     assert "auth_context" in signature.parameters
 
 
-def test_bootstrap_identity_accepts_human_approval():
-    """human_approval lives on bootstrap_identity, not metabolic_loop_router."""
-    signature = inspect.signature(bootstrap_identity)
+def test_init_anchor_state_accepts_human_approval():
+    """human_approval lives on init_anchor_state, not metabolic_loop_router."""
+    signature = inspect.signature(init_anchor_state)
 
     assert "human_approval" in signature.parameters
 
@@ -59,7 +58,7 @@ def test_manifest_kernel_schema_exposes_auth_context():
 
 def test_public_registry_exposes_init_anchor_state():
     init_spec = next(spec for spec in PUBLIC_TOOL_SPECS if spec.name == "init_anchor_state")
-    assert init_spec.input_schema["required"] == ["intent"]
+    assert "anyOf" in init_spec.input_schema
 
 
 def test_public_runtime_exports_init_anchor_state():
@@ -97,24 +96,24 @@ async def test_low_risk_declared_identity_auto_anchors_continuity(monkeypatch):
 
 
 @pytest.mark.asyncio
-async def test_bootstrap_identity_binds_declared_name() -> None:
-    envelope = await bootstrap_identity(
+async def test_init_anchor_state_binds_declared_name() -> None:
+    envelope = await init_anchor_state(
         declared_name="Arif-The-Apex",
         human_approval=False,
     )
 
-    assert envelope.tool == "bootstrap_identity"
+    assert envelope.tool == "init_anchor_state"
     assert envelope.authority.actor_id == "arif-the-apex"
     assert envelope.authority.level != "anonymous"
     assert envelope.auth_context is not None
 
 
 @pytest.mark.asyncio
-async def test_bootstrap_identity_human_approval_updates_kernel_state() -> None:
+async def test_init_anchor_state_human_approval_updates_kernel_state() -> None:
     session_id = "bootstrap-human-approval"
     clear_governance_kernel(session_id)
 
-    envelope = await bootstrap_identity(
+    envelope = await init_anchor_state(
         declared_name="Chat Operator",
         session_id=session_id,
         human_approval=True,
@@ -131,7 +130,7 @@ async def test_bootstrap_identity_human_approval_updates_kernel_state() -> None:
 @pytest.mark.asyncio
 async def test_reason_stage_preserves_declared_authority_context() -> None:
     session_id = "declared-authority-continuity"
-    init_env = await bootstrap_identity(
+    init_env = await init_anchor_state(
         declared_name="Arif",
         session_id=session_id,
         human_approval=False,
@@ -140,7 +139,7 @@ async def test_reason_stage_preserves_declared_authority_context() -> None:
     envelope = await reason_mind_synthesis(
         session_id=session_id,
         query="Explain F11 briefly.",
-        auth_context=init_env.auth_context,
+        auth_context=init_env.auth_context or {},
     )
 
     # "Arif" maps to apex identity "ariffazil" via kernel apex mapping.
@@ -176,7 +175,7 @@ async def test_high_risk_kernel_call_still_requires_explicit_auth_context():
 
 @pytest.mark.asyncio
 async def test_explicit_human_approval_bootstraps_kernel_without_crypto(monkeypatch):
-    """human_approval is set via bootstrap_identity, then the session is used in metabolic_loop_router."""
+    """human_approval is set via init_anchor_state, then the session is used in metabolic_loop_router."""
     from core.physics.thermodynamics_hardened import init_thermodynamic_budget
 
     monkeypatch.delenv("ARIFOS_GOVERNANCE_OPEN_MODE", raising=False)
@@ -185,7 +184,7 @@ async def test_explicit_human_approval_bootstraps_kernel_without_crypto(monkeypa
     init_thermodynamic_budget(session_id, initial_budget=1.0)
 
     # Step 1: Bootstrap identity with human_approval
-    init_env = await bootstrap_identity(
+    init_env = await init_anchor_state(
         declared_name="Chat Operator",
         session_id=session_id,
         human_approval=True,
@@ -197,7 +196,7 @@ async def test_explicit_human_approval_bootstraps_kernel_without_crypto(monkeypa
     envelope = await metabolic_loop_router(
         query="Explain the current runtime authority posture.",
         actor_id="chat-operator",
-        auth_context=init_env.auth_context,
+        auth_context=init_env.auth_context or {},
         risk_tier="low",
         dry_run=True,
         session_id=session_id,
@@ -211,7 +210,7 @@ async def test_explicit_human_approval_bootstraps_kernel_without_crypto(monkeypa
 @pytest.mark.asyncio
 async def test_nested_continuity_actor_id_is_promoted_to_auth_context_root():
     session_id = "nested-continuity-root-promotion"
-    init_env = await bootstrap_identity(
+    init_env = await init_anchor_state(
         declared_name="Chat Operator",
         session_id=session_id,
         human_approval=True,
@@ -228,7 +227,7 @@ async def test_nested_continuity_actor_id_is_promoted_to_auth_context_root():
     envelope = await metabolic_loop_router(
         query="Explain the runtime continuity posture.",
         actor_id="chat-operator",
-        auth_context=nested_auth_context,
+        auth_context=nested_auth_context or {},
         risk_tier="low",
         dry_run=True,
         session_id=session_id,
@@ -294,13 +293,15 @@ async def test_audit_rules_loads_governance_diagnostics() -> None:
 async def test_metabolic_loop_preserves_declared_authority() -> None:
     # "Arif" maps to apex identity "ariffazil" via kernel apex mapping
     session_id = "declared-loop-authority"
-    init_env = await bootstrap_identity("Arif", session_id=session_id, human_approval=False)
+    init_env = await init_anchor_state(
+        declared_name="Arif", session_id=session_id, human_approval=False
+    )
 
     envelope = await metabolic_loop_router(
         query="Explain the 13 Constitutional Floors.",
         context="Authority continuity regression test.",
         risk_tier="low",
-        auth_context=init_env.auth_context,
+        auth_context=init_env.auth_context or {},
         actor_id="ariffazil",
         use_memory=False,
         use_heart=False,

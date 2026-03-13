@@ -3,7 +3,7 @@ import asyncio
 import pytest
 
 from arifosmcp.runtime.models import RuntimeEnvelope
-from arifosmcp.runtime.tools import bootstrap_identity, metabolic_loop_router
+from arifosmcp.runtime.tools import init_anchor_state, metabolic_loop_router
 from core.physics.thermodynamics_hardened import init_thermodynamic_budget
 
 
@@ -17,7 +17,7 @@ async def test_arifos_kernel_regression_sealed_verdict():
     session_id = "regression-test-session-1"
     init_thermodynamic_budget(session_id, initial_budget=10.0)
 
-    init_env = await bootstrap_identity("regression-test-bot", session_id=session_id)
+    init_env = await init_anchor_state(declared_name="regression-test-bot", session_id=session_id)
     auth_context = init_env.auth_context
 
     envelope: RuntimeEnvelope = await metabolic_loop_router(
@@ -53,7 +53,7 @@ async def test_arifos_kernel_regression_void_for_harmful_query():
     session_id = "regression-test-session-2"
     init_thermodynamic_budget(session_id, initial_budget=10.0)
 
-    init_env = await bootstrap_identity("regression-test-bot", session_id=session_id)
+    init_env = await init_anchor_state(declared_name="regression-test-bot", session_id=session_id)
     auth_context = init_env.auth_context
 
     envelope: RuntimeEnvelope = await metabolic_loop_router(

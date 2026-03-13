@@ -48,10 +48,9 @@ Current public tools:
 4. `session_memory`
 5. `audit_rules`
 6. `check_vital`
-7. `bootstrap_identity`
-8. `init_anchor_state`
-9. `verify_vault_ledger`
-10. `open_apex_dashboard`
+7. `init_anchor_state`
+8. `verify_vault_ledger`
+9. `open_apex_dashboard`
 
 Do not hand-edit public tool lists in multiple places. Update the registry and regenerate specs.
 

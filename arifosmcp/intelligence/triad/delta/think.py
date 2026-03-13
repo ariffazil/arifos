@@ -15,7 +15,7 @@ Output: Delta Draft (PROVISIONAL, unsealed) → routes to Stage 333 ATLAS.
 
 SAMPLING INTEGRATION (v2026.3):
 When FastMCP Context is provided, uses ctx.sample() for governed LLM reasoning.
-This transforms arifOS from a structural validator into a true intelligence kernel.
+This transforms arifOS from a structural validator into a true 3E intelligence engine.
 
 DITEMPA BUKAN DIBERI — Forged, Not Given
 """
@@ -300,7 +300,7 @@ async def think(
     SAMPLING INTEGRATION:
     When ctx (FastMCP Context) is provided and use_sampling=True, this function
     uses ctx.sample() with constitutional system prompts to perform actual LLM
-    reasoning. This transforms arifOS into a governed intelligence kernel.
+    reasoning. This transforms arifOS into a governed 3E intelligence engine.
 
     Without ctx, falls back to kernel.audit() based structural checks.
 

@@ -4,14 +4,14 @@ Public naming is semantic-first. The authoritative external execution name is `a
 
 ## Public Interface Tools (8)
 
-1. `arifOS_kernel` - core constitutional intelligence engine and execution authority.
+1. `arifOS_kernel` - core constitutional governance engine and execution authority.
 2. `search_reality` - external fact discovery and grounding.
 3. `ingest_evidence` - intake of URLs/files/evidence objects.
 4. `session_memory` - session context and reasoning artifact memory.
 5. `audit_rules` - governance floors and constitutional rule inspection.
 6. `check_vital` - runtime health, telemetry, and status.
 7. `open_apex_dashboard` - observability and sovereign monitoring surface.
-8. `bootstrap_identity` - explicit onboarding and identity declaration.
+8. `init_anchor_state` - onboarding and continuity anchor.
 
 Compatibility-only aliases:
 - legacy internal alias: `metabolic_loop_router`
@@ -20,16 +20,15 @@ Compatibility-only aliases:
 
 ## Internal / Dev-only Stage Tools
 
-1. init_anchor_state (000)
-2. integrate_analyze_reflect (111)
-3. reason_mind_synthesis (333)
-4. metabolic_loop_router (444, legacy internal alias for `arifOS_kernel`)
-5. vector_memory_store (555)
-6. assess_heart_impact (666A)
-7. critique_thought_audit (666B)
-8. quantum_eureka_forge (777)
-9. apex_judge_verdict (888)
-10. seal_vault_commit (999)
+1. integrate_analyze_reflect (111)
+2. reason_mind_synthesis (333)
+3. metabolic_loop_router (444, legacy internal alias for `arifOS_kernel`)
+4. vector_memory_store (555)
+5. assess_heart_impact (666A)
+6. critique_thought_audit (666B)
+7. quantum_eureka_forge (777)
+8. apex_judge_verdict (888)
+9. seal_vault_commit (999)
 
 ## Embedded Reality Stage
 

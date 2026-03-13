@@ -71,7 +71,7 @@
 
 - [ ] Create 90-second terminal recording/video:
   ```
-  bootstrap_identity → safe query → 888_HOLD on destructive query → verify_vault_ledger
+  init_anchor_state → safe query → 888_HOLD on destructive query → verify_vault_ledger
   ```
 - [ ] Add demo GIF to README
 - [ ] Write "Getting Started" guide for developers

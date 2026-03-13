@@ -92,7 +92,7 @@ What `arifosmcp` gives any CLI coding agent:
 ```
 arifosmcp/
 ├── arifosmcp/                 # Main Python package
-│   ├── runtime/               # MCP server runtime (FastMCP)
+│   ├── runtime/               # Machine layer runtime (FastMCP transport)
 │   │   ├── server.py          # Canonical server entrypoint
 │   │   ├── tools.py           # Core tool implementations
 │   │   ├── orchestrator.py    # Metabolic loop router
@@ -105,7 +105,7 @@ arifosmcp/
 │   │   └── lsp_tools.py       # LSP integration tools
 │   ├── transport/             # Transport implementations
 │   │   └── acp_server.py      # Agent Client Protocol
-│   ├── intelligence/          # Intelligence layer
+│   ├── intelligence/          # Intelligence (3E: Exploration, Entropy, Eureka)
 │   ├── sites/                 # Static sites (APEX dashboard)
 │   └── VAULT999/              # Local vault storage
 │
@@ -347,12 +347,12 @@ Key fixtures in `conftest.py`:
 | **`audit_rules`** | `333_MIND` | Inspect all 13 floors live |
 | **`check_vital`** | `000_INIT` | System health, thermodynamic budget, capability map |
 | **`open_apex_dashboard`** | `888_JUDGE` | Live governance UI (React + Recharts) |
-| **`bootstrap_identity`** | `000_INIT` | Declare identity, initiate session grounding |
+| **`init_anchor_state`** | `000_INIT` | Declare identity, mint continuity context |
 | **`verify_vault_ledger`** | `999_VAULT` | Verify SHA-256 Merkle chain integrity (Optional) |
 | **`office_forge_audit`** | `777_FORGE` | Markdown injection guard before rendering (Optional) |
 | **`forge_office_document`** | `888_JUDGE` | Render PDF/PPTX from audited markdown (Optional) |
 
-> **Internal Stage Tools** (profile=internal only): `init_anchor_state`, `integrate_analyze_reflect`, `reason_mind_synthesis`, `assess_heart_impact`, `critique_thought_audit`, `quantum_eureka_forge`, `apex_judge_verdict`, `seal_vault_commit`.
+> **Internal Stage Tools** (profile=internal only): `integrate_analyze_reflect`, `reason_mind_synthesis`, `assess_heart_impact`, `critique_thought_audit`, `quantum_eureka_forge`, `apex_judge_verdict`, `seal_vault_commit`.
 
 ### 15 Resources
 | URI | What it exposes |
@@ -434,4 +434,3 @@ Append-only JSONL. Every entry: `session_id` → `seal_hash` (SHA-256) → `chai
 
 **Version:** 2026.03.13-CANON  
 **Constitutional Status:** 13/13 Floors Enforced
-

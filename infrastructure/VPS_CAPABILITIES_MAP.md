@@ -42,7 +42,7 @@ Live `arifosmcp` reports:
 | `session_memory` | memory read/write/forget |
 | `audit_rules` | inspect governance floors |
 | `check_vital` | live health and capability snapshot |
-| `bootstrap_identity` | onboarding / identity grounding |
+| `init_anchor_state` | onboarding + continuity anchor |
 | `open_apex_dashboard` | open dashboard asset |
 | `verify_vault_ledger` | Merkle-chain vault verification |
 

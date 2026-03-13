@@ -115,7 +115,7 @@ async def agi(
     except Exception:
         ds = -0.1  # Fallback for test
 
-    # 8. Real Intelligence Kernel Judgment (F2, F4, F7, F10)
+    # 8. Real Intelligence (3E) Judgment (F2, F4, F7, F10)
     from core.judgment import judge_cognition
 
     grounding_list = []

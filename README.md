@@ -11,12 +11,18 @@
 
 [![Status](https://img.shields.io/badge/Status-Hardened-00b894.svg?style=flat-square)](https://arifosmcp.arif-fazil.com/health)
 [![Release](https://img.shields.io/badge/Release-2026.03.13--FORGED-blue.svg?style=flat-square)](https://github.com/ariffazil/arifosmcp/commits/main)
-[![Public Tools](https://img.shields.io/badge/Public%20Tools-12-success.svg?style=flat-square)](https://arifosmcp.arif-fazil.com/tools)
+[![Public Tools](https://img.shields.io/badge/Public%20Tools-11-success.svg?style=flat-square)](https://arifosmcp.arif-fazil.com/tools)
 [![License](https://img.shields.io/badge/License-AGPL%203.0-lightgrey.svg?style=flat-square)](./LICENSE)
 
 </div>
 
 `arifosmcp` is the **engine (BRAIN)** of the arifOS ecosystem. It is a production-grade Model Context Protocol (MCP) server that provides the live execution environment for the constitutional kernel, manages the unified reality acquisition lane, and serves real-time telemetry for sovereign AI agents.
+
+## Layer Doctrine (Machine • Governance • Intelligence 3E)
+
+- **Machine**: transport, auth, tool exposure, runtime health, continuity. Asks: Can the system run?
+- **Governance**: constitutional checks, authority logic, verdict formation. Asks: Should the system proceed?
+- **Intelligence (3E)**: Exploration → Entropy → Eureka. Asks: What is the best structure of understanding?
 
 ## The Sovereign Quad Contrast
 
@@ -40,7 +46,7 @@ Last verified on `2026-03-13` (Hardened).
 | GitHub `main` | `70b19e9a` |
 | Public MCP version | `2026.03.13-FORGED` |
 | Public transport | `streamable-http` |
-| Public tools | `12` |
+| Public tools | `11` |
 | Runtime health | `SEALED / HEALTHY` |
 | Reality Lane | `Hardened (Brave 1.0 + Browserless Fallback)` |
 | F11 Continuity | `Fingerprint-backed` |
@@ -58,7 +64,7 @@ The current forged state introduces the **Reality Compass**, a hardened unificat
 
 ## Public Tool Surface
 
-The live registry exposes these `12` tools:
+The live registry exposes these `11` tools:
 
 1.  `arifOS_kernel`: The main constitutional reasoning entrypoint.
 2.  **`reality_compass`**: Unified search and fetch engine.
@@ -67,11 +73,10 @@ The live registry exposes these `12` tools:
 5.  `check_vital`: Real-time system and constitutional health.
 6.  `audit_rules`: Inspect 13 floors and runtime module hooks.
 7.  `session_memory`: Contextual vector persistence.
-8.  `bootstrap_identity`: Identity declaration and F11 anchoring.
-9.  `verify_vault_ledger`: Forensic proof-of-work validation.
-10. `open_apex_dashboard`: Integrated ops visualizer.
-11. `search_reality`: (Alias) Hardened search.
-12. `ingest_evidence`: (Alias) Hardened fetch.
+8.  `verify_vault_ledger`: Forensic proof-of-work validation.
+9.  `open_apex_dashboard`: Integrated ops visualizer.
+10. `search_reality`: (Alias) Hardened search.
+11. `ingest_evidence`: (Alias) Hardened fetch.
 
 ---
 
