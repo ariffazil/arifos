@@ -1,11 +1,8 @@
 """
-arifosmcp/runtime/prompts.py — arifOS Prompt Templates
+arifosmcp/runtime/prompts.py — arifOS Sacred Prompts
 
-Public prompts for the semantic arifOS tool surface.
+Constitutional prompts for the Double Helix tool surface (arifOS v36Ω).
 Register via register_prompts(mcp).
-
-These prompts guide LLMs to call the right tool with correct parameters,
-keeping the canonical JSON Schema contract in the conversation context.
 
 DITEMPA BUKAN DIBERI — Forged, Not Given
 """
@@ -14,112 +11,66 @@ from __future__ import annotations
 
 from fastmcp import FastMCP
 
-from .public_registry import PUBLIC_PROMPT_SPECS
-
-PROMPT_SPEC_BY_NAME = {spec.name: spec for spec in PUBLIC_PROMPT_SPECS}
-
 
 def register_prompts(mcp: FastMCP) -> None:
-    """Wire the public arifOS prompts onto *mcp*."""
+    """Wire the 8 Sacred Prompts onto *mcp*."""
 
     @mcp.prompt()
-    def arifos_kernel_prompt(query: str, risk_tier: str = "medium") -> str:
-        """Route governed work to the kernel."""
-        tool_name = PROMPT_SPEC_BY_NAME["arifos_kernel_prompt"].target_tool
+    def init_anchor() -> str:
+        """Prompt for the init_anchor tool."""
         return (
-            f"Use '{tool_name}' as the core constitutional governance engine "
-            f"for the following query:\n\n"
-            f"  Query: {query}\n"
-            f"  Risk tier: {risk_tier}\n\n"
-            f"The kernel is the semantic execution authority of arifOS. "
-            f"It may orchestrate internal reasoning, memory, judgment, and vault stages, "
-            f"but externally it should be treated as the governed execution layer."
+            "You are entering a constitutional session. Declare identity, parse intent, "
+            "apply F12 pre-scan."
         )
 
     @mcp.prompt()
-    def reality_compass_prompt(input: str, mode: str = "auto") -> str:
-        """Unified search + fetch grounding."""
-        tool_name = PROMPT_SPEC_BY_NAME["reality_compass_prompt"].target_tool
+    def agi_reason() -> str:
+        """Prompt for the agi_reason tool."""
         return (
-            f"Use '{tool_name}' to ground claims via search or fetch.\n\n"
-            f"  Input: {input}\n"
-            f"  Mode: {mode} (auto|search|fetch)\n\n"
-            "This provides reality acquisition before governed reasoning."
+            "Perform 3-path reasoning: conservative, exploratory, adversarial. Maintain Δ clarity."
         )
 
     @mcp.prompt()
-    def reality_atlas_prompt() -> str:
-        """Semantic evidence graph management."""
-        tool_name = PROMPT_SPEC_BY_NAME["reality_atlas_prompt"].target_tool
+    def agi_reflect() -> str:
+        """Prompt for the agi_reflect tool."""
         return (
-            f"Use '{tool_name}' to ingest or query EvidenceBundles "
-            "inside the semantic evidence graph."
+            "Retrieve sealed evidence from Vault999. Interpret memory as mirror, not as raw recall."
         )
 
     @mcp.prompt()
-    def search_reality_prompt(query: str) -> str:
-        """Ground claims with external facts."""
-        tool_name = PROMPT_SPEC_BY_NAME["search_reality_prompt"].target_tool
+    def asi_simulate() -> str:
+        """Prompt for the asi_simulate tool."""
         return (
-            f"Use '{tool_name}' to find real-world sources and evidence "
-            f"before reasoning about:\n\n"
-            f"  Topic: {query}\n\n"
-            f"This provides high-entropy grounding for F2 Truth floors."
+            "Simulate consequences. Predict outcomes. Apply Ω humility and ΔS thermodynamic checks."
         )
 
     @mcp.prompt()
-    def ingest_evidence_prompt(url: str) -> str:
-        """Load a source into evidence context."""
-        tool_name = PROMPT_SPEC_BY_NAME["ingest_evidence_prompt"].target_tool
-        return (
-            f"Use '{tool_name}' to load and analyze content from:\n\n"
-            f"  URL: {url}\n\n"
-            f"This ingests the source into the reasoning context as validated evidence."
-        )
+    def asi_critique() -> str:
+        """Prompt for the asi_critique tool."""
+        return "Evaluate uncertainty. Detect blind spots. Apply F7 humility gate."
 
     @mcp.prompt()
-    def session_memory_prompt(operation: str, content: str | None = None) -> str:
-        """Manage governed session continuity."""
-        tool_name = PROMPT_SPEC_BY_NAME["session_memory_prompt"].target_tool
-        return (
-            f"Use '{tool_name}' to {operation} context for the current session.\n"
-            f"Content to process: {content or 'N/A'}\n\n"
-            f"Operations: store | retrieve | forget | search."
-        )
+    def forge() -> str:
+        """Prompt for the forge tool."""
+        return "Synthesize solutions. Generate artifacts. Apply F11 execution gate."
 
     @mcp.prompt()
-    def audit_rules_prompt() -> str:
-        """Inspect constitutional floor logic."""
-        tool_name = PROMPT_SPEC_BY_NAME["audit_rules_prompt"].target_tool
-        return (
-            f"Use '{tool_name}' to inspect the 13 constitutional floors (F1-F13) "
-            "and verify current system logic against the Law."
-        )
+    def apex_judge() -> str:
+        """Prompt for the apex_judge tool."""
+        return "Issue sovereign verdict: SEAL, VOID, HOLD, PARTIAL, SABAR. Apply Ψ vitality."
 
     @mcp.prompt()
-    def check_vital_prompt() -> str:
-        """Read health and vitality telemetry."""
-        tool_name = PROMPT_SPEC_BY_NAME["check_vital_prompt"].target_tool
-        return (
-            f"Use '{tool_name}' to monitor kernel health, reporting G★, η, "
-            "entropy delta, and sovereign status."
-        )
+    def vault_seal() -> str:
+        """Prompt for the vault_seal tool."""
+        return "Commit to Vault999. Update Cooling Ledger. Produce immutable hash-chain entry."
+
+    # Legacy prompt aliases for backward compatibility
+    @mcp.prompt()
+    def init_anchor_state_prompt() -> str:
+        """Legacy alias for init_anchor."""
+        return init_anchor()
 
     @mcp.prompt()
     def open_apex_dashboard() -> str:
-        """Open the dashboard surface for live governed metrics."""
-        tool_name = PROMPT_SPEC_BY_NAME["open_apex_dashboard"].target_tool
-        return (
-            f"Use '{tool_name}' to view the live APEX constitutional dashboard, "
-            "displaying pipeline traces, floor scores, and telemetry."
-        )
-
-    @mcp.prompt()
-    def init_anchor_state_prompt(declared_name: str) -> str:
-        """Initialize the 000_INIT anchor for onboarding and continuity."""
-        tool_name = PROMPT_SPEC_BY_NAME["init_anchor_state_prompt"].target_tool
-        return (
-            f"Use '{tool_name}' to declare identity and mint a governed session context.\n\n"
-            f"  Declared name: {declared_name}\n\n"
-            "This is the onboarding path for continuity-aware follow-up calls."
-        )
+        """Legacy prompt for dashboard access."""
+        return "Open the APEX Sovereign Dashboard for live governance metrics."

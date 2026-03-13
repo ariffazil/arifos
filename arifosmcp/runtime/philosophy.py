@@ -30,8 +30,10 @@ class PhilosophySelection(TypedDict):
     label_source: str
     semantic_backend: str
     available_categories: dict[str, list[str]]
-    agi: dict[str, Any]
+    # Organ-specific wisdom blocks
+    agi: dict[str, Any] | None
     asi: dict[str, Any] | None
+    apex: dict[str, Any] | None
 
 
 LOCAL_99_LABELS: tuple[str, ...] = (
@@ -649,17 +651,15 @@ def select_governed_philosophy(
     session_id: str = "global",
 ) -> PhilosophySelection:
     """
-    Govern quote exposure without letting quotes influence the verdict.
+    Govern quote exposure by mapping them to the specific Double Helix organ.
 
-    AGI  -> 33 deterministic constitutional anchors
-    ASI  -> 99 semantic/vector wisdom when available
-    APEX -> choose deterministic, hybrid, or semantic emphasis from G*, stage, verdict
+    AGI (Mind)  -> Stages 000-444
+    ASI (Heart) -> Stages 555-666
+    APEX (Soul) -> Stages 777-999
     """
     failed_floors = failed_floors or []
     stage_num = _stage_number(stage)
-    hard_governance = (
-        bool(failed_floors) or verdict in {"VOID", "HOLD", "HOLD_888"} or g_score < 0.5
-    )
+    
     label, label_source = _bounded_context_label(
         context,
         stage=stage,
@@ -668,13 +668,9 @@ def select_governed_philosophy(
         failed_floors=failed_floors,
     )
 
+    # 1. Retrieve Candidate Quotes
     legacy_agi_quote = get_philosophical_anchor(
-        stage,
-        g_score,
-        failed_floors,
-        session_id=session_id,
-        context=context,
-        label=label,
+        stage, g_score, failed_floors, session_id=session_id, context=context, label=label
     )
     deterministic_local_quote, deterministic_local_backend = _deterministic_local_anchor(
         context,
@@ -694,40 +690,30 @@ def select_governed_philosophy(
         label=label if label in LOCAL_99_LABELS else None,
     )
 
-    role = "seal" if stage_num >= 999 else "anchor" if stage_num <= 111 else "support"
-
-    if stage_num == 0:
-        apex_mode = "deterministic_33"
-        agi_block = _quote_block(legacy_agi_quote, source="deterministic_33")
-        semantic_quote = None
-    elif deterministic_local_quote is None and semantic_quote is None:
-        apex_mode = "deterministic_33"
-        agi_block = _quote_block(legacy_agi_quote, source="deterministic_33")
-    elif hard_governance:
-        apex_mode = (
-            "deterministic_99" if deterministic_local_quote is not None else "deterministic_33"
-        )
-        agi_block = (
-            deterministic_local_quote
-            if deterministic_local_quote is not None
-            else _quote_block(legacy_agi_quote, source="deterministic_33")
-        )
-        semantic_quote = None
-    elif deterministic_local_quote is None:
-        apex_mode = "semantic_99" if g_score >= 0.8 else "hybrid"
-        agi_block = _quote_block(legacy_agi_quote, source="deterministic_33")
-    elif semantic_quote is None:
-        apex_mode = "deterministic_99"
-        agi_block = deterministic_local_quote
-    elif g_score >= 0.8:
-        apex_mode = "semantic_99"
-        agi_block = deterministic_local_quote
+    # 2. Select Primary Block
+    primary_quote = deterministic_local_quote or _quote_block(legacy_agi_quote, source="deterministic_33")
+    
+    # 3. Dynamic Organ-Specific Wiring
+    # AGI (Mind): Stages 000-444
+    # ASI (Heart): Stages 555-666
+    # APEX (Soul): Stages 777-999
+    
+    agi_block: dict[str, Any] | None = None
+    asi_block: dict[str, Any] | None = None
+    apex_block: dict[str, Any] | None = None
+    
+    if stage_num < 555:
+        agi_block = primary_quote
+        role = "mind"
+    elif stage_num < 777:
+        asi_block = primary_quote
+        role = "heart"
     else:
-        apex_mode = "hybrid"
-        agi_block = deterministic_local_quote
+        apex_block = primary_quote
+        role = "soul"
 
     return {
-        "apex_mode": apex_mode,
+        "apex_mode": "hybrid",
         "role": role,
         "stage": stage,
         "g_score": round(g_score, 4),
@@ -736,11 +722,11 @@ def select_governed_philosophy(
         "semantic_backend": semantic_backend,
         "available_categories": {
             "deterministic_33": ["wisdom", "power", "paradox", "void", "seal"],
-            "bounded_labels": ["void", *LOCAL_99_LABELS],
             "local_99": list(LOCAL_99_LABELS),
         },
         "agi": agi_block,
-        "asi": semantic_quote,
+        "asi": asi_block,
+        "apex": apex_block,
     }
 
 

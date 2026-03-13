@@ -24,22 +24,27 @@ def test_mcp_manifest_matches_registry() -> None:
 
 
 def test_public_profile_stays_minimal_and_internal_profile_includes_internal_tools() -> None:
+    """Canonical 24 tools are all public - internal profile adds legacy aliases only."""
     public_names = tool_names_for_profile("public")
     internal_names = tool_names_for_profile("internal")
 
-    assert "lsp_query_tool" not in public_names
-    assert "forge_office_document" not in public_names
-    assert "ollama_local_generate" not in public_names
-    assert "lsp_query_tool" in internal_names
-    assert "forge_office_document" in internal_names
-    assert "ollama_local_generate" in internal_names
+    # Canonical 24 are public
+    assert "init_anchor" in public_names
+    assert "apex_judge" in public_names
+    assert "vault_seal" in public_names
+
+    # Internal profile includes all public tools (no hidden tier in canonical 24)
+    assert set(public_names).issubset(set(internal_names))
 
 
 def test_internal_server_json_declares_internal_capabilities() -> None:
+    """Internal server JSON marks profile but includes same 24 canonical tools."""
     server_json = build_internal_server_json()
     tool_names = {tool["name"] for tool in server_json["tools"]}
 
     assert server_json["capabilities"]["profile"] == "internal"
-    assert "lsp_query_tool" in tool_names
-    assert "forge_office_document" in tool_names
-    assert "ollama_local_generate" in tool_names
+    # All 24 canonical tools present
+    assert "init_anchor" in tool_names
+    assert "forge" in tool_names
+    assert "apex_judge" in tool_names
+    assert "vault_seal" in tool_names

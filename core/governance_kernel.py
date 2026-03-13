@@ -958,6 +958,10 @@ def route_pipeline(query: str, context: dict | None = None) -> list[str]:
         if "888_JUDGE" not in plan:
             plan.append("888_JUDGE")
 
+    if "777_FORGE" in plan:
+        if "800_NEGOTIATE" not in plan:
+            plan.insert(plan.index("777_FORGE") + 1, "800_NEGOTIATE")
+
     if "777_FORGE" in plan and "888_JUDGE" not in plan:
         plan.append("888_JUDGE")
 
