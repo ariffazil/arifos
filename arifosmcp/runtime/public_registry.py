@@ -114,6 +114,44 @@ def fastmcp_dependency() -> str:
 PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
     ToolSpec(
         name="arifOS_kernel",
+    ToolSpec(
+        name="reality_compass",
+        stage="111_SENSE",
+        role="Unified Reality",
+        layer="Cognitive Input",
+        description="Unified search and fetch engine. Automatically routes between query search and deep URL scraping.",
+        trinity="Δ Delta",
+        floors=("F2", "F12"),
+        input_schema={
+            "type": "object",
+            "required": ["input"],
+            "properties": {
+                "input": {"type": "string", "description": "Search query or URL to fetch."},
+                "mode": {"type": "string", "enum": ["auto", "search", "fetch"], "default": "auto"},
+                "fetch_top_k": {"type": "integer", "default": 2, "description": "Fetch top K results if in search mode."}
+            },
+            "additionalProperties": False,
+        },
+        readonly=True,
+    ),
+    ToolSpec(
+        name="reality_atlas",
+        stage="222_REALITY",
+        role="Evidence Graph",
+        layer="Cognitive Input",
+        description="Build and query the semantic evidence graph from acquired EvidenceBundles.",
+        trinity="Δ Delta",
+        floors=("F2", "F11"),
+        input_schema={
+            "type": "object",
+            "required": ["operation"],
+            "properties": {
+                "operation": {"type": "string", "enum": ["ingest", "query", "merge"]},
+                "bundles": {"type": "array", "items": {"type": "object"}}
+            },
+            "additionalProperties": False,
+        },
+    ),
         stage="444_ROUTER",
         role="Main orchestrator",
         layer="Execution",
@@ -483,6 +521,8 @@ PUBLIC_COMPATIBILITY_SPECS: tuple[CompatibilitySpec, ...] = (
 )
 
 PUBLIC_PROMPT_SPECS: tuple[PromptSpec, ...] = (
+        PromptSpec("reality_compass_prompt", "reality_compass", "Unified reality acquisition entrypoint."),
+    PromptSpec("reality_atlas_prompt", "reality_atlas", "Semantic evidence graph management."),
     PromptSpec("arifos_kernel_prompt", "arifOS_kernel", "Route governed work to the kernel."),
     PromptSpec("search_reality_prompt", "search_reality", "Ground claims with external facts."),
     PromptSpec("ingest_evidence_prompt", "ingest_evidence", "Load a source into evidence context."),
