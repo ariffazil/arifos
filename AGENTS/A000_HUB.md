@@ -1,4 +1,10 @@
-# 🤖 arifOS AGENT HUB (Hardened)
+---
+name: A-ORCHESTRATOR
+description: arifOS L5 orchestrator. Flow governor, enforces sequence and no-bypass.
+mode: primary
+---
+
+# ?? arifOS AGENT HUB (Hardened)
 
 **Location:** C:\arifOS\AGENTS\
 **Authority:** 888_JUDGE
@@ -6,7 +12,7 @@
 
 ---
 
-## 🏛️ The Agentic Hierarchy
+## ??? The Agentic Hierarchy
 
 | ID | File | Role | Purpose |
 | :--- | :--- | :--- | :--- |
@@ -19,15 +25,15 @@
 
 ---
 
-## 🎯 Model-Specific Protocols (The A800 Series)
+## ?? Model-Agnostic Protocols (The A800 Series)
 
-- **A801**: [A801_GEMINI.md](A801_GEMINI.md) — Base Gemini instructions.
-- **A802**: [A802_GEMINI_MCP.md](A802_GEMINI_MCP.md) — Gemini-to-MCP bridge protocols.
-- **A803**: [A803_KIMI.md](A803_KIMI.md) — Kimi skill & metabolic integration.
+- **A800**: [A800_COGNITIVE.md](A800_COGNITIVE.md) � Cognitive reasoning blueprint (? Mind).
+- **A810**: [A810_BRIDGE.md](A810_BRIDGE.md) � LLM-to-MCP bridge protocol (any model).
+- **A820**: [A820_RUNTIME.md](A820_RUNTIME.md) � External runtime integration guide.
 
 ---
 
-## 🧭 Operational Directives
+## ?? Operational Directives
 
 1. **BODY FIRST**: For code changes, go to C:\arifosmcp\.
 2. **MIND ALWAYS**: For theory/governance, go to C:\arifOS\.
