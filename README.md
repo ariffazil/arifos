@@ -55,7 +55,31 @@ In the 1970s, the internet had a routing problem: IP could deliver packets, but 
 
 ---
 
-## 🔗 Quick Links Navigator
+## 🚀 What arifOS Gives Any CLI Coding Agent
+
+Every CLI agent (Claude Code, Kimi, Gemini CLI, Antigravity) that connects to **arifosmcp** inherits a massive governance and intelligence upgrade without needing those capabilities baked in natively:
+
+1.  **Constitutional guardrails as a shared service** — Every agent gets the same 13-floor validation layer via MCP instead of implementing ad-hoc or zero safety checks.
+2.  **Cross-agent audit trail (VAULT999)** — Every tool call, decision, and checkpoint is hash-chained into a single immutable ledger. Trace which agent did what and why across all your tools.
+3.  **Structured reasoning tools on demand** — Gen3 tools (`reason_mind`, `critique_thought`, `eureka_forge`, `apex_judge`) provide a structured thinking pipeline for agents before high-stakes operations.
+4.  **F11 Command Auth — Identity Verification** — High-stakes actions (force-push, migrations, secret access) are held at `888_HOLD` until explicitly confirmed by the human sovereign.
+5.  **Consistent behavior across agents** — Whether using Haiku or a frontier model, all agents run through the same truth thresholds (F2 ≥ 0.99) and humility bounds (F7).
+6.  **Outsourced Safety Intelligence** — The intelligence lives in the MCP server. A weak model calling `apex_judge` before committing gets the same governance as a frontier model.
+
+> **TL;DR:** It's a governance middleware — any CLI agent that connects gets reversibility checks, audit trails, and structured judgment "for free".
+
+---
+
+## 🏛️ Two Server Architecture (v2026.03.13)
+
+arifOS is deployed as two distinct Model Context Protocol surfaces to separate the high-stakes **Governance Kernel** from the high-frequency **Intelligence Sensory Console**.
+
+| Server | Entry | Purpose | Canonical Tools (v2026.03.13) |
+| :--- | :--- | :--- | :--- |
+| **arifos** | `arifosmcp.runtime` | Constitutional Governance Kernel | `arifOS_kernel`, `search_reality`, `ingest_evidence`, `session_memory`, `audit_rules`, `check_vital`, `open_apex_dashboard`, `bootstrap_identity`, `verify_vault_ledger` |
+| **aclip-cai** | `arifosmcp.intelligence.cli` | Intelligence Sensory Console | `system_health`, `process_list`, `fs_inspect`, `log_tail`, `net_status`, `cost_estimator`, `forge_guard` |
+
+---
 
 <table>
 <tr>

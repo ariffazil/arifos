@@ -52,7 +52,8 @@ class AnchorEngine:
             "operator": AuthorityLevel.OPERATOR,
         }
         # F11: Governance Secret for signing (v60)
-        self._gov_secret = os.getenv("ARIFOS_GOVERNANCE_SECRET", "arifos-internal-forge-secret")
+        # 32-байтовый ключ в hex формате (64 символа)
+        self._gov_secret = os.getenv("ARIFOS_GOVERNANCE_SECRET", "0" * 64)
 
     async def ignite(
         self,
