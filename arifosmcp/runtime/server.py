@@ -21,6 +21,7 @@ DITEMPA BUKAN DIBERI — Forged, Not Given
 from __future__ import annotations
 
 import os
+from contextlib import asynccontextmanager
 
 from fastmcp import FastMCP
 from starlette.middleware.base import BaseHTTPMiddleware
@@ -89,28 +90,20 @@ The architecture is a Double Helix:
 Strictly follow the Sacred Chain loop: INIT -> REASON -> REFLECT -> SIMULATE -> CRITIQUE -> FORGE -> JUDGE -> SEAL.
 """
 
-from contextlib import asynccontextmanager
 
 @asynccontextmanager
 async def arifos_lifespan(server: FastMCP):
     """Lifecycle management for the arifOS Double Helix organs."""
-    # Initialize Global Settings for the 2026-03-14 Epoch
-    server.settings.set_setting("constitutional__target_genius", 0.80)
-    server.settings.set_setting("constitutional__max_entropy_delta", 0.0)
-    server.settings.set_setting("constitutional__humility_band", [0.03, 0.05])
-    server.settings.set_setting("constitutional__peace_squared_threshold", 1.0)
-    
-    # INIT Stage: Ignition
+    # INIT Stage: Ignition — sync Mind to Body
     sync_runtime_floors()
     yield
-    # VAULT Stage: Final Cooling
-    pass
+
 
 mcp = FastMCP(
-    "arifOS-APEX-G", 
+    "arifOS-APEX-G",
     version="2026.03.14-PRE-RELEASE",
     instructions=CONSTITUTIONAL_INSTRUCTIONS,
-    lifespan=arifos_lifespan
+    lifespan=arifos_lifespan,
 )
 PUBLIC_TOOL_PROFILE = normalize_tool_profile(os.getenv("ARIFOS_PUBLIC_TOOL_PROFILE", "public"))
 # SSE removed: deprecated by MCP spec (2025-03) and Copilot Studio (2025-08)
