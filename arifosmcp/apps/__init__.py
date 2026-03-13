@@ -13,10 +13,10 @@ stage_pipeline_app   — 000→999 Sacred Chain visualiser with per-stage status
 DITEMPA BUKAN DIBERI — Forged, Not Given
 """
 
-from .apex_score import apex_score_app
-from .stage_pipeline import stage_pipeline_app
+from .apex_score import _register as register_apex_score
+from .stage_pipeline import _register as register_stage_pipeline
 
 __all__ = [
-    "apex_score_app",
-    "stage_pipeline_app",
+    "register_apex_score",
+    "register_stage_pipeline",
 ]
