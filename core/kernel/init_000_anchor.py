@@ -11,14 +11,14 @@ Consolidates:
 DITEMPA BUKAN DIBERI — Forged, Not Given
 """
 
-import hashlib
-import hmac
 import logging
+import os
 import secrets
 import time
 from enum import Enum
 
 from core.kernel.evaluator import evaluator
+from core.shared.crypto import ed25519_sign, generate_session_id
 from core.shared.types import InitOutput, Verdict
 
 logger = logging.getLogger(__name__)
@@ -27,8 +27,8 @@ logger = logging.getLogger(__name__)
 
 
 class AuthorityLevel(Enum):
-    NONE = "none"
-    USER = "user"
+    NONE = "anonymous"
+    USER = "human"
     OPERATOR = "operator"
     SOVEREIGN = "sovereign"
     SYSTEM = "system"
@@ -45,12 +45,14 @@ class AnchorEngine:
 
     def __init__(self):
         # In a real system, these would be loaded from a secure registry
-        self.valid_actors = {"user", "operator", "arif-fazil", "system", "agent", "cli"}
+        self.valid_actors = {"human", "operator", "arif-fazil", "system", "agent", "cli"}
         self.actor_authority = {
             "arif-fazil": AuthorityLevel.SOVEREIGN,
             "system": AuthorityLevel.SYSTEM,
             "operator": AuthorityLevel.OPERATOR,
         }
+        # F11: Governance Secret for signing (v60)
+        self._gov_secret = os.getenv("ARIFOS_GOVERNANCE_SECRET", "arifos-internal-forge-secret")
 
     async def ignite(
         self,
@@ -58,6 +60,7 @@ class AnchorEngine:
         actor_id: str = "anonymous",
         auth_token: str | None = None,
         require_sovereign: bool = False,
+        task_type: str = "ask",
     ) -> InitOutput:
         """
         Universal ignition protocol.
@@ -92,18 +95,33 @@ class AnchorEngine:
         # In v64.2, we anchor to host pressure heuristics
         infra_risk = self._estimate_infra_risk(query)
 
-        # 5. Success: Issue Token
-        session_id = secrets.token_hex(16)
-        token = self._sign_token(f"{session_id}:{actor_id}:{start_time}")
+        # 5. Success: Issue Token (v60 Cryptographic Anchor)
+        session_id = generate_session_id()
+        # Sign the core identity tuple: session:actor:level:timestamp
+        payload = f"{session_id}:{actor_id}:{level.value}:{start_time}"
+        token = ed25519_sign(payload, self._gov_secret)
+
+        from core.shared.types import (
+            CodeState,
+            GovernanceMetadata,
+            Intent,
+            MathDials,
+            PhysicsState,
+        )
 
         return InitOutput(
             session_id=session_id,
+            intent=Intent(query=query, task_type=task_type),  # type: ignore
+            math=MathDials(),
+            physics=PhysicsState(phi=0.5),  # type: ignore
+            code=CodeState(session_id=session_id, verdict="SEAL"),
+            governance=GovernanceMetadata(actor_id=actor_id, authority_level=level.value),  # type: ignore
             governance_token=token,
             injection_score=f12_result["score"],
             auth_verified=True,
             verdict=Verdict.SEAL,
             status="READY",
-            query_type="ANCHORED",  # Dynamic classification placeholder
+            query_type="ANCHORED",
             metrics={
                 "authority_level": level.value,
                 "infra_risk": infra_risk,
@@ -136,8 +154,22 @@ class AnchorEngine:
         return hmac.new(secret.encode(), data.encode(), hashlib.sha256).hexdigest()
 
     def _build_void_output(self, floor: str, reason: str, actor: str) -> InitOutput:
+        from core.shared.types import (
+            CodeState,
+            GovernanceMetadata,
+            Intent,
+            MathDials,
+            PhysicsState,
+        )
+
+        session_id = f"VOID-{secrets.token_hex(4)}"
         return InitOutput(
-            session_id=f"VOID-{secrets.token_hex(4)}",
+            session_id=session_id,
+            intent=Intent(query="VOID", task_type="unknown"),
+            math=MathDials(),
+            physics=PhysicsState(),
+            code=CodeState(session_id=session_id, verdict="VOID"),
+            governance=GovernanceMetadata(actor_id=actor, authority_level="anonymous"),
             governance_token="",
             injection_score=1.0,
             auth_verified=False,
@@ -149,8 +181,22 @@ class AnchorEngine:
         )
 
     def _build_hold_output(self, floor: str, reason: str, actor: str) -> InitOutput:
+        from core.shared.types import (
+            CodeState,
+            GovernanceMetadata,
+            Intent,
+            MathDials,
+            PhysicsState,
+        )
+
+        session_id = f"HOLD-{secrets.token_hex(4)}"
         return InitOutput(
-            session_id=f"HOLD-{secrets.token_hex(4)}",
+            session_id=session_id,
+            intent=Intent(query="HOLD", task_type="unknown"),
+            math=MathDials(),
+            physics=PhysicsState(),
+            code=CodeState(session_id=session_id, verdict="HOLD"),
+            governance=GovernanceMetadata(actor_id=actor, authority_level="human"),
             governance_token="",
             injection_score=0.0,
             auth_verified=True,

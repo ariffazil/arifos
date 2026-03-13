@@ -723,6 +723,7 @@ def cleanup_thermodynamic_budget(session_id: str) -> dict[str, Any]:
 
 
 # Backward-compatibility aliases for older test suites
+ThermodynamicViolation = ThermodynamicError
 LandauerViolation = LandauerError
 EntropyIncreaseViolation = EntropyIncreaseError
 ThermodynamicExhaustion = ThermodynamicExhaustionError
@@ -735,12 +736,13 @@ ThermodynamicExhaustion = ThermodynamicExhaustionError
 __all__ = [
     # Exceptions (enforcement mechanism)
     "ThermodynamicError",
+    "ThermodynamicViolation",
     "LandauerError",
+    "LandauerViolation",
     "EntropyIncreaseError",
+    "EntropyIncreaseViolation",
     "ModeCollapseError",
     "ThermodynamicExhaustionError",
-    "LandauerViolation",
-    "EntropyIncreaseViolation",
     "ThermodynamicExhaustion",
     # Core classes
     "ThermodynamicBudget",

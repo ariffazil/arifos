@@ -1,105 +1,84 @@
 #!/usr/bin/env python3
 """
-888_SIGNER: Offline Sovereign Key Utility
+scripts/888_signer.py — Sovereign Ratification Tool
 
-This standalone script lives ONLY on the Sovereign's secure local machine.
-It generates the ed25519 Sovereign Keypair and signs 888_HOLD ratification challenges.
+CLI utility for Muhammad Arif bin Fazil (888_JUDGE) to sign session hashes 
+and audit claims for the VAULT999 ledger.
 
-DO NOT DEPLOY THIS TO THE MCP SERVER OR ANY NETWORKED ENVIRONMENT.
+DITEMPA BUKAN DIBERI — Forged, Not Given
 """
 
 import argparse
-import base64
 import os
 import sys
+from getpass import getpass
+from pathlib import Path
 
-try:
-    from cryptography.hazmat.primitives import serialization
-    from cryptography.hazmat.primitives.asymmetric import ed25519
-except ImportError:
-    print("[!] Error: 'cryptography' package is required.")
-    print("    Install it locally via: pip install cryptography")
-    sys.exit(1)
+# Add project root to sys.path
+sys.path.append(str(Path(__file__).parent.parent))
 
-KEY_FILE = "sovereign_private_key.pem"
-PUB_KEY_FILE = "sovereign_public_key.pem"
+from core.shared.crypto import ed25519_sign, generate_ed25519_keypair
 
 
-def generate_keys():
-    """Generates a new ed25519 keypair if one does not exist."""
-    if os.path.exists(KEY_FILE):
-        print(f"[-] Key file {KEY_FILE} already exists. Refusing to overwrite.")
+def main():
+    parser = argparse.ArgumentParser(description="arifOS 888_signer - Human Ratification Tool")
+    parser.add_argument("--message", "-m", help="Message or hash to sign")
+    parser.add_argument("--session", "-s", help="Session ID to sign")
+    parser.add_argument("--env", help="Path to .env file", default=".env")
+    parser.add_argument("--generate", action="store_true", help="Generate a new Ed25519 keypair")
+    
+    args = parser.parse_args()
+
+    if args.generate:
+        priv, pub = generate_ed25519_keypair()
+        print("--- NEW KEYPAIR GENERATED ---")
+        print(f"PRIVATE_KEY: {priv}")
+        print(f"PUBLIC_KEY:  {pub}")
+        print("-----------------------------")
+        print("Save these to your .env as ARIFOS_GOVERNANCE_SECRET and ARIFOS_GOVERNANCE_PUBKEY")
         return
 
-    print("[*] Forging new Sovereign Keypair (ed25519)...")
-    private_key = ed25519.Ed25519PrivateKey.generate()
-    public_key = private_key.public_key()
-
-    # Save Private Key (KEEP THIS SECRET AND OFFLINE)
-    private_bytes = private_key.private_bytes(
-        encoding=serialization.Encoding.PEM,
-        format=serialization.PrivateFormat.PKCS8,
-        encryption_algorithm=serialization.NoEncryption(),
-    )
-    with open(KEY_FILE, "wb") as f:
-        f.write(private_bytes)
-    os.chmod(KEY_FILE, 0o600)  # Restrict permissions
-
-    # Save Public Key (Deploy this to arifosmcp.intelligence PUBLIC_KEY_APEX)
-    public_bytes = public_key.public_bytes(
-        encoding=serialization.Encoding.PEM, format=serialization.PublicFormat.SubjectPublicKeyInfo
-    )
-    with open(PUB_KEY_FILE, "wb") as f:
-        f.write(public_bytes)
-
-    print(f"[+] Sovereign Private Key saved to: {KEY_FILE} (SECURE THIS)")
-    print(f"[+] Sovereign Public Key saved to:  {PUB_KEY_FILE} (DEPLOY TO arifOS)")
-
-
-def sign_challenge(challenge: str):
-    """Signs a challenge string with the Sovereign Private Key."""
-    if not os.path.exists(KEY_FILE):
-        print(f"[!] Error: Private key not found at {KEY_FILE}.")
-        print("[!] Run `python 888_signer.py generate` first.")
+    # Load from env if available
+    from dotenv import load_dotenv
+    load_dotenv(args.env)
+    
+    priv_key = os.getenv("ARIFOS_GOVERNANCE_SECRET")
+    
+    if not priv_key:
+        print("ARIFOS_GOVERNANCE_SECRET not found in environment.")
+        priv_key = getpass("Enter Governance Private Key (hex): ")
+        
+    if not priv_key:
+        print("Error: No private key provided.")
         sys.exit(1)
 
-    with open(KEY_FILE, "rb") as f:
-        private_bytes = f.read()
+    target = args.message or args.session
+    if not target:
+        target = input("Enter message or hash to sign: ")
+        
+    if not target:
+        print("Error: Nothing to sign.")
+        sys.exit(1)
 
-    private_key = serialization.load_pem_private_key(private_bytes, password=None)
+    # Sign the target
+    try:
+        signature = ed25519_sign(target, priv_key)
+        
+        print("\n--- 888_JUDGE RATIFICATION SEAL ---")
+        print(f"Target:    {target}")
+        print(f"Signature: {signature}")
+        print("Verdict:   888_RATIFIED")
+        print("------------------------------------\n")
+        
+        print("Verification Command:")
+        print(f"  curl -X POST https://arifosmcp.arif-fazil.com/approve \\")
+        print(f"    -H \"Content-Type: application/json\" \\")
+        print(f"    -d '{{\"target\": \"{target}\", \"signature\": \"{signature}\"}}'")
 
-    # Sign the challenge
-    challenge_bytes = challenge.encode("utf-8")
-    signature = private_key.sign(challenge_bytes)
-
-    # Encode the signature as base64 for easy transport (copy-pasting into chat)
-    token = base64.b64encode(signature).decode("utf-8")
-
-    print("\n" + "=" * 50)
-    print("⚖️  888 SOVEREIGN RATIFICATION TOKEN")
-    print("=" * 50)
-    print(f"Challenge: {challenge}")
-    print(f"Token:     {token}")
-    print("=" * 50)
-    print("Copy the Token string and provide it to the AI to release the 888_HOLD.")
+    except Exception as e:
+        print(f"Error signing message: {e}")
+        sys.exit(1)
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="888 Sovereign Offline Signer")
-    subparsers = parser.add_subparsers(dest="command", help="Commands")
-
-    # Generate command
-    parser_gen = subparsers.add_parser("generate", help="Generate a new Sovereign Keypair")
-
-    # Sign command
-    parser_sign = subparsers.add_parser("sign", help="Sign a ratification challenge")
-    parser_sign.add_argument("challenge", help="The 888_HOLD ratification_challenge string")
-
-    args = parser.parse_args()
-
-    if args.command == "generate":
-        generate_keys()
-    elif args.command == "sign":
-        sign_challenge(args.challenge)
-    else:
-        parser.print_help()
+    main()

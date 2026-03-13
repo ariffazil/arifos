@@ -82,7 +82,7 @@ try {
 }
 
 # Generate cryptographically secure secret
-Write-Host "[3/5] Generating governance secret ($SecretLength chars)..." -ForegroundColor Yellow
+Write-Host "[3/5] Generating governance secret..." -ForegroundColor Yellow
 $chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*'
 $secret = -join ((1..$SecretLength) | ForEach-Object { 
     $chars[(Get-Random -Maximum $chars.Length)] 
