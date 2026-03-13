@@ -1,16 +1,27 @@
 from __future__ import annotations
 
+import os
 import re
 from pathlib import Path
 from typing import Any
 
+# Platform-aware path resolution.
+# Windows Forge:  C:/arifOS/0_KERNEL/FLOORS
+# Linux VPS:      /srv/arifOS/0_KERNEL/FLOORS  (or set ARIFOS_MIND_PATH env var)
+_DEFAULT_MIND_ROOT = (
+    Path("C:/arifOS") if os.name == "nt"
+    else Path(os.environ.get("ARIFOS_MIND_PATH", "/srv/arifOS"))
+)
+
 class ManifestLoader:
     """
-    Dynamically loads constitutional thresholds from the Mind (C:\arifOS).
+    Dynamically loads constitutional thresholds from the Mind (arifOS kernel).
     Bridges Markdown theory into Python runtime enforcement.
+    Works on both Windows Forge (C:/arifOS) and Linux VPS (/srv/arifOS).
+    Override path with ARIFOS_MIND_PATH env var.
     """
-    
-    CANON_FLOORS_PATH = Path("C:/arifOS/0_KERNEL/FLOORS")
+
+    CANON_FLOORS_PATH = _DEFAULT_MIND_ROOT / "0_KERNEL" / "FLOORS"
     
     @classmethod
     def load_thresholds(cls) -> dict[str, float]:
