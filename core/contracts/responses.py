@@ -9,6 +9,11 @@ The three-layer envelope that enforces strict separation of concerns:
 This schema mechanizes F7 Humility - the LLM cannot return READY without
 explicitly calculating uncertainty_score and listing unstable_assumptions.
 
+FORGED-2026.03 additions (Grand Unified Technical Specification):
+  MachineEnvelope:    + fault_code, http_diagnostics, tool_name, latency_ms
+  GovernanceEnvelope: + hold_id, void_reason, metabolic_stage, floor_scores (dict)
+  GovernedResponse:   + three_e (ThreeEState) alias, tri_witness_score shortcut
+
 DITEMPA BUKAN DIBERI — Forged, Not Given
 """
 
@@ -17,6 +22,19 @@ from __future__ import annotations
 from typing import Any, Literal
 
 from pydantic import BaseModel, Field
+
+# FORGED-2026.03: machine fault codes — NEVER map to VOID
+# These are infrastructure signals, not constitutional violations.
+MACHINE_FAULT_CODES = frozenset({
+    "TOOL_NOT_EXPOSED",       # 404 / endpoint not registered
+    "INFRA_DEGRADED",         # service unreachable, 5xx
+    "TIMEOUT_EXCEEDED",       # network/compute timeout
+    "RATE_LIMITED",           # 429 / quota exceeded
+    "DEPENDENCY_UNAVAILABLE", # Qdrant/Redis/Postgres offline
+    "DNS_FAIL",               # DNS resolution failure
+    "TLS_FAIL",               # SSL/TLS handshake failure
+    "WAF_BLOCK",              # WAF/CDN blocked request
+})
 
 
 # ---------------------------------------------------------
@@ -40,6 +58,28 @@ class MachineEnvelope(BaseModel):
     continuity_state: Literal["UNVERIFIED", "VERIFIED"] = Field(
         default="UNVERIFIED",
         description="F11 continuity state - has valid auth_context been established?",
+    )
+    # ── FORGED-2026.03 additions ──────────────────────────────────────────────
+    tool_name: str = Field(
+        default="unknown",
+        description="Name of the tool that produced this response",
+    )
+    latency_ms: float = Field(
+        default=0.0,
+        ge=0.0,
+        description="Wall-clock execution time in milliseconds",
+    )
+    fault_code: str | None = Field(
+        default=None,
+        description=(
+            "Machine fault code when status=DEGRADED/BLOCKED. "
+            "Values from MACHINE_FAULT_CODES set. "
+            "CRITICAL: fault_code != VOID — mechanical faults are 888_HOLD, not VOID."
+        ),
+    )
+    http_diagnostics: dict[str, Any] | None = Field(
+        default=None,
+        description="Forensic HTTP/DNS diagnostics: {status_code, dns_latency_ms, error_count, engines_failed}",
     )
 
 
@@ -68,6 +108,33 @@ class GovernanceEnvelope(BaseModel):
     floors_failed: list[str] = Field(
         default_factory=list,
         description="Which floors blocked execution (if any)",
+    )
+    # ── FORGED-2026.03 additions ──────────────────────────────────────────────
+    floor_scores: dict[str, float] = Field(
+        default_factory=dict,
+        description="Per-floor scores: {F1: 1.0, F2: 0.95, ...}. Populated by metabolic loop.",
+    )
+    hold_id: str | None = Field(
+        default=None,
+        description="UUID of the 888_HOLD event (populated when verdict=HOLD and reason is sovereign gate)",
+    )
+    void_reason: str | None = Field(
+        default=None,
+        description=(
+            "Constitutional violation code — populated ONLY on VOID. "
+            "Examples: F2_TRUTH_BELOW_THRESHOLD, F11_AUTH_FAILURE, F12_INJECTION, F10_ONTOLOGY. "
+            "NEVER populated for mechanical faults (those use machine.fault_code)."
+        ),
+    )
+    metabolic_stage: str = Field(
+        default="000",
+        description="Current position in the 000→999 metabolic loop when verdict was issued",
+    )
+    tri_witness_score: float | None = Field(
+        default=None,
+        ge=0.0,
+        le=1.0,
+        description="W3 score from reality_dossier (if synthesis was performed). ≥ 0.95 required for SEAL.",
     )
 
 
@@ -300,6 +367,7 @@ def governed_to_runtime_envelope(governed: GovernedResponse) -> dict[str, Any]:
 
 
 __all__ = [
+    "MACHINE_FAULT_CODES",
     "MachineEnvelope",
     "GovernanceEnvelope",
     "IntelligenceEnvelope",
