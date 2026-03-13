@@ -12,10 +12,12 @@ from arifosmcp.runtime.capability_map import build_runtime_capability_map
 from arifosmcp.runtime.models import (
     CallerContext,
     RuntimeEnvelope,
+    RuntimeStatus,
     Stage,
     UserModel,
     UserModelField,
     UserModelSource,
+    Verdict,
 )
 from arifosmcp.runtime.philosophy import select_governed_philosophy
 from arifosmcp.runtime.public_registry import (
@@ -1075,6 +1077,88 @@ async def _copilot_kernel_wrapper(
     )
 
 
+async def revoke_anchor_state(
+    session_id: str,
+    reason: str,
+    revoked_by: str = "sovereign",
+    auth_context: dict[str, Any] | None = None,
+    caller_context: CallerContext | None = None,
+    ctx: Context | None = None,
+) -> RuntimeEnvelope:
+    """Revoke a session's governance token. F11 Token Lifecycle management."""
+    from core.enforcement.auth_continuity import revoke_session, is_session_revoked
+
+    payload = {
+        "operation": "revoke",
+        "session_id": session_id,
+        "reason": reason,
+        "revoked_by": revoked_by,
+    }
+
+    result = revoke_session(session_id, reason, revoked_by)
+
+    return RuntimeEnvelope(
+        tool="revoke_anchor_state",
+        session_id=session_id,
+        stage=Stage.INIT_000.value,
+        verdict=Verdict.SEAL,
+        status="SUCCESS",
+        payload={
+            "revoked": True,
+            "session_id": session_id,
+            "reason": reason,
+            "revoked_by": revoked_by,
+            "message": f"Session {session_id} has been revoked. All subsequent calls will be rejected.",
+        },
+        auth_context=auth_context,
+    )
+
+
+async def reality_dossier(
+    bundles: list[Any],
+    session_id: str = "global",
+    actor_id: str = "anonymous",
+    authority_level: str = "anonymous",
+    auth_context: dict[str, Any] | None = None,
+    caller_context: CallerContext | None = None,
+    ctx: Context | None = None,
+) -> RuntimeEnvelope:
+    """Build a Reality Dossier from EvidenceBundles.
+    Tri-Witness Decoder for F3 compliance.
+    Implements 3E Intelligence: Exploration -> Entropy -> Eureka.
+    """
+    from .reality_models import EvidenceBundle
+    from .reality_dossier import dossier_engine
+
+    parsed_bundles: list[EvidenceBundle] = []
+    for b in bundles:
+        if isinstance(b, EvidenceBundle):
+            parsed_bundles.append(b)
+        elif isinstance(b, dict):
+            parsed_bundles.append(EvidenceBundle(**b))
+
+    dossier_result = await dossier_engine.build_dossier(
+        bundles=parsed_bundles,
+        session_id=session_id,
+        actor_id=actor_id,
+        authority_level=authority_level,
+    )
+
+    return RuntimeEnvelope(
+        tool="reality_dossier",
+        session_id=session_id,
+        stage=Stage.REALITY_222.value,
+        verdict=Verdict.SEAL if dossier_result.status.state == "SUCCESS" else Verdict.PARTIAL,
+        status=RuntimeStatus.SUCCESS
+        if dossier_result.status.state == "SUCCESS"
+        else RuntimeStatus.ERROR,
+        machine_status="READY",
+        intelligence_stage=dossier_result.intelligence.eureka,
+        payload=dossier_result.model_dump(mode="json"),
+        auth_context=auth_context,
+    )
+
+
 def register_tools(mcp: FastMCP, profile: str = "full") -> None:
     """Register the core runtime tools; the dashboard app tool is added in resources."""
     from arifosmcp.tools.lsp_tools import register_lsp_tools
@@ -1115,6 +1199,8 @@ def register_tools(mcp: FastMCP, profile: str = "full") -> None:
         "audit_rules": audit_rules,
         "check_vital": check_vital,
         "init_anchor_state": init_anchor_state,
+        "revoke_anchor_state": revoke_anchor_state,
+        "reality_dossier": reality_dossier,
         "verify_vault_ledger": verify_vault_ledger,
     }
 

@@ -11,6 +11,8 @@ Consolidates:
 DITEMPA BUKAN DIBERI — Forged, Not Given
 """
 
+import hashlib
+import hmac
 import logging
 import os
 import secrets

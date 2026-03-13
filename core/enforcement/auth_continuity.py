@@ -177,7 +177,9 @@ def verify_auth_context(session_id: str, auth_context: dict[str, Any]) -> tuple[
         )
 
     presented_signature = auth_context.get("signature", "")
-    if not any(hmac.compare_digest(presented_signature, expected) for expected in expected_signatures):
+    if not any(
+        hmac.compare_digest(presented_signature, expected) for expected in expected_signatures
+    ):
         return False, "signature mismatch"
 
     return True, ""
@@ -223,3 +225,54 @@ def clear_auth_context_cache(session_id: str | None = None) -> None:
     ]
     for key in keys_to_remove:
         _auth_verify_cache.pop(key, None)
+
+
+_REVOKED_SESSIONS: dict[str, tuple[str, float, str]] = {}
+_REVOCATION_TTL_SECONDS = 86400
+
+
+def revoke_session(session_id: str, reason: str, revoked_by: str = "system") -> dict[str, Any]:
+    now = time.time()
+    _REVOKED_SESSIONS[session_id] = (reason, now, revoked_by)
+    clear_auth_context_cache(session_id)
+    _prune_expired_revocations()
+    return {
+        "session_id": session_id,
+        "revoked": True,
+        "reason": reason,
+        "revoked_by": revoked_by,
+        "revoked_at": now,
+    }
+
+
+def is_session_revoked(session_id: str) -> tuple[bool, str | None]:
+    if session_id in _REVOKED_SESSIONS:
+        reason, _, _ = _REVOKED_SESSIONS[session_id]
+        return True, reason
+    return False, None
+
+
+def _prune_expired_revocations() -> None:
+    now = time.time()
+    stale = [
+        sid for sid, (_, ts, _) in _REVOKED_SESSIONS.items() if (now - ts) > _REVOCATION_TTL_SECONDS
+    ]
+    for sid in stale:
+        _REVOKED_SESSIONS.pop(sid, None)
+
+
+def get_all_revoked_sessions() -> list[dict[str, Any]]:
+    _prune_expired_revocations()
+    return [
+        {"session_id": sid, "reason": reason, "revoked_at": ts, "revoked_by": by}
+        for sid, (reason, ts, by) in _REVOKED_SESSIONS.items()
+    ]
+
+
+def verify_auth_context_with_revocation(
+    session_id: str, auth_context: dict[str, Any]
+) -> tuple[bool, str]:
+    revoked, reason = is_session_revoked(session_id)
+    if revoked:
+        return False, f"session revoked: {reason}"
+    return verify_auth_context(session_id, auth_context)
