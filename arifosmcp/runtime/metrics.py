@@ -142,3 +142,85 @@ def record_constitutional_metrics(
 def record_verdict(verdict: str) -> None:
     """Increment verdict counter."""
     VERDICT_TOTAL.labels(verdict=verdict).inc()
+
+
+# ---------------------------------------------------------------------------
+# FORGED-2026.03: MGI CANONICAL TOOL METRICS
+# Grand Unified Technical Specification additions
+# ---------------------------------------------------------------------------
+
+# W3 Tri-Witness score histogram (F3 Mirror Floor)
+W3_SCORE = Histogram(
+    "arifos_w3_score",
+    "Tri-Witness W3 score distribution — SEAL threshold ≥ 0.95",
+    ["tool"],
+    buckets=[0.0, 0.25, 0.50, 0.70, 0.75, 0.85, 0.90, 0.95, 1.0],
+)
+
+# 888_HOLD queue depth (F13 Sovereign Gate backlog)
+HOLD_QUEUE_DEPTH = Gauge(
+    "arifos_hold_queue_depth",
+    "Number of 888_HOLD events pending sovereign ratification",
+)
+
+# Vault record count (VAULT999 growth)
+VAULT_RECORDS_TOTAL = Gauge(
+    "arifos_vault_records_total",
+    "Total records in VAULT999 Merkle chain",
+)
+
+# Floor violations by floor code (constitutional health)
+FLOOR_VIOLATIONS = Counter(
+    "arifos_floor_violations_total",
+    "Constitutional floor violations — breach by floor and tool",
+    ["floor", "tool"],
+)
+
+# Machine fault codes (VOID Memanjang elimination — mechanical faults only)
+MACHINE_FAULTS = Counter(
+    "arifos_machine_faults_total",
+    "Machine-layer faults (NEVER maps to VOID) — by fault_code and tool",
+    ["fault_code", "tool"],
+)
+
+# VOID events (constitutional only — should be rare)
+VOID_EVENTS = Counter(
+    "arifos_void_events_total",
+    "VOID verdicts issued — constitutional violations only (F2/F11/F12/F13)",
+    ["void_reason", "tool"],
+)
+
+# Merkle chain integrity check results
+MERKLE_INTEGRITY = Counter(
+    "arifos_merkle_integrity_checks_total",
+    "VAULT999 Merkle chain integrity check outcomes",
+    ["status"],  # VALID | TAMPERED
+)
+
+
+def record_w3(tool: str, w3_score: float) -> None:
+    """Record a W3 Tri-Witness score observation."""
+    W3_SCORE.labels(tool=tool).observe(w3_score)
+
+
+def record_machine_fault(tool: str, fault_code: str) -> None:
+    """
+    Record a machine-layer fault.
+    IMPORTANT: This must NEVER be called for constitutional violations.
+    Constitutional violations use record_void_event().
+    """
+    MACHINE_FAULTS.labels(fault_code=fault_code, tool=tool).inc()
+
+
+def record_void_event(tool: str, void_reason: str) -> None:
+    """
+    Record a VOID verdict (constitutional violation only).
+    IMPORTANT: This must NEVER be called for infrastructure/mechanical faults.
+    Mechanical faults use record_machine_fault().
+    """
+    VOID_EVENTS.labels(void_reason=void_reason, tool=tool).inc()
+
+
+def record_floor_violation(tool: str, floor: str) -> None:
+    """Record a constitutional floor violation."""
+    FLOOR_VIOLATIONS.labels(floor=floor, tool=tool).inc()
