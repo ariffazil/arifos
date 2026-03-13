@@ -758,14 +758,26 @@ async def check_vital(session_id: str = "global", ctx: Context | None = None) ->
 
     # Enhance payload with real-time thermo-budget and telemetry (H1.1)
     try:
-        from core.physics.thermodynamics_hardened import ThermodynamicViolation
-
+        # Try to import thermodynamics with graceful fallback
         try:
-            thermo_report = get_thermodynamic_report(session_id)
-        except ThermodynamicViolation:
+            from core.physics.thermodynamics_hardened import ThermodynamicViolation
+            thermo_available = True
+        except ImportError:
+            thermo_available = False
+            ThermodynamicViolation = Exception  # type: ignore[misc]
+
+        if thermo_available:
+            try:
+                thermo_report = get_thermodynamic_report(session_id)
+            except ThermodynamicViolation:
+                thermo_report = {
+                    "status": "no_active_budget",
+                    "note": "Session has not initialized thermodynamics.",
+                }
+        else:
             thermo_report = {
-                "status": "no_active_budget",
-                "note": "Session has not initialized thermodynamics.",
+                "status": "module_unavailable",
+                "note": "Thermodynamics module not loadable in this environment.",
             }
 
         adaptation = check_adaptation_status()
@@ -936,6 +948,7 @@ async def _copilot_kernel_wrapper(
 
 def register_tools(mcp: FastMCP, profile: str = "full") -> None:
     """Register the core runtime tools; the dashboard app tool is added in resources."""
+    from arifosmcp.tools.lsp_tools import register_lsp_tools
 
     normalized_profile = normalize_tool_profile(profile)
     is_copilot_profile = normalized_profile == "copilot"

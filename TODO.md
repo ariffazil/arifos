@@ -1,13 +1,105 @@
 # arifOS TODO — Active Sector Tracking
 
-**Operational Status:** ✅ LSP/ACP SEALED TO VAULT999 — 2026.03.13
-**Latest Forge:** LSP + ACP Constitutional Integration v1.0
-**Git Commit:** 36713d5ce
+**Operational Status:** 🛠️ CIVILIZATION-READINESS SPRINT — 2026.03.13
+**Latest Forge:** APEX Assessment Response + Runtime Fixes
+**Git Commit:** TBD
 **VAULT999 Seal:** ACTIVE
 **Authority:** 888 Judge — Muhammad Arif bin Fazil  
 **Version:** 2026.03.13-FORGED  
 **Coverage:** ~75% (Target: 80%)  
+**APEX Score:** 8.6/10 → Target: 9.4+  
 **Motto:** *Ditempa Bukan Diberi — Forged, Not Given*
+
+---
+
+## 🔥 P0: APEX Civilization-Readiness Sprint (2026.03.13-04.13)
+
+*Based on APEX assessment: "Strong foundation, not yet civilization-ready"*
+*Focus: Trust transfer, proof packaging, documentation polish.*
+
+### Week 1: Trust Packaging (README Quick Wins)
+
+**THE SURFACE (ariffazil/ariffazil):**
+- [ ] Add "Start Here" section with ecosystem map
+  - Surface = Human context (recruiters, collaborators)
+  - Mind = Constitutional doctrine (researchers, architects)
+  - Body = Runtime engine (developers, operators)
+- [ ] Add "Why arifOS emerged from geology" bridge section
+- [ ] Add "Selected Work / Proof Points" block
+- [ ] Add specific call-to-connection (not generic)
+
+**THE MIND (ariffazil/arifOS):**
+- [ ] Add "Who this repo is for" section (4 personas)
+- [ ] Add "What this repo contains / does not do"
+- [ ] Add Doctrine → Runtime table (F2→search_reality, F4→entropy_tracking, etc.)
+- [ ] Add "Design Principles" section (reversibility first, truth before fluency, etc.)
+- [ ] Add glossary of constitutional terms
+
+**THE BODY (ariffazil/arifosmcp):**
+- [ ] Add badges (tests passing, coverage, license, MCP compatible)
+- [ ] Add "5-Minute Quickstart" with copy-paste commands
+- [ ] Add "Start Here" orientation block
+- [ ] Add "Why now?" section (MCP standardization + governance gap)
+
+### Week 2: Proof of Reality (THE BODY)
+
+- [ ] Create `demos/` folder with 3 examples:
+  - [ ] `demo_01_safe_query.md` - Normal governed response
+  - [ ] `demo_02_blocked_command.md` - 888_HOLD blocking destructive action
+  - [ ] `demo_03_vault_verification.md` - Ledger integrity check
+- [ ] Add terminal output screenshots to README
+- [ ] Add architecture diagram (minimal, clear)
+- [ ] Add "Example blocked action trace" to README
+
+### Week 3: Competitive Honesty & Trust Signals
+
+- [ ] Add explicit "Threat Model" section:
+  - Prompt injection defense (F12)
+  - Hallucinated evidence prevention (F2)
+  - Irreversible command blocking (F1)
+  - Secret leakage prevention (F12)
+  - Identity spoofing defense (F11)
+  - Unlogged execution prevention (VAULT999)
+- [ ] Add "Non-Goals" section (what arifOS does NOT do)
+- [ ] Add comparison matrix: arifOS vs Guardrails vs AgentGuard
+- [ ] Add "Known Limitations" (honesty builds trust):
+  - Thermodynamic detailed vitals: work in progress
+  - Auto-deploy: manual only
+  - High-risk kernel calls: require explicit auth bootstrap
+
+### Week 4: One Killer Demo
+
+- [ ] Create 90-second terminal recording/video:
+  ```
+  bootstrap_identity → safe query → 888_HOLD on destructive query → verify_vault_ledger
+  ```
+- [ ] Add demo GIF to README
+- [ ] Write "Getting Started" guide for developers
+- [ ] Add contributor pathway (Good First Issues, architecture docs)
+
+### Runtime Fixes (COMPLETED ✅)
+
+- [x] **Fix `audit_rules` returning SABAR/ERROR:**
+  - Added `system_audit` handler in bridge.py
+  - Added `_build_constitutional_audit()` returning all 13 Floors
+  - Maps doctrine to runtime tools
+- [x] **Fix `check_vital` thermodynamics import failure:**
+  - Added graceful ImportError handling
+  - Returns "module_unavailable" status instead of crashing
+  - Reports degraded components honestly
+
+---
+
+## 🔥 Strategic Forge (2026.03.13) — COMPLETED ✅
+
+- [x] **LSP Bridge Implementation:** Read-only code intelligence for Python/TS/Rust.
+- [x] **ACP Server Implementation:** Agent Client Protocol for editor integration (Zed/Cursor).
+- [x] **Governed LSP Tools:** `lsp_rename` (888_HOLD) and `lsp_query` MCP tools active.
+- [x] **Office Forge Engine:** Hardened Markdown -> PDF/PPTX render engine.
+- [x] **Identity Resolution Fix:** "Arif Fazil" sovereign identity mapping resolved.
+- [x] **ACP Hardening:** Disabled `fileSystem` and `terminals` for editor-facing agents (F5).
+- [x] **Integrate Metabolic Loop:** ACP `agent/prompt` now routes through 000-999 pipeline.
+- [x] **APEX Runtime Fixes:** `audit_rules` and `check_vital` now functional
 
 ---
 
@@ -135,14 +227,36 @@
 
 ---
 
-## 🎯 Next Forge Priority (P0) — POST-LSP/ACP
+## 🎯 Next Forge Priority (P0) — CIVILIZATION-READINESS
 
-1. **VPS Deployment Verification** — Confirm LSP/ACP live on production (`docker logs | grep -E "(LSP|ACP)"`).
-2. **Editor Integration** — Connect Zed, VS Code, Antigravity, OpenCode to arifOS via ACP.
-3. **Code Intelligence Workflow** — Build "analyze codebase → generate architecture doc" pipeline.
-4. **E2E Visualizer Validation** — Verify LSP metrics show up in Constitutional Dashboard.
-5. [x] **888_signer CLI** — Human ratification token utility for ACP session approval ✅
-6. [x] **Complete H1.3 Test Recovery** — Add ~110 tests for zero-coverage modules ✅
+*APEX Assessment: "Not more philosophy. Proof packaging, onboarding precision, and ruthless clarity."*
+
+### Week 1 (Mar 13-20): Trust Packaging
+1. **THE SURFACE:** Add "Start Here", ecosystem map, geology bridge
+2. **THE MIND:** Add doctrine→runtime table, "Who this is for", design principles
+3. **THE BODY:** Add badges, 5-minute quickstart, "Why now?"
+
+### Week 2 (Mar 20-27): Proof of Reality
+4. **Demo Artifacts:** Create `demos/` with 3 runnable examples
+5. **Visual Proof:** Terminal screenshots, architecture diagram
+6. **README Polish:** Add example traces, blocked command demo
+
+### Week 3 (Mar 27-Apr 3): Competitive Honesty
+7. **Threat Model:** Document mitigated risks (injection, irreversible commands, etc.)
+8. **Non-Goals:** Explicitly state what arifOS does NOT do
+9. **Comparison Matrix:** arifOS vs Guardrails vs AgentGuard
+10. **Known Limitations:** Honest assessment of current gaps
+
+### Week 4 (Apr 3-10): One Killer Demo
+11. **90-Second Video:** Bootstrap → Safe query → 888_HOLD → Vault verify
+12. **GIF for README:** Animated demo of governance in action
+13. **Contributor Pathway:** Good First Issues, architecture docs
+
+### VPS/LSP/ACP (P1 — Post-Civilization-Readiness)
+- [ ] VPS Deployment Verification (`docker logs | grep -E "(LSP|ACP)"`)
+- [ ] Editor Integration (Zed, VS Code via ACP)
+- [ ] Code Intelligence Workflow (analyze → architecture doc)
+- [ ] E2E Visualizer Validation (LSP metrics in Dashboard)
 
 ---
 
