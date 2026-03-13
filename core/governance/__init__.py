@@ -16,7 +16,23 @@ from .apex_invariants import (
     validate_apex_non_learning,
 )
 
+# Notification Bridge exports
+from .apex_notification import (
+    APEXNotificationBridge,
+    HoldEvent,
+    HoldReason,
+    NotificationChannel,
+    apex_notification_bridge,
+    emit_sovereign_hold,
+)
+
 __all__ = [
     "APEX_CONSTANTS",
     "validate_apex_non_learning",
+    "APEXNotificationBridge",
+    "HoldEvent",
+    "HoldReason",
+    "NotificationChannel",
+    "apex_notification_bridge",
+    "emit_sovereign_hold",
 ]
