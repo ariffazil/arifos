@@ -1142,9 +1142,11 @@ def register_tools(mcp: FastMCP, profile: str = "full") -> None:
     for name, handler in tool_handlers.items():
         spec = specs.get(name)
         if spec:
-            mcp.tool(name=spec.name, description=spec.description)(handler)
+            mcp.tool(name=spec.name, description=spec.description, exclude_args=["ctx", "server"])(
+                handler
+            )
         else:
-            mcp.tool(name=name)(handler)
+            mcp.tool(name=name, exclude_args=["ctx", "server"])(handler)
 
 
 __all__ = [
