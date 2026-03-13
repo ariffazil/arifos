@@ -328,17 +328,61 @@ img { max-width: 100%; height: auto; }
 
 .hero-overline {
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: 11px;
   color: var(--text-muted);
-  letter-spacing: 0.15em;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
-  margin-bottom: 16px;
+  margin-bottom: 20px;
   position: relative;
   z-index: 1;
 }
 
+/* Trinity logo mark in hero */
+.hero-logo-mark {
+  position: relative;
+  z-index: 1;
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: center;
+  animation: hero-logo-float 4s ease-in-out infinite;
+}
+@keyframes hero-logo-float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-6px); }
+}
+
+/* Main title: "arifOS MCP" */
+.hero-title-main {
+  font-size: clamp(36px, 6vw, 64px);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  margin-bottom: 10px;
+  position: relative;
+  z-index: 1;
+  /* "arifOS" white → " MCP" blue split — sharp break */
+  background: linear-gradient(90deg, #e8e8f0 0%, #e8e8f0 62%, #4d8df5 72%, #2563eb 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Tagline: "DITEMPA, BUKAN DIBERI." */
+.hero-tagline {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.22em;
+  color: #2563eb;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+  position: relative;
+  z-index: 1;
+  opacity: 0.9;
+}
+
+/* Keep old .hero h1 fallback but override with new class above */
 .hero h1 {
-  font-size: clamp(40px, 6vw, 64px);
+  font-size: clamp(36px, 6vw, 64px);
   font-weight: 800;
   letter-spacing: -0.03em;
   line-height: 1.1;

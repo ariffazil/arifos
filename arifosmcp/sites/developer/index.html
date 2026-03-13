@@ -53,8 +53,43 @@
 
 <!-- Hero Section -->
 <section class="hero">
-  <div class="hero-overline">arifOS MCP · Developer Documentation</div>
-  <h1>Documentation</h1>
+  <div class="hero-overline">DEVELOPER DOCUMENTATION</div>
+
+  <!-- Trinity Logo Mark -->
+  <div class="hero-logo-mark" aria-hidden="true">
+    <svg viewBox="0 0 200 200" width="88" height="88" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <filter id="glow-gold" x="-40%" y="-40%" width="180%" height="180%">
+          <feGaussianBlur stdDeviation="4" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+        <filter id="glow-blue" x="-40%" y="-40%" width="180%" height="180%">
+          <feGaussianBlur stdDeviation="4" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+        <filter id="glow-red" x="-40%" y="-40%" width="180%" height="180%">
+          <feGaussianBlur stdDeviation="4" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+      </defs>
+      <!-- Gold arm — THEORY top -->
+      <line x1="100" y1="104" x2="100" y2="22" stroke="#ffd24a" stroke-width="14" stroke-linecap="round" filter="url(#glow-gold)"/>
+      <circle cx="100" cy="18" r="10" fill="#ffd24a" filter="url(#glow-gold)"/>
+      <!-- Blue arm — APPS bottom-left -->
+      <line x1="96" y1="112" x2="28" y2="163" stroke="#2563eb" stroke-width="14" stroke-linecap="round" filter="url(#glow-blue)"/>
+      <circle cx="24" cy="166" r="10" fill="#2563eb" filter="url(#glow-blue)"/>
+      <!-- Red arm — HUMAN bottom-right -->
+      <line x1="104" y1="112" x2="172" y2="163" stroke="#ff4d4f" stroke-width="14" stroke-linecap="round" filter="url(#glow-red)"/>
+      <circle cx="176" cy="166" r="10" fill="#ff4d4f" filter="url(#glow-red)"/>
+      <!-- Centre hub -->
+      <circle cx="100" cy="108" r="22" fill="#0a0a0f" stroke="#2563eb" stroke-width="2"/>
+      <!-- Delta glyph -->
+      <polygon points="100,94 87,118 113,118" fill="none" stroke="#e8e8f0" stroke-width="3.5" stroke-linejoin="round"/>
+    </svg>
+  </div>
+
+  <h1 class="hero-title-main">arifOS MCP</h1>
+  <p class="hero-tagline">DITEMPA, BUKAN DIBERI.</p>
   <p class="hero-subtitle">The constitutional AI governance system — 13 floors, Trinity ΔΩΨ, VAULT999. Build with verified truth.</p>
   <div class="hero-badges">
     <span class="badge badge-version">v2026.03.13-FORGED</span>
