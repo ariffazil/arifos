@@ -31,48 +31,58 @@
 </head>
 <body>
 
-<!-- TOP TICKER -->
-<div class="ticker">
-  <div class="ticker-inner">
-    <span class="ticker-icon">●</span>
-    <span>arifOS MCP LIVE</span>
-    <span class="ticker-sep">—</span>
-    <a href="https://arifosmcp.arif-fazil.com/health" target="_blank" class="ticker-link">STATUS: <span id="tickerStatus">CHECKING...</span></a>
-    <span class="ticker-sep">—</span>
-    <a href="https://arifosmcp.arif-fazil.com" class="ticker-link">Connect in 30s →</a>
-    <span class="ticker-sep">·</span>
-    <span>ΔS = 0.05 (near-crystalline)</span>
-    <span class="ticker-sep">·</span>
-    <span>v2026.03.13-FORGED</span>
-  </div>
+<!-- TRINITY STRIP -->
+<div class="unified-trinity-strip">
+  <a href="https://arif-fazil.com" class="utn-node utn-human">HUMAN</a>
+  <span class="utn-div">·</span>
+  <a href="https://arifos.arif-fazil.com" class="utn-node utn-theory utn-active">THEORY</a>
+  <span class="utn-div">·</span>
+  <a href="https://arifosmcp.arif-fazil.com" class="utn-node utn-apps">APPS</a>
+  <span class="utn-sep"></span>
+  <span class="utn-sig">ΔΩΨ — DITEMPA BUKAN DIBERI</span>
 </div>
 
 <!-- NAV -->
-<nav class="nav">
-  <div class="nav-inner">
-    <a href="#" class="nav-logo">
-      <svg width="32" height="32" viewBox="0 0 32 32" fill="none" aria-label="arifOS">
-        <circle cx="16" cy="16" r="14" stroke="currentColor" stroke-width="1.5" opacity="0.4"/>
-        <circle cx="16" cy="16" r="9" stroke="var(--color-gold)" stroke-width="1.5"/>
-        <path d="M16 7v18M7 16h18" stroke="currentColor" stroke-width="1" opacity="0.3"/>
-        <circle cx="16" cy="16" r="3" fill="var(--color-gold)"/>
+<nav class="unified-nav" id="mainNav">
+  <div class="unified-nav-inner">
+    <a href="https://arifos.arif-fazil.com" class="unified-logo">
+      <svg width="22" height="22" viewBox="0 0 200 200" fill="none" aria-label="arifOS" style="flex-shrink:0">
+        <defs>
+          <linearGradient id="hgGA" x1="50%" y1="0%" x2="50%" y2="100%"><stop offset="0%" stop-color="#ffe066"/><stop offset="100%" stop-color="#b8860b"/></linearGradient>
+          <linearGradient id="hgBA" x1="100%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#60a5fa"/><stop offset="100%" stop-color="#1e40af"/></linearGradient>
+          <linearGradient id="hgRA" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" stop-color="#b91c1c"/><stop offset="100%" stop-color="#ff6060"/></linearGradient>
+        </defs>
+        <line x1="100" y1="104" x2="100" y2="22" stroke="url(#hgGA)" stroke-width="22" stroke-linecap="round"/>
+        <circle cx="100" cy="20" r="16" fill="url(#hgGA)"/>
+        <line x1="96" y1="112" x2="28" y2="163" stroke="url(#hgBA)" stroke-width="22" stroke-linecap="round"/>
+        <circle cx="26" cy="165" r="16" fill="url(#hgBA)"/>
+        <line x1="104" y1="112" x2="172" y2="163" stroke="url(#hgRA)" stroke-width="22" stroke-linecap="round"/>
+        <circle cx="174" cy="165" r="16" fill="url(#hgRA)"/>
+        <circle cx="100" cy="108" r="30" fill="#0a0a0b"/>
+        <polygon points="100,93  85,121  115,121" fill="none" stroke="#d0d0dc" stroke-width="5" stroke-linejoin="round"/>
       </svg>
-      <span class="nav-logo-text">arifOS</span>
+      <span class="unified-logo-mark" style="color:#e2e2e5">arif<span style="color:#ffd24a">.</span>OS</span>
     </a>
-    <div class="nav-links">
-      <a href="#trinity" class="nav-link">Trinity</a>
-      <a href="#floors" class="nav-link">13 Floors</a>
-      <a href="#metabolic" class="nav-link">Metabolic</a>
-      <a href="#ecosystem" class="nav-link">Ecosystem</a>
-      <a href="https://arifosmcp.arif-fazil.com" target="_blank" class="nav-link nav-cta">MCP Server →</a>
-      <a href="https://github.com/ariffazil/arifOS" target="_blank" class="nav-link-ghost">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.164 6.839 9.49.5.09.682-.218.682-.485 0-.236-.009-.866-.014-1.7-2.782.604-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.464-1.11-1.464-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.03-2.683-.103-.253-.447-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836c.85.004 1.705.115 2.504.337 1.909-1.294 2.747-1.025 2.747-1.025.546 1.376.202 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.741 0 .269.18.579.688.481C19.138 20.16 22 16.416 22 12c0-5.523-4.477-10-10-10z"/></svg>
+
+    <div class="unified-nav-links">
+      <a href="#trinity"   class="unified-nav-link">Trinity</a>
+      <a href="#floors"    class="unified-nav-link">13 Floors</a>
+      <a href="#metabolic" class="unified-nav-link">Metabolic</a>
+      <a href="#ecosystem" class="unified-nav-link">Ecosystem</a>
+    </div>
+
+    <div class="unified-nav-right">
+      <a href="https://github.com/ariffazil/arifOS" target="_blank" rel="noopener noreferrer" class="unified-nav-ghost">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.164 6.839 9.49.5.09.682-.218.682-.485 0-.236-.009-.866-.014-1.7-2.782.604-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.464-1.11-1.464-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.03-2.683-.103-.253-.447-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836c.85.004 1.705.115 2.504.337 1.909-1.294 2.747-1.025 2.747-1.025.546 1.376.202 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.741 0 .269.18.579.688.481C19.138 20.16 22 16.416 22 12c0-5.523-4.477-10-10-10z"/></svg>
         GitHub
       </a>
+      <a href="https://arifosmcp.arif-fazil.com" target="_blank" class="unified-nav-cta unified-nav-cta--theory">
+        MCP Server →
+      </a>
+      <button class="nav-theme-toggle" data-theme-toggle aria-label="Switch to light mode">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
     </div>
-    <button class="nav-theme-toggle" data-theme-toggle aria-label="Switch to light mode">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-    </button>
   </div>
 </nav>
 
@@ -424,7 +434,7 @@
         <div class="eco-contents">
           <div class="eco-dir">Developer portal (this site)</div>
           <div class="eco-dir">APEX Sovereign Dashboard</div>
-          <div class="eco-dir">PyPI package: pip install arifos</div>
+          <div class="eco-dir">PyPI package: pip install arifOS</div>
           <div class="eco-dir">38 GitHub stars · AGPL-3.0</div>
         </div>
       </div>
@@ -445,7 +455,7 @@
 <span class="c-url">https://arifosmcp.arif-fazil.com/mcp</span>
 
 <span class="c-comment"># Or install as Python package</span>
-pip install arifos
+pip install arifOS
 python -m arifos_aaa_mcp http</code></pre>
         </div>
       </div>
