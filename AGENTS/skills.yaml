@@ -1,6 +1,6 @@
-# arifOS Agent Skills Registry
+﻿# arifOS Agent Skills Registry
 # Reusable Skill Definitions with I/O Schemas
-# Version: 2026.03.13-FORGED
+# Version: 2026.03.14-FORGED
 # Authority: 888_JUDGE
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -18,7 +18,7 @@
 # - constitutional: Floor checks applied
 # ═══════════════════════════════════════════════════════════════════════════════
 
-constitutional_version: "2026.03.13-FORGED"
+constitutional_version: "2026.03.14-FORGED"
 registry_id: "arifos-skills-registry"
 authority: "888_JUDGE"
 
@@ -533,3 +533,4 @@ inventory:
       - search_reality
 
 motto: "Ditempa Bukan Diberi — Forged, Not Given"
+

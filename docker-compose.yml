@@ -1,4 +1,4 @@
-# ── arifOS AI-First Unified Trinity Stack ──────────────────────────
+﻿# ── arifOS AI-First Unified Trinity Stack ──────────────────────────
 # HARDENED PRODUCTION CONFIGURATION
 # Version: 2026.03.12-SEAL-HARDENED
 # Changes:
@@ -193,7 +193,7 @@ services:
     build:
       context: .
       dockerfile: infrastructure/openclaw/Dockerfile
-    image: arifos/openclaw-forged:2026.03.13
+    image: arifos/openclaw-forged:2026.03.14
     container_name: openclaw_gateway
     init: true
     user: root  # AGI-level executive power
@@ -609,3 +609,4 @@ networks:
   arifos_trinity:
     external: true
     name: arifos_arifos_trinity
+

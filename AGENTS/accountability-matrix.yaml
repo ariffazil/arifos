@@ -1,6 +1,6 @@
-# arifOS Agent Accountability Matrix
+﻿# arifOS Agent Accountability Matrix
 # RACI + Success Metrics for Constitutional Agents
-# Version: 2026.03.13-FORGED
+# Version: 2026.03.14-FORGED
 # Authority: 888_JUDGE
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -12,7 +12,7 @@
 # I = Informed (notified of results)
 # ═══════════════════════════════════════════════════════════════════════════════
 
-constitutional_version: "2026.03.13-FORGED"
+constitutional_version: "2026.03.14-FORGED"
 matrix_id: "arifos-accountability-matrix"
 authority: "888_JUDGE"
 
@@ -451,3 +451,4 @@ governance:
     - "HUMAN can modify accountability matrix"
 
 motto: "Ditempa Bukan Diberi — Forged, Not Given"
+

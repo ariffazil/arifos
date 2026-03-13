@@ -1,6 +1,6 @@
-# arifOS Forensic Replay System
+﻿# arifOS Forensic Replay System
 # Immutable Operational Replay for Trainable Reflection
-# Version: 2026.03.13-FORGED
+# Version: 2026.03.14-FORGED
 # Authority: 888_JUDGE
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -11,7 +11,7 @@
 # trainable by reflection, not just usable.
 # ═══════════════════════════════════════════════════════════════════════════════
 
-constitutional_version: "2026.03.13-FORGED"
+constitutional_version: "2026.03.14-FORGED"
 system_id: "arifos-forensic-replay"
 authority: "888_JUDGE"
 seal: "TRINITY"
@@ -401,3 +401,4 @@ vault_integration:
     authority: "888_JUDGE"
 
 motto: "Ditempa Bukan Diberi — Forged, Not Given"
+

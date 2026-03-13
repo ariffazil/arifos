@@ -1,6 +1,6 @@
-# arifOS Agent Capability Manifest
+﻿# arifOS Agent Capability Manifest
 # Self-Knowledge System for Constitutional Agents
-# Version: 2026.03.13-FORGED
+# Version: 2026.03.14-FORGED
 # Authority: 888_JUDGE
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -12,7 +12,7 @@
 # No more guessing their own body.
 # ═══════════════════════════════════════════════════════════════════════════════
 
-constitutional_version: "2026.03.13-FORGED"
+constitutional_version: "2026.03.14-FORGED"
 manifest_id: "arifos-capability-manifest"
 authority: "888_JUDGE"
 refresh_interval_seconds: 60
@@ -223,12 +223,12 @@ capability_registry:
 # ═══════════════════════════════════════════════════════════════════════════════
 
 health_status:
-  timestamp: "2026-03-13T11:30:00Z"
+  timestamp: "2026-03-14T11:30:00Z"
   
   services:
     mcp_server:
       status: "healthy"
-      last_check: "2026-03-13T11:25:00Z"
+      last_check: "2026-03-14T11:25:00Z"
       metrics:
         uptime_seconds: 86400
         request_count: 15234
@@ -236,23 +236,23 @@ health_status:
     
     vault999:
       status: "healthy"
-      last_check: "2026-03-13T11:25:00Z"
+      last_check: "2026-03-14T11:25:00Z"
       merkle_integrity: "verified"
       entries: 1523
     
     vector_memory:
       status: "healthy"
-      last_check: "2026-03-13T11:20:00Z"
+      last_check: "2026-03-14T11:20:00Z"
       documents_indexed: 5421
     
     lsp_bridge:
       status: "healthy"
-      last_check: "2026-03-13T11:25:00Z"
+      last_check: "2026-03-14T11:25:00Z"
       active_sessions: 3
     
     event_bus:
       status: "healthy"
-      last_check: "2026-03-13T11:25:00Z"
+      last_check: "2026-03-14T11:25:00Z"
       events_processed: 8934
   
   # Degraded/broken components (honest reporting)
@@ -335,7 +335,7 @@ environments:
     writable_by: ["A-ENGINEER", "A-VALIDATOR"]
     requires_approval: false
     can_rollback: true
-    last_deployment: "2026-03-13T08:00:00Z"
+    last_deployment: "2026-03-14T08:00:00Z"
   
   development:
     status: "active"
@@ -419,3 +419,4 @@ self_query_interface:
     return: ["action", "reason", "condition"]
 
 motto: "Ditempa Bukan Diberi — Forged, Not Given"
+

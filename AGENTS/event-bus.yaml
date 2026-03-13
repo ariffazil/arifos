@@ -1,6 +1,6 @@
-# arifOS Event Bus
+﻿# arifOS Event Bus
 # Event-Driven Agent Orchestration for VPS
-# Version: 2026.03.13-FORGED
+# Version: 2026.03.14-FORGED
 # Authority: 888_JUDGE
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -11,7 +11,7 @@
 # and deploy completion. The VPS becomes a living operating substrate.
 # ═══════════════════════════════════════════════════════════════════════════════
 
-constitutional_version: "2026.03.13-FORGED"
+constitutional_version: "2026.03.14-FORGED"
 bus_id: "arifos-event-bus"
 authority: "888_JUDGE"
 mode: "pub-sub"
@@ -393,3 +393,4 @@ implementation:
         events: ["telegram.*"]
 
 motto: "Ditempa Bukan Diberi — Forged, Not Given"
+

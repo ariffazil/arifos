@@ -1,6 +1,6 @@
-# arifOS Agent Identity & Policy Registry
+﻿# arifOS Agent Identity & Policy Registry
 # Hardened Control Plane - Constitutional Agent Governance
-# Version: 2026.03.13-FORGED
+# Version: 2026.03.14-FORGED
 # Authority: 888_JUDGE - Muhammad Arif bin Fazil
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -10,7 +10,7 @@
 # No agent operates without explicit identity, policy, and execution receipts.
 # ═══════════════════════════════════════════════════════════════════════════════
 
-constitutional_version: "2026.03.13-FORGED"
+constitutional_version: "2026.03.14-FORGED"
 authority: "888_JUDGE"
 seal: "TRINITY"
 
@@ -25,8 +25,8 @@ agents:
     role: "Design Authority"
     identity:
       uuid: "agent://arifos/architect"
-      fingerprint: "sha256:architect-v2026.03.13"
-      created: "2026-03-13T00:00:00Z"
+      fingerprint: "sha256:architect-v2026.03.14"
+      created: "2026-03-14T00:00:00Z"
       owner: "Muhammad Arif bin Fazil"
     
     # Policy: What this agent can and cannot do
@@ -85,8 +85,8 @@ agents:
     role: "Execution Authority"
     identity:
       uuid: "agent://arifos/engineer"
-      fingerprint: "sha256:engineer-v2026.03.13"
-      created: "2026-03-13T00:00:00Z"
+      fingerprint: "sha256:engineer-v2026.03.14"
+      created: "2026-03-14T00:00:00Z"
       owner: "Muhammad Arif bin Fazil"
     
     policy:
@@ -150,8 +150,8 @@ agents:
     role: "Judgment Authority"
     identity:
       uuid: "agent://arifos/auditor"
-      fingerprint: "sha256:auditor-v2026.03.13"
-      created: "2026-03-13T00:00:00Z"
+      fingerprint: "sha256:auditor-v2026.03.14"
+      created: "2026-03-14T00:00:00Z"
       owner: "Muhammad Arif bin Fazil"
     
     policy:
@@ -215,8 +215,8 @@ agents:
     role: "Final Verification Authority"
     identity:
       uuid: "agent://arifos/validator"
-      fingerprint: "sha256:validator-v2026.03.13"
-      created: "2026-03-13T00:00:00Z"
+      fingerprint: "sha256:validator-v2026.03.14"
+      created: "2026-03-14T00:00:00Z"
       owner: "Muhammad Arif bin Fazil"
     
     policy:
@@ -382,3 +382,4 @@ execution_receipt_schema:
 # ═══════════════════════════════════════════════════════════════════════════════
 
 motto: "Ditempa Bukan Diberi — Forged, Not Given"
+

@@ -1,6 +1,6 @@
-# arifOS VPS — Capabilities Map
+﻿# arifOS VPS — Capabilities Map
 
-**Last verified:** 2026-03-13 by Codex (GPT-5)  
+**Last verified:** 2026-03-14 by Codex (GPT-5)  
 **Reference:** [VPS_ARCHITECTURE.md](/srv/arifosmcp/infrastructure/VPS_ARCHITECTURE.md)
 
 > This file maps what the VPS can actually do right now, and which tools are truly reachable by agents. It distinguishes installed, mounted, and working.
@@ -159,11 +159,11 @@ That does not stop OpenClaw from using some of them, because OpenClaw has mounte
 ### 4.4 Exact Broken States
 
 `kimi` inside OpenClaw:
-- fixed by baking `kimi-cli 1.18.0` into the custom `arifos/openclaw-forged:2026.03.13` image
+- fixed by baking `kimi-cli 1.18.0` into the custom `arifos/openclaw-forged:2026.03.14` image
 - avoids host/container runtime mismatch and removes Docker indirection
 
 `opencode` inside OpenClaw:
-- fixed by baking `opencode-linux-x64 1.2.24` into the custom `arifos/openclaw-forged:2026.03.13` image
+- fixed by baking `opencode-linux-x64 1.2.24` into the custom `arifos/openclaw-forged:2026.03.14` image
 - the exposed `opencode` command now resolves directly to the native Linux binary, not the hanging JS launcher
 
 `aider` inside OpenClaw:
@@ -272,3 +272,4 @@ What is not yet fully hardened:
 - keeping the forged OpenClaw image versioned and rebuilt when upstream OpenClaw or native CLI pins change
 - Agent Zero as a proven externally usable agent
 - any claim that the VPS exactly matches GitHub `main`
+

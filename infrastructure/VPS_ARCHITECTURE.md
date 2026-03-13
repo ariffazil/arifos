@@ -1,6 +1,6 @@
-# arifOS VPS — Unified Architecture Snapshot
+﻿# arifOS VPS — Unified Architecture Snapshot
 
-**Last verified:** 2026-03-13 by Codex (GPT-5)  
+**Last verified:** 2026-03-14 by Codex (GPT-5)  
 **Repo HEAD:** `0fe45827`  
 **Public MCP version:** `2026.03.12-FORGED`  
 **Status:** 12 containers running, `arifosmcp` healthy, OpenClaw forged and healthy, GitHub `main` aligned
@@ -53,7 +53,7 @@ Operational note:
 | `arifos_redis` | `redis:7-alpine` | healthy | loopback only |
 | `qdrant_memory` | `qdrant/qdrant:latest` | up | internal only |
 | `ollama_engine` | `ollama/ollama:latest` | healthy | internal only |
-| `openclaw_gateway` | `arifos/openclaw-forged:2026.03.13` | healthy | `127.0.0.1:18789` |
+| `openclaw_gateway` | `arifos/openclaw-forged:2026.03.14` | healthy | `127.0.0.1:18789` |
 | `headless_browser` | `ghcr.io/browserless/chromium:latest` | healthy | internal only |
 | `arifos_prometheus` | `prom/prometheus:latest` | up | internal only |
 | `arifos_grafana` | `grafana/grafana:latest` | healthy | routed internally/publicly by Traefik rules |
@@ -107,7 +107,7 @@ Core stateful services remain private or loopback-bound:
 
 ## 5. arifosmcp Server Snapshot
 
-Live health response on 2026-03-13:
+Live health response on 2026-03-14:
 
 | Field | Value |
 |------|-------|
@@ -160,7 +160,7 @@ Persistent continuity is now backed by:
 
 | Item | Value |
 |------|-------|
-| Image | `arifos/openclaw-forged:2026.03.13` |
+| Image | `arifos/openclaw-forged:2026.03.14` |
 | Health | `{"ok":true,"status":"live"}` |
 | Agent model in live log | `kimi/kimi-k2-5` |
 | Native tools | `kimi 1.18.0`, `opencode 1.2.24` |
@@ -230,3 +230,4 @@ Live arifosmcp health/discovery reports:
 | `/srv/arifosmcp/infrastructure/VPS_CAPABILITIES_MAP.md` | live capability matrix |
 | `/opt/arifos/data/openclaw/` | OpenClaw persistent data |
 | `/opt/arifos/secrets/governance.secret` | persistent continuity signing secret |
+

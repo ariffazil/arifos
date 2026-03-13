@@ -1,4 +1,4 @@
-# AGENTS.md — arifOS Constitutional MCP Server
+﻿# AGENTS.md — arifOS Constitutional MCP Server
 
 > **Motto:** *Ditempa Bukan Diberi* — Forged, Not Given [ΔΩΨ | ARIF]
 
@@ -329,7 +329,7 @@ Key fixtures in `conftest.py`:
 
 ---
 
-## arifosmcp — Complete Canon (v2026.03.13)
+## arifosmcp — Complete Canon (v2026.03.14)
 
 ### Two MCP Servers
 | Server | Entry | Purpose |
@@ -440,5 +440,6 @@ Append-only JSONL. Every entry: `session_id` → `seal_hash` (SHA-256) → `chai
 
 *Ditempa Bukan Diberi — Forged, Not Given [ΔΩΨ | ARIF]*
 
-**Version:** 2026.03.13-CANON  
+**Version:** 2026.03.14-CANON  
 **Constitutional Status:** 13/13 Floors Enforced
+

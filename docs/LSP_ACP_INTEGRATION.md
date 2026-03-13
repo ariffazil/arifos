@@ -1,7 +1,7 @@
-# LSP + ACP Integration for arifOS
+﻿# LSP + ACP Integration for arifOS
 
 **Status:** 888_SAFE (read-only)  
-**Version:** 2026.03.13-FORGED  
+**Version:** 2026.03.14-FORGED  
 **Constitutional Compliance:** F1, F4, F5, F11, F12, F13
 
 ---
@@ -145,5 +145,6 @@ python -m arifosmcp.transport.acp_server
 
 ---
 
-**Forge Date:** 2026.03.13  
+**Forge Date:** 2026.03.14  
 **VAULT999 Seal:** PENDING
+
