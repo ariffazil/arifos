@@ -6,6 +6,7 @@ from typing import Any
 
 import httpx
 from fastmcp import Context, FastMCP
+from fastmcp.dependencies import CurrentContext, CurrentFastMCP
 from fastmcp.tools import ToolResult
 
 from arifosmcp.runtime.capability_map import build_runtime_capability_map
@@ -19,6 +20,7 @@ from arifosmcp.runtime.models import (
     UserModelSource,
     Verdict,
 )
+from arifosmcp.runtime.negotiator import berganding_bahu_negotiation
 from arifosmcp.runtime.philosophy import select_governed_philosophy
 from arifosmcp.runtime.public_registry import (
     is_public_profile,
@@ -35,14 +37,12 @@ from core.telemetry import check_adaptation_status, get_current_hysteresis
 from .bridge import call_kernel
 from .reality_handlers import handler as reality_handler
 from .reality_models import BundleInput, EvidenceBundle, Policy
-
-# AgentZero tools (H1)
 from arifosmcp.tools.agentzero_tools import (
-    agentzero_armor_scan,
+    agentzero_validate,
     agentzero_engineer,
     agentzero_hold_check,
     agentzero_memory_query,
-    agentzero_validate,
+    agentzero_armor_scan,
 )
 
 PUBLIC_TOOL_SPEC_BY_NAME = {spec.name: spec for spec in public_tool_specs()}
@@ -484,113 +484,163 @@ def _resolve_caller_context(
     return base
 
 
-async def init_anchor_state(
-    intent: dict[str, Any] | None = None,
-    math: dict[str, Any] | None = None,
-    governance: dict[str, Any] | None = None,
-    auth_token: str | None = None,
+from arifosmcp.runtime.metrics import (
+    METABOLIC_LOOP_DURATION,
+    record_constitutional_metrics,
+    record_verdict,
+)
+
+...
+
+
+async def INIT_ANCHOR(
+    raw_input: str,
+    ctx: CurrentContext,
+    server: CurrentFastMCP,
+    session_id: str | None = None,
+    pns_shield: dict[str, Any] | None = None,
+) -> RuntimeEnvelope:
+    """INIT·ANCHOR: Initialize the 000_INIT anchor using Double Helix metabolism."""
+    init_anchor_metabolism = getattr(
+        __import__("arifosmcp.helix.organs.inner.000_anchor", fromlist=["init_anchor_metabolism"]),
+        "init_anchor_metabolism",
+    )
+
+    return await init_anchor_metabolism(
+        raw_input=raw_input, ctx=ctx, server=server, session_id=session_id, pns_shield=pns_shield
+    )
+
+
+async def AGI_REASON(
+    query: str,
+    ctx: CurrentContext,
+    facts: list[str] | None = None,
+    session_id: str | None = None,
+    pns_search: dict[str, Any] | None = None,
+) -> RuntimeEnvelope:
+    """AGI·REASON (Stage 333): Structured reasoning synthesis using Double Helix metabolism."""
+    agi_reason_metabolism = getattr(
+        __import__("arifosmcp.helix.organs.inner.333_reason", fromlist=["agi_reason_metabolism"]),
+        "agi_reason_metabolism",
+    )
+
+    return await agi_reason_metabolism(
+        query=query, ctx=ctx, facts=facts, session_id=session_id, pns_search=pns_search
+    )
+
+
+async def AGI_REFLECT(
+    topic: str,
+    ctx: CurrentContext,
+    server: CurrentFastMCP,
     session_id: str = "global",
-    declared_name: str | None = None,
-    human_approval: bool = True,
-    caller_context: CallerContext | None = None,
-    ctx: Context | None = None,
-    dry_run: bool = False,
+    pns_vision: dict[str, Any] | None = None,
 ) -> RuntimeEnvelope:
-    """000 INIT - Session anchor. Bootstrap identity or mint continuity context."""
-    payload: dict[str, Any]
+    """AGI·REFLECT: Retrieve or store session context from the Vault999 spine using Double Helix metabolism."""
+    agi_reflect_metabolism = getattr(
+        __import__("arifosmcp.helix.organs.inner.555_reflect", fromlist=["agi_reflect_metabolism"]),
+        "agi_reflect_metabolism",
+    )
 
-    if declared_name:
-        current_session_id = _normalize_session_id(session_id)
-        clean_name = declared_name.strip().lower()
-        if clean_name in {"arif", "arif fazil", "arif-fazil", "ariffazil"}:
-            normalized_actor_id = "ariffazil"
-            authority_level = "apex"
-        else:
-            normalized_actor_id = clean_name.replace(" ", "-")
-            authority_level = "declared"
-
-        governance_payload = dict(governance or {})
-        governance_payload.update(
-            {
-                "actor_id": normalized_actor_id,
-                "authority_level": authority_level,
-                "stakes_class": governance_payload.get("stakes_class", "C"),
-                "human_approval": human_approval,
-                "token_fingerprint": uuid.uuid4().hex[:16],
-            }
-        )
-
-        payload = {
-            "actor_id": normalized_actor_id,
-            "claimed_actor_id": normalized_actor_id,
-            "intent": intent or {"query": f"I am {declared_name}"},
-            "governance": governance_payload,
-            "math": math,
-            "auth_token": auth_token,
-            "dry_run": dry_run,
-        }
-        return await _wrap_call(
-            "init_anchor_state", Stage.INIT_000, current_session_id, payload, ctx, caller_context
-        )
-
-    payload = {
-        "intent": intent,
-        "math": math,
-        "governance": governance,
-        "auth_token": auth_token,
-        "token_fingerprint": uuid.uuid4().hex[:16],
-        "dry_run": dry_run,
-    }
-    if isinstance(governance, dict) and governance.get("actor_id"):
-        payload.setdefault("actor_id", governance.get("actor_id"))
-        payload.setdefault("claimed_actor_id", governance.get("actor_id"))
-
-    return await _wrap_call(
-        "init_anchor_state", Stage.INIT_000, session_id, payload, ctx, caller_context
+    return await agi_reflect_metabolism(
+        topic=topic, ctx=ctx, server=server, session_id=session_id, pns_vision=pns_vision
     )
 
 
-async def integrate_analyze_reflect(
-    session_id: str,
-    query: str,
-    auth_context: dict[str, Any],
-    max_subquestions: int = 3,
-    caller_context: CallerContext | None = None,
-    ctx: Context | None = None,
+async def ASI_SIMULATE(
+    scenario: str,
+    ctx: CurrentContext,
+    server: CurrentFastMCP,
+    session_id: str = "global",
 ) -> RuntimeEnvelope:
-    """111 FRAME - Integrate, analyze, reflect. Frame the problem before deep reasoning."""
-    payload = {
-        "query": query,
-        "auth_context": auth_context,
-        "max_subquestions": max_subquestions,
-    }
-    return await _wrap_call(
-        "integrate_analyze_reflect", Stage.SENSE_111, session_id, payload, ctx, caller_context
+    """ASI·SIMULATE (Stage 666A): World model consequence prediction using Double Helix metabolism."""
+    asi_simulate_metabolism = getattr(
+        __import__(
+            "arifosmcp.helix.organs.inner.666a_simulate",
+            fromlist=["asi_simulate_metabolism"],
+        ),
+        "asi_simulate_metabolism",
+    )
+
+    return await asi_simulate_metabolism(
+        scenario=scenario, ctx=ctx, server=server, session_id=session_id
     )
 
 
-async def reason_mind_synthesis(
-    session_id: str,
-    query: str,
-    auth_context: dict[str, Any],
-    reason_mode: str = "default",
-    max_steps: int = 7,
-    caller_context: CallerContext | None = None,
-    ctx: Context | None = None,
+async def ASI_CRITIQUE(
+    draft_output: str,
+    ctx: CurrentContext,
+    health: dict[str, Any] | None = None,
+    floor: dict[str, Any] | None = None,
+    session_id: str = "global",
 ) -> RuntimeEnvelope:
-    """333 REASON - Mind synthesis. Run multi-step governed reasoning for the active session."""
-    payload = {
-        "query": query,
-        "auth_context": auth_context,
-        "reason_mode": reason_mode,
-        "max_steps": max_steps,
-    }
-    return await _wrap_call(
-        "reason_mind_synthesis", Stage.MIND_333, session_id, payload, ctx, caller_context
+    """ASI·CRITIQUE (Stage 666B): Self-evaluation and thought audit."""
+    from arifosmcp.helix.organs.inner import asi_critique_metabolism
+
+    return await asi_critique_metabolism(
+        draft_output=draft_output,
+        ctx=ctx,
+        session_id=session_id,
+        pns_health=health,
+        pns_floor=floor,
     )
 
 
-async def metabolic_loop_router(
+async def AGI_ASI_FORGE(
+    spec: str,
+    ctx: CurrentContext,
+    server: CurrentFastMCP,
+    tools: list[str] | None = None,
+    session_id: str = "global",
+    pns_orchestrate: dict[str, Any] | None = None,
+) -> RuntimeEnvelope:
+    """AGI·ASI·FORGE (Stage 777): Forge a sandboxed discovery or implementation proposal."""
+    from arifosmcp.helix.organs.inner import agi_asi_forge_metabolism
+
+    return await agi_asi_forge_metabolism(
+        spec=spec,
+        ctx=ctx,
+        session_id=session_id,
+        pns_orchestrate=pns_orchestrate,
+        tools=tools,
+    )
+
+
+async def APEX_JUDGE(
+    candidate_output: str,
+    ctx: CurrentContext,
+    redteam: dict[str, Any] | None = None,
+    session_id: str = "global",
+) -> RuntimeEnvelope:
+    """APEX·JUDGE (Stage 888): Sovereign constitutional verdict."""
+    from arifosmcp.helix.organs.inner import apex_judge_metabolism
+
+    return await apex_judge_metabolism(
+        candidate_output=candidate_output,
+        ctx=ctx,
+        session_id=session_id,
+        pns_redteam=redteam,
+    )
+
+
+async def VAULT_SEAL(
+    verdict: str,
+    evidence: str,
+    ctx: CurrentContext,
+    session_id: str = "global",
+) -> RuntimeEnvelope:
+    """VAULT·SEAL (Stage 999): Append an immutable session verdict to VAULT999."""
+    from arifosmcp.helix.organs.inner import vault_seal_metabolism
+
+    return await vault_seal_metabolism(
+        verdict=verdict,
+        evidence=evidence,
+        ctx=ctx,
+        session_id=session_id,
+    )
+
+
+async def SacredKernelRouter(
     query: str,
     context: str = "",
     risk_tier: str = "medium",
@@ -604,157 +654,22 @@ async def metabolic_loop_router(
     dry_run: bool = False,
     requested_persona: str | None = None,
     caller_context: CallerContext | None = None,
-    ctx: Context | None = None,
     session_id: str | None = None,
 ) -> RuntimeEnvelope:
-    payload = {
-        "query": query,
-        "context": context,
-        "risk_tier": risk_tier,
-        "actor_id": actor_id,
-        "auth_context": auth_context,
-        "use_memory": use_memory,
-        "use_heart": use_heart,
-        "use_critique": use_critique,
-        "allow_execution": allow_execution,
-        "debug": debug,
-        "dry_run": dry_run,
-        "requested_persona": requested_persona,
-    }
-    resolved_caller = _resolve_caller_context(caller_context, requested_persona)
-    return await _wrap_call(
-        PUBLIC_KERNEL_TOOL_NAME, Stage.ROUTER_444, session_id or "", payload, ctx, resolved_caller
+    """The Sacred Chain Router. Coordinates the 8-tool helix via Stage 444."""
+    from arifosmcp.runtime.orchestrator import metabolic_loop
+
+    res_dict = await metabolic_loop(
+        query=query,
+        risk_tier=risk_tier,
+        actor_id=actor_id,
+        auth_context=auth_context,
+        session_id=session_id,
+        allow_execution=allow_execution,
+        dry_run=dry_run,
+        caller_context=caller_context,
     )
-
-
-async def session_memory(
-    session_id: str,
-    operation: str,
-    auth_context: dict[str, Any] | None = None,
-    content: str | None = None,
-    memory_ids: str = "",
-    top_k: int = 5,
-    caller_context: CallerContext | None = None,
-    ctx: Context | None = None,
-) -> RuntimeEnvelope:
-    """Session memory for conversation state, vector recall, and reasoning artifacts.
-
-    Args:
-        memory_ids: Comma-separated list of memory IDs to retrieve/forget.
-            Example: "mem-001,mem-002,mem-003". Leave empty for store/search operations.
-    """
-    # Parse comma-separated memory_ids string into list (Copilot Studio schema-safe)
-    parsed_ids: list[str] | None = (
-        [mid.strip() for mid in memory_ids.split(",") if mid.strip()] if memory_ids else None
-    )
-    payload = {
-        "operation": operation,
-        "content": content,
-        "memory_ids": parsed_ids,
-        "top_k": top_k,
-        "auth_context": auth_context or {},
-    }
-    return await _wrap_call(
-        "vector_memory_store", Stage.MEMORY_555, session_id, payload, ctx, caller_context
-    )
-
-
-async def assess_heart_impact(
-    session_id: str,
-    scenario: str,
-    auth_context: dict[str, Any],
-    heart_mode: str = "general",
-    caller_context: CallerContext | None = None,
-    ctx: Context | None = None,
-) -> RuntimeEnvelope:
-    """666A HEART - Impact assessment. Evaluate empathy, care, and stakeholder harm."""
-    payload = {"scenario": scenario, "focus": heart_mode, "auth_context": auth_context}
-    return await _wrap_call(
-        "assess_heart_impact", Stage.HEART_666, session_id, payload, ctx, caller_context
-    )
-
-
-async def critique_thought_audit(
-    session_id: str,
-    thought_id: str,
-    auth_context: dict[str, Any],
-    critique_mode: str = "overall",
-    caller_context: CallerContext | None = None,
-    ctx: Context | None = None,
-) -> RuntimeEnvelope:
-    """666B CRITIQUE - Thought audit against a prior reasoning artifact."""
-    payload = {
-        "thought_id": thought_id,
-        "critique_focus": critique_mode,
-        "auth_context": auth_context,
-    }
-    return await _wrap_call(
-        "critique_thought_audit", Stage.CRITIQUE_666, session_id, payload, ctx, caller_context
-    )
-
-
-async def quantum_eureka_forge(
-    session_id: str,
-    intent: str,
-    auth_context: dict[str, Any],
-    eureka_type: str = "concept",
-    materiality: str = "idea_only",
-    caller_context: CallerContext | None = None,
-    ctx: Context | None = None,
-) -> RuntimeEnvelope:
-    """777 FORGE - Eureka proposal. Forge a sandboxed discovery or implementation proposal."""
-    payload = {
-        "intent": intent,
-        "eureka_type": eureka_type,
-        "materiality": materiality,
-        "auth_context": auth_context,
-    }
-    return await _wrap_call(
-        "quantum_eureka_forge", Stage.FORGE_777, session_id, payload, ctx, caller_context
-    )
-
-
-async def apex_judge_verdict(
-    session_id: str,
-    verdict_candidate: str,
-    auth_context: dict[str, Any],
-    reason_summary: str | None = None,
-    caller_context: CallerContext | None = None,
-    ctx: Context | None = None,
-) -> RuntimeEnvelope:
-    """888 JUDGE - APEX verdict. Render the apex constitutional judgment for a session."""
-    payload = {
-        "verdict_candidate": verdict_candidate,
-        "reason_summary": reason_summary,
-        "auth_context": auth_context,
-    }
-    return await _wrap_call(
-        "apex_judge_verdict", Stage.JUDGE_888, session_id, payload, ctx, caller_context
-    )
-
-
-async def seal_vault_commit(
-    session_id: str,
-    auth_context: dict[str, Any],
-    verdict: str = "SEAL",
-    payload_ref: str | None = None,
-    payload_hash: str | None = None,
-    telemetry: dict[str, Any] | None = None,
-    caller_context: CallerContext | None = None,
-    ctx: Context | None = None,
-) -> RuntimeEnvelope:
-    """999 SEAL - Vault commit. Append an immutable session verdict to VAULT999."""
-    payload = {
-        "summary": f"Commit for session {session_id}",
-        "verdict": verdict,
-        "payload_ref": payload_ref,
-        "payload_hash": payload_hash,
-        "telemetry": telemetry,
-        "auth_context": auth_context,
-    }
-    return await _wrap_call(
-        "seal_vault_commit", Stage.VAULT_999, session_id, payload, ctx, caller_context
-    )
+    return RuntimeEnvelope(**res_dict)
 
 
 async def reality_compass(
@@ -1051,7 +966,7 @@ async def _copilot_kernel_wrapper(
     Use this as the primary entrypoint for all non-trivial tasks.
     This is the Copilot Studio-safe surface: flat primitive-only parameters.
     """
-    return await metabolic_loop_router(
+    return await SacredKernelRouter(
         query=query,
         context=context,
         risk_tier=risk_tier,
@@ -1063,7 +978,7 @@ async def _copilot_kernel_wrapper(
         debug=debug,
         auth_context=None,
         caller_context=None,
-        ctx=None,
+        session_id=None,
     )
 
 
@@ -1149,109 +1064,445 @@ async def reality_dossier(
     )
 
 
+async def init_anchor(
+    intent_envelope: dict[str, Any],
+    session_id: str | None = None,
+    governance: dict[str, Any] | None = None,
+    caller_context: CallerContext | None = None,
+    dry_run: bool = False,
+) -> RuntimeEnvelope:
+    payload = {
+        "intent": intent_envelope.get("intent"),
+        "math": intent_envelope.get("math"),
+        "governance": governance,
+        "auth_token": intent_envelope.get("auth_token"),
+        "declared_name": intent_envelope.get("declared_name"),
+        "human_approval": intent_envelope.get("human_approval", True),
+        "dry_run": dry_run,
+    }
+    return await _wrap_call(
+        "init_anchor_state",
+        Stage.INIT_000,
+        _normalize_session_id(session_id),
+        payload,
+        None,
+        caller_context,
+    )
+
+
+async def agi_reason(
+    session_id: str,
+    query: str,
+    auth_context: dict[str, Any] | None = None,
+    reason_mode: str = "default",
+    max_steps: int = 7,
+    caller_context: CallerContext | None = None,
+) -> RuntimeEnvelope:
+    payload = {
+        "query": query,
+        "auth_context": auth_context,
+        "reason_mode": reason_mode,
+        "max_steps": max_steps,
+    }
+    return await _wrap_call(
+        "reason_mind_synthesis",
+        Stage.MIND_333,
+        _normalize_session_id(session_id),
+        payload,
+        None,
+        caller_context,
+    )
+
+
+async def agi_reflect(
+    session_id: str,
+    operation: str = "retrieve",
+    content: str | None = None,
+    memory_ids: list[str] | None = None,
+    top_k: int = 5,
+    auth_context: dict[str, Any] | None = None,
+    caller_context: CallerContext | None = None,
+    pns_vision: dict[str, Any] | None = None,
+) -> RuntimeEnvelope:
+    payload = {
+        "operation": operation,
+        "content": content,
+        "memory_ids": memory_ids,
+        "top_k": top_k,
+        "auth_context": auth_context or {},
+        "pns_vision": pns_vision,
+    }
+    return await _wrap_call(
+        "vector_memory_store",
+        Stage.MEMORY_555,
+        _normalize_session_id(session_id),
+        payload,
+        None,
+        caller_context,
+    )
+
+
+async def asi_simulate(
+    session_id: str,
+    scenario: str,
+    auth_context: dict[str, Any] | None = None,
+    heart_mode: str = "general",
+    caller_context: CallerContext | None = None,
+) -> RuntimeEnvelope:
+    payload = {"scenario": scenario, "focus": heart_mode, "auth_context": auth_context}
+    return await _wrap_call(
+        "assess_heart_impact",
+        Stage.HEART_666,
+        _normalize_session_id(session_id),
+        payload,
+        None,
+        caller_context,
+    )
+
+
+async def asi_critique(
+    session_id: str,
+    thought_id: str | None = None,
+    draft_output: str | None = None,
+    auth_context: dict[str, Any] | None = None,
+    critique_mode: str = "overall",
+    caller_context: CallerContext | None = None,
+    pns_health: dict[str, Any] | None = None,
+    pns_floor: dict[str, Any] | None = None,
+) -> RuntimeEnvelope:
+    payload = {
+        "thought_id": thought_id,
+        "draft_output": draft_output,
+        "critique_focus": critique_mode,
+        "auth_context": auth_context,
+        "pns_health": pns_health,
+        "pns_floor": pns_floor,
+    }
+    return await _wrap_call(
+        "critique_thought_audit",
+        Stage.CRITIQUE_666,
+        _normalize_session_id(session_id),
+        payload,
+        None,
+        caller_context,
+    )
+
+
+async def forge(
+    session_id: str,
+    intent: str | None = None,
+    spec: str | None = None,
+    auth_context: dict[str, Any] | None = None,
+    eureka_type: str = "concept",
+    materiality: str = "idea_only",
+    caller_context: CallerContext | None = None,
+    pns_orchestrate: dict[str, Any] | None = None,
+) -> RuntimeEnvelope:
+    payload = {
+        "intent": intent or spec,
+        "eureka_type": eureka_type,
+        "materiality": materiality,
+        "auth_context": auth_context,
+        "pns_orchestrate": pns_orchestrate,
+    }
+    return await _wrap_call(
+        "quantum_eureka_forge",
+        Stage.FORGE_777,
+        _normalize_session_id(session_id),
+        payload,
+        None,
+        caller_context,
+    )
+
+
+async def apex_judge(
+    session_id: str,
+    verdict_candidate: str | None = None,
+    candidate_output: str | None = None,
+    auth_context: dict[str, Any] | None = None,
+    reason_summary: str | None = None,
+    caller_context: CallerContext | None = None,
+    pns_redteam: dict[str, Any] | None = None,
+) -> RuntimeEnvelope:
+    payload = {
+        "candidate_output": candidate_output or verdict_candidate,
+        "reason_summary": reason_summary,
+        "auth_context": auth_context,
+        "pns_redteam": pns_redteam,
+    }
+    return await _wrap_call(
+        "apex_judge_verdict",
+        Stage.JUDGE_888,
+        _normalize_session_id(session_id),
+        payload,
+        None,
+        caller_context,
+    )
+
+
+async def vault_seal(
+    session_id: str,
+    auth_context: dict[str, Any] | None = None,
+    verdict: str = "SEAL",
+    evidence: str | None = None,
+    payload_ref: str | None = None,
+    payload_hash: str | None = None,
+    telemetry: dict[str, Any] | None = None,
+    caller_context: CallerContext | None = None,
+) -> RuntimeEnvelope:
+    payload = {
+        "summary": f"Commit for session {session_id}",
+        "verdict": verdict,
+        "evidence": evidence,
+        "payload_ref": payload_ref,
+        "payload_hash": payload_hash,
+        "telemetry": telemetry,
+        "auth_context": auth_context,
+    }
+    return await _wrap_call(
+        "seal_vault_commit",
+        Stage.VAULT_999,
+        _normalize_session_id(session_id),
+        payload,
+        None,
+        caller_context,
+    )
+
+
+async def init_anchor_state(
+    intent: dict[str, Any] | None = None,
+    math: dict[str, Any] | None = None,
+    governance: dict[str, Any] | None = None,
+    auth_token: str | None = None,
+    session_id: str = "global",
+    declared_name: str | None = None,
+    human_approval: bool = True,
+    caller_context: CallerContext | None = None,
+    ctx: Context | None = None,
+    dry_run: bool = False,
+) -> RuntimeEnvelope:
+    intent_envelope = {
+        "declared_name": declared_name,
+        "human_approval": human_approval,
+        "intent": intent,
+        "math": math,
+        "auth_token": auth_token,
+    }
+    return await init_anchor(
+        intent_envelope=intent_envelope,
+        session_id=session_id,
+        governance=governance,
+        caller_context=caller_context,
+        dry_run=dry_run,
+    )
+
+
+async def session_memory(
+    session_id: str,
+    operation: str,
+    auth_context: dict[str, Any] | None = None,
+    content: str | None = None,
+    memory_ids: str = "",
+    top_k: int = 5,
+    caller_context: CallerContext | None = None,
+    ctx: Context | None = None,
+) -> RuntimeEnvelope:
+    parsed_ids: list[str] | None = (
+        [memory_id.strip() for memory_id in memory_ids.split(",") if memory_id.strip()]
+        if memory_ids
+        else None
+    )
+    return await agi_reflect(
+        session_id=session_id,
+        operation=operation,
+        content=content,
+        memory_ids=parsed_ids,
+        top_k=top_k,
+        auth_context=auth_context,
+        caller_context=caller_context,
+    )
+
+
+async def reason_mind_synthesis(
+    session_id: str,
+    query: str,
+    auth_context: dict[str, Any] | None = None,
+    reason_mode: str = "default",
+    max_steps: int = 7,
+    caller_context: CallerContext | None = None,
+    ctx: Context | None = None,
+) -> RuntimeEnvelope:
+    return await agi_reason(
+        session_id=session_id,
+        query=query,
+        auth_context=auth_context,
+        reason_mode=reason_mode,
+        max_steps=max_steps,
+        caller_context=caller_context,
+    )
+
+
+async def assess_heart_impact(
+    session_id: str,
+    scenario: str,
+    auth_context: dict[str, Any] | None = None,
+    heart_mode: str = "general",
+    caller_context: CallerContext | None = None,
+    ctx: Context | None = None,
+) -> RuntimeEnvelope:
+    return await asi_simulate(
+        session_id=session_id,
+        scenario=scenario,
+        auth_context=auth_context,
+        heart_mode=heart_mode,
+        caller_context=caller_context,
+    )
+
+
+async def critique_thought_audit(
+    session_id: str,
+    thought_id: str,
+    auth_context: dict[str, Any] | None = None,
+    critique_mode: str = "overall",
+    caller_context: CallerContext | None = None,
+    ctx: Context | None = None,
+) -> RuntimeEnvelope:
+    return await asi_critique(
+        session_id=session_id,
+        thought_id=thought_id,
+        auth_context=auth_context,
+        critique_mode=critique_mode,
+        caller_context=caller_context,
+    )
+
+
+async def quantum_eureka_forge(
+    session_id: str,
+    intent: str,
+    auth_context: dict[str, Any] | None = None,
+    eureka_type: str = "concept",
+    materiality: str = "idea_only",
+    caller_context: CallerContext | None = None,
+    ctx: Context | None = None,
+) -> RuntimeEnvelope:
+    return await forge(
+        session_id=session_id,
+        intent=intent,
+        auth_context=auth_context,
+        eureka_type=eureka_type,
+        materiality=materiality,
+        caller_context=caller_context,
+    )
+
+
+async def apex_judge_verdict(
+    session_id: str,
+    verdict_candidate: str,
+    auth_context: dict[str, Any] | None = None,
+    reason_summary: str | None = None,
+    caller_context: CallerContext | None = None,
+    ctx: Context | None = None,
+) -> RuntimeEnvelope:
+    return await apex_judge(
+        session_id=session_id,
+        verdict_candidate=verdict_candidate,
+        auth_context=auth_context,
+        reason_summary=reason_summary,
+        caller_context=caller_context,
+    )
+
+
+async def seal_vault_commit(
+    session_id: str,
+    auth_context: dict[str, Any] | None = None,
+    verdict: str = "SEAL",
+    payload_ref: str | None = None,
+    payload_hash: str | None = None,
+    telemetry: dict[str, Any] | None = None,
+    caller_context: CallerContext | None = None,
+    ctx: Context | None = None,
+) -> RuntimeEnvelope:
+    return await vault_seal(
+        session_id=session_id,
+        auth_context=auth_context,
+        verdict=verdict,
+        payload_ref=payload_ref,
+        payload_hash=payload_hash,
+        telemetry=telemetry,
+        caller_context=caller_context,
+    )
+
+
+async def metabolic_loop_router(
+    query: str,
+    context: str = "",
+    risk_tier: str = "medium",
+    actor_id: str = "anonymous",
+    auth_context: dict[str, Any] | None = None,
+    use_memory: bool = True,
+    use_heart: bool = True,
+    use_critique: bool = True,
+    allow_execution: bool = False,
+    debug: bool = False,
+    dry_run: bool = False,
+    requested_persona: str | None = None,
+    caller_context: CallerContext | None = None,
+    ctx: Context | None = None,
+    session_id: str | None = None,
+) -> RuntimeEnvelope:
+    payload = {
+        "query": query,
+        "context": context,
+        "risk_tier": risk_tier,
+        "actor_id": actor_id,
+        "auth_context": auth_context,
+        "use_memory": use_memory,
+        "use_heart": use_heart,
+        "use_critique": use_critique,
+        "allow_execution": allow_execution,
+        "debug": debug,
+        "dry_run": dry_run,
+        "requested_persona": requested_persona,
+    }
+    resolved_caller = _resolve_caller_context(caller_context, requested_persona)
+    return await _wrap_call(
+        PUBLIC_KERNEL_TOOL_NAME,
+        Stage.ROUTER_444,
+        _normalize_session_id(session_id),
+        payload,
+        ctx,
+        resolved_caller,
+    )
+
+
 def register_tools(mcp: FastMCP, profile: str = "full") -> None:
-    """Register the core runtime tools; the dashboard app tool is added in resources."""
-    from arifosmcp.tools.lsp_tools import register_lsp_tools
+    """Register the 8 Sacred Tools of the arifOS Double Helix."""
 
-    normalized_profile = normalize_tool_profile(profile)
-    is_copilot_profile = normalized_profile == "copilot"
-    public_surface = is_public_profile(normalized_profile)
-
-    if is_copilot_profile:
-        # Copilot Studio profile: flat, schema-safe surface only.
-        # Avoids Copilot Studio known issues:
-        #   - Reference type inputs (CallerContext, dict|None) silently drop tools
-        #   - Array union types (list[str]|None) truncate schemas
-        #   - Duplicate tool names confuse the generative orchestrator
-        # See: https://learn.microsoft.com/en-us/microsoft-copilot-studio/mcp-troubleshooting
-        copilot_surface = {
-            "arifOS_kernel": _copilot_kernel_wrapper,
-            "search_reality": search_reality,
-            "ingest_evidence": ingest_evidence,
-            "session_memory": session_memory,
-            "audit_rules": audit_rules,
-            "check_vital": check_vital,
-        }
-        for tool_name, handler in copilot_surface.items():
-            spec = PUBLIC_TOOL_SPEC_BY_NAME.get(tool_name)
-            if spec:
-                mcp.tool(name=spec.name, description=spec.description)(handler)
-            else:
-                mcp.tool(name=tool_name)(handler)
-        # No legacy aliases in copilot profile — avoids orchestrator confusion
-        return
-
-    public_tool_handlers = {
-        "arifOS_kernel": metabolic_loop_router,
-        "search_reality": search_reality,
-        "ingest_evidence": ingest_evidence,
-        "session_memory": session_memory,
-        "audit_rules": audit_rules,
-        "check_vital": check_vital,
-        "init_anchor_state": init_anchor_state,
-        "revoke_anchor_state": revoke_anchor_state,
-        "reality_dossier": reality_dossier,
-        "verify_vault_ledger": verify_vault_ledger,
-        # AgentZero tools (H1)
-        "agentzero_validate": agentzero_validate,
-        "agentzero_engineer": agentzero_engineer,
-        "agentzero_hold_check": agentzero_hold_check,
-        "agentzero_memory_query": agentzero_memory_query,
-        "agentzero_armor_scan": agentzero_armor_scan,
+    # Handlers for the 8 Sacred Tools
+    sacred_handlers = {
+        "init_anchor": INIT_ANCHOR,
+        "agi_reason": AGI_REASON,
+        "agi_reflect": AGI_REFLECT,
+        "asi_simulate": ASI_SIMULATE,
+        "asi_critique": ASI_CRITIQUE,
+        "forge": AGI_ASI_FORGE,
+        "apex_judge": APEX_JUDGE,
+        "vault_seal": VAULT_SEAL,
     }
 
     specs = {spec.name: spec for spec in public_tool_specs()}
 
-    for tool_name, handler in public_tool_handlers.items():
-        spec = specs.get(tool_name)
+    # Register the 8 Sacred Tools
+    for name, handler in sacred_handlers.items():
+        spec = specs.get(name)
         if spec:
             mcp.tool(name=spec.name, description=spec.description)(handler)
         else:
-            mcp.tool(name=tool_name)(handler)
+            # Fallback for missing specs (should not happen in v36Ω)
+            mcp.tool(name=name)(handler)
 
-    if not public_surface:
-        mcp.tool(
-            name="office_forge_audit", description="Internal markdown audit for office rendering."
-        )(office_forge_audit)
-        mcp.tool(
-            name="forge_office_document",
-            description="Internal office forge renderer for governed PDF/PPTX artifact generation.",
-        )(forge_office_document)
-        mcp.tool(
-            name="ollama_local_generate",
-            description="Internal bounded prompt execution against the local Ollama runtime.",
-        )(ollama_local_generate)
-
-        from arifosmcp.tools.lsp_tools import register_lsp_tools
-
-        register_lsp_tools(mcp)
-
-    # Legacy aliases — simplified profile matching
-    if not public_surface:
-        mcp.tool(
-            name="arifOS-kernel",
-            description=(
-                "[Legacy Alias] Use arifOS_kernel instead. Governed metabolic loop orchestrator."
-            ),
-        )(metabolic_loop_router)
-
-        mcp.tool(
-            name="metabolic_loop_router",
-            description=(
-                "[Legacy Alias] Use arifOS_kernel instead. Governed metabolic loop orchestrator."
-            ),
-        )(metabolic_loop_router)
-
-    # Legacy tools preserved for internal orchestration
-    if normalized_profile == "internal":
-        mcp.tool(description="000 INIT - Session anchor.")(init_anchor_state)
-        mcp.tool(description="111 FRAME - Problem framing.")(integrate_analyze_reflect)
-        mcp.tool(description="333 REASON - Mind synthesis.")(reason_mind_synthesis)
-        mcp.tool(description="666A HEART - Impact assessment.")(assess_heart_impact)
-        mcp.tool(description="666B CRITIQUE - Thought audit.")(critique_thought_audit)
-        mcp.tool(description="777 FORGE - Eureka proposal.")(quantum_eureka_forge)
-        mcp.tool(description="888 JUDGE - APEX verdict.")(apex_judge_verdict)
-        mcp.tool(description="999 SEAL - Vault commit.")(seal_vault_commit)
+    # Note: arifOS_kernel is moved to a Protocol entry point, not a tool.
+    # In Option D, only the 8 Sacred Tools are callable.
 
 
 __all__ = [
@@ -1262,10 +1513,15 @@ __all__ = [
     "metabolic_loop_router",
     "office_forge_audit",
     "open_apex_dashboard",
-    "quantum_eureka_forge",
-    "reason_mind_synthesis",
-    "register_tools",
-    "seal_vault_commit",
+    "AGI_ASI_FORGE",
+    "AGI_REASON",
+    "AGI_REFLECT",
+    "ASI_CRITIQUE",
+    "ASI_SIMULATE",
+    "APEX_JUDGE",
+    "VAULT_SEAL",
+    "INIT_ANCHOR",
+    "SacredKernelRouter",
     "search_reality",
     "session_memory",
     "verify_vault_ledger",
