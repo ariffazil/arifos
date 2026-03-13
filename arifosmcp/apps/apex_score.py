@@ -50,75 +50,75 @@ from prefab_ui.components import (
 # ── Stage registry: 000→999 Sacred Chain ─────────────────────────────────────
 STAGES: list[dict[str, str]] = [
     {
-        "id":   "000",
+        "id": "000",
         "name": "INIT",
         "label": "000-INIT",
-        "role":  "AGI · Mind",
-        "desc":  "Bootstrap the governed session. All authority and intent is anchored here.",
+        "role": "AGI · Mind",
+        "desc": "Bootstrap the governed session. All authority and intent is anchored here.",
         "philosophy_category": "wisdom",
     },
     {
-        "id":   "222",
+        "id": "222",
         "name": "REASON",
         "label": "222-REASON",
-        "role":  "AGI · Mind",
-        "desc":  "Structured reasoning over the query. No hallucination; only grounded logic.",
+        "role": "AGI · Mind",
+        "desc": "Structured reasoning over the query. No hallucination; only grounded logic.",
         "philosophy_category": "wisdom",
     },
     {
-        "id":   "333",
+        "id": "333",
         "name": "REFLECT",
         "label": "333-REFLECT",
-        "role":  "AGI · Mind",
-        "desc":  "Self-examination of the reasoning chain. Where blind spots are named.",
+        "role": "AGI · Mind",
+        "desc": "Self-examination of the reasoning chain. Where blind spots are named.",
         "philosophy_category": "paradox",
     },
     {
-        "id":   "444",
+        "id": "444",
         "name": "SIMULATE",
         "label": "444-SIMULATE",
-        "role":  "ASI · Heart",
-        "desc":  "Model downstream impact. Empathy-weighted consequence mapping.",
+        "role": "ASI · Heart",
+        "desc": "Model downstream impact. Empathy-weighted consequence mapping.",
         "philosophy_category": "paradox",
     },
     {
-        "id":   "555",
+        "id": "555",
         "name": "HEART",
         "label": "555-HEART",
-        "role":  "ASI · Heart",
-        "desc":  "Measure emotional and relational cost of the proposed action.",
+        "role": "ASI · Heart",
+        "desc": "Measure emotional and relational cost of the proposed action.",
         "philosophy_category": "paradox",
     },
     {
-        "id":   "666",
+        "id": "666",
         "name": "CRITIQUE",
         "label": "666-CRITIQUE",
-        "role":  "ASI · Heart",
-        "desc":  "Adversarial audit. Find every flaw before committing.",
+        "role": "ASI · Heart",
+        "desc": "Adversarial audit. Find every flaw before committing.",
         "philosophy_category": "power",
     },
     {
-        "id":   "777",
+        "id": "777",
         "name": "FORGE",
         "label": "777-FORGE",
-        "role":  "APEX · Soul",
-        "desc":  "Transform critique into a final, forged proposal. Intent becomes action.",
+        "role": "APEX · Soul",
+        "desc": "Transform critique into a final, forged proposal. Intent becomes action.",
         "philosophy_category": "power",
     },
     {
-        "id":   "888",
+        "id": "888",
         "name": "JUDGE",
         "label": "888-JUDGE",
-        "role":  "APEX · Soul",
-        "desc":  "Sovereign verdict rendered. The 13 floors either pass or the chain halts.",
+        "role": "APEX · Soul",
+        "desc": "Sovereign verdict rendered. The 13 floors either pass or the chain halts.",
         "philosophy_category": "power",
     },
     {
-        "id":   "999",
+        "id": "999",
         "name": "SEAL",
         "label": "999-VAULT",
-        "role":  "APEX · Soul",
-        "desc":  "Immutable ledger commit. The decision is sealed, witnessed, and permanent.",
+        "role": "APEX · Soul",
+        "desc": "Immutable ledger commit. The decision is sealed, witnessed, and permanent.",
         "philosophy_category": "seal",
     },
 ]
@@ -129,35 +129,36 @@ _STAGE_BY_ID: dict[str, dict[str, str]] = {s["id"]: s for s in STAGES}
 _METRIC_DEFS: list[dict[str, Any]] = [
     {
         "symbol": "G",
-        "name":   "Genius Index",
-        "desc":   "Overall intelligence quality of this session's output. Higher = sharper, more grounded reasoning.",
-        "floor":  0.80,
-        "scale":  lambda v: min(100.0, v * 100),
+        "name": "Genius Index",
+        "desc": "Overall intelligence quality of this session's output. Higher = sharper, more grounded reasoning.",
+        "floor": 0.80,
+        "scale": lambda v: min(100.0, v * 100),
         "format": lambda v: f"{v:.2f}",
-        "grade":  lambda v: "Excellent" if v >= 0.90 else ("Good" if v >= 0.80 else "Low"),
+        "grade": lambda v: "Excellent" if v >= 0.90 else ("Good" if v >= 0.80 else "Low"),
     },
     {
         "symbol": "Ω",
-        "name":   "Stability",
-        "desc":   "How settled the system is. Target range 0.03–0.05 — too low means stagnant, too high means unstable.",
-        "floor":  None,
-        "scale":  lambda v: min(100.0, max(0.0, (0.08 - abs(v - 0.04)) / 0.08 * 100)),
+        "name": "Stability",
+        "desc": "How settled the system is. Target range 0.03–0.05 — too low means stagnant, too high means unstable.",
+        "floor": None,
+        "scale": lambda v: min(100.0, max(0.0, (0.08 - abs(v - 0.04)) / 0.08 * 100)),
         "format": lambda v: f"{v:.4f}",
-        "grade":  lambda v: "Stable" if 0.03 <= v <= 0.05 else ("Low" if v < 0.03 else "High"),
+        "grade": lambda v: "Stable" if 0.03 <= v <= 0.05 else ("Low" if v < 0.03 else "High"),
     },
     {
         "symbol": "ΔS",
-        "name":   "Entropy",
-        "desc":   "Information disorder in the reasoning chain. Lower is cleaner. ΔS ≤ 0 is the constitutional target.",
-        "floor":  None,
-        "scale":  lambda v: max(0.0, min(100.0, (1.0 - abs(v)) * 100)),
+        "name": "Entropy",
+        "desc": "Information disorder in the reasoning chain. Lower is cleaner. ΔS ≤ 0 is the constitutional target.",
+        "floor": None,
+        "scale": lambda v: max(0.0, min(100.0, (1.0 - abs(v)) * 100)),
         "format": lambda v: f"{v:+.3f}",
-        "grade":  lambda v: "Clear" if v <= 0.0 else ("Noisy" if v < 0.1 else "Degraded"),
+        "grade": lambda v: "Clear" if v <= 0.0 else ("Noisy" if v < 0.1 else "Degraded"),
     },
 ]
 
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
+
 
 def _safe(fn: Any, default: Any) -> Any:
     try:
@@ -172,20 +173,22 @@ def _live_metrics() -> dict[str, float]:
         lambda: (
             lambda r: {
                 "genius_g": float(getattr(r, "genius_g", 0.87)),
-                "omega":    float(getattr(r, "omega",    0.04)),
-                "delta_s":  float(getattr(r, "delta_s",  -0.01)),
-                "verdict":  str(getattr(r, "verdict",   "SEAL")).upper(),
-                "stage":    str(getattr(r, "stage",     "777")),
+                "omega": float(getattr(r, "omega", 0.04)),
+                "delta_s": float(getattr(r, "delta_s", -0.01)),
+                "verdict": str(getattr(r, "verdict", "SEAL")).upper(),
+                "stage": str(getattr(r, "stage", "777")),
             }
-        )(__import__(
-            "core.physics.thermodynamics_hardened", fromlist=["get_thermodynamic_report"]
-        ).get_thermodynamic_report()),
+        )(
+            __import__(
+                "core.physics.thermodynamics_hardened", fromlist=["get_thermodynamic_report"]
+            ).get_thermodynamic_report()
+        ),
         {
             "genius_g": 0.87,
-            "omega":    0.04,
-            "delta_s":  -0.01,
-            "verdict":  "SEAL",
-            "stage":    "777",
+            "omega": 0.04,
+            "delta_s": -0.01,
+            "verdict": "SEAL",
+            "stage": "777",
         },
     )
 
@@ -194,13 +197,11 @@ def _get_quote(stage_id: str, g: float) -> dict[str, str]:
     """Return the best-fit philosophy quote from the governed 33-quote registry."""
     stage_obj = _STAGE_BY_ID.get(stage_id, STAGES[-1])
     return _safe(
-        lambda: (
-            lambda q: {"text": q["text"], "author": q["author"]}
-        )(__import__(
-            "arifosmcp.runtime.philosophy", fromlist=["get_philosophical_anchor"]
-        ).get_philosophical_anchor(
-            stage_obj["label"], g, [], session_id="global"
-        )),
+        lambda: (lambda q: {"text": q["text"], "author": q["author"]})(
+            __import__(
+                "arifosmcp.runtime.philosophy", fromlist=["get_philosophical_anchor"]
+            ).get_philosophical_anchor(stage_obj["label"], g, [], session_id="global")
+        ),
         {"text": "DITEMPA, BUKAN DIBERI.", "author": "Arif Fazil"},
     )
 
@@ -212,13 +213,13 @@ def _verdict_variant(v: str) -> str:
 def _grade_variant(g: str) -> str:
     return {
         "Excellent": "success",
-        "Good":      "success",
-        "Stable":    "success",
-        "Clear":     "success",
-        "Low":       "warning",
-        "High":      "warning",
-        "Noisy":     "warning",
-        "Degraded":  "destructive",
+        "Good": "success",
+        "Stable": "success",
+        "Clear": "success",
+        "Low": "warning",
+        "High": "warning",
+        "Noisy": "warning",
+        "Degraded": "destructive",
     }.get(g, "secondary")
 
 
@@ -232,6 +233,7 @@ def _nearest_stage_id(stage_str: str) -> str:
 
 # ── App registration ──────────────────────────────────────────────────────────
 
+
 def _register(mcp: FastMCP) -> None:
 
     @mcp.tool(app=True)
@@ -244,19 +246,18 @@ def _register(mcp: FastMCP) -> None:
 
         No technical background required — designed for any human reader.
         """
-        m      = _live_metrics()
-        g      = m["genius_g"]
-        omega  = m["omega"]
-        ds     = m["delta_s"]
+        m = _live_metrics()
+        g = m["genius_g"]
+        omega = m["omega"]
+        ds = m["delta_s"]
         verdict = m["verdict"]
         stage_id = _nearest_stage_id(m["stage"])
         stage_obj = _STAGE_BY_ID[stage_id]
-        quote  = _get_quote(stage_id, g)
+        quote = _get_quote(stage_id, g)
 
         metric_vals = {"G": g, "Ω": omega, "ΔS": ds}
 
         with Column(gap=5, css_class="p-5 max-w-lg") as view:
-
             # ── Header ────────────────────────────────────────────────────
             with Row(gap=3, align="center"):
                 Heading("APEX G-Score")
@@ -270,13 +271,16 @@ def _register(mcp: FastMCP) -> None:
             Separator()
 
             # ── Metrics ───────────────────────────────────────────────────
-            Heading("Constitutional Metrics", css_class="text-xs font-semibold uppercase tracking-widest text-muted-foreground")
+            Heading(
+                "Constitutional Metrics",
+                css_class="text-xs font-semibold uppercase tracking-widest text-muted-foreground",
+            )
             with Column(gap=3):
                 for mdef in _METRIC_DEFS:
-                    val   = metric_vals[mdef["symbol"]]
-                    pct   = mdef["scale"](val)
+                    val = metric_vals[mdef["symbol"]]
+                    pct = mdef["scale"](val)
                     grade = mdef["grade"](val)
-                    fmt   = mdef["format"](val)
+                    fmt = mdef["format"](val)
 
                     with Card():
                         with CardContent(css_class="py-3"):
@@ -296,7 +300,7 @@ def _register(mcp: FastMCP) -> None:
             with Card(css_class="bg-muted/40"):
                 with CardContent(css_class="py-4"):
                     Text(
-                        f""{quote['text']}"",
+                        f'"{quote["text"]}"',
                         css_class="italic text-sm leading-relaxed",
                     )
                     Muted(f"— {quote['author']}", css_class="text-xs mt-2 text-right")
