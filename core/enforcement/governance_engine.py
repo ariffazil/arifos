@@ -133,7 +133,7 @@ def _derive_apex_dials(tool: str, payload: dict[str, Any]) -> dict[str, Any]:
         fallback_max=1.0,
     )
 
-    # 3. Final Genius Intelligence Kernel Calculation
+    # 3. Final Genius (governed intelligence 3E) Calculation
     res = calculate_genius(
         floors=floor_scores,
         h=_safe_float(payload, "hysteresis", 0.0),

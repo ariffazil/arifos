@@ -177,7 +177,7 @@ The production runtime exposes 8 public/main tools to model-facing clients:
 | `audit_rules` | Governance rule audit |
 | `check_vital` | System health and telemetry |
 | `open_apex_dashboard` | Observability dashboard |
-| `bootstrap_identity` | Explicit onboarding and identity declaration |
+| `init_anchor_state` | Onboarding and continuity anchor |
 
 ## Compatibility Guidance
 

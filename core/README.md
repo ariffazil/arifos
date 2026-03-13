@@ -61,9 +61,9 @@ Cross-cut kernel control:
 ```
 
 **Boundary Rules:**
-- `core/` owns decision logic and state transitions.
-- `aaa_mcp/` is transport/protocol only and must consume `core` outputs.
-- `aclip_cai/` provides intelligence engines but must not own constitutional state.
+- `core/` owns governance decision logic and state transitions (APEX/Judge lives here).
+- `aaa_mcp/` is Machine transport/protocol only and must consume `core` outputs.
+- `aclip_cai/` provides Intelligence (3E) engines but must not own constitutional state.
 
 ### 2) Core seal evidence (executed 2026-03-07)
 

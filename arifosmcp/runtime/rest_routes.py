@@ -214,7 +214,9 @@ def _build_governance_status_payload() -> dict[str, Any]:
                     "f13": resolved_floors.get("F13"),
                 }
             )
-            genius_res = calculate_genius(floor_scores, h=0.0, compute_budget_used=0.0, compute_budget_max=1.0)
+            genius_res = calculate_genius(
+                floor_scores, h=0.0, compute_budget_used=0.0, compute_budget_max=1.0
+            )
             resolved_floors["F8"] = round(
                 max(_FLOOR_DEFAULTS["F8"], float(genius_res.get("genius_score", 0.0))),
                 4,
@@ -249,7 +251,7 @@ def _render_status_html(payload: dict[str, Any]) -> str:
         status = "PASS" if passed else "FAIL"
         row_class = "pass" if passed else "fail"
         floor_rows.append(
-            "<tr class=\"%s\"><td>%s</td><td>%0.3f</td><td>%s</td></tr>"
+            '<tr class="%s"><td>%s</td><td>%0.3f</td><td>%s</td></tr>'
             % (row_class, floor_id, score, status)
         )
 
@@ -335,6 +337,7 @@ def _render_status_html(payload: dict[str, Any]) -> str:
 </body>
 </html>"""
 
+
 WELCOME_HTML = """\
 <!DOCTYPE html>
 <html lang="en">
@@ -375,7 +378,7 @@ WELCOME_HTML = """\
 </head>
 <body>
   <h1>arifOS MCP <span class="pill">&#9679; ONLINE</span></h1>
-    <h2>Metabolic Intelligence Kernel</h2>
+  <h2>Metabolic Governance Kernel</h2>
 
   <div class="nav">
     <a href="/tools">/tools</a>
@@ -484,7 +487,7 @@ __APEX_MD_TABLE__
 
 LLMS_JSON = {
     "name": "arifOS Sovereign Quad",
-    "description": "Unified Intelligence Kernel Map for Human, Theory, Law, and Brain domains.",
+    "description": "Unified Governance Kernel Map for Human, Theory, Law, and Brain domains.",
     "version": "2026.03.12-SEAL",
     "authority": "Muhammad Arif bin Fazil (888 Judge)",
     "motto": "Ditempa Bukan Diberi (Forged, Not Given)",

@@ -26,5 +26,5 @@ def test_register_prompts_matches_public_registry() -> None:
     dashboard_prompt = collector.prompts["open_apex_dashboard"]
     assert "open_apex_dashboard" in dashboard_prompt()
 
-    bootstrap_prompt = collector.prompts["bootstrap_identity_prompt"]
-    assert "bootstrap_identity" in bootstrap_prompt("Arif")
+    init_prompt = collector.prompts["init_anchor_state_prompt"]
+    assert "init_anchor_state" in init_prompt("Arif")

@@ -113,12 +113,10 @@ def fastmcp_dependency() -> str:
 
 PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
     ToolSpec(
-        name="arifOS_kernel",
-    ToolSpec(
         name="reality_compass",
         stage="111_SENSE",
         role="Unified Reality",
-        layer="Cognitive Input",
+        layer="Intelligence (3E)",
         description="Unified search and fetch engine. Automatically routes between query search and deep URL scraping.",
         trinity="Δ Delta",
         floors=("F2", "F12"),
@@ -128,7 +126,11 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
             "properties": {
                 "input": {"type": "string", "description": "Search query or URL to fetch."},
                 "mode": {"type": "string", "enum": ["auto", "search", "fetch"], "default": "auto"},
-                "fetch_top_k": {"type": "integer", "default": 2, "description": "Fetch top K results if in search mode."}
+                "fetch_top_k": {
+                    "type": "integer",
+                    "default": 2,
+                    "description": "Fetch top K results if in search mode.",
+                },
             },
             "additionalProperties": False,
         },
@@ -138,7 +140,7 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
         name="reality_atlas",
         stage="222_REALITY",
         role="Evidence Graph",
-        layer="Cognitive Input",
+        layer="Intelligence (3E)",
         description="Build and query the semantic evidence graph from acquired EvidenceBundles.",
         trinity="Δ Delta",
         floors=("F2", "F11"),
@@ -147,16 +149,18 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
             "required": ["operation"],
             "properties": {
                 "operation": {"type": "string", "enum": ["ingest", "query", "merge"]},
-                "bundles": {"type": "array", "items": {"type": "object"}}
+                "bundles": {"type": "array", "items": {"type": "object"}},
             },
             "additionalProperties": False,
         },
     ),
+    ToolSpec(
+        name="arifOS_kernel",
         stage="444_ROUTER",
-        role="Main orchestrator",
-        layer="Execution",
+        role="Governance orchestrator",
+        layer="Governance",
         description=(
-            "The arifOS Intelligence Kernel. Runs the full metabolic reasoning "
+            "The arifOS Governance Kernel. Runs the full metabolic reasoning "
             "pipeline (000-999) and governs high-stakes execution tasks."
         ),
         trinity="ALL",
@@ -198,7 +202,7 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
         name="search_reality",
         stage="111_SENSE",
         role="Grounding",
-        layer="Cognitive Input",
+        layer="Intelligence (3E)",
         description="Find real-world sources and factual grounding before reasoning.",
         trinity="Δ Delta",
         floors=("F2", "F12"),
@@ -216,7 +220,7 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
         name="ingest_evidence",
         stage="222_REALITY",
         role="Ingestion",
-        layer="Cognitive Input",
+        layer="Intelligence (3E)",
         description="Fetch or extract evidence from a URL, document, or file path.",
         trinity="Δ Delta",
         floors=("F2", "F11", "F12"),
@@ -302,36 +306,25 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
         readonly=True,
     ),
     ToolSpec(
-        name="bootstrap_identity",
-        stage="000_INIT",
-        role="Onboarding",
-        layer="Global Context",
-        description="Declare user identity and initiate session grounding (Onboarding).",
-        trinity="Δ Delta",
-        floors=("F11",),
-        input_schema={
-            "type": "object",
-            "required": ["declared_name"],
-            "properties": {
-                "declared_name": {"type": "string", "description": "User name (e.g. Arif)."},
-                "session_id": {"type": "string", "description": "Optional session ID."},
-                "human_approval": {"type": "boolean", "default": True},
-            },
-            "additionalProperties": False,
-        },
-    ),
-    ToolSpec(
         name="init_anchor_state",
         stage="000_INIT",
         role="Continuity anchor",
-        layer="Global Context",
-        description="Mint a governed continuity envelope for follow-up kernel calls.",
+        layer="Machine",
+        description="Initialize the 000_INIT anchor (onboarding + continuity).",
         trinity="Δ Delta",
         floors=("F11", "F12", "F13"),
         input_schema={
             "type": "object",
-            "required": ["intent"],
+            "anyOf": [
+                {"required": ["declared_name"]},
+                {"required": ["intent"]},
+            ],
             "properties": {
+                "declared_name": {
+                    "type": "string",
+                    "description": "User name (e.g. Arif) for onboarding.",
+                },
+                "human_approval": {"type": "boolean", "default": True},
                 "intent": {
                     "type": "object",
                     "description": "Intent envelope for the initial governed anchor call.",
@@ -386,10 +379,10 @@ NON_CHATGPT_EXTRA_TOOL_NAMES: tuple[str, ...] = INTERNAL_STAGE_TOOL_NAMES
 PUBLIC_COMPATIBILITY_SPECS: tuple[CompatibilitySpec, ...] = (
     CompatibilitySpec(
         legacy_name="anchor_session",
-        public_route="bootstrap_identity",
+        public_route="init_anchor_state",
         status="removed",
         notes=(
-            "Explicit onboarding moved to bootstrap_identity; "
+            "Explicit onboarding moved to init_anchor_state; "
             "one-call governed work moved to arifOS_kernel."
         ),
     ),
@@ -471,10 +464,10 @@ PUBLIC_COMPATIBILITY_SPECS: tuple[CompatibilitySpec, ...] = (
         notes="Legacy internal alias retained only for compatibility profiles.",
     ),
     CompatibilitySpec(
-        legacy_name="init_anchor_state",
-        public_route="bootstrap_identity",
-        status="internal",
-        notes="Stage tool remains available only in internal/dev profiles.",
+        legacy_name="bootstrap_identity",
+        public_route="init_anchor_state",
+        status="deprecated",
+        notes="Bootstrap identity merged into init_anchor_state.",
     ),
     CompatibilitySpec(
         legacy_name="integrate_analyze_reflect",
@@ -521,7 +514,9 @@ PUBLIC_COMPATIBILITY_SPECS: tuple[CompatibilitySpec, ...] = (
 )
 
 PUBLIC_PROMPT_SPECS: tuple[PromptSpec, ...] = (
-        PromptSpec("reality_compass_prompt", "reality_compass", "Unified reality acquisition entrypoint."),
+    PromptSpec(
+        "reality_compass_prompt", "reality_compass", "Unified reality acquisition entrypoint."
+    ),
     PromptSpec("reality_atlas_prompt", "reality_atlas", "Semantic evidence graph management."),
     PromptSpec("arifos_kernel_prompt", "arifOS_kernel", "Route governed work to the kernel."),
     PromptSpec("search_reality_prompt", "search_reality", "Ground claims with external facts."),
@@ -535,9 +530,9 @@ PUBLIC_PROMPT_SPECS: tuple[PromptSpec, ...] = (
         "Open the dashboard surface for live governed metrics.",
     ),
     PromptSpec(
-        "bootstrap_identity_prompt",
-        "bootstrap_identity",
-        "Declare your identity to the arifOS kernel.",
+        "init_anchor_state_prompt",
+        "init_anchor_state",
+        "Initialize the 000_INIT anchor for onboarding and continuity.",
     ),
 )
 
@@ -709,7 +704,7 @@ INTERNAL_TOOL_SPECS: tuple[ToolSpec, ...] = (
         name="ollama_local_generate",
         stage="333_MIND",
         role="Local model generation",
-        layer="Internal Intelligence",
+        layer="Internal Intelligence (3E)",
         description=(
             "Run a bounded prompt against the local Ollama runtime for trusted internal agents."
         ),
@@ -731,8 +726,8 @@ INTERNAL_TOOL_SPECS: tuple[ToolSpec, ...] = (
     ToolSpec(
         name="lsp_query_tool",
         stage="111_SENSE",
-        role="Code intelligence",
-        layer="Internal Intelligence",
+        role="Code exploration",
+        layer="Internal Intelligence (3E)",
         description=(
             "Query the language server for hover, definition, references, symbols, or diagnostics."
         ),
@@ -758,7 +753,7 @@ INTERNAL_TOOL_SPECS: tuple[ToolSpec, ...] = (
         name="lsp_get_symbols_tool",
         stage="111_SENSE",
         role="Document symbols",
-        layer="Internal Intelligence",
+        layer="Internal Intelligence (3E)",
         description="List code symbols in a file via the language server.",
         trinity="Delta",
         floors=("F2", "F4", "F12"),
@@ -774,7 +769,7 @@ INTERNAL_TOOL_SPECS: tuple[ToolSpec, ...] = (
         name="lsp_get_diagnostics_tool",
         stage="111_SENSE",
         role="Diagnostics",
-        layer="Internal Intelligence",
+        layer="Internal Intelligence (3E)",
         description="Get diagnostics, warnings, and errors for a file via the language server.",
         trinity="Delta",
         floors=("F2", "F4", "F12"),
@@ -790,7 +785,7 @@ INTERNAL_TOOL_SPECS: tuple[ToolSpec, ...] = (
         name="lsp_go_to_definition_tool",
         stage="111_SENSE",
         role="Definition lookup",
-        layer="Internal Intelligence",
+        layer="Internal Intelligence (3E)",
         description="Find where a symbol is defined via the language server.",
         trinity="Delta",
         floors=("F2", "F4", "F12"),
@@ -810,7 +805,7 @@ INTERNAL_TOOL_SPECS: tuple[ToolSpec, ...] = (
         name="lsp_find_references_tool",
         stage="111_SENSE",
         role="Reference lookup",
-        layer="Internal Intelligence",
+        layer="Internal Intelligence (3E)",
         description="Find references to a symbol via the language server.",
         trinity="Delta",
         floors=("F2", "F4", "F12"),
@@ -830,7 +825,7 @@ INTERNAL_TOOL_SPECS: tuple[ToolSpec, ...] = (
         name="lsp_rename_tool",
         stage="111_SENSE",
         role="Rename proposal",
-        layer="Internal Intelligence",
+        layer="Internal Intelligence (3E)",
         description=(
             "Propose a rename refactor via the language server. Requires 888_HOLD before execution."
         ),
@@ -1139,7 +1134,7 @@ def build_server_json(public_base_url: str = DEFAULT_PUBLIC_BASE_URL) -> dict[st
         "name": MCP_SERVER_NAME,
         "version": release_version_label(),
         "description": (
-            "Constitutional AI governance server — 9 canonical public MCP tools with "
+            "Constitutional governance server — 11 canonical public MCP tools with "
             "F1-F13 floor enforcement, metabolic Stage 444 routing, prompts, and resources."
         ),
         "vendor": {"name": "Muhammad Arif bin Fazil", "url": "https://arif-fazil.com"},
@@ -1216,8 +1211,8 @@ def build_mcp_manifest(public_base_url: str = DEFAULT_PUBLIC_BASE_URL) -> dict[s
         "version": release_version_label(),
         "title": MCP_SERVER_TITLE,
         "description": (
-            "Constitutional AI governance server with a 9-tool public surface, 8 public prompts, "
-            "14 public resources, Trinity engines (ΔΩΨ), and F1-F13 floor enforcement."
+            "Constitutional governance server with an 11-tool public surface, public prompts, "
+            "public resources, Trinity engines (ΔΩΨ), and F1-F13 floor enforcement."
         ),
         "websiteUrl": DEFAULT_DOCS_URL,
         "vendor": {"name": "arifOS", "url": DEFAULT_DOCS_URL},

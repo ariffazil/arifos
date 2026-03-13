@@ -630,7 +630,7 @@ def register_resources(mcp: FastMCP) -> None:
 
     @mcp.tool(app=AppConfig(resource_uri=APEX_DASHBOARD_URI))
     def open_apex_dashboard(ctx: Context, session_id: str = "global") -> ToolResult:
-        """Open the APEX Sovereign Dashboard showing live governed-intelligence metrics.
+        """Open the APEX Sovereign Dashboard showing live governance + 3E intelligence metrics.
 
         Prefers the unified Prefab app surface in compatible MCP hosts and exposes
         the packaged HTML dashboard as the stable fallback asset for deployment.

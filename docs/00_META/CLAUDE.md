@@ -79,7 +79,7 @@ Black: 100 char line length. Ruff: py310 target, excludes `archive/**`, `tests/*
 
 ## Architecture
 
-### Four-Layer Stack: PyPI Surface → Transport → Intelligence → Kernel
+### Four-Layer Stack: PyPI Surface → Machine (Transport) → Intelligence (3E) → Governance Kernel
 
 ```text
 core/                      → KERNEL (decision logic, zero transport deps)
@@ -97,13 +97,13 @@ core/                      → KERNEL (decision logic, zero transport deps)
 ├── config/                → Runtime configuration
 └── physics/               → Thermodynamic calculations
 
-arifosmcp.intelligence/                 → INTELLIGENCE (9-sense tools + ground truth)
+arifosmcp.intelligence/                 → INTELLIGENCE (3E: Exploration → Entropy → Eureka)
 ├── tools/                 → 9-Sense tools (fs_inspector, system_monitor, net_monitor,
 │                            financial_monitor, thermo_estimator, reality_grounding, etc.)
 │   └── logic/             → Thermodynamic Budgeting, Vault Logger
 └── dashboard/             → React dashboard (Cloudflare Pages)
 
-arifosmcp.runtime/            → CANONICAL EXTERNAL PACKAGE (Transport Hub)
+arifosmcp.runtime/            → MACHINE LAYER (Transport Hub)
 ├── server.py              → FastMCP server with 13 tools (@mcp.tool decorators)
 ├── __main__.py            → CLI entry: default SSE, reads HOST/PORT env vars
 ├── bridge.py              → Secure airlock between Hub and Kernel

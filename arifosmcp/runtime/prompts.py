@@ -20,20 +20,40 @@ PROMPT_SPEC_BY_NAME = {spec.name: spec for spec in PUBLIC_PROMPT_SPECS}
 
 
 def register_prompts(mcp: FastMCP) -> None:
-    """Wire the core 7 arifOS prompts onto *mcp*."""
+    """Wire the public arifOS prompts onto *mcp*."""
 
     @mcp.prompt()
     def arifos_kernel_prompt(query: str, risk_tier: str = "medium") -> str:
         """Route governed work to the kernel."""
         tool_name = PROMPT_SPEC_BY_NAME["arifos_kernel_prompt"].target_tool
         return (
-            f"Use '{tool_name}' as the core constitutional intelligence engine "
+            f"Use '{tool_name}' as the core constitutional governance engine "
             f"for the following query:\n\n"
             f"  Query: {query}\n"
             f"  Risk tier: {risk_tier}\n\n"
             f"The kernel is the semantic execution authority of arifOS. "
             f"It may orchestrate internal reasoning, memory, judgment, and vault stages, "
             f"but externally it should be treated as the governed execution layer."
+        )
+
+    @mcp.prompt()
+    def reality_compass_prompt(input: str, mode: str = "auto") -> str:
+        """Unified search + fetch grounding."""
+        tool_name = PROMPT_SPEC_BY_NAME["reality_compass_prompt"].target_tool
+        return (
+            f"Use '{tool_name}' to ground claims via search or fetch.\n\n"
+            f"  Input: {input}\n"
+            f"  Mode: {mode} (auto|search|fetch)\n\n"
+            "This provides reality acquisition before governed reasoning."
+        )
+
+    @mcp.prompt()
+    def reality_atlas_prompt() -> str:
+        """Semantic evidence graph management."""
+        tool_name = PROMPT_SPEC_BY_NAME["reality_atlas_prompt"].target_tool
+        return (
+            f"Use '{tool_name}' to ingest or query EvidenceBundles "
+            "inside the semantic evidence graph."
         )
 
     @mcp.prompt()
@@ -95,9 +115,9 @@ def register_prompts(mcp: FastMCP) -> None:
         )
 
     @mcp.prompt()
-    def bootstrap_identity_prompt(declared_name: str) -> str:
-        """Declare identity to the kernel before anchored follow-up calls."""
-        tool_name = PROMPT_SPEC_BY_NAME["bootstrap_identity_prompt"].target_tool
+    def init_anchor_state_prompt(declared_name: str) -> str:
+        """Initialize the 000_INIT anchor for onboarding and continuity."""
+        tool_name = PROMPT_SPEC_BY_NAME["init_anchor_state_prompt"].target_tool
         return (
             f"Use '{tool_name}' to declare identity and mint a governed session context.\n\n"
             f"  Declared name: {declared_name}\n\n"
