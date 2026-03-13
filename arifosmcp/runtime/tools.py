@@ -459,8 +459,8 @@ from arifosmcp.runtime.metrics import (
 
 async def INIT_ANCHOR(
     raw_input: str,
-    ctx: CurrentContext,
-    server: CurrentFastMCP,
+    ctx: CurrentContext | None = None,
+    server: CurrentFastMCP | None = None,
     session_id: str | None = None,
     pns_shield: dict[str, Any] | None = None,
 ) -> RuntimeEnvelope:
@@ -497,7 +497,7 @@ async def init_anchor_state(
 
 async def AGI_REASON(
     query: str,
-    ctx: CurrentContext,
+    ctx: CurrentContext | None = None,
     facts: list[str] | None = None,
     session_id: str | None = None,
     pns_search: dict[str, Any] | None = None,
@@ -548,8 +548,8 @@ async def AGI_REASON(
 
 async def AGI_REFLECT(
     topic: str,
-    ctx: CurrentContext,
-    server: CurrentFastMCP,
+    ctx: CurrentContext | None = None,
+    server: CurrentFastMCP | None = None,
     session_id: str = "global",
     pns_vision: dict[str, Any] | None = None,
 ) -> RuntimeEnvelope:
@@ -586,8 +586,8 @@ async def AGI_REFLECT(
 
 async def ASI_SIMULATE(
     scenario: str,
-    ctx: CurrentContext,
-    server: CurrentFastMCP,
+    ctx: CurrentContext | None = None,
+    server: CurrentFastMCP | None = None,
     session_id: str = "global",
 ) -> RuntimeEnvelope:
     """ASI·SIMULATE (Stage 666A): World model consequence prediction with Gödel-Safe calibration."""
@@ -649,7 +649,7 @@ async def ASI_SIMULATE(
 
 async def ASI_CRITIQUE(
     draft_output: str,
-    ctx: CurrentContext,
+    ctx: CurrentContext | None = None,
     health: dict[str, Any] | None = None,
     floor: dict[str, Any] | None = None,
     session_id: str = "global",
@@ -691,8 +691,8 @@ async def ASI_CRITIQUE(
 
 async def AGI_ASI_FORGE(
     spec: str,
-    ctx: CurrentContext,
-    server: CurrentFastMCP,
+    ctx: CurrentContext | None = None,
+    server: CurrentFastMCP | None = None,
     tools: list[str] | None = None,
     session_id: str = "global",
     pns_orchestrate: dict[str, Any] | None = None,
@@ -730,7 +730,7 @@ async def AGI_ASI_FORGE(
 
 async def APEX_JUDGE(
     candidate_output: str,
-    ctx: CurrentContext,
+    ctx: CurrentContext | None = None,
     redteam: dict[str, Any] | None = None,
     session_id: str = "global",
 ) -> RuntimeEnvelope:
@@ -768,7 +768,7 @@ async def APEX_JUDGE(
 async def VAULT_SEAL(
     verdict: str,
     evidence: str,
-    ctx: CurrentContext,
+    ctx: CurrentContext | None = None,
     session_id: str = "global",
 ) -> RuntimeEnvelope:
     """VAULT·SEAL (Stage 999): Append an immutable session verdict to VAULT999.
@@ -826,8 +826,8 @@ async def VAULT_SEAL(
 
 async def forge(
     spec: str,
-    ctx: CurrentContext,
-    server: CurrentFastMCP,
+    ctx: CurrentContext | None = None,
+    server: CurrentFastMCP | None = None,
     session_id: str | None = None,
     risk_tier: str = "medium",
 ) -> RuntimeEnvelope:
