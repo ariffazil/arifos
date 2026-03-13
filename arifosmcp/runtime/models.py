@@ -5,6 +5,90 @@ from enum import Enum
 from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
+from fastmcp.exceptions import FastMCPError, ToolError, AuthorizationError
+
+class DeltaOmegaPsi(BaseModel):
+    """ΔΩΨ — The Trinity Flag System."""
+    delta: float = Field(..., ge=0.0, le=1.0, description="Δ — Entropy reduction score.")
+    omega: float = Field(..., ge=0.0, le=1.0, description="Ω — Human impact load (care needed).")
+    psi: float = Field(..., ge=0.0, le=1.0, description="Ψ — Paradox score (unresolved tension).")
+
+class CoolingLedgerEntry(BaseModel):
+    """The immutable ancestry tree and cryptographic proof of a metabolic event."""
+    entry_id: str
+    session_id: str
+    organ: str
+    timestamp: datetime
+    
+    parent_hash: str
+    self_hash: str
+    
+    entropy_before: float
+    entropy_after: float
+    entropy_delta: float
+    landauer_violations: int
+    
+    delta: float
+    omega: float
+    psi: float
+    
+    witness_internal: bool
+    witness_external: bool
+    witness_constitutional: bool
+    
+    verdict: str
+    human_ratified: bool
+    apex_audited: bool
+    immutable: bool = True
+
+class ArifOSError(FastMCPError):
+    """Base exception for all arifOS-related errors."""
+    def __init__(
+        self, 
+        message: str, 
+        fault_class: Any, 
+        fault_code: str, 
+        verdict: str,
+        extra: dict[str, Any] | None = None
+    ):
+        super().__init__(message)
+        self.fault_class = fault_class
+        self.fault_code = fault_code
+        self.verdict = verdict
+        self.extra = extra or {}
+
+class ConstitutionalViolation(ArifOSError, AuthorizationError):
+    """Raised when a Hard Constitutional Floor is breached. Results in VOID."""
+    def __init__(self, message: str, floor_code: Any, extra: dict[str, Any] | None = None):
+        super().__init__(
+            message=f"CONSTITUTIONAL COLLAPSE: {message}",
+            fault_class="CONSTITUTIONAL",
+            fault_code=str(floor_code),
+            verdict="VOID",
+            extra=extra
+        )
+
+class InfrastructureFault(ArifOSError, ToolError):
+    """Raised when a mechanical fault occurs. Results in 888_HOLD."""
+    def __init__(self, message: str, fault_code: Any, extra: dict[str, Any] | None = None):
+        super().__init__(
+            message=f"MECHANICAL FAULT: {message}",
+            fault_class="MECHANICAL",
+            fault_code=str(fault_code),
+            verdict="888_HOLD",
+            extra=extra
+        )
+
+class EpistemicGap(ArifOSError, ToolError):
+    """Raised when grounding is insufficient. Results in SABAR."""
+    def __init__(self, message: str, extra: dict[str, Any] | None = None):
+        super().__init__(
+            message=f"EPISTEMIC GAP: {message}",
+            fault_class="EPISTEMIC",
+            fault_code="NO_RESULTS",
+            verdict="SABAR",
+            extra=extra
+        )
 
 
 class Verdict(str, Enum):
@@ -82,8 +166,57 @@ class Stage(str, Enum):
     HEART_666 = "666_HEART"
     CRITIQUE_666 = "666_CRITIQUE"
     FORGE_777 = "777_FORGE"
+    NEGOTIATE_800 = "800_NEGOTIATE"
     JUDGE_888 = "888_JUDGE"
     VAULT_999 = "999_VAULT"
+
+
+class SacredStage(str, Enum):
+    """Canonical Sacred Names for the Inner Ring stages."""
+
+    INIT_ANCHOR = "INIT·ANCHOR"
+    AGI_REASON = "AGI·REASON"
+    AGI_REFLECT = "AGI·REFLECT"
+    ASI_SIMULATE = "ASI·SIMULATE"
+    ASI_CRITIQUE = "ASI·CRITIQUE"
+    AGI_ASI_FORGE = "AGI–ASI·FORGE"
+    APEX_JUDGE = "APEX·JUDGE"
+    VAULT_SEAL = "VAULT·SEAL"
+
+
+class PNSSignal(BaseModel):
+    """A single signal from a Peripheral Nervous System (PNS) organ."""
+
+    source: str
+    status: str = "OK"
+    score: float = 1.0
+    payload: dict[str, Any] = Field(default_factory=dict)
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+
+class PNSContext(BaseModel):
+    """
+    The Peripheral Nervous System (PNS) Context — The Outer Ring.
+
+    This context feeds the Sacred Chain (Inner Ring) at specific injection points.
+    It must never contaminate the forbidden zones (SIMULATE, VAULT).
+    """
+
+    shield: PNSSignal | None = None  # Feeds INIT·ANCHOR
+    search: PNSSignal | None = None  # Feeds AGI·REASON
+    vision: PNSSignal | None = None  # Feeds AGI·REFLECT
+    health: PNSSignal | None = None  # Feeds ASI·CRITIQUE
+    floor: PNSSignal | None = None   # Feeds ASI·CRITIQUE
+    orchestrate: PNSSignal | None = None  # Feeds AGI–ASI·FORGE
+    redteam: PNSSignal | None = None  # Feeds APEX·JUDGE
+
+    # Metadata
+    entropy_sanitized: bool = False
+    pns_version: str = "1.0.0"
+    
+    def get_signal(self, organ_name: str) -> PNSSignal | None:
+        """Helper to retrieve a signal by name."""
+        return getattr(self, organ_name.lower(), None)
 
 
 class AuthorityLevel(str, Enum):
@@ -107,15 +240,42 @@ class PersonaRole(str, Enum):
     ASSISTANT = "assistant"
 
 
+class TelemetryVitals(BaseModel):
+    """Rule 3: The Public Score Card — Sovereign Vitals."""
+    dS: float = Field(..., description="Entropy Delta (1dp derived)")
+    peace2: float = Field(..., description="Lyapunov Stability (2dp derived)")
+    kappa_r: float | None = Field(None, description="Maruah Score (2dp derived | null)")
+    G_star: float = Field(..., description="Genius Score (2dp derived)")
+    echoDebt: float = Field(0.1, description="Historical Contradictions (1dp measured)")
+    shadow: float = Field(..., description="Hidden Assumption Load (2dp derived)")
+    confidence: float = Field(..., description="Confidence (2dp derived)")
+    psi_le: str = Field(..., description="AGI Emergence Pressure (heuristic + Estimate Only)")
+    verdict: str = Field(..., description="Alive | Degraded | Paused | 888_HOLD")
+
+class TelemetryBasis(BaseModel):
+    """Rule 1: Basis tracking for every vital sign."""
+    dS: str = "derived"
+    peace2: str = "derived"
+    kappa_r: str | None = "derived"
+    G_star: str = "derived"
+    psi_le: str = "heuristic"
+
+class TripleWitness(BaseModel):
+    """The Tri-Witness block for F3 compliance."""
+    human: float = 0.0
+    ai: float = 0.0
+    earth: float = 0.0
+
 class CanonicalMetrics(BaseModel):
-    truth: float = 0.0
-    clarity_delta: float = 0.0
-    confidence: float = 0.0
-    peace: float = 0.0
-    vitality: float = 0.0
-    entropy_delta: float = 0.0
-    authority: float = 0.0
-    risk: float = 0.0
+    """Unified arifOS Telemetry (Score Integrity Protocol)."""
+    telemetry: TelemetryVitals
+    basis: TelemetryBasis = Field(default_factory=TelemetryBasis)
+    witness: TripleWitness = Field(default_factory=TripleWitness)
+    
+    # Internal Metadata (Operator Only)
+    internal: dict[str, Any] = Field(default_factory=dict)
+    
+    model_config = ConfigDict(populate_by_name=True)
 
 
 class CanonicalAuthority(BaseModel):
