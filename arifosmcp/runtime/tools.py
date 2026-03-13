@@ -462,7 +462,7 @@ def _resolve_caller_context(
     The server governs the final ``persona_id``; unknown hints are silently
     ignored and fall back to the default (engineer).
 
-    F9 compliance: AI declares execution role, never inherits human sovereignty.
+    F9 compliance: AI declares execution role, never inherits human apexty.
     """
     from arifosmcp.runtime.models import PersonaId
 
@@ -512,7 +512,7 @@ async def bootstrap_identity(
     clean_name = declared_name.strip().lower()
     if clean_name in {"arif", "arif fazil", "arif-fazil", "ariffazil"}:
         normalized_actor_id = "ariffazil"
-        authority_level = "sovereign"
+        authority_level = "apex"
     else:
         normalized_actor_id = clean_name.replace(" ", "-")
         authority_level = "declared"
@@ -705,7 +705,7 @@ async def apex_judge_verdict(
     caller_context: CallerContext | None = None,
     ctx: Context | None = None,
 ) -> RuntimeEnvelope:
-    """888 JUDGE - APEX verdict. Render the sovereign constitutional judgment for a session."""
+    """888 JUDGE - APEX verdict. Render the apex constitutional judgment for a session."""
     payload = {
         "verdict_candidate": verdict_candidate,
         "reason_summary": reason_summary,

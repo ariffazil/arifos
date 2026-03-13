@@ -99,12 +99,12 @@ async def test_low_risk_declared_identity_auto_anchors_continuity(monkeypatch):
 @pytest.mark.asyncio
 async def test_bootstrap_identity_binds_declared_name() -> None:
     envelope = await bootstrap_identity(
-        declared_name="Arif-The-Sovereign",
+        declared_name="Arif-The-Apex",
         human_approval=False,
     )
 
     assert envelope.tool == "bootstrap_identity"
-    assert envelope.authority.actor_id == "arif-the-sovereign"
+    assert envelope.authority.actor_id == "arif-the-apex"
     assert envelope.authority.level != "anonymous"
     assert envelope.auth_context is not None
 
@@ -143,8 +143,8 @@ async def test_reason_stage_preserves_declared_authority_context() -> None:
         auth_context=init_env.auth_context,
     )
 
-    # "Arif" maps to sovereign identity "ariffazil" via kernel sovereign mapping.
-    # Bootstrap gives sovereign authority; the auth_context carries the sovereign actor_id.
+    # "Arif" maps to apex identity "ariffazil" via kernel apex mapping.
+    # Bootstrap gives apex authority; the auth_context carries the apex actor_id.
     assert envelope.auth_context is not None
     assert envelope.auth_context["actor_id"] == "ariffazil"
     # The reason stage inherits the auth_context actor but the authority object reflects
@@ -292,7 +292,7 @@ async def test_audit_rules_loads_governance_diagnostics() -> None:
 
 @pytest.mark.asyncio
 async def test_metabolic_loop_preserves_declared_authority() -> None:
-    # "Arif" maps to sovereign identity "ariffazil" via kernel sovereign mapping
+    # "Arif" maps to apex identity "ariffazil" via kernel apex mapping
     session_id = "declared-loop-authority"
     init_env = await bootstrap_identity("Arif", session_id=session_id, human_approval=False)
 
@@ -310,7 +310,7 @@ async def test_metabolic_loop_preserves_declared_authority() -> None:
         session_id=session_id,
     )
 
-    # Actor is correctly resolved via sovereign mapping
+    # Actor is correctly resolved via apex mapping
     assert envelope.authority.actor_id == "ariffazil"
     assert envelope.authority is not None
 
