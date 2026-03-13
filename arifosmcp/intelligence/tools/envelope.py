@@ -13,10 +13,12 @@ from __future__ import annotations
 import functools
 from collections.abc import Callable
 
+from arifosmcp.core.ontology import OntologyRegistry
 from arifosmcp.runtime.models import (
     CallerContext,
     CanonicalAuthority,
     CanonicalError,
+    CanonicalMeta,
     CanonicalMetrics,
     EntropyState,
     EurekaState,
@@ -145,6 +147,11 @@ def unified_tool_output(
                         else EurekaState.PARTIAL if ok else EurekaState.NONE
                     )
 
+                    # Map to Ontology for motto and canonical labels
+                    registry = OntologyRegistry()
+                    metabolic_stage = registry.get_stage(stage)
+                    motto = metabolic_stage.motto if metabolic_stage else None
+
                     # Map metrics to Canonical schema
                     metrics = CanonicalMetrics(
                         truth=float(raw_result.get("truth", 0.9 if ok else 0.5)),
@@ -189,6 +196,11 @@ def unified_tool_output(
                             actor_id=auth_ctx.get("actor_id", "anonymous"),
                             level=auth_ctx.get("authority_level", "anonymous"),
                             human_required=verdict in (Verdict.HOLD, Verdict.HOLD_888),
+                        ),
+                        meta=CanonicalMeta(
+                            debug=bool(raw_result.get("debug")),
+                            dry_run=bool(raw_result.get("dry_run")),
+                            motto=motto,
                         ),
                         caller_context=caller_ctx
                         if isinstance(caller_ctx, CallerContext)
