@@ -158,7 +158,10 @@ class ConstitutionalEvaluator:
             ctx["f11_continuity"] = "MISSING_AUTH_TOKEN"
 
         if ctx.get("session_id") and ctx.get("authority_token"):
-            ctx["role"] = ctx.get("role") or "AGENT"
+            if ctx.get("role") == "ANONYMOUS":
+                ctx["role"] = "AGENT"
+            else:
+                ctx["role"] = ctx.get("role") or "AGENT"
             ctx["f11_continuity"] = "VERIFIED"
 
         return ctx
