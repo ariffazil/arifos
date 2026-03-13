@@ -6,7 +6,9 @@ This module is kept for legacy compatibility and will be removed in v2026.04.
 """
 
 from __future__ import annotations
+
 import warnings
+
 from core.shared.floor_audit import (
     AuditResult,
     FloorAuditor,
@@ -16,10 +18,9 @@ from core.shared.floor_audit import (
 
 # Issue deprecation warning on import
 warnings.warn(
-    "core.enforcement.floor_audit is deprecated. "
-    "Use core.shared.floor_audit instead.",
+    "core.enforcement.floor_audit is deprecated. Use core.shared.floor_audit instead.",
     DeprecationWarning,
-    stacklevel=2
+    stacklevel=2,
 )
 
 __all__ = ["Verdict", "FloorResult", "AuditResult", "FloorAuditor"]

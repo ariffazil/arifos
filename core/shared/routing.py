@@ -6,24 +6,22 @@ This module is kept for legacy compatibility and will be removed in v2026.04.
 """
 
 from __future__ import annotations
+
 import warnings
 
-from core.enforcement.routing import (
-    compatibility_category_for_domain, 
-    detect_refusal_rule, 
-    should_reality_check as canonical_should_reality_check,
-    FACTUAL_INDICATORS as CANONICAL_FACTUAL_INDICATORS
-)
+from core.enforcement.routing import FACTUAL_INDICATORS as CANONICAL_FACTUAL_INDICATORS
+from core.enforcement.routing import compatibility_category_for_domain, detect_refusal_rule
+from core.enforcement.routing import should_reality_check as canonical_should_reality_check
 
 # Issue deprecation warning on import
 warnings.warn(
-    "core.shared.routing is deprecated. "
-    "Use core.enforcement.routing instead.",
+    "core.shared.routing is deprecated. Use core.enforcement.routing instead.",
     DeprecationWarning,
-    stacklevel=2
+    stacklevel=2,
 )
 
 FACTUAL_INDICATORS = CANONICAL_FACTUAL_INDICATORS
+
 
 def route_refuse(query: str) -> dict[str, object]:
     """

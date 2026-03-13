@@ -305,7 +305,9 @@ async def metabolic_loop(
             if hasattr(res, "metrics") and res.metrics:
                 # Map stage-specific provenance (H1.1)
                 stage_prov = {
-                    "dS": "measured" if stage_id in (Stage.SENSE_111.value, Stage.MIND_333.value) else "derived",
+                    "dS": "measured"
+                    if stage_id in (Stage.SENSE_111.value, Stage.MIND_333.value)
+                    else "derived",
                     "G": "derived",
                     "omega0": "measured" if stage_id == Stage.INIT_000.value else "derived",
                 }
@@ -358,7 +360,7 @@ async def metabolic_loop(
                 "caller_context": _dump_caller_context(caller_ctx),
             }
         )
-        
+
         # Record final verdict and kernel metrics
         record_verdict(policy_verdict.value)
         if "metrics" in out and out["metrics"]:
@@ -372,7 +374,7 @@ async def metabolic_loop(
             record_constitutional_metrics(
                 current_session_id, "arifOS_kernel", out["metrics"], provenance_map=kernel_prov
             )
-            
+
         return out
     finally:
         duration = time.perf_counter() - start_time

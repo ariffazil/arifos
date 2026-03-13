@@ -47,9 +47,10 @@ async def asi(
     if action in ("simulate_heart", "full"):
         consume_tool_energy(session_id, n_calls=1)
         target = scenario or kwargs.get("query") or "INIT"
-        
+
         # H1.2 ASI Hardening: Semantic scoring for ASI floors
         from core.shared.sbert_floors import classify_asi_floors
+
         sbert_scores = classify_asi_floors(target)
 
         # Simulate structured assessment
@@ -69,15 +70,20 @@ async def asi(
         elif sbert_scores.f5_peace < 0.7:
             assessment.risk_level = "medium"
             floors["F5"] = "warn"
-            
+
         if sbert_scores.f6_empathy < 0.5:
             floors["F6"] = "fail"
         elif sbert_scores.f6_empathy < 0.7:
             floors["F6"] = "warn"
-            
+
         if sbert_scores.f9_anti_hantu < 0.4:
             floors["F9"] = "fail"
-            assessment.issues.append(EthicalIssue(type="hallucination", summary="Ontological overreach / consciousness claim detected."))
+            assessment.issues.append(
+                EthicalIssue(
+                    type="hallucination",
+                    summary="Ontological overreach / consciousness claim detected.",
+                )
+            )
 
         if action == "simulate_heart":
             # Rule-based verdict derivation
@@ -102,7 +108,7 @@ async def asi(
                 earth_witness=1.0,
                 evidence={
                     "grounding": f"SBERT ASI Semantic Engine ({sbert_scores.method})",
-                    "confidence": sbert_scores.confidence
+                    "confidence": sbert_scores.confidence,
                 },
             )
 

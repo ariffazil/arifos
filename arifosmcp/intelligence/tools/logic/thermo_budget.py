@@ -8,7 +8,9 @@ This module is kept for legacy compatibility and will be removed in v2026.04.
 """
 
 from __future__ import annotations
+
 import warnings
+
 from core.physics.thermo_budget import ThermoBudget as CanonicalThermoBudget
 from core.physics.thermo_budget import ThermoSnapshot as CanonicalThermoSnapshot
 
@@ -17,7 +19,7 @@ warnings.warn(
     "arifosmcp.intelligence.tools.logic.thermo_budget is deprecated. "
     "Use core.physics.thermo_budget instead.",
     DeprecationWarning,
-    stacklevel=2
+    stacklevel=2,
 )
 
 # Alias the canonical implementations to maintain compatibility during migration

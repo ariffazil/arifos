@@ -4,6 +4,7 @@ Checks that the repository state satisfies all 13 Constitutional Floors (F1‑F1
 This is a placeholder implementation – in production each check would invoke the
 corresponding floor validator from the arifOS engine.
 """
+
 import json
 import sys
 from pathlib import Path

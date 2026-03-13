@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """VAULT999 Seal Entry for v2026.03.12 - README Redesign + Intelligence Optimization"""
+
 import hashlib
 import json
 from datetime import datetime, timezone
@@ -22,15 +23,15 @@ seal_entry = {
                 "Dead code removal: 22 lines from physics.py",
                 "Engine adapters: defensive improvements",
                 "Orchestrator: simplified flow, removed unused variables",
-                "All 80 tests passing"
+                "All 80 tests passing",
             ],
             "metrics": {
                 "tests_passing": "80/80",
                 "genius_score": "0.87",
                 "entropy_delta": "-0.05 (codebase cooled)",
                 "lines_removed": 51,
-                "lines_added": 123
-            }
+                "lines_added": 123,
+            },
         }
     ),
     "floor_audit": {

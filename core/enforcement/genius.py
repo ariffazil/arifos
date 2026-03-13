@@ -256,11 +256,12 @@ def floors_to_dials(
     # APEX G Theorem: P is the stability of the Present State.
     # It is dampened by high metabolic flux (haste) and jitter.
     presence_base = geometric_mean([floors.f1_amanah, floors.f5_peace, f11])
-    
+
     # Temporal Dampening: P = P_base * Stability_t
     # We retrieve the instantaneous stability from the governance kernel if available
     try:
         from core.governance_kernel import get_governance_kernel
+
         kernel = get_governance_kernel()
         stability_t = kernel.temporal_stability
     except Exception:

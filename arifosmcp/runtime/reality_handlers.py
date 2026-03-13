@@ -1,30 +1,23 @@
 from __future__ import annotations
+
 import asyncio
-import json
 import logging
 import os
 import time
-import uuid
-import hashlib
+from typing import Any
+
 import httpx
-from typing import Any, Dict, List, Literal, Optional, Union
-from pydantic import BaseModel, Field
 
 from .reality_models import (
-    EvidenceBundle,
-    BundleStatus,
-    BundleInput,
     Actor,
-    StatusError,
-    SearchResult,
-    FetchResult,
-    Claim,
-    RealityAtlas,
+    BundleInput,
+    BundleStatus,
     ErrorCode,
-    StatusState,
-    Verdict,
+    EvidenceBundle,
+    FetchResult,
+    SearchResult,
+    StatusError,
 )
-from .models import RuntimeEnvelope, Stage, Verdict as RuntimeVerdict
 
 logger = logging.getLogger(__name__)
 
@@ -220,7 +213,7 @@ class RealityHandler:
         return res
 
     async def handle_compass(
-        self, bundle_input: BundleInput, auth_context: Dict[str, Any]
+        self, bundle_input: BundleInput, auth_context: dict[str, Any]
     ) -> EvidenceBundle:
         # P0 Invariant: Never Blank
         actor = Actor(

@@ -111,7 +111,11 @@ def get_quote_by_id(quote_id: str) -> dict[str, Any]:
     for quote in load_wisdom_quotes():
         if str(quote.get("id")) == str(quote_id):
             return {"status": "SEAL", "backend": "local_corpus_99", "quote": quote}
-    return {"status": "VOID", "backend": "local_corpus_99", "error": f"Unknown quote_id: {quote_id}"}
+    return {
+        "status": "VOID",
+        "backend": "local_corpus_99",
+        "error": f"Unknown quote_id: {quote_id}",
+    }
 
 
 def _score_quote(quote: dict[str, Any], query_tokens: set[str], category: str) -> float:

@@ -134,7 +134,9 @@ class OutcomeLedger:
             status = (
                 OutcomeStatus.OVERRIDDEN
                 if operator_override
-                else OutcomeStatus.FAILURE if harm_detected else OutcomeStatus.SUCCESS
+                else OutcomeStatus.FAILURE
+                if harm_detected
+                else OutcomeStatus.SUCCESS
             )
         else:
             status = OutcomeStatus.PENDING
@@ -180,7 +182,9 @@ class OutcomeLedger:
                 r.outcome_status = (
                     OutcomeStatus.OVERRIDDEN
                     if operator_override
-                    else OutcomeStatus.FAILURE if harm_detected else OutcomeStatus.SUCCESS
+                    else OutcomeStatus.FAILURE
+                    if harm_detected
+                    else OutcomeStatus.SUCCESS
                 )
                 logger.info(
                     "OutcomeLedger: resolved %s → %s (harm=%s)",

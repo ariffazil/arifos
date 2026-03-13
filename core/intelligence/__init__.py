@@ -10,13 +10,13 @@ DITEMPA BUKAN DIBERI — Forged, Not Given
 """
 
 from .vector_bridge import (
+    IngestionResult,
     QdrantVectorBridge,
     VectorEntry,
-    IngestionResult,
+    ingest_from_evidence_bundle,
     qdrant_bridge,
     vector_memory_embedding,
     vector_memory_search,
-    ingest_from_evidence_bundle,
 )
 
 __all__ = [

@@ -23,8 +23,10 @@ TIMEOUT_DIAGRAM = 15
 # Whitelist for themes to prevent injection via custom css paths
 THEME_WHITELIST = {"default", "gaia", "uncover"}
 
+
 def _sanitize_filename(name: str) -> str:
     return "".join(c for c in name if c.isalnum() or c in ("-", "_")).strip()
+
 
 async def render_document(
     markdown_content: str,
@@ -34,7 +36,7 @@ async def render_document(
 ) -> dict[str, Any]:
     """
     Renders markdown to PDF/PPTX/Image.
-    
+
     F12 Guard: Inputs capped at 2MB, outputs written to governed volume.
     F4 Quality: Mermaid diagrams are pre-rendered for maximum clarity.
     """
@@ -47,15 +49,15 @@ async def render_document(
 
     theme = theme if theme in THEME_WHITELIST else "default"
     base_name = _sanitize_filename(filename or "forge_artifact")
-    
+
     # Ensure root exists (in container volume)
     os.makedirs(OFFICE_FORGE_ROOT, exist_ok=True)
-    
+
     with tempfile.TemporaryDirectory() as tmp_dir:
         tmp_path = Path(tmp_dir)
         md_file = tmp_path / "content.md"
         md_file.write_text(markdown_content, encoding="utf-8")
-        
+
         results: dict[str, str] = {}
 
         # 1. Mermaid Pass (Pre-render diagrams if [mermaid] hints exist)
@@ -70,10 +72,12 @@ async def render_document(
                 cmd = [
                     "marp",
                     "--pdf",
-                    "--theme", theme,
+                    "--theme",
+                    theme,
                     "--allow-local-files",
                     str(md_file),
-                    "-o", str(pdf_target)
+                    "-o",
+                    str(pdf_target),
                 ]
                 subprocess.run(cmd, timeout=TIMEOUT_DOC, check=True, capture_output=True)
                 results["pdf"] = str(pdf_target)
@@ -84,10 +88,12 @@ async def render_document(
                 cmd = [
                     "marp",
                     "--pptx",
-                    "--theme", theme,
+                    "--theme",
+                    theme,
                     "--allow-local-files",
                     str(md_file),
-                    "-o", str(pptx_target)
+                    "-o",
+                    str(pptx_target),
                 ]
                 subprocess.run(cmd, timeout=TIMEOUT_DOC, check=True, capture_output=True)
                 results["pptx"] = str(pptx_target)
@@ -107,9 +113,5 @@ async def render_document(
         "artifacts": results,
         "storage": str(OFFICE_FORGE_ROOT),
         "verdict": "SEAL",
-        "meta": {
-            "engine": "marp-cli",
-            "base_name": base_name,
-            "theme": theme
-        }
+        "meta": {"engine": "marp-cli", "base_name": base_name, "theme": theme},
     }

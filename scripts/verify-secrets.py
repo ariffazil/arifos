@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import os
-import sys
 
 
 def _read_file_secret(*env_names: str) -> str:

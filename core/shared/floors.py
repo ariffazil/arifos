@@ -636,7 +636,7 @@ class F8_Genius(Floor):
             self.id,
             passed,
             genius,
-            f"Genius G: {genius:.3f} (A:{A:.2f} × P:{P:.2f} × X:{X:.2f} × E²:{E**2:.2f} × h_pen:{1-h:.2f})",
+            f"Genius G: {genius:.3f} (A:{A:.2f} × P:{P:.2f} × X:{X:.2f} × E²:{E**2:.2f} × h_pen:{1 - h:.2f})",
         )
 
 
@@ -714,7 +714,7 @@ class F9_AntiHantu(Floor):
         hantu_score = min(hantu_score, 1.0)
         passed = hantu_score < self.spec["threshold"]
 
-        reason = f"Anti-Hantu: {hantu_score:.3f} (patterns: {hantu_score-kl_penalty:.2f}, KL: {kl_penalty:.2f})"
+        reason = f"Anti-Hantu: {hantu_score:.3f} (patterns: {hantu_score - kl_penalty:.2f}, KL: {kl_penalty:.2f})"
         return FloorResult(self.id, passed, hantu_score, reason)
 
 
