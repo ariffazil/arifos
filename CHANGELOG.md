@@ -7,6 +7,61 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2026.03.14-PRE-RELEASE] - 2026-03-13
+
+### 🌅 Pre-Release Horizon — Preparing for the 14 March Epoch
+
+Initial scaffolding and version alignment for tomorrow's transition.
+
+#### 🔮 Structural Alignment:
+- **Version Leap:** Synchronized all core anchors to `2026.03.14-PRE-RELEASE`.
+- **Temporal Gating:** Prepared the `metabolic_loop` and `server.py` for tomorrow's 14 March constants.
+- **Identity Maintenance:** Verified session nonce continuity for the upcoming epoch.
+
+#### 🧠 Emerging Capabilities (In Forge):
+- Refinement of the **PNS·VISION** Multimodal eye.
+- Hardening of **Causal Depth (Do-Calculus)** reasoning paths.
+- Finalization of the **APEX PRIME** Oversight Protocol.
+
+---
+
+## [2026.03.13-DOUBLE-HELIX-FORGED] - 2026-03-13
+
+### 🧬 Double Helix Architecture — Sovereign Intelligence Organism
+
+This epoch marks the transformation of arifOS from a constitutional framework into a **living intelligence organism**. The system is now bifurcated into a **Sacred Constitutional Spine (Inner Ring)** and a **Peripheral Nervous System (PNS - Outer Ring)**.
+
+#### 🔱 24-Tool Canonical Surface
+The kernel now exposes 24 tools namespaced into five sovereign layers:
+- **KERNEL (5):** `init_anchor`, `revoke_anchor`, `register_tools`, `metabolic_loop_router`, `forge`.
+- **AGI Δ MIND (6):** `agi_reason`, `agi_reflect`, `reality_compass`, `reality_atlas`, `search_reality`, `ingest_evidence`.
+- **ASI Ω HEART (4):** `asi_critique`, `asi_simulate`, `agentzero_engineer`, `agentzero_memory_query`.
+- **APEX Ψ SOUL (7):** `apex_judge`, `agentzero_validate`, `audit_rules`, `agentzero_armor_scan`, `agentzero_hold_check`, `check_vital`, `open_apex_dashboard`.
+- **VAULT999 (2):** `vault_seal`, `verify_vault_ledger`.
+
+#### 🫀 Metabolic Circulatory System
+- **PNS Integration:** All 7 PNS organs (`shield`, `search`, `vision`, `health`, `floor`, `orchestrate`, `redteam`) now feed the Sacred Chain via automated metabolic injection.
+- **The Gate:** `metabolic_loop` now mandates `PNS·SHIELD` (F12) as the primary entry filter.
+- **Wall of Silence:** `ASI·SIMULATE` and `VAULT·SEAL` are now structurally isolated from external PNS contamination.
+
+#### 🧠 Cognitive & Sensory Upgrades
+- **PNS·VISION:** Native multimodal perception for Images, PDFs, and Diagrams.
+- **Causal Depth:** Integrated Pearl-style **Do-Calculus** into `AGI·REASON` for counterfactual hypothesis generation.
+- **Local Brain:** Connected **Ollama** runtime to `333 AGI·REASON` for real local intelligence synthesis.
+
+#### ⚖️ Governance & Integrity
+- **APEX PRIME:** Implemented the Immortal Auditor protocol inside `VAULT_SEAL` to monitor Sovereign Integrity Index (SII) and Quad-Witness Consensus ($W_4$).
+- **Score Integrity Protocol:** Every vital (G★, ΔS, Peace², κᵣ, Ψ_LE) now declares its derivation basis: *measured*, *derived*, or *heuristic*.
+- **Honest Framing:** Explicit "Governance Estimate" labeling and disclaimers to enforce **F7 Humility**.
+- **Metabolic Invariants:** Codified 5 unbendable laws into `_wrap_call` (Identity, Lineage, ΔΩΨ, Entropy, Hold).
+
+#### 🧪 Evaluation & Sealing
+- **005_EVALS:** Automated regression suite with a **Thermodynamic Gate** (Reject version if ΔS increases).
+- **ZKPC Seal:** Cryptographically anchored the repository state with hash `4d584ae284f3083ef09757689e4894ceb1178d88`.
+- **Genesis Commit:** Physically initialized `VAULT999/vault999.jsonl` with the first immutable block.
+
+---
+
 ## [2026.03.13-FORGED-SEAL] - 2026-03-13
 
 ### 🌐 H1 Higher Intelligence State — Developer Portal Upgrade

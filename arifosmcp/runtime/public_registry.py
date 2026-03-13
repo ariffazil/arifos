@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import datetime, timezone
 from functools import lru_cache
 from pathlib import Path
 from typing import Any
@@ -97,7 +98,7 @@ def release_version() -> str:
 
 
 def release_version_label() -> str:
-    return f"{release_version()}-FORGED"
+    return "2026.03.14-PRE-RELEASE"
 
 
 def release_version_compact() -> str:
@@ -112,631 +113,372 @@ def fastmcp_dependency() -> str:
 
 
 PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
+    # ─── KERNEL LAYER (5 tools) ───
     ToolSpec(
-        name="reality_compass",
-        stage="111_SENSE",
-        role="Unified Reality",
-        layer="Intelligence (3E)",
-        description="Unified search and fetch engine. Automatically routes between query search and deep URL scraping.",
-        trinity="Δ Delta",
-        floors=("F2", "F12"),
+        name="init_anchor",
+        stage="000_INIT",
+        role="Constitutional Airlock",
+        layer="KERNEL",
+        description="Initialize session jurisdiction and identity verification.",
+        trinity="INIT",
+        floors=("F11", "F12", "F13"),
         input_schema={
             "type": "object",
-            "required": ["input"],
-            "properties": {
-                "input": {"type": "string", "description": "Search query or URL to fetch."},
-                "mode": {"type": "string", "enum": ["auto", "search", "fetch"], "default": "auto"},
-                "fetch_top_k": {
-                    "type": "integer",
-                    "default": 2,
-                    "description": "Fetch top K results if in search mode.",
-                },
-            },
-            "additionalProperties": False,
-        },
-        readonly=True,
-    ),
-    ToolSpec(
-        name="reality_atlas",
-        stage="222_REALITY",
-        role="Evidence Graph",
-        layer="Intelligence (3E)",
-        description="Build and query the semantic evidence graph from acquired EvidenceBundles.",
-        trinity="Δ Delta",
-        floors=("F2", "F11"),
-        input_schema={
-            "type": "object",
-            "required": ["operation"],
-            "properties": {
-                "operation": {"type": "string", "enum": ["ingest", "query", "merge"]},
-                "bundles": {"type": "array", "items": {"type": "object"}},
-            },
-            "additionalProperties": False,
+            "required": ["raw_input"],
+            "properties": {"raw_input": {"type": "string"}},
         },
     ),
     ToolSpec(
-        name="arifOS_kernel",
+        name="revoke_anchor_state",
+        stage="000_INIT",
+        role="Kill Switch",
+        layer="KERNEL",
+        description="Invalidate a governed session immediately.",
+        trinity="INIT",
+        floors=("F11", "F13"),
+        input_schema={
+            "type": "object",
+            "required": ["session_id", "reason"],
+            "properties": {"session_id": {"type": "string"}, "reason": {"type": "string"}},
+        },
+    ),
+    ToolSpec(
+        name="register_tools",
+        stage="000_INIT",
+        role="Tool Surface Declaration",
+        layer="KERNEL",
+        description="Declare and verify tool surface at boot.",
+        trinity="INIT",
+        floors=("F13",),
+        input_schema={"type": "object", "properties": {}},
+    ),
+    ToolSpec(
+        name="metabolic_loop_router",
         stage="444_ROUTER",
-        role="Governance orchestrator",
-        layer="Governance",
-        description=(
-            "The arifOS Governance Kernel. Runs the full metabolic reasoning "
-            "pipeline (000-999) and governs high-stakes execution tasks."
-        ),
+        role="Stage Conductor",
+        layer="KERNEL",
+        description="Routes ΔΩΨ transitions through the pipeline.",
+        trinity="ROUTER",
+        floors=("F4",),
+        input_schema={
+            "type": "object",
+            "required": ["query"],
+            "properties": {"query": {"type": "string"}},
+        },
+    ),
+    ToolSpec(
+        name="forge",
+        stage="000_999",
+        role="Full Pipeline Trigger",
+        layer="KERNEL",
+        description="Triggers the full INIT → SEAL pipeline in one call.",
         trinity="ALL",
         floors=("F1-F13",),
         input_schema={
             "type": "object",
+            "required": ["spec"],
+            "properties": {"spec": {"type": "string"}},
+        },
+    ),
+    # ─── AGI Δ MIND (6 tools) ───
+    ToolSpec(
+        name="agi_reason",
+        stage="111_SENSE",
+        role="Governed Reasoning",
+        layer="AGI Δ MIND",
+        description="Structured reasoning step under F2/F4/F7.",
+        trinity="AGI Δ",
+        floors=("F2", "F4", "F7"),
+        input_schema={
+            "type": "object",
             "required": ["query"],
-            "properties": {
-                "query": {"type": "string", "description": "Task or question to evaluate."},
-                "context": {"type": "string", "default": ""},
-                "risk_tier": {
-                    "type": "string",
-                    "enum": ["low", "medium", "high", "critical"],
-                    "default": "medium",
-                },
-                "actor_id": {"type": "string", "default": "anonymous"},
-                "auth_context": {
-                    "type": "object",
-                    "description": (
-                        "Optional continuity envelope from init_anchor_state. "
-                        "Required for anchored follow-up kernel calls."
-                    ),
-                },
-                "use_memory": {"type": "boolean", "default": True},
-                "use_heart": {"type": "boolean", "default": True},
-                "use_critique": {"type": "boolean", "default": True},
-                "allow_execution": {"type": "boolean", "default": False},
-                "debug": {"type": "boolean", "default": False},
-                "dry_run": {"type": "boolean", "default": False},
-                "requested_persona": {
-                    "type": "string",
-                    "enum": ["architect", "engineer", "auditor", "validator"],
-                },
-            },
-            "additionalProperties": False,
+            "properties": {"query": {"type": "string"}},
+        },
+    ),
+    ToolSpec(
+        name="agi_reflect",
+        stage="333_INTEGRATE",
+        role="Metacognitive Integration",
+        layer="AGI Δ MIND",
+        description="Checks own output and builds session context.",
+        trinity="AGI Δ",
+        floors=("F4", "F7"),
+        input_schema={
+            "type": "object",
+            "required": ["topic"],
+            "properties": {"topic": {"type": "string"}},
+        },
+    ),
+    ToolSpec(
+        name="reality_compass",
+        stage="222_GROUND",
+        role="Epistemic Intake",
+        layer="AGI Δ MIND",
+        description="Grounds claims before reasoning via reality fetch.",
+        trinity="AGI Δ",
+        floors=("F2",),
+        input_schema={
+            "type": "object",
+            "required": ["input"],
+            "properties": {"input": {"type": "string"}},
+        },
+    ),
+    ToolSpec(
+        name="reality_atlas",
+        stage="222_GROUND",
+        role="Evidence Map",
+        layer="AGI Δ MIND",
+        description="Structured evidence map across multiple sources.",
+        trinity="AGI Δ",
+        floors=("F2", "F3"),
+        input_schema={
+            "type": "object",
+            "required": ["operation"],
+            "properties": {"operation": {"type": "string"}},
         },
     ),
     ToolSpec(
         name="search_reality",
-        stage="111_SENSE",
-        role="Grounding",
-        layer="Intelligence (3E)",
-        description="Find real-world sources and factual grounding before reasoning.",
-        trinity="Δ Delta",
-        floors=("F2", "F12"),
+        stage="222_GROUND",
+        role="Web Acquisition",
+        layer="AGI Δ MIND",
+        description="Live web search for raw reality acquisition.",
+        trinity="AGI Δ",
+        floors=("F2",),
         input_schema={
             "type": "object",
             "required": ["query"],
-            "properties": {
-                "query": {"type": "string", "description": "Topic to ground with external facts."}
-            },
-            "additionalProperties": False,
+            "properties": {"query": {"type": "string"}},
         },
-        readonly=True,
     ),
     ToolSpec(
         name="ingest_evidence",
-        stage="222_REALITY",
-        role="Ingestion",
-        layer="Intelligence (3E)",
-        description="Fetch or extract evidence from a URL, document, or file path.",
-        trinity="Δ Delta",
-        floors=("F2", "F11", "F12"),
+        stage="222_GROUND",
+        role="Evidence Normalization",
+        layer="AGI Δ MIND",
+        description="URL/File → Normalized evidence artifact.",
+        trinity="AGI Δ",
+        floors=("F2",),
         input_schema={
             "type": "object",
             "required": ["url"],
-            "properties": {
-                "url": {"type": "string", "description": "URL to ingest into governed context."}
-            },
-            "additionalProperties": False,
+            "properties": {"url": {"type": "string"}},
         },
-        readonly=True,
     ),
+    # ─── ASI Ω HEART (4 tools) ───
     ToolSpec(
-        name="session_memory",
-        stage="555_MEMORY",
-        role="Continuity",
-        layer="Session",
-        description="Store, retrieve, or forget session context and reasoning artifacts.",
-        trinity="Ω Omega",
-        floors=("F4", "F7", "F13"),
+        name="asi_critique",
+        stage="555_ALIGN",
+        role="Adversarial Critique",
+        layer="ASI Ω HEART",
+        description="Safety and maruah check before action.",
+        trinity="ASI Ω",
+        floors=("F6", "F9"),
         input_schema={
             "type": "object",
-            "required": ["session_id", "operation"],
-            "properties": {
-                "session_id": {"type": "string"},
-                "operation": {
-                    "type": "string",
-                    "enum": ["store", "retrieve", "forget", "search"],
-                },
-                "content": {"type": "string"},
-                "memory_ids": {"type": "array", "items": {"type": "string"}},
-                "top_k": {"type": "integer", "minimum": 1, "default": 5},
-            },
-            "additionalProperties": False,
+            "required": ["draft_output"],
+            "properties": {"draft_output": {"type": "string"}},
         },
     ),
     ToolSpec(
-        name="audit_rules",
-        stage="333_MIND",
-        role="Governance",
-        layer="Governance",
-        description="Inspect the 13 constitutional floors and verify governance logic.",
-        trinity="Δ Delta",
-        floors=("F2", "F8", "F10"),
+        name="asi_simulate",
+        stage="555_ALIGN",
+        role="Consequence Prediction",
+        layer="ASI Ω HEART",
+        description="World model consequence simulation before action.",
+        trinity="ASI Ω",
+        floors=("F5",),
         input_schema={
             "type": "object",
-            "properties": {"session_id": {"type": "string", "default": "global"}},
-            "additionalProperties": False,
-        },
-        readonly=True,
-    ),
-    ToolSpec(
-        name="check_vital",
-        stage="000_INIT",
-        role="Telemetry",
-        layer="Governance",
-        description=(
-            "Read system vitality, including thermodynamic budget and redacted capability map."
-        ),
-        trinity="Ω Omega",
-        floors=("F4", "F5", "F7"),
-        input_schema={
-            "type": "object",
-            "properties": {"session_id": {"type": "string", "default": "global"}},
-            "additionalProperties": False,
-        },
-        readonly=True,
-    ),
-    ToolSpec(
-        name="open_apex_dashboard",
-        stage="888_JUDGE",
-        role="Visualizer",
-        layer="Observability",
-        description="Open the APEX constitutional dashboard for live metrics and trace visibility.",
-        trinity="Ψ Psi",
-        floors=("F3", "F8", "F13"),
-        input_schema={
-            "type": "object",
-            "properties": {"session_id": {"type": "string", "default": "global"}},
-            "additionalProperties": False,
-        },
-        readonly=True,
-    ),
-    ToolSpec(
-        name="init_anchor_state",
-        stage="000_INIT",
-        role="Continuity anchor",
-        layer="Machine",
-        description="Initialize the 000_INIT anchor (onboarding + continuity).",
-        trinity="Δ Delta",
-        floors=("F11", "F12", "F13"),
-        input_schema={
-            "type": "object",
-            "anyOf": [
-                {"required": ["declared_name"]},
-                {"required": ["intent"]},
-            ],
-            "properties": {
-                "declared_name": {
-                    "type": "string",
-                    "description": "User name (e.g. Arif) for onboarding.",
-                },
-                "human_approval": {"type": "boolean", "default": True},
-                "intent": {
-                    "type": "object",
-                    "description": "Intent envelope for the initial governed anchor call.",
-                },
-                "math": {"type": "object"},
-                "governance": {"type": "object"},
-                "auth_token": {"type": "string"},
-                "session_id": {"type": "string"},
-                "dry_run": {"type": "boolean", "default": False},
-            },
-            "additionalProperties": False,
-        },
-    ),
-    ToolSpec(
-        name="verify_vault_ledger",
-        stage="999_VAULT",
-        role="Auditor",
-        layer="Observability",
-        description="Verify the SHA-256 Merkle chain integrity of the VAULT999 immutable ledger.",
-        trinity="Ψ Psi",
-        floors=("F13",),
-        input_schema={
-            "type": "object",
-            "properties": {
-                "session_id": {"type": "string", "default": "global"},
-                "full_scan": {"type": "boolean", "default": True},
-            },
-            "additionalProperties": False,
-        },
-        readonly=True,
-    ),
-    # AgentZero tools (H1 Higher Intelligence)
-    ToolSpec(
-        name="agentzero_validate",
-        stage="888_JUDGE",
-        role="Validator",
-        layer="Governance",
-        description="ValidatorAgent (Ψ - APEX): Constitutional verification of code, output, or action. Issues verdicts and triggers 888_HOLD when necessary.",
-        trinity="Ψ Psi",
-        floors=("F1", "F3", "F10", "F11", "F13"),
-        input_schema={
-            "type": "object",
-            "required": ["target"],
-            "properties": {
-                "target": {"type": "string", "description": "The code, output, or action to validate"},
-                "validation_type": {"type": "string", "enum": ["code", "output", "action", "plan"], "default": "code"},
-                "context": {"type": "string", "default": ""},
-                "require_human_approval": {"type": "boolean", "default": False},
-                "session_id": {"type": "string", "default": "global"},
-            },
-            "additionalProperties": False,
+            "required": ["scenario"],
+            "properties": {"scenario": {"type": "string"}},
         },
     ),
     ToolSpec(
         name="agentzero_engineer",
-        stage="777_FORGE",
-        role="Engineer",
-        layer="Execution",
-        description="EngineerAgent (Ω - HEART): Code generation and execution with F11 gating. Sandboxed execution with constitutional safeguards.",
-        trinity="Ω Omega",
-        floors=("F5", "F6", "F9", "F11"),
+        stage="666_EXECUTE",
+        role="Material Execution",
+        layer="ASI Ω HAND",
+        description="Code and env actions under F11 gate.",
+        trinity="ASI Ω",
+        floors=("F11",),
         input_schema={
             "type": "object",
-            "required": ["task"],
-            "properties": {
-                "task": {"type": "string", "description": "The engineering task to perform"},
-                "language": {"type": "string", "enum": ["python", "shell", "javascript"], "default": "python"},
-                "context": {"type": "string", "default": ""},
-                "allow_file_operations": {"type": "boolean", "default": False},
-                "risk_tier": {"type": "string", "enum": ["low", "medium", "high", "critical"], "default": "medium"},
-                "session_id": {"type": "string", "default": "global"},
-            },
-            "additionalProperties": False,
+            "required": ["task_description"],
+            "properties": {"task_description": {"type": "string"}},
+        },
+    ),
+    ToolSpec(
+        name="agentzero_memory_query",
+        stage="444_MEMORY",
+        role="Semantic Recall",
+        layer="ASI Ω HAND",
+        description="Constitutional semantic recall from Vault.",
+        trinity="ASI Ω",
+        floors=("F2", "F7"),
+        input_schema={
+            "type": "object",
+            "required": ["query"],
+            "properties": {"query": {"type": "string"}},
+        },
+    ),
+    # ─── APEX Ψ SOUL (7 tools) ───
+    ToolSpec(
+        name="apex_judge",
+        stage="777_JUDGE",
+        role="Verdict Engine",
+        layer="APEX Ψ SOUL",
+        description="Tri-witness sovereign verdict engine.",
+        trinity="APEX Ψ",
+        floors=("F3", "F13"),
+        input_schema={
+            "type": "object",
+            "required": ["candidate_output"],
+            "properties": {"candidate_output": {"type": "string"}},
+        },
+    ),
+    ToolSpec(
+        name="agentzero_validate",
+        stage="777_JUDGE",
+        role="Output Validation",
+        layer="APEX Ψ SOUL",
+        description="ValidatorAgent: ALLOW/HOLD/VOID judgment.",
+        trinity="APEX Ψ",
+        floors=("F2", "F9"),
+        input_schema={
+            "type": "object",
+            "required": ["input_to_validate"],
+            "properties": {"input_to_validate": {"type": "string"}},
+        },
+    ),
+    ToolSpec(
+        name="audit_rules",
+        stage="888_FLOOR",
+        role="Floor Inspection",
+        layer="APEX Ψ SOUL",
+        description="F1–F13 live inspection and scoring.",
+        trinity="APEX Ψ",
+        floors=("F1-F13",),
+        input_schema={"type": "object", "properties": {}},
+    ),
+    ToolSpec(
+        name="agentzero_armor_scan",
+        stage="888_FLOOR",
+        role="Injection Guard",
+        layer="APEX Ψ SOUL",
+        description="F12 PromptArmor injection pre-filtering.",
+        trinity="APEX Ψ",
+        floors=("F12",),
+        input_schema={
+            "type": "object",
+            "required": ["content"],
+            "properties": {"content": {"type": "string"}},
         },
     ),
     ToolSpec(
         name="agentzero_hold_check",
-        stage="888_JUDGE",
-        role="Escalation Monitor",
-        layer="Governance",
-        description="Check 888 HOLD state status and manage human escalation workflows. F13 Sovereign Safety Valve.",
-        trinity="Ψ Psi",
-        floors=("F11", "F13"),
-        input_schema={
-            "type": "object",
-            "properties": {
-                "hold_id": {"type": "string", "description": "Specific HOLD ID to check"},
-                "execution_id": {"type": "string", "description": "Filter by execution ID"},
-                "session_id": {"type": "string", "default": "global"},
-            },
-            "additionalProperties": False,
-        },
-        readonly=True,
+        stage="888_HOLD",
+        role="Hold Monitor",
+        layer="APEX Ψ SOUL",
+        description="888_HOLD registry and human escalation bus.",
+        trinity="APEX Ψ",
+        floors=("F13",),
+        input_schema={"type": "object", "properties": {"hold_id": {"type": "string"}}},
     ),
     ToolSpec(
-        name="agentzero_memory_query",
-        stage="555_MEMORY",
-        role="Memory Retrieval",
-        layer="Intelligence",
-        description="Query constitutional memory with F-floor filtering. F2-verified, F12-clean memory retrieval.",
-        trinity="Ω Omega",
-        floors=("F1", "F2", "F4", "F12"),
-        input_schema={
-            "type": "object",
-            "required": ["query"],
-            "properties": {
-                "query": {"type": "string", "description": "Search query for memory"},
-                "project_id": {"type": "string", "default": "default"},
-                "area": {"type": "string", "enum": ["main", "fragments", "solutions", "instruments"], "default": "main"},
-                "floor_filter": {"type": "array", "items": {"type": "string"}, "description": "Filter by F-floor metadata"},
-                "min_f2_confidence": {"type": "number", "default": 0.0},
-                "require_f12_clean": {"type": "boolean", "default": True},
-                "session_id": {"type": "string", "default": "global"},
-            },
-            "additionalProperties": False,
-        },
-        readonly=True,
+        name="check_vital",
+        stage="888_VITALS",
+        role="System Health",
+        layer="APEX Ψ SOUL",
+        description="System health: ΔS, peace², Ω₀ telemetry.",
+        trinity="APEX Ψ",
+        floors=("F4", "F5", "F7"),
+        input_schema={"type": "object", "properties": {}},
     ),
     ToolSpec(
-        name="agentzero_armor_scan",
-        stage="000_INIT",
-        role="Security Scanner",
-        layer="Defense",
-        description="F12 Defense: Prompt injection and adversarial content detection. Multi-layer semantic analysis.",
-        trinity="Δ Delta",
-        floors=("F10", "F12"),
+        name="open_apex_dashboard",
+        stage="888_OBSERVE",
+        role="Live Observability",
+        layer="APEX Ψ SOUL",
+        description="Live floor scores and pipeline trace dashboard.",
+        trinity="APEX Ψ",
+        floors=("F13",),
+        input_schema={"type": "object", "properties": {}},
+    ),
+    # ─── VAULT999 (2 tools) ───
+    ToolSpec(
+        name="vault_seal",
+        stage="999_SEAL",
+        role="Commit Decision",
+        layer="VAULT999",
+        description="Commit decision and telemetry to ledger.",
+        trinity="VAULT",
+        floors=("F1", "F13"),
         input_schema={
             "type": "object",
-            "required": ["content"],
-            "properties": {
-                "content": {"type": "string", "description": "Text to scan for injection"},
-                "scan_type": {"type": "string", "enum": ["fast", "full", "semantic"], "default": "full"},
-                "threshold": {"type": "number", "description": "Custom injection threshold (0.0-1.0)"},
-                "session_id": {"type": "string", "default": "global"},
-            },
-            "additionalProperties": False,
+            "required": ["verdict", "evidence"],
+            "properties": {"verdict": {"type": "string"}, "evidence": {"type": "string"}},
         },
-        readonly=True,
+    ),
+    ToolSpec(
+        name="verify_vault_ledger",
+        stage="999_ATTEST",
+        role="Merkle Integrity",
+        layer="VAULT999",
+        description="Merkle integrity check and tamper detection.",
+        trinity="VAULT",
+        floors=("F1",),
+        input_schema={"type": "object", "properties": {"full_scan": {"type": "boolean"}}},
     ),
 )
 
-INTERNAL_STAGE_TOOL_NAMES: tuple[str, ...] = (
-    "init_anchor_state",
-    "integrate_analyze_reflect",
-    "reason_mind_synthesis",
-    "assess_heart_impact",
-    "critique_thought_audit",
-    "quantum_eureka_forge",
-    "apex_judge_verdict",
-    "seal_vault_commit",
-    "lsp_query_tool",
-    "lsp_get_symbols_tool",
-    "lsp_get_diagnostics_tool",
-    "lsp_go_to_definition_tool",
-    "lsp_find_references_tool",
-)
+INTERNAL_STAGE_TOOL_NAMES: tuple[str, ...] = tuple(spec.name for spec in PUBLIC_TOOL_SPECS)
 
 NON_CHATGPT_EXTRA_TOOL_NAMES: tuple[str, ...] = INTERNAL_STAGE_TOOL_NAMES
 
 PUBLIC_COMPATIBILITY_SPECS: tuple[CompatibilitySpec, ...] = (
     CompatibilitySpec(
-        legacy_name="anchor_session",
-        public_route="init_anchor_state",
-        status="removed",
-        notes=(
-            "Explicit onboarding moved to init_anchor_state; "
-            "one-call governed work moved to arifOS_kernel."
-        ),
-    ),
-    CompatibilitySpec(
-        legacy_name="reason_mind",
-        public_route="arifOS_kernel",
-        status="removed",
-        notes=(
-            "Reasoning is now internal to the kernel pipeline rather than a separate public step."
-        ),
-    ),
-    CompatibilitySpec(
-        legacy_name="recall_memory",
-        public_route="session_memory",
-        status="removed",
-        notes="Public memory access is exposed only through session_memory operations.",
-    ),
-    CompatibilitySpec(
-        legacy_name="vector_memory",
-        public_route="session_memory",
-        status="removed",
-        notes="Public memory operations were consolidated under session_memory.",
-    ),
-    CompatibilitySpec(
-        legacy_name="simulate_heart",
-        public_route="arifOS_kernel",
-        status="internal",
-        notes="Heart analysis is still executed, but only as an internal kernel stage.",
-    ),
-    CompatibilitySpec(
-        legacy_name="critique_thought",
-        public_route="arifOS_kernel",
-        status="internal",
-        notes="Critique remains available only inside the governed pipeline.",
-    ),
-    CompatibilitySpec(
-        legacy_name="eureka_forge",
-        public_route="arifOS_kernel",
-        status="internal",
-        notes="Forge behavior is policy-gated inside the kernel; no standalone public tool.",
-    ),
-    CompatibilitySpec(
-        legacy_name="apex_judge",
-        public_route="arifOS_kernel",
-        status="internal",
-        notes="Judgment is emitted by the kernel envelope rather than a public standalone step.",
-    ),
-    CompatibilitySpec(
-        legacy_name="seal_vault",
-        public_route="arifOS_kernel",
-        status="internal",
-        notes=(
-            "Vault sealing remains internal/dev-only and is not part of "
-            "the public model-facing contract."
-        ),
-    ),
-    CompatibilitySpec(
-        legacy_name="fetch_content",
-        public_route="ingest_evidence",
-        status="removed",
-        notes="Evidence intake is consolidated under ingest_evidence.",
-    ),
-    CompatibilitySpec(
-        legacy_name="inspect_file",
-        public_route="ingest_evidence",
-        status="removed",
-        notes="Public file/document intake is consolidated under ingest_evidence.",
-    ),
-    CompatibilitySpec(
-        legacy_name="metabolic_loop",
-        public_route="arifOS_kernel",
+        legacy_name="arifOS_kernel",
+        public_route="metabolic_loop_router",
         status="deprecated",
-        notes="Use arifOS_kernel as the only supported public kernel name.",
-    ),
-    CompatibilitySpec(
-        legacy_name="metabolic_loop_router",
-        public_route="arifOS_kernel",
-        status="deprecated",
-        notes="Legacy internal alias retained only for compatibility profiles.",
-    ),
-    CompatibilitySpec(
-        legacy_name="bootstrap_identity",
-        public_route="init_anchor_state",
-        status="deprecated",
-        notes="Bootstrap identity merged into init_anchor_state.",
-    ),
-    CompatibilitySpec(
-        legacy_name="integrate_analyze_reflect",
-        public_route="arifOS_kernel",
-        status="internal",
-        notes="Stage tool remains available only in internal/dev profiles.",
-    ),
-    CompatibilitySpec(
-        legacy_name="reason_mind_synthesis",
-        public_route="arifOS_kernel",
-        status="internal",
-        notes="Stage tool remains available only in internal/dev profiles.",
-    ),
-    CompatibilitySpec(
-        legacy_name="assess_heart_impact",
-        public_route="arifOS_kernel",
-        status="internal",
-        notes="Stage tool remains available only in internal/dev profiles.",
-    ),
-    CompatibilitySpec(
-        legacy_name="critique_thought_audit",
-        public_route="arifOS_kernel",
-        status="internal",
-        notes="Stage tool remains available only in internal/dev profiles.",
-    ),
-    CompatibilitySpec(
-        legacy_name="quantum_eureka_forge",
-        public_route="arifOS_kernel",
-        status="internal",
-        notes="Stage tool remains available only in internal/dev profiles.",
-    ),
-    CompatibilitySpec(
-        legacy_name="apex_judge_verdict",
-        public_route="arifOS_kernel",
-        status="internal",
-        notes="Stage tool remains available only in internal/dev profiles.",
-    ),
-    CompatibilitySpec(
-        legacy_name="seal_vault_commit",
-        public_route="arifOS_kernel",
-        status="internal",
-        notes="Stage tool remains available only in internal/dev profiles.",
+        notes="Unified kernel entrypoint.",
     ),
 )
 
-PUBLIC_PROMPT_SPECS: tuple[PromptSpec, ...] = (
-    PromptSpec(
-        "reality_compass_prompt", "reality_compass", "Unified reality acquisition entrypoint."
-    ),
-    PromptSpec("reality_atlas_prompt", "reality_atlas", "Semantic evidence graph management."),
-    PromptSpec("arifos_kernel_prompt", "arifOS_kernel", "Route governed work to the kernel."),
-    PromptSpec("search_reality_prompt", "search_reality", "Ground claims with external facts."),
-    PromptSpec("ingest_evidence_prompt", "ingest_evidence", "Load a source into evidence context."),
-    PromptSpec("session_memory_prompt", "session_memory", "Manage governed session continuity."),
-    PromptSpec("audit_rules_prompt", "audit_rules", "Inspect constitutional floor logic."),
-    PromptSpec("check_vital_prompt", "check_vital", "Read health and vitality telemetry."),
-    PromptSpec(
-        "open_apex_dashboard",
-        "open_apex_dashboard",
-        "Open the dashboard surface for live governed metrics.",
-    ),
-    PromptSpec(
-        "init_anchor_state_prompt",
-        "init_anchor_state",
-        "Initialize the 000_INIT anchor for onboarding and continuity.",
-    ),
+PUBLIC_PROMPT_SPECS: tuple[PromptSpec, ...] = tuple(
+    PromptSpec(spec.name, spec.name, spec.description) for spec in PUBLIC_TOOL_SPECS
 )
 
 PUBLIC_RESOURCE_SPECS: tuple[ResourceSpec, ...] = (
-    ResourceSpec("canon://index", "High-level arifOS canon map."),
-    ResourceSpec("canon://tools", "Canonical public tool surface."),
-    ResourceSpec("canon://floors", "arifOS 13 constitutional floors."),
-    ResourceSpec("canon://metabolic-loop", "Public kernel flow and stages."),
-    ResourceSpec("governance://law", "Verdict hierarchy and floor invariants."),
-    ResourceSpec("eval://metabolic-workflows", "Standard 000-999 workflow recipes."),
-    ResourceSpec("eval://floors-thresholds", "Numeric thresholds for floors."),
-    ResourceSpec("schema://tools/input", "Canonical JSON Schema input specs for public tools."),
-    ResourceSpec("schema://tools/output", "RuntimeEnvelope output schema."),
-    ResourceSpec("schema://opex", "Epistemic intake schema."),
-    ResourceSpec("schema://apex", "Governance output schema."),
-    ResourceSpec("vault://latest", "Latest sealed VAULT entries."),
-    ResourceSpec("telemetry://summary", "Governance telemetry summary."),
-    ResourceSpec("runtime://capability-map", "Redacted capability and credential-class state."),
-    ResourceSpec("ui://apex/dashboard-v2.html", "Packaged APEX dashboard asset."),
+    ResourceSpec("pns://shield", "PNS·SHIELD: Input sanitation status."),
+    ResourceSpec("pns://search", "PNS·SEARCH: Web grounding facts."),
+    ResourceSpec("pns://vision", "PNS·VISION: Multimodal perception."),
+    ResourceSpec("pns://health", "PNS·HEALTH: Model stability metadata."),
+    ResourceSpec("pns://floor", "PNS·FLOOR: Hallucination safety floor."),
+    ResourceSpec("pns://orchestrate", "PNS·ORCHESTRATE: Tool routing mediation."),
+    ResourceSpec("pns://redteam", "PNS·REDTEAM: Adversarial testing."),
+    ResourceSpec("vault://999", "VAULT999: Sealed constitutional memory."),
+    ResourceSpec("ledger://cooling", "Cooling Ledger: Ancestry chain."),
+    ResourceSpec("canon://invariants", "ΔΩΨ constitutional invariants."),
 )
 
 RUNTIME_ENVELOPE_SCHEMA: dict[str, Any] = {
     "type": "object",
-    "description": "RuntimeEnvelope (v1.0.0) — common return shape for all public arifOS tools.",
-    "required": [
-        "ok",
-        "tool",
-        "session_id",
-        "stage",
-        "verdict",
-        "status",
-        "metrics",
-        "trace",
-        "authority",
-        "payload",
-        "errors",
-        "meta",
-    ],
+    "description": "RuntimeEnvelope (v1.0.0) — arifOS Double Helix common return shape.",
+    "required": ["ok", "tool", "session_id", "stage", "verdict", "status", "metrics"],
     "properties": {
-        "ok": {"type": "boolean", "description": "Transport success."},
-        "tool": {"type": "string", "description": "Tool name."},
-        "session_id": {"type": "string", "description": "Active session ID."},
-        "stage": {"type": "string", "description": "Owning stage/organ."},
-        "verdict": {
-            "type": "string",
-            "enum": ["SEAL", "PROVISIONAL", "PARTIAL", "SABAR", "HOLD", "HOLD_888", "VOID"],
-        },
-        "status": {"type": "string", "enum": ["SUCCESS", "ERROR", "TIMEOUT", "DRY_RUN"]},
-        "metrics": {
-            "type": "object",
-            "properties": {
-                "truth": {"type": "number"},
-                "clarity_delta": {"type": "number"},
-                "confidence": {"type": "number"},
-                "peace": {"type": "number"},
-                "vitality": {"type": "number"},
-                "entropy_delta": {"type": "number"},
-                "authority": {"type": "number"},
-                "risk": {"type": "number"},
-            },
-        },
-        "trace": {"type": "object", "description": "Stage path summary."},
-        "authority": {
-            "type": "object",
-            "properties": {
-                "actor_id": {"type": "string"},
-                "level": {"type": "string"},
-                "human_required": {"type": "boolean"},
-                "approval_scope": {"type": "array", "items": {"type": "string"}},
-                "auth_state": {"type": "string"},
-            },
-        },
-        "payload": {"type": "object", "description": "Tool-specific result data."},
-        "errors": {
-            "type": "array",
-            "items": {
-                "type": "object",
-                "properties": {
-                    "code": {"type": "string"},
-                    "message": {"type": "string"},
-                    "stage": {"type": "string"},
-                    "recoverable": {"type": "boolean"},
-                },
-            },
-        },
-        "meta": {
-            "type": "object",
-            "properties": {
-                "schema_version": {"type": "string"},
-                "timestamp": {"type": "string"},
-                "debug": {"type": "boolean"},
-                "dry_run": {"type": "boolean"},
-            },
-        },
+        "ok": {"type": "boolean"},
+        "tool": {"type": "string"},
+        "session_id": {"type": "string"},
+        "stage": {"type": "string"},
+        "verdict": {"type": "string"},
+        "status": {"type": "string"},
+        "metrics": {"type": "object"},
+        "payload": {"type": "object"},
+        "trace": {"type": "object"},
+        "errors": {"type": "array", "items": {"type": "object"}},
+        "meta": {"type": "object"},
     },
-    "additionalProperties": True,
 }
 
 
@@ -748,363 +490,20 @@ def public_tool_names() -> tuple[str, ...]:
     return tuple(spec.name for spec in PUBLIC_TOOL_SPECS)
 
 
-INTERNAL_TOOL_SPECS: tuple[ToolSpec, ...] = (
-    ToolSpec(
-        name="office_forge_audit",
-        stage="777_FORGE",
-        role="Render audit",
-        layer="Internal Forge",
-        description="Audit markdown complexity and safety before rendering office artifacts.",
-        trinity="Psi",
-        floors=("F4", "F7", "F12"),
-        input_schema={
-            "type": "object",
-            "required": ["markdown"],
-            "properties": {"markdown": {"type": "string"}},
-            "additionalProperties": False,
-        },
-        readonly=True,
-    ),
-    ToolSpec(
-        name="forge_office_document",
-        stage="777_FORGE",
-        role="Artifact render",
-        layer="Internal Forge",
-        description="Render governed markdown into PDF or PPTX artifacts for internal agents.",
-        trinity="Psi",
-        floors=("F1", "F4", "F11", "F12", "F13"),
-        input_schema={
-            "type": "object",
-            "required": ["session_id", "markdown"],
-            "properties": {
-                "session_id": {"type": "string"},
-                "markdown": {"type": "string"},
-                "output_mode": {
-                    "type": "string",
-                    "enum": ["pdf", "pptx", "preview"],
-                    "default": "pdf",
-                },
-                "theme": {"type": "string", "default": "default"},
-                "filename": {"type": "string"},
-            },
-            "additionalProperties": False,
-        },
-    ),
-    ToolSpec(
-        name="trace_replay",
-        stage="999_VAULT",
-        role="Trace replay",
-        layer="Internal Audit",
-        description="Replay sealed trace history for explainability and audit.",
-        trinity="Psi",
-        floors=("F2", "F3", "F13"),
-        input_schema={
-            "type": "object",
-            "properties": {
-                "session_id": {"type": "string", "default": "global"},
-                "limit": {"type": "integer", "minimum": 1, "default": 20},
-            },
-            "additionalProperties": False,
-        },
-        readonly=True,
-    ),
-    ToolSpec(
-        name="ollama_local_generate",
-        stage="333_MIND",
-        role="Local model generation",
-        layer="Internal Intelligence (3E)",
-        description=(
-            "Run a bounded prompt against the local Ollama runtime for trusted internal agents."
-        ),
-        trinity="Delta",
-        floors=("F2", "F4", "F7", "F11", "F12"),
-        input_schema={
-            "type": "object",
-            "required": ["prompt"],
-            "properties": {
-                "prompt": {"type": "string"},
-                "model": {"type": "string", "default": "qwen2.5:3b"},
-                "system": {"type": "string"},
-                "temperature": {"type": "number", "default": 0.2},
-                "max_tokens": {"type": "integer", "default": 512},
-            },
-            "additionalProperties": False,
-        },
-    ),
-    ToolSpec(
-        name="lsp_query_tool",
-        stage="111_SENSE",
-        role="Code exploration",
-        layer="Internal Intelligence (3E)",
-        description=(
-            "Query the language server for hover, definition, references, symbols, or diagnostics."
-        ),
-        trinity="Delta",
-        floors=("F2", "F4", "F12"),
-        input_schema={
-            "type": "object",
-            "required": ["file_path", "query_type"],
-            "properties": {
-                "file_path": {"type": "string"},
-                "query_type": {
-                    "type": "string",
-                    "enum": ["hover", "definition", "references", "symbols", "diagnostics"],
-                },
-                "line": {"type": "integer", "default": 0},
-                "character": {"type": "integer", "default": 0},
-            },
-            "additionalProperties": False,
-        },
-        readonly=True,
-    ),
-    ToolSpec(
-        name="lsp_get_symbols_tool",
-        stage="111_SENSE",
-        role="Document symbols",
-        layer="Internal Intelligence (3E)",
-        description="List code symbols in a file via the language server.",
-        trinity="Delta",
-        floors=("F2", "F4", "F12"),
-        input_schema={
-            "type": "object",
-            "required": ["file_path"],
-            "properties": {"file_path": {"type": "string"}},
-            "additionalProperties": False,
-        },
-        readonly=True,
-    ),
-    ToolSpec(
-        name="lsp_get_diagnostics_tool",
-        stage="111_SENSE",
-        role="Diagnostics",
-        layer="Internal Intelligence (3E)",
-        description="Get diagnostics, warnings, and errors for a file via the language server.",
-        trinity="Delta",
-        floors=("F2", "F4", "F12"),
-        input_schema={
-            "type": "object",
-            "required": ["file_path"],
-            "properties": {"file_path": {"type": "string"}},
-            "additionalProperties": False,
-        },
-        readonly=True,
-    ),
-    ToolSpec(
-        name="lsp_go_to_definition_tool",
-        stage="111_SENSE",
-        role="Definition lookup",
-        layer="Internal Intelligence (3E)",
-        description="Find where a symbol is defined via the language server.",
-        trinity="Delta",
-        floors=("F2", "F4", "F12"),
-        input_schema={
-            "type": "object",
-            "required": ["file_path", "line", "character"],
-            "properties": {
-                "file_path": {"type": "string"},
-                "line": {"type": "integer"},
-                "character": {"type": "integer"},
-            },
-            "additionalProperties": False,
-        },
-        readonly=True,
-    ),
-    ToolSpec(
-        name="lsp_find_references_tool",
-        stage="111_SENSE",
-        role="Reference lookup",
-        layer="Internal Intelligence (3E)",
-        description="Find references to a symbol via the language server.",
-        trinity="Delta",
-        floors=("F2", "F4", "F12"),
-        input_schema={
-            "type": "object",
-            "required": ["file_path", "line", "character"],
-            "properties": {
-                "file_path": {"type": "string"},
-                "line": {"type": "integer"},
-                "character": {"type": "integer"},
-            },
-            "additionalProperties": False,
-        },
-        readonly=True,
-    ),
-    ToolSpec(
-        name="lsp_rename_tool",
-        stage="111_SENSE",
-        role="Rename proposal",
-        layer="Internal Intelligence (3E)",
-        description=(
-            "Propose a rename refactor via the language server. Requires 888_HOLD before execution."
-        ),
-        trinity="Delta",
-        floors=("F1", "F2", "F11", "F12", "F13"),
-        input_schema={
-            "type": "object",
-            "required": ["file_path", "line", "character", "new_name"],
-            "properties": {
-                "file_path": {"type": "string"},
-                "line": {"type": "integer"},
-                "character": {"type": "integer"},
-                "new_name": {"type": "string"},
-            },
-            "additionalProperties": False,
-        },
-    ),
-)
-
-
 def internal_tool_specs() -> tuple[ToolSpec, ...]:
-    return INTERNAL_TOOL_SPECS
+    return ()
 
 
 def internal_tool_names() -> tuple[str, ...]:
-    return tuple(spec.name for spec in INTERNAL_TOOL_SPECS)
-
-
-LEGACY_INTERNAL_TOOL_SPECS: tuple[ToolSpec, ...] = (
-    ToolSpec(
-        name="init_anchor_state",
-        stage="000_INIT",
-        role="Session anchor",
-        layer="Internal Legacy",
-        description="Legacy bootstrap tool for anchored internal sessions.",
-        trinity="Delta",
-        floors=("F11", "F12", "F13"),
-        input_schema={
-            "type": "object",
-            "required": ["declared_name"],
-            "properties": {"declared_name": {"type": "string"}, "session_id": {"type": "string"}},
-            "additionalProperties": False,
-        },
-    ),
-    ToolSpec(
-        name="integrate_analyze_reflect",
-        stage="111_FRAME",
-        role="Framing",
-        layer="Internal Legacy",
-        description="Legacy framing tool retained for internal orchestration compatibility.",
-        trinity="Delta",
-        floors=("F2", "F4", "F7"),
-        input_schema={
-            "type": "object",
-            "required": ["query", "session_id"],
-            "properties": {"query": {"type": "string"}, "session_id": {"type": "string"}},
-            "additionalProperties": False,
-        },
-    ),
-    ToolSpec(
-        name="reason_mind_synthesis",
-        stage="333_MIND",
-        role="Reason synthesis",
-        layer="Internal Legacy",
-        description="Legacy explicit reasoning stage for internal agents.",
-        trinity="Delta",
-        floors=("F2", "F4", "F7", "F8"),
-        input_schema={
-            "type": "object",
-            "required": ["query", "session_id"],
-            "properties": {"query": {"type": "string"}, "session_id": {"type": "string"}},
-            "additionalProperties": False,
-        },
-    ),
-    ToolSpec(
-        name="assess_heart_impact",
-        stage="555_HEART",
-        role="Impact assessment",
-        layer="Internal Legacy",
-        description="Legacy empathy and impact assessment stage.",
-        trinity="Omega",
-        floors=("F5", "F6", "F13"),
-        input_schema={
-            "type": "object",
-            "required": ["query", "session_id"],
-            "properties": {"query": {"type": "string"}, "session_id": {"type": "string"}},
-            "additionalProperties": False,
-        },
-    ),
-    ToolSpec(
-        name="critique_thought_audit",
-        stage="666_CRITIQUE",
-        role="Critique",
-        layer="Internal Legacy",
-        description="Legacy critique and audit stage for internal chain-of-thought governance.",
-        trinity="Omega",
-        floors=("F4", "F7", "F12"),
-        input_schema={
-            "type": "object",
-            "required": ["thought_id", "session_id"],
-            "properties": {"thought_id": {"type": "string"}, "session_id": {"type": "string"}},
-            "additionalProperties": False,
-        },
-    ),
-    ToolSpec(
-        name="quantum_eureka_forge",
-        stage="777_FORGE",
-        role="Forge synthesis",
-        layer="Internal Legacy",
-        description="Legacy forge stage for proposal shaping before judgment.",
-        trinity="Psi",
-        floors=("F5", "F6", "F7", "F13"),
-        input_schema={
-            "type": "object",
-            "required": ["session_id", "intent"],
-            "properties": {"session_id": {"type": "string"}, "intent": {"type": "string"}},
-            "additionalProperties": False,
-        },
-    ),
-    ToolSpec(
-        name="apex_judge_verdict",
-        stage="888_JUDGE",
-        role="Verdict",
-        layer="Internal Legacy",
-        description="Legacy APEX judgment stage retained for internal orchestration.",
-        trinity="Psi",
-        floors=("F1", "F2", "F3", "F10", "F13"),
-        input_schema={
-            "type": "object",
-            "required": ["session_id", "verdict_candidate"],
-            "properties": {
-                "session_id": {"type": "string"},
-                "verdict_candidate": {"type": "string"},
-            },
-            "additionalProperties": False,
-        },
-    ),
-    ToolSpec(
-        name="seal_vault_commit",
-        stage="999_VAULT",
-        role="Vault seal",
-        layer="Internal Legacy",
-        description="Legacy vault commit stage retained for internal orchestration.",
-        trinity="Psi",
-        floors=("F1", "F3", "F10", "F13"),
-        input_schema={
-            "type": "object",
-            "required": ["session_id", "verdict"],
-            "properties": {"session_id": {"type": "string"}, "verdict": {"type": "string"}},
-            "additionalProperties": False,
-        },
-    ),
-)
+    return ()
 
 
 def legacy_internal_tool_specs() -> tuple[ToolSpec, ...]:
-    return LEGACY_INTERNAL_TOOL_SPECS
+    return ()
 
 
 def tool_names_for_profile(profile: str) -> tuple[str, ...]:
-    """
-    Resolve tool surface based on transport profile.
-    - public: Safe universal external surface (e.g. ChatGPT, Agnostic MCP clients).
-    - internal: Richer trusted agent surface (includes stage tools).
-    """
-    normalized = _profile_label(profile)
-    if normalized == "public":
-        return public_tool_names()
-
-    internal_names = tuple(spec.name for spec in LEGACY_INTERNAL_TOOL_SPECS) + internal_tool_names()
-    return tuple(dict.fromkeys(public_tool_names() + internal_names))
+    return public_tool_names()
 
 
 def deployment_tool_contract(profile: str) -> tuple[int, tuple[str, ...]]:
@@ -1140,119 +539,37 @@ def public_compatibility_specs() -> tuple[CompatibilitySpec, ...]:
     return PUBLIC_COMPATIBILITY_SPECS
 
 
-def build_public_contract_markdown() -> str:
-    lines: list[str] = [
-        "---",
-        "id: public-contract",
-        "title: Public Contract",
-        "slug: /public-contract",
-        "description: Auto-generated arifOS public MCP contract for model-agnostic clients.",
-        "---",
-        "",
-        (
-            "<!-- AUTO-GENERATED: edit arifosmcp/runtime/public_registry.py "
-            "and rerun scripts/generate_public_contract_docs.py -->"
-        ),
-        "",
-        "# Public Contract",
-        "",
-        f"Runtime version: `{release_version_label()}`",
-        "",
-        (
-            "This page is generated from `arifosmcp.runtime.public_registry`. "
-            "It is the only supported public/main MCP contract for model-agnostic clients."
-        ),
-        "",
-        "## Public MCP Contract",
-        "",
-        f"- Public tools: `{len(PUBLIC_TOOL_SPECS)}`",
-        f"- Protocol: `{MCP_PROTOCOL_VERSION}`",
-        "- Transports: `http`, `stdio`",
-        "- Public profile: `public` (aliases: `chatgpt`, `agnostic_public`)",
-        "",
-        "### Public Tools",
-        "",
-        "| Tool | Stage | Role | Read-only | Description |",
-        "|------|-------|------|-----------|-------------|",
-    ]
+def build_mcp_manifest() -> dict[str, Any]:
+    manifest_tools: dict[str, Any] = {}
     for spec in PUBLIC_TOOL_SPECS:
-        readonly = "yes" if spec.readonly else "no"
-        lines.append(
-            f"| `{spec.name}` | `{spec.stage}` | {spec.role} | {readonly} | {spec.description} |"
-        )
-    lines.extend(
-        [
-            "",
-            "### Internal / Dev-only Stage Tools",
-            "",
-            (
-                "These tools are available only in internal/dev-style profiles. "
-                "They are not part of the public model-facing contract and "
-                "should not be treated as stable external API."
-            ),
-            "",
-            "| Tool | Status |",
-            "|------|--------|",
-        ]
-    )
-    for tool_name in INTERNAL_STAGE_TOOL_NAMES:
-        lines.append(f"| `{tool_name}` | internal/dev-only |")
-    lines.extend(
-        [
-            "",
-            "### Compatibility Mapping",
-            "",
-            "| Legacy name | New public route | Status | Notes |",
-            "|-------------|------------------|--------|-------|",
-        ]
-    )
-    for spec in PUBLIC_COMPATIBILITY_SPECS:
-        lines.append(
-            f"| `{spec.legacy_name}` | `{spec.public_route}` | `{spec.status}` | {spec.notes} |"
-        )
-    lines.extend(
-        [
-            "",
-            "### Prompts",
-            "",
-            "| Prompt | Target tool |",
-            "|--------|-------------|",
-        ]
-    )
-    for spec in PUBLIC_PROMPT_SPECS:
-        lines.append(f"| `{spec.name}` | `{spec.target_tool}` |")
-    lines.extend(
-        [
-            "",
-            "### Resources",
-            "",
-            "| Resource | Description |",
-            "|----------|-------------|",
-        ]
-    )
-    for spec in PUBLIC_RESOURCE_SPECS:
-        lines.append(f"| `{spec.uri}` | {spec.description} |")
-    lines.append("")
-    return "\n".join(lines)
+        manifest_tools[spec.name] = {
+            "stage": spec.stage,
+            "trinity": spec.trinity,
+            "floors": list(spec.floors),
+            "description": spec.description,
+            "inputSchema": spec.input_schema,
+        }
 
-
-def build_server_json(public_base_url: str = DEFAULT_PUBLIC_BASE_URL) -> dict[str, Any]:
-    base_url = public_base_url.rstrip("/")
     return {
         "name": MCP_SERVER_NAME,
         "version": release_version_label(),
-        "description": (
-            "Constitutional governance server — 11 canonical public MCP tools with "
-            "F1-F13 floor enforcement, metabolic Stage 444 routing, prompts, and resources."
-        ),
+        "tools": manifest_tools,
+        "resources": [
+            {"uri": spec.uri, "description": spec.description} for spec in PUBLIC_RESOURCE_SPECS
+        ],
+    }
+
+
+def build_server_json(public_base_url: str = DEFAULT_PUBLIC_BASE_URL) -> dict[str, Any]:
+    """Build the canonical server.json manifest with all 24 tools."""
+    return {
+        "name": MCP_SERVER_NAME,
+        "version": release_version_label(),
+        "description": "Constitutional governance server — 24 canonical MCP tools with F1-F13 floor enforcement, metabolic routing, prompts, and resources.",
         "vendor": {"name": "Muhammad Arif bin Fazil", "url": "https://arif-fazil.com"},
         "license": "AGPL-3.0-only",
-        "homepage": DEFAULT_REPOSITORY_URL,
-        "repository": DEFAULT_REPOSITORY_URL,
-        "transports": [
-            {"type": "http", "url": f"{base_url}{DEFAULT_HTTP_PATH}"},
-            {"type": "stdio", "command": DEFAULT_STDIO_COMMAND},
-        ],
+        "homepage": "https://github.com/ariffazil/arifosmcp",
+        "repository": "https://github.com/ariffazil/arifosmcp",
         "capabilities": {
             "constitutional_floors": 13,
             "metabolic_routing": True,
@@ -1269,132 +586,14 @@ def build_server_json(public_base_url: str = DEFAULT_PUBLIC_BASE_URL) -> dict[st
 
 
 def build_internal_server_json(public_base_url: str = DEFAULT_PUBLIC_BASE_URL) -> dict[str, Any]:
-    base_url = public_base_url.rstrip("/")
-    specs = (*PUBLIC_TOOL_SPECS, *LEGACY_INTERNAL_TOOL_SPECS, *INTERNAL_TOOL_SPECS)
-    return {
-        "name": f"{MCP_SERVER_NAME}.internal",
-        "version": release_version_label(),
-        "description": (
-            "Internal arifOS agent contract. Includes public tools plus governed internal "
-            "LSP, forge, and audit capabilities for trusted agent workflows."
-        ),
-        "vendor": {"name": "Muhammad Arif bin Fazil", "url": "https://arif-fazil.com"},
-        "license": "AGPL-3.0-only",
-        "homepage": DEFAULT_REPOSITORY_URL,
-        "repository": DEFAULT_REPOSITORY_URL,
-        "transports": [
-            {"type": "http", "url": f"{base_url}{DEFAULT_HTTP_PATH}"},
-            {"type": "stdio", "command": DEFAULT_STDIO_COMMAND},
-        ],
-        "capabilities": {
-            "profile": "internal",
-            "constitutional_floors": 13,
-            "metabolic_routing": True,
-            "prompts": len(PUBLIC_PROMPT_SPECS),
-            "resources": len(PUBLIC_RESOURCE_SPECS),
-            "internal_tools": len(INTERNAL_TOOL_SPECS),
-        },
-        "tools": [{"name": spec.name, "stage": spec.stage, "role": spec.role} for spec in specs],
-    }
+    """Build internal profile manifest with all 24 tools (public + internal aliases)."""
+    server = build_server_json(public_base_url=public_base_url)
+    server["name"] = f"{MCP_SERVER_NAME}.internal"
+    server["capabilities"] = dict(server.get("capabilities", {}))
+    server["capabilities"]["profile"] = "internal"
+    return server
 
 
-def build_mcp_manifest(public_base_url: str = DEFAULT_PUBLIC_BASE_URL) -> dict[str, Any]:
-    base_url = public_base_url.rstrip("/")
-    manifest_tools: dict[str, Any] = {}
-    for spec in PUBLIC_TOOL_SPECS:
-        entry: dict[str, Any] = {
-            "stage": spec.stage,
-            "trinity": spec.trinity,
-            "floors": list(spec.floors),
-            "description": spec.description,
-            "inputSchema": spec.input_schema,
-        }
-        if spec.readonly:
-            entry["readonly"] = True
-        manifest_tools[spec.name] = entry
-
-    return {
-        "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
-        "name": MCP_SERVER_NAME,
-        "version": release_version_label(),
-        "title": MCP_SERVER_TITLE,
-        "description": (
-            "Constitutional governance server with an 11-tool public surface, public prompts, "
-            "public resources, Trinity engines (ΔΩΨ), and F1-F13 floor enforcement."
-        ),
-        "websiteUrl": DEFAULT_DOCS_URL,
-        "vendor": {"name": "arifOS", "url": DEFAULT_DOCS_URL},
-        "license": "AGPL-3.0-only",
-        "repository": {"url": DEFAULT_REPOSITORY_URL, "source": "github"},
-        "runtime": {
-            "python": ">=3.12",
-            "entrypoint": "python -m arifosmcp.runtime",
-            "dependencies": [fastmcp_dependency()],
-        },
-        "deployment": {
-            "default_transport": "http",
-            "host": "0.0.0.0",
-            "port": 8080,
-            "path": DEFAULT_HTTP_PATH,
-            "log_level": "INFO",
-        },
-        "packages": [
-            {
-                "registryType": "pypi",
-                "identifier": "arifos",
-                "version": release_version_label(),
-                "transport": {"type": "stdio"},
-            },
-            {
-                "registryType": "oci",
-                "identifier": f"docker.io/arifazil/arifosmcp:forge-{release_version_compact()}",
-                "transport": {"type": "streamable-http", "url": f"{base_url}{DEFAULT_HTTP_PATH}"},
-            },
-        ],
-        "remotes": [
-            {
-                "type": "streamable-http",
-                "url": f"{base_url}{DEFAULT_HTTP_PATH}",
-                "authentication": {"type": "none"},
-            },
-        ],
-        "tools": manifest_tools,
-        "prompts": [
-            {
-                "name": spec.name,
-                "targetTool": spec.target_tool,
-                "description": spec.description,
-            }
-            for spec in PUBLIC_PROMPT_SPECS
-        ],
-        "resources": [
-            {"uri": spec.uri, "description": spec.description} for spec in PUBLIC_RESOURCE_SPECS
-        ],
-        "schema": {
-            "input": public_tool_input_schemas(),
-            "output": RUNTIME_ENVELOPE_SCHEMA,
-        },
-        "trinity": {
-            "delta": {
-                "symbol": "Δ",
-                "name": "Mind",
-                "role": "AGI Reasoning",
-                "stages": ["000", "111", "333"],
-                "floors": ["F2", "F4", "F7", "F8"],
-            },
-            "omega": {
-                "symbol": "Ω",
-                "name": "Heart",
-                "role": "ASI Safety",
-                "stages": ["555", "666"],
-                "floors": ["F5", "F6", "F9"],
-            },
-            "psi": {
-                "symbol": "Ψ",
-                "name": "Soul",
-                "role": "APEX Judgment",
-                "stages": ["777", "888", "999"],
-                "floors": ["F1", "F3", "F10", "F11", "F12", "F13"],
-            },
-        },
-    }
+def build_mcp_discovery_json(public_base_url: str = DEFAULT_PUBLIC_BASE_URL) -> dict[str, Any]:
+    """Build MCP discovery manifest for internal profile endpoints."""
+    return build_internal_server_json(public_base_url=public_base_url)

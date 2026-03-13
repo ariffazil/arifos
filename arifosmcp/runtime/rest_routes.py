@@ -28,7 +28,7 @@ from starlette.requests import Request
 from starlette.responses import HTMLResponse, JSONResponse, Response
 from starlette.staticfiles import StaticFiles
 
-from arifosmcp.runtime.public_registry import build_internal_server_json, build_server_json
+from arifosmcp.runtime.public_registry import build_mcp_discovery_json, build_server_json
 from arifosmcp.runtime.resources import apex_tools_html_rows, apex_tools_markdown_table
 from core.shared.floor_audit import get_ml_floor_runtime
 from core.shared.floors import (
@@ -916,7 +916,7 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
                 {"error": "Internal contract disabled on public profile."}, status_code=404
             )
 
-        payload = build_internal_server_json(_public_base_url(request))
+        payload = build_mcp_discovery_json(_public_base_url(request))
         payload.setdefault("protocolVersion", MCP_PROTOCOL_VERSION)
         payload.setdefault("supportedProtocolVersions", MCP_SUPPORTED_PROTOCOL_VERSIONS)
         payload.setdefault(

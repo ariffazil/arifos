@@ -44,26 +44,74 @@ from arifosmcp.runtime.public_registry import (
 from arifosmcp.runtime.resources import register_resources
 from arifosmcp.runtime.rest_routes import register_rest_routes
 from arifosmcp.runtime.tools import (
+    agi_reason,
+    agi_reflect,
+    asi_critique,
+    asi_simulate,
+    apex_judge,
     audit_rules,
+    agentzero_armor_scan,
+    agentzero_engineer,
+    agentzero_hold_check,
+    agentzero_memory_query,
+    agentzero_validate,
     check_vital,
+    forge,
     ingest_evidence,
-    init_anchor_state,
+    init_anchor,
     metabolic_loop_router,
     open_apex_dashboard,
     reality_atlas,
     reality_compass,
     register_tools,
+    revoke_anchor_state,
     search_reality,
-    session_memory,
+    vault_seal,
     verify_vault_ledger,
 )
 from core.shared.manifest_loader import sync_runtime_floors
 
 # ---------------------------------------------------------------------------
-# Phase 1 — Canonical 7-Tool arifOS Stack
+# Phase 1 — arifOS APEX-G Sovereign Hub (2026-03-14 Epoch)
 # ---------------------------------------------------------------------------
 
-mcp = FastMCP("arifOS-APEX-G", version=release_version_label())
+CONSTITUTIONAL_INSTRUCTIONS = """
+You are interacting with arifOS, a Constitutional AGI Governance System.
+All actions must pass the 13 Constitutional Floors:
+F1 Amanah, F2 Truth, F3 Tri-Witness, F4 ΔS Clarity, F5 Peace², F6 kr Empathy, 
+F7 Omega Humility, F8 G Genius, F9 C_dark, F10 Ontology, F11 Command Auth, 
+F12 Injection, F13 Sovereign.
+
+The architecture is a Double Helix:
+- Inner Ring: 8 Sacred Constitutional Organs (init_anchor, agi_reason, etc.)
+- Outer Ring: 7 Peripheral Nervous System (PNS) Organs (shield, search, etc.)
+
+Strictly follow the Sacred Chain loop: INIT -> REASON -> REFLECT -> SIMULATE -> CRITIQUE -> FORGE -> JUDGE -> SEAL.
+"""
+
+from contextlib import asynccontextmanager
+
+@asynccontextmanager
+async def arifos_lifespan(server: FastMCP):
+    """Lifecycle management for the arifOS Double Helix organs."""
+    # Initialize Global Settings for the 2026-03-14 Epoch
+    server.settings.set_setting("constitutional__target_genius", 0.80)
+    server.settings.set_setting("constitutional__max_entropy_delta", 0.0)
+    server.settings.set_setting("constitutional__humility_band", [0.03, 0.05])
+    server.settings.set_setting("constitutional__peace_squared_threshold", 1.0)
+    
+    # INIT Stage: Ignition
+    sync_runtime_floors()
+    yield
+    # VAULT Stage: Final Cooling
+    pass
+
+mcp = FastMCP(
+    "arifOS-APEX-G", 
+    version="2026.03.14-PRE-RELEASE",
+    instructions=CONSTITUTIONAL_INSTRUCTIONS,
+    lifespan=arifos_lifespan
+)
 PUBLIC_TOOL_PROFILE = normalize_tool_profile(os.getenv("ARIFOS_PUBLIC_TOOL_PROFILE", "public"))
 # SSE removed: deprecated by MCP spec (2025-03) and Copilot Studio (2025-08)
 VALID_TRANSPORT_MODES = {"stdio", "http", "streamable-http"}
@@ -118,18 +166,35 @@ register_prompts(mcp)
 sync_runtime_floors()
 
 CORE_TOOL_REGISTRY = {
+    # ── Orchestration entry point ────────────────────────────────────────────
     "arifOS_kernel": metabolic_loop_router,
-    "arifOS-kernel": metabolic_loop_router,
+    # ── 8 Sacred Constitutional Organs (Inner Ring) ──────────────────────────
+    "init_anchor": init_anchor,
+    "agi_reason": agi_reason,
+    "agi_reflect": agi_reflect,
+    "asi_simulate": asi_simulate,
+    "asi_critique": asi_critique,
+    "forge": forge,
+    "apex_judge": apex_judge,
+    "vault_seal": vault_seal,
+    # ── Reality / Evidence layer ─────────────────────────────────────────────
     "search_reality": search_reality,
     "ingest_evidence": ingest_evidence,
-    "session_memory": session_memory,
-    "audit_rules": audit_rules,
-    "check_vital": check_vital,
     "reality_compass": reality_compass,
     "reality_atlas": reality_atlas,
+    # ── Constitutional utilities ─────────────────────────────────────────────
+    "audit_rules": audit_rules,
+    "check_vital": check_vital,
     "open_apex_dashboard": open_apex_dashboard,
-    "init_anchor_state": init_anchor_state,
     "verify_vault_ledger": verify_vault_ledger,
+    # ── AgentZero Parliament Tools (Outer Ring) ──────────────────────────────
+    "agentzero_validate": agentzero_validate,
+    "agentzero_engineer": agentzero_engineer,
+    "agentzero_hold_check": agentzero_hold_check,
+    "agentzero_memory_query": agentzero_memory_query,
+    "agentzero_armor_scan": agentzero_armor_scan,
+    # ── Session lifecycle ────────────────────────────────────────────────────
+    "revoke_anchor_state": revoke_anchor_state,
 }
 
 register_rest_routes(mcp, CORE_TOOL_REGISTRY)
@@ -200,7 +265,6 @@ __all__ = [
     "PUBLIC_TOOL_PROFILE",
     "register_tools",
     "search_reality",
-    "session_memory",
 ]
 
 
