@@ -159,7 +159,10 @@ def classify_exception(exc: Exception) -> FaultClassification:
         )
 
     # Default: unknown mechanical fault — still 888_HOLD, not VOID
-    logger.warning("classify_exception: unknown exception type %s → INFRA_DEGRADED", type(exc).__name__)
+    logger.warning(
+        "classify_exception: unknown exception type %s → INFRA_DEGRADED",
+        type(exc).__name__,
+    )
     return FaultClassification(
         FaultClass.MECHANICAL, MechanicalFaultCode.INFRA_DEGRADED,
         "888_HOLD", True, f"Unexpected error: {type(exc).__name__}",
