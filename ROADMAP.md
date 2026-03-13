@@ -1,13 +1,71 @@
 # arifOS ROADMAP — Horizon 2026
 
-**Version:** 2026.03.12-FORGED  
-**Status:** ✅ DEPLOYED  
-**Coverage:** ~64% (+8pp from 56%)  
+**Version:** 2026.03.13-FORGED  
+**Status:** 🛠️ CIVILIZATION-READINESS SPRINT  
+**Coverage:** ~75% (Target: 80%)  
+**APEX Score:** 8.6/10 → Target: 9.4+  
 **Motto:** *Ditempa Bukan Diberi — Forged, Not Given*
 
 ---
 
-## 🏗️ Horizon 1: Stability & Hardening (Current)
+## 🌍 Horizon 0: Civilization-Readiness (March 2026)
+*Focus: Trust transfer, proof packaging, and documentation polish to reach 9.4+ ecosystem score.*
+
+*APEX Assessment: "Strong foundation, not yet civilization-ready. The gap is trust transfer from ideas into reader's mind in under 90 seconds."*
+
+### H0.1: README Trinity Deployment-Grade Polish
+
+**THE SURFACE (Human Legitimacy):**
+- [ ] "Start Here" section with ecosystem navigation map
+- [ ] "Why arifOS emerged from geology" unique positioning
+- [ ] Professional gateway design (not just reflective essay)
+- [ ] Clear conversion paths: followers, collaborators, adopters
+
+**THE MIND (Constitutional Doctrine):**
+- [ ] "Who this is for" persona targeting (4 audiences)
+- [ ] Doctrine → Runtime mapping table (F2→search_reality, etc.)
+- [ ] Design principles section (reversibility first, etc.)
+- [ ] Glossary for constitutional vocabulary
+
+**THE BODY (Runtime Engine):**
+- [ ] Badges and deployment markers (tests, coverage, MCP)
+- [ ] 5-minute quickstart with copy-paste commands
+- [ ] "Why now?" section (MCP + governance gap timing)
+- [ ] Clear non-goals and known limitations
+
+### H0.2: Proof-of-Reality Artifacts
+
+- [ ] Demo folder with 3 runnable examples:
+  - Safe query with governed response
+  - 888_HOLD blocking destructive command
+  - VAULT999 ledger verification
+- [ ] Terminal output screenshots in README
+- [ ] Architecture diagram (minimal, clear)
+- [ ] 90-second demo video/GIF
+
+### H0.3: Competitive Trust Positioning
+
+- [ ] Explicit threat model (what risks are mitigated)
+- [ ] Comparison matrix: arifOS vs alternatives
+- [ ] Honest "Known Limitations" section
+- [ ] Non-goals documentation (builds credibility)
+
+### H0.4: Developer Onboarding Pathway
+
+- [ ] Contributor guide (Good First Issues)
+- [ ] Architecture documentation for extenders
+- [ ] Process for proposing new Floors/tools/validators
+- [ ] Clear test expectations
+
+**Success Criteria:**
+- APEX score: 8.6 → 9.4+
+- First-time comprehension: 7.0 → 9.0+
+- Deployment readiness: 6.8 → 9.0+
+- Trust transfer: 8.0 → 9.5+
+
+---
+
+## 🏗️ Horizon 1: Stability & Hardening (Q2 2026)
 *Focus: Stabilizing the constitutional kernel and expanding observability.*
 
 - [x] **Runtime/Kernel Separation (L0-L2):** Decoupled transport logic from core decision logic.
@@ -33,7 +91,7 @@
 
 ---
 
-## 🤝 Horizon 2: Agentic Federation (Q2 2026)
+## 🤝 Horizon 2: Agentic Federation (Q3 2026)
 *Focus: Multi-agent coordination and collective governance.*
 
 - [ ] **L5 Agent Roles:** Orchestration of specialized Architect, Engineer, Auditor, and Validator agents.
@@ -45,7 +103,7 @@
 
 ---
 
-## 🌍 Horizon 3: Universal Integration (Q3-Q4 2026)
+## 🌍 Horizon 3: Universal Integration (Q4 2026 - Q1 2027)
 *Focus: Scaling arifOS across the edge and platform ecosystems.*
 
 - [ ] **Edge Sidecar:** Lightweight arifOS runtime for mobile and IoT devices.
@@ -66,27 +124,43 @@
 
 ## 📊 Latest Forge Update
 
-**Date:** 2026-03-12  
-**Commit:** `966409d11`  
-**Status:** Pushed to main, auto-deployed to VPS  
+**Date:** 2026-03-13  
+**Commit:** TBD  
+**Status:** APEX Assessment Response  
 
 ### What Was Forged
-- 126 new tests covering kernel execution layer
-- SBERT semantic classification tests (49 tests for F5/F6/F9)
-- Fixed 3 failing tests (constitutional compliance restored)
-- Coverage increased from 56% to ~64%
+- **APEX Runtime Fixes:**
+  - Fixed `audit_rules` returning SABAR/ERROR → Now returns full 13 Floors audit
+  - Fixed `check_vital` thermodynamics import failure → Graceful degradation
+  - Added `_build_constitutional_audit()` with doctrine→runtime mapping
+  - Added `_build_vitals_report()` with capability map
+- **APEX Assessment:** 8.6/10 with clear path to 9.4+
+  - Strengths: Concept originality, architecture ambition, ecosystem alignment
+  - Gaps: Trust transfer, proof packaging, onboarding clarity
+  - Critical fix needed: Proof-of-reality demos
+
+### Path to Civilization-Readiness (9.4+ Score)
+| Dimension | Current | Target | Priority |
+|-----------|---------|--------|----------|
+| Narrative identity | 8.9 | 9.5 | Medium |
+| Originality | 9.4 | 9.5 | Low |
+| Technical signaling | 8.9 | 9.5 | Medium |
+| **Onboarding clarity** | **7.0** | **9.0** | **P0** |
+| **Verification confidence** | **6.9** | **9.0** | **P0** |
+| **Proof of claims** | **6.8** | **9.0** | **P0** |
+| Ecosystem coherence | 8.6 | 9.5 | Medium |
 
 ### Path to 80% Coverage
 | Module | Lines | Status | Tests Needed |
 |--------|-------|--------|--------------|
-| `core/kernel/evaluator.py` | 122 | 🔴 0% | ~25 tests |
-| `core/kernel/heuristics.py` | 45 | 🔴 0% | ~10 tests |
-| `core/kernel/init_000_anchor.py` | 60 | 🔴 0% | ~15 tests |
-| `core/risk_engine.py` | 29 | 🔴 0% | ~8 tests |
-| `core/organs/unified_memory.py` | 56 | 🔴 0% | ~12 tests |
-| **Total** | **312** | | **~70 tests** |
+| `core/kernel/evaluator.py` | 122 | 🟡 ~80% | ~10 tests |
+| `core/kernel/heuristics.py` | 45 | 🟢 ~98% | ✅ Complete |
+| `core/kernel/init_000_anchor.py` | 60 | 🟢 100% | ✅ Complete |
+| `core/risk_engine.py` | 29 | 🟢 ~90% | ✅ Complete |
+| `core/organs/unified_memory.py` | 56 | 🟢 ~96% | ✅ Complete |
+| **Total** | **312** | **~75%** | **~20 tests** |
 
 ---
 
-**Last SEALed:** 2026.03.12-FORGED  
+**Last SEALed:** 2026.03.13-FORGED  
 *"Ditempa bukan diberi"* 🔥
