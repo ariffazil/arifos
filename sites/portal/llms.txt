@@ -1,5 +1,6 @@
 # arifOS — Constitutional Canon (BBB Vault)
 # Location:    https://arifos.arif-fazil.com/llms.txt
+# APEX THEORY: https://arifos.arif-fazil.com/docs/apex-theory.html
 # Version:     v2026.03-FORGE
 # Authority:   ARIF FAZIL (888 Judge)
 # Status:      CONSTITUTIONALLY_SEALED
@@ -11,6 +12,8 @@
 ---
 
 ## APEX THEORY — THE LAW OF LAWS
+# Full APEX THEORY docs: https://arifos.arif-fazil.com/docs/apex-theory.html
+
 
 ### What is APEX Theory?
 APEX is above arifOS. APEX is above all governance systems.

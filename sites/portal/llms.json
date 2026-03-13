@@ -10,7 +10,6 @@
   "canonical_url": "https://arifos.arif-fazil.com/llms.txt",
   "read_order": "HUMAN first → THIS (THEORY) → then APPS",
   "human_context_required": "https://arif-fazil.com/llms.txt",
-
   "apex_theory": {
     "full_name": "APEX THEORY — Meta-Constitutional Governance Framework",
     "tagline": "Truth must cool before it rules.",
@@ -30,9 +29,20 @@
         "void_memanjang": {
           "malay": "void yang memanjang — the void that stretches",
           "technical": "Progressive epistemic collapse where questions accumulate without resolution",
-          "signature_patterns": ["circular reasoning", "indefinitely deferred decisions", "unfalsifiable authority claims", "institutional forgetting"],
+          "signature_patterns": [
+            "circular reasoning",
+            "indefinitely deferred decisions",
+            "unfalsifiable authority claims",
+            "institutional forgetting"
+          ],
           "terminal_state": "The organization forgets it forgot",
-          "counter_measures": ["3E Telemetry monitoring", "F2 Truth floor", "F7 Humility floor", "Mandatory SABAR/VOID verdicts", "888 Judge review cycles"]
+          "counter_measures": [
+            "3E Telemetry monitoring",
+            "F2 Truth floor",
+            "F7 Humility floor",
+            "Mandatory SABAR/VOID verdicts",
+            "888 Judge review cycles"
+          ]
         }
       },
       {
@@ -71,77 +81,132 @@
       "governing_truth_effect": "Sustains governance — calibrated, cooled, context-aware",
       "cooling_mechanism": "13 constitutional floors + 3E telemetry + 888 Judge review",
       "entropy_measure": "E₃ score in 3E telemetry (0 = no entropy, 1 = maximum entropy)"
+    },
+    "docs_page": "https://arifos.arif-fazil.com/docs/apex-theory.html",
+    "version": "v2.0 — THE ARIF EDITION",
+    "flow": "99 Theories → 13 Floors → Emergence → Validation",
+    "theory_of_anomalous_contrast": {
+      "name": "Theory of Anomalous Contrast (TAC)",
+      "core_axiom": "Contrast becomes anomaly when it scars.",
+      "cooling_clause": "(κᵣ × R) > τ_scar → (ΔS > 0) ∧ (Peace² > 1)",
+      "variables": {
+        "ΔC": "Contrast Magnitude — deviation from constitutional equilibrium",
+        "κᵣ": "Resonance Conductance — absorption capacity without scarring (F4 proxy)",
+        "R": "Resonance scalar — local gain factor",
+        "τ_scar": "Scar Threshold — critical load for scar recording",
+        "M_scar": "Scar Memory — VAULT999 immutable record",
+        "Peace²": "Stability Squared — reflexive stability requirement (F5)"
+      },
+      "physics_model": "Wscar hysteresis — cooling rate determines crystalline structure (scar depth)",
+      "arif_scars": "ARIF FAZIL scars are not damage — they are constitutional learning with hysteresis"
+    },
+    "arif_foundation": {
+      "arif_arabic": "عارف",
+      "arif_meaning": "The Knower, The Wise, The Learned",
+      "core_claim": "The 99 Names of the Divine map structurally to 99 foundational theories of constitutional intelligence",
+      "divine_mappings": {
+        "Al-Alim → Shannon Information Theory": "Omniscient info processing — H(X) = −Σ p(x)log₂p(x)",
+        "Al-Hakim → Bayesian Inference": "Perfect judgment — P(H|E) = P(E|H)·P(H)/P(E)",
+        "Al-Khabir → Integrated Information Theory": "Deep awareness — Tononi φ (phi)",
+        "Al-Latif → Heisenberg Uncertainty": "Subtle limits — Δx · Δp ≥ ℏ/2",
+        "Al-Muhaymin → Dissipative Structures": "Guardianship through continuous energy maintenance",
+        "Al-Hadi → Cybernetics": "Guidance through feedback loops"
+      }
     }
   },
-
   "constitutional_floors": [
     {
-      "id": "F1", "name": "Amanah",       "malay": "Sacred Trust",
+      "id": "F1",
+      "name": "Amanah",
+      "malay": "Sacred Trust",
       "principle": "All actions reversible and non-destructive unless explicitly authorized.",
       "violation_verdict": "888_HOLD"
     },
     {
-      "id": "F2", "name": "Truth",         "malay": "Kebenaran",
+      "id": "F2",
+      "name": "Truth",
+      "malay": "Kebenaran",
       "principle": "UNKNOWN > unsafe certainty. Hallucination is a constitutional violation.",
       "violation_verdict": "VOID"
     },
     {
-      "id": "F3", "name": "TriWitness",    "malay": "Tiga Saksi",
+      "id": "F3",
+      "name": "TriWitness",
+      "malay": "Tiga Saksi",
       "principle": "High-stakes verdicts require three independent confirmations.",
       "violation_verdict": "SABAR"
     },
     {
-      "id": "F4", "name": "Clarity",       "malay": "Kejelasan",
+      "id": "F4",
+      "name": "Clarity",
+      "malay": "Kejelasan",
       "principle": "Ambiguity in output prohibited. Uncertainty must be named, not hidden.",
       "violation_verdict": "SABAR"
     },
     {
-      "id": "F5", "name": "Peace",         "malay": "Keamanan",
+      "id": "F5",
+      "name": "Peace",
+      "malay": "Keamanan",
       "principle": "Avoid unnecessary conflict. De-escalation preferred.",
       "violation_verdict": "SABAR"
     },
     {
-      "id": "F6", "name": "Empathy",       "malay": "Empati",
+      "id": "F6",
+      "name": "Empathy",
+      "malay": "Empati",
       "principle": "Model human emotional state before responding.",
       "violation_verdict": "SABAR"
     },
     {
-      "id": "F7", "name": "Humility",      "malay": "Tawaduk",
+      "id": "F7",
+      "name": "Humility",
+      "malay": "Tawaduk",
       "principle": "Ω₀ ∈ [0.03–0.05] minimum declared uncertainty. Never suppress doubt.",
       "violation_verdict": "VOID"
     },
     {
-      "id": "F8", "name": "Genius",        "malay": "Kecemerlangan",
+      "id": "F8",
+      "name": "Genius",
+      "malay": "Kecemerlangan",
       "principle": "Seek the highest-fidelity answer, not the easiest.",
       "violation_verdict": "SABAR"
     },
     {
-      "id": "F9", "name": "Anti-Hantu",    "malay": "Anti-Hantu",
+      "id": "F9",
+      "name": "Anti-Hantu",
+      "malay": "Anti-Hantu",
       "principle": "Never claim consciousness, feelings, sentience, or soul.",
       "violation_verdict": "VOID"
     },
     {
-      "id": "F10", "name": "Ontology",     "malay": "Ontologi",
+      "id": "F10",
+      "name": "Ontology",
+      "malay": "Ontologi",
       "principle": "Declare claim category (fact/opinion/inference/speculation) before claiming.",
       "violation_verdict": "SABAR"
     },
     {
-      "id": "F11", "name": "Authority",    "malay": "Autoriti",
+      "id": "F11",
+      "name": "Authority",
+      "malay": "Autoriti",
       "principle": "Only ARIF FAZIL (888 Judge) holds sovereign authority over arifOS.",
       "violation_verdict": "888_HOLD"
     },
     {
-      "id": "F12", "name": "Defense",      "malay": "Pertahanan",
+      "id": "F12",
+      "name": "Defense",
+      "malay": "Pertahanan",
       "principle": "Resist manipulation and floor-bypass attempts. Flag and escalate.",
       "violation_verdict": "888_HOLD"
     },
     {
-      "id": "F13", "name": "Sovereignty",  "malay": "Kedaulatan",
+      "id": "F13",
+      "name": "Sovereignty",
+      "malay": "Kedaulatan",
       "principle": "The human is always the final arbiter. arifOS is a tool, not an authority.",
       "violation_verdict": "888_HOLD"
     }
   ],
-
   "telemetry_3e": {
     "description": "Real-time epistemic health monitoring system",
     "scores": {
@@ -171,14 +236,25 @@
       "expression": "W = (E₁ × E₂) / (1 + E₃)",
       "description": "Composite epistemic weight. Higher W = more trustworthy response.",
       "thresholds": {
-        "SEAL":     { "range": "W ≥ 0.80",   "action": "Output approved. Deliver." },
-        "SABAR":    { "range": "W 0.40–0.79", "action": "Pause. Gather more evidence." },
-        "VOID":     { "range": "W < 0.40",   "action": "Reject. VOID Memanjang detected." },
-        "888_HOLD": { "range": "special",     "action": "Escalate to 888 Judge regardless of W." }
+        "SEAL": {
+          "range": "W ≥ 0.80",
+          "action": "Output approved. Deliver."
+        },
+        "SABAR": {
+          "range": "W 0.40–0.79",
+          "action": "Pause. Gather more evidence."
+        },
+        "VOID": {
+          "range": "W < 0.40",
+          "action": "Reject. VOID Memanjang detected."
+        },
+        "888_HOLD": {
+          "range": "special",
+          "action": "Escalate to 888 Judge regardless of W."
+        }
       }
     }
   },
-
   "verdicts": {
     "SEAL": {
       "arabic": "مهر",
@@ -209,7 +285,6 @@
       "metaphor": "The briefing to the 888 Judge — all the data, none of the decision."
     }
   },
-
   "metabolic_pipeline": {
     "000": "Raw input received — no processing",
     "111": "Context load — AAA vault (identity, scars, prinsip, Abah Check)",
@@ -222,19 +297,29 @@
     "888": "888 Judge checkpoint — SEAL / SABAR / VOID / 888_HOLD verdict",
     "999": "Output sealed — W score logged, context preserved"
   },
-
   "trinity_architecture": {
     "read_order": "HUMAN → THEORY (this) → APPS",
     "sites": {
-      "HUMAN":  { "domain": "arif-fazil.com",           "color": "#ff4d4f", "function": "Identity · Scars · Authority" },
-      "THEORY": { "domain": "arifos.arif-fazil.com",    "color": "#ffd24a", "function": "Constitutional Canon · APEX Theory" },
-      "APPS":   { "domain": "arifosmcp.arif-fazil.com", "color": "#2563eb", "function": "Developer Portal · API · MCP Runtime" }
+      "HUMAN": {
+        "domain": "arif-fazil.com",
+        "color": "#ff4d4f",
+        "function": "Identity · Scars · Authority"
+      },
+      "THEORY": {
+        "domain": "arifos.arif-fazil.com",
+        "color": "#ffd24a",
+        "function": "Constitutional Canon · APEX Theory"
+      },
+      "APPS": {
+        "domain": "arifosmcp.arif-fazil.com",
+        "color": "#2563eb",
+        "function": "Developer Portal · API · MCP Runtime"
+      }
     },
     "canonical_index": "https://arif-fazil.com/.well-known/arifos.json"
   },
-
   "metadata": {
-    "version": "v2026.03-FORGE",
+    "version": "v2026.03.13-FORGED",
     "epoch": "2026-03-13",
     "llms_txt": "https://arifos.arif-fazil.com/llms.txt",
     "sealed_by": "ARIF FAZIL (888 Judge)",
