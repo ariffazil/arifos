@@ -500,3 +500,7 @@ class RuntimeEnvelope(BaseModel):
     )
     debug: dict[str, Any] | None = None
     model_config = ConfigDict(extra="allow")
+
+
+# Rebuild models after all forward references are resolved
+RuntimeEnvelope.model_rebuild()
