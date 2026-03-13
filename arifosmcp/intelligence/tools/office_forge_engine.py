@@ -13,6 +13,8 @@ import tempfile
 from pathlib import Path
 from typing import Any
 
+from arifosmcp.intelligence.tools.envelope import unified_tool_output
+
 logger = logging.getLogger(__name__)
 
 # Constants enforced by F12 (Defense)
@@ -20,6 +22,7 @@ MAX_MD_SIZE = 2 * 1024 * 1024  # 2MB
 HARD_TIMEOUT = 25
 FORGE_BASE_DIR = Path("/usr/src/app/data/forge_temp")
 THEME_WHITELIST = {"default", "gaia", "uncover", "bespoke"}
+
 
 async def audit_markdown(markdown: str) -> dict[str, Any]:
     """
@@ -31,16 +34,17 @@ async def audit_markdown(markdown: str) -> dict[str, Any]:
         return {
             "ok": False,
             "error": "F12: Markdown exceeds 2MB limit.",
-            "verdict": "VOID"
+            "verdict": "PARTIAL",
+            "issue": "FILE_TOO_LARGE",
         }
-    
+
     # Check for Mermaid density (F4)
     mermaid_count = markdown.count("```mermaid")
     if mermaid_count > 5:
         return {
             "ok": False,
             "error": "F4: Excessive Mermaid diagrams (>5). Potential render timeout.",
-            "verdict": "SABAR"
+            "verdict": "SABAR",
         }
 
     return {
@@ -49,18 +53,29 @@ async def audit_markdown(markdown: str) -> dict[str, Any]:
         "size_bytes": size,
         "mermaid_count": mermaid_count,
         "verdict": "SEAL",
-        "recommendation": "Markdown is within safe resource limits."
+        "recommendation": "Markdown is within safe resource limits.",
     }
+
 
 def _enforce_imagemagick_policy() -> list[str]:
     """Returns base arguments for ImageMagick to enforce resource limits."""
     return [
-        "-limit", "memory", "256MiB",
-        "-limit", "map", "512MiB",
-        "-limit", "thread", "1",
-        "-limit", "disk", "1GiB",
+        "-limit",
+        "memory",
+        "256MiB",
+        "-limit",
+        "map",
+        "512MiB",
+        "-limit",
+        "thread",
+        "1",
+        "-limit",
+        "disk",
+        "1GiB",
     ]
 
+
+@unified_tool_output(tool_name="office_forge", stage="777_FORGE")
 async def render_office_document(
     session_id: str,
     markdown: str,
@@ -70,7 +85,7 @@ async def render_office_document(
 ) -> dict[str, Any]:
     """
     Hardened render entrypoint.
-    
+
     1. Validates inputs (F12).
     2. Isolates paths (F11).
     3. Executes with shell=False (Least Privilege).
@@ -79,21 +94,17 @@ async def render_office_document(
     # 1. Input Validation
     if len(markdown.encode("utf-8")) > MAX_MD_SIZE:
         return {"ok": False, "error": "F12: Markdown size exceeds 2MB limit."}
-    
+
     clean_mode = mode.lower() if mode.lower() in {"pdf", "pptx", "preview"} else "pdf"
     clean_theme = theme if theme in THEME_WHITELIST else "default"
-    
+
     # 2. Path Isolation
     session_forge_dir = FORGE_BASE_DIR / session_id
     os.makedirs(session_forge_dir, exist_ok=True)
-    
+
     # Use a secure temp file within the session-isolated directory
     with tempfile.NamedTemporaryFile(
-        dir=session_forge_dir, 
-        suffix=".md", 
-        delete=False, 
-        mode="w", 
-        encoding="utf-8"
+        dir=session_forge_dir, suffix=".md", delete=False, mode="w", encoding="utf-8"
     ) as md_tmp:
         md_tmp.write(markdown)
         md_path = Path(md_tmp.name)
@@ -107,10 +118,12 @@ async def render_office_document(
         cmd = [
             "marp",
             f"--{output_ext}",
-            "--theme", clean_theme,
+            "--theme",
+            clean_theme,
             "--allow-local-files",
             str(md_path),
-            "-o", str(output_path)
+            "-o",
+            str(output_path),
         ]
 
         # 4. Execute Subprocess
@@ -126,9 +139,10 @@ async def render_office_document(
             error_log = process.stderr.decode(errors="replace")
             logger.error(f"Office Forge Failure [{session_id}]: {error_log}")
             return {
-                "ok": False, 
+                "ok": False,
                 "error": f"Render engine failure: {error_log[:100]}",
-                "verdict": "VOID"
+                "verdict": "HOLD",
+                "machine_issue": "RENDER_FAIL",
             }
 
         return {
@@ -140,15 +154,25 @@ async def render_office_document(
             "meta": {
                 "size_bytes": output_path.stat().st_size,
                 "engine": "marp-cli",
-                "mode": clean_mode
-            }
+                "mode": clean_mode,
+            },
         }
 
     except subprocess.TimeoutExpired:
-        return {"ok": False, "error": "F12: Render timed out (25s).", "verdict": "VOID"}
+        return {
+            "ok": False,
+            "error": "F12: Render timed out (25s).",
+            "verdict": "SABAR",
+            "issue": "TIMEOUT",
+        }
     except Exception as e:
         logger.exception(f"Unexpected error in office_forge_engine: {e}")
-        return {"ok": False, "error": f"F1: System error: {str(e)}", "verdict": "VOID"}
+        return {
+            "ok": False,
+            "error": f"F1: System error: {str(e)}",
+            "verdict": "HOLD",
+            "issue": "RUNTIME_FAILURE",
+        }
     finally:
         # Cleanup input MD
         if md_path.exists():

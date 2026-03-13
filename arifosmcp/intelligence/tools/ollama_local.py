@@ -5,10 +5,13 @@ from typing import Any
 
 import httpx
 
+from arifosmcp.intelligence.tools.envelope import unified_tool_output
+
 DEFAULT_OLLAMA_URL = os.getenv("OLLAMA_URL", "http://ollama:11434")
 REQUEST_TIMEOUT_SECONDS = 45.0
 
 
+@unified_tool_output(tool_name="ollama_local_generate", stage="333_MIND")
 async def ollama_local_generate(
     *,
     prompt: str,
@@ -19,7 +22,12 @@ async def ollama_local_generate(
 ) -> dict[str, Any]:
     clean_prompt = prompt.strip()
     if not clean_prompt:
-        return {"ok": False, "error": "Prompt is empty.", "verdict": "VOID"}
+        return {
+            "ok": False,
+            "error": "Prompt is empty.",
+            "verdict": "PARTIAL",
+            "issue": "INPUT_VALIDATION",
+        }
 
     options = {
         "temperature": max(0.0, min(float(temperature), 1.5)),

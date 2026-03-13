@@ -35,7 +35,6 @@ DEFAULT_VAULT_PATH = Path("VAULT999/vault999.jsonl")
 # Normalized mapping for the 10-tool stack
 TOOL_MAP = {
     "init_anchor_state": "anchor_session",
-    "bootstrap_identity": "anchor_session",
     "integrate_analyze_reflect": "reason_mind",
     "reason_mind_synthesis": "reason_mind",
     "arifOS_kernel": "metabolic_loop",
@@ -280,7 +279,7 @@ def _build_constitutional_audit(session_id: str) -> dict[str, Any]:
     Build the constitutional audit report for audit_rules tool.
     Returns the 13 Floors, their thresholds, and current governance state.
     """
-    from core.shared.floors import THRESHOLDS, FLOOR_SPEC_KEYS
+    from core.shared.floors import FLOOR_SPEC_KEYS, THRESHOLDS
     from core.state.session_manager import session_manager
 
     # Build floors report using canonical floor specs
@@ -349,7 +348,7 @@ def _build_constitutional_audit(session_id: str) -> dict[str, Any]:
             {"doctrine": "F2 Truth", "runtime": "search_reality, ingest_evidence"},
             {"doctrine": "F4 Clarity", "runtime": "entropy tracking, office_forge_audit"},
             {"doctrine": "F6 Care", "runtime": "assess_heart_impact"},
-            {"doctrine": "F11 Command", "runtime": "bootstrap_identity, auth_continuity"},
+            {"doctrine": "F11 Command", "runtime": "init_anchor_state, auth_continuity"},
             {"doctrine": "F13 Sovereign", "runtime": "888_HOLD, verify_vault_ledger"},
         ],
         "status": "ACTIVE",
@@ -425,7 +424,6 @@ async def call_kernel(
     session_id: str,
     payload: dict[str, Any],
 ) -> dict[str, Any]:
-
     from arifosmcp.runtime.models import CallerContext as _CallerContext
     from core.governance_kernel import get_governance_kernel
     from core.shared.types import GovernanceMetadata, Intent, MathDials, TemporalContract
@@ -756,5 +754,11 @@ async def call_kernel(
     except Exception as e:
         logger.error(f"Bridge failure on {tool_name}: {e}", exc_info=True)
         return wrap_tool_output(
-            canonical_name, {"verdict": "VOID", "error": str(e), "stage": "BRIDGE_FAILURE"}
+            canonical_name,
+            {
+                "verdict": "HOLD",
+                "error": str(e),
+                "stage": "BRIDGE_FAILURE",
+                "issue": "RUNTIME_FAILURE",
+            },
         )

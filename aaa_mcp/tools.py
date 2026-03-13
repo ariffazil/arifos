@@ -10,16 +10,13 @@ from __future__ import annotations
 
 from typing import Any
 
-from arifosmcp.runtime.models import CallerContext
 from arifosmcp.runtime.tools import (
     assess_heart_impact,
     audit_rules,
-    bootstrap_identity,
     check_vital,
     critique_thought_audit,
-    init_anchor_state,
     ingest_evidence,
-    integrate_analyze_reflect,
+    init_anchor_state,
     open_apex_dashboard,
     quantum_eureka_forge,
     reason_mind_synthesis,
@@ -41,7 +38,7 @@ async def anchor_session(
     # Support both old and new parameter styles
     if intent is None:
         intent = {"query": "INIT", "actor_id": actor_id}
-    
+
     result = await init_anchor_state(
         intent=intent,
         math=math,
@@ -173,6 +170,7 @@ async def inspect_file(
     """File inspection."""
     # Delegates to runtime capability map or filesystem tools
     from arifosmcp.runtime.capability_map import build_runtime_capability_map
+
     return {
         "ok": True,
         "tool": "inspect_file",

@@ -33,8 +33,8 @@ from core.state.session_manager import session_manager
 from core.telemetry import check_adaptation_status, get_current_hysteresis
 
 from .bridge import call_kernel
-from .reality_models import EvidenceBundle, RealityAtlas, BundleInput, Policy
 from .reality_handlers import handler as reality_handler
+from .reality_models import BundleInput, EvidenceBundle, Policy
 
 PUBLIC_TOOL_SPEC_BY_NAME = {spec.name: spec for spec in public_tool_specs()}
 PUBLIC_KERNEL_TOOL_NAME = "arifOS_kernel"
@@ -349,9 +349,7 @@ async def _wrap_call(
                 and "F11:" in str(errors_block[0].get("message", ""))
             ):
                 errors_block[0]["code"] = "AUTH_FAILURE"
-        elif tool_name in {"bootstrap_identity", "init_anchor_state"} and isinstance(
-            kernel_res, dict
-        ):
+        elif tool_name == "init_anchor_state" and isinstance(kernel_res, dict):
             if str(kernel_res.get("tool", "")).strip() == "anchor_session":
                 kernel_res["tool"] = tool_name
 
@@ -540,23 +538,6 @@ async def init_anchor_state(
 
     return await _wrap_call(
         "init_anchor_state", Stage.INIT_000, session_id, payload, ctx, caller_context
-    )
-
-
-async def bootstrap_identity(
-    declared_name: str,
-    session_id: str | None = None,
-    human_approval: bool = True,
-    caller_context: CallerContext | None = None,
-    ctx: Context | None = None,
-) -> RuntimeEnvelope:
-    """Deprecated. Use init_anchor_state with declared_name instead."""
-    return await init_anchor_state(
-        declared_name=declared_name,
-        session_id=session_id or "global",
-        human_approval=human_approval,
-        caller_context=caller_context,
-        ctx=ctx,
     )
 
 
@@ -1086,7 +1067,7 @@ async def revoke_anchor_state(
     ctx: Context | None = None,
 ) -> RuntimeEnvelope:
     """Revoke a session's governance token. F11 Token Lifecycle management."""
-    from core.enforcement.auth_continuity import revoke_session, is_session_revoked
+    from core.enforcement.auth_continuity import revoke_session
 
     payload = {
         "operation": "revoke",
@@ -1127,8 +1108,8 @@ async def reality_dossier(
     Tri-Witness Decoder for F3 compliance.
     Implements 3E Intelligence: Exploration -> Entropy -> Eureka.
     """
-    from .reality_models import EvidenceBundle
     from .reality_dossier import dossier_engine
+    from .reality_models import EvidenceBundle
 
     parsed_bundles: list[EvidenceBundle] = []
     for b in bundles:

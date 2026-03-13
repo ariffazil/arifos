@@ -1,6 +1,7 @@
 import asyncio
 from typing import Any
 
+from arifosmcp.intelligence.tools.envelope import unified_tool_output
 from core.kernel.constitutional_decorator import constitutional_floor
 from core.telemetry import log_telemetry
 
@@ -140,6 +141,7 @@ def calculate_local_blast_radius(command: str) -> dict[str, Any]:
     }
 
 
+@unified_tool_output(tool_name="local_exec", stage="444_ROUTER")
 @constitutional_floor("F1", "F11", "F12")
 async def local_exec_guard(
     command: str,
@@ -247,4 +249,10 @@ async def local_exec_guard(
         }
 
     except Exception as e:
-        return {"status": "ERROR", "verdict": "VOID", "error": str(e), "command": command}
+        return {
+            "status": "ERROR",
+            "verdict": "HOLD",
+            "error": str(e),
+            "command": command,
+            "issue": "EXEC_FAIL",
+        }

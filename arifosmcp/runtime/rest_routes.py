@@ -1049,7 +1049,12 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
 
             if not all([anchor_tool, reason_tool, heart_tool, judge_tool]):
                 return JSONResponse(
-                    {"error": "Required tools not available", "verdict": "VOID"}, status_code=500
+                    {
+                        "error": "Required tools not available",
+                        "verdict": "HOLD",
+                        "issue": "TOOL_NOT_LOADED",
+                    },
+                    status_code=500,
                 )
 
             # 000_INIT
@@ -1159,7 +1164,9 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
 
         except Exception as exc:
             logger.exception("checkpoint_endpoint failed")
-            return JSONResponse({"error": str(exc), "verdict": "VOID"}, status_code=500)
+            return JSONResponse(
+                {"error": str(exc), "verdict": "HOLD", "issue": "RUNTIME_FAILURE"}, status_code=500
+            )
 
     @mcp.custom_route("/openapi.yaml", methods=["GET"])
     async def openapi_schema(request: Request) -> Response:

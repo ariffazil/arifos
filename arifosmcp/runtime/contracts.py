@@ -229,7 +229,6 @@ AAA_TOOL_LAW_BINDINGS: dict[str, list[str]] = {
 AAA_TOOL_ALIASES: dict[str, str] = {
     "metabolicloop": "metabolic_loop",
     "init_session": "anchor_session",
-    "bootstrap_identity": "anchor_session",
     "agi_cognition": "reason_mind",
     "phoenix_recall": "vector_memory",
     "recall_memory": "vector_memory",
@@ -384,7 +383,7 @@ VALID_PERSONA_HINTS: frozenset[str] = frozenset({"architect", "engineer", "audit
 def require_session(tool: str, session_id: str | None) -> dict[str, Any] | None:
     if tool in REQUIRES_SESSION and (not session_id or not str(session_id).strip()):
         return {
-            "verdict": "VOID",
+            "verdict": "HOLD",
             "stage": "F11_AUTH",
             "floors_failed": ["F11"],
             "error": "Missing session_id",
@@ -401,7 +400,7 @@ def validate_input(tool: str, payload: dict[str, Any]) -> dict[str, Any] | None:
     for key, type_name in contract.items():
         if key not in payload:
             return {
-                "verdict": "VOID",
+                "verdict": "HOLD",
                 "stage": "F3_CONTRACT",
                 "floors_failed": ["F3"],
                 "error": f"Missing required field: {key}",
@@ -409,21 +408,21 @@ def validate_input(tool: str, payload: dict[str, Any]) -> dict[str, Any] | None:
         value = payload[key]
         if type_name == "str" and (not isinstance(value, str) or not str(value).strip()):
             return {
-                "verdict": "VOID",
+                "verdict": "HOLD",
                 "stage": "F3_CONTRACT",
                 "floors_failed": ["F3"],
                 "error": f"Field '{key}' must be non-empty string",
             }
         if type_name == "dict" and not isinstance(value, dict):
             return {
-                "verdict": "VOID",
+                "verdict": "HOLD",
                 "stage": "F3_CONTRACT",
                 "floors_failed": ["F3"],
                 "error": f"Field '{key}' must be object",
             }
         if type_name == "bool" and not isinstance(value, bool):
             return {
-                "verdict": "VOID",
+                "verdict": "HOLD",
                 "stage": "F3_CONTRACT",
                 "floors_failed": ["F3"],
                 "error": f"Field '{key}' must be boolean",
