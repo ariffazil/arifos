@@ -420,7 +420,11 @@ async def _wrap_call(
         )
 
     if tool_name == "check_vital":
-        envelope.payload.setdefault("capability_map", build_runtime_capability_map())
+        envelope.payload["capability_map"] = build_runtime_capability_map()
+        envelope.payload.setdefault(
+            "message",
+            "System vitality and governed capability posture retrieved successfully.",
+        )
         envelope.payload.setdefault(
             "operator_note",
             (
