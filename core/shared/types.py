@@ -445,7 +445,7 @@ class GovernanceMetadata(BaseModel):
 
     actor_id: str = "anonymous"
     authority_level: Literal[
-        "human", "agent", "system", "anonymous", "operator", "sovereign", "declared"
+        "human", "agent", "system", "anonymous", "operator", "apex", "declared"
     ] = "anonymous"
     stakes_class: Literal["A", "B", "C", "UNKNOWN"] = "UNKNOWN"
     tri_witness: dict[str, float] = Field(

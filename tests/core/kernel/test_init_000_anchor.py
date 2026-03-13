@@ -12,7 +12,7 @@ def anchor_engine():
     return AnchorEngine()
 
 def test_authority_level_values():
-    assert AuthorityLevel.SOVEREIGN.value == "sovereign"
+    assert AuthorityLevel.APEX.value == "apex"
     assert AuthorityLevel.USER.value == "human"
 
 @pytest.mark.asyncio
@@ -37,7 +37,7 @@ async def test_ignite_sovereign(anchor_engine):
         
         output = await anchor_engine.ignite("System status", actor_id="arif-fazil")
         
-        assert output.governance.authority_level == "sovereign"
+        assert output.governance.authority_level == "apex"
 
 @pytest.mark.asyncio
 async def test_ignite_f12_injection_fail(anchor_engine):
