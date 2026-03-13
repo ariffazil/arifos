@@ -1169,3 +1169,6 @@ asi_simulate = ASI_SIMULATE
 apex_judge = APEX_JUDGE
 init_anchor = INIT_ANCHOR
 vault_seal = VAULT_SEAL
+
+# Legacy aliases
+reason_mind_synthesis = AGI_REASON
