@@ -34,6 +34,8 @@ MACHINE_FAULT_CODES = frozenset({
     "DNS_FAIL",               # DNS resolution failure
     "TLS_FAIL",               # SSL/TLS handshake failure
     "WAF_BLOCK",              # WAF/CDN blocked request
+    "PARSE_FAIL",             # Response parse error
+    "RENDER_FAIL",            # Headless browser render failure
 })
 
 
