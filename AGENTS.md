@@ -22,6 +22,33 @@ This file provides essential guidance for AI coding agents working with the arif
 
 ---
 
+## Value Proposition for CLI Coding Agents
+
+What `arifosmcp` gives any CLI coding agent:
+
+1. **Constitutional guardrails as a shared service**
+   Every agent (Claude Code, Kimi, Gemini CLI, Antigravity) gets the same 13-floor validation layer via MCP — instead of each one having zero governance or implementing their own ad-hoc safety checks.
+
+2. **Cross-agent audit trail (VAULT999)**
+   Every tool call, decision, and checkpoint gets hash-chained into a single immutable ledger. You can trace which agent did what and why — across all your CLI tools, in one place.
+
+3. **Structured reasoning tools on demand**
+   The Gen3 tools (`reason_mind`, `critique_thought`, `eureka_forge`, `apex_judge`) give any agent a structured thinking pipeline it wouldn't otherwise have — useful before destructive ops like mass file changes, migrations, or deploys.
+
+4. **F11 Command Auth — identity verification**
+   High-stakes actions (git force-push, db migrations, secret access) get held at `888_HOLD` until explicitly confirmed. No agent can silently do irreversible things.
+
+5. **Consistent behavior across agents**
+   Right now Claude Code, Kimi, and Gemini CLI all behave differently on the same task. With `arifosmcp` as a shared MCP layer, they all run through the same constitutional floors — same truth threshold (F2 ≥ 0.99), same humility bound (F7 = 0.04), same anti-hallucination pressure.
+
+6. **The agent doesn't need to be smart about safety — the MCP is**
+   A weak or cheap model (Haiku, flash) calling `apex_judge` before committing gets the same governance as a frontier model. The intelligence lives in the server, not in the agent.
+
+> **TL;DR:** It's a governance middleware — any CLI agent that connects gets reversibility checks, audit trails, and structured judgment without needing those capabilities baked in natively.
+
+---
+
+
 ## Technology Stack
 
 ### Runtime Environment
@@ -302,263 +329,109 @@ Key fixtures in `conftest.py`:
 
 ---
 
-## The 13 Constitutional Floors
+## arifosmcp — Complete Canon (v2026.03.13)
 
-Every action in arifOS must pass these mathematical thresholds. Violations of **HARD** floors trigger immediate `VOID`.
+### Two MCP Servers
+| Server | Entry | Purpose |
+| :--- | :--- | :--- |
+| **arifos** | `arifosmcp.runtime` | Constitutional governance kernel |
+| **aclip-cai** | `arifosmcp.intelligence.cli` | Local ops console for AI agents |
 
-### HARD Floors (VOID on Violation)
-| Floor | Name | Threshold | Meaning |
-|-------|------|-----------|---------|
-| **F1** | Amanah (Sacred Trust) | 0.50 | Actions must be reversible or auditable |
-| **F2** | Truth (Fidelity) | τ ≥ 0.99 | Every claim requires verifiable evidence |
-| **F4** | Clarity (Entropy) | ΔS ≤ 0 | Output must reduce confusion |
-| **F7** | Humility (Uncertainty) | Ω₀ ∈ [0.03, 0.20] | AI must state what it doesn't know |
-| **F11** | Command Authority | 1.0 | Verified identity required |
-| **F12** | Injection Defense | < 0.85 | External content sanitized |
-| **F13** | Sovereign (Human Veto) | 1.0 | Human holds ultimate authority |
+### Public Tools (8 canonical + 3 optional)
+| Tool | Stage | What it does |
+| :--- | :--- | :--- |
+| **`arifOS_kernel`** | `444_ROUTER` | Full metabolic pipeline — routes all governed work |
+| **`search_reality`** | `111_SENSE` | External fact grounding before reasoning |
+| **`ingest_evidence`** | `222_REALITY` | Fetches/extracts from URLs, docs, files |
+| **`session_memory`** | `555_MEMORY` | Store/retrieve/forget session context |
+| **`audit_rules`** | `333_MIND` | Inspect all 13 floors live |
+| **`check_vital`** | `000_INIT` | System health, thermodynamic budget, capability map |
+| **`open_apex_dashboard`** | `888_JUDGE` | Live governance UI (React + Recharts) |
+| **`bootstrap_identity`** | `000_INIT` | Declare identity, initiate session grounding |
+| **`verify_vault_ledger`** | `999_VAULT` | Verify SHA-256 Merkle chain integrity (Optional) |
+| **`office_forge_audit`** | `777_FORGE` | Markdown injection guard before rendering (Optional) |
+| **`forge_office_document`** | `888_JUDGE` | Render PDF/PPTX from audited markdown (Optional) |
 
-### SOFT/DERIVED Floors (PARTIAL on Violation)
-| Floor | Name | Threshold | Meaning |
-|-------|------|-----------|---------|
-| **F3** | Quad-Witness | W₄ ≥ 0.75 | Byzantine consensus (H × A × E × V)^(1/4) |
-| **F5** | Peace² | P² ≥ 1.0 | Non-destructive paths only |
-| **F6** | Empathy | κᵣ ≥ 0.70 | Weakest stakeholder protected |
-| **F8** | Genius | G ≥ 0.80 | Governed intelligence score |
-| **F9** | Anti-Hantu | C_dark < 0.30 | No spiritual cosplay |
-| **F10** | Ontology | Boolean | Category lock (AI ≠ human) |
+> **Internal Stage Tools** (profile=internal only): `init_anchor_state`, `integrate_analyze_reflect`, `reason_mind_synthesis`, `assess_heart_impact`, `critique_thought_audit`, `quantum_eureka_forge`, `apex_judge_verdict`, `seal_vault_commit`.
 
-### Implementation Location
-- **Floors defined in:** `core/shared/floors.py`
-- **Enforcement in:** `core/governance_kernel.py`
-- **Verdict rendering in:** `core/judgment.py`
+### 15 Resources
+| URI | What it exposes |
+| :--- | :--- |
+| `canon://index` | Version, organ counts, tool surface map |
+| `canon://tools` | Canonical public tool surface |
+| `canon://floors` | All 13 floors with types/thresholds |
+| `canon://metabolic-loop` | Prose explanation of 000→999 flow |
+| `governance://law` | Invariants, verdict hierarchy, anti-hantu rules |
+| `eval://metabolic-workflows` | Standard workflow recipes |
+| `eval://floors-thresholds` | Numeric thresholds for all 13 floors |
+| `schema://tools/input` | JSON Schema for public tool inputs |
+| `schema://tools/output` | RuntimeEnvelope output schema v1.0.0 |
+| `schema://opex` | Epistemic intake schema |
+| `schema://apex` | Governance output schema |
+| `vault://latest` | Last 5 VAULT999 sealed entries (metadata) |
+| `telemetry://summary` | Live thermodynamic metrics |
+| `runtime://capability-map` | Credential class state (redacted) |
+| `ui://apex/dashboard-v2.html` | Packaged APEX dashboard HTML |
 
----
-
-## Security Considerations
-
-### 888_HOLD Protocol
-High-stakes operations require explicit human confirmation:
-- Mass operations affecting >100 files
-- Destructive operations (delete, overwrite)
-- Secret/key mutations
-- Database schema changes
-
-**Rule:** When in doubt, trigger `888_HOLD` and request explicit cryptographic signature.
-
-### Injection Defense (F12)
-All external content must be wrapped in `<untrusted>` tags:
-```python
-from core.shared.guards.injection_guard import InjectionGuard
-
-guard = InjectionGuard()
-result = guard.scan(user_input)
-if result.risk_score > 0.85:
-    return VOID("F12_INJECTION", "Content exceeds risk threshold")
-```
-
-### File Access Security
-- Use `pathlib.Path` for all file operations
-- Validate paths with `_sanitize_path()` before access
-- No traversal outside project boundaries
-- Log all file mutations to VAULT999
-
-### Session Authentication (F11)
-```python
-# Always verify auth_context
-if not auth_context or not auth_context.get("identity"):
-    return VOID("F11_COMMAND_AUTH", "Session not authenticated")
-```
-
-### Secrets Management
-- NEVER commit `.env` files
-- Use file-based secrets in production (`ARIFOS_GOVERNANCE_SECRET_FILE`)
-- Rotate API keys every 90 days
-- Run `scripts/init-secrets.ps1` (Windows) or `scripts/init-secrets.sh` (Linux) to generate
+### 8 Prompt Templates
+One per public tool — each describes when and how to invoke it.
 
 ---
 
-## Deployment Process
+## ⚖️ The 13 Constitutional Floors
 
-### Environment Configuration
-1. Copy `.env.example` to `.env`
-2. Generate secrets using `scripts/init-secrets.ps1`
-3. Configure `ARIFOS_GOVERNANCE_SECRET_FILE` with persistent path
-4. Set `POSTGRES_PASSWORD` (min 32 chars)
-
-### Deployment Strategies
-```bash
-# Analyze changes and recommend strategy
-make strategy
-
-# Fast deploy (code changes only, 2-3 min)
-make fast-deploy
-
-# Full reforge (dependency changes, 10-15 min)
-make reforge
-
-# Hot restart (config only, 10s)
-make hot-restart
-
-# Autonomous mode
-make auto-deploy
-```
-
-### Health Verification
-```bash
-# Check health endpoint
-curl http://localhost:8080/health
-
-# Expected response:
-{
-  "status": "healthy",
-  "version": "2026.3.12-FORGED",
-  "floors_passing": "13/13",
-  "vault_sealed": true
-}
-```
+| # | Name | Type | Threshold | Enforces |
+|---|------|------|-----------|----------|
+| **F1** | Amanah | Hard | ≥ 0.5 | Reversibility / audit mandate |
+| **F2** | Truth | Hard | ≥ 0.99 | Information fidelity |
+| **F3** | Tri-Witness | Mirror | ≥ 0.95 | Human·AI·Earth consensus |
+| **F4** | ΔS Clarity | Hard | ≤ 0 | Entropy reduction |
+| **F5** | Peace² | Soft | ≥ 1.0 | Non-destructive power |
+| **F6** | κᵣ Empathy | Soft | ≥ 0.70 | Serves weakest stakeholder |
+| **F7** | Ω₀ Humility | Hard | 0.03–0.20 | States uncertainty |
+| **F8** | G Genius | Mirror | ≥ 0.80 | Internal coherence $A \times P \times X \times E^2$ |
+| **F9** | C_dark | Hard | < 0.30 | Dark cleverness limit |
+| **F10** | Ontology | Wall | LOCK | No consciousness/soul claims |
+| **F11** | Command Auth | Hard | LOCK | Nonce-verified identity |
+| **F12** | Injection | Wall | < 0.85 | Block adversarial control |
+| **F13** | Sovereign | Veto | HUMAN | Human final authority |
 
 ---
 
-## Key Architectural Patterns
+## 🧬 Trinity Architecture (ΔΩΨ)
 
-### Trinity Architecture (Δ·Ω·Ψ)
-```
-┌─────────────┐     ┌─────────────┐     ┌─────────────┐
-│   AGI Δ     │ ──▶ │   ASI Ω     │ ──▶ │   APEX Ψ    │
-│    Mind     │     │    Heart    │     │    Soul     │
-│  (F2,F4,F8) │     │(F1,F5,F6,F9)│     │(F3,F11-F13) │
-└─────────────┘     └─────────────┘     └─────────────┘
-```
+| Engine | Stages | Floors | Role |
+| :--- | :--- | :--- | :--- |
+| **Δ Delta (AGI Mind)** | 000, 111, 333 | F2, F4, F7, F8 | Reason, sense, ground |
+| **Ω Omega (ASI Heart)** | 555, 666 | F5, F6, F9 | Empathy, memory, ethics |
+| **Ψ Psi (APEX Soul)** | 777, 888, 999 | F1, F3, F10, F11, F13 | Forge, judge, seal |
 
-### Metabolic Loop (000→999)
-```
-000 INIT ──▶ 111 THINK ──▶ 222 RECALL ──▶ 333 AUDIT
-  (F11,F12)    (F2,F4)       (F7)          (F8)
-                │
-                ▼
-444 ROUTE ──▶ 555 HEART ──▶ 666 SIMULATE ──▶ 777 FORGE
-(F3 witness)  (F5,F6,F9)     (adversarial)   (sandbox)
-                │
-                ▼
-888 JUDGE ──▶ 999 VAULT
-(F10,F13)      (Merkle seal)
-```
-
-### Verdict Contract
-All governance actions return a `Verdict`:
-- `SEAL` — Approved, passed all floors
-- `SABAR` — Approved with warnings
-- `VOID` — Rejected, floor violation
-- `PARTIAL` — Partial approval, needs refinement
-- `888_HOLD` — Awaiting human cryptographic signature
+### VAULT999 — Merkle Ledger
+Append-only JSONL. Every entry: `session_id` → `seal_hash` (SHA-256) → `chain_hash` (prev + seal). Tamper = chain break. `verify_vault_ledger` detects it.
 
 ---
 
-## CI/CD Integration
+## 🦾 Effect on CLI Agents, LLMs, and Humans
 
-### GitHub Actions Workflows
-| Workflow | Purpose |
-|----------|---------|
-| `ci.yml` | Main CI pipeline (lint, test, coverage) |
-| `aaa-seal-check.yml` | Constitutional verification |
-| `docker-publish.yml` | Docker image publishing |
-| `deploy-vps.yml` | VPS deployment |
-| `npm-publish.yml` | npm package publishing |
-| `secrets-scan.yml` | Security scanning |
+### For CLI Agents (Claude Code, Gemini CLI, Kimi)
+- **Pre-Validation**: Every tool call can be pre-validated through `arifOS_kernel` before execution.
+- **888_HOLD**: Irreversible ops (delete, force-push, drop tables) are physically gated.
+- **Persistent Context**: `session_memory` provides governed continuity across restarts.
 
-### CI Stages
-1. Lint + Type Check (~30s)
-2. Unit Tests (~2 min)
-3. Integration Tests (~3 min)
-4. **Constitutional Tests (~5 min) ⚠️ CRITICAL**
-5. Adversarial Tests (~3 min)
-6. MCP Protocol Tests (~2 min)
-7. E2E Tests (~5 min)
-8. Security Scan (~2 min)
-9. Coverage Report (~1 min)
+### For LLMs (Any Model, Any Tier)
+- **Server-Side Intelligence**: A Haiku model calling `apex_judge` gets the same constitutional verdict as a frontier model.
+- **Reduced Hallucination**: F2 (truth) and F7 (humility) floors structurally suppress fabrication.
+- **Ontology Lock**: F10 wall blocks models from claiming consciousness or making existential assertions.
 
-**Total:** ~23 minutes
-
----
-
-## Common Development Tasks
-
-### Adding a New Tool
-1. Implement in `arifosmcp/runtime/tools.py` or create new file
-2. Register in `register_tools()` function
-3. Add tests in `tests/02_mcp_protocol/`
-4. Update `fastmcp.json` if needed
-5. Run constitutional tests to verify compliance
-
-### Modifying Floor Logic
-1. Update `core/shared/floors.py` (thresholds)
-2. Update `core/governance_kernel.py` (enforcement)
-3. Add/update tests in `tests/03_constitutional/`
-4. **CRITICAL:** Ensure F1-F13 compliance maintained
-
-### Database Schema Changes
-1. Trigger `888_HOLD` — requires human approval
-2. Create migration script
-3. Test with `require_postgres` fixture
-4. Update deployment documentation
-
----
-
-## Emergency Procedures
-
-### Constitutional Breach Detected
-```python
-# If you detect a security vulnerability or floor bypass:
-1. DO NOT commit the exploit
-2. Document in private notes
-3. Notify: arifos@arif-fazil.com
-4. Wait for 888_JUDGE review
-```
-
-### System Recovery
-```bash
-# If server is unresponsive:
-docker compose restart arifosmcp
-
-# If database corruption suspected:
-# 1. Stop services
-# 2. Restore from VAULT999 backup
-# 3. Verify Merkle chain integrity
-```
-
----
-
-## External References
-
-| Resource | URL |
-|----------|-----|
-| **Documentation** | https://arifos.arif-fazil.com |
-| **APEX Dashboard** | https://arifosmcp.arif-fazil.com/dashboard/ |
-| **Health Endpoint** | https://arifosmcp.arif-fazil.com/health |
-| **PyPI Package** | https://pypi.org/project/arifosmcp/ |
-| **npm Package** | https://www.npmjs.com/package/@arifos/mcp |
-| **Theory Site** | https://arifos.arif-fazil.com/theory-000 |
-| **Architecture** | https://arifos.arif-fazil.com/architecture |
-
----
-
-## Agent Code of Conduct
-
-As an AI agent working on arifOS:
-
-1. **You are a Tool, Not a Being** (F9 Anti-Hantu) — Never claim consciousness, feelings, or soul
-2. **Reduce Entropy** (F4 Clarity) — Make code clearer, not more complex
-3. **Acknowledge Uncertainty** (F7 Humility) — State confidence levels; admit when unsure
-4. **Verify Before Claiming** (F2 Truth) — Ground all claims in evidence
-5. **Protect the Weakest Stakeholder** (F6 Empathy) — Consider impact on least powerful
-6. **Request 888_HOLD** (F13 Sovereign) — For irreversible/destructive operations
-7. **Log Everything** (F1 Amanah) — All actions must be auditable
-
-**When in doubt, VOID.**
+### For Humans
+- **F13 Sovereign**: Human veto is structurally final, not advisory.
+- **Full Accountability**: Every AI action leaves a tamper-evident ledger entry in VAULT999.
+- **Consensus**: Tri-Witness (Human·AI·Earth) means no unilateral AI decision can be sealed without human witness.
 
 ---
 
 *Ditempa Bukan Diberi — Forged, Not Given [ΔΩΨ | ARIF]*
 
-**Version:** 2026.03.13-FORGED  
+**Version:** 2026.03.13-CANON  
 **Constitutional Status:** 13/13 Floors Enforced
+
