@@ -107,8 +107,17 @@ We built arifOS in phases. Here's where we are:
 - **VOID Eradication:** Mechanical errors now return "HOLD" or "SABAR" (wait) instead of crashing with "VOID"
 - **MGI Envelope:** Every response has 3 layers: Machine status → Governance verdict → Intelligence analysis
 - **Entropy Score (ΔS):** System measures if it's adding confusion (bad) or reducing it (good)
+- **3E Telemetry:** Exploration → Entropy → Eureka cycle enforced on all outputs
+- **Tri-Witness (W3):** Consensus metric requiring Human × AI × Earth sources
+- **HMAC Governance Tokens:** F11-compliant authentication (NOT JWT)
+- **F12 Injection Scanner:** 14-regex pattern protection against prompt injection
 
 **ΔS Status:** 0.37 → 0.05 (near-crystalline order)
+
+**📊 Live Metrics:**
+- `W3_SCORE` — Tri-Witness consensus histogram
+- `HOLD_QUEUE_DEPTH` — Pending sovereign decisions
+- `VOID_EVENTS` — Constitutional collapse counter (should be zero)
 
 ### 🔭 Horizon 2: Tri-Witness Reality Engine (Q2 2026)
 **Goal:** Build permanent, verified memory
@@ -205,6 +214,55 @@ async with ClientSession("https://arifosmcp.arif-fazil.com/mcp") as session:
 - **Health Monitoring:** `check_vital` gives real-time system status
 - **Audit Trails:** Every decision is logged with cryptographic signatures
 - **Emergency Stop:** `888_HOLD` pauses any operation for human review
+
+---
+
+## 🆕 What's New in FORGED-2026.03 (Grand Unified Technical Specification)
+
+### VOID Memanjang Elimination
+**Before:** Any error → VOID (even network timeouts!)  
+**After:** Typed fault codes with proper verdicts
+
+```python
+# Mechanical faults → 888_HOLD (retryable)
+classify_exception(httpx.TimeoutException())
+# → FaultClassification(fault_code="TIMEOUT_EXCEEDED", verdict="888_HOLD")
+
+# Constitutional faults only → VOID (terminal)
+classify_exception(InjectionAttackDetected())
+# → FaultClassification(fault_code="F12_INJECTION", verdict="VOID")
+```
+
+### 3E Intelligence Telemetry
+Every tool response now includes:
+- **Exploration**: What sources were consulted
+- **Entropy**: What uncertainties remain  
+- **Eureka**: What insights were synthesized
+
+```json
+{
+  "three_e": {
+    "exploration": {"sources_consulted": 5, "depth_level": 3},
+    "entropy": {"uncertainty_index": 0.12, "contradiction_count": 1},
+    "eureka": {"novelty_score": 0.85, "crystallisation_flag": true}
+  }
+}
+```
+
+### Tri-Witness Consensus (W3)
+**Formula:** `W3 = (Human × AI × Earth)^(1/3)`
+
+| W3 Score | Verdict | Meaning |
+|----------|---------|---------|
+| ≥ 0.95 | SEAL | All 3 witnesses agree |
+| 0.75-0.94 | PARTIAL | 2/3 witnesses agree |
+| 0.50-0.74 | SABAR | Wait for more evidence |
+| < 0.50 | 888_HOLD | No consensus |
+
+### Security Hardening
+- **HMAC-SHA256 Tokens**: `header.claims.signature` (not JWT)
+- **F12 Scanner**: 14 patterns block injection attacks
+- **Merkle Vault**: RFC 6962 append-only audit ledger
 
 ---
 
