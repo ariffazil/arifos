@@ -90,14 +90,17 @@ def _auth_failure_envelope(
     identity_reason: str,
     resolved_actor_id: str = "anonymous",
     next_action_reason: str,
+    machine_issue: str = "AUTH_BOOTSTRAP_REQUIRED",
 ) -> dict[str, Any]:
     return {
         "ok": False,
         "tool": tool,
         "session_id": session_id,
         "stage": "000_INIT",
-        "verdict": "VOID",
+        "verdict": "HOLD",
         "status": "ERROR",
+        "machine_status": "BLOCKED",
+        "machine_issue": machine_issue,
         "metrics": {
             "truth": 0.0,
             "clarity_delta": 0.0,
@@ -108,7 +111,7 @@ def _auth_failure_envelope(
             "authority": 0.0,
             "risk": 0.0,
         },
-        "trace": {"000_INIT": "VOID"},
+        "trace": {"000_INIT": "HOLD"},
         "authority": {
             "actor_id": "anonymous",
             "level": "anonymous",
@@ -132,10 +135,10 @@ def _auth_failure_envelope(
         },
         "errors": [
             {
-                "code": "AUTH_FAILURE",
+                "code": machine_issue,
                 "message": error_message,
                 "stage": "000_INIT",
-                "recoverable": False,
+                "recoverable": True,
             }
         ],
         "meta": {
@@ -279,7 +282,7 @@ def _build_constitutional_audit(session_id: str) -> dict[str, Any]:
     """
     from core.shared.floors import THRESHOLDS, FLOOR_SPEC_KEYS
     from core.state.session_manager import session_manager
-    
+
     # Build floors report using canonical floor specs
     floors = []
     floor_metadata = {
@@ -297,12 +300,12 @@ def _build_constitutional_audit(session_id: str) -> dict[str, Any]:
         "F12": {"name": "Injection Defense", "doctrine": "Input sanitization"},
         "F13": {"name": "Sovereign Override", "doctrine": "Human final authority"},
     }
-    
+
     for floor_id in [f"F{i}" for i in range(1, 14)]:
         spec_key = FLOOR_SPEC_KEYS.get(floor_id)
         threshold_data = THRESHOLDS.get(spec_key, {}) if spec_key else {}
         meta = floor_metadata.get(floor_id, {})
-        
+
         # Format threshold for display
         threshold_val = threshold_data.get("threshold")
         if threshold_val is not None:
@@ -312,9 +315,9 @@ def _build_constitutional_audit(session_id: str) -> dict[str, Any]:
             threshold_str = f"∈ [{r[0]}, {r[1]}]"
         else:
             threshold_str = "HARD"
-        
+
         floor_type = threshold_data.get("type", "SOFT")
-        
+
         floor_data = {
             "floor_id": floor_id,
             "name": meta.get("name", floor_id),
@@ -323,7 +326,7 @@ def _build_constitutional_audit(session_id: str) -> dict[str, Any]:
             "doctrine": meta.get("doctrine", threshold_data.get("desc", "—")),
         }
         floors.append(floor_data)
-    
+
     # Get session state if available
     session_state = "NO_SESSION"
     try:
@@ -332,7 +335,7 @@ def _build_constitutional_audit(session_id: str) -> dict[str, Any]:
             session_state = "ACTIVE"
     except Exception:
         pass
-    
+
     return {
         "audit_type": "constitutional_floors",
         "session_id": session_id,
@@ -361,18 +364,18 @@ def _build_vitals_report(session_id: str) -> dict[str, Any]:
     """
     from core.shared.floors import THRESHOLDS
     from core.state.session_manager import session_manager
-    
+
     # Gather system health
     health_status = "HEALTHY"
     degraded_components = []
-    
+
     # Check session
     session_active = False
     try:
         session_active = session_manager.get_kernel(session_id) is not None
     except Exception:
         pass
-    
+
     # Build capability map based on available integrations
     capability_map = {
         "governed_continuity": {"enabled": True, "status": "configured"},
@@ -383,17 +386,18 @@ def _build_vitals_report(session_id: str) -> dict[str, Any]:
         "local_model_runtime": {"enabled": True, "status": "configured"},
         "auto_deploy": {"enabled": False, "status": "manual_only"},
     }
-    
+
     # Check thermodynamic module
     thermo_status = "active"
     try:
         from core.physics import thermodynamics_hardened
+
         thermo_status = "active"
     except ImportError as e:
         thermo_status = f"degraded: {e}"
         degraded_components.append("thermodynamics_hardened")
         health_status = "DEGRADED"
-    
+
     return {
         "system_status": health_status,
         "session_id": session_id,
@@ -451,6 +455,7 @@ async def call_kernel(
                     identity_claim_status="UNVERIFIED_CLAIM",
                     identity_reason="Auto-bootstrap not allowed for high-risk.",
                     next_action_reason="Run init_anchor_state first.",
+                    machine_issue="AUTH_BOOTSTRAP_REQUIRED",
                 )
         else:
             valid, reason = verify_auth_context_cached(session_id, auth_ctx)
@@ -463,6 +468,7 @@ async def call_kernel(
                     identity_claim_status="INVALID_AUTH_CONTEXT",
                     identity_reason=reason,
                     next_action_reason="Refresh continuity state.",
+                    machine_issue="TOKEN_EXPIRED",
                 )
 
     elif canonical_name in REQUIRES_SESSION:
@@ -475,6 +481,7 @@ async def call_kernel(
                 identity_claim_status="UNVERIFIED_CLAIM",
                 identity_reason="No auth_context.",
                 next_action_reason="Run init_anchor_state first.",
+                machine_issue="AUTH_TOKEN_MISSING",
             )
         valid, reason = verify_auth_context_cached(session_id, auth_ctx)
         if not valid:
@@ -486,6 +493,7 @@ async def call_kernel(
                 identity_claim_status="INVALID_AUTH_CONTEXT",
                 identity_reason=reason,
                 next_action_reason="Refresh continuity state.",
+                machine_issue="TOKEN_EXPIRED",
             )
 
     if canonical_name == "search_reality":
