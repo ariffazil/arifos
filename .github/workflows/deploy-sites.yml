@@ -1,96 +1,48 @@
-# Deploy arifOS docs site to GitHub Pages
-
-name: Deploy APPS site to GitHub Pages
+# Deploy arifOS Developer Portal to GitHub Pages (arifos.arif-fazil.com)
+name: Deploy arifOS Developer Portal
 
 on:
   push:
-    branches: [main, master]
+    branches: [main]
+    paths:
+      - 'arifosmcp/sites/developer/**'
+      - '.github/workflows/deploy-sites.yml'
   workflow_dispatch:
 
-# GitHub Pages permissions
 permissions:
   contents: read
   pages: write
   id-token: write
 
-# Prevent concurrent deployments
 concurrency:
   group: "pages"
   cancel-in-progress: false
 
 jobs:
-  build:
-    name: Build arifOS APPS
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: 20
-          cache: npm
-          cache-dependency-path: arifosmcp/sites/docs/package-lock.json
-
-      - name: Install dependencies
-        run: npm ci
-        working-directory: arifosmcp/sites/docs
-
-      - name: Validate canonical docs source
+      - name: Validate static site source
         run: |
-          test -f arifosmcp/sites/docs/docs/intro.md
-          test -f arifosmcp/sites/docs/docs/architecture.md
-          test -f arifosmcp/sites/docs/docs/governance.md
-          echo "✅ Canonical docs source is present at arifosmcp/sites/docs/docs"
-
-      - name: Build docs
-        run: npm run build
-        working-directory: arifosmcp/sites/docs
+          test -f arifosmcp/sites/developer/index.html
+          test -f arifosmcp/sites/developer/style.css
+          test -f arifosmcp/sites/developer/app.js
+          echo "✅ Static developer portal source is present"
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
-      - name: Add custom domain
-        run: echo "arifos.arif-fazil.com" > arifosmcp/sites/docs/build/CNAME
-
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v4
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          path: arifosmcp/sites/docs/build
+          path: 'arifosmcp/sites/developer'
 
-  deploy:
-    name: Deploy to GitHub Pages
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-
-      - name: Verify Deployment
-        run: |
-          echo "========================================"
-          echo "  arifOS DOCS DEPLOYED"
-          echo "========================================"
-          echo "  GitHub URL: ${{ steps.deployment.outputs.page_url }}"
-          echo "  Custom Domain: https://arifos.arif-fazil.com"
-          echo "========================================"
-          echo "  DITEMPA BUKAN DIBERI 🔥"
-          echo "========================================"
-
-      - name: Smoke test public docs URLs
-        run: |
-          for i in 1 2 3 4 5; do
-            if curl -fsSL "https://arifos.arif-fazil.com/intro" >/dev/null && curl -fsSL "https://arifos.arif-fazil.com/architecture" >/dev/null; then
-              echo "✅ Public docs are reachable"
-              exit 0
-            fi
-            echo "⏳ Waiting for propagation ($i/5)..."
-            sleep 10
-          done
-          echo "❌ Public docs smoke test failed"
-          exit 1

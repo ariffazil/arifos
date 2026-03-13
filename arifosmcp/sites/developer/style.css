@@ -1,7 +1,7 @@
 /* ============================================================
    arifOS MCP — Developer Portal Styles
    Art Direction: Terminal / Constitutional / Precision Tech
-   Palette: Deep black surfaces · cyan-green accent · mono type
+   Palette: Deep black surfaces · blue accent · mono type
    ============================================================ */
 
 :root {
@@ -43,9 +43,9 @@
   --color-text:      #e2e2e5;
   --color-text-muted:#8a8a90;
   --color-text-faint:#4a4a52;
-  --color-accent:    #00e5b0;
-  --color-accent-dim:#00b88d;
-  --color-accent-glow: rgba(0, 229, 176, 0.12);
+  --color-accent:    #2563eb;
+  --color-accent-dim:#1d4ed8;
+  --color-accent-glow: rgba(37, 99, 235, 0.12);
   --color-blue:      #5b9bd5;
   --color-orange:    #f0a040;
   --color-red:       #e05050;
@@ -54,7 +54,7 @@
   --shadow-sm: 0 1px 3px rgba(0,0,0,0.4);
   --shadow-md: 0 4px 16px rgba(0,0,0,0.5);
   --shadow-lg: 0 12px 40px rgba(0,0,0,0.6);
-  --shadow-glow: 0 0 24px rgba(0, 229, 176, 0.08);
+  --shadow-glow: 0 0 24px rgba(37, 99, 235, 0.08);
 }
 
 [data-theme="light"] {
@@ -67,9 +67,9 @@
   --color-text:      #12121a;
   --color-text-muted:#5a5a68;
   --color-text-faint:#a0a0b0;
-  --color-accent:    #007a60;
-  --color-accent-dim:#005a48;
-  --color-accent-glow: rgba(0, 122, 96, 0.08);
+  --color-accent:    #1e40af;
+  --color-accent-dim:#1e3a8a;
+  --color-accent-glow: rgba(30, 64, 175, 0.08);
   --color-blue:      #1a6abf;
   --color-orange:    #c07000;
   --color-red:       #c03030;
@@ -86,8 +86,8 @@
     --color-bg: #f4f4f6; --color-surface: #ffffff; --color-surface-2: #f8f8fa;
     --color-surface-3: #f0f0f4; --color-border: #dcdce0; --color-divider: #e8e8ec;
     --color-text: #12121a; --color-text-muted: #5a5a68; --color-text-faint: #a0a0b0;
-    --color-accent: #007a60; --color-accent-dim: #005a48;
-    --color-accent-glow: rgba(0, 122, 96, 0.08);
+    --color-accent: #1e40af; --color-accent-dim: #1e3a8a;
+    --color-accent-glow: rgba(30, 64, 175, 0.08);
   }
 }
 
@@ -122,8 +122,8 @@ button { font: inherit; cursor: pointer; border: none; background: none; color: 
   50% { opacity: 0.7; }
 }
 @keyframes glow {
-  0%, 100% { box-shadow: 0 0 20px rgba(0, 229, 176, 0.1); }
-  50% { box-shadow: 0 0 30px rgba(0, 229, 176, 0.2); }
+  0%, 100% { box-shadow: 0 0 20px rgba(37, 99, 235, 0.1); }
+  50% { box-shadow: 0 0 30px rgba(37, 99, 235, 0.2); }
 }
 
 /* STATUS BAR */
@@ -432,4 +432,58 @@ button { font: inherit; cursor: pointer; border: none; background: none; color: 
   .tool-grid { grid-template-columns: 1fr; }
   .endpoint-grid { grid-template-columns: 1fr; }
   .floor-item { grid-template-columns: 30px 1fr 60px 40px; }
+}
+
+/* ============================================================
+   TRINITY NAVIGATION STRIP
+   ============================================================ */
+.trinity-strip {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 1rem;
+  background: rgba(10,10,11,0.98);
+  border-bottom: 1px solid rgba(37, 99, 235, 0.15);
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.12em;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.trinity-node {
+  text-decoration: none;
+  padding: 0.15rem 0.5rem;
+  border-radius: 2px;
+  transition: opacity 0.15s;
+  opacity: 0.45;
+  font-weight: 600;
+}
+
+.trinity-node:hover { opacity: 0.9; }
+
+.trinity-node.trinity-active { opacity: 1; }
+
+.trinity-human  { color: #ff4d4f; }
+.trinity-theory { color: #ffd24a; }
+.trinity-apps   { color: #2563eb; }
+
+.trinity-human.trinity-active  { border-bottom: 1px solid #ff4d4f; }
+.trinity-theory.trinity-active { border-bottom: 1px solid #ffd24a; }
+.trinity-apps.trinity-active   { border-bottom: 1px solid #2563eb; }
+
+.trinity-div {
+  color: rgba(255,255,255,0.2);
+  font-size: 0.6rem;
+}
+
+.trinity-sep {
+  flex: 1;
+}
+
+.trinity-sig {
+  color: rgba(255,255,255,0.18);
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
 }

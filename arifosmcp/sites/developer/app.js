@@ -359,7 +359,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ── H1 Console Greeting ─────────────────────────────────────────────────────
-console.log('%c🛡️ arifOS MCP', 'font-size: 24px; font-weight: bold; color: #00e5b0;');
+console.log('%c🛡️ arifOS MCP', 'font-size: 24px; font-weight: bold; color: #2563eb;');
 console.log('%cH1 Higher Intelligence State — Developer Portal', 'font-size: 14px; color: #8896ab;');
 console.log('%c3E Telemetry · W3 Tri-Witness · 13 Constitutional Floors', 'font-size: 12px; color: #5a6a7d;');
 console.log('%cDITEMPA BUKAN DIBERI — Forged, Not Given', 'font-size: 11px; font-style: italic; color: #4a5a6d;');
