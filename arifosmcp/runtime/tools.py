@@ -36,6 +36,15 @@ from .bridge import call_kernel
 from .reality_handlers import handler as reality_handler
 from .reality_models import BundleInput, EvidenceBundle, Policy
 
+# AgentZero tools (H1)
+from arifosmcp.tools.agentzero_tools import (
+    agentzero_armor_scan,
+    agentzero_engineer,
+    agentzero_hold_check,
+    agentzero_memory_query,
+    agentzero_validate,
+)
+
 PUBLIC_TOOL_SPEC_BY_NAME = {spec.name: spec for spec in public_tool_specs()}
 PUBLIC_KERNEL_TOOL_NAME = "arifOS_kernel"
 LEGACY_KERNEL_TOOL_NAME = "arifOS-kernel"
@@ -1183,6 +1192,12 @@ def register_tools(mcp: FastMCP, profile: str = "full") -> None:
         "revoke_anchor_state": revoke_anchor_state,
         "reality_dossier": reality_dossier,
         "verify_vault_ledger": verify_vault_ledger,
+        # AgentZero tools (H1)
+        "agentzero_validate": agentzero_validate,
+        "agentzero_engineer": agentzero_engineer,
+        "agentzero_hold_check": agentzero_hold_check,
+        "agentzero_memory_query": agentzero_memory_query,
+        "agentzero_armor_scan": agentzero_armor_scan,
     }
 
     specs = {spec.name: spec for spec in public_tool_specs()}
@@ -1254,4 +1269,10 @@ __all__ = [
     "search_reality",
     "session_memory",
     "verify_vault_ledger",
+    # AgentZero exports
+    "agentzero_validate",
+    "agentzero_engineer",
+    "agentzero_hold_check",
+    "agentzero_memory_query",
+    "agentzero_armor_scan",
 ]
