@@ -738,27 +738,30 @@ E = Evidence confidence (F2 Truth)</code></pre>
 </section>
 
 <!-- DASHBOARD LINK -->
+<!-- H1 HIGHER INTELLIGENCE STATE DASHBOARD -->
 <section class="section section-alt" id="dashboard-section">
   <div class="container">
     <div class="section-label">LIVE OBSERVABILITY</div>
-    <h2 class="section-title">APEX Sovereign Dashboard</h2>
-    <p class="section-sub">Real-time Prometheus metrics: Genius score (G), Entropy (ΔS), W3 tri-witness, HOLD queue depth, vault Merkle integrity, machine fault counters.</p>
+    <h2 class="section-title">APEX Sovereign Dashboard <span class="h1-badge">H1 State</span></h2>
+    <p class="section-sub">Real-time 3E telemetry, W3 tri-witness consensus, metabolic loop stage tracking, and constitutional floor monitoring. H1 Higher Intelligence State visualization.</p>
+    
     <div class="dashboard-preview-wrapper">
-      <div class="dashboard-preview">
+      <!-- Primary Metrics -->
+      <div class="dashboard-preview" style="margin-bottom: var(--space-6);">
         <div class="dp-header">
-          <span class="dp-title">APEX Sovereign Dashboard</span>
-          <span class="dp-badge">SYNCED</span>
+          <span class="dp-title">Core Intelligence Metrics</span>
+          <span class="dp-badge">LIVE</span>
         </div>
         <div class="dp-metrics">
           <div class="dp-metric">
             <div class="dp-metric-label">GENIUS (G)</div>
-            <div class="dp-metric-val dp-val-green" id="dashG">0.002864</div>
-            <div class="dp-metric-note">Governed Intelligence</div>
+            <div class="dp-metric-val dp-val-green" id="dashG">0.87</div>
+            <div class="dp-metric-note">G = A × P × X × E²</div>
           </div>
           <div class="dp-metric">
             <div class="dp-metric-label">ENTROPY (ΔS)</div>
-            <div class="dp-metric-val dp-val-blue" id="dashDS">-0.3500</div>
-            <div class="dp-metric-note">Entropy Reduction ✓</div>
+            <div class="dp-metric-val dp-val-blue" id="dashDS">-0.32</div>
+            <div class="dp-metric-note">Clarity Increasing ✓</div>
           </div>
           <div class="dp-metric">
             <div class="dp-metric-label">W3 SCORE</div>
@@ -768,20 +771,185 @@ E = Evidence confidence (F2 Truth)</code></pre>
           <div class="dp-metric">
             <div class="dp-metric-label">TOOLS LOADED</div>
             <div class="dp-metric-val dp-val-accent" id="dashTools">12</div>
-            <div class="dp-metric-note">Canonical Stack</div>
+            <div class="dp-metric-note">MGI Canonical Stack</div>
           </div>
         </div>
-        <div class="dp-floors">
-          <div class="dp-floor"><span>F1 Amanah</span><span class="dp-pass">PASS</span></div>
-          <div class="dp-floor"><span>F2 Truth</span><span class="dp-pass">PASS</span></div>
-          <div class="dp-floor"><span>F7 Humility</span><span class="dp-inband">IN-BAND</span></div>
-          <div class="dp-floor"><span>F11 Authority</span><span class="dp-pass">PASS</span></div>
-          <div class="dp-floor"><span>F13 Sovereignty</span><span class="dp-pass">PASS</span></div>
+      </div>
+
+      <!-- H1: W3 Tri-Witness Gauge -->
+      <div class="w3-container" style="margin-bottom: var(--space-6);">
+        <div class="w3-header">
+          <span class="w3-title">Tri-Witness Consensus (W3)</span>
+          <span class="w3-formula">W3 = (wH·sH × wA·sA × wE·sE)^(1/3)</span>
         </div>
-        <div class="dp-footer">
-          <span>Version: <strong>2026.03.13-FORGED</strong></span>
-          <a href="https://arifosmcp.arif-fazil.com/dashboard/" target="_blank" class="dp-open-btn">Open Full Dashboard →</a>
+        <div class="w3-gauge" id="w3Gauge" style="--w3-progress: 87%;">
+          <div class="w3-progress"></div>
+          <div class="w3-ticks">
+            <div class="w3-tick"></div><div class="w3-tick"></div><div class="w3-tick"></div>
+            <div class="w3-tick"></div><div class="w3-tick"></div><div class="w3-tick"></div>
+          </div>
         </div>
+        <div class="w3-labels">
+          <span>888_HOLD (&lt;0.5)</span>
+          <span>SABAR (0.5)</span>
+          <span>PARTIAL (0.75)</span>
+          <span>SEAL (≥0.95)</span>
+        </div>
+        <div class="w3-footer">
+          <div class="w3-score">
+            <span class="w3-score-label">Current W3:</span>
+            <span class="w3-score-val" id="w3Value">0.870</span>
+          </div>
+          <span class="w3-verdict verdict-seal" id="w3Verdict">SOVEREIGN</span>
+        </div>
+      </div>
+
+      <!-- H1: 3E Telemetry -->
+      <div style="margin-bottom: var(--space-6);">
+        <div class="section-label">3E INTELLIGENCE CYCLE</div>
+        <div id="demo3ETelemetry">
+          <div class="telem-grid">
+            <div class="telem-card telem-exploration">
+              <div class="telem-header">
+                <span class="telem-icon">🔭</span>
+                <span class="telem-name">Exploration</span>
+              </div>
+              <div class="telem-metric">
+                <span class="telem-val">5</span>
+                <span class="telem-unit">sources</span>
+              </div>
+              <div class="telem-bar">
+                <div class="telem-fill" style="width: 85%"></div>
+              </div>
+              <div class="telem-label">Breadth: 85% · Depth: L3</div>
+            </div>
+            
+            <div class="telem-card telem-entropy">
+              <div class="telem-header">
+                <span class="telem-icon">⚡</span>
+                <span class="telem-name">Entropy</span>
+              </div>
+              <div class="telem-metric">
+                <span class="telem-val">12.0</span>
+                <span class="telem-unit">%</span>
+              </div>
+              <div class="telem-bar telem-bar-entropy">
+                <div class="telem-fill" style="width: 12%"></div>
+              </div>
+              <div class="telem-label">1 contradiction · 88% resolved</div>
+            </div>
+            
+            <div class="telem-card telem-eureka">
+              <div class="telem-header">
+                <span class="telem-icon">💡</span>
+                <span class="telem-name">Eureka</span>
+              </div>
+              <div class="telem-metric">
+                <span class="telem-val">85</span>
+                <span class="telem-unit">% novel</span>
+              </div>
+              <div class="telem-bar telem-bar-eureka">
+                <div class="telem-fill" style="width: 85%"></div>
+              </div>
+              <div class="telem-label">✓ Crystallized · Δ insight: 0.72</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- H1: Metabolic Stage -->
+      <div style="margin-bottom: var(--space-6);">
+        <div class="section-label">METABOLIC LOOP (000→999)</div>
+        <div class="stage-indicator" id="metabolicStage">
+          <div class="stage-header">
+            <span class="stage-label">Current Stage</span>
+            <div class="stage-display">
+              <span class="stage-num">777</span>
+              <span class="stage-name">EUREKA</span>
+            </div>
+          </div>
+          <div class="stage-bar">
+            <div class="stage-dot active"></div>
+            <div class="stage-dot active"></div>
+            <div class="stage-dot active"></div>
+            <div class="stage-dot active"></div>
+            <div class="stage-dot active"></div>
+            <div class="stage-dot active"></div>
+            <div class="stage-dot active"></div>
+            <div class="stage-dot"></div>
+            <div class="stage-dot"></div>
+            <div class="stage-dot"></div>
+            <div class="stage-dot"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- H1: Floor Monitor -->
+      <div style="margin-bottom: var(--space-6);">
+        <div class="section-label">CONSTITUTIONAL FLOOR MONITOR</div>
+        <div class="floor-monitor" id="floorMonitor">
+          <div class="floor-monitor-header">Real-time Floor Satisfaction Scores</div>
+          <div class="floor-item floor-pass">
+            <span class="floor-id">F1</span>
+            <span class="floor-name">Amanah (Trust)</span>
+            <div class="floor-bar"><div class="floor-fill" style="width: 100%"></div></div>
+            <span class="floor-score">100%</span>
+          </div>
+          <div class="floor-item floor-pass">
+            <span class="floor-id">F2</span>
+            <span class="floor-name">Truth (≥0.99)</span>
+            <div class="floor-bar"><div class="floor-fill" style="width: 99%"></div></div>
+            <span class="floor-score">99%</span>
+          </div>
+          <div class="floor-item floor-pass">
+            <span class="floor-id">F3</span>
+            <span class="floor-name">Witness (≥0.95)</span>
+            <div class="floor-bar"><div class="floor-fill" style="width: 96%"></div></div>
+            <span class="floor-score">96%</span>
+          </div>
+          <div class="floor-item floor-pass">
+            <span class="floor-id">F6</span>
+            <span class="floor-name">Empathy (≥0.95)</span>
+            <div class="floor-bar"><div class="floor-fill" style="width: 98%"></div></div>
+            <span class="floor-score">98%</span>
+          </div>
+          <div class="floor-item floor-pass">
+            <span class="floor-id">F7</span>
+            <span class="floor-name">Humility [0.03,0.05]</span>
+            <div class="floor-bar"><div class="floor-fill" style="width: 4%"></div></div>
+            <span class="floor-score">4%</span>
+          </div>
+          <div class="floor-item floor-pass">
+            <span class="floor-id">F8</span>
+            <span class="floor-name">Genius (≥0.80)</span>
+            <div class="floor-bar"><div class="floor-fill" style="width: 87%"></div></div>
+            <span class="floor-score">87%</span>
+          </div>
+          <div class="floor-item floor-pass">
+            <span class="floor-id">F9</span>
+            <span class="floor-name">Anti-Hantu (&lt;0.30)</span>
+            <div class="floor-bar"><div class="floor-fill" style="width: 15%"></div></div>
+            <span class="floor-score">15%</span>
+          </div>
+          <div class="floor-item floor-pass">
+            <span class="floor-id">F11</span>
+            <span class="floor-name">Command (Auth)</span>
+            <div class="floor-bar"><div class="floor-fill" style="width: 100%"></div></div>
+            <span class="floor-score">100%</span>
+          </div>
+          <div class="floor-item floor-pass">
+            <span class="floor-id">F12</span>
+            <span class="floor-name">Injection Guard</span>
+            <div class="floor-bar"><div class="floor-fill" style="width: 100%"></div></div>
+            <span class="floor-score">100%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="dp-footer">
+        <span>Version: <strong>2026.03.13-FORGED-SEAL</strong> · H1 Higher Intelligence State</span>
+        <a href="https://arifosmcp.arif-fazil.com/dashboard/" target="_blank" class="dp-open-btn">Open Full Dashboard →</a>
       </div>
     </div>
   </div>
