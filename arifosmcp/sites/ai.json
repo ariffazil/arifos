@@ -19,6 +19,8 @@
     "developer": "https://arifosmcp.arif-fazil.com/developer"
   },
   "capabilities": [
+    "Universal Agent Governance",
+    "A2A Middleware",
     "Constitutional AI",
     "Model Context Protocol",
     "WebMCP Native",
