@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import functools
 from collections.abc import Callable
+from typing import Any
 
 from arifosmcp.core.ontology import OntologyRegistry
 from arifosmcp.runtime.models import (
@@ -50,9 +51,9 @@ def unified_tool_output(
     """
 
     def decorator(func: Callable) -> Callable:
-        import asyncio
+        import inspect
 
-        if asyncio.iscoroutinefunction(func):
+        if inspect.iscoroutinefunction(func):
             @functools.wraps(func)
             async def wrapper(*args, **kwargs) -> RuntimeEnvelope:
                 # Auto-detect tool name from function
@@ -66,9 +67,19 @@ def unified_tool_output(
                 try:
                     # Execute the actual tool function
                     raw_result = await func(*args, **kwargs)
-                    return _finalize_envelope(raw_result, detected_name, stage, default_verdict, session_id, auth_ctx, caller_ctx)
+                    return _finalize_envelope(
+                        raw_result,
+                        detected_name,
+                        stage,
+                        default_verdict,
+                        session_id,
+                        auth_ctx,
+                        caller_ctx,
+                    )
                 except Exception as e:
-                    return _error_envelope(e, detected_name, session_id, stage, auth_ctx, caller_ctx)
+                    return _error_envelope(
+                        e, detected_name, session_id, stage, auth_ctx, caller_ctx
+                    )
         else:
             @functools.wraps(func)
             def wrapper(*args, **kwargs) -> RuntimeEnvelope:
@@ -83,9 +94,19 @@ def unified_tool_output(
                 try:
                     # Execute the actual tool function
                     raw_result = func(*args, **kwargs)
-                    return _finalize_envelope(raw_result, detected_name, stage, default_verdict, session_id, auth_ctx, caller_ctx)
+                    return _finalize_envelope(
+                        raw_result,
+                        detected_name,
+                        stage,
+                        default_verdict,
+                        session_id,
+                        auth_ctx,
+                        caller_ctx,
+                    )
                 except Exception as e:
-                    return _error_envelope(e, detected_name, session_id, stage, auth_ctx, caller_ctx)
+                    return _error_envelope(
+                        e, detected_name, session_id, stage, auth_ctx, caller_ctx
+                    )
 
         return wrapper
 
@@ -278,7 +299,14 @@ def _finalize_envelope(
     )
 
 
-def _error_envelope(e: Exception, detected_name: str, session_id: str | None, stage: str, auth_ctx: dict[str, Any], caller_ctx: Any) -> RuntimeEnvelope:
+def _error_envelope(
+    e: Exception,
+    detected_name: str,
+    session_id: str | None,
+    stage: str,
+    auth_ctx: dict[str, Any],
+    caller_ctx: Any,
+) -> RuntimeEnvelope:
     # Even exceptions get wrapped in RuntimeEnvelope — never escape naked
     return RuntimeEnvelope(
         ok=False,
