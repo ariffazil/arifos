@@ -469,7 +469,6 @@ services:
   n8n:
     image: n8nio/n8n:latest
     container_name: arifos_n8n
-    init: true
     environment:
       N8N_HOST: flow.arifosmcp.arif-fazil.com
       N8N_PORT: "5678"
@@ -479,6 +478,7 @@ services:
       GENERIC_TIMEZONE: Asia/Kuala_Lumpur
       N8N_LOG_LEVEL: warn
       N8N_METRICS: "true"
+      N8N_SKIP_WEBHOOK_DRIVERS: "true"
     volumes:
       - /opt/arifos/data/n8n:/home/node/.n8n
     networks:
@@ -490,7 +490,7 @@ services:
       - "traefik.http.routers.n8n.tls.certresolver=letsencrypt"
       - "traefik.http.services.n8n.loadbalancer.server.port=5678"
     healthcheck:
-      test: ["CMD-SHELL", "curl -fsS http://localhost:5678/healthz || exit 1"]
+      test: ["CMD-SHELL", "wget -qO- http://localhost:5678/healthz || exit 1"]
       interval: 30s
       timeout: 5s
       retries: 3
