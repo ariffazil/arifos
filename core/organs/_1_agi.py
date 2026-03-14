@@ -96,26 +96,29 @@ async def agi(
     
     # --- PHASE 111: SEARCH/UNDERSTAND ---
     search_prompt = f"Analyze the intent and constraints of this query: {query}. List core facts."
-    search_res = await ollama_local_generate(prompt=search_prompt, max_tokens=256)
+    search_env = await ollama_local_generate(prompt=search_prompt, max_tokens=256)
+    search_text = search_env.payload.get("response", "")
     
     # --- PHASE 222: ANALYZE/COMPARE ---
-    analyze_prompt = f"Given these facts: {search_res['response']}. Compare implications and test assumptions."
-    analyze_res = await ollama_local_generate(prompt=analyze_prompt, max_tokens=512)
+    analyze_prompt = f"Given these facts: {search_text}. Compare implications and test assumptions."
+    analyze_env = await ollama_local_generate(prompt=analyze_prompt, max_tokens=512)
+    analyze_text = analyze_env.payload.get("response", "")
     
     # --- PHASE 333: SYNTHESIZE ---
-    synthesis_prompt = f"Synthesize a final conclusion for: {query}. Based on analysis: {analyze_res['response']}."
-    synthesis_res = await ollama_local_generate(prompt=synthesis_prompt, max_tokens=1024)
+    synthesis_prompt = f"Synthesize a final conclusion for: {query}. Based on analysis: {analyze_text}."
+    synthesis_env = await ollama_local_generate(prompt=synthesis_prompt, max_tokens=1024)
+    synthesis_text = synthesis_env.payload.get("response", "")
 
     consume_reason_energy(session_id, n_cycles=3)
 
     steps = [
-        ReasonMindStep(id=1, phase="111_search", thought=search_res['response'][:200], evidence="Ollama:qwen2.5:3b"),
-        ReasonMindStep(id=2, phase="222_analyze", thought=analyze_res['response'][:200]),
-        ReasonMindStep(id=3, phase="333_synthesis", thought=synthesis_res['response'][:200]),
+        ReasonMindStep(id=1, phase="111_search", thought=search_text[:200], evidence="Ollama:qwen2.5:3b"),
+        ReasonMindStep(id=2, phase="222_analyze", thought=analyze_text[:200]),
+        ReasonMindStep(id=3, phase="333_synthesis", thought=synthesis_text[:200]),
     ]
 
     # 5. Handle Eureka (Insight)
-    summary = synthesis_res['response']
+    summary = synthesis_text
     has_eureka = "insight" in summary.lower() or "eureka" in summary.lower()
     eureka = EurekaInsight(
         has_eureka=has_eureka,
@@ -161,7 +164,7 @@ async def agi(
         floors=floors,
         lane=gpv.lane.value,
         delta_s=ds,
-        evidence={"grounding": "Ollama Local Engine", "model": search_res.get('model')},
+        evidence={"grounding": "Ollama Local Engine", "model": search_env.payload.get('model')},
         floor_scores=FloorScores(**cognition.floor_scores),
         human_witness=1.0,
         ai_witness=cognition.genius_score,

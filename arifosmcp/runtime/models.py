@@ -111,6 +111,9 @@ class Verdict(str, Enum):
     HOLD = "HOLD"
     HOLD_888 = "HOLD_888"
     VOID = "VOID"
+    PAUSED = "PAUSED"
+    ALIVE = "ALIVE"
+    DEGRADED = "DEGRADED"
 
 
 class RuntimeStatus(str, Enum):
@@ -254,16 +257,15 @@ class PersonaRole(str, Enum):
 
 class TelemetryVitals(BaseModel):
     """Rule 3: The Public Score Card — Sovereign Vitals."""
-
-    dS: float = Field(..., description="Entropy Delta (1dp derived)")
-    peace2: float = Field(..., description="Lyapunov Stability (2dp derived)")
+    dS: float = Field(0.0, description="Entropy Delta (1dp derived)")
+    peace2: float = Field(1.0, description="Lyapunov Stability (2dp derived)")
     kappa_r: float | None = Field(None, description="Maruah Score (2dp derived | null)")
-    G_star: float = Field(..., description="Genius Score (2dp derived)")
+    G_star: float = Field(0.0, description="Genius Score (2dp derived)")
     echoDebt: float = Field(0.1, description="Historical Contradictions (1dp measured)")
-    shadow: float = Field(..., description="Hidden Assumption Load (2dp derived)")
-    confidence: float = Field(..., description="Confidence (2dp derived)")
-    psi_le: str = Field(..., description="AGI Emergence Pressure (heuristic + Estimate Only)")
-    verdict: str = Field(..., description="Alive | Degraded | Paused | 888_HOLD")
+    shadow: float = Field(0.0, description="Hidden Assumption Load (2dp derived)")
+    confidence: float = Field(0.0, description="Confidence (2dp derived)")
+    psi_le: str = Field("0.0 (Estimate Only)", description="AGI Emergence Pressure (heuristic + Estimate Only)")
+    verdict: str = Field("Alive", description="Alive | Degraded | Paused | 888_HOLD")
 
 
 class TelemetryBasis(BaseModel):
@@ -286,16 +288,30 @@ class TripleWitness(BaseModel):
 
 class CanonicalMetrics(BaseModel):
     """Unified arifOS Telemetry (Score Integrity Protocol)."""
-
-    telemetry: TelemetryVitals | None = None
+    telemetry: TelemetryVitals = Field(default_factory=TelemetryVitals)
     basis: TelemetryBasis = Field(default_factory=TelemetryBasis)
     witness: TripleWitness = Field(default_factory=TripleWitness)
 
     # Internal Metadata (Operator Only)
     internal: dict[str, Any] = Field(default_factory=dict)
 
-    model_config = ConfigDict(populate_by_name=True)
+    @property
+    def truth(self) -> float:
+        return self.telemetry.G_star
 
+    @property
+    def peace(self) -> float:
+        return self.telemetry.peace2
+
+    @property
+    def confidence(self) -> float:
+        return self.telemetry.confidence
+
+    @property
+    def entropy_delta(self) -> float:
+        return self.telemetry.dS
+
+    model_config = ConfigDict(populate_by_name=True)
 
 class CanonicalAuthority(BaseModel):
     actor_id: str = "anonymous"
@@ -477,7 +493,7 @@ class RuntimeEnvelope(BaseModel):
         }
     )
     metrics: CanonicalMetrics = Field(default_factory=lambda: CanonicalMetrics())
-    trace: dict[str, Verdict] = Field(default_factory=dict)
+    trace: dict[str, Any] = Field(default_factory=dict)
     authority: CanonicalAuthority = Field(default_factory=CanonicalAuthority)
     payload: dict[str, Any] = Field(default_factory=dict)
     errors: list[CanonicalError] = Field(default_factory=list)

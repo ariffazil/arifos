@@ -24,6 +24,7 @@ import os
 from contextlib import asynccontextmanager
 
 from fastmcp import FastMCP
+from fastmcp.server.transforms import ResourcesAsTools, Visibility
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.middleware.cors import CORSMiddleware
 from starlette.responses import JSONResponse
@@ -44,8 +45,12 @@ from arifosmcp.runtime.public_registry import (
 )
 from arifosmcp.runtime.resources import register_resources
 from arifosmcp.runtime.rest_routes import register_rest_routes
-from arifosmcp.apps.apex_score import _register as _register_apex_score_app
-from arifosmcp.apps.stage_pipeline import _register as _register_stage_pipeline_app
+try:
+    from arifosmcp.apps.apex_score import _register as _register_apex_score_app
+    from arifosmcp.apps.stage_pipeline import _register as _register_stage_pipeline_app
+    _PREFAB_APPS_AVAILABLE = True
+except ImportError:
+    _PREFAB_APPS_AVAILABLE = False
 from arifosmcp.runtime.tools import (
     agi_reason,
     agi_reflect,
@@ -62,7 +67,7 @@ from arifosmcp.runtime.tools import (
     forge,
     ingest_evidence,
     init_anchor,
-    metabolic_loop_router,
+    arifos_kernel,
     open_apex_dashboard,
     reality_atlas,
     reality_compass,
@@ -158,15 +163,23 @@ register_resources(mcp)
 register_prompts(mcp)
 
 # ── FastMCP Prefab UI Apps (Human Interface) ─────────────────────────────────
-_register_apex_score_app(mcp)     # APEX G-Score card: metrics + philosophy + verdict
-_register_stage_pipeline_app(mcp) # 000→999 Sacred Chain pipeline visualiser
+if _PREFAB_APPS_AVAILABLE:
+    _register_apex_score_app(mcp)     # APEX G-Score card: metrics + philosophy + verdict
+    _register_stage_pipeline_app(mcp) # 000→999 Sacred Chain pipeline visualiser
+
+# Hide internal tools from public clients (untested/mock-auth AgentZero tools)
+if is_public_profile(PUBLIC_TOOL_PROFILE):
+    mcp.add_transform(Visibility(False, tags={"internal"}))
+
+# Expose resources as tools for tool-only clients (ChatGPT, REST adapters)
+mcp.add_transform(ResourcesAsTools(mcp))
 
 # Sync Mind to Body (Dynamic Connection)
 sync_runtime_floors()
 
 CORE_TOOL_REGISTRY = {
     # ── Orchestration entry point ────────────────────────────────────────────
-    "arifOS_kernel": metabolic_loop_router,
+    "arifOS_kernel": arifos_kernel,
     # ── 8 Sacred Constitutional Organs (Inner Ring) ──────────────────────────
     "init_anchor": init_anchor,
     "agi_reason": agi_reason,
@@ -225,19 +238,22 @@ app = _mcp_app
 # API key guard (no-op when COPILOT_API_KEY is unset)
 app.add_middleware(_APIKeyMiddleware)
 
-# Enable CORS for all origins (required for cross-site health/telemetry monitoring)
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+# Additional middleware can be added here if needed,
+# but CORS and Auth are already handled by _build_http_middleware()
 
-# Mount APEX dashboard static files
-_dashboard_dir = os.path.join(os.path.dirname(__file__), "..", "sites", "apex-dashboard")
+# Mount APEX dashboard static files (v2.1 - Real-time governance dashboard)
+_dashboard_dir = os.path.join(os.path.dirname(__file__), "..", "sites", "dashboard")
 if os.path.isdir(_dashboard_dir):
     _mcp_app.mount("/dashboard", StaticFiles(directory=_dashboard_dir, html=True), name="dashboard")
+
+# Legacy dashboard (fallback)
+_apex_dashboard_dir = os.path.join(os.path.dirname(__file__), "..", "sites", "apex-dashboard")
+if os.path.isdir(_apex_dashboard_dir):
+    _mcp_app.mount(
+        "/apex-dashboard",
+        StaticFiles(directory=_apex_dashboard_dir, html=True),
+        name="apex-dashboard",
+    )
 
 # Mount H1 Developer Portal
 _developer_dir = os.path.join(os.path.dirname(__file__), "..", "sites", "developer")
@@ -251,15 +267,13 @@ def create_aaa_mcp_server() -> FastMCP:
 
 
 __all__ = [
-    "HTTP_PATH",
     "app",
+    "arifos_kernel",
     "audit_rules",
     "check_vital",
     "create_aaa_mcp_server",
     "ingest_evidence",
     "mcp",
-    "metabolic_loop",
-    "metabolic_loop_router",
     "open_apex_dashboard",
     "PUBLIC_TOOL_PROFILE",
     "register_tools",

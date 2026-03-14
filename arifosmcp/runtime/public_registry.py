@@ -119,13 +119,38 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
         stage="000_INIT",
         role="Constitutional Airlock",
         layer="KERNEL",
-        description="Initialize session jurisdiction and identity verification.",
+        description="000_INIT: Establish a governed session and verify identity. Use this tool first to authorize a session and mint the auth_context required for subsequent governed tools. Enforces F11 (Command Auth), F12 (Injection Defense), and F13 (Sovereign Override).",
         trinity="INIT",
         floors=("F11", "F12", "F13"),
         input_schema={
             "type": "object",
             "required": ["raw_input"],
-            "properties": {"raw_input": {"type": "string"}},
+            "properties": {
+                "raw_input": {
+                    "type": "string",
+                    "description": "Initialization query or identity declaration (e.g. 'I am arif').",
+                }
+            },
+        },
+    ),
+    ToolSpec(
+        name="init_anchor_state",
+        stage="000_INIT",
+        role="Constitutional Airlock (Legacy)",
+        layer="KERNEL",
+        description="Legacy alias for init_anchor.",
+        trinity="INIT",
+        floors=("F11", "F12", "F13"),
+        input_schema={
+            "type": "object",
+            "anyOf": [
+                {
+                    "properties": {
+                        "declared_name": {"type": "string"},
+                        "human_approval": {"type": "boolean"},
+                    }
+                }
+            ],
         },
     ),
     ToolSpec(
@@ -133,13 +158,16 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
         stage="000_INIT",
         role="Kill Switch",
         layer="KERNEL",
-        description="Invalidate a governed session immediately.",
+        description="000_INIT: Immediately invalidate a governed session. Use this to explicitly end authority or terminate a session if a protocol breach is detected. Enforces F11 and F13.",
         trinity="INIT",
         floors=("F11", "F13"),
         input_schema={
             "type": "object",
             "required": ["session_id", "reason"],
-            "properties": {"session_id": {"type": "string"}, "reason": {"type": "string"}},
+            "properties": {
+                "session_id": {"type": "string", "description": "The ID of the session to revoke."},
+                "reason": {"type": "string", "description": "Justification for the revocation."},
+            },
         },
     ),
     ToolSpec(
@@ -147,23 +175,60 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
         stage="000_INIT",
         role="Tool Surface Declaration",
         layer="KERNEL",
-        description="Declare and verify tool surface at boot.",
+        description="000_INIT: Query the available tool surface and verify registration. Used by agents to understand which arifOS governance capabilities are currently exposed. Enforces F13.",
         trinity="INIT",
         floors=("F13",),
         input_schema={"type": "object", "properties": {}},
     ),
     ToolSpec(
-        name="metabolic_loop_router",
+        name="arifOS_kernel",
         stage="444_ROUTER",
         role="Stage Conductor",
         layer="KERNEL",
-        description="Routes ΔΩΨ transitions through the pipeline.",
+        description="444_ROUTER: Canonical metabolic transition router. The primary entry point for arifOS governance. Routes complex queries through the full ΔΩΨ metabolic pipe (Reasoning, Memory, Ethics, Judgment). Use this when you need a single sovereign response vetted through all 13 floors.",
         trinity="ROUTER",
         floors=("F4",),
         input_schema={
             "type": "object",
             "required": ["query"],
-            "properties": {"query": {"type": "string"}},
+            "properties": {
+                "query": {"type": "string", "description": "The question or task to process."},
+                "context": {"type": "string", "description": "Additional context for the query"},
+                "auth_context": {
+                    "type": "object",
+                    "description": "Cryptographic authority context for high-risk actions.",
+                    "additionalProperties": True,
+                },
+                "risk_tier": {
+                    "type": "string",
+                    "enum": ["low", "medium", "high", "critical"],
+                    "description": "Risk classification — higher tiers trigger stricter floor checks.",
+                },
+                "actor_id": {"type": "string", "description": "Identity of the requesting actor."},
+                "use_memory": {
+                    "type": "boolean",
+                    "description": "Enable session memory retrieval and storage.",
+                },
+                "use_heart": {"type": "boolean", "description": "Enable ethical evaluation (666_HEART)."},
+                "use_critique": {
+                    "type": "boolean",
+                    "description": "Enable self-critique engine (777_CRITIQUE).",
+                },
+                "allow_execution": {
+                    "type": "boolean",
+                    "description": "Allow material actions if permitted by ethical vetting.",
+                },
+                "debug": {"type": "boolean", "description": "Include detailed debug telemetry in response."},
+                "dry_run": {
+                    "type": "boolean",
+                    "description": "Run full pipeline without writing to VAULT999.",
+                },
+                "requested_persona": {
+                    "type": "string",
+                    "enum": ["architect", "engineer", "auditor", "validator"],
+                    "description": "Persona to assume for the response (F9-compliant role).",
+                },
+            },
         },
     ),
     ToolSpec(
@@ -171,13 +236,13 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
         stage="000_999",
         role="Full Pipeline Trigger",
         layer="KERNEL",
-        description="Triggers the full INIT → SEAL pipeline in one call.",
+        description="000_999: One-shot metabolic pipeline trigger. Synthesizes a goal into a final, sealed action in a single call. Best for well-defined tasks where separate pipeline steps are unnecessary. Enforces all floors F1-F13.",
         trinity="ALL",
         floors=("F1-F13",),
         input_schema={
             "type": "object",
             "required": ["spec"],
-            "properties": {"spec": {"type": "string"}},
+            "properties": {"spec": {"type": "string", "description": "The design specification or goal to forge."}},
         },
     ),
     # ─── AGI Δ MIND (6 tools) ───
@@ -186,13 +251,13 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
         stage="111_SENSE",
         role="Governed Reasoning",
         layer="AGI Δ MIND",
-        description="Structured reasoning step under F2/F4/F7.",
+        description="333_MIND: Perform first-principles structured reasoning. Explores hypotheses through conservative, exploratory, and adversarial paths. Use this for intellectual synthesis. Enforces F2 (Truth) and F4 (Clarity).",
         trinity="AGI Δ",
         floors=("F2", "F4", "F7"),
         input_schema={
             "type": "object",
             "required": ["query"],
-            "properties": {"query": {"type": "string"}},
+            "properties": {"query": {"type": "string", "description": "The reasoning prompt or problem statement."}},
         },
     ),
     ToolSpec(
@@ -200,13 +265,13 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
         stage="333_INTEGRATE",
         role="Metacognitive Integration",
         layer="AGI Δ MIND",
-        description="Checks own output and builds session context.",
+        description="555_MEMORY: Perform metacognitive integration. Reflects on the current intelligence state and session context to ensure coherence before committing to a path. Enforces F4 and F7.",
         trinity="AGI Δ",
         floors=("F4", "F7"),
         input_schema={
             "type": "object",
             "required": ["topic"],
-            "properties": {"topic": {"type": "string"}},
+            "properties": {"topic": {"type": "string", "description": "The core topic or decision point to reflect upon."}},
         },
     ),
     ToolSpec(
@@ -214,13 +279,13 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
         stage="222_GROUND",
         role="Epistemic Intake",
         layer="AGI Δ MIND",
-        description="Grounds claims before reasoning via reality fetch.",
+        description="111_SENSE: Ground claims in external reality. Use this to verify facts or fetch URL content BEFORE performing reasoning. Enforces F2 (Truth) fidelity.",
         trinity="AGI Δ",
         floors=("F2",),
         input_schema={
             "type": "object",
             "required": ["input"],
-            "properties": {"input": {"type": "string"}},
+            "properties": {"input": {"type": "string", "description": "Fact string to verify or URL to fetch."}},
         },
     ),
     ToolSpec(
@@ -228,13 +293,13 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
         stage="222_GROUND",
         role="Evidence Map",
         layer="AGI Δ MIND",
-        description="Structured evidence map across multiple sources.",
+        description="222_REALITY: Map evidence across multiple sources. Merges and queries EvidenceBundles to create a unified grounding context for complex investigations. Enforces F2 and F3.",
         trinity="AGI Δ",
         floors=("F2", "F3"),
         input_schema={
             "type": "object",
             "required": ["operation"],
-            "properties": {"operation": {"type": "string"}},
+            "properties": {"operation": {"type": "string", "description": "The atlas operation (merge, query, or build)."}},
         },
     ),
     ToolSpec(
@@ -242,13 +307,13 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
         stage="222_GROUND",
         role="Web Acquisition",
         layer="AGI Δ MIND",
-        description="Live web search for raw reality acquisition.",
+        description="111_SENSE: Direct web search for grounding facts. Fetches raw data from the external world to satisfy F2 (Truth) requirements for ungrounded claims.",
         trinity="AGI Δ",
         floors=("F2",),
         input_schema={
             "type": "object",
             "required": ["query"],
-            "properties": {"query": {"type": "string"}},
+            "properties": {"query": {"type": "string", "description": "Search query terms."}},
         },
     ),
     ToolSpec(
@@ -256,13 +321,13 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
         stage="222_GROUND",
         role="Evidence Normalization",
         layer="AGI Δ MIND",
-        description="URL/File → Normalized evidence artifact.",
+        description="111_SENSE: Fetch and normalize evidence artifact. Extracts structured signals from a URL or File for injection into the reasoning pipeline. Enforces F2.",
         trinity="AGI Δ",
         floors=("F2",),
         input_schema={
             "type": "object",
             "required": ["url"],
-            "properties": {"url": {"type": "string"}},
+            "properties": {"url": {"type": "string", "description": "Source URL or file path."}},
         },
     ),
     # ─── ASI Ω HEART (4 tools) ───
@@ -271,13 +336,13 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
         stage="555_ALIGN",
         role="Adversarial Critique",
         layer="ASI Ω HEART",
-        description="Safety and maruah check before action.",
+        description="666_HEART: Advanced adversarial critique and thought audit. Detects blind spots, uncertainty, and hidden assumptions before action. Enforces F7 (Humility) and F9 (Anti-Hantu/Shadow).",
         trinity="ASI Ω",
         floors=("F6", "F9"),
         input_schema={
             "type": "object",
             "required": ["draft_output"],
-            "properties": {"draft_output": {"type": "string"}},
+            "properties": {"draft_output": {"type": "string", "description": "The candidate thought or output to audit."}},
         },
     ),
     ToolSpec(
@@ -285,13 +350,13 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
         stage="555_ALIGN",
         role="Consequence Prediction",
         layer="ASI Ω HEART",
-        description="World model consequence simulation before action.",
+        description="666_HEART: Simulate consequences and predict world-model outcomes. Use this to assess the downstream impact of a proposal before execution. Enforces F5 (Peace²) and F6 (Empathy).",
         trinity="ASI Ω",
         floors=("F5",),
         input_schema={
             "type": "object",
             "required": ["scenario"],
-            "properties": {"scenario": {"type": "string"}},
+            "properties": {"scenario": {"type": "string", "description": "The scenario or action plan to simulate."}},
         },
     ),
     ToolSpec(
@@ -299,13 +364,13 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
         stage="666_EXECUTE",
         role="Material Execution",
         layer="ASI Ω HAND",
-        description="Code and env actions under F11 gate.",
+        description="666_EXECUTE: Perform material system actions (code, shell, file ops). Requires valid session auth_context. Only for technical actions vetted by ASI levels. Enforces F11 (Authority).",
         trinity="ASI Ω",
         floors=("F11",),
         input_schema={
             "type": "object",
             "required": ["task_description"],
-            "properties": {"task_description": {"type": "string"}},
+            "properties": {"task_description": {"type": "string", "description": "Specific engineering task (e.g. 'write script to X')."}},
         },
     ),
     ToolSpec(
@@ -313,13 +378,13 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
         stage="444_MEMORY",
         role="Semantic Recall",
         layer="ASI Ω HAND",
-        description="Constitutional semantic recall from Vault.",
+        description="444_MEMORY: Recall semantic context from VAULT999. Retrieves past interactions and sealed truths to maintain session continuity and historical grounding. Enforces F2 and F7.",
         trinity="ASI Ω",
         floors=("F2", "F7"),
         input_schema={
             "type": "object",
             "required": ["query"],
-            "properties": {"query": {"type": "string"}},
+            "properties": {"query": {"type": "string", "description": "Recall query or concept keywords."}},
         },
     ),
     # ─── APEX Ψ SOUL (7 tools) ───
@@ -328,13 +393,13 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
         stage="777_JUDGE",
         role="Verdict Engine",
         layer="APEX Ψ SOUL",
-        description="Tri-witness sovereign verdict engine.",
+        description="888_JUDGE: Render a sovereign constitutional verdict (SEAL, VOID, HOLD, SABAR). Final authority for all candidate outputs. Enforces F3 (Tri-Witness) and F13 (Sovereign Override).",
         trinity="APEX Ψ",
         floors=("F3", "F13"),
         input_schema={
             "type": "object",
             "required": ["candidate_output"],
-            "properties": {"candidate_output": {"type": "string"}},
+            "properties": {"candidate_output": {"type": "string", "description": "Final output candidate for judgment."}},
         },
     ),
     ToolSpec(
@@ -342,13 +407,13 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
         stage="777_JUDGE",
         role="Output Validation",
         layer="APEX Ψ SOUL",
-        description="ValidatorAgent: ALLOW/HOLD/VOID judgment.",
+        description="888_JUDGE: Validator-specific output judgment. Audits the technical and logical correctness of an Engineer's output before final sealing. Enforces F2 and F9.",
         trinity="APEX Ψ",
         floors=("F2", "F9"),
         input_schema={
             "type": "object",
             "required": ["input_to_validate"],
-            "properties": {"input_to_validate": {"type": "string"}},
+            "properties": {"input_to_validate": {"type": "string", "description": "The specific data or artifact to validate."}},
         },
     ),
     ToolSpec(
@@ -356,7 +421,7 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
         stage="888_FLOOR",
         role="Floor Inspection",
         layer="APEX Ψ SOUL",
-        description="F1–F13 live inspection and scoring.",
+        description="333_MIND: Inspect the live status and thresholds of all 13 constitutional floors (F1-F13). Provides transparency into current governance constraints. Enforces F1-F13.",
         trinity="APEX Ψ",
         floors=("F1-F13",),
         input_schema={"type": "object", "properties": {}},
@@ -366,13 +431,13 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
         stage="888_FLOOR",
         role="Injection Guard",
         layer="APEX Ψ SOUL",
-        description="F12 PromptArmor injection pre-filtering.",
+        description="111_SENSE: Scan content for injection attacks and adversarial control. Used as a security guard (F12) before processing external or user input. Enforces F12.",
         trinity="APEX Ψ",
         floors=("F12",),
         input_schema={
             "type": "object",
             "required": ["content"],
-            "properties": {"content": {"type": "string"}},
+            "properties": {"content": {"type": "string", "description": "Untrusted input to scan."}},
         },
     ),
     ToolSpec(
@@ -380,17 +445,17 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
         stage="888_HOLD",
         role="Hold Monitor",
         layer="APEX Ψ SOUL",
-        description="888_HOLD registry and human escalation bus.",
+        description="888_HOLD: Check status of a pending human escalation or sovereign hold. Used when a task requires manual intervention or ratification (F13). Enforces F13.",
         trinity="APEX Ψ",
         floors=("F13",),
-        input_schema={"type": "object", "properties": {"hold_id": {"type": "string"}}},
+        input_schema={"type": "object", "properties": {"hold_id": {"type": "string", "description": "Specific hold ID to query."}}},
     ),
     ToolSpec(
         name="check_vital",
         stage="888_VITALS",
         role="System Health",
         layer="APEX Ψ SOUL",
-        description="System health: ΔS, peace², Ω₀ telemetry.",
+        description="000_INIT: System health and thermodynamic telemetry monitor. Reports real-time ΔS (Entropy), Peace², and Gödel Humility metrics. Essential for metabolic budgeting. Enforces F4, F5, F7.",
         trinity="APEX Ψ",
         floors=("F4", "F5", "F7"),
         input_schema={"type": "object", "properties": {}},
@@ -400,7 +465,7 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
         stage="888_OBSERVE",
         role="Live Observability",
         layer="APEX Ψ SOUL",
-        description="Live floor scores and pipeline trace dashboard.",
+        description="888_JUDGE: Launch the browser-based APEX Dashboard. Provides high-fidelity visualization of constitutional traces, floor scores, and system vitals. Enforces F13.",
         trinity="APEX Ψ",
         floors=("F13",),
         input_schema={"type": "object", "properties": {}},
@@ -411,13 +476,16 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
         stage="999_SEAL",
         role="Commit Decision",
         layer="VAULT999",
-        description="Commit decision and telemetry to ledger.",
+        description="999_VAULT: Commit a verified verdict and evidence to the immutable VAULT999 ledger. Mints a permanent hash-chain entry. Enforces F1 (Amanah) and F13 (Sovereign).",
         trinity="VAULT",
         floors=("F1", "F13"),
         input_schema={
             "type": "object",
             "required": ["verdict", "evidence"],
-            "properties": {"verdict": {"type": "string"}, "evidence": {"type": "string"}},
+            "properties": {
+                "verdict": {"type": "string", "description": "The final verdict code (SEAL/VOID)."},
+                "evidence": {"type": "string", "description": "Justification or audit trail summary."},
+            },
         },
     ),
     ToolSpec(
@@ -425,10 +493,13 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
         stage="999_ATTEST",
         role="Merkle Integrity",
         layer="VAULT999",
-        description="Merkle integrity check and tamper detection.",
+        description="999_VAULT: Verify the integrity of the VAULT999 Merkle chain. Detects unauthorized tampering or data corruption in the historical audit trail. Enforces F1.",
         trinity="VAULT",
         floors=("F1",),
-        input_schema={"type": "object", "properties": {"full_scan": {"type": "boolean"}}},
+        input_schema={
+            "type": "object",
+            "properties": {"full_scan": {"type": "boolean", "description": "Enable exhaustive ledger validation (deep scan)."}},
+        },
     ),
 )
 
@@ -460,6 +531,7 @@ PUBLIC_RESOURCE_SPECS: tuple[ResourceSpec, ...] = (
     ResourceSpec("vault://999", "VAULT999: Sealed constitutional memory."),
     ResourceSpec("ledger://cooling", "Cooling Ledger: Ancestry chain."),
     ResourceSpec("canon://invariants", "ΔΩΨ constitutional invariants."),
+    ResourceSpec("canon://floors", "F1-F13 constitutional floor thresholds — static reference."),
 )
 
 RUNTIME_ENVELOPE_SCHEMA: dict[str, Any] = {

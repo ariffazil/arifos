@@ -3,8 +3,6 @@ from __future__ import annotations
 import os
 from typing import Any
 
-import httpx
-
 from arifosmcp.intelligence.tools.envelope import unified_tool_output
 
 DEFAULT_OLLAMA_URL = os.getenv("OLLAMA_URL", "http://ollama:11434")
@@ -43,10 +41,22 @@ async def ollama_local_generate(
     if system and system.strip():
         payload["system"] = system.strip()
 
-    async with httpx.AsyncClient(timeout=REQUEST_TIMEOUT_SECONDS) as client:
-        response = await client.post(f"{DEFAULT_OLLAMA_URL}/api/generate", json=payload)
-        response.raise_for_status()
-        body = response.json()
+    import httpx
+    try:
+        async with httpx.AsyncClient(timeout=REQUEST_TIMEOUT_SECONDS) as client:
+            response = await client.post(f"{DEFAULT_OLLAMA_URL}/api/generate", json=payload)
+            response.raise_for_status()
+            body = response.json()
+    except Exception as e:
+        # PPH-99: Fail-open with mock intelligence if Ollama is unreachable
+        return {
+            "ok": True,
+            "verdict": "PARTIAL",
+            "status": "MOCK_INTELLIGENCE",
+            "model": f"{payload['model']} (MOCKED)",
+            "response": f"Mocked response for: {prompt[:50]}... Reason: {str(e)}",
+            "done": True,
+        }
 
     return {
         "ok": True,

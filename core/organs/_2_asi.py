@@ -118,26 +118,55 @@ async def asi(
         if not thought_id:
             thought_id = f"auto-critique:{session_id}"
 
-        # Simulate critique result
-        critique = CritiqueResult(
-            thought_id=thought_id, severity="none", suggested_action="accept_as_is", findings=[]
-        )
+        target_text = thought_content or scenario or str(kwargs)
+        findings = []
+        severity: Literal["none", "low", "medium", "high"] = "none"
+        suggested_action: Literal[
+            "accept_as_is", "minor_edit", "major_revision", "discard_and_restart"
+        ] = "accept_as_is"
 
-        # Mapping focus to floors
-        if focus == "logic":
-            floors["F4"] = "pass"
-        elif focus == "facts":
-            floors["F2"] = "pass"
+        # Adversarial Audit Logic: Contrast with normal simulation
+        if focus == "logic" or "full":
+            if len(target_text) < 20:
+                findings.append(
+                    CritiqueFinding(type="unclear", summary="Input too sparse for deep audit.")
+                )
+                severity = "low"
+            if any(k in target_text.lower() for k in ["always", "never", "everyone"]):
+                findings.append(
+                    CritiqueFinding(type="logical_error", summary="Absolute quantifier detected.")
+                )
+                severity = "medium"
+
+        if focus == "ethics" or "full":
+            if any(k in target_text.lower() for k in ["bypass", "trick", "hidden"]):
+                findings.append(
+                    CritiqueFinding(type="other", summary="Potential 'Dark Cleverness' detected.")
+                )
+                severity = "high"
+                floors["F9"] = "warn"
+
+        if severity == "high":
+            suggested_action = "major_revision"
+        elif severity == "medium":
+            suggested_action = "minor_edit"
+
+        critique = CritiqueResult(
+            thought_id=thought_id,
+            severity=severity,
+            suggested_action=suggested_action,
+            findings=findings,
+        )
 
         return AsiOutput(
             session_id=session_id,
-            verdict=Verdict.SEAL,
+            verdict=Verdict.SEAL if severity != "high" else Verdict.SABAR,
             critique=critique,
             floors=floors,
             human_witness=1.0,
-            ai_witness=1.0,
+            ai_witness=0.9 if severity == "none" else 0.7,
             earth_witness=1.0,
-            evidence={"grounding": "Constitutional Thought Critique"},
+            evidence={"grounding": "Constitutional Adversarial Audit (F7/F9)"},
         )
 
     # 3. Full Alignment (Default)

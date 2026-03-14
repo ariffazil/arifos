@@ -61,7 +61,7 @@ async def asi_critique_metabolism(
             )
 
         # F7 Humility gate: confidence must stay in [0.03, 0.05]
-        omega = envelope.metrics.confidence
+        omega = envelope.metrics.telemetry.confidence
         if omega < 0.03 or omega > 0.05:
             raise ConstitutionalViolation(
                 message=(

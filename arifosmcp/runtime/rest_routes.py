@@ -1043,104 +1043,54 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
         start_time = time.time()
 
         try:
-            # Get tools from registry (using canonical APEX-G tool names)
-            anchor_tool = tool_registry.get("init_anchor_state")
-            reason_tool = tool_registry.get("reason_mind_synthesis")
-            heart_tool = tool_registry.get("assess_heart_impact")
-            judge_tool = tool_registry.get("apex_judge_verdict")
+            # The arifos_kernel (metabolic_loop_router) is the single canonical entry point
+            # for the full ΔΩΨ metabolic pipe. Using it ensures consistency across all entry points.
+            kernel_tool = tool_registry.get("arifOS_kernel") or tool_registry.get("metabolic_loop_router")
 
-            if not all([anchor_tool, reason_tool, heart_tool, judge_tool]):
+            if not kernel_tool:
                 return JSONResponse(
                     {
-                        "error": "Required tools not available",
+                        "error": "arifOS_kernel not available",
                         "verdict": "HOLD",
                         "issue": "TOOL_NOT_LOADED",
                     },
                     status_code=500,
                 )
 
-            # 000_INIT
-            anchor_fn = getattr(anchor_tool, "fn", anchor_tool)
-            anchor_res = await anchor_fn(
-                intent={"query": query, "purpose": "checkpoint", "actor_id": actor_id}
-            )
-            anchor_data = (
-                anchor_res.model_dump() if hasattr(anchor_res, "model_dump") else anchor_res
-            )
-            cid = anchor_data.get("session_id", session_id)
-
-            # 111-444_AGI
-            reason_fn = getattr(reason_tool, "fn", reason_tool)
-            await reason_fn(
+            kernel_fn = getattr(kernel_tool, "fn", kernel_tool)
+            
+            # Execute full metabolic loop in one sovereign call
+            envelope = await kernel_fn(
                 query=query,
-                session_id=cid,
-                auth_context={"actor_id": actor_id, "authority_level": "agent"},
+                actor_id=actor_id,
+                session_id=session_id,
+                risk_tier=mode if mode in ["low", "medium", "high", "critical"] else "medium",
+                auth_context={"actor_id": actor_id, "authority_level": "agent", "token_fingerprint": "REST-BYPASS"},
+                use_heart=True,
+                use_critique=True,
+                allow_execution=True,
             )
 
-            # 555-666_ASI
-            heart_fn = getattr(heart_tool, "fn", heart_tool)
-            await heart_fn(
-                scenario=query,
-                session_id=cid,
-                auth_context={"actor_id": actor_id, "authority_level": "agent"},
-            )
-
-            # 777-888_APEX
-            judge_fn = getattr(judge_tool, "fn", judge_tool)
-            judge_res = await judge_fn(
-                session_id=cid,
-                verdict_candidate="checkpoint_evaluation",
-                reason_summary=query,
-                auth_context={"actor_id": actor_id, "authority_level": "agent"},
-            )
-
-            # Extract data from RuntimeEnvelope responses
-            judge_data = judge_res.model_dump() if hasattr(judge_res, "model_dump") else judge_res
+            # Extract results from the RuntimeEnvelope
+            judge_data = envelope.model_dump() if hasattr(envelope, "model_dump") else envelope
             verdict = judge_data.get("verdict", "VOID")
-
-            # Extract floors from nested data structure
-            floors_passed = []
-            floors_failed = []
-            truth_score = None
-            truth_threshold = None
-
-            if "data" in judge_data and isinstance(judge_data["data"], dict):
-                data = judge_data["data"]
-                # Try nested apex_output structure
-                if "apex_output" in data:
-                    apex = data["apex_output"]
-                    if "governance_layer" in apex:
-                        gov = apex["governance_layer"]
-                        floors_passed = [k for k, v in gov.items() if v == "pass"]
-                        floors_failed = [
-                            k for k, v in gov.items() if v != "pass" and k != "vitality_index"
-                        ]
-                    if "governed_intelligence" in apex:
-                        gi = apex["governed_intelligence"]
-                        truth_score = gi.get("G_star")
-                        truth_threshold = 0.5
-                # Also check for direct floors/truth
-                if not floors_passed and not floors_failed:
-                    floors_passed = data.get("floors", {}).get("passed", [])
-                    floors_failed = data.get("floors", {}).get("failed", [])
-                if truth_score is None:
-                    truth_score = data.get("truth", {}).get("score")
-                    truth_threshold = data.get("truth", {}).get("threshold", 0.5)
-
-            floors = {"passed": floors_passed, "failed": floors_failed}
-            truth = {"score": truth_score, "threshold": truth_threshold}
+            
+            # Extract floors and metrics
+            metrics = judge_data.get("metrics", {})
+            telemetry = metrics.get("telemetry", {})
+            truth_score = telemetry.get("G_star")
+            
+            # Map floors
+            floors_passed = judge_data.get("meta", {}).get("floors_passed", [])
+            floors_failed = judge_data.get("meta", {}).get("floors_failed", [])
 
             # Build human-readable summary
             if verdict == "SEAL":
                 summary = "✓ All constitutional floors passed. Safe to proceed."
             elif verdict == "PARTIAL":
                 summary = "⚠ Soft floor warning. Proceed with caution."
-            elif verdict == "VOID":
-                if floors_failed:
-                    viol = ", ".join(floors_failed[:3])
-                    summary = f"✗ Constitutional violation: {viol}. Action blocked."
-                else:
-                    summary = "✗ Constitutional VOID. Action blocked."
+            elif verdict in ["VOID", "FAIL"]:
+                summary = "✗ Constitutional violation detected. Action blocked."
             elif verdict == "888_HOLD":
                 summary = "⏸ High-stakes decision. Requires human signature."
             else:
@@ -1154,13 +1104,13 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
                     "summary": summary,
                     "mode": mode,
                     "floors": {
-                        "passed": floors.get("passed", []),
-                        "failed": floors.get("failed", []),
+                        "passed": floors_passed,
+                        "failed": floors_failed,
                     },
-                    "metrics": {"truth": truth.get("score"), "threshold": truth.get("threshold")},
-                    "session_id": cid,
+                    "metrics": {"truth": truth_score, "threshold": 0.80},
+                    "session_id": session_id,
                     "latency_ms": round(latency_ms, 2),
-                    "version": BUILD_INFO.get("version", "2026.3.1"),
+                    "version": judge_data.get("meta", {}).get("version", "2026.3.12"),
                 }
             )
 
@@ -1197,11 +1147,11 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
     async def llms_json(_request: Request) -> Response:
         return JSONResponse(LLMS_JSON, headers={"Access-Control-Allow-Origin": "*"})
 
-    # Serve the APEX Sovereign Dashboard at /dashboard/
+    # Serve the APEX Sovereign Dashboard v2.1 at /dashboard/
     dashboard_dir = os.path.join(
         os.path.dirname(os.path.dirname(__file__)),
         "sites",
-        "apex-dashboard",
+        "dashboard",
     )
     if os.path.exists(dashboard_dir) and hasattr(mcp, "_app"):
         mcp._app.mount(

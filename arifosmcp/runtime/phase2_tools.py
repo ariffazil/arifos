@@ -55,8 +55,18 @@ def _register_local_phase2_tools(mcp: FastMCP, profile: str = "full") -> None:
 
 
 def _register_aclip_tools(mcp: FastMCP) -> None:
-    # ACLIP legacy tools are currently disabled or migrated to the primary surface.
-    pass
+    """Register ACLIP legacy tools (Console Intelligence)."""
+    from arifosmcp.intelligence import console_tools
+
+    mcp.tool(name="system_health")(console_tools.system_health)
+    mcp.tool(name="process_list")(console_tools.process_list)
+    mcp.tool(name="fs_inspect")(console_tools.fs_inspect)
+    mcp.tool(name="log_tail")(console_tools.log_tail)
+    mcp.tool(name="net_status")(console_tools.net_status)
+    mcp.tool(name="config_flags")(console_tools.config_flags)
+    mcp.tool(name="chroma_query")(console_tools.chroma_query)
+    mcp.tool(name="cost_estimator")(console_tools.cost_estimator)
+    mcp.tool(name="forge_guard")(console_tools.forge_guard)
 
 
 def register_phase2_tools(mcp: FastMCP, profile: str = "full") -> None:

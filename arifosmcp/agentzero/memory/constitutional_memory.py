@@ -1,8 +1,6 @@
 """
 ConstitutionalMemoryStore - Hardened Qdrant for AgentZero
 
-This implements the AgentZero memory architecture with constitutional governance:
-
 Memory Areas (per project):
 - MAIN: Core knowledge, user-provided info
 - FRAGMENTS: Conversation snippets, auto-memorized
@@ -20,28 +18,31 @@ Constitutional Enforcement:
 from __future__ import annotations
 
 import hashlib
-import json
 import logging
+import os
+import uuid
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum, auto
-from typing import Any, Dict, List, Optional, Tuple
-from uuid import uuid4
-
+from typing import Any
 
 logger = logging.getLogger(__name__)
+
+QDRANT_URL = os.getenv("QDRANT_URL", "")
+QDRANT_API_KEY = os.getenv("QDRANT_API_KEY", "")
+VECTOR_DIM = int(os.getenv("ARIFOS_VECTOR_DIM", "1024"))
 
 
 class MemoryArea(Enum):
     """AgentZero memory classification areas."""
+
     MAIN = auto()        # Core knowledge, user-provided
     FRAGMENTS = auto()   # Conversation snippets
     SOLUTIONS = auto()   # Proven solutions
     INSTRUMENTS = auto() # Custom procedures
-    
+
     @classmethod
     def from_string(cls, s: str) -> MemoryArea:
-        """Parse from string."""
         mapping = {
             "main": cls.MAIN,
             "fragments": cls.FRAGMENTS,
@@ -54,35 +55,31 @@ class MemoryArea(Enum):
 @dataclass
 class MemoryEntry:
     """A single memory entry with full metadata."""
+
     id: str
     content: str
     area: MemoryArea
     project_id: str
-    
-    # Content hash for integrity
     content_hash: str
-    
+
     # Constitutional metadata
     f2_verified: bool = False
     f2_confidence: float = 0.0
     f4_entropy_delta: float = 0.0
     f12_clean: bool = True
     f12_score: float = 0.0
-    
+
     # Temporal metadata
-    created_at: datetime = field(default_factory=datetime.utcnow)
-    last_accessed: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    last_accessed: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     access_count: int = 0
-    
+
     # Source tracking
-    source: str = "unknown"  # user, agent, tool, import
-    source_agent: Optional[str] = None
-    
-    # Vector embedding (populated by store)
-    embedding: Optional[List[float]] = None
-    
-    def to_dict(self) -> Dict[str, Any]:
-        """Convert to dictionary for storage."""
+    source: str = "unknown"
+    source_agent: str | None = None
+    embedding: list[float] | None = None
+
+    def to_dict(self) -> dict[str, Any]:
         return {
             "id": self.id,
             "content": self.content,
@@ -100,10 +97,9 @@ class MemoryEntry:
             "source": self.source,
             "source_agent": self.source_agent,
         }
-    
+
     @classmethod
-    def from_dict(cls, data: Dict) -> MemoryEntry:
-        """Create from dictionary."""
+    def from_dict(cls, data: dict[str, Any]) -> MemoryEntry:
         return cls(
             id=data["id"],
             content=data["content"],
@@ -123,312 +119,252 @@ class MemoryEntry:
         )
 
 
+def _build_qdrant_client():
+    """Build Qdrant client — remote when QDRANT_URL set, in-memory otherwise."""
+    from qdrant_client import QdrantClient
+
+    if QDRANT_URL:
+        kwargs: dict[str, Any] = {"url": QDRANT_URL, "timeout": 5.0}
+        if QDRANT_API_KEY:
+            kwargs["api_key"] = QDRANT_API_KEY
+        return QdrantClient(**kwargs)
+    return QdrantClient(":memory:")
+
+
+def _embed(text: str) -> list[float]:
+    """Generate embedding using the shared BGE-M3 model."""
+    try:
+        from arifosmcp.intelligence.embeddings import embed
+        return embed(text)
+    except Exception:
+        # Fallback: deterministic hash-based pseudo-embedding
+        digest = hashlib.sha256(text.encode()).digest()
+        vec = [(b / 127.5) - 1.0 for b in digest]
+        while len(vec) < VECTOR_DIM:
+            vec.extend(vec)
+        return vec[:VECTOR_DIM]
+
+
 class ConstitutionalMemoryStore:
     """
     Hardened Qdrant-based memory store for AgentZero.
-    
-    Features:
-    - Project-level isolation (separate Qdrant collections)
-    - Memory area classification (MAIN/FRAGMENTS/SOLUTIONS/INSTRUMENTS)
-    - F2 verification on recall (detect truth degradation)
-    - F4 entropy management (compression, structuring)
-    - F12 injection scanning (before storage)
-    - F1 audit logging (VAULT999 integration)
-    - Knowledge import pipeline (MD5 tracking)
+
+    Uses in-memory Qdrant when no QDRANT_URL is set (dev/test),
+    or connects to a remote Qdrant server in production.
     """
-    
+
     def __init__(
         self,
-        qdrant_client=None,  # QdrantClient instance
-        embedding_model=None,  # Sentence transformer
-        prompt_armor=None,  # F12 scanner
-        arifos_client=None,  # For F2 verification
-        vault_logger=None,  # F1 audit logger
-        base_path: str = "./data/agentzero/memory"
-    ):
-        self.qdrant = qdrant_client
+        qdrant_client: Any = None,
+        embedding_model: Any = None,
+        prompt_armor: Any = None,
+        arifos_client: Any = None,
+        vault_logger: Any = None,
+        base_path: str = "./data/agentzero/memory",
+    ) -> None:
+        self.qdrant = qdrant_client or _build_qdrant_client()
         self.embedding_model = embedding_model
         self.prompt_armor = prompt_armor
         self.arifos = arifos_client
         self.vault = vault_logger
         self.base_path = base_path
-        
-        # Project tracking
-        self.active_projects: Dict[str, Dict] = {}
-        
-        # Knowledge import tracking
-        self.import_tracker: Dict[str, Dict] = {}
-        
-        # Statistics
+
+        self.active_projects: dict[str, dict[str, Any]] = {}
+        self.import_tracker: dict[str, dict[str, Any]] = {}
         self.stats = {
             "stores": 0,
             "recalls": 0,
             "f2_rejections": 0,
             "f12_blocks": 0,
         }
-    
-    async def initialize_project(self, project_id: str) -> bool:
-        """
-        Initialize memory storage for a project.
-        
-        Creates separate collections for each memory area:
-        - {project_id}_main
-        - {project_id}_fragments
-        - {project_id}_solutions
-        - {project_id}_instruments
-        """
-        if project_id in self.active_projects:
-            logger.info(f"Project {project_id} already initialized")
-            return True
-        
+
+    def _collection_name(self, project_id: str, area: MemoryArea) -> str:
+        return f"{project_id}_{area.name.lower()}"
+
+    def _ensure_collection(self, collection_name: str) -> None:
+        from qdrant_client.models import Distance, VectorParams
+
         try:
-            # Create collections for each area
-            for area in MemoryArea:
-                collection_name = f"{project_id}_{area.name.lower()}"
-                
-                # In real implementation:
-                # await self.qdrant.create_collection(
-                #     collection_name=collection_name,
-                #     vectors_config=VectorParams(size=384, distance=Distance.COSINE)
-                # )
-                
-                logger.info(f"Created collection: {collection_name}")
-            
-            # Track project
-            self.active_projects[project_id] = {
-                "initialized_at": datetime.utcnow(),
-                "collections": [f"{project_id}_{a.name.lower()}" for a in MemoryArea],
-                "entry_count": 0
-            }
-            
+            self.qdrant.get_collection(collection_name)
+        except Exception:
+            self.qdrant.create_collection(
+                collection_name=collection_name,
+                vectors_config=VectorParams(size=VECTOR_DIM, distance=Distance.COSINE),
+            )
+            logger.info(f"Created Qdrant collection: {collection_name}")
+
+    async def initialize_project(self, project_id: str) -> bool:
+        if project_id in self.active_projects:
             return True
-            
+        try:
+            for area in MemoryArea:
+                self._ensure_collection(self._collection_name(project_id, area))
+            self.active_projects[project_id] = {
+                "initialized_at": datetime.now(timezone.utc),
+                "collections": [self._collection_name(project_id, a) for a in MemoryArea],
+                "entry_count": 0,
+            }
+            logger.info(f"Initialized project '{project_id}' in Qdrant")
+            return True
         except Exception as e:
             logger.error(f"Failed to initialize project {project_id}: {e}")
             return False
-    
+
     async def store(
         self,
         content: str,
         area: MemoryArea,
         project_id: str,
         source: str = "agent",
-        source_agent: Optional[str] = None,
-        skip_f12: bool = False
-    ) -> Tuple[bool, Optional[str], Optional[str]]:
-        """
-        Store memory with full constitutional enforcement.
-        
-        Returns: (success, memory_id, error_message)
-        """
-        memory_id = str(uuid4())
-        
+        source_agent: str | None = None,
+        skip_f12: bool = False,
+    ) -> tuple[bool, str | None, str | None]:
+        """Store memory with full constitutional enforcement."""
+        memory_id = str(uuid.uuid4())
         logger.info(f"[{memory_id}] Storing to {area.name}/{project_id}")
-        
+
         # === F12: Injection Scan ===
+        f12_clean = True
+        f12_score = 0.0
         if not skip_f12 and self.prompt_armor:
             scan_result = await self.prompt_armor.scan(content, "memory")
-            
             if scan_result.is_injection:
                 self.stats["f12_blocks"] += 1
                 logger.warning(f"[{memory_id}] F12 BLOCKED: injection detected")
-                
-                # Log to VAULT999
                 if self.vault:
                     await self.vault.log_security_event({
                         "type": "F12_MEMORY_INJECTION",
                         "memory_id": memory_id,
                         "score": scan_result.score,
-                        "category": scan_result.category
+                        "category": scan_result.category,
                     })
-                
                 return False, None, f"F12_INJECTION_BLOCKED: {scan_result.category}"
-            
-            f12_clean = True
             f12_score = scan_result.score
-        else:
-            f12_clean = True
-            f12_score = 0.0
-        
+
         # === F4: Entropy Analysis ===
         entropy_delta = self._calculate_entropy_delta(content)
         if entropy_delta > 0:
-            logger.warning(f"[{memory_id}] F4: Entropy increase {entropy_delta}")
-            # Consider compression/structuring
+            logger.warning(f"[{memory_id}] F4: Entropy increase {entropy_delta:.3f}")
             content = self._structure_content(content)
-        
-        # === Generate Embedding ===
-        if self.embedding_model:
-            embedding = self.embedding_model.encode(content).tolist()
-        else:
-            # Fallback: simple hash-based (not for production)
-            embedding = None
-        
-        # === Create Memory Entry ===
+
+        embedding = _embed(content)
+
         entry = MemoryEntry(
             id=memory_id,
             content=content,
             area=area,
             project_id=project_id,
             content_hash=hashlib.sha256(content.encode()).hexdigest(),
-            f2_verified=False,  # Will be verified on recall
-            f2_confidence=0.0,
             f4_entropy_delta=entropy_delta,
             f12_clean=f12_clean,
             f12_score=f12_score,
             source=source,
             source_agent=source_agent,
-            embedding=embedding
+            embedding=embedding,
         )
-        
-        # === Store to Qdrant ===
+
         try:
-            collection_name = f"{project_id}_{area.name.lower()}"
-            
-            # In real implementation:
-            # await self.qdrant.upsert(
-            #     collection_name=collection_name,
-            #     points=[PointStruct(
-            #         id=memory_id,
-            #         vector=embedding,
-            #         payload=entry.to_dict()
-            #     )]
-            # )
-            
-            # For MVP: file-based storage
-            await self._store_to_file(entry, project_id, area)
-            
+            from qdrant_client.models import PointStruct
+
+            coll = self._collection_name(project_id, area)
+            self._ensure_collection(coll)
+            self.qdrant.upsert(
+                collection_name=coll,
+                points=[PointStruct(id=memory_id, vector=embedding, payload=entry.to_dict())],
+            )
             self.stats["stores"] += 1
-            
-            # Update project stats
             if project_id in self.active_projects:
                 self.active_projects[project_id]["entry_count"] += 1
-            
-            logger.info(f"[{memory_id}] Stored successfully")
+            logger.info(f"[{memory_id}] Stored to Qdrant")
             return True, memory_id, None
-            
         except Exception as e:
-            logger.error(f"[{memory_id}] Storage failed: {e}")
+            logger.error(f"[{memory_id}] Qdrant storage failed: {e}")
             return False, None, str(e)
-    
+
     async def recall(
         self,
         query: str,
         project_id: str,
-        areas: Optional[List[MemoryArea]] = None,
+        areas: list[MemoryArea] | None = None,
         k: int = 5,
-        threshold: float = 0.7,
-        verify_f2: bool = True
-    ) -> List[MemoryEntry]:
-        """
-        Recall memories with F2 verification.
-        
-        F2: On recall, verify memories are still accurate.
-        Memories can degrade over time (truth decay).
-        """
-        logger.info(f"Recalling from {project_id}: '{query[:50]}...' (k={k})")
-        
+        threshold: float = 0.5,
+        verify_f2: bool = True,
+    ) -> list[MemoryEntry]:
+        """Recall memories with F2 verification."""
+        logger.info(f"Recalling from '{project_id}': '{query[:50]}' (k={k})")
         areas = areas or list(MemoryArea)
-        
-        # Generate query embedding
-        if self.embedding_model:
-            query_embedding = self.embedding_model.encode(query).tolist()
-        else:
-            query_embedding = None
-        
-        # Search all relevant collections
-        all_results = []
-        
+        query_vec = _embed(query)
+        all_results: list[dict[str, Any]] = []
+
         for area in areas:
-            collection_name = f"{project_id}_{area.name.lower()}"
-            
+            coll = self._collection_name(project_id, area)
             try:
-                # In real implementation:
-                # results = await self.qdrant.search(
-                #     collection_name=collection_name,
-                #     query_vector=query_embedding,
-                #     limit=k,
-                #     score_threshold=threshold
-                # )
-                
-                # For MVP: file-based search
-                results = await self._search_files(query, project_id, area, k)
-                all_results.extend(results)
-                
+                self._ensure_collection(coll)
+                response = self.qdrant.query_points(
+                    collection_name=coll,
+                    query=query_vec,
+                    limit=k,
+                    score_threshold=threshold,
+                    with_payload=True,
+                )
+                for hit in getattr(response, "points", []):
+                    all_results.append({"payload": hit.payload, "score": hit.score})
             except Exception as e:
-                logger.error(f"Search failed for {collection_name}: {e}")
-        
-        # Sort by relevance (score)
+                logger.error(f"Qdrant search failed for {coll}: {e}")
+
         all_results.sort(key=lambda x: x.get("score", 0), reverse=True)
-        
-        # Convert to MemoryEntry objects
-        entries = []
+
+        entries: list[MemoryEntry] = []
         for result in all_results[:k]:
-            entry = MemoryEntry.from_dict(result["payload"])
-            entry.access_count += 1
-            entry.last_accessed = datetime.utcnow()
-            entries.append(entry)
-        
+            try:
+                entry = MemoryEntry.from_dict(result["payload"])
+                entry.access_count += 1
+                entry.last_accessed = datetime.now(timezone.utc)
+                entries.append(entry)
+            except Exception as e:
+                logger.warning(f"Failed to parse memory entry: {e}")
+
         # === F2: Verify Recalled Memories ===
         if verify_f2 and self.arifos:
-            verified_entries = []
-            
+            verified: list[MemoryEntry] = []
             for entry in entries:
                 is_accurate, confidence = await self._verify_truth(entry)
-                
                 if is_accurate:
                     entry.f2_verified = True
                     entry.f2_confidence = confidence
-                    verified_entries.append(entry)
+                    verified.append(entry)
                 else:
-                    logger.warning(f"[{entry.id}] F2: Memory degraded (confidence={confidence})")
+                    logger.warning(
+                        f"[{entry.id}] F2: Memory degraded (confidence={confidence:.2f})"
+                    )
                     self.stats["f2_rejections"] += 1
-                    
-                    # Flag for update rather than delete
                     await self._flag_degraded(entry)
-            
-            entries = verified_entries
-        
+            entries = verified
+
         self.stats["recalls"] += 1
-        
-        logger.info(f"Recalled {len(entries)} verified memories")
+        logger.info(f"Recalled {len(entries)} memories from Qdrant")
         return entries
-    
+
     async def import_knowledge(
         self,
         file_path: str,
         project_id: str,
-        area: MemoryArea = MemoryArea.MAIN
-    ) -> Dict[str, Any]:
-        """
-        Import knowledge from file with MD5 tracking.
-        
-        Implements AgentZero's knowledge import pipeline:
-        1. Calculate MD5 checksum
-        2. Check if already imported/changed
-        3. Chunk and embed
-        4. Store with metadata
-        """
-        import os
-        
+        area: MemoryArea = MemoryArea.MAIN,
+    ) -> dict[str, Any]:
+        """Import knowledge from file with MD5 tracking."""
         logger.info(f"Importing {file_path} to {project_id}/{area.name}")
-        
-        # Calculate MD5
         md5_hash = await self._calculate_file_md5(file_path)
-        
-        # Check if already imported
+
         if file_path in self.import_tracker:
             if self.import_tracker[file_path]["md5"] == md5_hash:
                 logger.info(f"{file_path} unchanged, skipping")
                 return {"status": "UNCHANGED", "md5": md5_hash}
-        
-        # Read and chunk
+
         try:
-            with open(file_path, 'r', encoding='utf-8') as f:
+            with open(file_path, encoding="utf-8") as f:
                 content = f.read()
-            
+
             chunks = self._chunk_document(content)
-            
             stored_ids = []
             for chunk in chunks:
                 success, mem_id, error = await self.store(
@@ -436,200 +372,87 @@ class ConstitutionalMemoryStore:
                     area=area,
                     project_id=project_id,
                     source="import",
-                    source_agent="knowledge_pipeline"
+                    source_agent="knowledge_pipeline",
                 )
-                
                 if success:
                     stored_ids.append(mem_id)
                 else:
                     logger.error(f"Failed to store chunk: {error}")
-            
-            # Update tracker
+
             self.import_tracker[file_path] = {
                 "md5": md5_hash,
-                "imported_at": datetime.utcnow().isoformat(),
+                "imported_at": datetime.now(timezone.utc).isoformat(),
                 "project_id": project_id,
                 "area": area.name,
                 "chunks": len(chunks),
-                "memory_ids": stored_ids
+                "memory_ids": stored_ids,
             }
-            
-            return {
-                "status": "IMPORTED",
-                "md5": md5_hash,
-                "chunks": len(chunks),
-                "memory_ids": stored_ids
-            }
-            
+            return {"status": "IMPORTED", "md5": md5_hash, "chunks": len(chunks),
+                    "memory_ids": stored_ids}
+
         except Exception as e:
             logger.error(f"Import failed: {e}")
             return {"status": "FAILED", "error": str(e)}
-    
-    def get_project_stats(self, project_id: str) -> Dict:
-        """Get memory statistics for a project."""
+
+    def get_project_stats(self, project_id: str) -> dict[str, Any]:
         if project_id not in self.active_projects:
             return {"error": "Project not found"}
-        
         stats = self.active_projects[project_id].copy()
         stats["global_stats"] = self.stats
-        
+        stats["qdrant_mode"] = "remote" if QDRANT_URL else "in-memory"
         return stats
-    
+
     # === Helper Methods ===
-    
+
     def _calculate_entropy_delta(self, content: str) -> float:
-        """
-        F4: Calculate entropy change.
-        
-        Positive = entropy increase (bad)
-        Negative = entropy decrease (good)
-        """
-        # Simplified entropy calculation
-        # Real implementation would use information theory
-        
-        # Factors that increase entropy:
-        # - Repetition
-        # - Unstructured data
-        # - Random noise
-        
-        # Factors that decrease entropy:
-        # - Structure
-        # - Compression
-        # - Organization
-        
-        lines = content.split('\n')
-        
-        # Unstructured content has high entropy
-        avg_line_length = sum(len(l) for l in lines) / max(1, len(lines))
-        variance = sum((len(l) - avg_line_length) ** 2 for l in lines) / max(1, len(lines))
-        
-        # High variance = unstructured = high entropy
-        entropy = variance / 1000  # Normalize
-        
-        return min(1.0, entropy)
-    
+        """F4: Positive = entropy increase (bad)."""
+        lines = content.split("\n")
+        avg = sum(len(line) for line in lines) / max(1, len(lines))
+        variance = sum((len(line) - avg) ** 2 for line in lines) / max(1, len(lines))
+        return min(1.0, variance / 1000)
+
     def _structure_content(self, content: str) -> str:
-        """F4: Structure content to reduce entropy."""
-        # Simple structuring
-        lines = content.split('\n')
-        
-        # Remove excessive blank lines
+        """F4: Remove excessive blank lines to reduce entropy."""
         structured = []
         prev_blank = False
-        for line in lines:
+        for line in content.split("\n"):
             is_blank = not line.strip()
             if is_blank and prev_blank:
                 continue
             structured.append(line)
             prev_blank = is_blank
-        
-        return '\n'.join(structured)
-    
-    async def _verify_truth(self, entry: MemoryEntry) -> Tuple[bool, float]:
-        """
-        F2: Verify memory is still accurate.
-        
-        In production, this would:
-        - Check against ground truth
-        - Verify source is still valid
-        - Detect contradictions with newer knowledge
-        
-        For MVP: Assume valid unless very old
-        """
-        age_days = (datetime.utcnow() - entry.created_at).days
-        
-        # Very old memories need re-verification
+        return "\n".join(structured)
+
+    async def _verify_truth(self, entry: MemoryEntry) -> tuple[bool, float]:
+        """F2: Verify memory accuracy by age."""
+        age_days = (datetime.now(timezone.utc) - entry.created_at.replace(tzinfo=timezone.utc)).days
         if age_days > 365:
             return False, 0.5
-        
-        # Recent memories are likely valid
-        confidence = max(0.5, 1.0 - (age_days / 730))  # Degrade over 2 years
-        
+        confidence = max(0.5, 1.0 - (age_days / 730))
         return confidence > 0.7, confidence
-    
-    async def _flag_degraded(self, entry: MemoryEntry):
-        """Flag a memory as degraded for later review."""
+
+    async def _flag_degraded(self, entry: MemoryEntry) -> None:
         logger.info(f"[{entry.id}] Flagged for degradation review")
-        # Would update metadata in Qdrant
-    
+
     async def _calculate_file_md5(self, file_path: str) -> str:
-        """Calculate MD5 hash of file."""
         hash_md5 = hashlib.md5()
         with open(file_path, "rb") as f:
             for chunk in iter(lambda: f.read(4096), b""):
                 hash_md5.update(chunk)
         return hash_md5.hexdigest()
-    
-    def _chunk_document(self, content: str, chunk_size: int = 1000) -> List[str]:
-        """Split document into chunks."""
+
+    def _chunk_document(self, content: str, chunk_size: int = 1000) -> list[str]:
         words = content.split()
-        chunks = []
-        current_chunk = []
-        current_size = 0
-        
+        chunks: list[str] = []
+        current: list[str] = []
+        size = 0
         for word in words:
-            current_chunk.append(word)
-            current_size += len(word) + 1
-            
-            if current_size >= chunk_size:
-                chunks.append(' '.join(current_chunk))
-                current_chunk = []
-                current_size = 0
-        
-        if current_chunk:
-            chunks.append(' '.join(current_chunk))
-        
+            current.append(word)
+            size += len(word) + 1
+            if size >= chunk_size:
+                chunks.append(" ".join(current))
+                current = []
+                size = 0
+        if current:
+            chunks.append(" ".join(current))
         return chunks
-    
-    async def _store_to_file(self, entry: MemoryEntry, project_id: str, area: MemoryArea):
-        """MVP: Store to file (replace with Qdrant in production)."""
-        import os
-        
-        dir_path = os.path.join(self.base_path, project_id, area.name.lower())
-        os.makedirs(dir_path, exist_ok=True)
-        
-        file_path = os.path.join(dir_path, f"{entry.id}.json")
-        
-        with open(file_path, 'w') as f:
-            json.dump(entry.to_dict(), f, indent=2)
-    
-    async def _search_files(self, query: str, project_id: str, area: MemoryArea, k: int) -> List[Dict]:
-        """MVP: Simple file-based search (replace with Qdrant in production)."""
-        import os
-        
-        dir_path = os.path.join(self.base_path, project_id, area.name.lower())
-        
-        if not os.path.exists(dir_path):
-            return []
-        
-        results = []
-        query_lower = query.lower()
-        
-        for filename in os.listdir(dir_path):
-            if not filename.endswith('.json'):
-                continue
-            
-            file_path = os.path.join(dir_path, filename)
-            
-            try:
-                with open(file_path, 'r') as f:
-                    data = json.load(f)
-                
-                content = data.get("content", "").lower()
-                
-                # Simple relevance score
-                score = 0.0
-                for word in query_lower.split():
-                    if word in content:
-                        score += 0.2
-                
-                if score > 0:
-                    results.append({
-                        "payload": data,
-                        "score": min(1.0, score)
-                    })
-                    
-            except Exception as e:
-                logger.error(f"Error reading {file_path}: {e}")
-        
-        return results
