@@ -1,5 +1,5 @@
 {
-  "test_run": "2026-03-14T13:29:11.210514",
+  "test_run": "2026-03-14T13:31:11.043968",
   "total_tools": 25,
   "passed": 15,
   "failed": 1,
@@ -10,7 +10,7 @@
       "message": "Partial functionality",
       "details": {
         "returns_envelope": true,
-        "has_session_id": "session-a80334c2",
+        "has_session_id": "session-0fb149e8",
         "has_stage": false,
         "has_verdict": true
       }
