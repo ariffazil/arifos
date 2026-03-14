@@ -477,6 +477,8 @@ async def call_kernel(
                 auth_ctx = _mint_auto_anchor_auth_context(session_id, claimed_actor_id)
                 payload["auth_context"] = auth_ctx
                 payload.setdefault("identity_resolution", {})
+                # Ensure the authority block reflects the auto-anchored identity
+                envelope_actor_override = claimed_actor_id
             elif _requires_explicit_kernel_auth(payload, canonical_name):
                 return _auth_failure_envelope(
                     tool=canonical_name,
