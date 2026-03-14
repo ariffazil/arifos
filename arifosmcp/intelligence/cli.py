@@ -23,8 +23,7 @@ def create_aclip_server() -> FastMCP:
     """Create and configure the aclip-cai MCP server."""
     mcp = FastMCP(
         "aclip-cai",
-        version="1.0.0",
-        description="ACLIP — Console for AI on arifOS",
+        instructions="ACLIP — Console for AI on arifOS (Nervous System 9 Tools)",
     )
 
     # Register Nervous System 9 Tools

@@ -972,19 +972,20 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
         if err := _auth_error_response(request):
             return err
 
-        # Get tools from mcp instance
+        # Only return tools in CORE_TOOL_REGISTRY (canonical 23 tools)
         mcp_tools = await mcp.list_tools()
         tool_list = []
         for tool in mcp_tools:
-            tool_list.append(
-                {
-                    "name": tool.name,
-                    "description": tool.description or "",
-                    "parameters": tool.parameters or {},
-                    "stage": AAA_TOOL_STAGE_MAP.get(tool.name),
-                    "lane": TRINITY_BY_TOOL.get(tool.name),
-                }
-            )
+            if tool.name in tool_registry:
+                tool_list.append(
+                    {
+                        "name": tool.name,
+                        "description": tool.description or "",
+                        "parameters": tool.parameters or {},
+                        "stage": AAA_TOOL_STAGE_MAP.get(tool.name),
+                        "lane": TRINITY_BY_TOOL.get(tool.name),
+                    }
+                )
         return JSONResponse({"tools": tool_list, "count": len(tool_list)})
 
     @mcp.custom_route("/tools/", methods=["GET"])

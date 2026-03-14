@@ -77,6 +77,7 @@ from arifosmcp.runtime.tools import (
     vault_seal,
     verify_vault_ledger,
 )
+from arifosmcp.intelligence import console_tools as aclip_tools
 from core.shared.manifest_loader import sync_runtime_floors
 
 # ---------------------------------------------------------------------------
@@ -207,6 +208,16 @@ CORE_TOOL_REGISTRY = {
     "agentzero_armor_scan": agentzero_armor_scan,
     # ── Session lifecycle ────────────────────────────────────────────────────
     "revoke_anchor_state": revoke_anchor_state,
+    # ── ACLIP Nervous System Tools (Operational) ───────────────────────────────
+    "system_health": aclip_tools.system_health,
+    "process_list": aclip_tools.process_list,
+    "fs_inspect": aclip_tools.fs_inspect,
+    "log_tail": aclip_tools.log_tail,
+    "net_status": aclip_tools.net_status,
+    "chroma_query": aclip_tools.chroma_query,
+    "arifos_list_resources": aclip_tools.arifos_list_resources,
+    "arifos_read_resource": aclip_tools.arifos_read_resource,
+    "cost_estimator": aclip_tools.cost_estimator,
 }
 
 register_rest_routes(mcp, CORE_TOOL_REGISTRY)
