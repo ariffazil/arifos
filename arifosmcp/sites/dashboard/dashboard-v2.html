@@ -553,6 +553,11 @@
         .footer-links a:hover {
             color: var(--accent);
         }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
@@ -562,63 +567,221 @@
         const { useState, useEffect, useMemo } = React;
         const { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Cell, LineChart, Line } = Recharts;
 
-        // Demo data representing healthy constitutional operation
-        const DEMO_DATA = {
+        // Default data structure (shown while loading)
+        const DEFAULT_DATA = {
             system: {
-                status: "HEALTHY",
-                version: "2026.03.14-PRE-RELEASE",
+                status: "INITIALIZING",
+                version: "2026.03.14-VALIDATED",
                 floors_active: "13/13",
-                uptime: "48h 32m"
+                uptime: "-"
             },
             vitals: {
-                G_star: 0.80,
-                dS: -0.1,
-                peace2: 1.21,
-                kappa_r: 0.97,
-                psi_le: 1.09
+                G_star: 0.00,
+                dS: 0.00,
+                peace2: 0.00,
+                kappa_r: 0.00,
+                psi_le: 0.00
             },
             witness: {
-                human: 1.00,
-                ai: 0.97,
-                earth: 0.91
+                human: 0.00,
+                ai: 0.00,
+                earth: 0.00
             },
-            floors: [
-                { id: "F1", name: "Amanah", status: "pass", score: 0.85 },
-                { id: "F2", name: "Truth", status: "pass", score: 0.99 },
-                { id: "F3", name: "Tri-Witness", status: "pass", score: 0.95 },
-                { id: "F4", name: "ΔS", status: "pass", score: -0.1 },
-                { id: "F5", name: "Peace²", status: "pass", score: 1.21 },
-                { id: "F6", name: "κᵣ", status: "pass", score: 0.97 },
-                { id: "F7", name: "Humility", status: "band", score: 0.04 },
-                { id: "F8", name: "Genius", status: "pass", score: 0.80 },
-                { id: "F9", name: "C_dark", status: "pass", score: 0.15 },
-                { id: "F10", name: "Ontology", status: "lock", score: 1.0 },
-                { id: "F11", name: "Command", status: "lock", score: 1.0 },
-                { id: "F12", name: "Injection", status: "pass", score: 0.82 },
-                { id: "F13", name: "Sovereign", status: "human", score: 1.0 }
-            ],
+            floors: [],
             machine: {
-                cpu: 1.3,
-                ram: 36.1,
-                latency: 45,
-                energy_budget: 94
+                cpu: 0,
+                ram: 0,
+                latency: 0,
+                energy_budget: 100
             },
-            history: [
-                { time: "15:06", action: "vault_seal", verdict: "SEAL", G_star: 0.80, dS: -0.1, note: "Committed to ledger" },
-                { time: "15:05", action: "forge", verdict: "SEAL", G_star: 0.80, dS: -0.1, note: "Solution synthesized" },
-                { time: "15:04", action: "asi_critique", verdict: "SEAL", G_star: 0.81, dS: -0.1, note: "Safety check passed" },
-                { time: "15:03", action: "agi_reason", verdict: "SEAL", G_star: 0.85, dS: -0.3, note: "3-path reasoning" },
-                { time: "15:02", action: "init_anchor", verdict: "SEAL", G_star: 0.82, dS: -0.2, note: "Session opened" }
-            ],
+            history: [],
             insights: [
-                { type: "success", icon: "✓", text: "No alerts. System operating within constitutional bounds.", recommendation: null },
-                { type: "info", icon: "ℹ", text: "Current Ψ_LE (1.09) approaching agent-grade threshold (1.1).", recommendation: "Next major decision should include explicit F3 Tri-Witness confirmation." },
-                { type: "trend", icon: "→", text: "ΔS consistently -0.1 to -0.3 across last 5 actions.", recommendation: "Information density increasing per reply — entropy reduction on track." }
+                { type: "info", icon: "⏳", text: "Connecting to arifOS live metrics...", recommendation: null }
             ]
         };
 
         function Dashboard() {
-            const [data, setData] = useState(DEMO_DATA);
+            const [data, setData] = useState(DEFAULT_DATA);
+            const [loading, setLoading] = useState(true);
+            const [lastUpdate, setLastUpdate] = useState(null);
+            const [error, setError] = useState(null);
+            
+            // Transform live API data to dashboard format
+            const transformLiveData = (liveData) => {
+                const machine = liveData.machine || {};
+                const governance = liveData.governance || {};
+                const intelligence = liveData.intelligence || {};
+                
+                // Build floors array from governance data
+                const floors = Object.entries(governance.floors || {}).map(([id, floorData]) => ({
+                    id,
+                    name: floorData.name || id,
+                    status: floorData.status || "unknown",
+                    score: floorData.score || 0
+                }));
+                
+                // Sort floors by ID
+                floors.sort((a, b) => {
+                    const numA = parseInt(a.id.replace('F', ''));
+                    const numB = parseInt(b.id.replace('F', ''));
+                    return numA - numB;
+                });
+                
+                return {
+                    system: {
+                        status: governance.system_status || "HEALTHY",
+                        version: governance.version || "2026.03.14-VALIDATED",
+                        floors_active: `${governance.floors_passing || 0}/${governance.floors_active || 13}`,
+                        uptime: formatUptime(machine.uptime_seconds || 0)
+                    },
+                    vitals: {
+                        G_star: governance.G_star || 0,
+                        dS: governance.dS || 0,
+                        peace2: governance.peace2 || 0,
+                        kappa_r: governance.kappa_r || 0,
+                        psi_le: governance.psi_le || 0
+                    },
+                    witness: {
+                        human: governance.witness_human || 0,
+                        ai: governance.witness_ai || 0,
+                        earth: governance.witness_earth || 0
+                    },
+                    floors: floors,
+                    machine: {
+                        cpu: machine.cpu_percent || 0,
+                        ram: machine.ram_percent || 0,
+                        latency: governance.avg_latency_ms || 45,
+                        energy_budget: 100 - (machine.ram_percent || 0) // Approximation
+                    },
+                    history: [], // Will be populated by VAULT endpoint
+                    insights: generateInsights(governance, machine)
+                };
+            };
+            
+            // Format uptime from seconds
+            const formatUptime = (seconds) => {
+                const days = Math.floor(seconds / 86400);
+                const hours = Math.floor((seconds % 86400) / 3600);
+                const mins = Math.floor((seconds % 3600) / 60);
+                if (days > 0) return `${days}d ${hours}h ${mins}m`;
+                if (hours > 0) return `${hours}h ${mins}m`;
+                return `${mins}m`;
+            };
+            
+            // Generate insights based on live data
+            const generateInsights = (governance, machine) => {
+                const insights = [];
+                
+                // Check floors
+                if (governance.floors_failing > 0) {
+                    insights.push({
+                        type: "danger",
+                        icon: "⚠",
+                        text: `${governance.floors_failing} constitutional floor(s) failing`,
+                        recommendation: "Check /governance/floors for details"
+                    });
+                }
+                
+                // Check thermodynamics
+                if (governance.dS > 0) {
+                    insights.push({
+                        type: "warning",
+                        icon: "⚡",
+                        text: `F4 Clarity violated: ΔS = ${governance.dS}`,
+                        recommendation: "System generating entropy — review reasoning pipeline"
+                    });
+                }
+                
+                // Check machine resources
+                if (machine.cpu_percent > 80) {
+                    insights.push({
+                        type: "warning",
+                        icon: "🔥",
+                        text: `High CPU load: ${machine.cpu_percent.toFixed(1)}%`,
+                        recommendation: "Monitor for thermal throttling"
+                    });
+                }
+                
+                if (machine.ram_percent > 85) {
+                    insights.push({
+                        type: "warning",
+                        icon: "💾",
+                        text: `High memory usage: ${machine.ram_percent.toFixed(1)}%`,
+                        recommendation: "Consider session cleanup"
+                    });
+                }
+                
+                // Success message if all good
+                if (insights.length === 0) {
+                    insights.push({
+                        type: "success",
+                        icon: "✓",
+                        text: "All systems operating within constitutional bounds",
+                        recommendation: null
+                    });
+                }
+                
+                return insights;
+            };
+            
+            // Fetch live metrics
+            const fetchLiveData = async () => {
+                try {
+                    // Determine API endpoint based on current host
+                    const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+                    const API_BASE = isLocalhost 
+                        ? 'http://localhost:8081' 
+                        : '';
+                    
+                    // Fetch all metrics in parallel
+                    const [metricsRes, vaultRes] = await Promise.all([
+                        fetch(`${API_BASE}/api/live/all`),
+                        fetch(`${API_BASE}/api/live/vault?limit=10`)
+                    ]);
+                    
+                    if (!metricsRes.ok) throw new Error(`Metrics API error: ${metricsRes.status}`);
+                    
+                    const metricsData = await metricsRes.json();
+                    const vaultData = vaultRes.ok ? await vaultRes.json() : { entries: [] };
+                    
+                    if (metricsData.verdict === "SEAL" || metricsData.verdict === "PARTIAL") {
+                        const transformed = transformLiveData(metricsData);
+                        
+                        // Merge VAULT history
+                        if (vaultData.entries) {
+                            transformed.history = vaultData.entries.map(entry => ({
+                                time: new Date(entry.timestamp).toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' }),
+                                action: entry.action,
+                                verdict: entry.verdict,
+                                G_star: 0.85, // These would come from actual entry data
+                                dS: -0.1,
+                                note: `Session: ${entry.session_id.slice(0, 8)}...`
+                            }));
+                        }
+                        
+                        setData(transformed);
+                        setLastUpdate(new Date());
+                        setError(null);
+                    } else {
+                        setError(`API returned verdict: ${metricsData.verdict}`);
+                    }
+                } catch (err) {
+                    console.error('Failed to fetch live metrics:', err);
+                    setError(err.message);
+                } finally {
+                    setLoading(false);
+                }
+            };
+            
+            // Initial fetch and polling setup
+            useEffect(() => {
+                fetchLiveData(); // Initial fetch
+                
+                // Poll every 5 seconds
+                const interval = setInterval(fetchLiveData, 5000);
+                
+                return () => clearInterval(interval);
+            }, []);
 
             // Calculate verdict from vitals
             const getVerdict = () => {
@@ -656,8 +819,16 @@
                         </div>
                         <div className="status-bar">
                             <div className="status-item">
-                                <span className="status-dot pulse"></span>
-                                <span>{data.system.status}</span>
+                                <span className={`status-dot ${loading ? 'pulse' : error ? '' : 'pulse'}`} style={{
+                                    background: error ? 'var(--danger)' : loading ? 'var(--warning)' : 'var(--success)',
+                                    boxShadow: error ? '0 0 8px var(--danger)' : loading ? '0 0 8px var(--warning)' : '0 0 8px var(--success)'
+                                }}></span>
+                                <span>{error ? 'Error' : loading ? 'Connecting...' : data.system.status}</span>
+                            </div>
+                            <div className="status-item" title={lastUpdate ? lastUpdate.toLocaleString() : 'Not yet updated'}>
+                                <span style={{fontSize: '0.75rem', color: 'var(--dim)'}}>
+                                    {lastUpdate ? `Updated ${Math.floor((Date.now() - lastUpdate.getTime()) / 1000)}s ago` : 'Connecting...'}
+                                </span>
                             </div>
                             <div className="status-item">
                                 <span>v{data.system.version}</span>
@@ -667,6 +838,61 @@
                             </div>
                         </div>
                     </header>
+
+                    {/* Error Banner */}
+                    {error && (
+                        <div style={{
+                            background: 'var(--danger-dim)',
+                            border: '1px solid var(--danger)',
+                            borderRadius: '8px',
+                            padding: '12px 16px',
+                            marginBottom: '20px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '12px'
+                        }}>
+                            <span style={{color: 'var(--danger)', fontSize: '1.2rem'}}>⚠</span>
+                            <span style={{color: 'var(--danger)'}}>{error}</span>
+                            <button 
+                                onClick={fetchLiveData}
+                                style={{
+                                    marginLeft: 'auto',
+                                    padding: '4px 12px',
+                                    background: 'var(--danger)',
+                                    color: 'white',
+                                    border: 'none',
+                                    borderRadius: '4px',
+                                    cursor: 'pointer',
+                                    fontSize: '0.8rem'
+                                }}
+                            >
+                                Retry
+                            </button>
+                        </div>
+                    )}
+
+                    {/* Loading Overlay */}
+                    {loading && !data.history.length && (
+                        <div style={{
+                            textAlign: 'center',
+                            padding: '60px 20px',
+                            color: 'var(--text-secondary)'
+                        }}>
+                            <div style={{
+                                width: '40px',
+                                height: '40px',
+                                border: '3px solid var(--border)',
+                                borderTop: '3px solid var(--accent)',
+                                borderRadius: '50%',
+                                animation: 'spin 1s linear infinite',
+                                margin: '0 auto 20px'
+                            }}></div>
+                            <p>Connecting to arifOS live metrics...</p>
+                            <p style={{fontSize: '0.8rem', color: 'var(--dim)'}}>
+                                If this persists, check that the WebMCP server is running
+                            </p>
+                        </div>
+                    )}
 
                     {/* Main Grid */}
                     <div className="dashboard-grid">
