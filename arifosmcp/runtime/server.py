@@ -267,18 +267,28 @@ if os.path.isdir(_sites_dir):
     
     # Root-level discovery files
     from starlette.responses import FileResponse
+    from starlette.routing import Route
     
-    @_mcp_app.get("/llms.txt", include_in_schema=False)
-    async def get_llms_txt():
+    async def get_llms_txt(request):
         return FileResponse(os.path.join(_sites_dir, "llms.txt"))
         
-    @_mcp_app.get("/ai.json", include_in_schema=False)
-    async def get_ai_json():
+    async def get_ai_json(request):
         return FileResponse(os.path.join(_sites_dir, "ai.json"))
         
-    @_mcp_app.get("/robots.txt", include_in_schema=False)
-    async def get_robots_txt():
+    async def get_robots_txt(request):
         return FileResponse(os.path.join(_sites_dir, "robots.txt"))
+
+    async def get_openapi_json(request):
+        return FileResponse(os.path.join(_sites_dir, "openapi.json"))
+
+    async def get_rag_context(request):
+        return FileResponse(os.path.join(_sites_dir, "RAG_CONTEXT.md"))
+
+    _mcp_app.router.add_route("/llms.txt", get_llms_txt, methods=["GET"], include_in_schema=False)
+    _mcp_app.router.add_route("/ai.json", get_ai_json, methods=["GET"], include_in_schema=False)
+    _mcp_app.router.add_route("/robots.txt", get_robots_txt, methods=["GET"], include_in_schema=False)
+    _mcp_app.router.add_route("/openapi.json", get_openapi_json, methods=["GET"], include_in_schema=False)
+    _mcp_app.router.add_route("/RAG_CONTEXT.md", get_rag_context, methods=["GET"], include_in_schema=False)
 
 
 def create_aaa_mcp_server() -> FastMCP:
