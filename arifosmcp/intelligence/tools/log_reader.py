@@ -7,8 +7,23 @@ from datetime import datetime, timedelta, timezone
 from arifosmcp.intelligence.tools.aclip_base import ok, void
 
 
+def _find_default_log() -> str:
+    """Find a sensible default log file."""
+    candidates = [
+        "arifosmcp.transport.log",
+        "logs/arifosmcp.log",
+        "/var/log/arifosmcp.log",
+        os.path.expanduser("~/.arifosmcp/logs/arifosmcp.log"),
+    ]
+    for candidate in candidates:
+        if os.path.exists(candidate):
+            return candidate
+    # Return first candidate even if not found - will fail gracefully later
+    return candidates[0]
+
+
 def log_tail(
-    log_file: str = "arifosmcp.transport.log",
+    log_file: str | None = None,
     lines: int = 50,
     pattern: str = "",
     log_path: str | None = None,
@@ -32,6 +47,8 @@ def log_tail(
     """
     # 1. Handle Aliases
     target_file = log_path or log_file
+    if not target_file:
+        target_file = _find_default_log()
     target_pattern = grep_pattern or pattern
 
     if not os.path.exists(target_file):

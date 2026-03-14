@@ -436,7 +436,7 @@ async def _wrap_call(
             tool_name, envelope.stage, payload, envelope.model_dump(mode="json")
         )
 
-    if ctx:
+    if ctx and hasattr(ctx, "info"):
         await ctx.info(f"arifOS_telemetry {envelope.model_dump(mode='json', exclude_none=True)}")
 
     return envelope

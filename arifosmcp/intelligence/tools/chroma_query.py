@@ -58,14 +58,29 @@ def query_memory(
             pass  # skip malformed filter rather than hard-fail
 
     try:
-        results = client.search(
-            collection_name=collection,
-            query_vector=query_vector,
-            limit=n_results,
-            query_filter=qdrant_filter,
-            with_payload=True,
-            with_vectors=include_embeddings,
-        )
+        # Try modern Qdrant API (v1.8+) first, fallback to legacy API
+        try:
+            from qdrant_client.models import PointStruct
+
+            query_result = client.query_points(
+                collection_name=collection,
+                query=query_vector,
+                limit=n_results,
+                query_filter=qdrant_filter,
+                with_payload=True,
+                with_vectors=include_embeddings,
+            )
+            results = query_result.points
+        except (AttributeError, TypeError):
+            # Fallback to legacy search API (pre-v1.8)
+            results = client.search(
+                collection_name=collection,
+                query_vector=query_vector,
+                limit=n_results,
+                query_filter=qdrant_filter,
+                with_payload=True,
+                with_vectors=include_embeddings,
+            )
     except Exception as e:
         try:
             cols = [c.name for c in client.get_collections().collections]

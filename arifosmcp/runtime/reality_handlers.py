@@ -22,6 +22,7 @@ from .reality_models import (
 # Vector auto-sync bridge (SEALTRIWITNESS Phase 2)
 try:
     from ..intelligence.tools.vector_bridge import auto_sync_bundle
+
     VECTOR_SYNC_AVAILABLE = True
 except ImportError:
     VECTOR_SYNC_AVAILABLE = False
@@ -29,6 +30,7 @@ except ImportError:
     async def auto_sync_bundle(*args, **kwargs):
         """No-op when vector bridge not available."""
         pass
+
 
 logger = logging.getLogger(__name__)
 
@@ -210,7 +212,13 @@ class RealityHandler:
 
                 if response.status_code == 200:
                     data = response.json()
-                    res.results = data.get("web", {}).get("results", [])
+                    web_results = data.get("web", {}) or {}
+                    res.results = web_results.get("results", []) if web_results else []
+                    # Log if we get empty results
+                    if not res.results:
+                        res.error = (
+                            f"Brave returned 200 but no web results. Keys: {list(data.keys())}"
+                        )
                 elif response.status_code == 422:
                     # Capture detail for P1 fixing
                     res.error = f"Brave 422 Unprocessable: {response.text}"

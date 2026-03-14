@@ -18,12 +18,28 @@ from typing import Any
 from arifosmcp.intelligence.tools.aclip_base import PSUTIL_OK, ok, partial, psutil, void
 
 
+def _is_running_in_container() -> bool:
+    """Detect if running inside a Docker/LXC container."""
+    # Check for .dockerenv file
+    if os.path.exists("/.dockerenv"):
+        return True
+    # Check cgroup
+    try:
+        with open("/proc/1/cgroup", "r") as f:
+            return "docker" in f.read() or "lxc" in f.read()
+    except Exception:
+        pass
+    return False
+
+
 def get_resource_usage(
     include_swap: bool = True,
     include_io: bool = False,
     include_temp: bool = False,
 ) -> dict[str, Any]:
     """Return current RAM, CPU, disk, and sensor usage as structured JSON."""
+    container_mode = _is_running_in_container()
+
     if PSUTIL_OK:
         try:
             data: dict[str, Any] = {}
@@ -32,7 +48,8 @@ def get_resource_usage(
             cpu_percent = psutil.cpu_percent(interval=0.01)
             try:
                 cpu_load = psutil.getloadavg()
-            except AttributeError:
+            except (AttributeError, OSError):
+                # getloadavg() not available on Windows or in some containers
                 cpu_load = (0.0, 0.0, 0.0)
 
             data["cpu"] = {
@@ -60,52 +77,73 @@ def get_resource_usage(
                 "percent": mem.percent,  # Duplicate for compatibility
             }
             if include_swap:
-                swap = psutil.swap_memory()
-                data["memory"]["swap"] = {
-                    "total": swap.total,
-                    "used": swap.used,
-                    "free": swap.free,
-                    "percent": swap.percent,
-                }
+                try:
+                    swap = psutil.swap_memory()
+                    data["memory"]["swap"] = {
+                        "total": swap.total,
+                        "used": swap.used,
+                        "free": swap.free,
+                        "percent": swap.percent,
+                    }
+                except Exception:
+                    data["memory"]["swap"] = {"warning": "swap_info_unavailable"}
 
             # 3. Disk
-            root_path = os.path.abspath(os.sep)
-            disk = psutil.disk_usage(root_path)
-            data["disk"] = {
-                "total": disk.total,
-                "used": disk.used,
-                "free": disk.free,
-                "usage_percent": disk.percent,
-                "total_gb": round(disk.total / 1e9, 1),
-                "used_gb": round(disk.used / 1e9, 1),
-                "percent": disk.percent,  # Duplicate for compatibility
-            }
+            try:
+                root_path = os.path.abspath(os.sep)
+                disk = psutil.disk_usage(root_path)
+                data["disk"] = {
+                    "total": disk.total,
+                    "used": disk.used,
+                    "free": disk.free,
+                    "usage_percent": disk.percent,
+                    "total_gb": round(disk.total / 1e9, 1),
+                    "used_gb": round(disk.used / 1e9, 1),
+                    "percent": disk.percent,  # Duplicate for compatibility
+                }
+            except Exception as e:
+                data["disk"] = {"warning": f"disk_info_unavailable: {e}"}
 
             # 4. IO
             if include_io:
-                net_io = psutil.net_io_counters()
-                disk_io = psutil.disk_io_counters()
-                data["io"] = {
-                    "network": {
-                        "bytes_sent_gb": round(net_io.bytes_sent / 1e9, 2),
-                        "bytes_recv_gb": round(net_io.bytes_recv / 1e9, 2),
-                    },
-                    "disk": {
-                        "read_gb": round(disk_io.read_bytes / 1e9, 2),
-                        "write_gb": round(disk_io.write_bytes / 1e9, 2),
-                    },
-                }
+                try:
+                    net_io = psutil.net_io_counters()
+                    disk_io = psutil.disk_io_counters()
+                    data["io"] = {
+                        "network": {
+                            "bytes_sent_gb": round(net_io.bytes_sent / 1e9, 2),
+                            "bytes_recv_gb": round(net_io.bytes_recv / 1e9, 2),
+                        },
+                        "disk": {
+                            "read_gb": round(disk_io.read_bytes / 1e9, 2),
+                            "write_gb": round(disk_io.write_bytes / 1e9, 2),
+                        },
+                    }
+                except Exception as e:
+                    data["io"] = {"warning": f"io_counters_unavailable: {e}"}
 
             # 5. Thermal
             if include_temp:
                 if hasattr(psutil, "sensors_temperatures"):
-                    temps = psutil.sensors_temperatures()
-                    data["thermal"] = {k: [v.current for v in vals] for k, vals in temps.items()}
+                    try:
+                        temps = psutil.sensors_temperatures()
+                        data["thermal"] = {
+                            k: [v.current for v in vals] for k, vals in temps.items()
+                        }
+                    except Exception:
+                        data["thermal"] = {"warning": "thermal_sensors_not_available"}
                 else:
                     data["thermal"] = {"warning": "thermal_sensors_not_available"}
 
             data["platform"] = platform.system()
-            data["uptime_seconds"] = round(time.time() - psutil.boot_time(), 1)
+            try:
+                data["uptime_seconds"] = round(time.time() - psutil.boot_time(), 1)
+            except Exception:
+                data["uptime_seconds"] = 0
+
+            if container_mode:
+                data["container_mode"] = True
+                data["note"] = "Running in container - some metrics may be limited"
 
             return ok(data)
 
@@ -124,57 +162,75 @@ def list_processes(
     include_threads: bool = False,
 ) -> dict[str, Any]:
     """List and filter system processes with resource insights."""
-    if PSUTIL_OK:
-        procs = []
-        for p in psutil.process_iter(
-            ["pid", "name", "memory_info", "cpu_percent", "username", "create_time", "num_threads"]
-        ):
-            try:
-                info = p.info
-                name = info["name"] or ""
-                user = info["username"] or "unknown"
+    if not PSUTIL_OK:
+        return void("psutil not installed", "uv pip install psutil")
 
-                # Filters
-                if filter_name and filter_name.lower() not in name.lower():
-                    continue
-                if filter_user and filter_user.lower() not in user.lower():
-                    continue
+    procs = []
+    access_denied_count = 0
 
-                mem_mb = round((info["memory_info"].rss if info["memory_info"] else 0) / 1e6, 1)
-                cpu_pct = round(info["cpu_percent"] or 0.0, 1)
+    for p in psutil.process_iter(
+        ["pid", "name", "memory_info", "cpu_percent", "username", "create_time", "num_threads"]
+    ):
+        try:
+            info = p.info
+            name = info["name"] or ""
+            user = info["username"] or "unknown"
 
-                if mem_mb < min_memory_mb:
-                    continue
-                if cpu_pct < min_cpu_percent:
-                    continue
-
-                proc_data = {
-                    "pid": info["pid"],
-                    "name": name,
-                    "ram_mb": mem_mb,
-                    "cpu_pct": cpu_pct,
-                    "cpu_percent": cpu_pct,
-                    "user": user,
-                    "created": datetime.datetime.fromtimestamp(info["create_time"]).isoformat(),
-                }
-                if include_threads:
-                    proc_data["threads"] = info["num_threads"]
-
-                procs.append(proc_data)
-
-            except (psutil.NoSuchProcess, psutil.AccessDenied, MemoryError):
+            # Filters
+            if filter_name and filter_name.lower() not in name.lower():
+                continue
+            if filter_user and filter_user.lower() not in user.lower():
                 continue
 
-        # Sort by RAM by default
-        procs.sort(key=lambda x: x["ram_mb"], reverse=True)
-        return ok(
-            {
-                "total_count": len(procs[:limit]),
-                "processes": procs[:limit],
+            mem_mb = round((info["memory_info"].rss if info["memory_info"] else 0) / 1e6, 1)
+            cpu_pct = round(info["cpu_percent"] or 0.0, 1)
+
+            if mem_mb < min_memory_mb:
+                continue
+            if cpu_pct < min_cpu_percent:
+                continue
+
+            proc_data = {
+                "pid": info["pid"],
+                "name": name,
+                "ram_mb": mem_mb,
+                "cpu_pct": cpu_pct,
+                "cpu_percent": cpu_pct,
+                "user": user,
+                "created": datetime.datetime.fromtimestamp(info["create_time"]).isoformat(),
             }
+            if include_threads:
+                proc_data["threads"] = info["num_threads"]
+
+            procs.append(proc_data)
+
+        except psutil.NoSuchProcess:
+            continue
+        except psutil.AccessDenied:
+            access_denied_count += 1
+            continue
+        except MemoryError:
+            continue
+
+    # Sort by RAM by default
+    procs.sort(key=lambda x: x["ram_mb"], reverse=True)
+
+    result = {
+        "total_count": len(procs[:limit]),
+        "processes": procs[:limit],
+    }
+
+    if access_denied_count > 0:
+        result["note"] = (
+            f"Access denied to {access_denied_count} processes (container restrictions)"
         )
-    else:
-        return void("psutil not installed", "uv pip install psutil")
+
+    if not procs and access_denied_count > 0:
+        return partial(
+            result, warning="All processes access denied - likely running in restricted container"
+        )
+
+    return ok(result)
 
 
 def get_system_health(

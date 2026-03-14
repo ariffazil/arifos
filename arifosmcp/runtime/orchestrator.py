@@ -208,7 +208,7 @@ async def run_stage(
             raw_input=query,
             session_id=session_id,
             pns_shield=shield.model_dump() if shield else None,
-            ctx=None, # type: ignore
+            ctx=None,  # type: ignore
             actor_id=actor_id,
         )
 
@@ -216,9 +216,16 @@ async def run_stage(
     if stage_id == Stage.MIND_333.value:
         search_res = active_pns.search if active_pns else None
         if not search_res:
-            search_env = await handle_pns_search(query=query, session_id=session_id)
-            search_res = PNSSignal(source="PNS_SEARCH", payload=search_env.payload)
-            pns_trace["PNS_SEARCH"] = search_res.model_dump(mode="json")
+            try:
+                # Add timeout to prevent hanging on search
+                search_env = await asyncio.wait_for(
+                    handle_pns_search(query=query, session_id=session_id), timeout=10.0
+                )
+                search_res = PNSSignal(source="PNS_SEARCH", payload=search_env.payload)
+                pns_trace["PNS_SEARCH"] = search_res.model_dump(mode="json")
+            except asyncio.TimeoutError:
+                # Continue without search results if timeout
+                pns_trace["PNS_SEARCH"] = {"error": "timeout", "source": "PNS_SEARCH"}
 
         return await agi_reason(
             query=query,
@@ -244,7 +251,7 @@ async def run_stage(
             topic=query,
             session_id=session_id,
             pns_vision=vision_res.model_dump() if vision_res else None,
-            ctx=None, # type: ignore
+            ctx=None,  # type: ignore
         )
 
     # 4. ASI·SIMULATE (666) - FORBIDDEN ZONE
@@ -252,7 +259,7 @@ async def run_stage(
         return await asi_simulate(
             scenario=query,
             session_id=session_id,
-            ctx=None, # type: ignore
+            ctx=None,  # type: ignore
         )
 
     # 5. ASI·CRITIQUE (666B) - Metacognition (Feeds PNS·HEALTH + PNS·FLOOR)
@@ -276,7 +283,7 @@ async def run_stage(
             spec=query,
             session_id=session_id,
             pns_orchestrate=orch_res.model_dump() if orch_res else None,
-            ctx=None, # type: ignore
+            ctx=None,  # type: ignore
             dry_run=dry_run,
         )
 
@@ -329,12 +336,18 @@ async def metabolic_loop(
     dry_run: bool = False,
     caller_context: CallerContext | None = None,
     pns_context: PNSContext | None = None,  # Double Helix Injection
+    timeout_seconds: float = 30.0,  # Configurable timeout
 ) -> dict[str, Any]:
     """Run the Double Helix metabolic loop (Inner Ring + Outer Ring)."""
     start_time = time.perf_counter()
     from arifosmcp.runtime.tools import _normalize_session_id
     from core.governance_kernel import route_pipeline
     from core.organs._0_init import coerce_stakes_class
+
+    # Track if we're approaching timeout
+    def _check_timeout() -> bool:
+        elapsed = time.perf_counter() - start_time
+        return elapsed > timeout_seconds * 0.8  # 80% threshold for early warning
 
     # ─── METABOLIC SYNONYM LAYER ───
     LEGACY_SYNONYMS = {
@@ -394,10 +407,11 @@ async def metabolic_loop(
         )
 
         auth_ctx = _extract_auth_context(init_res, auth_context)
-        
+
         # For dry_run, we inject a mock context if the real one is missing/blocked
         if dry_run and (not auth_ctx or init_res.verdict == Verdict.PAUSED):
             from core.enforcement.auth_continuity import mint_auth_context
+
             auth_ctx = mint_auth_context(
                 session_id=current_session_id,
                 actor_id=actor_id,
@@ -407,13 +421,31 @@ async def metabolic_loop(
                 authority_level="declared",
             )
             # Update init_res to look successful for the loop logic
-            init_res = init_res.model_copy(update={"verdict": Verdict.SEAL, "auth_context": auth_ctx})
+            init_res = init_res.model_copy(
+                update={"verdict": Verdict.SEAL, "auth_context": auth_ctx}
+            )
 
         caller_ctx = _extract_caller_context(init_res, caller_context)
         trace = {Stage.INIT_000.value: init_res.verdict.value}
 
         if init_res.verdict == Verdict.VOID and not dry_run:
             return init_res.model_dump(mode="json")
+
+        # Early timeout check after init
+        if _check_timeout():
+            return {
+                "ok": False,
+                "tool": "arifOS_kernel",
+                "session_id": current_session_id,
+                "verdict": "TIMEOUT",
+                "status": "TIMEOUT",
+                "errors": [
+                    {
+                        "message": f"Metabolic loop approaching timeout ({timeout_seconds}s). Init stage took too long."
+                    }
+                ],
+                "trace": trace,
+            }
 
         plan = route_pipeline(query, {"human_required": allow_execution})
         if Stage.VAULT_999.value not in plan:
