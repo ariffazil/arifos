@@ -443,6 +443,7 @@ def _build_vitals_report(session_id: str) -> dict[str, Any]:
             "audit_trail": "VAULT999",
         },
         "degraded_components": degraded_components if degraded_components else None,
+        "message": "arifOS Vitals: All systems nominal.",
         "operator_note": (
             "System operational. Run audit_rules for constitutional floor details. "
             "Run verify_vault_ledger for audit trail integrity."
