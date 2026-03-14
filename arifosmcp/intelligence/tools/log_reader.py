@@ -8,18 +8,37 @@ from arifosmcp.intelligence.tools.aclip_base import ok, void
 
 
 def _find_default_log() -> str:
-    """Find a sensible default log file."""
+    """Find a sensible default log file in container/host environments."""
     candidates = [
+        # Application logs (priority)
         "arifosmcp.transport.log",
         "logs/arifosmcp.log",
         "/var/log/arifosmcp.log",
         os.path.expanduser("~/.arifosmcp/logs/arifosmcp.log"),
+        os.path.expanduser("~/.openclaw/logs/openclaw.log"),
+        
+        # Container-aware paths
+        "/tmp/arifosmcp.log",
+        "/tmp/openclaw.log",
+        "/var/log/syslog",
+        "/var/log/messages",
+        
+        # System logs (container may have limited access)
+        "/var/log/dpkg.log",
+        "/var/log/alternatives.log",
+        "/var/log/fontconfig.log",
     ]
     for candidate in candidates:
         if os.path.exists(candidate):
-            return candidate
-    # Return first candidate even if not found - will fail gracefully later
-    return candidates[0]
+            # Check if readable
+            try:
+                with open(candidate, 'r') as f:
+                    f.read(1)
+                return candidate
+            except (IOError, OSError):
+                continue
+    # Return a writable fallback path
+    return "/tmp/arifosmcp.log"
 
 
 def log_tail(

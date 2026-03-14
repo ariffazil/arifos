@@ -340,6 +340,36 @@ async def metabolic_loop(
 ) -> dict[str, Any]:
     """Run the Double Helix metabolic loop (Inner Ring + Outer Ring)."""
     start_time = time.perf_counter()
+
+    # Fast-path for dry_run mode - skip all LLM calls
+    if dry_run:
+        elapsed = time.perf_counter() - start_time
+        return {
+            "ok": True,
+            "tool": "metabolic_loop",
+            "session_id": session_id or "dry-run-session",
+            "stage": "444_ROUTER",
+            "verdict": "SEAL",
+            "status": "OK",
+            "machine_status": "READY",
+            "machine_issue": None,
+            "trace": {"000_INIT": "SEAL", "dry_run": "FAST_PATH"},
+            "metrics": {
+                "telemetry": {
+                    "dS": 0.0,
+                    "peace2": 1.0,
+                    "G_star": 1.0,
+                    "verdict": "SEAL"
+                }
+            },
+            "authority": {
+                "actor_id": actor_id,
+                "level": "sovereign",
+                "auth_state": "verified"
+            },
+            "latency_ms": round(elapsed * 1000, 2),
+        }
+
     from arifosmcp.runtime.tools import _normalize_session_id
     from core.governance_kernel import route_pipeline
     from core.organs._0_init import coerce_stakes_class
