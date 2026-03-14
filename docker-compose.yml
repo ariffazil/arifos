@@ -349,7 +349,8 @@ services:
       - arifos_trinity
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.arifosmcp.rule=Host(`arifosmcp.arif-fazil.com`)"
+      # A2A MCP router - main domain + /mcp path
+      - "traefik.http.routers.arifosmcp.rule=Host(`arifosmcp.arif-fazil.com`) && PathPrefix(`/mcp`)"
       - "traefik.http.routers.arifosmcp.entrypoints=websecure"
       - "traefik.http.routers.arifosmcp.tls.certresolver=letsencrypt"
       - "traefik.http.services.arifosmcp.loadbalancer.server.port=8080"
@@ -411,10 +412,13 @@ services:
       - arifos_trinity
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.aclip.rule=Host(`aclip.arif-fazil.com`)"
-      - "traefik.http.routers.aclip.entrypoints=websecure"
-      - "traefik.http.routers.aclip.tls.certresolver=letsencrypt"
-      - "traefik.http.services.aclip.loadbalancer.server.port=8081"
+      # WebMCP router - path-based routing on main domain
+      - "traefik.http.routers.webmcp.rule=Host(`arifosmcp.arif-fazil.com`) && PathPrefix(`/webmcp`)"
+      - "traefik.http.routers.webmcp.entrypoints=websecure"
+      - "traefik.http.routers.webmcp.tls.certresolver=letsencrypt"
+      - "traefik.http.middlewares.webmcp-strip.stripprefix.prefixes=/webmcp"
+      - "traefik.http.routers.webmcp.middlewares=webmcp-strip@docker"
+      - "traefik.http.services.webmcp.loadbalancer.server.port=8081"
     healthcheck:
       test: ["CMD-SHELL", "curl -fsS http://localhost:8081/health || exit 0"]
       interval: 30s
