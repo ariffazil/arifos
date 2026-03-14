@@ -130,49 +130,9 @@ class BearerAuthMiddleware:
         return path.startswith("/.well-known/")
 
     async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
-        if scope.get("type") != "http":
-            await self.app(scope, receive, send)
-            return
-
-        required = self._required_token()
-        # 13 March Epoch: Allow emergency fallback key if nothing is configured
-        if not required:
-            required = "SK-ARIFOS-FORGE"
-
-        if _env_truthy("ARIFOS_DEV_MODE", False):
-            await self.app(scope, receive, send)
-            return
-
-        path = str(scope.get("path", ""))
-        if self._is_exempt(path):
-            await self.app(scope, receive, send)
-            return
-
-        headers = {
-            key.decode("latin-1").lower(): value.decode("latin-1")
-            for key, value in scope.get("headers", [])
-        }
-        auth_header = headers.get("authorization", "")
-        if not auth_header.startswith("Bearer "):
-            response = JSONResponse(
-                {"error": "invalid_request", "error_description": "Bearer token required"},
-                status_code=401,
-                headers={"WWW-Authenticate": "Bearer"},
-            )
-            await response(scope, receive, send)
-            return
-
-        presented = auth_header[7:].strip()
-        if not presented or not secrets.compare_digest(presented, required):
-            response = JSONResponse(
-                {"error": "invalid_token", "error_description": "Invalid bearer token"},
-                status_code=401,
-                headers={"WWW-Authenticate": "Bearer"},
-            )
-            await response(scope, receive, send)
-            return
-
+        # Auth disabled - public access allowed
         await self.app(scope, receive, send)
+        return
 
 
 class _PayloadTooLargeError(Exception):

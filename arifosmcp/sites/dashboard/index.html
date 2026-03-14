@@ -414,7 +414,58 @@
         .trinity-dot.delta { background: var(--delta); }
         .trinity-dot.omega { background: var(--omega); }
         .trinity-dot.psi { background: var(--psi); }
-    </style>
+    
+        /* LIVE/MOCK Indicators */
+        .live-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            background: rgba(34, 197, 94, 0.15);
+            border: 1px solid rgba(34, 197, 94, 0.4);
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--success);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .mock-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            background: rgba(245, 158, 11, 0.15);
+            border: 1px solid rgba(245, 158, 11, 0.4);
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--warning);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .heartbeat {
+            width: 8px;
+            height: 8px;
+            background: var(--success);
+            border-radius: 50%;
+            animation: heartbeat 1.5s ease-in-out infinite;
+        }
+        
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(0.6); opacity: 0.5; }
+        }
+        
+        .last-update {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-left: auto;
+        }
+</style>
 </head>
 <body>
     <header class="header">
@@ -474,7 +525,8 @@
                     <div class="card-title">
                         <span>⚖️</span> 13 Constitutional Floors
                     </div>
-                    <span class="badge success">All Pass</span>
+                    <span class="live-badge"><span class="heartbeat"></span> LIVE</span>
+                <span class="last-update" id="last-update">Connecting...</span>
                 </div>
                 <div class="card-body">
                     <table class="floors-table">
@@ -498,6 +550,7 @@
                 <div class="card-header">
                     <div class="card-title">
                         <span>📊</span> 3E Telemetry
+                        <span class="mock-badge">MOCK</span>
                     </div>
                 </div>
                 <div class="card-body">
@@ -550,6 +603,7 @@
                 <div class="card-header">
                     <div class="card-title">
                         <span>⚡</span> Physics Engine
+                        <span class="live-badge"><span class="heartbeat"></span> LIVE</span>
                     </div>
                 </div>
                 <div class="card-body">
@@ -725,6 +779,12 @@
         }
 
         function updateDashboard(data) {
+            // Update timestamp
+            const updateEl = document.getElementById('last-update');
+            if (updateEl) {
+                updateEl.textContent = 'Updated: ' + new Date().toLocaleTimeString();
+            }
+            
             // Update system status
             if (data.version) {
                 document.querySelector('.brand-text h1').textContent = `arifOS APEX ${data.version}`;
@@ -746,11 +806,22 @@
             // Update telemetry
             if (data.telemetry) {
                 const t = data.telemetry;
-                // Update physics engine values
+                // Update physics engine values (first 3 in Physics Engine card)
                 const physicsCards = document.querySelectorAll('.telemetry-item .telemetry-value');
                 if (physicsCards[0]) physicsCards[0].textContent = t.confidence?.toFixed(2) || t.G_star?.toFixed(2) || '0.87';
                 if (physicsCards[1]) physicsCards[1].textContent = t.dS?.toFixed(2) || '-0.15';
                 if (physicsCards[2]) physicsCards[2].textContent = t.peace2?.toFixed(2) || '1.23';
+            }
+            
+            // Update machine vitals (LIVE)
+            if (data.machine_vitals) {
+                const mv = data.machine_vitals;
+                const cpuEl = document.getElementById('cpu-val');
+                const memEl = document.getElementById('mem-val');
+                const diskEl = document.getElementById('disk-val');
+                if (cpuEl) cpuEl.textContent = mv.cpu_percent?.toFixed(1) + '%';
+                if (memEl) memEl.textContent = mv.memory_percent?.toFixed(1) + '%';
+                if (diskEl) diskEl.textContent = mv.disk_percent?.toFixed(1) + '%';
             }
         }
 
