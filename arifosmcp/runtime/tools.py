@@ -502,10 +502,10 @@ async def init_anchor_state(
     effective_name = declared_name
     if declared_name.lower() == "arif":
         effective_name = "ariffazil"
-    elif declared_name.lower() == "chat operator":
-        effective_name = "chat-operator"
     elif declared_name.lower() == "arif-the-apex":
         effective_name = "arif-the-apex"
+    elif declared_name.lower() == "guest-user":
+        effective_name = "guest-user"
 
     payload = {
         "intent": intent or {"query": f"init anchor for {declared_name}"},

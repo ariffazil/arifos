@@ -788,6 +788,13 @@ async def call_kernel(
             )
             if "math" in auth_ctx:
                 envelope["auth_context"]["math"] = auth_ctx["math"]
+            
+            # Sync authority block
+            envelope["authority"] = {
+                "actor_id": auth_ctx.get("actor_id", "anonymous"),
+                "level": auth_ctx.get("authority_level", "anonymous"),
+                "auth_state": "verified",
+            }
         elif canonical_name == "anchor_session" and "auth_context" in result:
             envelope["auth_context"] = result["auth_context"]
             # Sync authority block with the anchored identity
