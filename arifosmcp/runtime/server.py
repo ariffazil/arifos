@@ -260,6 +260,12 @@ _developer_dir = os.path.join(os.path.dirname(__file__), "..", "sites", "develop
 if os.path.isdir(_developer_dir):
     _mcp_app.mount("/developer", StaticFiles(directory=_developer_dir, html=True), name="developer")
 
+# Serve trinity-nav.js globally
+_sites_dir = os.path.join(os.path.dirname(__file__), "..", "sites")
+if os.path.isdir(_sites_dir):
+    _mcp_app.mount("/static-sites", StaticFiles(directory=_sites_dir), name="static-sites")
+    # For individual file access at root if needed (though mount /static-sites is safer)
+
 
 def create_aaa_mcp_server() -> FastMCP:
     """Return the fully configured arifOS MCP hub."""
