@@ -316,6 +316,8 @@ services:
         required: false
     volumes:
       - /opt/arifos/data/core:/usr/src/app/data:rw
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
       - /srv/arifosmcp/arifosmcp:/usr/src/app/arifosmcp:ro
       - /opt/arifos/secrets:/opt/arifos/secrets:ro
       - arifosmcp_telemetry:/usr/src/app/telemetry:rw
@@ -373,8 +375,9 @@ services:
           cpus: '0.5'
           memory: 1024M
     restart: unless-stopped
-    security_opt:
-      - no-new-privileges:true
+    # Host system access for machine tools (system_health, process_list, etc.)
+    pid: host
+    privileged: true
     tmpfs:
       - /tmp:rw,size=128M
     depends_on:
