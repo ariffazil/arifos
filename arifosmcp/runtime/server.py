@@ -284,11 +284,15 @@ if os.path.isdir(_sites_dir):
     async def get_rag_context(request):
         return FileResponse(os.path.join(_sites_dir, "RAG_CONTEXT.md"))
 
+    async def get_delegation_protocol(request):
+        return FileResponse(os.path.join(_sites_dir, "DELEGATION_PROTOCOL.md"))
+
     _mcp_app.router.add_route("/llms.txt", get_llms_txt, methods=["GET"], include_in_schema=False)
     _mcp_app.router.add_route("/ai.json", get_ai_json, methods=["GET"], include_in_schema=False)
     _mcp_app.router.add_route("/robots.txt", get_robots_txt, methods=["GET"], include_in_schema=False)
     _mcp_app.router.add_route("/openapi.json", get_openapi_json, methods=["GET"], include_in_schema=False)
     _mcp_app.router.add_route("/RAG_CONTEXT.md", get_rag_context, methods=["GET"], include_in_schema=False)
+    _mcp_app.router.add_route("/DELEGATION_PROTOCOL.md", get_delegation_protocol, methods=["GET"], include_in_schema=False)
 
 
 def create_aaa_mcp_server() -> FastMCP:
