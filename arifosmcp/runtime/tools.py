@@ -505,7 +505,7 @@ async def init_anchor_state(
 
     payload = {
         "intent": intent or {"query": f"init anchor for {declared_name}"},
-        "declared_name": effective_name,
+        "declared_name": declared_name,
         "actor_id": effective_name,
         "auth_context": auth_context or {},
         "human_approval": human_approval,
