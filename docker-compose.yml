@@ -374,6 +374,8 @@ services:
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
+    tmpfs:
+      - /tmp:rw,size=128M
     depends_on:
       postgres:
         condition: service_healthy
