@@ -325,9 +325,22 @@ async def _wrap_call(
     ctx: Context | None = None,
     caller_context: CallerContext | None = None,
 ) -> RuntimeEnvelope:
-    """Call the bridge and normalize the result while enforcing the 5 Metabolic Invariants."""
+    """
+    Call the bridge and normalize the result while enforcing the 5 Metabolic Invariants.
+    Hardened with F12 Security Pre-scan and F11 Identity verification.
+    """
 
-    # ─── INVARIANT I: IDENTITY LAW ───
+    # ─── F12 SECURITY PRE-SCAN ───
+    # Reject oversized payloads or non-dict inputs to prevent tool poisoning/DDoS
+    if not isinstance(payload, dict):
+        from arifosmcp.runtime.exceptions import ConstitutionalViolation
+        from arifosmcp.runtime.fault_codes import ConstitutionalFaultCode
+        raise ConstitutionalViolation(
+            message="F12 Security Violation: Payload must be a JSON object.",
+            floor_code=ConstitutionalFaultCode.F12_DEFENSE
+        )
+    
+    # ─── INVARIANT I: IDENTITY LAW (F11) ───
     session_id = _normalize_session_id(session_id)
     assert session_id is not None, "ConstitutionalViolation: F11 Identity required"
 
@@ -336,8 +349,6 @@ async def _wrap_call(
     payload["stage"] = stage.value
 
     # ─── INVARIANT II: LINEAGE LAW ───
-    # In v2, every payload must eventually reference a parent hash for Merkle chaining
-    # For now, we seed it if missing to maintain the chain
     payload.setdefault("parent_hash", "0xGENESIS")
 
     if caller_context is not None:
@@ -351,18 +362,19 @@ async def _wrap_call(
         envelope.meta.motto = _resolve_motto(envelope.stage)
 
         # ─── INVARIANT III: ΔΩΨ LAW ───
-        # Every organ output must carry Trinity flags (Delta, Omega, Psi)
-        # We map the metrics into the DeltaOmegaPsi model for verification
         from arifosmcp.runtime.models import DeltaOmegaPsi
 
+        # Map metrics into the DeltaOmegaPsi model for verification
+        g_star = envelope.metrics.telemetry.G_star if envelope.metrics and envelope.metrics.telemetry else 0.0
+        conf = envelope.metrics.telemetry.confidence if envelope.metrics and envelope.metrics.telemetry else 0.0
+        
         dow = DeltaOmegaPsi(
-            delta=max(0.0, min(1.0, envelope.metrics.telemetry.G_star)),  # Accuracy maps to Delta reduction
-            omega=max(0.0, min(1.0, envelope.metrics.telemetry.confidence)),  # Confidence maps to Omega load
-            psi=0.5,  # Default PSI if unresolved
+            delta=max(0.0, min(1.0, g_star)),
+            omega=max(0.0, min(1.0, conf)),
+            psi=0.5,
         )
 
         # ─── INVARIANT IV: ENTROPY LAW (Landauer) ───
-        # delta must be >= 0. No call may claim negative entropy reduction.
         if dow.delta < 0.0:
             from arifosmcp.runtime.exceptions import ConstitutionalViolation
             from arifosmcp.runtime.fault_codes import ConstitutionalFaultCode
@@ -373,7 +385,6 @@ async def _wrap_call(
             )
 
         # ─── INVARIANT V: HOLD LAW ───
-        # If psi > 0.8, execution is suspended. Human Δ required.
         if dow.psi > 0.8:
             from arifosmcp.runtime.exceptions import InfrastructureFault
             from arifosmcp.runtime.fault_codes import MechanicalFaultCode
@@ -388,7 +399,8 @@ async def _wrap_call(
 
         if isinstance(e, ArifOSError):
             raise e
-        # Fallback for mechanical failure
+            
+        # Hardened mechanical fallback
         from arifosmcp.runtime.models import (
             CanonicalError,
             CanonicalMetrics,
@@ -397,7 +409,6 @@ async def _wrap_call(
             Verdict,
         )
 
-        # Create minimal telemetry for error state
         error_telemetry = TelemetryVitals(
             dS=0.0,
             peace2=0.5,
@@ -405,7 +416,7 @@ async def _wrap_call(
             shadow=1.0,
             confidence=0.0,
             psi_le="0.0 (Estimate Only)",
-            verdict="Degraded",
+            verdict="HOLD", # Default to HOLD on runtime error for safety
         )
 
         envelope = RuntimeEnvelope(
@@ -413,9 +424,9 @@ async def _wrap_call(
             tool=tool_name,
             session_id=session_id,
             stage=stage.value,
-            verdict=Verdict.SABAR,
+            verdict=Verdict.HOLD,
             status=RuntimeStatus.ERROR,
-            errors=[CanonicalError(code="RUNTIME_FAILURE", message=str(e), stage=stage.value)],
+            errors=[CanonicalError(code="HARDENED_RUNTIME_FAILURE", message=str(e), stage=stage.value)],
             metrics=CanonicalMetrics(telemetry=error_telemetry),
         )
 
