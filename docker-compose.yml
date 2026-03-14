@@ -316,6 +316,7 @@ services:
         required: false
     volumes:
       - /opt/arifos/data/core:/usr/src/app/data:rw
+      - /srv/arifosmcp/arifosmcp:/usr/src/app/arifosmcp:ro
       - /opt/arifos/secrets:/opt/arifos/secrets:ro
       - arifosmcp_telemetry:/usr/src/app/telemetry:rw
       - arifosmcp_vault:/usr/src/app/VAULT999:rw
@@ -636,3 +637,17 @@ services:
       - no-new-privileges:true
 
 # --- Persistent Volumes for arifosmcp ---
+
+# --- Network Definition ---
+networks:
+  arifos_trinity:
+    driver: bridge
+
+# --- Named Volumes ---
+volumes:
+  arifosmcp_telemetry:
+    driver: local
+  arifosmcp_vault:
+    driver: local
+  arifosmcp_memory:
+    driver: local
