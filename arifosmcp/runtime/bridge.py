@@ -784,6 +784,12 @@ async def call_kernel(
                 envelope["auth_context"]["math"] = auth_ctx["math"]
         elif canonical_name == "anchor_session" and "auth_context" in result:
             envelope["auth_context"] = result["auth_context"]
+            # Sync authority block with the anchored identity
+            envelope["authority"] = {
+                "actor_id": result["auth_context"].get("actor_id", claimed_actor_id),
+                "level": result["auth_context"].get("authority_level", "declared"),
+                "auth_state": "verified" if result.get("verdict") != "VOID" else "unverified",
+            }
 
         if "meta" in envelope and isinstance(envelope["meta"], dict):
             envelope["meta"]["temporal_contract"] = contract.model_dump(mode="json")

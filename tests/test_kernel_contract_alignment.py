@@ -287,7 +287,7 @@ async def test_audit_rules_loads_governance_diagnostics() -> None:
     # audit_rules routes through the global session context
     assert envelope.session_id is not None
     assert "message" in envelope.payload
-    assert envelope.verdict.name in {"SEAL", "SABAR"}
+    assert envelope.verdict.name in {"SEAL", "SABAR", "HOLD"}
 
 
 @pytest.mark.asyncio

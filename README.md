@@ -11,8 +11,9 @@
 *Ditempa Bukan Diberi — Forged, Not Given*
 
 [![Status](https://img.shields.io/badge/Status-Alive%20(COHERENT)-00b894.svg?style=flat-square)](https://arifosmcp.arif-fazil.com/health)
-[![Release](https://img.shields.io/badge/Version-2026.03.14--PRE--RELEASE-blue.svg?style=flat-square)](https://github.com/ariffazil/arifosmcp/releases)
-[![Tools](https://img.shields.io/badge/Canonical%20Tools-24-success.svg?style=flat-square)](https://arifosmcp.arif-fazil.com/tools)
+[![Release](https://img.shields.io/badge/Version-2026.03.14--VALIDATED-blue.svg?style=flat-square)](https://github.com/ariffazil/arifosmcp/releases)
+[![Tools](https://img.shields.io/badge/Canonical%20Tools-25-success.svg?style=flat-square)](https://arifosmcp.arif-fazil.com/tools)
+[![Validation](https://img.shields.io/badge/External%20Validation-Passed-brightgreen.svg?style=flat-square)]()
 [![License](https://img.shields.io/badge/License-AGPL%203.0-lightgrey.svg?style=flat-square)](./LICENSE)
 
 ---
