@@ -108,7 +108,7 @@ async def arifos_lifespan(server: FastMCP):
 
 mcp = FastMCP(
     "arifOS-APEX-G",
-    version="2026.03.14-PRE-RELEASE",
+    version="2026.03.14-VALIDATED",
     instructions=CONSTITUTIONAL_INSTRUCTIONS,
     lifespan=arifos_lifespan,
 )
@@ -264,7 +264,21 @@ if os.path.isdir(_developer_dir):
 _sites_dir = os.path.join(os.path.dirname(__file__), "..", "sites")
 if os.path.isdir(_sites_dir):
     _mcp_app.mount("/static-sites", StaticFiles(directory=_sites_dir), name="static-sites")
-    # For individual file access at root if needed (though mount /static-sites is safer)
+    
+    # Root-level discovery files
+    from starlette.responses import FileResponse
+    
+    @_mcp_app.get("/llms.txt", include_in_schema=False)
+    async def get_llms_txt():
+        return FileResponse(os.path.join(_sites_dir, "llms.txt"))
+        
+    @_mcp_app.get("/ai.json", include_in_schema=False)
+    async def get_ai_json():
+        return FileResponse(os.path.join(_sites_dir, "ai.json"))
+        
+    @_mcp_app.get("/robots.txt", include_in_schema=False)
+    async def get_robots_txt():
+        return FileResponse(os.path.join(_sites_dir, "robots.txt"))
 
 
 def create_aaa_mcp_server() -> FastMCP:

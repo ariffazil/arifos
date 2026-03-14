@@ -483,7 +483,7 @@ Sitemap: https://arifosmcp.arif-fazil.com/llms.json
 LLMS_TXT = """\
 # arifOS Brain (Runtime)
 Location: https://arifosmcp.arif-fazil.com/llms.txt
-Version: 2026.03.14-PRE-RELEASE
+Version: 2026.03.14-VALIDATED
 Domain: BRAIN / THE MIND (Ω)
 
 > arifOS Constitutional Kernel — a governed Model Context Protocol (MCP) server.
@@ -527,7 +527,7 @@ __APEX_MD_TABLE__
 LLMS_JSON = {
     "name": "arifOS Sovereign Quad",
     "description": "Unified Governance Kernel Map for Human, Theory, Law, and Brain domains.",
-    "version": "2026.03.14-PRE-RELEASE",
+    "version": "2026.03.14-VALIDATED",
     "authority": "Muhammad Arif bin Fazil (888 Judge)",
     "motto": "Ditempa Bukan Diberi (Forged, Not Given)",
     "domains": {
@@ -557,7 +557,7 @@ LLMS_JSON = {
         },
     },
     "status": {
-        "version": "2026.03.14-PRE-RELEASE",
+        "version": "2026.03.14-VALIDATED",
         "status": "FORGED",
     },
 }
@@ -1128,7 +1128,7 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
                     "metrics": {"truth": truth_score, "threshold": 0.80},
                     "session_id": session_id,
                     "latency_ms": round(latency_ms, 2),
-                    "version": judge_data.get("meta", {}).get("version", "2026.3.12"),
+                    "version": judge_data.get("meta", {}).get("version", "2026.3.14"),
                 }
             )
 
