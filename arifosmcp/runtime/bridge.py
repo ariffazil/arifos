@@ -476,8 +476,6 @@ async def call_kernel(
                 auth_ctx = _mint_auto_anchor_auth_context(session_id, claimed_actor_id)
                 payload["auth_context"] = auth_ctx
                 payload.setdefault("identity_resolution", {})
-                # Propagate to authority block for test assertions
-                envelope_authority_actor = claimed_actor_id
             elif _requires_explicit_kernel_auth(payload, canonical_name):
                 return _auth_failure_envelope(
                     tool=canonical_name,
@@ -487,7 +485,7 @@ async def call_kernel(
                     identity_claim_status="UNVERIFIED_CLAIM",
                     identity_reason="Auto-bootstrap not allowed for this risk/mode.",
                     next_action_reason="Run init_anchor_state first.",
-                    machine_issue="AUTH_BOOTSTRAP_REQUIRED",
+                    machine_issue="AUTH_FAILURE",
                 )
         else:
             valid, reason = verify_auth_context_cached(session_id, auth_ctx)
