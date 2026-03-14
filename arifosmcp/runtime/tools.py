@@ -899,6 +899,7 @@ async def forge(
     server: FastMCP = CurrentFastMCP(),
     session_id: str | None = None,
     risk_tier: str = "medium",
+    dry_run: bool = False,
 ) -> RuntimeEnvelope:
     """
     FORGE (000→999): The Master Entry Point.
@@ -915,7 +916,8 @@ async def forge(
         query=spec,
         risk_tier=risk_tier,
         session_id=active_session,
-        allow_execution=True,  # Forge implies intent to manifest
+        allow_execution=not dry_run,  # Don't execute if dry_run
+        dry_run=dry_run,
     )
 
     return RuntimeEnvelope(**res_dict)

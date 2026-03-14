@@ -350,7 +350,7 @@ async def metabolic_loop(
             "session_id": session_id or "dry-run-session",
             "stage": "444_ROUTER",
             "verdict": "SEAL",
-            "status": "OK",
+            "status": "DRY_RUN",
             "machine_status": "READY",
             "machine_issue": None,
             "trace": {"000_INIT": "SEAL", "dry_run": "FAST_PATH"},
