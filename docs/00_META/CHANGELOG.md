@@ -1,7 +1,58 @@
 # CHANGELOG — arifOS Constitutional AI Kernel
 
-All changes follow [T000 versioning](T000_VERSIONING.md): `YYYY.MM.DD-PHASE-STATE`.  
+All changes follow [T000 versioning](T000_VERSIONING.md): `YYYY.MM.DD-PHASE-STATE`.
 **Creed:** DITEMPA BUKAN DIBERI — Forged, Not Given.
+
+---
+
+## [2026.3.14-NERVOUS-SYSTEM-9-FORGED] — 2026-03-14 — NERVOUS-SYSTEM-9-FORGED
+
+**T000:** 2026.03.14-NERVOUS-SYSTEM-9-FORGED
+**Theme:** ACLIP Infrastructure Hardening — 9-Sense Nervous System
+
+### Added
+
+- **Nervous System 9 — Hardened Internal Toolset:**
+  - `system_health` (111_SENSE): Hardware telemetry with container awareness
+  - `process_list` (111_SENSE): Process enumeration with filtering
+  - `net_status` (111_SENSE): Network connectivity diagnostics
+  - `chroma_query` (555_MEMORY): Vector memory with dual Qdrant API support
+  - `arifos_list_resources` (999_VAULT): Namespaced resource enumeration
+  - `arifos_read_resource` (999_VAULT): Namespaced asset retrieval
+  - `log_tail` (111_SENSE): Smart log streaming with auto-path detection
+  - `fs_inspect` (111_SENSE): Sandboxed filesystem inspection
+  - `cost_estimator` (444_ROUTER): Thermodynamic (ΔS) cost projection
+
+### Changed
+
+- All 9 internal tools now return canonical `RuntimeEnvelope` objects
+- All 9 tools accept `session_id` and `auth_context` for full governance
+- All 9 tools subject to F11 (Command Auth) and F12 (Injection) floors
+- All 9 operations sealed to VAULT999 immutable ledger
+- `chroma_query` auto-detects Qdrant version (v1.7 legacy / v1.8+ modern)
+- `list_resources` and `read_resource` namespaced as `arifos_*` to prevent MCP collisions
+
+### Infrastructure
+
+- `arifosmcp/intelligence/console_tools.py` — Consolidated 9-tool implementation
+- `arifosmcp/intelligence/cli.py` — ACLIP-CAI server synchronization
+- `arifosmcp/runtime/phase2_tools.py` — Registration alignment
+- `arifosmcp/intelligence/tools/fs_inspector.py` — Added inspect_path alias
+- `arifosmcp/intelligence/tools/net_monitor.py` — Added check_connectivity alias
+- `arifosmcp/intelligence/tools/thermo_estimator.py` — Cost estimation engine
+
+### Documentation
+
+- `docs/architecture/NERVOUS_SYSTEM_9.md` — Complete architectural reference
+- `docs/architecture/TOOL_INVENTORY.md` — Updated with all 39 tools (23 public + 9 machine + 7 deprecated)
+- `arifosmcp/sites/developer/docs/tools.html` — Website updated with Machine Tools section
+- Comprehensive deprecated tools section with migration guide
+
+### Verification
+
+- **42 comprehensive tests** added for internal tools
+- **100% pass rate** on all 9 hardened tools (9/9 SEALED)
+- **E2E constitutional compliance** verified
 
 ---
 

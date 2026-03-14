@@ -36,7 +36,7 @@ Just as the human nervous system has:
 
 The Nervous System 9 provides:
 - **Sensory tools** (system_health, process_list, net_status)
-- **Memory tools** (chroma_query, list_resources, read_resource)
+- **Memory tools** (chroma_query, arifos_list_resources, arifos_read_resource)
 - **Regulatory tools** (log_tail, fs_inspect, cost_estimator)
 
 ### Governance Integration
@@ -316,13 +316,13 @@ filtered = await chroma_query(
 
 ---
 
-#### 5. list_resources
-**Purpose:** Enumerate available MCP resources  
+#### 5. arifos_list_resources
+**Purpose:** Enumerate available arifOS/MCP resources  
 **Constitutional Stage:** 111_SENSE (Capability Discovery)  
 **Floors Enforced:** F1 (Amanah - read-only)  
 
 **What It Does:**
-Lists all registered MCP resources with their URI schemes, descriptions, and access patterns. Resources include canonical documentation, governance rules, telemetry data, and vault history.
+Lists all registered MCP resources with their URI schemes, descriptions, and access patterns. Resources include canonical documentation, governance rules, telemetry data, and vault history. Namespaced to `arifos_` to prevent protocol collisions.
 
 **Why It Exists:**
 Clients need to discover what's available:
@@ -389,13 +389,13 @@ schemas = await list_resources(
 
 ---
 
-#### 6. read_resource
+#### 6. arifos_read_resource
 **Purpose:** Read content of MCP resources by URI  
 **Constitutional Stage:** 111_SENSE (Information Retrieval)  
 **Floors Enforced:** F2 (Truth), F1 (Amanah)  
 
 **What It Does:**
-Retrieves the content of any MCP resource by its URI. Supports all resource types (canon, governance, vault, telemetry, etc.) and returns properly formatted content.
+Retrieves the content of any MCP resource by its URI. Supports all resource types (canon, governance, vault, telemetry, etc.) and returns properly formatted content. Namespaced to `arifos_` to prevent protocol collisions.
 
 **Why It Exists:**
 Resources contain the "source of truth":
@@ -431,21 +431,21 @@ input_schema = await read_resource("schema://tools/input")
 **Example Usage:**
 ```python
 # Read constitutional floors
-constitution = await read_resource(
+constitution = await arifos_read_resource(
     uri="canon://floors",
     session_id="const-sess-011",
     auth_context={"actor_id": "auditor", "clearance": "apex"}
 )
 
 # Read latest vault entry
-latest = await read_resource(
+latest = await arifos_read_resource(
     uri="vault://latest",
     session_id="audit-sess-012",
     auth_context={"actor_id": "validator", "clearance": "apex"}
 )
 
 # Get tool schema
-schema = await read_resource(
+schema = await arifos_read_resource(
     uri="schema://tools/input/arifOS_kernel",
     session_id="dev-sess-013",
     auth_context={"actor_id": "developer", "clearance": "agent"}
@@ -629,7 +629,7 @@ all_files = await fs_inspect(
 **Floors Enforced:** F4 (ΔS Clarity - Resource Planning)  
 
 **What It Does:**
-Estimates the thermodynamic and financial cost of proposed operations. Calculates token usage, time requirements, memory consumption, and API call costs before committing resources.
+Estimates the thermodynamic and financial cost of proposed operations. Calculates token usage, time requirements, memory consumption, and API call costs before committing resources. Now supports `operation` as an alias for `operation_type` for architectural alignment.
 
 **Why It Exists:**
 Cost awareness prevents:
@@ -789,11 +789,11 @@ All 9 tools map to specific constitutional stages:
 | process_list | 111_SENSE | System awareness |
 | net_status | 111_SENSE | External awareness |
 | chroma_query | 555_MEMORY | Memory retrieval |
-| list_resources | 111_SENSE | Capability discovery |
-| read_resource | 111_SENSE | Information access |
+| arifos_list_resources | 111_SENSE | Capability discovery |
+| arifos_read_resource | 111_SENSE | Information access |
 | log_tail | 111_SENSE | Historical analysis |
-| fs_inspect | 111_SENSE | Storage awareness |
-| cost_estimator | 333_MIND | Planning & budgeting |
+| fs_inspect | 111_SENSE | Storage awareness (alias: inspect_path) |
+| cost_estimator | 333_MIND | Planning & budgeting (arg: operation) |
 
 ### Governance Flow
 

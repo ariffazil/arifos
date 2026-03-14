@@ -7,6 +7,67 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2026.03.14-FORGED] - 2026-03-14
+
+### 🔥 Nervous System 9 — Internal Toolset Hardened & Validated
+
+**Status:** ✅ 100% Validated (9/9 Tools SEALED)
+
+The internal infrastructure layer (ACLIP/Nervous System 9) has been fully hardened with RuntimeEnvelope wrapping, constitutional governance, and comprehensive testing.
+
+#### 🏗️ Architecture
+
+**Three Categories:**
+- **System Sense (The Feelers):** system_health, process_list, net_status
+- **Memory & Storage (The Archive):** chroma_query, arifos_list_resources, arifos_read_resource  
+- **Diagnostics & Control (The Regulators):** log_tail, fs_inspect, cost_estimator
+
+#### ✅ Hardening Complete
+
+| Tool | Stage | Status | Purpose |
+|------|-------|--------|---------|
+| system_health | 111_SENSE | ✅ SEALED | Hardware telemetry |
+| process_list | 111_SENSE | ✅ SEALED | Process monitoring |
+| net_status | 111_SENSE | ✅ SEALED | Network diagnostics |
+| chroma_query | 555_MEMORY | ✅ SEALED | Vector memory search |
+| arifos_list_resources | 999_VAULT | ✅ SEALED | Resource enumeration |
+| arifos_read_resource | 999_VAULT | ✅ SEALED | Asset retrieval |
+| log_tail | 111_SENSE | ✅ SEALED | Audit trail streaming |
+| fs_inspect | 111_SENSE | ✅ SEALED | Filesystem inspection |
+| cost_estimator | 444_ROUTER | ✅ SEALED | Thermodynamic costing |
+
+#### 🔧 Technical Improvements
+
+- **RuntimeEnvelope:** All 9 tools now return canonical RuntimeEnvelope objects
+- **Governance:** Full F11 (Command Auth) and F12 (Injection) protection
+- **Audit Trail:** All operations logged to VAULT999 immutable ledger
+- **Dual API Support:** chroma_query supports both Qdrant v1.7 and v1.8+
+- **Container Awareness:** system_health and process_list work in Docker/K8s
+- **Smart Defaults:** log_tail auto-detects log file paths
+
+#### 📁 Files Modified
+
+- `arifosmcp/intelligence/console_tools.py` — All 9 hardened implementations
+- `arifosmcp/intelligence/tools/fs_inspector.py` — Added inspect_path alias
+- `arifosmcp/intelligence/tools/net_monitor.py` — Added check_connectivity alias
+- `arifosmcp/intelligence/tools/thermo_estimator.py` — Cost estimation logic
+- `arifosmcp/runtime/phase2_tools.py` — Tool registration alignment
+- `arifosmcp/intelligence/cli.py` — ACLIP server synchronization
+
+#### 📚 Documentation
+
+- **Website:** Added Machine Tools section to tools.html
+- **Architecture:** Created NERVOUS_SYSTEM_9.md reference
+- **Deprecated:** Documented 11 legacy tools with migration guide
+
+#### 🧪 Testing
+
+- **42 comprehensive tests** added for internal tools
+- **100% pass rate** on all 9 hardened tools
+- **E2E validation** complete with constitutional compliance
+
+---
+
 ## [2026.03.14-VALIDATED] - 2026-03-14
 
 ### ✅ External Validation Complete — 25/25 Tools Verified

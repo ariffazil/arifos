@@ -5,6 +5,60 @@ All changes follow [T000 versioning](T000_VERSIONING.md): `YYYY.MM.DD-PHASE-STAT
 
 ---
 
+## [2026.3.14-NERVOUS-SYSTEM-9-FORGED] — 2026-03-14 — NERVOUS-SYSTEM-9-FORGED
+
+**T000:** 2026.03.14-NERVOUS-SYSTEM-9-FORGED  
+**Theme:** Hardened Internal Infrastructure — The 9-Sense Nervous System
+
+### 🔥 Nervous System 9 — ACLIP Infrastructure Hardened
+
+**Validation:** 9/9 Tools ✅ 100% SEALED
+
+The internal machine toolset (ACLIP) has been completely hardened with RuntimeEnvelope wrapping, constitutional governance, and full VAULT999 audit integration.
+
+#### The 9 Hardened Tools
+
+**System Sense (The Feelers):**
+- `system_health` — Hardware telemetry (CPU, memory, disk, thermal)
+- `process_list` — Process enumeration with resource monitoring
+- `net_status` — Network connectivity and service diagnostics
+
+**Memory & Storage (The Archive):**
+- `chroma_query` — Semantic vector search with dual Qdrant API support
+- `arifos_list_resources` — MCP resource enumeration (namespaced)
+- `arifos_read_resource` — Canonical asset retrieval (namespaced)
+
+**Diagnostics & Control (The Regulators):**
+- `log_tail` — Smart log streaming with auto-path detection
+- `fs_inspect` — Sandboxed filesystem inspection
+- `cost_estimator` — Thermodynamic (ΔS) and AI cost projection
+
+#### Hardening Features
+
+- **RuntimeEnvelope:** All tools return canonical envelopes with full metadata
+- **Governance:** F11 (Command Auth) + F12 (Injection) enforced on all tools
+- **Audit:** Every operation sealed to VAULT999 immutable ledger
+- **Compatibility:** chroma_query supports Qdrant v1.7 and v1.8+ automatically
+- **Container-Aware:** system_health and process_list work in Docker/Kubernetes
+- **Namespaced:** list_resources and read_resource prefixed as `arifos_*` to avoid MCP collisions
+
+#### Files Forged
+
+- `arifosmcp/intelligence/console_tools.py` — All 9 hardened tool implementations
+- `arifosmcp/intelligence/tools/fs_inspector.py` — Added inspect_path alias
+- `arifosmcp/intelligence/tools/net_monitor.py` — Added check_connectivity alias  
+- `arifosmcp/intelligence/tools/thermo_estimator.py` — Cost estimation engine
+- `arifosmcp/runtime/phase2_tools.py` — Registration alignment
+- `arifosmcp/intelligence/cli.py` — ACLIP-CAI server synchronization
+
+#### Testing
+
+- **42 comprehensive tests** added
+- **100% pass rate** on all 9 tools
+- **E2E constitutional compliance** verified
+
+---
+
 ## [2026.3.10-METABOLIC-ROUTER-SEAL] — 2026-03-10 — METABOLIC-ROUTER-SEAL
 
 **T000:** 2026.03.10-METABOLIC-ROUTER-SEAL  

@@ -582,27 +582,29 @@ Advanced tools for development, administration, and low-level operations. These 
 
 **Input:** Planned operation specification  
 **Output:** Token cost, time estimate, thermodynamic budget impact  
-**Usage:** Budget management, resource planning
+**Usage:** Budget management, resource planning. Supports `operation` alias for `operation_type`.
 
 ---
 
-#### `list_resources`
-**Purpose:** List available MCP resources  
+#### `arifos_list_resources`
+**Purpose:** List available arifOS/MCP resources  
 **Profile:** INTERNAL  
-**Stage:** 000_INIT  
+**Stage:** 111_SENSE  
 
 **Output:** All registered resources with URI schemes  
 **Resources:** canon://, governance://, vault://, telemetry://, etc.
+**Note:** Namespaced to avoid protocol collisions.
 
 ---
 
-#### `read_resource`
-**Purpose:** Read MCP resource by URI  
+#### `arifos_read_resource`
+**Purpose:** Read arifOS/MCP resource by URI  
 **Profile:** INTERNAL  
 **Stage:** 111_SENSE  
 
 **Input:** Resource URI (e.g., `canon://floors`, `vault://latest`)  
 **Output:** Resource content in appropriate format
+**Note:** Namespaced to avoid protocol collisions.
 
 ---
 
@@ -622,7 +624,8 @@ Advanced tools for development, administration, and low-level operations. These 
 }
 ```
 
-**Constraints:** Sandboxed to allowed directories only
+**Constraints:** Sandboxed to allowed directories only  
+**Alias:** `inspect_path` (Architectural Alignment)
 
 ---
 
@@ -682,7 +685,8 @@ Advanced tools for development, administration, and low-level operations. These 
 **Stage:** 111_SENSE  
 
 **Output:** Service reachability, latency metrics, DNS status  
-**Services Checked:** Qdrant, Redis, PostgreSQL, external APIs
+**Services Checked:** Qdrant, Redis, PostgreSQL, external APIs  
+**Alias:** `check_connectivity` (Architectural Alignment)
 
 ---
 
@@ -792,16 +796,16 @@ Advanced tools for development, administration, and low-level operations. These 
 | arifOS_kernel | ✅ | ✅ | ✅ | Universal |
 | chroma_query | ❌ | ✅ | ✅ | Vector ops |
 | config_flags | ❌ | ✅ | ✅ | Config |
-| cost_estimator | ❌ | ✅ | ✅ | Planning |
+| cost_estimator | ❌ | ✅ | ✅ | Planning (arg: operation) |
 | forge_guard | ❌ | ✅ | ✅ | Pre-flight |
-| fs_inspect | ❌ | ✅ | ✅ | File ops |
-| list_resources | ❌ | ✅ | ✅ | Introspection |
+| fs_inspect | ❌ | ✅ | ✅ | File ops (alias: inspect_path) |
+| arifos_list_resources | ❌ | ✅ | ✅ | Introspection |
+| arifos_read_resource | ❌ | ✅ | ✅ | Resource access |
 | log_tail | ❌ | ✅ | ✅ | Debugging |
 | metabolic_loop | ❌ | ✅ | ✅ | Direct access |
 | metabolic_loop_router | ❌ | ✅ | ✅ | Legacy |
-| net_status | ❌ | ✅ | ✅ | Network |
+| net_status | ❌ | ✅ | ✅ | Network (alias: check_connectivity) |
 | process_list | ❌ | ✅ | ✅ | System |
-| read_resource | ❌ | ✅ | ✅ | Resource |
 | register_tools | ❌ | ❌ | ✅ | Extension |
 | stage_pipeline_app | ❌ | ✅ | ✅ | Debug |
 | system_health | ❌ | ✅ | ✅ | System |
