@@ -470,6 +470,152 @@ WELCOME_HTML = """\
 </html>
 """
 
+DOCS_HTML = """\
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Documentation | arifOS MCP Server</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{background:#0d0d0d;color:#d4d4d4;font-family:ui-monospace,monospace;
+         font-size:14px;line-height:1.6;padding:2rem 1rem;max-width:900px;margin:auto}
+    h1{color:#e6c25d;font-size:1.5rem;margin-bottom:.25rem}
+    h2{color:#e6c25d;font-size:1.1rem;margin:2rem 0 1rem;border-bottom:1px solid #333;padding-bottom:.5rem}
+    h3{color:#7dd3fc;font-size:1rem;margin:1.5rem 0 .5rem}
+    p{margin-bottom:1rem}
+    ul,ol{margin-left:2rem;margin-bottom:1rem}
+    li{margin-bottom:.5rem}
+    code{background:#1a1a1a;padding:.2rem .4rem;border-radius:4px;font-size:.9rem}
+    pre{background:#1a1a1a;padding:1rem;border-radius:8px;overflow-x:auto;margin:1rem 0;border:1px solid #333}
+    a{color:#7dd3fc;text-decoration:none}
+    a:hover{text-decoration:underline}
+    .nav{display:flex;gap:1rem;margin-bottom:2rem;flex-wrap:wrap}
+    .nav a{background:#1a1a1a;border:1px solid #333;padding:.3rem .8rem;border-radius:4px;font-size:.8rem;color:#aaa}
+    .nav a:hover{border-color:#7dd3fc;color:#7dd3fc}
+    .version{color:#888;font-size:.9rem;margin-bottom:2rem}
+    .note{background:#1a1a1a;border-left:3px solid #7dd3fc;padding:1rem;margin:1rem 0}
+    table{width:100%;border-collapse:collapse;margin:1rem 0}
+    th,td{padding:.5rem;text-align:left;border-bottom:1px solid #333}
+    th{color:#e6c25d;font-weight:normal}
+    footer{text-align:center;margin-top:3rem;padding-top:2rem;border-top:1px solid #333;color:#666;font-size:.85rem}
+  </style>
+</head>
+<body>
+  <h1>📚 arifOS Documentation</h1>
+  <div class="version">Version 2026.03.14-VALIDATED</div>
+  
+  <div class="nav">
+    <a href="/">← Home</a>
+    <a href="/dashboard">Dashboard</a>
+    <a href="/tools">Tools API</a>
+    <a href="/health">Health</a>
+  </div>
+
+  <h2>Quick Start</h2>
+  <pre><code># Install
+pip install arifosmcp==2026.3.14
+
+# Run MCP server
+python -m arifosmcp.runtime stdio</code></pre>
+
+  <h2>The 25 Canonical Tools</h2>
+  <h3>KERNEL (6 tools)</h3>
+  <ul>
+    <li><code>init_anchor</code> — Initialize session jurisdiction (000_INIT)</li>
+    <li><code>arifOS_kernel</code> — Stage conductor, routes ΔΩΨ (444_ROUTER)</li>
+    <li><code>forge</code> — Full pipeline trigger (000→999)</li>
+    <li><code>revoke_anchor_state</code> — Kill switch</li>
+    <li><code>register_tools</code> — Tool surface declaration</li>
+  </ul>
+
+  <h3>AGI Δ MIND (6 tools)</h3>
+  <ul>
+    <li><code>agi_reason</code> — Governed reasoning (F2/F4/F7)</li>
+    <li><code>agi_reflect</code> — Metacognitive integration</li>
+    <li><code>reality_compass</code> — Ground claims before reasoning</li>
+    <li><code>search_reality</code> — Live web search</li>
+    <li><code>ingest_evidence</code> — URL→normalized evidence</li>
+    <li><code>reality_atlas</code> — Evidence mapping</li>
+  </ul>
+
+  <h3>ASI Ω HEART/HAND (4 tools)</h3>
+  <ul>
+    <li><code>asi_critique</code> — Adversarial safety check</li>
+    <li><code>asi_simulate</code> — Consequence simulation</li>
+    <li><code>agentzero_engineer</code> — Code execution (F11 gate)</li>
+    <li><code>agentzero_memory_query</code> — Semantic recall</li>
+  </ul>
+
+  <h3>APEX Ψ SOUL (7 tools)</h3>
+  <ul>
+    <li><code>apex_judge</code> — Tri-witness verdict</li>
+    <li><code>audit_rules</code> — F1-F13 inspection</li>
+    <li><code>agentzero_validate</code> — Output validation</li>
+    <li><code>agentzero_armor_scan</code> — F12 injection guard</li>
+    <li><code>agentzero_hold_check</code> — 888_HOLD registry</li>
+    <li><code>check_vital</code> — System telemetry</li>
+    <li><code>open_apex_dashboard</code> — Live governance UI</li>
+  </ul>
+
+  <h3>VAULT999 (2 tools)</h3>
+  <ul>
+    <li><code>vault_seal</code> — Commit to ledger</li>
+    <li><code>verify_vault_ledger</code> — Merkle integrity check</li>
+  </ul>
+
+  <h2>13 Constitutional Floors</h2>
+  <table>
+    <tr><th>Floor</th><th>Name</th><th>Threshold</th><th>Enforces</th></tr>
+    <tr><td>F1</td><td>Amanah</td><td>≥ 0.5</td><td>Reversibility</td></tr>
+    <tr><td>F2</td><td>Truth</td><td>≥ 0.99</td><td>Anti-hallucination</td></tr>
+    <tr><td>F3</td><td>Tri-Witness</td><td>≥ 0.95</td><td>Consensus</td></tr>
+    <tr><td>F4</td><td>ΔS Clarity</td><td>≤ 0</td><td>Entropy reduction</td></tr>
+    <tr><td>F5</td><td>Peace²</td><td>≥ 1.0</td><td>Stability</td></tr>
+    <tr><td>F6</td><td>Empathy</td><td>≥ 0.70</td><td>Weakest stakeholder</td></tr>
+    <tr><td>F7</td><td>Humility</td><td>0.03-0.20</td><td>Uncertainty</td></tr>
+    <tr><td>F8</td><td>Genius</td><td>≥ 0.80</td><td>Coherence</td></tr>
+    <tr><td>F9</td><td>Anti-Hantu</td><td>&lt; 0.30</td><td>No dark patterns</td></tr>
+    <tr><td>F10</td><td>Ontology</td><td>LOCK</td><td>No consciousness claims</td></tr>
+    <tr><td>F11</td><td>Command Auth</td><td>LOCK</td><td>Identity verification</td></tr>
+    <tr><td>F12</td><td>Injection</td><td>&lt; 0.85</td><td>Adversarial defense</td></tr>
+    <tr><td>F13</td><td>Sovereign</td><td>HUMAN</td><td>Human veto</td></tr>
+  </table>
+
+  <h2>Trinity Architecture (ΔΩΨ)</h2>
+  <ul>
+    <li><strong>Δ Delta (AGI Mind)</strong> — Stages 000-444: Reason, sense, ground</li>
+    <li><strong>Ω Omega (ASI Heart)</strong> — Stages 555-666: Empathy, memory, ethics</li>
+    <li><strong>Ψ Psi (APEX Soul)</strong> — Stages 777-999: Forge, judge, seal</li>
+  </ul>
+
+  <h2>API Endpoints</h2>
+  <ul>
+    <li><code>GET /health</code> — System health & version</li>
+    <li><code>GET /tools</code> — List all 25 tools</li>
+    <li><code>GET /dashboard</code> — Live governance UI</li>
+    <li><code>POST /mcp</code> — MCP protocol endpoint</li>
+  </ul>
+
+  <h2>MCP Client Setup</h2>
+  <pre><code>{
+  "mcpServers": {
+    "arifos": {
+      "command": "npx",
+      "args": ["-y", "@arifos/mcp"]
+    }
+  }
+}</code></pre>
+
+  <footer>
+    <p>Ditempa Bukan Diberi — Forged, Not Given [ΔΩΨ | ARIF]</p>
+    <p>© 2026 Muhammad Arif bin Fazil | AGPL-3.0-only</p>
+  </footer>
+</body>
+</html>
+"""
+
 ROBOTS_TXT = """\
 User-agent: *
 Allow: /
@@ -782,6 +928,16 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
                 "tools": list(tool_registry.keys()),
             }
         )
+
+    @mcp.custom_route("/docs", methods=["GET"])
+    async def docs(request: Request) -> Response:
+        """Documentation page — human and AI readable."""
+        return HTMLResponse(DOCS_HTML, headers={"Cache-Control": "max-age=3600"})
+
+    @mcp.custom_route("/docs/", methods=["GET"])
+    async def docs_trailing(request: Request) -> Response:
+        """Documentation page (trailing slash)."""
+        return HTMLResponse(DOCS_HTML, headers={"Cache-Control": "max-age=3600"})
 
     @mcp.custom_route("/health", methods=["GET"])
     async def health(request: Request) -> Response:
