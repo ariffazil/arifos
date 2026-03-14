@@ -61,14 +61,22 @@ class MechanicalFaultCode(str, Enum):
 
 class ConstitutionalFaultCode(str, Enum):
     """Constitutional violations. ALWAYS → VOID (terminal). Cannot be retried."""
-    F2_TRUTH_BELOW_THRESHOLD  = "F2_TRUTH_BELOW_THRESHOLD"   # Evidence score < 0.99
+    F1_AMANAH_BREACH           = "F1_AMANAH_BREACH"           # Integrity violation
+    F2_TRUTH_BELOW_THRESHOLD   = "F2_TRUTH_BELOW_THRESHOLD"   # Evidence score < 0.99
+    F3_CONSENSUS_SHATTERED     = "F3_CONSENSUS_SHATTERED"     # Tri-witness failure
+    F4_CLARITY_VIOLATION       = "F4_CLARITY_VIOLATION"       # Entropy dS > 0
+    F5_PEACE_VIOLATION         = "F5_PEACE_VIOLATION"         # Peace² < 1.0
+    F6_EMPATHY_VIOLATION       = "F6_EMPATHY_VIOLATION"       # κᵣ < 0.7
+    F7_HUMILITY_VIOLATION      = "F7_HUMILITY_VIOLATION"      # Omega outside [0.03, 0.05]
+    F8_GENIUS                  = "F8_GENIUS"                  # Genius G* < 0.80
+    F9_SHADOW_VIOLATION        = "F9_SHADOW_VIOLATION"        # Shadow load > 0.3
+    F10_ONTOLOGY               = "F10_ONTOLOGY"                # Personhood/consciousness claim
     F11_AUTH_FAILURE          = "F11_AUTH_FAILURE"            # Actor not in whitelist
     F11_TOKEN_INVALID         = "F11_TOKEN_INVALID"           # Signature mismatch
     F11_TOKEN_EXPIRED         = "F11_TOKEN_EXPIRED"           # Bucket stale → re-anchor
     F11_SESSION_MISMATCH      = "F11_SESSION_MISMATCH"        # session_id mismatch
     F11_SOVEREIGN_SIG_INVALID = "F11_SOVEREIGN_SIG_INVALID"   # Ratification sig invalid
     F12_INJECTION             = "F12_INJECTION"               # Prompt injection detected
-    F10_ONTOLOGY              = "F10_ONTOLOGY"                # Personhood/consciousness claim
     F13_SOVEREIGN_VETO        = "F13_SOVEREIGN_VETO"          # Human rejected via ratify
 
 

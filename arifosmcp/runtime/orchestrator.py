@@ -20,6 +20,7 @@ from arifosmcp.runtime.metrics import (
 from arifosmcp.runtime.models import (
     CallerContext,
     RuntimeEnvelope,
+    RuntimeStatus,
     Stage,
     Verdict,
     PNSContext,
@@ -46,7 +47,7 @@ async def handle_pns_vision(content_type: str, data: bytes, session_id: str) -> 
         session_id=session_id,
         stage=Stage.SENSE_111.value,
         verdict=Verdict.SEAL,
-        status="OK",  # type: ignore
+        status=RuntimeStatus.SUCCESS,
         payload={
             "sensory_mode": content_type,
             "semantic_summary": summary,
@@ -62,17 +63,17 @@ async def handle_pns_shield(content: str, session_id: str) -> RuntimeEnvelope:
 
     armor = PromptArmor()
     report = await armor.scan(text=content, context="user_input")
-    status = "OK"
+    status = RuntimeStatus.SUCCESS
     verdict = Verdict.SEAL
-    if report.score >= armor.threshold:
-        status = "VOID"
+    if report.is_injection:
+        status = RuntimeStatus.SABAR
         verdict = Verdict.VOID
     return RuntimeEnvelope(
         tool="pns_shield",
         session_id=session_id,
         stage=Stage.INIT_000.value,
         verdict=verdict,
-        status=status,  # type: ignore
+        status=status,
         payload={"shield_status": status, "threat_score": report.score},
     )
 
@@ -175,22 +176,21 @@ async def run_stage(
     reality_summary: dict[str, Any],
     caller_ctx: CallerContext | None = None,
     pns_context: PNSContext | None = None,
+    dry_run: bool = False,
+    actor_id: str = "anonymous",
 ) -> RuntimeEnvelope:
     """Execute one routed stage for the metabolic loop.
-
-    Sacred Chain v2 Enforcement:
-    - Forbidden Zones (SIMULATE, VAULT) are strictly isolated from pns_context.
-    - PNS signals are injected at specific constitutional points.
+    ...
     """
     from arifosmcp.runtime.tools import (
-        INIT_ANCHOR,
-        AGI_REASON,
-        AGI_REFLECT,
-        ASI_SIMULATE,
-        ASI_CRITIQUE,
-        AGI_ASI_FORGE,
-        APEX_JUDGE,
-        VAULT_SEAL,
+        init_anchor,
+        agi_reason,
+        agi_reflect,
+        asi_simulate,
+        asi_critique,
+        agi_asi_forge_handler,
+        apex_judge,
+        vault_seal,
     )
 
     sacred_name = _get_sacred_name(stage_id)
@@ -204,12 +204,12 @@ async def run_stage(
     # 1. INIT·ANCHOR (000) - Entry Gate (Feeds PNS·SHIELD)
     if stage_id == Stage.INIT_000.value:
         shield = active_pns.shield if active_pns else None
-        return await INIT_ANCHOR(
+        return await init_anchor(
             raw_input=query,
             session_id=session_id,
             pns_shield=shield.model_dump() if shield else None,
-            ctx=None,
-            server=None,  # type: ignore
+            ctx=None, # type: ignore
+            actor_id=actor_id,
         )
 
     # 2. AGI·REASON (333) - Grounding (Feeds PNS·SEARCH)
@@ -220,7 +220,7 @@ async def run_stage(
             search_res = PNSSignal(source="PNS_SEARCH", payload=search_env.payload)
             pns_trace["PNS_SEARCH"] = search_res.model_dump(mode="json")
 
-        return await AGI_REASON(
+        return await agi_reason(
             query=query,
             session_id=session_id,
             pns_search=search_res.model_dump() if search_res else None,
@@ -239,28 +239,26 @@ async def run_stage(
             vision_res = PNSSignal(source="PNS_VISION", payload=vision_env.payload)
             pns_trace["PNS_VISION"] = vision_res.model_dump(mode="json")
 
-        return await AGI_REFLECT(
+        return await agi_reflect(
             topic=query,
             session_id=session_id,
             pns_vision=vision_res.model_dump() if vision_res else None,
-            ctx=None,
-            server=None,  # type: ignore
+            ctx=None, # type: ignore
         )
 
     # 4. ASI·SIMULATE (666) - FORBIDDEN ZONE
     if stage_id == Stage.HEART_666.value:
-        return await ASI_SIMULATE(
+        return await asi_simulate(
             scenario=query,
             session_id=session_id,
-            ctx=None,
-            server=None,  # type: ignore
+            ctx=None, # type: ignore
         )
 
     # 5. ASI·CRITIQUE (666B) - Metacognition (Feeds PNS·HEALTH + PNS·FLOOR)
     if stage_id == Stage.CRITIQUE_666.value:
         health_res = active_pns.health if active_pns else None
         floor_res = active_pns.floor if active_pns else None
-        return await ASI_CRITIQUE(
+        return await asi_critique(
             draft_output=query,
             session_id=session_id,
             health=health_res.model_dump() if health_res else None,
@@ -270,13 +268,15 @@ async def run_stage(
 
     # 6. AGI–ASI·FORGE (777) - Action (Feeds PNS·ORCHESTRATE)
     if stage_id == Stage.FORGE_777.value:
+        from arifosmcp.runtime.tools import agi_asi_forge_handler
+
         orch_res = active_pns.orchestrate if active_pns else None
-        return await AGI_ASI_FORGE(
+        return await agi_asi_forge_handler(
             spec=query,
             session_id=session_id,
             pns_orchestrate=orch_res.model_dump() if orch_res else None,
-            ctx=None,
-            server=None,  # type: ignore
+            ctx=None, # type: ignore
+            dry_run=dry_run,
         )
 
     # 7. APEX·JUDGE (888) - Verdict (Feeds PNS·REDTEAM)
@@ -290,7 +290,7 @@ async def run_stage(
         elif Verdict.SABAR in verdicts:
             candidate = Verdict.SABAR
 
-        return await APEX_JUDGE(
+        return await apex_judge(
             candidate_output=query,
             session_id=session_id,
             redteam=red_res.model_dump() if red_res else None,
@@ -300,7 +300,7 @@ async def run_stage(
     # 8. VAULT·SEAL (999) - FORBIDDEN ZONE
     if stage_id == Stage.VAULT_999.value:
         last_verdict = verdicts[-1] if verdicts else Verdict.SABAR
-        return await VAULT_SEAL(
+        return await vault_seal(
             verdict=last_verdict.value,
             evidence=query,
             session_id=session_id,
@@ -388,6 +388,8 @@ async def metabolic_loop(
             reality_summary={},
             caller_ctx=caller_context,
             pns_context=pns_context,
+            dry_run=dry_run,
+            actor_id=actor_id,
         )
 
         auth_ctx = _extract_auth_context(init_res, auth_context)
@@ -420,6 +422,8 @@ async def metabolic_loop(
                 reality_summary=reality_summary,
                 caller_ctx=caller_ctx,
                 pns_context=pns_context,
+                dry_run=dry_run,
+                actor_id=actor_id,
             )
             verdict = res.verdict
 
@@ -452,6 +456,7 @@ async def metabolic_loop(
                         trace=trace,
                         reality_summary=reality_summary,
                         caller_ctx=caller_ctx,
+                        dry_run=dry_run,
                     )
                     trace[Stage.VAULT_999.value] = vault_res.verdict.value
                 break
@@ -461,6 +466,7 @@ async def metabolic_loop(
 
         # Extract metabolic signals for computation
         sources = 0
+        pns_trace = trace.get("pns", {})
         if "PNS_SEARCH" in pns_trace:
             sources = len(pns_trace["PNS_SEARCH"].get("payload", {}).get("results", []))
 

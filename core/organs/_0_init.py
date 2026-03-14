@@ -196,6 +196,8 @@ VALID_ACTORS: set[str] = {
     "arif-fazil",
     "ariffazil",
     "arif",
+    "arif-the-apex",
+    "chat-operator",
     "system",
     "agent",
     "cli",
@@ -208,9 +210,11 @@ ACTOR_AUTHORITY: dict[str, AuthorityLevel] = {
     "agent": AuthorityLevel.USER,
     "test_user": AuthorityLevel.USER,
     "operator": AuthorityLevel.OPERATOR,
+    "chat-operator": AuthorityLevel.USER,
     "arif-fazil": AuthorityLevel.SOVEREIGN,
     "ariffazil": AuthorityLevel.SOVEREIGN,
     "arif": AuthorityLevel.SOVEREIGN,
+    "arif-the-apex": AuthorityLevel.SOVEREIGN,
     "system": AuthorityLevel.SYSTEM,
     "anonymous": AuthorityLevel.ANONYMOUS,
 }
@@ -335,11 +339,13 @@ async def init(
     # 6. F11: Command Authority (Identity Resolution)
     # 6a. Identity Inference: If user says "I am Arif", bind it.
     inferred_id = infer_identity(intent.query)
-    current_actor_id = governance.actor_id
+    current_actor_id = governance.actor_id.lower().strip() if governance.actor_id else "anonymous"
 
     if inferred_id and (current_actor_id == "anonymous" or current_actor_id == "guest"):
         current_actor_id = inferred_id
-        governance.actor_id = inferred_id
+    
+    # Always normalize governance actor_id
+    governance.actor_id = current_actor_id
 
     # 6b. Verification
     is_auth, authority = verify_auth(current_actor_id, auth_token)

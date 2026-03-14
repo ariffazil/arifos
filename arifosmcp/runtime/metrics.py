@@ -347,11 +347,11 @@ def compute_integrity_telemetry(
     if hold_active:
         verdict = "888_HOLD"
     elif peace2 < 1.0:
-        verdict = "Paused"
+        verdict = "PAUSED"
     elif g_star < 0.80:
-        verdict = "Degraded"
+        verdict = "DEGRADED"
     else:
-        verdict = "Alive"
+        verdict = "ALIVE"
 
     return CanonicalMetrics(
         telemetry=TelemetryVitals(

@@ -140,6 +140,7 @@ async def test_reason_stage_preserves_declared_authority_context() -> None:
         session_id=session_id,
         query="Explain F11 briefly.",
         auth_context=init_env.auth_context or {},
+        ctx=None,
     )
 
     # "Arif" maps to apex identity "ariffazil" via kernel apex mapping.

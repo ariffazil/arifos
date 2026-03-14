@@ -34,9 +34,10 @@ def _motto_for_tool(tool: str) -> dict[str, str]:
     stage = TOOL_STAGE_MAP.get(tool, "000_INIT")
     stage_motto = get_motto_for_stage(stage)
     header = ""
-    if tool == "anchor_session":
+    # Use stage-based headers for entry/exit tools
+    if stage == "000_INIT" or tool == "anchor_session":
         header = MOTTO_000_INIT_HEADER
-    elif tool == "seal_vault":
+    elif stage == "999_SEAL" or tool == "seal_vault":
         header = MOTTO_999_SEAL_HEADER
 
     return {
@@ -747,14 +748,24 @@ def wrap_tool_output(tool: str, payload: dict[str, Any]) -> dict[str, Any]:
     # Unified Metrics
     truth_score = _safe_float(apex_dials, "G_star", 0.8)
     metrics = {
-        "truth": round(truth_score, 4),
-        "clarity_delta": round(_safe_float(payload, "dS", -0.1), 4),
-        "confidence": round(_safe_float(apex_dials, "G_star", 0.8), 4),
-        "peace": round(_safe_float(payload, "peace2", 1.0), 4),
-        "vitality": round(psi_score, 4),
-        "entropy_delta": round(_safe_float(payload, "dS", -0.1), 4),
-        "authority": round(tri_witness.get("witnesses", {}).get("human", 0.0), 4),
-        "risk": round(_safe_float(payload, "risk_score", 0.0), 4),
+        "telemetry": {
+            "dS": round(_safe_float(payload, "dS", -0.1), 4),
+            "peace2": round(_safe_float(payload, "peace2", 1.0), 4),
+            "G_star": round(truth_score, 4),
+            "confidence": round(_safe_float(apex_dials, "G_star", 0.8), 4),
+            "shadow": round(1.0 - truth_score, 4),
+            "verdict": verdict,
+            "psi_le": f"{psi_score:.2f} (Estimate Only)",
+        },
+        "witness": {
+            "human": round(tri_witness.get("witnesses", {}).get("human", 0.0), 4),
+            "ai": round(tri_witness.get("witnesses", {}).get("ai", 0.0), 4),
+            "earth": round(tri_witness.get("witnesses", {}).get("earth", 0.0), 4),
+        },
+        "internal": {
+            "risk": round(_safe_float(payload, "risk_score", 0.0), 4),
+            "vitality": round(psi_score, 4),
+        },
     }
 
     # Unified Trace
@@ -799,11 +810,23 @@ def wrap_tool_output(tool: str, payload: dict[str, Any]) -> dict[str, Any]:
         )
 
     # Unified Meta
+    meta_motto = motto.get("line")
+    header = motto.get("header")
+    if header:
+        # If the header already contains the motto line (emojis included), use it as is
+        # to avoid redundancy. Otherwise combine with separator.
+        line = motto.get("line") or ""
+        if line in header:
+            meta_motto = header
+        else:
+            meta_motto = f"{header} — {line}"
+
     meta = {
         "schema_version": "1.0.0",
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "debug": bool(payload.get("debug")),
         "dry_run": bool(payload.get("dry_run")),
+        "motto": meta_motto,
     }
 
     # 6. Final Production Output
@@ -822,6 +845,7 @@ def wrap_tool_output(tool: str, payload: dict[str, Any]) -> dict[str, Any]:
         "auth_context",
         "debug",
         "tool",
+        "user_model",
     }
     pruned_payload = {k: v for k, v in payload.items() if k not in canonical_keys}
 
@@ -843,6 +867,12 @@ def wrap_tool_output(tool: str, payload: dict[str, Any]) -> dict[str, Any]:
     }
     pruned_payload = {k: v for k, v in pruned_payload.items() if k not in metric_keys}
 
+    # Ensure user_model is built if not present
+    user_model = payload.get("user_model")
+    if user_model is None:
+        from arifosmcp.runtime.tools import _build_user_model
+        user_model = _build_user_model(tool, stage, payload, {})
+
     output = {
         "ok": status != "ERROR",
         "tool": tool,
@@ -857,6 +887,7 @@ def wrap_tool_output(tool: str, payload: dict[str, Any]) -> dict[str, Any]:
         "errors": errors,
         "meta": meta,
         "auth_context": payload.get("auth_context"),
+        "user_model": user_model,
     }
 
     # 7. Debug Extension (if requested)

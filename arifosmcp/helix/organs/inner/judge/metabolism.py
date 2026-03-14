@@ -60,14 +60,14 @@ async def apex_judge_metabolism(
             )
 
         # Ψ vitality: SEAL verdict requires G ≥ 0.80
-        if envelope.verdict == Verdict.SEAL and envelope.metrics.truth < 0.80:
+        if envelope.verdict == Verdict.SEAL and envelope.metrics.telemetry.G_star < 0.80:
             raise ConstitutionalViolation(
                 message=(
                     f"Ψ vitality gate breached: SEAL issued but "
-                    f"G-score {envelope.metrics.truth:.3f} < 0.80."
+                    f"G-score {envelope.metrics.telemetry.G_star:.3f} < 0.80."
                 ),
                 floor_code=ConstitutionalFaultCode.F2_TRUTH_BELOW_THRESHOLD,
-                extra={"g_score": envelope.metrics.truth},
+                extra={"g_score": envelope.metrics.telemetry.G_star},
             )
 
         if span:
@@ -76,7 +76,7 @@ async def apex_judge_metabolism(
                 "judged",
                 {
                     "verdict": envelope.verdict.value,
-                    "g": envelope.metrics.truth,
+                    "g": envelope.metrics.telemetry.G_star,
                     "redteam_active": pns_redteam is not None,
                     "session_id": active_session,
                 },
