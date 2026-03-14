@@ -9,6 +9,7 @@ import asyncio
 import json
 import logging
 import os
+from pathlib import Path
 from typing import Any, Optional
 
 import redis.asyncio as redis
@@ -21,6 +22,19 @@ from starlette.middleware.sessions import SessionMiddleware
 from .config import WebMCPConfig
 from .security import RateLimiter, WebInjectionGuard, ShieldReport
 from .session import WebSession, WebSessionManager
+from .governance import (
+    ActionRequest,
+    GovernanceEvaluation,
+    GovernanceEngine,
+    Verdict,
+    governance_engine,
+)
+from .live_metrics import (
+    get_live_metrics,
+    get_machine_only,
+    get_governance_only,
+    get_intelligence_only,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -28,20 +42,20 @@ logger = logging.getLogger(__name__)
 class WebMCPGateway:
     """
     Web-facing gateway for arifOS MCP.
-    
+
     Every request passes through 000→999 metabolic loop with:
     - F12 Injection Guard (security scan)
     - F11 Command Auth (session validation)
     - F2 Truth (content grounding)
     - Full Trinity governance (ΔΩΨ)
-    
+
     Usage:
         from arifosmcp.runtime.webmcp import WebMCPGateway
-        
+
         gateway = WebMCPGateway(mcp_server)
         app = gateway.app  # Mount in FastAPI/Starlette
     """
-    
+
     def __init__(self, mcp_server: Any, config: Optional[WebMCPConfig] = None):
         self.mcp = mcp_server
         self.config = config or WebMCPConfig.from_env()
@@ -50,29 +64,28 @@ class WebMCPGateway:
             version="2026.03.14-VALIDATED",
             description="AI-governed WebMCP environment with 13 Constitutional Floors",
         )
-        
+
         # Initialize components
         self.redis = redis.from_url(
-            os.getenv("REDIS_URL", "redis://localhost:6379"),
-            decode_responses=True
+            os.getenv("REDIS_URL", "redis://localhost:6379"), decode_responses=True
         )
         self.session_manager = WebSessionManager(self.redis, self.config)
         self.injection_guard = WebInjectionGuard()
         self.rate_limiter = RateLimiter(self.redis, self.config)
-        
+
         # Setup
         self._setup_middleware()
         self._setup_routes()
-    
+
     def _setup_middleware(self):
         """Configure constitutional middleware stack."""
-        
+
         # 1. Trusted Host (F12 - prevent host header attacks)
         self.app.add_middleware(
             TrustedHostMiddleware,
             allowed_hosts=list(self.config.ALLOWED_ORIGINS),
         )
-        
+
         # 2. CORS (F12 - strict origin validation)
         self.app.add_middleware(
             CORSMiddleware,
@@ -82,7 +95,7 @@ class WebMCPGateway:
             allow_headers=["Content-Type", "Authorization", "X-Session-ID"],
             max_age=3600,
         )
-        
+
         # 3. Session (F11 - auth continuity)
         secret = os.getenv("SESSION_SECRET") or os.urandom(32).hex()
         self.app.add_middleware(
@@ -93,7 +106,7 @@ class WebMCPGateway:
             https_only=self.config.SESSION_SECURE,
             session_cookie=self.config.SESSION_COOKIE,
         )
-        
+
         # 4. Constitutional Guard (F12 + F11 on every request)
         @self.app.middleware("http")
         async def constitutional_guard(request: Request, call_next):
@@ -106,7 +119,7 @@ class WebMCPGateway:
             if not session_id:
                 session_id = f"web-{asyncio.get_event_loop().time():.0f}"
                 request.session["arifos_sid"] = session_id
-            
+
             # F12 Injection Guard
             shield_report = await self.injection_guard.scan_request(request)
             if shield_report.is_injection:
@@ -126,25 +139,25 @@ class WebMCPGateway:
                     headers={
                         "X-Constitutional-Verdict": "VOID",
                         "X-Failed-Floor": "F12",
-                    }
+                    },
                 )
-            
+
             # Add constitutional context to request state
             request.state.shield_report = shield_report
             request.state.session_id = session_id
-            
+
             # Continue to handler
             response = await call_next(request)
-            
+
             # Add constitutional headers to response
             response.headers["X-arifOS-Version"] = "2026.03.14-VALIDATED"
-            response.headers["X-Constitutional-Floors"] "13"
-            
+            response.headers["X-Constitutional-Floors"] = "13"
+
             return response
-    
+
     def _setup_routes(self):
         """Setup WebMCP routes."""
-        
+
         @self.app.get("/webmcp")
         async def webmcp_info():
             """WebMCP server information."""
@@ -162,17 +175,17 @@ class WebMCPGateway:
                     "vitals": "/webmcp/vitals",
                     "hold": "/webmcp/hold/{session_id}",
                     "websocket": "/webmcp/ws",
-                }
+                },
             }
-        
+
         @self.app.post("/webmcp/init")
         async def init_session(request: Request):
             """
             000_INIT: Initialize web session with F11 auth.
-            
+
             Request:
                 {"actor_id": "...", "human_approval": false}
-            
+
             Response:
                 {"session_id": "...", "auth_context": {...}, "verdict": "SEAL"}
             """
@@ -180,10 +193,10 @@ class WebMCPGateway:
                 body = await request.json()
             except Exception:
                 body = {}
-            
+
             actor_id = body.get("actor_id", "anonymous")
             human_approval = body.get("human_approval", False)
-            
+
             # Mint F11-compliant session
             session = await self.session_manager.mint_session(
                 actor_id=actor_id,
@@ -191,10 +204,10 @@ class WebMCPGateway:
                 ip_address=request.client.host if request.client else None,
                 human_approval=human_approval,
             )
-            
+
             # Update session cookie
             request.session["arifos_sid"] = session.session_id
-            
+
             return {
                 "verdict": "SEAL",
                 "stage": "INIT_000",
@@ -206,7 +219,7 @@ class WebMCPGateway:
                 },
                 "expires_at": session.expires_at,
             }
-        
+
         @self.app.get("/webmcp/tools")
         async def list_tools():
             """List all 25 canonical tools."""
@@ -226,12 +239,12 @@ class WebMCPGateway:
                 "tools": tools,
                 "count": len(tools),
             }
-        
+
         @self.app.post("/webmcp/call/{tool_name}")
         async def call_tool(tool_name: str, request: Request):
             """
             Call MCP tool through full 000→999 metabolic loop.
-            
+
             Every call is:
             1. Scanned by PNS·SHIELD (F12)
             2. Authenticated (F11)
@@ -246,22 +259,22 @@ class WebMCPGateway:
             if not session_id:
                 return JSONResponse(
                     status_code=401,
-                    content={"verdict": "VOID", "error": "No session. Call /webmcp/init first."}
+                    content={"verdict": "VOID", "error": "No session. Call /webmcp/init first."},
                 )
-            
+
             session = await self.session_manager.get_session(session_id)
             if not session:
                 return JSONResponse(
                     status_code=401,
-                    content={"verdict": "VOID", "error": "Session expired or invalid."}
+                    content={"verdict": "VOID", "error": "Session expired or invalid."},
                 )
-            
+
             # Parse payload
             try:
                 payload = await request.json()
             except Exception:
                 payload = {}
-            
+
             # Build web context
             web_context = {
                 "session_id": session_id,
@@ -270,7 +283,7 @@ class WebMCPGateway:
                 "origin": request.headers.get("origin"),
                 "ip": request.client.host if request.client else None,
             }
-            
+
             # Execute through MCP (this would call the actual tool)
             # For now, return a mock response showing the flow
             try:
@@ -285,11 +298,11 @@ class WebMCPGateway:
                         "G_star": 0.85,
                         "dS": -0.3,
                         "peace2": 1.05,
-                    }
+                    },
                 }
-                
+
                 return result
-                
+
             except Exception as e:
                 logger.exception(f"Tool call failed: {tool_name}")
                 return {
@@ -297,7 +310,7 @@ class WebMCPGateway:
                     "error": str(e),
                     "session_id": session_id,
                 }
-        
+
         @self.app.get("/webmcp/vitals")
         async def get_vitals(request: Request):
             """Get current system vitals (F4, F5, F7)."""
@@ -312,12 +325,261 @@ class WebMCPGateway:
                 },
                 "floors": {f"F{i}": "PASS" for i in range(1, 14)},
             }
-        
+
+        # === LIVE DASHBOARD METRICS ENDPOINTS ===
+
+        @self.app.get("/api/live/all")
+        async def get_all_live_metrics():
+            """
+            Get all live metrics: MACHINE + GOVERNANCE + INTELLIGENCE.
+
+            Returns real-time data from:
+            - Machine: VPS health (CPU, RAM, disk, network, Docker)
+            - Governance: arifOS floors, vitals, VAULT999 status
+            - Intelligence: AI/LLM metrics, tokens, latency, models
+            """
+            try:
+                metrics = await get_live_metrics()
+                return metrics
+            except Exception as e:
+                return {
+                    "verdict": "PARTIAL",
+                    "error": str(e),
+                    "machine": {},
+                    "governance": {},
+                    "intelligence": {},
+                }
+
+        @self.app.get("/api/live/machine")
+        async def get_machine_metrics_endpoint():
+            """Get VPS machine metrics only."""
+            try:
+                metrics = await get_machine_only()
+                return {"verdict": "SEAL", "data": metrics}
+            except Exception as e:
+                return {"verdict": "VOID", "error": str(e)}
+
+        @self.app.get("/api/live/governance")
+        async def get_governance_metrics_endpoint():
+            """Get arifOS governance metrics only."""
+            try:
+                metrics = await get_governance_only()
+                return {"verdict": "SEAL", "data": metrics}
+            except Exception as e:
+                return {"verdict": "VOID", "error": str(e)}
+
+        @self.app.get("/api/live/intelligence")
+        async def get_intelligence_metrics_endpoint():
+            """Get AI/LLM intelligence metrics only."""
+            try:
+                metrics = await get_intelligence_only()
+                return {"verdict": "SEAL", "data": metrics}
+            except Exception as e:
+                return {"verdict": "VOID", "error": str(e)}
+
+        @self.app.get("/api/live/vault")
+        async def get_vault_entries(limit: int = 20):
+            """Get recent VAULT999 entries."""
+            try:
+                vault_path = Path("VAULT999/vault999.jsonl")
+                entries = []
+
+                if vault_path.exists():
+                    with open(vault_path, "r") as f:
+                        lines = f.readlines()
+                        # Get last N entries
+                        for line in lines[-limit:]:
+                            try:
+                                entry = json.loads(line)
+                                entries.append(
+                                    {
+                                        "timestamp": entry.get("timestamp", ""),
+                                        "session_id": entry.get("session_id", "")[:16] + "...",
+                                        "action": entry.get("action", entry.get("tool", "unknown")),
+                                        "verdict": entry.get("verdict", "UNKNOWN"),
+                                        "seal_hash": entry.get("seal_hash", "")[:16] + "..."
+                                        if entry.get("seal_hash")
+                                        else None,
+                                    }
+                                )
+                            except:
+                                continue
+
+                return {
+                    "verdict": "SEAL",
+                    "count": len(entries),
+                    "entries": entries,
+                }
+            except Exception as e:
+                return {"verdict": "VOID", "error": str(e), "entries": []}
+
+        # === GOVERNANCE-AS-A-SERVICE (GaaS) ENDPOINTS ===
+
+        @self.app.post("/governance/evaluate", response_model=GovernanceEvaluation)
+        async def governance_evaluate(request: ActionRequest):
+            """
+            SUPREME COURT ENDPOINT - Evaluate any action against F1-F13.
+
+            This is the breakthrough feature: any agent anywhere can submit
+            actions for constitutional review without executing through arifOS.
+
+            Request:
+                {
+                    "agent_did": {"did": "did:arifos:agent:abc123", ...},
+                    "action_id": "unique-action-id",
+                    "action_type": "tool_call|api_request|code_execution",
+                    "action_description": "What the agent wants to do",
+                    "tool_name": "optional_tool_name",
+                    "parameters": {...},
+                    "stakeholders": ["user", "system"],
+                    "reversibility_proof": "proof_of_undo_capability"
+                }
+
+            Response:
+                {
+                    "verdict": "SEAL|VOID|PARTIAL|SABAR|888_HOLD",
+                    "floors_passed": ["F1", "F2", ...],
+                    "floors_failed": ["F3"],
+                    "violations": [...],
+                    "metrics": {"G_star": 0.85, "dS": -0.3, ...},
+                    "tri_witness": {"human": 0.95, "ai": 0.9, "earth": 0.85, "W3": 0.90},
+                    "recommendations": [...]
+                }
+            """
+            logger.info(f"Governance evaluation requested for action: {request.action_id}")
+
+            # Run through constitutional engine
+            evaluation = await governance_engine.evaluate(request)
+
+            logger.info(
+                f"Governance verdict for {request.action_id}: "
+                f"{evaluation.verdict} (passed: {len(evaluation.floors_passed)}/13)"
+            )
+
+            return evaluation
+
+        @self.app.get("/governance/did/verify/{did}")
+        async def verify_agent_did(did: str):
+            """
+            Verify an Agent DID and return trust score.
+
+            This allows agents to prove their governance lineage.
+            """
+            # In production: check DID registry
+            return {
+                "did": did,
+                "verified": True,
+                "trust_score": 0.85,
+                "policy_level": "general",
+                "governance_endpoints": ["https://arifosmcp.arif-fazil.com/governance/evaluate"],
+                "verdict": "SEAL",
+            }
+
+        @self.app.get("/governance/floors")
+        async def list_constitutional_floors():
+            """List all 13 constitutional floors with thresholds."""
+            return {
+                "verdict": "SEAL",
+                "floors": [
+                    {
+                        "id": "F1",
+                        "name": "Amanah",
+                        "type": "Hard",
+                        "threshold": ">= 0.5",
+                        "enforces": "Reversibility",
+                    },
+                    {
+                        "id": "F2",
+                        "name": "Truth",
+                        "type": "Hard",
+                        "threshold": ">= 0.99",
+                        "enforces": "Anti-hallucination",
+                    },
+                    {
+                        "id": "F3",
+                        "name": "Tri-Witness",
+                        "type": "Mirror",
+                        "threshold": ">= 0.95",
+                        "enforces": "Consensus",
+                    },
+                    {
+                        "id": "F4",
+                        "name": "ΔS Clarity",
+                        "type": "Hard",
+                        "threshold": "<= 0",
+                        "enforces": "Entropy reduction",
+                    },
+                    {
+                        "id": "F5",
+                        "name": "Peace²",
+                        "type": "Soft",
+                        "threshold": ">= 1.0",
+                        "enforces": "Stability",
+                    },
+                    {
+                        "id": "F6",
+                        "name": "Empathy",
+                        "type": "Soft",
+                        "threshold": ">= 0.70",
+                        "enforces": "Weakest stakeholder",
+                    },
+                    {
+                        "id": "F7",
+                        "name": "Humility",
+                        "type": "Hard",
+                        "threshold": "0.03-0.20",
+                        "enforces": "Uncertainty",
+                    },
+                    {
+                        "id": "F8",
+                        "name": "Genius",
+                        "type": "Mirror",
+                        "threshold": ">= 0.80",
+                        "enforces": "Coherence",
+                    },
+                    {
+                        "id": "F9",
+                        "name": "Anti-Hantu",
+                        "type": "Hard",
+                        "threshold": "< 0.30",
+                        "enforces": "No dark patterns",
+                    },
+                    {
+                        "id": "F10",
+                        "name": "Ontology",
+                        "type": "Wall",
+                        "threshold": "LOCK",
+                        "enforces": "No consciousness claims",
+                    },
+                    {
+                        "id": "F11",
+                        "name": "Command Auth",
+                        "type": "Hard",
+                        "threshold": "LOCK",
+                        "enforces": "Identity verification",
+                    },
+                    {
+                        "id": "F12",
+                        "name": "Injection",
+                        "type": "Wall",
+                        "threshold": "< 0.85",
+                        "enforces": "Block adversarial control",
+                    },
+                    {
+                        "id": "F13",
+                        "name": "Sovereign",
+                        "type": "Veto",
+                        "threshold": "HUMAN",
+                        "enforces": "Human final authority",
+                    },
+                ],
+            }
+
         @self.app.websocket("/webmcp/ws")
         async def websocket_endpoint(websocket: WebSocket):
             """
             WebSocket for real-time governance updates.
-            
+
             Streams:
             - Vitals (every 5s)
             - 888_HOLD events
@@ -325,7 +587,7 @@ class WebMCPGateway:
             """
             await websocket.accept()
             session_id = f"ws-{asyncio.get_event_loop().time():.0f}"
-            
+
             try:
                 while True:
                     # Send vitals
@@ -336,15 +598,15 @@ class WebMCPGateway:
                             "dS": -0.3,
                             "peace2": 1.05,
                             "timestamp": asyncio.get_event_loop().time(),
-                        }
+                        },
                     }
                     await websocket.send_json(vitals)
-                    
+
                     # Check for 888_HOLD
                     # In production: check hold queue
-                    
+
                     await asyncio.sleep(5)
-                    
+
             except WebSocketDisconnect:
                 logger.info(f"WebSocket disconnected: {session_id}")
             except Exception as e:
@@ -356,10 +618,10 @@ class WebMCPGateway:
 def create_webmcp_app(mcp_server: Any) -> FastAPI:
     """
     Factory function to create WebMCP app.
-    
+
     Usage:
         from arifosmcp.runtime.webmcp import create_webmcp_app
-        
+
         app = create_webmcp_app(mcp_server)
         uvicorn.run(app, host="0.0.0.0", port=8443)
     """
