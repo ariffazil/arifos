@@ -27,16 +27,16 @@ def create_aclip_server() -> FastMCP:
         description="ACLIP — Console for AI on arifOS",
     )
 
-    # Register tools from console_tools
+    # Register Nervous System 9 Tools
     mcp.tool(name="system_health")(console_tools.system_health)
-    mcp.tool(name="process_list", n_results=50)(console_tools.process_list)
+    mcp.tool(name="process_list")(console_tools.process_list)
     mcp.tool(name="fs_inspect")(console_tools.fs_inspect)
     mcp.tool(name="log_tail")(console_tools.log_tail)
     mcp.tool(name="net_status")(console_tools.net_status)
-    mcp.tool(name="config_flags")(console_tools.config_flags)
     mcp.tool(name="chroma_query")(console_tools.chroma_query)
+    mcp.tool(name="arifos_list_resources")(console_tools.arifos_list_resources)
+    mcp.tool(name="arifos_read_resource")(console_tools.arifos_read_resource)
     mcp.tool(name="cost_estimator")(console_tools.cost_estimator)
-    mcp.tool(name="forge_guard")(console_tools.forge_guard)
 
     return mcp
 
