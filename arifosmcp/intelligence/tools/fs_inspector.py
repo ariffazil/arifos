@@ -127,3 +127,7 @@ def fs_inspect(
         },
         warning="Max files limit reached" if stats["limit_reached"] else None,
     )
+
+
+# Alias for architectural consistency
+inspect_path = fs_inspect

@@ -21,11 +21,14 @@ def cost_estimator(
     api_calls: int | None = None,
     provider: str = "openai",
     model: str = "gpt-4",
+    operation: str | None = None,  # Architectural alias
 ) -> dict[str, Any]:
     """
     Predicts the thermodynamic and financial cost of a proposed action.
     Serves as a proxy for entropy change (ΔS).
     """
+    # Use 'operation' if provided, otherwise 'operation_type'
+    actual_op_type = operation if operation is not None else operation_type
     # ---------------------------------------------------------------------------
     # 1. Financial Costs (USD)
     # ---------------------------------------------------------------------------
@@ -62,17 +65,17 @@ def cost_estimator(
         "total_usd": 0.0,
     }
 
-    if operation_type == "llm" and token_count:
+    if actual_op_type == "llm" and token_count:
         p_pricing = pricing.get(provider, {})
-        m_pricing = p_pricing.get(model, {"input_per_1k": 0.01, "output_per_1k": 0.03})
+        m_pricing = p_pricing.get(model, {"input_per_1k": 0.03, "output_per_1k": 0.06})
         in_tokens = int(token_count * 0.7)
         out_tokens = int(token_count * 0.3)
         costs["llm_cost_usd"] = round(
-            (in_tokens / 1000) * m_pricing.get("input_per_1k", 0.01)
-            + (out_tokens / 1000) * m_pricing.get("output_per_1k", 0.03),
+            (in_tokens / 1000) * m_pricing.get("input_per_1k", 0.03)
+            + (out_tokens / 1000) * m_pricing.get("output_per_1k", 0.06),
             6,
         )
-    elif operation_type == "embedding" and token_count:
+    elif actual_op_type == "embedding" and token_count:
         p_pricing = pricing.get(provider, {})
         m_pricing = p_pricing.get(model, {"per_1k": 0.00002})
         costs["llm_cost_usd"] = round((token_count / 1000) * m_pricing.get("per_1k", 0.00002), 6)
@@ -109,7 +112,7 @@ def cost_estimator(
     return {
         "status": "ok",
         "action_description": action_description,
-        "operation_type": operation_type,
+        "operation_type": actual_op_type,
         "costs": costs,
         "hardware_context": {
             "cores": logical_cores,

@@ -174,6 +174,10 @@ def net_status(
     return ok(results)
 
 
+# Alias for architectural consistency
+check_connectivity = net_status
+
+
 def _get_proc_name(pid: int) -> str:
     """Helper to resolve PID to process name safely."""
     if not pid or not PSUTIL_AVAILABLE:

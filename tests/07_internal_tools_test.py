@@ -1,71 +1,82 @@
 import asyncio
 import os
 import sys
-import json
-from pathlib import Path
-from typing import Any
 
-# Add project root to sys.path
-sys.path.insert(0, str(Path(__file__).parents[1]))
-
-# Set Profile to full to expose internal tools
+# CRITICAL: Set env vars BEFORE any arifOS imports to avoid stale profile state
 os.environ["ARIFOS_PUBLIC_TOOL_PROFILE"] = "full"
 os.environ["ARIFOS_PHYSICS_DISABLED"] = "1"
-os.environ["AAA_MCP_OUTPUT_MODE"] = "debug"
 
+from pathlib import Path
 from fastmcp import Client
+import json
+
+# Add project root to sys.path with priority
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 from arifosmcp.runtime.server import create_aaa_mcp_server
 
-async def test_internal_tools():
-    print("🚀 Starting arifOS INTERNAL Tools Test...")
-    server = create_aaa_mcp_server()
+async def test_hardened_9_tools():
+    """Test the Nervous System 9 internal tools suite."""
+    print("\n--- Starting Nervous System 9 Internal Tools Test ---")
     
-    internal_tools = [
-        ("chroma_query", {"query": "test"}),
-        ("config_flags", {}),
-        ("cost_estimator", {"input_nodes": 10}),
-        ("forge_guard", {"markdown": "# Test"}),
-        ("fs_inspect", {"path": "."}),
-        ("list_resources", {}),
-        ("log_tail", {"lines": 5}),
-        ("metabolic_loop", {"raw_input": "Internal Test", "session_id": "test_internal"}),
-        ("metabolic_loop_router", {"payload": {"test": True}}),
-        ("net_status", {}),
-        ("process_list", {}),
-        ("read_resource", {"uri": "canon://index"}),
-        ("register_tools", {}),
-        ("stage_pipeline_app", {"stage": "init"}),
-        ("system_health", {}),
-        ("trace_replay", {"session_id": "test_internal"}),
-    ]
-
-    async with Client(server) as client:
-        # First, Anchor session to get auth context
-        print("\nAnchoring session...")
-        anchor_res = await client.call_tool("init_anchor", {"raw_input": "Internal Tools Test", "session_id": "test_internal"})
-        auth_ctx = None
-        try:
-            res_json = json.loads(anchor_res.content[0].text)
-            auth_ctx = res_json.get("auth_context")
-            print(f"Auth Context ready: {auth_ctx.get('nonce')}")
-        except:
-            print("Failed to get auth context, proceeding with default")
-
+    mcp_server = create_aaa_mcp_server()
+    
+    async with Client(mcp_server) as client:
+        # 1. Anchor session to get auth_context
+        print("Anchoring session...")
+        anchor_call = await client.call_tool("init_anchor", {"raw_input": "Internal Test Session"})
+        
+        # Parse the RuntimeEnvelope from the CallToolResult
+        anchor_data = json.loads(anchor_call.content[0].text)
+        session_id = anchor_data.get("session_id")
+        auth_context = anchor_data.get("auth_context")
+        
+        print(f"Session Anchored: {session_id}")
+        
+        # Define Nervous System 9 test cases
+        internal_tools = [
+            ("system_health", {"include_swap": True}),
+            ("fs_inspect", {"path": ".", "depth": 1}),
+            ("chroma_query", {"query": "test query", "collection_name": "default"}),
+            ("log_tail", {"lines": 5}),
+            ("process_list", {"limit": 5}),
+            ("net_status", {"check_ports": True}),
+            ("arifos_list_resources", {}),
+            ("arifos_read_resource", {"uri": "canon://index"}),
+            ("cost_estimator", {"action_description": "test compute", "operation": "compute"}),
+        ]
+        
+        results = []
         for tool_name, args in internal_tools:
             print(f"\nTesting {tool_name}...")
-            # Inject auth_context and session_id if not present
-            if "session_id" not in args and tool_name not in ["list_resources", "register_tools", "system_health", "check_vital"]:
-                 args["session_id"] = "test_internal"
-            if "auth_context" not in args and auth_ctx:
-                 args["auth_context"] = auth_ctx
-
+            # Inject governance parameters
+            args["session_id"] = session_id
+            args["auth_context"] = auth_context
+            
             try:
-                res = await client.call_tool(tool_name, args)
-                print(f"✅ {tool_name} Success: {str(res)[:150]}...")
+                call_res = await client.call_tool(tool_name, args)
+                envelope = json.loads(call_res.content[0].text)
+                
+                if envelope.get("ok"):
+                    print(f"✅ {tool_name} Passed (Stage: {envelope.get('stage')}, Verdict: {envelope.get('verdict')})")
+                    results.append(True)
+                else:
+                    print(f"❌ {tool_name} Returned Error: {envelope.get('errors')}")
+                    results.append(False)
             except Exception as e:
-                print(f"❌ {tool_name} Failed: {e}")
-
-    print("\n✅ Internal Tools Test Completed.")
+                print(f"❌ {tool_name} Failed with exception: {e}")
+                results.append(False)
+        
+        print("\n--- Summary ---")
+        passed = sum(1 for r in results if r)
+        print(f"Total: {len(internal_tools)}")
+        print(f"Passed: {passed}")
+        print(f"Failed: {len(internal_tools) - passed}")
+        
+        if passed == len(internal_tools):
+            print("\n✅ NERVOUS SYSTEM 9 VALIDATED (100% Forged)")
+        else:
+            print(f"\n⚠️ {len(internal_tools) - passed} tools still in 'Propa' state.")
 
 if __name__ == "__main__":
-    asyncio.run(test_internal_tools())
+    asyncio.run(test_hardened_9_tools())

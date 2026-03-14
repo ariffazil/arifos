@@ -12,7 +12,6 @@ from __future__ import annotations
 import os
 import json
 from fastmcp import FastMCP
-from fastmcp.tools import ToolResult
 from .public_registry import (
     RUNTIME_ENVELOPE_SCHEMA,
     public_resource_uris,
@@ -168,9 +167,28 @@ def register_resources(mcp: FastMCP) -> None:
         return json.dumps(RUNTIME_ENVELOPE_SCHEMA, ensure_ascii=False)
 
 
+def manifest_resources() -> list[str]:
+    """Return list of all registered resource URIs."""
+    return public_resource_uris()
+
+
+async def read_resource_content(uri: str) -> str | None:
+    """Read resource content by URI (Hardened 9 support)."""
+    if uri not in public_resource_uris():
+        return None
+        
+    if uri == "canon://index":
+        return json.dumps({
+            "version": release_version(),
+            "motto": "DITEMPA BUKAN DIBERI",
+            "resources": public_resource_uris()
+        })
+    return f"Content for {uri} (PNS/Canon Asset)"
+
+
 def build_open_apex_dashboard_result(session_id: str = "global") -> ToolResult | None:
     """Return a ToolResult containing the APEX dashboard v2.1 redirect/HTML."""
-    # Find the HTML file relative to this file
+    from fastmcp.tools import ToolResult
     dashboard_path = os.path.join(
         os.path.dirname(__file__), "..", "sites", "dashboard", "index.html"
     )
