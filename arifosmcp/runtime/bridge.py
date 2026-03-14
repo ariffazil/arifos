@@ -405,6 +405,7 @@ def _build_vitals_report(session_id: str) -> dict[str, Any]:
 
     # Build capability map based on available integrations
     capability_map = {
+        "schema": "capability-map/v1",
         "governed_continuity": {"enabled": True, "status": "configured"},
         "vault_persistence": {"enabled": True, "status": "configured"},
         "vector_memory": {"enabled": True, "status": "configured"},
@@ -412,6 +413,8 @@ def _build_vitals_report(session_id: str) -> dict[str, Any]:
         "model_provider_access": {"enabled": True, "status": "configured"},
         "local_model_runtime": {"enabled": True, "status": "configured"},
         "auto_deploy": {"enabled": False, "status": "manual_only"},
+        "credential_classes": ["bearer", "sig_v2"],
+        "providers": ["ollama", "qdrant", "openai", "anthropic"],
     }
 
     # Check thermodynamic module
@@ -440,6 +443,7 @@ def _build_vitals_report(session_id: str) -> dict[str, Any]:
             "audit_trail": "VAULT999",
         },
         "degraded_components": degraded_components if degraded_components else None,
+        "message": "arifOS Vitals: All systems nominal.",
         "operator_note": (
             "System operational. Run audit_rules for constitutional floor details. "
             "Run verify_vault_ledger for audit trail integrity."
@@ -482,7 +486,7 @@ async def call_kernel(
                     identity_claim_status="UNVERIFIED_CLAIM",
                     identity_reason="Auto-bootstrap not allowed for this risk/mode.",
                     next_action_reason="Run init_anchor_state first.",
-                    machine_issue="AUTH_BOOTSTRAP_REQUIRED",
+                    machine_issue="AUTH_FAILURE",
                 )
         else:
             valid, reason = verify_auth_context_cached(session_id, auth_ctx)

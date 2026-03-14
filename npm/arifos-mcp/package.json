@@ -1,0 +1,58 @@
+{
+  "name": "@arifos/mcp",
+  "version": "2026.3.14",
+  "description": "arifOS MCP Server - Constitutional AI Governance System (ΔΩΨ Trinity Architecture)",
+  "main": "index.js",
+  "bin": {
+    "arifos-mcp": "./bin/arifos-mcp.js"
+  },
+  "scripts": {
+    "start": "node bin/arifos-mcp.js",
+    "postinstall": "node scripts/install.js"
+  },
+  "keywords": [
+    "mcp",
+    "mcp-server",
+    "model-context-protocol",
+    "ai-governance",
+    "constitutional-ai",
+    "ai-safety",
+    "trinity-architecture",
+    "agi",
+    "asi",
+    "apex",
+    "vault999"
+  ],
+  "author": "Muhammad Arif bin Fazil <arifbfazil@gmail.com>",
+  "license": "AGPL-3.0-only",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ariffazil/arifosmcp.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ariffazil/arifosmcp/issues"
+  },
+  "homepage": "https://arifos.arif-fazil.com",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "which": "^4.0.0"
+  },
+  "files": [
+    "bin/",
+    "scripts/",
+    "index.js",
+    "README.md",
+    "LICENSE"
+  ],
+  "mcp": {
+    "server": {
+      "command": "arifos-mcp",
+      "args": ["stdio"],
+      "env": {
+        "ARIFOS_PUBLIC_TOOL_PROFILE": "full"
+      }
+    }
+  }
+}

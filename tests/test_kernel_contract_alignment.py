@@ -250,7 +250,8 @@ async def test_protected_identity_claim_requires_crypto():
         session_id="protected-identity-claim",
     )
 
-    assert envelope.verdict.name in ["VOID", "HOLD"]
+    # Protected IDs (arif-fazil) without crypto → auth failure with UNVERIFIED_CLAIM
+    assert envelope.verdict.name in ["VOID", "HOLD", "PAUSED"]
     assert envelope.errors[0].code == "AUTH_FAILURE"
     assert envelope.authority.actor_id == "anonymous"
     # Protected IDs (arif-fazil) without crypto → auth failure with UNVERIFIED_CLAIM

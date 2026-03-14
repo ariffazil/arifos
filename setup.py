@@ -7,8 +7,8 @@ from setuptools import setup
 
 setup(
     name="arifosmcp",
-    version="2026.3.13",
-    description="arifOS v2026.03.14-FORGED — Constitutional AI Governance",
+    version="2026.3.14",
+    description="arifOS v2026.03.14-VALIDATED — Constitutional AI Governance",
     author="Muhammad Arif bin Fazil",
     author_email="arifbfazil@gmail.com",
     url="https://arifos.arif-fazil.com",
