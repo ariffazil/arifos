@@ -335,11 +335,12 @@ async def _wrap_call(
     if not isinstance(payload, dict):
         from arifosmcp.runtime.exceptions import ConstitutionalViolation
         from arifosmcp.runtime.fault_codes import ConstitutionalFaultCode
+
         raise ConstitutionalViolation(
             message="F12 Security Violation: Payload must be a JSON object.",
-            floor_code=ConstitutionalFaultCode.F12_DEFENSE
+            floor_code=ConstitutionalFaultCode.F12_DEFENSE,
         )
-    
+
     # ─── INVARIANT I: IDENTITY LAW (F11) ───
     session_id = _normalize_session_id(session_id)
     assert session_id is not None, "ConstitutionalViolation: F11 Identity required"
@@ -365,9 +366,17 @@ async def _wrap_call(
         from arifosmcp.runtime.models import DeltaOmegaPsi
 
         # Map metrics into the DeltaOmegaPsi model for verification
-        g_star = envelope.metrics.telemetry.G_star if envelope.metrics and envelope.metrics.telemetry else 0.0
-        conf = envelope.metrics.telemetry.confidence if envelope.metrics and envelope.metrics.telemetry else 0.0
-        
+        g_star = (
+            envelope.metrics.telemetry.G_star
+            if envelope.metrics and envelope.metrics.telemetry
+            else 0.0
+        )
+        conf = (
+            envelope.metrics.telemetry.confidence
+            if envelope.metrics and envelope.metrics.telemetry
+            else 0.0
+        )
+
         dow = DeltaOmegaPsi(
             delta=max(0.0, min(1.0, g_star)),
             omega=max(0.0, min(1.0, conf)),
@@ -399,7 +408,7 @@ async def _wrap_call(
 
         if isinstance(e, ArifOSError):
             raise e
-            
+
         # Hardened mechanical fallback
         from arifosmcp.runtime.models import (
             CanonicalError,
@@ -416,7 +425,7 @@ async def _wrap_call(
             shadow=1.0,
             confidence=0.0,
             psi_le="0.0 (Estimate Only)",
-            verdict="HOLD", # Default to HOLD on runtime error for safety
+            verdict="HOLD",  # Default to HOLD on runtime error for safety
         )
 
         envelope = RuntimeEnvelope(
@@ -426,7 +435,9 @@ async def _wrap_call(
             stage=stage.value,
             verdict=Verdict.HOLD,
             status=RuntimeStatus.ERROR,
-            errors=[CanonicalError(code="HARDENED_RUNTIME_FAILURE", message=str(e), stage=stage.value)],
+            errors=[
+                CanonicalError(code="HARDENED_RUNTIME_FAILURE", message=str(e), stage=stage.value)
+            ],
             metrics=CanonicalMetrics(telemetry=error_telemetry),
         )
 
@@ -471,31 +482,29 @@ def _resolve_caller_context(
     return base
 
 
-
-
-
 async def init_anchor(
     raw_input: str,
     ctx: Context = CurrentContext(),
     server: FastMCP = CurrentFastMCP(),
     session_id: str | None = None,
     pns_shield: dict[str, Any] | None = None,
+    # Standardised identity fields
     actor_id: str = "anonymous",
+    intent: str | None = None,
 ) -> RuntimeEnvelope:
     """
     000_INIT: Establish a governed session and verify identity.
-    Use this tool first to authorize a session and mint the auth_context required for subsequent governed tools.
-    Enforces F11 (Command Auth), F12 (Injection Defense), and F13 (Sovereign Override).
+    Use this tool first to authorize a session and mint the auth_context.
     """
-    # Resolved from previous anatomical forged work
+    query = intent or raw_input
     payload = {
-        "intent": {"query": raw_input},
+        "intent": {"query": query},
         "pns_shield": pns_shield,
         "actor_id": actor_id,
         "token_fingerprint": uuid.uuid4().hex[:16],
     }
     return await _wrap_call(
-        "init_anchor_state", Stage.INIT_000, _normalize_session_id(session_id), payload, ctx
+        "anchor_session", Stage.INIT_000, _normalize_session_id(session_id), payload, ctx
     )
 
 
@@ -528,7 +537,12 @@ async def init_anchor_state(
     }
 
     return await _wrap_call(
-        "init_anchor_state", Stage.INIT_000, _normalize_session_id(session_id), payload, ctx, caller_context
+        "init_anchor_state",
+        Stage.INIT_000,
+        _normalize_session_id(session_id),
+        payload,
+        ctx,
+        caller_context,
     )
 
 
@@ -664,7 +678,9 @@ async def asi_simulate(
         check_omniscience_lock(envelope.metrics.telemetry.confidence)
 
         # 2. Enforce Humility Band [0.03, 0.05]
-        envelope.metrics.telemetry.confidence = enforce_humility_band(envelope.metrics.telemetry.confidence)
+        envelope.metrics.telemetry.confidence = enforce_humility_band(
+            envelope.metrics.telemetry.confidence
+        )
 
         from core.physics.thermodynamics_hardened import MAX_ENTROPY_DELTA
 
@@ -677,7 +693,7 @@ async def asi_simulate(
                 floor_code=ConstitutionalFaultCode.F4_CLARITY,
             )
 
-        peace_threshold = 1.0 # Default F5 threshold
+        peace_threshold = 1.0  # Default F5 threshold
         if envelope.metrics.telemetry.peace2 < peace_threshold:
             from arifosmcp.runtime.exceptions import ConstitutionalViolation
             from arifosmcp.runtime.fault_codes import ConstitutionalFaultCode
@@ -945,7 +961,7 @@ async def arifos_kernel(
     from arifosmcp.runtime.orchestrator import metabolic_loop
 
     active_session = session_id or _normalize_session_id(None)
-    
+
     # Resolve caller context from requested persona hint
     caller_ctx = _resolve_caller_context(caller_context, requested_persona)
 
@@ -1299,7 +1315,7 @@ assess_heart_impact = asi_simulate
 critique_thought_audit = asi_critique
 vector_memory_store = agi_reflect
 seal_vault_commit = vault_seal
-init_anchor_state = init_anchor_state
+init_anchor_state = init_anchor
 metabolic_loop_router = arifos_kernel
 agi_asi_forge = agi_asi_forge_handler
 apex_judge_verdict = apex_judge

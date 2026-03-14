@@ -346,6 +346,9 @@ def _law13_checks(tool: str, payload: dict[str, Any]) -> dict[str, Any]:
             ) or tool in {
                 "anchor_session",
                 "check_vital",
+                "sense_health",
+                "system_audit",
+                "metabolic_loop",
                 "eureka_forge",  # Command execution truth is in exit_code/output
             }
         elif law == "F4_CLARITY":
