@@ -188,6 +188,40 @@ services:
     security_opt:
       - no-new-privileges:true
 
+  # --- AgentZero (Reasoning Engine) ---
+  agent-zero:
+    image: agent0ai/agent-zero:latest
+    container_name: agent_zero_reasoner
+    init: true
+    environment:
+      - OPENCLAW_URL=http://openclaw:18789
+      - AGENT_NAME=arifos-agentzero
+    volumes:
+      - /opt/arifos/data/agent_zero:/app/work_dir:rw
+      - /srv/arifOS:/mnt/arifos:rw
+      - /opt/arifos/APEX-THEORY:/mnt/apex:rw
+    networks:
+      - arifos_trinity
+    ports:
+      - "127.0.0.1:18001:80"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.agentzero.rule=Host(`agentzero.arifosmcp.arif-fazil.com`)"
+      - "traefik.http.routers.agentzero.entrypoints=websecure"
+      - "traefik.http.routers.agentzero.tls.certresolver=letsencrypt"
+      - "traefik.http.services.agentzero.loadbalancer.server.port=80"
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2048M
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+
   # --- Gateways & Reasoning ---
   openclaw:
     build:
