@@ -509,7 +509,7 @@ async def init_anchor_state(
 
     payload = {
         "intent": intent or {"query": f"init anchor for {declared_name}"},
-        "declared_name": effective_name,
+        "declared_name": declared_name,
         "actor_id": effective_name,
         "auth_context": auth_context or {},
         "human_approval": human_approval,
@@ -756,7 +756,7 @@ async def agi_asi_forge_handler(
 
         target_g = 0.80
         # F8: Only enforce Genius threshold if NOT in dry_run mode (which is often used in tests)
-        if envelope.metrics.telemetry.confidence < target_g and not dry_run:
+        if not dry_run and envelope.metrics.telemetry.confidence < target_g:
             from arifosmcp.runtime.exceptions import ConstitutionalViolation
             from arifosmcp.runtime.fault_codes import ConstitutionalFaultCode
 

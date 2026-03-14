@@ -405,6 +405,7 @@ def _build_vitals_report(session_id: str) -> dict[str, Any]:
 
     # Build capability map based on available integrations
     capability_map = {
+        "schema": "capability-map/v1",
         "governed_continuity": {"enabled": True, "status": "configured"},
         "vault_persistence": {"enabled": True, "status": "configured"},
         "vector_memory": {"enabled": True, "status": "configured"},
