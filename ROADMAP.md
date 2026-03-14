@@ -25,26 +25,19 @@ This roadmap reframes arifOS development through **Four Horizons**, moving from 
 ### H1.3: Clean the Tool Registry ✅ COMPLETED
 
 ### H1.4: Civilization-Readiness Polish 🔄 IN PROGRESS
+... (rest of H1.4) ...
 
-*From APEX Assessment: "Not more philosophy. Proof packaging, onboarding precision, ruthless clarity."*
+### H1.5: Philosophical Continuity & Vector Recall
 
-**THE SURFACE (Human Legitimacy):**
-- [ ] "Start Here" section with ecosystem navigation map
-- [ ] "Why arifOS emerged from geology" unique positioning
+Establish F11-authorized semantic recall for the `local_99` quote bank.
 
-**THE MIND (Constitutional Doctrine):**
-- [x] External Validation: 25/25 public tools schema-compliant ✅
-- [ ] Doctrine → Runtime mapping table (F2→search_reality, etc.)
-
-**THE BODY (Runtime Engine):**
-- [x] Verified `vault_seal` functional with `auth_context` (E2E Test) ✅
-- [x] External Validation: HIGH Confidence ✅
-- [ ] 5-minute quickstart with copy-paste commands
+- [ ] Authorized Qdrant retrieval via `auth_context`.
+- [ ] Multi-organ quote populating (ΔΩΨ slots).
+- [ ] Entropy-weighted quote selection.
 
 **Success Criteria:**
-- APEX score: 8.6 → 9.1 ✅ (Target: 9.4+)
-- ΔS: 0.37 → 0.02 ✅ (Target: 0.00)
-- First-time comprehension: 7.0 → 9.0+
+- 100% successful recall from `local_99` when authorized.
+- No `AUTH_TOKEN_MISSING` errors in `agi_reflect`.
 
 ---
 

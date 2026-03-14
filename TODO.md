@@ -57,40 +57,16 @@ Permanently excised `bootstrap_identity` — all F11 continuity flows purely thr
 **F11 Continuity:** Single source of truth established. No ghost paths remain.
 
 ### H1.4: Civilization-Readiness Sprint 🔄 IN PROGRESS
+... (rest of H1.4) ...
 
-*Based on APEX assessment: "Strong foundation, not yet civilization-ready."*  
-*Focus: Trust transfer, proof packaging, documentation polish.*
+### H1.5: Philosophical Continuity & Vector Recall ⚪ PLANNED
 
-#### Week 1: Trust Packaging (README Quick Wins)
+- [ ] Thread `auth_context` into `select_governed_philosophy`
+- [ ] Enable `local_99` bank recall from Qdrant
+- [ ] Populate `asi` and `apex` quote slots in `RuntimeEnvelope`
+- [ ] Verify `agi_reflect` bypasses HOLD when authorized
 
-**THE SURFACE (ariffazil/ariffazil):**
-- [ ] Add "Start Here" section with ecosystem map
-- [ ] Add "Why arifOS emerged from geology" bridge section
-- [ ] Add "Selected Work / Proof Points" block
-- [ ] Add specific call-to-connection (not generic)
-
-**THE MIND (ariffazil/arifOS):**
-- [x] External Validation: 25/25 public tools schema-compliant ✅
-- [ ] Add "Who this repo is for" section (4 personas)
-- [ ] Add "What this repo contains / does not do"
-- [ ] Add Doctrine → Runtime table (F2→search_reality, etc.)
-- [ ] Add glossary of constitutional terms
-
-**THE BODY (ariffazil/arifosmcp):**
-- [x] Add badges (External Validation: HIGH ✅)
-- [ ] Add "5-Minute Quickstart" with copy-paste commands
-- [ ] Add "Start Here" orientation block
-
-#### Week 2: Proof of Reality (THE BODY)
-
-- [x] Create `tests/test_seal_e2e.py` — Verified `vault_seal` functional with `auth_context` ✅
-- [ ] Create `demos/` folder with 3 examples:
-  - [ ] `demo_01_safe_query.md` - Normal governed response
-  - [ ] `demo_02_blocked_command.md` - 888_HOLD blocking destructive action
-  - [x] `test_seal_e2e.py` - Ledger integrity check proof
-- [ ] Add terminal output screenshots to README
-- [ ] Add architecture diagram (minimal, clear)
-- [ ] Add "Example blocked action trace" to README
+**Impact:** F11 (Auth) continuity for semantic memory; restores Trinity (ΔΩΨ) quote symmetry.
 
 #### Week 3: Competitive Honesty & Trust Signals
 

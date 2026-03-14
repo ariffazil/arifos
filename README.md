@@ -163,6 +163,13 @@ arifOS uses four principal components to measure the health of AI cognition. The
 | **Peace²**| **Stability** | $1.0 - 1.2$ | Lyapunov stability of the reasoning feedback loop. |
 | **Ω₀** | **Humility** | $0.03-0.05$ | Mandatory uncertainty band to prevent hallucination. |
 
+### 📚 Philosophy Quote Architecture
+To ground telemetry in human wisdom, arifOS utilizes a dual-bank quote system that fires based on the current system state:
+- **`deterministic_33` bank:** Static high-reliability fallbacks (Wisdom, Power, Paradox, VOID, SEAL).
+- **`local_99` bank:** Vector-based recall from Qdrant memory (requires F11-authorized `auth_context`).
+
+Quotes are categorized by Trinity organs (ΔΩΨ) to provide semantic grounding for technical vitals.
+
 ---
 
 ## 🛡️ 8. APEX Theory: The Gödel Lock
