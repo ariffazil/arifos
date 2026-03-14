@@ -5,13 +5,14 @@
 
 ---
 
-## 🔗 Project Resources
-**[Main Website](https://arifosmcp.arif-fazil.com)** • **[Live Vitals Dashboard](https://arifosmcp.arif-fazil.com/dashboard)** • **[Governance Documentation](https://arifos.arif-fazil.com)** • **[Model Context Protocol (MCP) Spec](https://modelcontextprotocol.io)**
+## 🔗 The arifOS Network (Canonical Links)
 
-- **Architecture Analysis:** [docs/arifos_architecture_analysis.md](./docs/arifos_architecture_analysis.md)
-- **Constitutional Law:** [core/theory/000_LAW.md](./core/theory/000_LAW.md)
-- **Tool Implementation:** [arifosmcp/runtime/tools.py](./arifosmcp/runtime/tools.py)
-- **Data Models:** [arifosmcp/runtime/models.py](./arifosmcp/runtime/models.py)
+**[The Surface](https://arif-fazil.com/)** • **[The Mind](https://arifos.arif-fazil.com/)** • **[The Body](https://arifosmcp.arif-fazil.com)** • **[Live Dashboard](https://arifosmcp.arif-fazil.com/dashboard)** • **[MCP Spec](https://modelcontextprotocol.io)**
+
+- **Sovereign Profile (Human Context):** [arif-fazil.com](https://arif-fazil.com/) — The human anchor and visionary background.
+- **Constitutional Doctrine (The Mind):** [arifos.arif-fazil.com](https://arifos.arif-fazil.com/) — Governance theory, the 13 Floors, and mathematical foundations.
+- **Runtime Hub (The Body):** [arifosmcp.arif-fazil.com](https://arifosmcp.arif-fazil.com) — The live production endpoint for streamable HTTP MCP.
+- **Intelligence Federation:** [github.com/ariffazil/arifosmcp](https://github.com/ariffazil/arifosmcp) — Primary source for the production runtime.
 
 ---
 
@@ -19,6 +20,7 @@
 [![Release](https://img.shields.io/badge/Version-2026.03.14--VALIDATED-blue.svg?style=flat-square)](https://github.com/ariffazil/arifosmcp/releases)
 [![Tools](https://img.shields.io/badge/Canonical%20Tools-25-success.svg?style=flat-square)](https://arifosmcp.arif-fazil.com/tools)
 [![Validation](https://img.shields.io/badge/External%20Validation-HIGH-brightgreen.svg?style=flat-square)](https://arifosmcp.arif-fazil.com/status)
+[![Protocol](https://img.shields.io/badge/Protocol-MCP--Native-orange.svg?style=flat-square)](https://modelcontextprotocol.io)
 [![License](https://img.shields.io/badge/License-AGPL%203.0-lightgrey.svg?style=flat-square)](./LICENSE)
 
 ---

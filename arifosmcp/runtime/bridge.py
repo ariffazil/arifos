@@ -414,7 +414,7 @@ def _build_vitals_report(session_id: str) -> dict[str, Any]:
         "local_model_runtime": {"enabled": True, "status": "configured"},
         "auto_deploy": {"enabled": False, "status": "manual_only"},
         "credential_classes": ["bearer", "sig_v2"],
-        "providers": ["ollama", "qdrant"],
+        "providers": ["ollama", "qdrant", "openai", "anthropic"],
     }
 
     # Check thermodynamic module
