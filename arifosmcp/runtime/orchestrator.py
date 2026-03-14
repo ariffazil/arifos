@@ -512,6 +512,7 @@ async def metabolic_loop(
                 "metrics": final_metrics.model_dump(mode="json"),  # Rule 3 Format
                 "pns_active": pns_context is not None,
                 "caller_context": _dump_caller_context(caller_ctx),
+                "auth_context": auth_ctx,
             }
         )
 

@@ -500,12 +500,16 @@ async def init_anchor_state(
     """Legacy wrapper for INIT_ANCHOR with simplified signature."""
     # Internal mapping for test compatibility (Arif maps to ariffazil in core)
     effective_name = declared_name
-    if declared_name.lower() in {"arif", "arif-the-apex"}:
+    if declared_name.lower() == "arif":
         effective_name = "ariffazil"
+    elif declared_name.lower() == "chat operator":
+        effective_name = "chat-operator"
+    elif declared_name.lower() == "arif-the-apex":
+        effective_name = "arif-the-apex"
 
     payload = {
         "intent": intent or {"query": f"init anchor for {declared_name}"},
-        "declared_name": declared_name,
+        "declared_name": effective_name,
         "actor_id": effective_name,
         "auth_context": auth_context or {},
         "human_approval": human_approval,
