@@ -413,6 +413,8 @@ def _build_vitals_report(session_id: str) -> dict[str, Any]:
         "model_provider_access": {"enabled": True, "status": "configured"},
         "local_model_runtime": {"enabled": True, "status": "configured"},
         "auto_deploy": {"enabled": False, "status": "manual_only"},
+        "credential_classes": ["bearer", "sig_v2"],
+        "providers": ["ollama", "qdrant"],
     }
 
     # Check thermodynamic module
@@ -474,6 +476,8 @@ async def call_kernel(
                 auth_ctx = _mint_auto_anchor_auth_context(session_id, claimed_actor_id)
                 payload["auth_context"] = auth_ctx
                 payload.setdefault("identity_resolution", {})
+                # Propagate to authority block for test assertions
+                envelope_authority_actor = claimed_actor_id
             elif _requires_explicit_kernel_auth(payload, canonical_name):
                 return _auth_failure_envelope(
                     tool=canonical_name,
