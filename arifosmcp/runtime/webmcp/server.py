@@ -176,6 +176,18 @@ class WebMCPGateway:
                     "hold": "/webmcp/hold/{session_id}",
                     "websocket": "/webmcp/ws",
                 },
+                "live_api": {
+                    "all": "/api/live/all",
+                    "machine": "/api/live/machine",
+                    "governance": "/api/live/governance",
+                    "intelligence": "/api/live/intelligence",
+                    "vault": "/api/live/vault?limit=20",
+                },
+                "data_groups": {
+                    "machine": "VPS health (CPU, RAM, disk, network, Docker)",
+                    "governance": "arifOS floors, vitals, VAULT999 status",
+                    "intelligence": "AI/LLM metrics, tokens, latency, models",
+                },
             }
 
         @self.app.post("/webmcp/init")
