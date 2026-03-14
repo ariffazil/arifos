@@ -225,6 +225,7 @@ async def run_stage(
             session_id=session_id,
             pns_search=search_res.model_dump() if search_res else None,
             ctx=None,  # type: ignore
+            auth_context=auth_ctx,
         )
 
     # 3. AGI·REFLECT (555) - Sensory (Feeds PNS·VISION)
