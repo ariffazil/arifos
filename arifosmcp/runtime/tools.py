@@ -820,6 +820,7 @@ async def vault_seal(
     evidence: str,
     ctx: Context = CurrentContext(),
     session_id: str = "global",
+    auth_context: dict[str, Any] | None = None,
 ) -> RuntimeEnvelope:
     """
     999_VAULT: Commit a verified verdict and evidence to the immutable VAULT999 ledger.
@@ -857,6 +858,7 @@ async def vault_seal(
             "summary": f"Commit for session {active_session}",
             "verdict": verdict,
             "evidence": evidence,
+            "auth_context": auth_context,
             "apex_prime_audit": {
                 "w4_score": w4_score,
                 "sii_score": sii,
