@@ -16,6 +16,7 @@ arifOS is a production-grade governance layer for AI agents, enforcing 13 Consti
 - **Technical Architecture**: [https://arifosmcp.arif-fazil.com/developer/docs/overview.html](https://arifosmcp.arif-fazil.com/developer/docs/overview.html)
 
 ## 🛠️ Machine-Readable Assets
+- **WebMCP Protocol**: [https://arifosmcp.arif-fazil.com/static-sites/webmcp-bridge.js](https://arifosmcp.arif-fazil.com/static-sites/webmcp-bridge.js) (Native Tool Exposure)
 - **AI Context Manifest**: [https://arifosmcp.arif-fazil.com/ai.json](https://arifosmcp.arif-fazil.com/ai.json)
 - **OpenAPI Tool Spec**: [https://arifosmcp.arif-fazil.com/openapi.json](https://arifosmcp.arif-fazil.com/openapi.json)
 - **Hyper-Compressed RAG Context**: [https://arifosmcp.arif-fazil.com/RAG_CONTEXT.md](https://arifosmcp.arif-fazil.com/RAG_CONTEXT.md)
