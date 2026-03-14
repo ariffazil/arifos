@@ -97,8 +97,10 @@
         <a href="#machine-tools" class="sidebar-link" style="padding-left: 16px; font-size: 12px;">chroma_query</a>
         <a href="#machine-tools" class="sidebar-link" style="padding-left: 16px; font-size: 12px;">+ 6 more</a>
         <div class="sidebar-divider"></div>
-        <a href="#search-reality" class="sidebar-link">search_reality <span class="legacy-label">legacy</span></a>
-        <a href="#ingest-evidence" class="sidebar-link">ingest_evidence <span class="legacy-label">legacy</span></a>
+        <a href="#deprecated-tools" class="sidebar-link" style="color: var(--hold-yellow);">⚠️ Deprecated Tools</a>
+        <a href="#deprecated-tools" class="sidebar-link" style="padding-left: 16px; font-size: 12px; color: var(--hold-yellow);">search_reality</a>
+        <a href="#deprecated-tools" class="sidebar-link" style="padding-left: 16px; font-size: 12px; color: var(--hold-yellow);">ingest_evidence</a>
+        <a href="#deprecated-tools" class="sidebar-link" style="padding-left: 16px; font-size: 12px; color: var(--hold-yellow);">+ 9 more</a>
       </div>
     </div>
 
@@ -892,90 +894,7 @@
         <li>Identify floors with low pass rates</li>
         <li>Operational monitoring and alerting</li>
       </ul>
-    </div>
-
-    <!-- ==================== LEGACY: search_reality ==================== -->
-    <h2 id="legacy-tools" style="margin-top: 64px;">Legacy Tools</h2>
-    <div class="callout callout-warning">
-      <div class="callout-title">Deprecation Notice</div>
-      The following tools are legacy aliases maintained for backward compatibility. They will be removed in a future release. Use the recommended replacements for new implementations.
-    </div>
-
-    <div class="tool-section" id="search-reality">
-      <div class="tool-header">
-        <span class="tool-name">search_reality</span>
-        <div class="tool-badges">
-          <span class="badge badge-stage">111_SENSE</span>
-          <span class="badge badge-trinity">Δ</span>
-          <span class="badge badge-floor">F2</span>
-          <span class="badge badge-floor">F12</span>
-          <span class="badge badge-readonly">READ-ONLY</span>
-          <span class="badge badge-deprecated">DEPRECATED</span>
-        </div>
-      </div>
-      <p class="tool-description">Legacy alias for <code>reality_compass</code>. Use <code>reality_compass</code> for new implementations.</p>
-
-      <div class="tool-sub-heading">Input Schema</div>
-      <div class="code-block-wrapper">
-        <div class="code-block-header"><span>json</span><button class="copy-btn">Copy</button></div>
-        <pre><code class="language-json">{
-  "query": {
-    "type": "string",
-    "required": true,
-    "description": "Search query"
-  }
-}</code></pre>
-      </div>
-
-      <div class="tool-sub-heading">Migration</div>
-      <div class="code-block-wrapper">
-        <div class="code-block-header"><span>json</span><button class="copy-btn">Copy</button></div>
-        <pre><code class="language-json">// Before (deprecated)
-{ "name": "search_reality", "arguments": { "query": "topic" } }
-
-// After (recommended)
-{ "name": "reality_compass", "arguments": { "input": "topic", "mode": "search" } }</code></pre>
-      </div>
-    </div>
-
-    <!-- ==================== LEGACY: ingest_evidence ==================== -->
-    <div class="tool-section" id="ingest-evidence">
-      <div class="tool-header">
-        <span class="tool-name">ingest_evidence</span>
-        <div class="tool-badges">
-          <span class="badge badge-stage">222_REALITY</span>
-          <span class="badge badge-trinity">Δ</span>
-          <span class="badge badge-floor">F2</span>
-          <span class="badge badge-floor">F11</span>
-          <span class="badge badge-floor">F12</span>
-          <span class="badge badge-readonly">READ-ONLY</span>
-          <span class="badge badge-deprecated">DEPRECATED</span>
-        </div>
-      </div>
-      <p class="tool-description">Legacy alias for <code>reality_compass</code> in fetch mode. Use <code>reality_compass</code> with <code>mode: "fetch"</code> for new implementations.</p>
-
-      <div class="tool-sub-heading">Input Schema</div>
-      <div class="code-block-wrapper">
-        <div class="code-block-header"><span>json</span><button class="copy-btn">Copy</button></div>
-        <pre><code class="language-json">{
-  "url": {
-    "type": "string",
-    "required": true,
-    "description": "URL to fetch and ingest"
-  }
-}</code></pre>
-      </div>
-
-      <div class="tool-sub-heading">Migration</div>
-      <div class="code-block-wrapper">
-        <div class="code-block-header"><span>json</span><button class="copy-btn">Copy</button></div>
-        <pre><code class="language-json">// Before (deprecated)
-{ "name": "ingest_evidence", "arguments": { "url": "https://example.com" } }
-
-// After (recommended)
-{ "name": "reality_compass", "arguments": { "input": "https://example.com", "mode": "fetch" } }</code></pre>
-      </div>
-    </div>
+     </div>
 
     <!-- ==================== MACHINE TOOLS (Internal/Nervous System 9) ==================== -->
     <div class="tool-section" id="machine-tools" style="margin-top: 64px; border-top: 3px solid var(--accent-blue);">
@@ -1272,6 +1191,223 @@ latest_vault = await read_resource(
       </div>
     </div>
 
+    <!-- ==================== DEPRECATED TOOLS ==================== -->
+    <div class="tool-section" id="deprecated-tools" style="margin-top: 80px; border-top: 3px solid var(--hold-yellow);">
+      <div style="background: linear-gradient(135deg, #4a4030 0%, #2d2820 100%); padding: 24px; border-radius: 8px; margin-bottom: 32px; border: 1px solid var(--hold-yellow);">
+        <h2 style="margin: 0; color: var(--hold-yellow); font-size: 28px;">⚠️ Deprecated Tools</h2>
+        <p style="margin: 12px 0 0 0; color: rgba(255,255,255,0.8); font-size: 16px;">
+          The following tools are deprecated and will be removed in a future release. They are maintained for backward compatibility only. 
+          Use the recommended replacements for all new implementations.
+        </p>
+        <div style="margin-top: 16px; display: flex; gap: 12px; flex-wrap: wrap;">
+          <span style="background: rgba(255, 210, 74, 0.2); padding: 4px 12px; border-radius: 4px; color: var(--hold-yellow); font-size: 12px;">⚠️ Do Not Use</span>
+          <span style="background: rgba(255, 210, 74, 0.2); padding: 4px 12px; border-radius: 4px; color: var(--hold-yellow); font-size: 12px;">🗑️ Removal Pending</span>
+          <span style="background: rgba(255, 210, 74, 0.2); padding: 4px 12px; border-radius: 4px; color: var(--hold-yellow); font-size: 12px;">📋 11 Legacy Tools</span>
+        </div>
+      </div>
+
+      <!-- Deprecated Tool Cards -->
+      
+      <!-- search_reality -->
+      <div class="tool-card" style="background: rgba(255, 210, 74, 0.05); border: 1px solid var(--hold-yellow); border-radius: 8px; padding: 24px; margin-bottom: 20px; opacity: 0.9;">
+        <div class="tool-header" style="margin-bottom: 16px;">
+          <span class="tool-name" style="font-size: 20px; font-weight: 700; color: var(--hold-yellow); text-decoration: line-through;">search_reality</span>
+          <div class="tool-badges" style="margin-top: 8px;">
+            <span class="badge badge-deprecated">DEPRECATED</span>
+            <span style="background: rgba(0,0,0,0.3); color: var(--seal-green); padding: 2px 8px; border-radius: 4px; font-size: 11px;">Use: reality_compass</span>
+          </div>
+        </div>
+        <p class="tool-description" style="color: var(--text-secondary); margin-bottom: 16px;">
+          Legacy alias for <code>reality_compass</code>. Was used for web search operations before the unified reality_compass tool.
+        </p>
+        <div class="code-block-wrapper" style="margin-top: 16px;">
+          <div class="code-block-header"><span>python</span><button class="copy-btn">Copy</button></div>
+          <pre><code class="language-python"># ❌ DEPRECATED - Do not use
+result = await search_reality("AI safety research")
+
+# ✅ CORRECT - Use this instead
+result = await reality_compass(
+    input="AI safety research",
+    mode="search",
+    session_id="sess-001",
+    auth_context={"actor_id": "user"}
+)</code></pre>
+        </div>
+      </div>
+
+      <!-- ingest_evidence -->
+      <div class="tool-card" style="background: rgba(255, 210, 74, 0.05); border: 1px solid var(--hold-yellow); border-radius: 8px; padding: 24px; margin-bottom: 20px; opacity: 0.9;">
+        <div class="tool-header" style="margin-bottom: 16px;">
+          <span class="tool-name" style="font-size: 20px; font-weight: 700; color: var(--hold-yellow); text-decoration: line-through;">ingest_evidence</span>
+          <div class="tool-badges" style="margin-top: 8px;">
+            <span class="badge badge-deprecated">DEPRECATED</span>
+            <span style="background: rgba(0,0,0,0.3); color: var(--seal-green); padding: 2px 8px; border-radius: 4px; font-size: 11px;">Use: reality_compass</span>
+          </div>
+        </div>
+        <p class="tool-description" style="color: var(--text-secondary); margin-bottom: 16px;">
+          Legacy alias for <code>reality_compass</code> in fetch mode. Was used for URL content extraction.
+        </p>
+        <div class="code-block-wrapper" style="margin-top: 16px;">
+          <div class="code-block-header"><span>python</span><button class="copy-btn">Copy</button></div>
+          <pre><code class="language-python"># ❌ DEPRECATED - Do not use
+result = await ingest_evidence("https://example.com/article")
+
+# ✅ CORRECT - Use this instead
+result = await reality_compass(
+    input="https://example.com/article",
+    mode="fetch",
+    session_id="sess-001",
+    auth_context={"actor_id": "user"}
+)</code></pre>
+        </div>
+      </div>
+
+      <!-- metabolic_loop_router -->
+      <div class="tool-card" style="background: rgba(255, 210, 74, 0.05); border: 1px solid var(--hold-yellow); border-radius: 8px; padding: 24px; margin-bottom: 20px; opacity: 0.9;">
+        <div class="tool-header" style="margin-bottom: 16px;">
+          <span class="tool-name" style="font-size: 20px; font-weight: 700; color: var(--hold-yellow); text-decoration: line-through;">metabolic_loop_router</span>
+          <div class="tool-badges" style="margin-top: 8px;">
+            <span class="badge badge-deprecated">DEPRECATED</span>
+            <span style="background: rgba(0,0,0,0.3); color: var(--seal-green); padding: 2px 8px; border-radius: 4px; font-size: 11px;">Use: arifOS_kernel</span>
+          </div>
+        </div>
+        <p class="tool-description" style="color: var(--text-secondary); margin-bottom: 16px;">
+          Legacy name for <code>arifOS_kernel</code>. The master pipeline orchestration tool. The new name better reflects its role as the central kernel.
+        </p>
+        <div class="code-block-wrapper" style="margin-top: 16px;">
+          <div class="code-block-header"><span>python</span><button class="copy-btn">Copy</button></div>
+          <pre><code class="language-python"># ❌ DEPRECATED - Do not use
+result = await metabolic_loop_router(query="Analyze data")
+
+# ✅ CORRECT - Use this instead
+result = await arifOS_kernel(
+    query="Analyze data",
+    session_id="sess-001",
+    auth_context={"actor_id": "user"}
+)</code></pre>
+        </div>
+      </div>
+
+      <!-- init_anchor_state -->
+      <div class="tool-card" style="background: rgba(255, 210, 74, 0.05); border: 1px solid var(--hold-yellow); border-radius: 8px; padding: 24px; margin-bottom: 20px; opacity: 0.9;">
+        <div class="tool-header" style="margin-bottom: 16px;">
+          <span class="tool-name" style="font-size: 20px; font-weight: 700; color: var(--hold-yellow); text-decoration: line-through;">init_anchor_state</span>
+          <div class="tool-badges" style="margin-top: 8px;">
+            <span class="badge badge-deprecated">DEPRECATED</span>
+            <span style="background: rgba(0,0,0,0.3); color: var(--seal-green); padding: 2px 8px; border-radius: 4px; font-size: 11px;">Use: init_anchor</span>
+          </div>
+        </div>
+        <p class="tool-description" style="color: var(--text-secondary); margin-bottom: 16px;">
+          Legacy alias for <code>init_anchor</code>. Used for session initialization with a longer, more complex name.
+        </p>
+        <div class="code-block-wrapper" style="margin-top: 16px;">
+          <div class="code-block-header"><span>python</span><button class="copy-btn">Copy</button></div>
+          <pre><code class="language-python"># ❌ DEPRECATED - Do not use
+result = await init_anchor_state(raw_input="Start session")
+
+# ✅ CORRECT - Use this instead
+result = await init_anchor(
+    raw_input="Start session",
+    session_id="sess-001",
+    auth_context={"actor_id": "user"}
+)</code></pre>
+        </div>
+      </div>
+
+      <!-- seal_vault_commit -->
+      <div class="tool-card" style="background: rgba(255, 210, 74, 0.05); border: 1px solid var(--hold-yellow); border-radius: 8px; padding: 24px; margin-bottom: 20px; opacity: 0.9;">
+        <div class="tool-header" style="margin-bottom: 16px;">
+          <span class="tool-name" style="font-size: 20px; font-weight: 700; color: var(--hold-yellow); text-decoration: line-through;">seal_vault_commit</span>
+          <div class="tool-badges" style="margin-top: 8px;">
+            <span class="badge badge-deprecated">DEPRECATED</span>
+            <span style="background: rgba(0,0,0,0.3); color: var(--seal-green); padding: 2px 8px; border-radius: 4px; font-size: 11px;">Use: vault_seal</span>
+          </div>
+        </div>
+        <p class="tool-description" style="color: var(--text-secondary); margin-bottom: 16px;">
+          Legacy alias for <code>vault_seal</code>. Commits verdicts to the immutable VAULT999 ledger.
+        </p>
+        <div class="code-block-wrapper" style="margin-top: 16px;">
+          <div class="code-block-header"><span>python</span><button class="copy-btn">Copy</button></div>
+          <pre><code class="language-python"># ❌ DEPRECATED - Do not use
+result = await seal_vault_commit(verdict="SEAL", evidence={...})
+
+# ✅ CORRECT - Use this instead
+result = await vault_seal(
+    verdict="SEAL",
+    evidence={...},
+    session_id="sess-001",
+    auth_context={"actor_id": "user"}
+)</code></pre>
+        </div>
+      </div>
+
+      <!-- Internal Naming Aliases -->
+      <h3 style="color: var(--hold-yellow); margin-top: 32px; margin-bottom: 16px; font-size: 18px; opacity: 0.8;">Internal Naming Aliases (Code-Only)</h3>
+      
+      <p style="color: var(--text-secondary); margin-bottom: 16px; font-size: 14px;">
+        The following function aliases exist in the codebase for backward compatibility but should not be used in new implementations:
+      </p>
+
+      <div style="background: rgba(255, 210, 74, 0.05); border: 1px solid var(--hold-yellow); border-radius: 8px; padding: 20px; margin-bottom: 20px; opacity: 0.8;">
+        <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+          <thead>
+            <tr style="border-bottom: 1px solid var(--border);">
+              <th style="text-align: left; padding: 8px; color: var(--hold-yellow);">Deprecated Name</th>
+              <th style="text-align: left; padding: 8px; color: var(--seal-green);">Use Instead</th>
+              <th style="text-align: left; padding: 8px; color: var(--text-secondary);">Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom: 1px solid var(--border);">
+              <td style="padding: 8px; font-family: monospace; color: var(--hold-yellow);">reason_mind_synthesis</td>
+              <td style="padding: 8px; font-family: monospace; color: var(--seal-green);">agi_reason</td>
+              <td style="padding: 8px; color: var(--text-secondary);">AGI Mind reasoning</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border);">
+              <td style="padding: 8px; font-family: monospace; color: var(--hold-yellow);">assess_heart_impact</td>
+              <td style="padding: 8px; font-family: monospace; color: var(--seal-green);">asi_simulate</td>
+              <td style="padding: 8px; color: var(--text-secondary);">ASI Heart simulation</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border);">
+              <td style="padding: 8px; font-family: monospace; color: var(--hold-yellow);">critique_thought_audit</td>
+              <td style="padding: 8px; font-family: monospace; color: var(--seal-green);">asi_critique</td>
+              <td style="padding: 8px; color: var(--text-secondary);">ASI Critique</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border);">
+              <td style="padding: 8px; font-family: monospace; color: var(--hold-yellow);">vector_memory_store</td>
+              <td style="padding: 8px; font-family: monospace; color: var(--seal-green);">agi_reflect</td>
+              <td style="padding: 8px; color: var(--text-secondary);">Memory reflection</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border);">
+              <td style="padding: 8px; font-family: monospace; color: var(--hold-yellow);">agi_asi_forge</td>
+              <td style="padding: 8px; font-family: monospace; color: var(--seal-green);">agi_asi_forge_handler</td>
+              <td style="padding: 8px; color: var(--text-secondary);">AGI-ASI forge</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px; font-family: monospace; color: var(--hold-yellow);">apex_judge_verdict</td>
+              <td style="padding: 8px; font-family: monospace; color: var(--seal-green);">apex_judge</td>
+              <td style="padding: 8px; color: var(--text-secondary);">APEX judgment</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Migration Notice -->
+      <div style="background: rgba(37, 99, 235, 0.1); border: 1px solid var(--accent-blue); border-radius: 8px; padding: 20px; margin-top: 32px;">
+        <h4 style="color: var(--accent-blue); margin: 0 0 12px 0;">🔄 Migration Guide</h4>
+        <p style="color: var(--text-secondary); margin: 0 0 12px 0; font-size: 14px; line-height: 1.6;">
+          All deprecated tools will be removed in <strong>v2027.01.01</strong>. To migrate your code:
+        </p>
+        <ol style="color: var(--text-secondary); margin: 0; padding-left: 20px; font-size: 14px; line-height: 1.8;">
+          <li>Replace deprecated tool names with their modern equivalents</li>
+          <li>Add <code>session_id</code> and <code>auth_context</code> parameters for full governance</li>
+          <li>Update to expect <code>RuntimeEnvelope</code> responses instead of legacy formats</li>
+          <li>Test thoroughly before deploying to production</li>
+          <li>Update any saved tool calls in your application code</li>
+        </ol>
+      </div>
+    </div>
+
   </main>
 
   <!-- Right TOC -->
@@ -1292,9 +1428,11 @@ latest_vault = await read_resource(
     <a href="#machine-tools" class="toc-h3">net_status</a>
     <a href="#machine-tools" class="toc-h3">chroma_query</a>
     <a href="#machine-tools" class="toc-h3">+ 5 more</a>
-    <a href="#legacy-tools" style="margin-top: 8px; color: var(--hold-yellow);">Legacy Tools</a>
-    <a href="#search-reality" class="toc-h3">search_reality</a>
-    <a href="#ingest-evidence" class="toc-h3">ingest_evidence</a>
+    <a href="#deprecated-tools" style="margin-top: 8px; color: var(--hold-yellow);">⚠️ Deprecated Tools</a>
+    <a href="#deprecated-tools" class="toc-h3">search_reality</a>
+    <a href="#deprecated-tools" class="toc-h3">ingest_evidence</a>
+    <a href="#deprecated-tools" class="toc-h3">metabolic_loop_router</a>
+    <a href="#deprecated-tools" class="toc-h3">+ 8 more</a>
   </aside>
 
 </div>
