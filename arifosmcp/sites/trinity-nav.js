@@ -121,6 +121,13 @@
                 link.href = TRINITY_CONFIG.HUMAN.url;
             }
         });
+
+        // Inject WebMCP Bridge
+        if (!document.querySelector('script[src*="webmcp-bridge"]')) {
+            const bridge = document.createElement('script');
+            bridge.src = "/static-sites/webmcp-bridge.js";
+            document.head.appendChild(bridge);
+        }
     }
 
     // Auto-init

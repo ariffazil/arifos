@@ -21,6 +21,7 @@
   "capabilities": [
     "Constitutional AI",
     "Model Context Protocol",
+    "WebMCP Native",
     "Thermodynamic Governance",
     "Immutable Ledger Audit",
     "Double Helix Orchestration"
