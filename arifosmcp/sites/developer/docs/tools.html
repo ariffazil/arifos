@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Tools Reference — arifOS MCP Docs</title>
-  <meta name="description" content="Complete API reference for all 11 arifOS MCP tools — schemas, examples, response formats, and use cases.">
+  <meta name="description" content="Complete API reference for all 32 arifOS MCP tools — 23 public + 9 machine tools with schemas, examples, response formats, and use cases.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -90,6 +90,12 @@
         <a href="#audit-rules" class="sidebar-link">audit_rules</a>
         <a href="#session-memory" class="sidebar-link">session_memory</a>
         <a href="#open-apex-dashboard" class="sidebar-link">open_apex_dashboard</a>
+        <div class="sidebar-divider"></div>
+        <a href="#machine-tools" class="sidebar-link" style="color: var(--accent-blue); font-weight: 600;">🤖 Machine Tools</a>
+        <a href="#machine-tools" class="sidebar-link" style="padding-left: 16px; font-size: 12px;">system_health</a>
+        <a href="#machine-tools" class="sidebar-link" style="padding-left: 16px; font-size: 12px;">process_list</a>
+        <a href="#machine-tools" class="sidebar-link" style="padding-left: 16px; font-size: 12px;">chroma_query</a>
+        <a href="#machine-tools" class="sidebar-link" style="padding-left: 16px; font-size: 12px;">+ 6 more</a>
         <div class="sidebar-divider"></div>
         <a href="#search-reality" class="sidebar-link">search_reality <span class="legacy-label">legacy</span></a>
         <a href="#ingest-evidence" class="sidebar-link">ingest_evidence <span class="legacy-label">legacy</span></a>
@@ -971,6 +977,301 @@
       </div>
     </div>
 
+    <!-- ==================== MACHINE TOOLS (Internal/Nervous System 9) ==================== -->
+    <div class="tool-section" id="machine-tools" style="margin-top: 64px; border-top: 3px solid var(--accent-blue);">
+      <div style="background: linear-gradient(135deg, var(--accent-blue) 0%, var(--accent-purple) 100%); padding: 24px; border-radius: 8px; margin-bottom: 32px;">
+        <h2 style="margin: 0; color: white; font-size: 28px;">🤖 Machine Tools (Nervous System 9)</h2>
+        <p style="margin: 12px 0 0 0; color: rgba(255,255,255,0.9); font-size: 16px;">
+          Internal infrastructure tools for system introspection and machine-to-machine operations. 
+          These tools form the "sense organs" of arifOS — monitoring health, memory, and resources while maintaining full constitutional governance.
+        </p>
+        <div style="margin-top: 16px; display: flex; gap: 12px; flex-wrap: wrap;">
+          <span style="background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 4px; color: white; font-size: 12px;">⚡ RuntimeEnvelope</span>
+          <span style="background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 4px; color: white; font-size: 12px;">🔒 Governed (F11+F12)</span>
+          <span style="background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 4px; color: white; font-size: 12px;">📡 Machine-Only</span>
+        </div>
+      </div>
+
+      <!-- System Sense Tools -->
+      <h3 style="color: var(--accent-yellow); margin-top: 32px; margin-bottom: 16px; font-size: 20px;">System Sense (The Feelers)</h3>
+      
+      <!-- system_health -->
+      <div class="tool-card" style="background: var(--void); border: 1px solid var(--border); border-radius: 8px; padding: 24px; margin-bottom: 24px;">
+        <div class="tool-header" style="margin-bottom: 16px;">
+          <span class="tool-name" style="font-size: 20px; font-weight: 700;">system_health</span>
+          <div class="tool-badges" style="margin-top: 8px;">
+            <span class="badge badge-stage">000_INIT</span>
+            <span class="badge badge-trinity">Δ</span>
+            <span class="badge badge-floor">F1</span>
+            <span class="badge badge-floor">F7</span>
+            <span class="badge badge-readonly">READ-ONLY</span>
+          </div>
+        </div>
+        <p class="tool-description" style="color: var(--text-secondary); margin-bottom: 16px;">
+          Comprehensive system vital signs monitoring. Retrieves CPU, memory, disk, I/O, and thermal metrics with container awareness.
+          <strong>Use when:</strong> Pre-flight checks, resource monitoring, debugging performance issues.
+        </p>
+        
+        <div class="code-block-wrapper" style="margin-top: 16px;">
+          <div class="code-block-header"><span>python</span><button class="copy-btn">Copy</button></div>
+          <pre><code class="language-python">health = await system_health(
+    include_swap=True,
+    include_io=True,
+    session_id="machine-sess-001",
+    auth_context={"actor_id": "monitor-agent", "clearance": "agent"}
+)
+# Returns: RuntimeEnvelope with cpu, memory, disk, io metrics</code></pre>
+        </div>
+      </div>
+
+      <!-- process_list -->
+      <div class="tool-card" style="background: var(--void); border: 1px solid var(--border); border-radius: 8px; padding: 24px; margin-bottom: 24px;">
+        <div class="tool-header" style="margin-bottom: 16px;">
+          <span class="tool-name" style="font-size: 20px; font-weight: 700;">process_list</span>
+          <div class="tool-badges" style="margin-top: 8px;">
+            <span class="badge badge-stage">111_SENSE</span>
+            <span class="badge badge-trinity">Δ</span>
+            <span class="badge badge-floor">F1</span>
+            <span class="badge badge-floor">F12</span>
+            <span class="badge badge-readonly">READ-ONLY</span>
+          </div>
+        </div>
+        <p class="tool-description" style="color: var(--text-secondary); margin-bottom: 16px;">
+          Enumerate and filter system processes with resource consumption. Container-aware with graceful handling of access restrictions.
+          <strong>Use when:</strong> Detecting resource hogs, security auditing, monitoring worker processes.
+        </p>
+        
+        <div class="code-block-wrapper" style="margin-top: 16px;">
+          <div class="code-block-header"><span>python</span><button class="copy-btn">Copy</button></div>
+          <pre><code class="language-python">procs = await process_list(
+    filter_name="python",
+    min_memory_mb=100,
+    limit=10,
+    session_id="machine-sess-002",
+    auth_context={"actor_id": "proc-monitor", "clearance": "agent"}
+)</code></pre>
+        </div>
+      </div>
+
+      <!-- net_status -->
+      <div class="tool-card" style="background: var(--void); border: 1px solid var(--border); border-radius: 8px; padding: 24px; margin-bottom: 24px;">
+        <div class="tool-header" style="margin-bottom: 16px;">
+          <span class="tool-name" style="font-size: 20px; font-weight: 700;">net_status</span>
+          <div class="tool-badges" style="margin-top: 8px;">
+            <span class="badge badge-stage">111_SENSE</span>
+            <span class="badge badge-trinity">Δ</span>
+            <span class="badge badge-floor">F2</span>
+            <span class="badge badge-floor">F7</span>
+            <span class="badge badge-readonly">READ-ONLY</span>
+          </div>
+        </div>
+        <p class="tool-description" style="color: var(--text-secondary); margin-bottom: 16px;">
+          Network connectivity and service health diagnostics. Checks Qdrant, Redis, Postgres, and external APIs with latency measurements.
+          <strong>Use when:</strong> Pre-flight connectivity checks, debugging "why is search failing", health probes.
+        </p>
+        
+        <div class="code-block-wrapper" style="margin-top: 16px;">
+          <div class="code-block-header"><span>python</span><button class="copy-btn">Copy</button></div>
+          <pre><code class="language-python">net = await net_status(
+    session_id="machine-sess-003",
+    auth_context={"actor_id": "net-monitor", "clearance": "agent"}
+)
+# Returns: {qdrant: {reachable: true, latency_ms: 12}, ...}</code></pre>
+        </div>
+      </div>
+
+      <!-- Memory & Storage Tools -->
+      <h3 style="color: var(--accent-blue); margin-top: 32px; margin-bottom: 16px; font-size: 20px;">Memory & Storage (The Archive)</h3>
+      
+      <!-- chroma_query -->
+      <div class="tool-card" style="background: var(--void); border: 1px solid var(--border); border-radius: 8px; padding: 24px; margin-bottom: 24px;">
+        <div class="tool-header" style="margin-bottom: 16px;">
+          <span class="tool-name" style="font-size: 20px; font-weight: 700;">chroma_query</span>
+          <div class="tool-badges" style="margin-top: 8px;">
+            <span class="badge badge-stage">555_MEMORY</span>
+            <span class="badge badge-trinity">Ω</span>
+            <span class="badge badge-floor">F2</span>
+            <span class="badge badge-floor">F4</span>
+            <span class="badge badge-readonly">READ-ONLY</span>
+          </div>
+        </div>
+        <p class="tool-description" style="color: var(--text-secondary); margin-bottom: 16px;">
+          Semantic search in Chroma/Qdrant vector memory. Dual API support (legacy + modern). Supports metadata filtering and embedding retrieval.
+          <strong>Use when:</strong> Retrieving past context, evidence search, cross-session memory, RAG operations.
+        </p>
+        
+        <div class="code-block-wrapper" style="margin-top: 16px;">
+          <div class="code-block-header"><span>python</span><button class="copy-btn">Copy</button></div>
+          <pre><code class="language-python">results = await chroma_query(
+    query="AI safety research",
+    collection="evidence",
+    n_results=5,
+    where={"category": "ethics"},
+    session_id="machine-sess-004",
+    auth_context={"actor_id": "memory-agent", "clearance": "agent"}
+)</code></pre>
+        </div>
+      </div>
+
+      <!-- list_resources -->
+      <div class="tool-card" style="background: var(--void); border: 1px solid var(--border); border-radius: 8px; padding: 24px; margin-bottom: 24px;">
+        <div class="tool-header" style="margin-bottom: 16px;">
+          <span class="tool-name" style="font-size: 20px; font-weight: 700;">list_resources</span>
+          <div class="tool-badges" style="margin-top: 8px;">
+            <span class="badge badge-stage">111_SENSE</span>
+            <span class="badge badge-trinity">Δ</span>
+            <span class="badge badge-floor">F1</span>
+            <span class="badge badge-readonly">READ-ONLY</span>
+          </div>
+        </div>
+        <p class="tool-description" style="color: var(--text-secondary); margin-bottom: 16px;">
+          Enumerate available MCP resources (canon://, governance://, vault://, etc.). Self-documenting API discovery.
+          <strong>Use when:</strong> Resource discovery, client initialization, building explorers.
+        </p>
+        
+        <div class="code-block-wrapper" style="margin-top: 16px;">
+          <div class="code-block-header"><span>python</span><button class="copy-btn">Copy</button></div>
+          <pre><code class="language-python">resources = await list_resources(
+    session_id="machine-sess-005",
+    auth_context={"actor_id": "explorer", "clearance": "user"}
+)
+# Returns: [{uri: "canon://floors", name: "..."}, ...]</code></pre>
+        </div>
+      </div>
+
+      <!-- read_resource -->
+      <div class="tool-card" style="background: var(--void); border: 1px solid var(--border); border-radius: 8px; padding: 24px; margin-bottom: 24px;">
+        <div class="tool-header" style="margin-bottom: 16px;">
+          <span class="tool-name" style="font-size: 20px; font-weight: 700;">read_resource</span>
+          <div class="tool-badges" style="margin-top: 8px;">
+            <span class="badge badge-stage">111_SENSE</span>
+            <span class="badge badge-trinity">Δ</span>
+            <span class="badge badge-floor">F1</span>
+            <span class="badge badge-floor">F2</span>
+            <span class="badge badge-readonly">READ-ONLY</span>
+          </div>
+        </div>
+        <p class="tool-description" style="color: var(--text-secondary); margin-bottom: 16px;">
+          Read content of MCP resources by URI. Access constitution, vault entries, telemetry, and schemas.
+          <strong>Use when:</strong> Loading floor definitions, reading vault audits, accessing telemetry.
+        </p>
+        
+        <div class="code-block-wrapper" style="margin-top: 16px;">
+          <div class="code-block-header"><span>python</span><button class="copy-btn">Copy</button></div>
+          <pre><code class="language-python">constitution = await read_resource(
+    uri="canon://floors",
+    session_id="machine-sess-006",
+    auth_context={"actor_id": "auditor", "clearance": "apex"}
+)
+
+latest_vault = await read_resource(
+    uri="vault://latest",
+    session_id="machine-sess-007",
+    auth_context={"actor_id": "validator", "clearance": "apex"}
+)</code></pre>
+        </div>
+      </div>
+
+      <!-- Diagnostics & Control Tools -->
+      <h3 style="color: var(--seal-green); margin-top: 32px; margin-bottom: 16px; font-size: 20px;">Diagnostics & Control (The Regulators)</h3>
+      
+      <!-- log_tail -->
+      <div class="tool-card" style="background: var(--void); border: 1px solid var(--border); border-radius: 8px; padding: 24px; margin-bottom: 24px;">
+        <div class="tool-header" style="margin-bottom: 16px;">
+          <span class="tool-name" style="font-size: 20px; font-weight: 700;">log_tail</span>
+          <div class="tool-badges" style="margin-top: 8px;">
+            <span class="badge badge-stage">111_SENSE</span>
+            <span class="badge badge-trinity">Δ</span>
+            <span class="badge badge-floor">F1</span>
+            <span class="badge badge-floor">F12</span>
+            <span class="badge badge-readonly">READ-ONLY</span>
+          </div>
+        </div>
+        <p class="tool-description" style="color: var(--text-secondary); margin-bottom: 16px;">
+          Stream and filter log files with smart path detection. Automatically finds logs without exact paths. Supports pattern filtering and time windows.
+          <strong>Use when:</strong> Debugging failures, security audits, performance analysis, incident response.
+        </p>
+        
+        <div class="code-block-wrapper" style="margin-top: 16px;">
+          <div class="code-block-header"><span>python</span><button class="copy-btn">Copy</button></div>
+          <pre><code class="language-python">logs = await log_tail(
+    lines=50,
+    grep_pattern="ERROR|FATAL",
+    since_minutes=60,
+    session_id="machine-sess-008",
+    auth_context={"actor_id": "debugger", "clearance": "agent"}
+)</code></pre>
+        </div>
+      </div>
+
+      <!-- fs_inspect -->
+      <div class="tool-card" style="background: var(--void); border: 1px solid var(--border); border-radius: 8px; padding: 24px; margin-bottom: 24px;">
+        <div class="tool-header" style="margin-bottom: 16px;">
+          <span class="tool-name" style="font-size: 20px; font-weight: 700;">fs_inspect</span>
+          <div class="tool-badges" style="margin-top: 8px;">
+            <span class="badge badge-stage">111_SENSE</span>
+            <span class="badge badge-trinity">Δ</span>
+            <span class="badge badge-floor">F1</span>
+            <span class="badge badge-floor">F12</span>
+            <span class="badge badge-readonly">READ-ONLY</span>
+          </div>
+        </div>
+        <p class="tool-description" style="color: var(--text-secondary); margin-bottom: 16px;">
+          Inspect filesystem within governed sandbox. Lists directory contents with metadata while preventing path traversal attacks.
+          <strong>Use when:</strong> Evidence discovery, directory validation, debugging file operations, audit compliance.
+        </p>
+        
+        <div class="code-block-wrapper" style="margin-top: 16px;">
+          <div class="code-block-header"><span>python</span><button class="copy-btn">Copy</button></div>
+          <pre><code class="language-python">files = await fs_inspect(
+    path="./evidence",
+    max_depth=3,
+    include_hidden=True,
+    session_id="machine-sess-009",
+    auth_context={"actor_id": "inspector", "clearance": "agent"}
+)</code></pre>
+        </div>
+      </div>
+
+      <!-- cost_estimator -->
+      <div class="tool-card" style="background: var(--void); border: 1px solid var(--border); border-radius: 8px; padding: 24px; margin-bottom: 24px;">
+        <div class="tool-header" style="margin-bottom: 16px;">
+          <span class="tool-name" style="font-size: 20px; font-weight: 700;">cost_estimator</span>
+          <div class="tool-badges" style="margin-top: 8px;">
+            <span class="badge badge-stage">333_MIND</span>
+            <span class="badge badge-trinity">Δ</span>
+            <span class="badge badge-floor">F4</span>
+            <span class="badge badge-readonly">READ-ONLY</span>
+          </div>
+        </div>
+        <p class="tool-description" style="color: var(--text-secondary); margin-bottom: 16px;">
+          Estimate operation costs before execution. Calculates tokens, time, memory, API costs, and thermodynamic budget impact.
+          <strong>Use when:</strong> Budget planning, resource allocation, cost-aware operations, user approval workflows.
+        </p>
+        
+        <div class="code-block-wrapper" style="margin-top: 16px;">
+          <div class="code-block-header"><span>python</span><button class="copy-btn">Copy</button></div>
+          <pre><code class="language-python">cost = await cost_estimator(
+    operation="web_search",
+    query="AI safety research",
+    session_id="machine-sess-010",
+    auth_context={"actor_id": "planner", "clearance": "agent"}
+)
+# Returns: {total_cost_usd: 0.023, affordable: true, ...}</code></pre>
+        </div>
+      </div>
+
+      <!-- Governance Notice -->
+      <div style="background: rgba(255, 210, 74, 0.1); border: 1px solid var(--accent-yellow); border-radius: 8px; padding: 20px; margin-top: 32px;">
+        <h4 style="color: var(--accent-yellow); margin: 0 0 12px 0;">🔒 Governance Notice</h4>
+        <p style="color: var(--text-secondary); margin: 0; font-size: 14px; line-height: 1.6;">
+          All 9 Machine Tools are fully governed by the 13 Constitutional Floors. They accept <code>session_id</code> and <code>auth_context</code> parameters, 
+          return <strong>RuntimeEnvelope</strong> (not legacy responses), and log all operations to the immutable VAULT999 ledger. 
+          These tools are designed for <strong>machine-to-machine</strong> operations and infrastructure monitoring, not end-user interaction.
+        </p>
+      </div>
+    </div>
+
   </main>
 
   <!-- Right TOC -->
@@ -985,6 +1286,12 @@
     <a href="#audit-rules">audit_rules</a>
     <a href="#session-memory">session_memory</a>
     <a href="#open-apex-dashboard">open_apex_dashboard</a>
+    <a href="#machine-tools" style="margin-top: 8px; color: var(--accent-blue);">Machine Tools</a>
+    <a href="#machine-tools" class="toc-h3">system_health</a>
+    <a href="#machine-tools" class="toc-h3">process_list</a>
+    <a href="#machine-tools" class="toc-h3">net_status</a>
+    <a href="#machine-tools" class="toc-h3">chroma_query</a>
+    <a href="#machine-tools" class="toc-h3">+ 5 more</a>
     <a href="#legacy-tools" style="margin-top: 8px; color: var(--hold-yellow);">Legacy Tools</a>
     <a href="#search-reality" class="toc-h3">search_reality</a>
     <a href="#ingest-evidence" class="toc-h3">ingest_evidence</a>
