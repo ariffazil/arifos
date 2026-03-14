@@ -227,7 +227,9 @@ BOOTSTRAP_WHITELIST: set[str] = {
 }
 
 
-def _requires_explicit_kernel_auth(payload: dict[str, Any], canonical_tool: str | None = None) -> bool:
+def _requires_explicit_kernel_auth(
+    payload: dict[str, Any], canonical_tool: str | None = None
+) -> bool:
     """Decide whether arifOS_kernel must reject missing auth_context."""
     from core.enforcement.auth_continuity import _env_flag
 
@@ -422,6 +424,7 @@ def _build_vitals_report(session_id: str) -> dict[str, Any]:
     try:
         from core.physics import thermodynamics_hardened
 
+        _ = thermodynamics_hardened  # Explicitly use for import check
         thermo_status = "active"
     except ImportError as e:
         thermo_status = f"degraded: {e}"
@@ -477,8 +480,7 @@ async def call_kernel(
                 auth_ctx = _mint_auto_anchor_auth_context(session_id, claimed_actor_id)
                 payload["auth_context"] = auth_ctx
                 payload.setdefault("identity_resolution", {})
-                # For metabolic_loop specifically, ensure authority reflects anchored ID
-                result_actor_override = claimed_actor_id
+                # result_actor_override removed (duplicate logic in loop)
             elif _requires_explicit_kernel_auth(payload, canonical_name):
                 return _auth_failure_envelope(
                     tool=canonical_name,
@@ -612,6 +614,7 @@ async def call_kernel(
                     approval_scope=["*"],
                     parent_signature="",
                     authority_level=auth_level,
+                    prev_vault_hash=res.prev_vault_hash,
                 )
 
         elif canonical_name == "reason_mind":
@@ -674,6 +677,7 @@ async def call_kernel(
                 telemetry=payload.get("telemetry"),
                 seal_mode=payload.get("seal_mode", "final"),
                 auth_context=auth_ctx,
+                expected_prev_hash=auth_ctx.get("prev_vault_hash") if auth_ctx else None,
             )
 
         elif canonical_name == "verify_vault_ledger":
@@ -727,8 +731,12 @@ async def call_kernel(
                 result["meta"]["temporal_contract"] = contract.model_dump(mode="json")
             if isinstance(result, dict) and result.get("verdict") != "VOID":
                 # F11: Ensure continuity even if we auto-bootstrapped this call
-                effective_actor = auth_ctx.get("actor_id", claimed_actor_id) if auth_ctx else claimed_actor_id
-                effective_level = auth_ctx.get("authority_level", "declared") if auth_ctx else "declared"
+                effective_actor = (
+                    auth_ctx.get("actor_id", claimed_actor_id) if auth_ctx else claimed_actor_id
+                )
+                effective_level = (
+                    auth_ctx.get("authority_level", "declared") if auth_ctx else "declared"
+                )
                 
                 result["auth_context"] = mint_auth_context(
                     session_id=session_id,
@@ -745,6 +753,7 @@ async def call_kernel(
                     ),
                     parent_signature=(auth_ctx or {}).get("signature", ""),
                     authority_level=effective_level,
+                    prev_vault_hash=(auth_ctx or {}).get("prev_vault_hash"),
                 )
             return result
 
@@ -770,7 +779,7 @@ async def call_kernel(
         if hasattr(result, "model_dump"):
             result = result.model_dump(mode="json")
 
-        envelope = wrap_tool_output(tool_name, result)
+        envelope = wrap_tool_output(canonical_name, result)
 
         if caller_ctx_data and "caller_context" not in envelope:
             envelope["caller_context"] = caller_ctx_data

@@ -122,6 +122,7 @@ def mint_auth_context(
     parent_signature: str,
     ttl: int = 900,
     authority_level: str = "anonymous",
+    prev_vault_hash: str | None = None,
 ) -> dict[str, Any]:
     now = int(time.time())
     unsigned_context = {
@@ -134,6 +135,7 @@ def mint_auth_context(
         "exp": now + ttl,
         "approval_scope": approval_scope,
         "parent_signature": parent_signature,
+        "prev_vault_hash": prev_vault_hash,
     }
     return {
         **unsigned_context,
@@ -142,7 +144,7 @@ def mint_auth_context(
 
 
 def verify_auth_context(session_id: str, auth_context: dict[str, Any]) -> tuple[bool, str]:
-    required_fields = [
+    signature_fields = [
         "session_id",
         "actor_id",
         "authority_level",
@@ -152,11 +154,17 @@ def verify_auth_context(session_id: str, auth_context: dict[str, Any]) -> tuple[
         "exp",
         "approval_scope",
         "parent_signature",
-        "signature",
+        "prev_vault_hash",
     ]
-    for field in required_fields:
+    # Required for structure
+    for field in signature_fields:
+        if field == "prev_vault_hash":
+            continue # Optional field for signature reconstruction if present
         if field not in auth_context:
             return False, f"missing field: {field}"
+    
+    if "signature" not in auth_context:
+        return False, "missing field: signature"
 
     if str(auth_context.get("session_id", "")) != session_id:
         return False, "session_id mismatch"
@@ -166,7 +174,7 @@ def verify_auth_context(session_id: str, auth_context: dict[str, Any]) -> tuple[
         return False, "auth_context expired"
 
     unsigned_context = {
-        field: auth_context[field] for field in required_fields if field != "signature"
+        field: auth_context[field] for field in signature_fields if field in auth_context
     }
     expected_signatures = [
         _sign_auth_context_with_secret(unsigned_context, _GOVERNANCE_TOKEN_SECRET)
