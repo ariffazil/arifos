@@ -1,0 +1,161 @@
+{
+  "test_run": "2026-03-14T10:07:18.743737",
+  "total_tools": 25,
+  "passed": 13,
+  "failed": 7,
+  "warnings": 1,
+  "tools": {
+    "init_anchor": {
+      "status": "FAIL",
+      "message": "Exception: '_CurrentContext' object has no attribute 'info'",
+      "details": {}
+    },
+    "arifOS_kernel": {
+      "status": "PASS",
+      "message": "Metabolic loop executed",
+      "details": {
+        "returns_envelope": true,
+        "tool_is_kernel": true,
+        "has_metrics": true,
+        "has_trace": true
+      }
+    },
+    "forge": {
+      "status": "PASS",
+      "message": "Full pipeline executed",
+      "details": {
+        "returns_envelope": true,
+        "has_session_id": true,
+        "has_verdict": true
+      }
+    },
+    "reality_compass": {
+      "status": "WARN",
+      "message": "Partial functionality",
+      "details": {
+        "returns_envelope": true,
+        "tool_is_compass": true,
+        "stage_is_sense": false,
+        "has_payload": true
+      }
+    },
+    "search_reality": {
+      "status": "PASS",
+      "message": "Search alias works",
+      "details": {
+        "returns_envelope": true,
+        "has_stage": true
+      }
+    },
+    "ingest_evidence": {
+      "status": "PASS",
+      "message": "Evidence ingestion works",
+      "details": {
+        "returns_envelope": true,
+        "has_stage": true
+      }
+    },
+    "reality_atlas": {
+      "status": "PASS",
+      "message": "Atlas operation works",
+      "details": {
+        "returns_envelope": true,
+        "has_stage": true
+      }
+    },
+    "agi_reason": {
+      "status": "FAIL",
+      "message": "Exception: '_CurrentContext' object has no attribute 'info'",
+      "details": {}
+    },
+    "agi_reflect": {
+      "status": "FAIL",
+      "message": "Exception: '_CurrentContext' object has no attribute 'info'",
+      "details": {}
+    },
+    "asi_simulate": {
+      "status": "FAIL",
+      "message": "Exception: '_CurrentContext' object has no attribute 'info'",
+      "details": {}
+    },
+    "asi_critique": {
+      "status": "FAIL",
+      "message": "Exception: '_CurrentContext' object has no attribute 'info'",
+      "details": {}
+    },
+    "apex_judge": {
+      "status": "FAIL",
+      "message": "Exception: '_CurrentContext' object has no attribute 'info'",
+      "details": {}
+    },
+    "audit_rules": {
+      "status": "PASS",
+      "message": "Floor inspection works",
+      "details": {
+        "returns_envelope": true,
+        "has_payload": true,
+        "floor_hooks_present": true
+      }
+    },
+    "check_vital": {
+      "status": "PASS",
+      "message": "System vitals check works",
+      "details": {
+        "returns_envelope": true,
+        "tool_is_vital": true,
+        "has_payload": true,
+        "thermodynamics_present": true
+      }
+    },
+    "vault_seal": {
+      "status": "FAIL",
+      "message": "Exception: '_CurrentContext' object has no attribute 'info'",
+      "details": {}
+    },
+    "verify_vault_ledger": {
+      "status": "PASS",
+      "message": "Ledger verification works",
+      "details": {
+        "returns_envelope": true,
+        "has_stage": true
+      }
+    },
+    "revoke_anchor_state": {
+      "status": "PASS",
+      "message": "Session revocation works",
+      "details": {
+        "returns_envelope": true,
+        "tool_is_revoke": true,
+        "payload_indicates_revoke": true
+      }
+    },
+    "open_apex_dashboard": {
+      "status": "PASS",
+      "message": "Dashboard generation works",
+      "details": {
+        "returns_result": true
+      }
+    },
+    "agentzero_armor_scan": {
+      "status": "PASS",
+      "message": "Armor scan works",
+      "details": {
+        "returns_response": true
+      }
+    },
+    "agentzero_hold_check": {
+      "status": "PASS",
+      "message": "Hold check works",
+      "details": {
+        "returns_response": true
+      }
+    },
+    "agentzero_validate": {
+      "status": "PASS",
+      "message": "Validation works",
+      "details": {
+        "returns_response": true
+      }
+    }
+  }
+}

@@ -393,22 +393,22 @@ async def metabolic_loop(
             actor_id=actor_id,
         )
 
-        # For dry_run, we bypass VOID/PAUSED results from init to allow testing
-        if dry_run and init_res.verdict in {Verdict.VOID, Verdict.PAUSED, Verdict.SABAR}:
-            # Inject a mock successful init result for testing
-            init_res = init_res.model_copy(update={"verdict": Verdict.SEAL, "status": RuntimeStatus.SUCCESS})
-            if not auth_context:
-                from core.enforcement.auth_continuity import mint_auth_context
-                auth_context = mint_auth_context(
-                    session_id=current_session_id,
-                    actor_id=actor_id,
-                    token_fingerprint="sha256:dry-run-bypass",
-                    approval_scope=["*"],
-                    parent_signature="",
-                    authority_level="declared",
-                )
-
         auth_ctx = _extract_auth_context(init_res, auth_context)
+        
+        # For dry_run, we inject a mock context if the real one is missing/blocked
+        if dry_run and (not auth_ctx or init_res.verdict == Verdict.PAUSED):
+            from core.enforcement.auth_continuity import mint_auth_context
+            auth_ctx = mint_auth_context(
+                session_id=current_session_id,
+                actor_id=actor_id,
+                token_fingerprint="sha256:dry-run-bypass",
+                approval_scope=["*"],
+                parent_signature="",
+                authority_level="declared",
+            )
+            # Update init_res to look successful for the loop logic
+            init_res = init_res.model_copy(update={"verdict": Verdict.SEAL, "auth_context": auth_ctx})
+
         caller_ctx = _extract_caller_context(init_res, caller_context)
         trace = {Stage.INIT_000.value: init_res.verdict.value}
 
