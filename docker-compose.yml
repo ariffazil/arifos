@@ -650,3 +650,38 @@ networks:
     external: true
     name: arifos_arifos_trinity
 
+
+# ============================================
+# PRODUCTION OVERRIDES - Added $(date -Iseconds)
+# ============================================
+
+volumes:
+  arifosmcp_logs:
+    driver: local
+  arifosmcp_backups:
+    driver: local
+
+services:
+  arifosmcp:
+    volumes:
+      - /var/log/arifosmcp:/var/log/arifosmcp
+      - /srv/arifosmcp/backups:/backups
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "5"
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 4G
+        reservations:
+          cpus: '1'
+          memory: 2G
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s

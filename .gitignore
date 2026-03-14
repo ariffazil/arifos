@@ -364,3 +364,5 @@ docker-compose.override.yml
 # Git backup directories (Windows Forge artifacts)
 .git_mind_backup/
 .git_*_backup/
+.env.pre-production-*
+.env.backup-*
