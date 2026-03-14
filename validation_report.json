@@ -1,14 +1,19 @@
 {
-  "test_run": "2026-03-14T13:23:06.880948",
+  "test_run": "2026-03-14T13:29:11.210514",
   "total_tools": 25,
-  "passed": 13,
-  "failed": 7,
-  "warnings": 1,
+  "passed": 15,
+  "failed": 1,
+  "warnings": 5,
   "tools": {
     "init_anchor": {
-      "status": "FAIL",
-      "message": "Exception: '_CurrentContext' object has no attribute 'info'",
-      "details": {}
+      "status": "WARN",
+      "message": "Partial functionality",
+      "details": {
+        "returns_envelope": true,
+        "has_session_id": "session-a80334c2",
+        "has_stage": false,
+        "has_verdict": true
+      }
     },
     "arifOS_kernel": {
       "status": "PASS",
@@ -64,29 +69,44 @@
       }
     },
     "agi_reason": {
-      "status": "FAIL",
-      "message": "Exception: '_CurrentContext' object has no attribute 'info'",
-      "details": {}
+      "status": "WARN",
+      "message": "Partial functionality",
+      "details": {
+        "returns_envelope": true,
+        "stage_is_mind": false,
+        "has_metrics": true
+      }
     },
     "agi_reflect": {
-      "status": "FAIL",
-      "message": "Exception: '_CurrentContext' object has no attribute 'info'",
-      "details": {}
+      "status": "PASS",
+      "message": "Memory reflection works",
+      "details": {
+        "returns_envelope": true,
+        "has_stage": true
+      }
     },
     "asi_simulate": {
       "status": "FAIL",
-      "message": "Exception: '_CurrentContext' object has no attribute 'info'",
+      "message": "Exception: CONSTITUTIONAL COLLAPSE: Simulation predicts stability collapse: Peace\u00b2 < 1.0",
       "details": {}
     },
     "asi_critique": {
-      "status": "FAIL",
-      "message": "Exception: '_CurrentContext' object has no attribute 'info'",
-      "details": {}
+      "status": "PASS",
+      "message": "Critique audit works",
+      "details": {
+        "returns_envelope": true,
+        "has_stage": true,
+        "has_payload": true
+      }
     },
     "apex_judge": {
-      "status": "FAIL",
-      "message": "Exception: '_CurrentContext' object has no attribute 'info'",
-      "details": {}
+      "status": "WARN",
+      "message": "Partial functionality",
+      "details": {
+        "returns_envelope": true,
+        "stage_is_judge": false,
+        "has_verdict": true
+      }
     },
     "audit_rules": {
       "status": "PASS",
@@ -108,9 +128,13 @@
       }
     },
     "vault_seal": {
-      "status": "FAIL",
-      "message": "Exception: '_CurrentContext' object has no attribute 'info'",
-      "details": {}
+      "status": "WARN",
+      "message": "Partial functionality",
+      "details": {
+        "returns_envelope": true,
+        "stage_is_vault": false,
+        "has_metrics": true
+      }
     },
     "verify_vault_ledger": {
       "status": "PASS",

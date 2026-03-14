@@ -684,7 +684,7 @@ async def asi_simulate(
 
             raise ConstitutionalViolation(
                 message=f"Simulation predicts stability collapse: Peace² < {peace_threshold}",
-                floor_code=ConstitutionalFaultCode.F5_PEACE2,
+                floor_code=ConstitutionalFaultCode.F5_PEACE_VIOLATION,
             )
 
         if span:

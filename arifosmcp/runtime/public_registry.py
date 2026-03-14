@@ -248,7 +248,7 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
     # ─── AGI Δ MIND (6 tools) ───
     ToolSpec(
         name="agi_reason",
-        stage="111_SENSE",
+        stage="333_MIND",
         role="Governed Reasoning",
         layer="AGI Δ MIND",
         description="333_MIND: Perform first-principles structured reasoning. Explores hypotheses through conservative, exploratory, and adversarial paths. Use this for intellectual synthesis. Enforces F2 (Truth) and F4 (Clarity).",
@@ -276,7 +276,7 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
     ),
     ToolSpec(
         name="reality_compass",
-        stage="222_GROUND",
+        stage="111_SENSE",
         role="Epistemic Intake",
         layer="AGI Δ MIND",
         description="111_SENSE: Ground claims in external reality. Use this to verify facts or fetch URL content BEFORE performing reasoning. Enforces F2 (Truth) fidelity.",
@@ -304,7 +304,7 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
     ),
     ToolSpec(
         name="search_reality",
-        stage="222_GROUND",
+        stage="111_SENSE",
         role="Web Acquisition",
         layer="AGI Δ MIND",
         description="111_SENSE: Direct web search for grounding facts. Fetches raw data from the external world to satisfy F2 (Truth) requirements for ungrounded claims.",
@@ -318,7 +318,7 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
     ),
     ToolSpec(
         name="ingest_evidence",
-        stage="222_GROUND",
+        stage="111_SENSE",
         role="Evidence Normalization",
         layer="AGI Δ MIND",
         description="111_SENSE: Fetch and normalize evidence artifact. Extracts structured signals from a URL or File for injection into the reasoning pipeline. Enforces F2.",
