@@ -165,6 +165,7 @@ async def seal(
     telemetry: dict[str, Any] | None = None,
     seal_mode: Literal["final", "provisional", "audit_only"] = "final",
     auth_context: dict[str, Any] | None = None,
+    expected_prev_hash: str | None = None,
     **kwargs: Any,
 ) -> VaultOutput:
     """
@@ -177,7 +178,27 @@ async def seal(
 
     consume_tool_energy(session_id, n_calls=1)
 
-    floors = {"F5": "pass", "F9": "pass", "F12": "pass", "F13": "pass"}
+    # Hard Floors to track
+    floors = {"F1": "pass", "F5": "pass", "F9": "pass", "F12": "pass", "F13": "pass"}
+
+    # 0. Merkle-Chain Continuity Check (F1 Amanah)
+    prev_hash = get_last_vault_entry_hash(DEFAULT_VAULT_PATH)
+    if expected_prev_hash and expected_prev_hash != prev_hash:
+        from arifosmcp.runtime.exceptions import ConstitutionalViolation
+        from arifosmcp.runtime.fault_codes import ConstitutionalFaultCode
+
+        logger.error(
+            "F1 AMANAH VIOLATION: Merkle continuity broken. Session expected %s, Vault contains %s",
+            expected_prev_hash,
+            prev_hash,
+        )
+        raise ConstitutionalViolation(
+            message=(
+                f"F1 Amanah: Vault continuity broken. "
+                f"Expected {expected_prev_hash[:16]}..., found {prev_hash[:16]}..."
+            ),
+            floor_code=ConstitutionalFaultCode.F1_AMANAH,
+        )
 
     # 1. Generate Immutable IDs
     ledger_id = f"LGR-{secrets.token_hex(8).upper()}"
@@ -213,7 +234,17 @@ async def seal(
     try:
         if seal_mode == "final":
             async with _vault_write_lock:
+                # Re-verify inside the lock for double-check concurrency safety
                 prev_hash = get_last_vault_entry_hash(DEFAULT_VAULT_PATH)
+                if expected_prev_hash and expected_prev_hash != prev_hash:
+                    from arifosmcp.runtime.exceptions import ConstitutionalViolation
+                    from arifosmcp.runtime.fault_codes import ConstitutionalFaultCode
+
+                    raise ConstitutionalViolation(
+                        message=f"F1: Vault race condition. Expected {expected_prev_hash[:16]}...",
+                        floor_code=ConstitutionalFaultCode.F1_AMANAH,
+                    )
+
                 entry_chain_hash = hashlib.sha256((prev_hash + entry_hash).encode()).hexdigest()
                 chain = HashChain(
                     payload_hash=entry_hash,
@@ -227,7 +258,7 @@ async def seal(
                     {**entry_data, "seal_hash": entry_hash, "chain": chain.model_dump()},
                 )
         else:
-            # Non-final modes don't persist; still build chain for the return value
+            # Non-final modes don't persist; still build chain
             prev_hash = get_last_vault_entry_hash(DEFAULT_VAULT_PATH)
             entry_chain_hash = hashlib.sha256((prev_hash + entry_hash).encode()).hexdigest()
             chain = HashChain(
