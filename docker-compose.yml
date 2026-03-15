@@ -45,6 +45,7 @@ services:
       - /opt/arifos/traefik/acme.json:/letsencrypt/acme.json
     networks:
       - arifos_trinity
+      - arifosmcp_arifos_trinity
     deploy:
       resources:
         limits:
@@ -353,7 +354,7 @@ services:
     labels:
       - "traefik.enable=true"
       # A2A MCP router - main domain + /mcp path
-      - "traefik.http.routers.arifosmcp.rule=Host(`arifosmcp.arif-fazil.com`) && PathPrefix(`/mcp`)"
+      - "traefik.http.routers.arifosmcp.rule=Host(`arifosmcp.arif-fazil.com`)"
       - "traefik.http.routers.arifosmcp.entrypoints=websecure"
       - "traefik.http.routers.arifosmcp.tls.certresolver=letsencrypt"
       - "traefik.http.services.arifosmcp.loadbalancer.server.port=8080"
@@ -655,6 +656,9 @@ services:
 networks:
   arifos_trinity:
     driver: bridge
+  arifosmcp_arifos_trinity:
+    external: true
+
 
 # --- Named Volumes ---
 volumes:
