@@ -49,3 +49,7 @@ pyyaml>=6.0.0
 
 # --- Code Intelligence ---
 python-lsp-server>=1.11.0
+
+# --- WebMCP / Sessions ---
+itsdangerous>=2.2.0
+python-multipart>=0.0.9

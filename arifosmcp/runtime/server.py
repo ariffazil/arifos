@@ -388,7 +388,6 @@ try:
     # Also mount at root for /.well-known/agent.json
     from starlette.responses import JSONResponse
     
-    # Create a separate app for well-known endpoints that doesn't have the /a2a prefix
     async def well_known_agent(request):
         """A2A Agent Card discovery endpoint."""
         return JSONResponse({
