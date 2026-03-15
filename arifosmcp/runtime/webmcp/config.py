@@ -19,13 +19,15 @@ class WebMCPConfig:
     """
     
     # CORS - F12 Injection Guard validates origins
+    # Note: TrustedHostMiddleware expects just the host pattern (no scheme)
     ALLOWED_ORIGINS: Set[str] = frozenset([
-        "https://arifosmcp.arif-fazil.com",
-        "https://*.arif-fazil.com",
-        "https://arifos.arif-fazil.com",
-        "http://localhost:3000",      # Dev only
-        "http://localhost:5173",      # Vite dev
-        "http://localhost:8080",      # Local testing
+        "arifosmcp.arif-fazil.com",
+        "*.arif-fazil.com",
+        "arifos.arif-fazil.com",
+        "localhost",
+        "localhost:3000",      # Dev only
+        "localhost:5173",      # Vite dev
+        "localhost:8080",      # Local testing
     ])
     
     # Session - F11 Command Auth

@@ -28,6 +28,9 @@ RUN python -m pip install --upgrade pip && \
     if [ -f requirements.txt ]; then pip install --no-cache-dir -r requirements.txt; fi && \
     pip install --no-cache-dir .
 
+# Install WebMCP dependencies (F12/F11 constitutional web gateway)
+RUN pip install --no-cache-dir itsdangerous fastapi uvicorn redis python-multipart
+
 # Pre-bake BGE-M3 model (~570MB) and strip unused ONNX/ORT artifacts
 ENV HF_HOME=/usr/src/app/models
 RUN python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('BAAI/bge-m3'); print('BGE-M3 baked in')" && \

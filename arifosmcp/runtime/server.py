@@ -249,6 +249,20 @@ app = _mcp_app
 # API key guard (no-op when COPILOT_API_KEY is unset)
 app.add_middleware(_APIKeyMiddleware)
 
+# Session middleware required for WebMCP (F11 Command Auth)
+# Must be added before WebMCP mounts
+import os
+from starlette.middleware.sessions import SessionMiddleware
+_session_secret = os.getenv("SESSION_SECRET") or os.urandom(32).hex()
+app.add_middleware(
+    SessionMiddleware,
+    secret_key=_session_secret,
+    max_age=3600,
+    same_site="strict",
+    https_only=os.getenv("SESSION_SECURE", "true").lower() == "true",
+    session_cookie="arifos_session",
+)
+
 # Additional middleware can be added here if needed,
 # but CORS and Auth are already handled by _build_http_middleware()
 
@@ -270,6 +284,38 @@ if os.path.isdir(_apex_dashboard_dir):
 _developer_dir = os.path.join(os.path.dirname(__file__), "..", "sites", "developer")
 if os.path.isdir(_developer_dir):
     _mcp_app.mount("/developer", StaticFiles(directory=_developer_dir, html=True), name="developer")
+
+# ---------------------------------------------------------------------------
+# WebMCP Integration - AI-Governed Web Environment
+# ---------------------------------------------------------------------------
+# WebMCP extends MCP to browsers with constitutional enforcement (F1-F13)
+# Every HTTP request passes through the 000→999 metabolic loop.
+# ---------------------------------------------------------------------------
+
+_WEBMCP_ENABLED = os.getenv("ARIFOS_WEBMCP_ENABLED", "true").lower() in ("true", "1", "yes")
+
+if _WEBMCP_ENABLED:
+    try:
+        from .webmcp import WebMCPGateway
+        
+        # Create WebMCP gateway mounted at /webmcp
+        _webmcp_gateway = WebMCPGateway(mcp)
+        _webmcp_app = _webmcp_gateway.app
+        
+        # Mount WebMCP routes into main app
+        # WebMCP app already has /webmcp, /api/live, /governance prefixes
+        _mcp_app.mount(
+            "/",
+            _webmcp_app,
+            name="webmcp"
+        )
+        
+        print("✅ WebMCP gateway integrated at /webmcp, /api/live, /governance")
+        
+    except ImportError as e:
+        print(f"⚠️ WebMCP not available: {e}. Run: pip install itsdangerous fastapi uvicorn redis")
+    except Exception as e:
+        print(f"❌ WebMCP integration failed: {e}")
 
 # Serve trinity-nav.js globally
 _sites_dir = os.path.join(os.path.dirname(__file__), "..", "sites")

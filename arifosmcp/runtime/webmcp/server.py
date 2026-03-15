@@ -81,9 +81,10 @@ class WebMCPGateway:
         """Configure constitutional middleware stack."""
 
         # 1. Trusted Host (F12 - prevent host header attacks)
+        # Allow all hosts when behind Traefik (Traefik handles host validation)
         self.app.add_middleware(
             TrustedHostMiddleware,
-            allowed_hosts=list(self.config.ALLOWED_ORIGINS),
+            allowed_hosts=["*"],  # Traefik validates hosts upstream
         )
 
         # 2. CORS (F12 - strict origin validation)
