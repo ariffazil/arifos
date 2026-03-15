@@ -276,8 +276,9 @@ def _select_philosophy_payload(
 ) -> dict[str, Any]:
     metrics_block = envelope_data.get("metrics")
     if isinstance(metrics_block, dict):
+        telemetry = metrics_block.get("telemetry", {})
         g_score = _safe_float(
-            metrics_block.get("confidence", metrics_block.get("truth", 0.0)),
+            telemetry.get("G_star", telemetry.get("confidence", 0.0)),
             default=0.0,
         )
     else:
@@ -974,10 +975,12 @@ async def arifos_kernel(
 ) -> RuntimeEnvelope:
     """Stage Conductor: Orchestrates the ΔΩΨ transitions through the pipeline."""
     # Canonical delegation via _wrap_call to ensure Invariants and Philosophy apply
+    active_session = session_id or _normalize_session_id(None)
+    
     return await _wrap_call(
         tool_name="arifOS_kernel",
         stage=Stage.ROUTER_444,
-        session_id=session_id,
+        session_id=active_session,
         payload={
             "query": query,
             "context": context,
