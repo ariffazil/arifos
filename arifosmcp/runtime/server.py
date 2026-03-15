@@ -386,13 +386,12 @@ try:
     _mcp_app.mount("/a2a", _a2a_server.app, name="a2a")
     
     # Also mount at root for /.well-known/agent.json
-    from fastapi import FastAPI
+    from starlette.responses import JSONResponse
     
     # Create a separate app for well-known endpoints that doesn't have the /a2a prefix
-    @_mcp_app.get("/.well-known/agent.json")
-    async def well_known_agent():
+    async def well_known_agent(request):
         """A2A Agent Card discovery endpoint."""
-        return {
+        return JSONResponse({
             "name": "arifOS Constitutional Kernel",
             "description": "AI governance system with 13 constitutional floors (F1-F13)",
             "url": "https://arifosmcp.arif-fazil.com",
@@ -420,7 +419,10 @@ try:
                 "cancel": "/a2a/cancel",
                 "subscribe": "/a2a/subscribe",
             }
-        }
+        })
+    
+    # Register the route using Starlette's router
+    _mcp_app.router.add_route("/.well-known/agent.json", well_known_agent, methods=["GET"])
     
     print("✅ Real A2A Server mounted at /a2a (Google Protocol)")
     print("✅ Agent Card available at /.well-known/agent.json")
