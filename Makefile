@@ -185,3 +185,63 @@ clean:
 #   make setup-cron → Enables auto-healing & auto-deploy
 #
 # ============================================================================
+
+# ============================================================================
+# ZERO-CHAOS AUTOMATED DEPLOYMENT (New - Recommended)
+# ============================================================================
+# These commands use scripts/deploy.py for safe, reversible deployments
+
+# Deploy to staging (automated, no approval needed)
+deploy-staging:
+	@echo "🚀 Deploying to STAGING..."
+	@python scripts/deploy.py --environment staging
+
+# Deploy to production (requires manual confirmation)
+deploy-production:
+	@echo "🚀 Deploying to PRODUCTION..."
+	@echo "⚠️  This will affect the live system at arifosmcp.arif-fazil.com"
+	@read -p "Are you sure? [y/N] " confirm && [ "$$confirm" = "y" ] && python scripts/deploy.py --environment production || echo "Cancelled"
+
+# Dry run production deploy (see what would happen)
+deploy-dry-run:
+	@echo "🔍 Dry-run production deployment..."
+	@python scripts/deploy.py --environment production --dry-run
+
+# Verify current deployment health
+deploy-verify:
+	@echo "✅ Verifying deployment health..."
+	@curl -s https://arifosmcp.arif-fazil.com/health | python3 -m json.tool 2>/dev/null || curl -s https://arifosmcp.arif-fazil.com/health
+
+# Deploy to GitHub Actions (no local setup needed)
+deploy-gh:
+	@echo "Triggering GitHub Actions deployment..."
+	@gh workflow run deploy-automated.yml --field environment=staging
+
+# Quick reference for AI agents
+deploy-help:
+	@echo ""
+	@echo "🤖 AI AGENT DEPLOYMENT CHEATSHEET"
+	@echo "=================================="
+	@echo ""
+	@echo "For STAGING (automatic):"
+	@echo "  make deploy-staging"
+	@echo "  or: python scripts/deploy.py"
+	@echo ""
+	@echo "For PRODUCTION (needs care):"
+	@echo "  Step 1: Dry run first"
+	@echo "    make deploy-dry-run"
+	@echo ""
+	@echo "  Step 2: If dry run looks good, deploy"
+	@echo "    make deploy-production"
+	@echo ""
+	@echo "  Step 3: Verify after deploy"
+	@echo "    make deploy-verify"
+	@echo ""
+	@echo "Via GitHub Actions (easiest):"
+	@echo "  make deploy-gh"
+	@echo ""
+	@echo "Emergency rollback:"
+	@echo "  ssh root@arif-fazil.com 'cd /srv/arifosmcp && docker-compose restart'"
+	@echo ""
+
+# ============================================================================

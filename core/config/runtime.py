@@ -5,6 +5,7 @@ arifOS v65.0-DEV — Explicit Degradation Mode
 F2 Truth: We acknowledge infrastructure gaps
 """
 
+import sys
 from enum import Enum
 
 
@@ -30,21 +31,21 @@ CONFIG = {
 
 def announce_startup():
     """Constitutional startup announcement (F2 Truth)."""
-    print("=" * 60)
-    print("arifOS Constitutional AI Governance System")
-    print("=" * 60)
-    print(f"[MODE] {CONFIG['mode'].value.upper()}")
-    print(f"[VAULT] {CONFIG['vault_backend']} (NOT cryptographically sealed)")
-    print(f"[SESSION] {CONFIG['session_backend']} (ephemeral)")
-    print(
-        f"[F12] {'ACTIVE' if CONFIG['f12_wall_active'] else 'INACTIVE — external tools disabled'}"
+    sys.stderr.write("=" * 60 + "\n")
+    sys.stderr.write("arifOS Constitutional AI Governance System\n")
+    sys.stderr.write("=" * 60 + "\n")
+    sys.stderr.write(f"[MODE] {CONFIG['mode'].value.upper()}\n")
+    sys.stderr.write(f"[VAULT] {CONFIG['vault_backend']} (NOT cryptographically sealed)\n")
+    sys.stderr.write(f"[SESSION] {CONFIG['session_backend']} (ephemeral)\n")
+    sys.stderr.write(
+        f"[F12] {'ACTIVE' if CONFIG['f12_wall_active'] else 'INACTIVE — external tools disabled'}\n"
     )
-    print(f"[F3] {'Tri-Witness' if CONFIG['tri_witness_active'] else 'Single-Witness (AI only)'}")
-    print(f"[888] Human escalation via: {CONFIG['human_escalation']}")
-    print("-" * 60)
-    print("WARNING: Limited constitutional enforcement in DEV_MODE")
-    print("DO NOT deploy to production without SOVEREIGN mode")
-    print("=" * 60)
+    sys.stderr.write(f"[F3] {'Tri-Witness' if CONFIG['tri_witness_active'] else 'Single-Witness (AI only)'}\n")
+    sys.stderr.write(f"[888] Human escalation via: {CONFIG['human_escalation']}\n")
+    sys.stderr.write("-" * 60 + "\n")
+    sys.stderr.write("WARNING: Limited constitutional enforcement in DEV_MODE\n")
+    sys.stderr.write("DO NOT deploy to production without SOVEREIGN mode\n")
+    sys.stderr.write("=" * 60 + "\n")
 
 
 def get_mode() -> ConstitutionalMode:

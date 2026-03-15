@@ -121,7 +121,8 @@ def _get_stakeholder_model():
             _HARM_EMBEDDINGS = _STAKEHOLDER_MODEL.encode(HARM_ARCHETYPES, convert_to_tensor=True)
 
         except ImportError:
-            print("WARNING: sentence-transformers not found. Falling back to heuristics.")
+            import sys
+            sys.stderr.write("[arifOS] WARNING: sentence-transformers not found. Falling back to heuristics.\n")
             return None, None, None
 
     return _STAKEHOLDER_MODEL, _ARCHETYPE_EMBEDDINGS, _HARM_EMBEDDINGS

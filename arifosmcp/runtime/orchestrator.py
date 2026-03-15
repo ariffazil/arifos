@@ -178,6 +178,8 @@ async def run_stage(
     pns_context: PNSContext | None = None,
     dry_run: bool = False,
     actor_id: str = "anonymous",
+    declared_name: str | None = None,
+    human_approval: bool = False,
 ) -> RuntimeEnvelope:
     """Execute one routed stage for the metabolic loop.
     ...
@@ -210,6 +212,9 @@ async def run_stage(
             pns_shield=shield.model_dump() if shield else None,
             ctx=None,  # type: ignore
             actor_id=actor_id,
+            declared_name=declared_name,
+            human_approval=human_approval,
+            auth_context=auth_ctx,
         )
 
     # 2. AGI·REASON (333) - Grounding (Feeds PNS·SEARCH)
@@ -337,6 +342,8 @@ async def metabolic_loop(
     caller_context: CallerContext | None = None,
     pns_context: PNSContext | None = None,  # Double Helix Injection
     timeout_seconds: float = 30.0,  # Configurable timeout
+    declared_name: str | None = None,
+    human_approval: bool = False,
 ) -> dict[str, Any]:
     """Run the Double Helix metabolic loop (Inner Ring + Outer Ring)."""
     start_time = time.perf_counter()
@@ -363,9 +370,15 @@ async def metabolic_loop(
                 }
             },
             "authority": {
-                "actor_id": actor_id,
+                "actor_id": declared_name or actor_id,
                 "level": "sovereign",
                 "auth_state": "verified"
+            },
+            "auth_context": auth_context or {
+                "session_id": session_id or "dry-run-session",
+                "actor_id": declared_name or actor_id,
+                "authority_level": "sovereign",
+                "approval_scope": ["*"],
             },
             "latency_ms": round(elapsed * 1000, 2),
         }
@@ -434,6 +447,8 @@ async def metabolic_loop(
             pns_context=pns_context,
             dry_run=dry_run,
             actor_id=actor_id,
+            declared_name=declared_name,
+            human_approval=human_approval,
         )
 
         auth_ctx = _extract_auth_context(init_res, auth_context)
