@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 import re
+import sys
 from pathlib import Path
 
 # Platform-aware path resolution.
@@ -64,7 +65,7 @@ class ManifestLoader:
                             thresholds[f_id] = float(range_match.group(2))
 
             except Exception as e:
-                print(f"Error loading {floor_file}: {e}")
+                sys.stderr.write(f"[arifOS] Error loading {floor_file}: {e}\n")
 
         return thresholds
 
@@ -81,12 +82,12 @@ def sync_runtime_floors():
             if spec_key and spec_key in THRESHOLDS:
                 old_val = THRESHOLDS[spec_key].get("threshold")
                 if old_val != val:
-                    print(f"🔄 Updating {f_id} ({spec_key}): {old_val} -> {val}")
+                    sys.stderr.write(f"[arifOS] Updating {f_id} ({spec_key}): {old_val} -> {val}\n")
                     THRESHOLDS[spec_key]["threshold"] = val
 
         return True
     except Exception as e:
-        print(f"Failed to sync runtime floors: {e}")
+        sys.stderr.write(f"[arifOS] Failed to sync runtime floors: {e}\n")
         return False
 
 

@@ -354,7 +354,22 @@ services:
     labels:
       - "traefik.enable=true"
       # A2A MCP router - main domain + /mcp path
-      - "traefik.http.routers.arifosmcp.rule=Host(`arifosmcp.arif-fazil.com`)"
+      - "traefik.http.routers.arifosmcp.rule=Host(`arifosmcp.arif-fazil.com`) && PathPrefix(`/mcp`)"
+      # WebMCP router - main domain + /webmcp (Real WebMCP W3C Standard)
+      - "traefik.http.routers.webmcp.rule=Host(`arifosmcp.arif-fazil.com`) && PathPrefix(`/webmcp`)"
+      - "traefik.http.routers.webmcp.entrypoints=websecure"
+      - "traefik.http.routers.webmcp.tls.certresolver=letsencrypt"
+      - "traefik.http.services.webmcp.loadbalancer.server.port=8080"
+      # A2A router - main domain + /a2a (Google A2A Protocol)
+      - "traefik.http.routers.a2a.rule=Host(`arifosmcp.arif-fazil.com`) && PathPrefix(`/a2a`)"
+      - "traefik.http.routers.a2a.entrypoints=websecure"
+      - "traefik.http.routers.a2a.tls.certresolver=letsencrypt"
+      - "traefik.http.services.a2a.loadbalancer.server.port=8080"
+      # A2A Agent Card - /.well-known/agent.json
+      - "traefik.http.routers.a2a-wellknown.rule=Host(`arifosmcp.arif-fazil.com`) && PathPrefix(`/.well-known`)"
+      - "traefik.http.routers.a2a-wellknown.entrypoints=websecure"
+      - "traefik.http.routers.a2a-wellknown.tls.certresolver=letsencrypt"
+      - "traefik.http.services.a2a-wellknown.loadbalancer.server.port=8080"
       - "traefik.http.routers.arifosmcp.entrypoints=websecure"
       - "traefik.http.routers.arifosmcp.tls.certresolver=letsencrypt"
       - "traefik.http.services.arifosmcp.loadbalancer.server.port=8080"
@@ -390,6 +405,7 @@ services:
         condition: service_started
       ollama:
         condition: service_started
+
 
   # --- Monitoring Stack ---
   prometheus:

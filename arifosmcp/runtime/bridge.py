@@ -70,12 +70,19 @@ _AUTH_CONTEXT_CONTINUITY_KEYS = (
     "signature",
 )
 
-
 def _resolve_claimed_actor_id(payload: dict[str, Any]) -> str:
     raw_claim = payload.get("claimed_actor_id", payload.get("actor_id", "anonymous"))
     if raw_claim is None:
         return "anonymous"
     claim = str(raw_claim).strip()
+    
+    # Canonicalize arif-related IDs by removing separators
+    claim_lower = claim.lower()
+    if claim_lower == "arif":
+        return "ariffazil"
+    if "arif" in claim_lower:
+        return claim_lower.replace(" ", "").replace("-", "")
+    
     return claim or "anonymous"
 
 
@@ -168,8 +175,10 @@ def _can_auto_anchor_declared_identity(payload: dict[str, Any], claimed_actor_id
 
     if claimed in PROTECTED_AUTO_ANCHOR_IDS:
         return False
-    if allow_execution:
+    # Proteced IDs ALWAYS require verified auth context if they want to execute
+    if allow_execution and claimed_actor_id in PROTECTED_AUTO_ANCHOR_IDS:
         return False
+
     if risk_tier not in AUTO_BOOTSTRAP_RISK_TIERS:
         return False
     
@@ -211,9 +220,11 @@ def _normalize_auth_context(payload: dict[str, Any], auth_context: Any) -> dict[
             normalized["authority_level"] = identity_claim["authority_level"]
 
     if not normalized.get("actor_id"):
-        fallback_actor_id = payload.get("actor_id") or payload.get("claimed_actor_id")
+        fallback_actor_id = payload.get("actor_id") or payload.get("declared_name") or payload.get("claimed_actor_id")
         if fallback_actor_id:
             normalized["actor_id"] = str(fallback_actor_id)
+            if normalized["actor_id"].lower() == "arif":
+                normalized["actor_id"] = "ariffazil"
 
     return normalized
 
@@ -242,14 +253,25 @@ def _requires_explicit_kernel_auth(
     if _env_flag("ARIFOS_GOVERNANCE_OPEN_MODE"):
         risk_tier = str(payload.get("risk_tier", "medium") or "medium").strip().lower()
         allow_execution = bool(payload.get("allow_execution", False))
-        if allow_execution:
+        claimed_actor_id = _resolve_claimed_actor_id(payload)
+        
+        # Protected IDs ALWAYS require verified auth context if they want to execute
+        if allow_execution and claimed_actor_id in PROTECTED_AUTO_ANCHOR_IDS:
             return True
-        return risk_tier not in AUTO_BOOTSTRAP_RISK_TIERS
 
-    # dry_run on low risk is allowed to auto-anchor (even in hardened mode for testability)
+        if risk_tier in AUTO_BOOTSTRAP_RISK_TIERS:
+            return False
+
+    # dry_run on low risk is allowed to auto-anchor for GUEST IDs
+    # But PROTECTED IDs always require explicit auth context
     risk_tier = str(payload.get("risk_tier", "medium") or "medium").strip().lower()
     dry_run = bool(payload.get("dry_run", False))
     allow_execution = bool(payload.get("allow_execution", False))
+    claimed_actor_id = _resolve_claimed_actor_id(payload)
+    
+    if claimed_actor_id in PROTECTED_AUTO_ANCHOR_IDS:
+        return True
+
     if dry_run and risk_tier == "low" and not allow_execution:
         return False
 
@@ -490,7 +512,7 @@ async def call_kernel(
                     identity_claim_status="UNVERIFIED_CLAIM",
                     identity_reason="Auto-bootstrap not allowed for this risk/mode.",
                     next_action_reason="Run init_anchor_state first.",
-                    machine_issue="AUTH_FAILURE",
+                    machine_issue="AUTH_TOKEN_MISSING",
                 )
         else:
             valid, reason = verify_auth_context_cached(session_id, auth_ctx)
@@ -602,10 +624,15 @@ async def call_kernel(
             )
             result = res.model_dump(mode="json")
             if res.verdict != Verdict.VOID:
-                # If human_approval was True in input, we promote the minted level to declared
+                # If human_approval was True in input OR it's a low-risk auto-anchor ID, 
+                # we promote the minted level to declared
                 auth_level = res.governance.authority_level
-                if payload.get("human_approval") is True:
+                if payload.get("human_approval") is True or _can_auto_anchor_declared_identity(payload, actor_id):
                     auth_level = "declared"
+                
+                # Update authority level in the result as well
+                if "authority" in result:
+                    result["authority"]["level"] = auth_level
 
                 result["auth_context"] = mint_auth_context(
                     session_id=res.session_id,
@@ -717,6 +744,8 @@ async def call_kernel(
                 query=query_input,
                 risk_tier=payload.get("risk_tier", "medium"),
                 actor_id=actor_id,
+                declared_name=payload.get("declared_name"),
+                human_approval=bool(payload.get("human_approval", False)),
                 auth_context=auth_ctx,
                 session_id=session_id,
                 allow_execution=bool(payload.get("allow_execution", False)),
@@ -737,6 +766,10 @@ async def call_kernel(
                 effective_level = (
                     auth_ctx.get("authority_level", "declared") if auth_ctx else "declared"
                 )
+                
+                # Update authority level in the result as well
+                if "authority" in result:
+                    result["authority"]["level"] = effective_level
                 
                 result["auth_context"] = mint_auth_context(
                     session_id=session_id,

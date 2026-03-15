@@ -99,14 +99,14 @@ class TestInitAnchor:
     @pytest.mark.asyncio
     async def test_init_anchor_basic(self):
         """Test basic init_anchor execution"""
-        from arifosmcp.runtime.tools import INIT_ANCHOR
+        from arifosmcp.runtime.tools import init_anchor
         
         with patch('arifosmcp.runtime.tools._wrap_call') as mock_wrap:
             mock_wrap.return_value = AsyncMock()
             mock_wrap.return_value.ok = True
             mock_wrap.return_value.verdict = "SEAL"
             
-            result = await INIT_ANCHOR(
+            result = await init_anchor(
                 raw_input="Start session",
                 declared_name="TestUser"
             )
@@ -116,13 +116,13 @@ class TestInitAnchor:
     @pytest.mark.asyncio
     async def test_init_anchor_with_intent(self):
         """Test init_anchor with intent object"""
-        from arifosmcp.runtime.tools import INIT_ANCHOR
+        from arifosmcp.runtime.tools import init_anchor
         
         with patch('arifosmcp.runtime.tools._wrap_call') as mock_wrap:
             mock_wrap.return_value = AsyncMock()
             mock_wrap.return_value.ok = True
             
-            result = await INIT_ANCHOR(
+            result = await init_anchor(
                 intent={"query": "test query"},
                 session_id="test-session"
             )
@@ -136,14 +136,14 @@ class TestAgiReason:
     @pytest.mark.asyncio
     async def test_agi_reason_basic(self):
         """Test basic agi_reason execution"""
-        from arifosmcp.runtime.tools import AGI_REASON
+        from arifosmcp.runtime.tools import agi_reason
         
         with patch('arifosmcp.runtime.tools._wrap_call') as mock_wrap:
             mock_wrap.return_value = AsyncMock()
             mock_wrap.return_value.ok = True
             mock_wrap.return_value.verdict = "SEAL"
             
-            result = await AGI_REASON(
+            result = await agi_reason(
                 query="Test reasoning query"
             )
             
@@ -152,13 +152,13 @@ class TestAgiReason:
     @pytest.mark.asyncio
     async def test_agi_reason_with_context(self):
         """Test agi_reason with context"""
-        from arifosmcp.runtime.tools import AGI_REASON
+        from arifosmcp.runtime.tools import agi_reason
         
         with patch('arifosmcp.runtime.tools._wrap_call') as mock_wrap:
             mock_wrap.return_value = AsyncMock()
             mock_wrap.return_value.ok = True
             
-            result = await AGI_REASON(
+            result = await agi_reason(
                 query="Test",
                 context="Additional context",
                 causal_interventions=True
@@ -173,13 +173,13 @@ class TestAgiReflect:
     @pytest.mark.asyncio
     async def test_agi_reflect_basic(self):
         """Test basic agi_reflect execution"""
-        from arifosmcp.runtime.tools import AGI_REFLECT
+        from arifosmcp.runtime.tools import agi_reflect
         
         with patch('arifosmcp.runtime.tools._wrap_call') as mock_wrap:
             mock_wrap.return_value = AsyncMock()
             mock_wrap.return_value.ok = True
             
-            result = await AGI_REFLECT(
+            result = await agi_reflect(
                 topic="Test topic"
             )
             
@@ -192,13 +192,13 @@ class TestAsiCritique:
     @pytest.mark.asyncio
     async def test_asi_critique_basic(self):
         """Test basic asi_critique execution"""
-        from arifosmcp.runtime.tools import ASI_CRITIQUE
+        from arifosmcp.runtime.tools import asi_critique
         
         with patch('arifosmcp.runtime.tools._wrap_call') as mock_wrap:
             mock_wrap.return_value = AsyncMock()
             mock_wrap.return_value.ok = True
             
-            result = await ASI_CRITIQUE(
+            result = await asi_critique(
                 draft_output="Test draft output"
             )
             
@@ -211,13 +211,13 @@ class TestAsiSimulate:
     @pytest.mark.asyncio
     async def test_asi_simulate_basic(self):
         """Test basic asi_simulate execution"""
-        from arifosmcp.runtime.tools import ASI_SIMULATE
+        from arifosmcp.runtime.tools import asi_simulate
         
         with patch('arifosmcp.runtime.tools._wrap_call') as mock_wrap:
             mock_wrap.return_value = AsyncMock()
             mock_wrap.return_value.ok = True
             
-            result = await ASI_SIMULATE(
+            result = await asi_simulate(
                 scenario="Test scenario"
             )
             
@@ -230,14 +230,14 @@ class TestForge:
     @pytest.mark.asyncio
     async def test_forge_basic(self):
         """Test basic forge execution"""
-        from arifosmcp.runtime.tools import FORGE
+        from arifosmcp.runtime.tools import forge
         
         with patch('arifosmcp.runtime.tools._wrap_call') as mock_wrap:
             mock_wrap.return_value = AsyncMock()
             mock_wrap.return_value.ok = True
             mock_wrap.return_value.verdict = "SEAL"
             
-            result = await FORGE(
+            result = await forge(
                 spec="Create a test artifact"
             )
             
@@ -246,13 +246,13 @@ class TestForge:
     @pytest.mark.asyncio
     async def test_forge_with_risk_tier(self):
         """Test forge with risk tier"""
-        from arifosmcp.runtime.tools import FORGE
+        from arifosmcp.runtime.tools import forge
         
         with patch('arifosmcp.runtime.tools._wrap_call') as mock_wrap:
             mock_wrap.return_value = AsyncMock()
             mock_wrap.return_value.ok = True
             
-            result = await FORGE(
+            result = await forge(
                 spec="High risk operation",
                 risk_tier="high"
             )
@@ -266,14 +266,14 @@ class TestApexJudge:
     @pytest.mark.asyncio
     async def test_apex_judge_basic(self):
         """Test basic apex_judge execution"""
-        from arifosmcp.runtime.tools import APEX_JUDGE
+        from arifosmcp.runtime.tools import apex_judge
         
         with patch('arifosmcp.runtime.tools._wrap_call') as mock_wrap:
             mock_wrap.return_value = AsyncMock()
             mock_wrap.return_value.ok = True
             mock_wrap.return_value.verdict = "SEAL"
             
-            result = await APEX_JUDGE(
+            result = await apex_judge(
                 candidate_output="Test output to judge"
             )
             
@@ -287,14 +287,14 @@ class TestVaultSeal:
     @pytest.mark.asyncio
     async def test_vault_seal_basic(self):
         """Test basic vault_seal execution"""
-        from arifosmcp.runtime.tools import VAULT_SEAL
+        from arifosmcp.runtime.tools import vault_seal
         
         with patch('arifosmcp.runtime.tools._wrap_call') as mock_wrap:
             mock_wrap.return_value = AsyncMock()
             mock_wrap.return_value.ok = True
             mock_wrap.return_value.verdict = "SEAL"
             
-            result = await VAULT_SEAL(
+            result = await vault_seal(
                 verdict="SEAL",
                 evidence="Evidence for sealing"
             )
@@ -453,23 +453,23 @@ class TestErrorHandling:
     @pytest.mark.asyncio
     async def test_tool_handles_arifos_error(self):
         """Test tool handles ArifOSError"""
-        from arifosmcp.runtime.tools import AGI_REASON
+        from arifosmcp.runtime.tools import agi_reason
         from arifosmcp.runtime.models import ArifOSError
         
         with patch('arifosmcp.runtime.tools.call_kernel') as mock_call:
             mock_call.side_effect = ArifOSError("Test error")
             
             with pytest.raises(ArifOSError):
-                await AGI_REASON(query="test")
+                await agi_reason(query="test")
     
     @pytest.mark.asyncio
     async def test_tool_handles_generic_error(self):
         """Test tool handles generic error"""
-        from arifosmcp.runtime.tools import AGI_REASON
+        from arifosmcp.runtime.tools import agi_reason
         
         with patch('arifosmcp.runtime.tools.call_kernel') as mock_call:
             mock_call.side_effect = Exception("Generic error")
             
             # Should create error envelope, not raise
-            result = await AGI_REASON(query="test")
+            result = await agi_reason(query="test")
             assert result is not None

@@ -344,12 +344,89 @@ if os.path.isdir(_sites_dir):
     async def get_delegation_protocol(request):
         return FileResponse(os.path.join(_sites_dir, "DELEGATION_PROTOCOL.md"))
 
+# Mount REAL WebMCP Gateway (W3C Standard - Feb 2026)
+# This provides browser-native MCP with navigator.modelContext API
+try:
+    from arifosmcp.runtime.webmcp.real_webmcp import create_real_webmcp, WebMCPConfig
+    
+    _webmcp_config = WebMCPConfig(
+        site_name="arifOS Constitutional AI",
+        site_url="https://arifosmcp.arif-fazil.com",
+        version="2026.03.14-VALIDATED",
+        enable_declarative=True,
+        enable_imperative=True,
+        require_human_confirmation=True,  # F13 Sovereign
+    )
+    
+    _webmcp_gateway = create_real_webmcp(mcp, _webmcp_config)
+    
+    # Mount WebMCP at /webmcp
+    _mcp_app.mount("/webmcp", _webmcp_gateway.app, name="webmcp")
+    
+    print("✅ Real WebMCP Gateway mounted at /webmcp (W3C Standard)")
+    
+except ImportError as e:
+    print(f"⚠️ WebMCP not available: {e}")
+
     _mcp_app.router.add_route("/llms.txt", get_llms_txt, methods=["GET"], include_in_schema=False)
     _mcp_app.router.add_route("/ai.json", get_ai_json, methods=["GET"], include_in_schema=False)
     _mcp_app.router.add_route("/robots.txt", get_robots_txt, methods=["GET"], include_in_schema=False)
     _mcp_app.router.add_route("/openapi.json", get_openapi_json, methods=["GET"], include_in_schema=False)
     _mcp_app.router.add_route("/RAG_CONTEXT.md", get_rag_context, methods=["GET"], include_in_schema=False)
     _mcp_app.router.add_route("/DELEGATION_PROTOCOL.md", get_delegation_protocol, methods=["GET"], include_in_schema=False)
+
+# Mount REAL A2A Server (Google Protocol - April 2025)
+# This provides Agent-to-Agent protocol for multi-agent collaboration
+try:
+    from arifosmcp.runtime.a2a import create_a2a_server
+    
+    _a2a_server = create_a2a_server(mcp)
+    
+    # Mount A2A at /a2a
+    _mcp_app.mount("/a2a", _a2a_server.app, name="a2a")
+    
+    # Also mount at root for /.well-known/agent.json
+    from fastapi import FastAPI
+    
+    # Create a separate app for well-known endpoints that doesn't have the /a2a prefix
+    @_mcp_app.get("/.well-known/agent.json")
+    async def well_known_agent():
+        """A2A Agent Card discovery endpoint."""
+        return {
+            "name": "arifOS Constitutional Kernel",
+            "description": "AI governance system with 13 constitutional floors (F1-F13)",
+            "url": "https://arifosmcp.arif-fazil.com",
+            "version": "2026.03.14-VALIDATED",
+            "authentication": {"schemes": ["none", "api_key"]},
+            "capabilities": {
+                "streaming": True,
+                "pushNotifications": False,
+            },
+            "skills": [
+                {
+                    "id": "constitutional_review",
+                    "name": "Constitutional Review",
+                    "description": "Review actions against 13 constitutional floors",
+                },
+                {
+                    "id": "task_execution",
+                    "name": "Governed Task Execution",
+                    "description": "Execute tasks with full constitutional oversight",
+                },
+            ],
+            "endpoints": {
+                "task": "/a2a/task",
+                "status": "/a2a/status",
+                "cancel": "/a2a/cancel",
+                "subscribe": "/a2a/subscribe",
+            }
+        }
+    
+    print("✅ Real A2A Server mounted at /a2a (Google Protocol)")
+    print("✅ Agent Card available at /.well-known/agent.json")
+    
+except ImportError as e:
+    print(f"⚠️ A2A not available: {e}")
 
 
 def create_aaa_mcp_server() -> FastMCP:

@@ -1,261 +1,296 @@
-# arifosmcp VPS Deploy Guide
+# arifOS MCP - Deployment Guide
 
-This document is the current deployment reference for the production VPS layout as of `2026-03-13`.
+> **DITEMPA BUKAN DIBERI** — Forged, Not Given  
+> Zero-chaos deployment for the Constitutional AI Governance System
 
-Production deploys are high-stakes. Apply `888_HOLD` discipline before sealing changes to live infrastructure.
+---
 
-## Current Topology
+## Quick Start (For AI Agents)
 
-The live architecture is a single VPS running a `12`-container Docker Compose stack behind Traefik.
-
-Canonical source of truth:
-
-| Layer | Canonical path / endpoint | Notes |
-| --- | --- | --- |
-| Git working tree | `/srv/arifosmcp` | sole active repository on VPS |
-| Persistent data root | `/opt/arifos/data` | Postgres, Redis, Qdrant, Grafana, n8n, OpenClaw, Agent Zero |
-| Persistent secret root | `/opt/arifos/secrets` | file-backed continuity secret lives here |
-| TLS state | `/opt/arifos/traefik/acme.json` | Traefik certificate store |
-| Public base URL | `https://arifosmcp.arif-fazil.com` | main public MCP domain |
-| MCP endpoint | `https://arifosmcp.arif-fazil.com/mcp` | streamable HTTP MCP |
-| Health endpoint | `https://arifosmcp.arif-fazil.com/health` | capability map and runtime health |
-| Status endpoint | `https://arifosmcp.arif-fazil.com/status` | no-JS ops truth page |
-| Public discovery | `https://arifosmcp.arif-fazil.com/.well-known/mcp/server.json` | generated from runtime registry |
-
-## Runtime Contract
-
-The public MCP surface is registry-driven from `arifosmcp.runtime.public_registry`.
-
-Current public profile:
-
-- Version: `2026.03.12-FORGED`
-- Public tool count: `10`
-- Public endpoints:
-  - `/mcp`
-  - `/health`
-  - `/status`
-  - `/tools`
-  - `/.well-known/mcp/server.json`
-- Deploy validation sources:
-  - `scripts/generate_public_specs.py`
-  - targeted pytest contract checks
-
-Current public tools:
-
-1. `arifOS_kernel`
-2. `search_reality`
-3. `ingest_evidence`
-4. `session_memory`
-5. `audit_rules`
-6. `check_vital`
-7. `init_anchor_state`
-8. `verify_vault_ledger`
-9. `open_apex_dashboard`
-
-Do not hand-edit public tool lists in multiple places. Update the registry and regenerate specs.
-
-## Required Production Environment
-
-Production is currently using the live `.env` plus Docker Compose mounts on the VPS. If you bootstrap a fresh host, create `.env.docker` from `.env.docker.example` and set production values explicitly.
-
-Minimum required variables:
-
-| Variable | Required value / guidance |
-| --- | --- |
-| `PORT` | `8080` |
-| `HOST` | `0.0.0.0` |
-| `AAA_MCP_TRANSPORT` | `http` |
-| `ARIFOS_VERSION` | `2026.03.12-FORGED` |
-| `ARIFOS_MCP_PATH` | `/mcp` |
-| `ARIFOS_PUBLIC_BASE_URL` | `https://arifosmcp.arif-fazil.com` |
-| `ARIFOS_WIDGET_DOMAIN` | same public origin unless intentionally split |
-| `ARIFOS_GOVERNANCE_SECRET_FILE` | `/opt/arifos/secrets/governance.secret` |
-| `ARIFOS_GOVERNANCE_SECRET_PREVIOUS` | previous value kept temporarily for rollover safety |
-| `POSTGRES_PASSWORD` | configured |
-| `OPENCLAW_ACCESS_TOKEN` | configured |
-| `N8N_BASIC_AUTH_PASSWORD` | configured |
-| `WEBHOOK_SECRET` | configured |
-| `GF_SECURITY_ADMIN_PASSWORD` | configured |
-
-Critical continuity note:
-
-- `ARIFOS_GOVERNANCE_SECRET_FILE` is now the canonical production path
-- do not rely on ephemeral `ARIFOS_GOVERNANCE_SECRET`
-- current live secret is file-backed and readable by the `arifos` container user
-
-## Canonical VPS Layout
-
-Use this directory shape on the VPS:
-
-```text
-/srv/arifosmcp
-├── docker-compose.yml
-├── docker-compose.override.yml
-├── .env
-├── .env.docker
-├── arifosmcp/
-├── core/
-├── scripts/
-├── spec/
-└── infrastructure/
-
-/opt/arifos
-├── data/
-│   ├── agent-zero/
-│   ├── grafana/
-│   ├── n8n/
-│   ├── ollama/
-│   ├── openclaw/
-│   ├── postgres/
-│   ├── prometheus/
-│   ├── qdrant/
-│   └── redis/
-├── secrets/
-│   └── governance.secret
-└── traefik/
-    └── acme.json
-```
-
-Avoid duplicate live working trees under home directories. They increase entropy and make rollback analysis harder.
-
-## Deploy Procedure
-
-### 1. Prepare host
+### Option 1: One-Command Deploy (Recommended)
 
 ```bash
-mkdir -p /srv/arifosmcp
-mkdir -p /opt/arifos/data/{agent-zero,grafana,n8n,ollama,openclaw,postgres,prometheus,qdrant,redis}
-mkdir -p /opt/arifos/secrets
-mkdir -p /opt/arifos/traefik
-touch /opt/arifos/traefik/acme.json
-chmod 600 /opt/arifos/traefik/acme.json
-openssl rand -hex 32 > /opt/arifos/secrets/governance.secret
-chmod 600 /opt/arifos/secrets/governance.secret
-chown 1000:1000 /opt/arifos/secrets/governance.secret
+# Deploy to staging
+python scripts/deploy.py
+
+# Deploy to production
+python scripts/deploy.py --environment production
+
+# Dry run (see what would happen)
+python scripts/deploy.py --environment production --dry-run
 ```
 
-### 2. Sync repository
+### Option 2: GitHub Actions (No Local Setup)
+
+1. Go to **Actions** → **🚀 Deploy arifOS MCP**
+2. Click **Run workflow**
+3. Select environment (staging/production)
+4. Click **Run workflow**
+
+---
+
+## Deployment Environments
+
+| Environment | URL | Auto-Deploy | Approval Required |
+|-------------|-----|-------------|-------------------|
+| **Staging** | `https://staging.arif-fazil.com` | On push to `main` | No |
+| **Production** | `https://arifosmcp.arif-fazil.com` | Manual only | Yes |
+
+---
+
+## Pre-Deployment Checklist
+
+Before deploying to **production**, ensure:
+
+- [ ] All tests pass (`pytest tests/`)
+- [ ] Code is committed and pushed
+- [ ] You're on `main` branch
+- [ ] No `[no-deploy]` in commit message
+- [ ] Version bumped in `pyproject.toml` (optional)
+
+---
+
+## Deployment Stages
+
+The deployment system runs 6 constitutional stages:
+
+```
+🔷 Stage 1/6: Validating prerequisites
+    └─ F11: Verify identity and authorization
+    └─ Check SSH connectivity
+    └─ Verify git state (clean for production)
+
+🔷 Stage 2/6: Running test suite
+    └─ Unit tests (tests/00_unit/)
+    └─ Integration tests (tests/01_integration/)
+    └─ Constitutional tests (tests/03_constitutional/) ← F1-F13
+
+🔷 Stage 3/6: Creating rollback backup
+    └─ F1 (Amanah): Save current state for reversibility
+    └─ Store current git SHA
+
+🔷 Stage 4/6: Deploying to server
+    └─ Pull latest code
+    └─ Build Docker image
+    └─ Restart containers
+
+🔷 Stage 5/6: Health checks
+    └─ Verify /health endpoint
+    └─ Check tool availability
+    └─ Validate MCP protocol
+
+🔷 Stage 6/6: Deployment complete
+    └─ Save deployment manifest
+    └─ Report success
+```
+
+---
+
+## Rollback
+
+If deployment fails, automatic rollback occurs:
 
 ```bash
+# Manual rollback (if auto-rollback disabled)
+python scripts/deploy.py --environment production --rollback
+
+# Or SSH to server and:
+ssh root@arif-fazil.com
 cd /srv/arifosmcp
-git pull --ff-only
+docker-compose down
+git reset --hard <previous-sha>
+docker-compose up -d
 ```
 
-If bootstrapping a fresh environment:
+---
+
+## Configuration
+
+### Environment Variables
+
+Create `.env.deploy` in project root:
 
 ```bash
-cp .env.docker.example .env.docker
+# SSH Configuration
+DEPLOY_SSH_KEY_PATH=~/.ssh/arifos_deploy
+DEPLOY_STAGING_HOST=staging.arif-fazil.com
+DEPLOY_PRODUCTION_HOST=arif-fazil.com
+
+# Notifications (optional)
+DEPLOY_SLACK_WEBHOOK=https://hooks.slack.com/services/...
+DEPLOY_TELEGRAM_TOKEN=your_bot_token
+DEPLOY_TELEGRAM_CHAT_ID=your_chat_id
 ```
 
-At minimum, confirm:
+### Server Requirements
 
-- `ARIFOS_GOVERNANCE_SECRET_FILE=/opt/arifos/secrets/governance.secret`
-- `/opt/arifos/secrets` is mounted read-only into the `arifosmcp` container
-- the secret file is readable by UID `1000`
+Target server must have:
 
-### 3. Regenerate public specs
+- Docker & Docker Compose installed
+- Git repository at `/srv/arifosmcp`
+- SSH access for deploy user
+- Ports 80/443 available
 
-Run this whenever public tools, prompts, resources, or version change:
+---
+
+## Troubleshooting
+
+### Issue: "Cannot connect to server"
 
 ```bash
+# Test SSH manually
+ssh root@arif-fazil.com echo "OK"
+
+# If fails, check:
+# 1. SSH key added to agent: ssh-add -l
+# 2. Server is running: ping arif-fazil.com
+# 3. Firewall allows SSH
+```
+
+### Issue: "Tests failing"
+
+```bash
+# Run tests locally first
+pytest tests/00_unit/ -v
+pytest tests/03_constitutional/ -v  # Critical: F1-F13
+
+# Skip tests in emergency (not recommended)
+python scripts/deploy.py --skip-tests
+```
+
+### Issue: "Health check failed"
+
+```bash
+# Check server logs
+ssh root@arif-fazil.com
+docker logs arifosmcp_server
+
+# Check container status
+docker-compose ps
+```
+
+### Issue: "Permission denied"
+
+```bash
+# Ensure SSH key is loaded
+ssh-add ~/.ssh/arifos_deploy
+
+# Verify key permissions
+chmod 600 ~/.ssh/arifos_deploy
+```
+
+---
+
+## Constitutional Safety
+
+The deployment system enforces arifOS principles:
+
+| Floor | Deployment Enforcement |
+|-------|----------------------|
+| **F1** (Amanah) | Automatic rollback on failure |
+| **F2** (Truth) | Honest status reporting, no hiding failures |
+| **F4** (Clarity) | Clear stage progression and logging |
+| **F11** (Command Auth) | SSH key verification, approved environments only |
+| **F13** (Sovereign) | Manual approval for production |
+
+---
+
+## API for AI Agents
+
+### Deploy from Python
+
+```python
+import subprocess
+
+# Deploy staging
+subprocess.run(["python", "scripts/deploy.py", "--environment", "staging"])
+
+# Deploy production with dry-run first
+subprocess.run([
+    "python", "scripts/deploy.py",
+    "--environment", "production",
+    "--dry-run"
+])
+```
+
+### Deploy via GitHub API
+
+```bash
+# Trigger workflow via API
+curl -X POST \
+  -H "Authorization: token $GITHUB_TOKEN" \
+  -H "Accept: application/vnd.github.v3+json" \
+  https://api.github.com/repos/ariffazil/arifosmcp/actions/workflows/deploy-automated.yml/dispatches \
+  -d '{
+    "ref": "main",
+    "inputs": {
+      "environment": "staging",
+      "dry_run": "false"
+    }
+  }'
+```
+
+---
+
+## Deployment Manifests
+
+Every deployment creates a manifest in `deployment/manifests/`:
+
+```json
+{
+  "environment": "production",
+  "git_sha": "a1b2c3d4...",
+  "git_branch": "main",
+  "deployer": "kimi-cli",
+  "timestamp": "2026-03-15T06:30:00+00:00",
+  "status": "completed",
+  "stages": [...]
+}
+```
+
+View deployment history:
+
+```bash
+ls -la deployment/manifests/
+cat deployment/manifests/deploy_production_20260315_063000.json
+```
+
+---
+
+## Emergency Procedures
+
+### Complete System Failure
+
+```bash
+# 1. SSH to server
+ssh root@arif-fazil.com
+
+# 2. Emergency restart
 cd /srv/arifosmcp
-python scripts/generate_public_specs.py
+docker-compose down
+docker-compose up -d
+
+# 3. Check status
+curl https://arifosmcp.arif-fazil.com/health
 ```
 
-### 4. Build and launch stack
-
-Full stack:
+### Database Recovery
 
 ```bash
+# Restore from backup
+ssh root@arif-fazil.com
 cd /srv/arifosmcp
-docker compose up -d --build
+docker-compose exec postgres pg_restore ...
 ```
 
-Targeted MCP runtime redeploy:
+---
 
-```bash
-cd /srv/arifosmcp
-docker compose up -d --build arifosmcp
-```
+## Support
 
-Targeted OpenClaw redeploy:
+- **Issues**: https://github.com/ariffazil/arifosmcp/issues
+- **Documentation**: https://arifos.arif-fazil.com
+- **Constitutional Questions**: See CONSTITUTION.md
 
-```bash
-cd /srv/arifosmcp
-docker compose up -d --build openclaw
-```
+---
 
-### 5. Inspect runtime health
-
-```bash
-cd /srv/arifosmcp
-docker compose ps
-docker compose logs --tail=200 arifosmcp
-docker compose logs --tail=200 openclaw
-docker compose logs --tail=200 traefik
-```
-
-## Verification
-
-After deployment, verify the public contract and runtime:
-
-```bash
-curl -fsS https://arifosmcp.arif-fazil.com/health
-curl -fsS https://arifosmcp.arif-fazil.com/status?format=json
-curl -fsS https://arifosmcp.arif-fazil.com/.well-known/mcp/server.json
-curl -fsS https://arifosmcp.arif-fazil.com/tools
-curl -fsS https://arifosmcp.arif-fazil.com/mcp \
-  -H "Content-Type: application/json" \
-  -d '{"jsonrpc":"2.0","id":"1","method":"tools/list","params":{}}'
-```
-
-Expected checks:
-
-- `/health` returns `healthy`
-- `tools_loaded` is `10`
-- `continuity_signing` is `configured`
-- `governed_continuity` is `enabled`
-- `/status` renders in plain HTML and returns JSON with `?format=json`
-- `tools/list` includes `init_anchor_state`
-- `arifosmcp` is reachable through Traefik, not by direct public port exposure
-
-## Observability
-
-Supporting observability stack:
-
-- Prometheus scrapes service metrics
-- Grafana provides dashboards
-- Traefik logs ingress behavior
-- `/status` is the fastest human-readable ops truth page
-- `docker compose logs` remains the fastest first-pass incident surface on the VPS
-
-For incidents:
-
-```bash
-cd /srv/arifosmcp
-docker compose ps
-docker compose logs --tail=200 arifosmcp
-docker compose logs --tail=200 openclaw
-docker compose logs --tail=200 postgres
-docker compose logs --tail=200 redis
-docker compose logs --tail=200 qdrant
-```
-
-## Chaos Watch
-
-Current entropy risks still worth tracking:
-
-| Risk | Impact | Action |
-| --- | --- | --- |
-| Agent Zero public route not proven | external access may still fail | verify DNS and Traefik route for `brain.arifosmcp.arif-fazil.com` |
-| Traefik metrics port `8082` unresolved | observability gap | fix only if you actually need that scrape target |
-| Manual runtime/spec drift | discovery/docs/runtime mismatch | regenerate specs from registry before deploy |
-| OpenClaw provider catalog noise | warning confusion | keep Venice non-primary and watch startup logs |
-
-## Deploy Standard
-
-- make changes in `/srv/arifosmcp`
-- regenerate specs if the public surface changes
-- run targeted tests before restart
-- redeploy only the necessary service when possible
-- verify `/health`, `/status`, `/tools`, and MCP `tools/list` after every production change
+*Ditempa Bukan Diberi — Forged, Not Given [ΔΩΨ | ARIF]*
