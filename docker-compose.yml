@@ -353,10 +353,11 @@ services:
       - arifos_trinity
     labels:
       - "traefik.enable=true"
-      # Root landing page / Dashboard
-      - "traefik.http.routers.arifosmcp-root.rule=Host(`arifosmcp.arif-fazil.com`) && Path(`/`)"
+      # Root landing page / Dashboard / Health / Tools
+      - "traefik.http.routers.arifosmcp-root.rule=Host(`arifosmcp.arif-fazil.com`) && (Path(`/`) || PathPrefix(`/health`) || PathPrefix(`/tools`))"
       - "traefik.http.routers.arifosmcp-root.entrypoints=websecure"
       - "traefik.http.routers.arifosmcp-root.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.arifosmcp-root.priority=100"
       - "traefik.http.services.arifosmcp-root.loadbalancer.server.port=8080"
       # A2A MCP router - main domain + /mcp path
       - "traefik.http.routers.arifosmcp.rule=Host(`arifosmcp.arif-fazil.com`) && PathPrefix(`/mcp`)"
