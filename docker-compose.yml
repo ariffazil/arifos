@@ -271,7 +271,7 @@ services:
     networks:
       - arifos_trinity
     ports:
-      - "127.0.0.1:18789:18789"
+      - "0.0.0.0:18789:18789"
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.openclaw.rule=Host(`claw.arifosmcp.arif-fazil.com`)"
