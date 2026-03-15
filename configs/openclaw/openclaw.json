@@ -321,7 +321,7 @@
   "gateway": {
     "port": 18789,
     "mode": "local",
-    "bind": "loopback",
+    "bind": "all",
     "controlUi": {
       "allowedOrigins": [
         "http://localhost:18789",
