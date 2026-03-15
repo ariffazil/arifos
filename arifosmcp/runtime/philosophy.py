@@ -699,7 +699,8 @@ def select_governed_philosophy(
     force_33 = (
         verdict in ("SABAR", "VOID") 
         or g_score < 0.5 
-        or stage_num == 444 
+        or stage_num in (0, 444)
+        or stage == "000_INIT"
         or not deterministic_local_quote
     )
     

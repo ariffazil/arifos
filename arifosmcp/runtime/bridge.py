@@ -32,8 +32,8 @@ from .models import Verdict
 logger = logging.getLogger(__name__)
 DEFAULT_VAULT_PATH = Path("VAULT999/vault999.jsonl")
 
-# Normalized mapping for the 10-tool stack
 TOOL_MAP = {
+    "init_anchor": "anchor_session",
     "init_anchor_state": "anchor_session",
     "integrate_analyze_reflect": "reason_mind",
     "reason_mind_synthesis": "reason_mind",
@@ -80,10 +80,11 @@ def _resolve_claimed_actor_id(payload: dict[str, Any]) -> str:
     claim_lower = claim.lower()
     if claim_lower == "arif":
         return "ariffazil"
-    if "arif" in claim_lower:
+    if "arif" in claim_lower and "arif-the-apex" not in claim_lower and "arif-fazil" not in claim_lower:
         return claim_lower.replace(" ", "").replace("-", "")
     
-    return claim or "anonymous"
+    # Normalize spaces to hyphens (align with _0_init.py)
+    return claim_lower.replace(" ", "-") or "anonymous"
 
 
 def _auth_failure_envelope(
@@ -96,7 +97,7 @@ def _auth_failure_envelope(
     identity_reason: str,
     resolved_actor_id: str = "anonymous",
     next_action_reason: str,
-    machine_issue: str = "AUTH_BOOTSTRAP_REQUIRED",
+    machine_issue: str = "AUTH_FAILURE",
 ) -> dict[str, Any]:
     return {
         "ok": False,
@@ -222,8 +223,8 @@ def _normalize_auth_context(payload: dict[str, Any], auth_context: Any) -> dict[
     if not normalized.get("actor_id"):
         fallback_actor_id = payload.get("actor_id") or payload.get("declared_name") or payload.get("claimed_actor_id")
         if fallback_actor_id:
-            normalized["actor_id"] = str(fallback_actor_id)
-            if normalized["actor_id"].lower() == "arif":
+            normalized["actor_id"] = str(fallback_actor_id).lower().strip().replace(" ", "-")
+            if normalized["actor_id"] == "arif":
                 normalized["actor_id"] = "ariffazil"
 
     return normalized

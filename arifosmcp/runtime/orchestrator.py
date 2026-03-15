@@ -344,6 +344,7 @@ async def metabolic_loop(
     timeout_seconds: float = 30.0,  # Configurable timeout
     declared_name: str | None = None,
     human_approval: bool = False,
+    tool_name: str = "arifOS_kernel",
 ) -> dict[str, Any]:
     """Run the Double Helix metabolic loop (Inner Ring + Outer Ring)."""
     start_time = time.perf_counter()
@@ -353,7 +354,7 @@ async def metabolic_loop(
         elapsed = time.perf_counter() - start_time
         return {
             "ok": True,
-            "tool": "metabolic_loop",
+            "tool": tool_name,
             "session_id": session_id or "dry-run-session",
             "stage": "444_ROUTER",
             "verdict": "SEAL",
@@ -578,7 +579,7 @@ async def metabolic_loop(
         out = policy_res.model_dump(mode="json")
         out.update(
             {
-                "tool": "arifOS_kernel",
+                "tool": tool_name,
                 "session_id": current_session_id,
                 "stage": policy_res.stage,
                 "sacred_stage": _get_sacred_name(policy_res.stage),

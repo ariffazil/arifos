@@ -5,6 +5,120 @@ All changes follow [T000 versioning](T000_VERSIONING.md): `YYYY.MM.DD-PHASE-STAT
 
 ---
 
+## [2026.3.15-TRINITY-FORGED] — 2026-03-15 — PROTOCOL-TRINITY-FORGED
+
+**T000:** 2026.03.15-TRINITY-FORGED  
+**Theme:** Protocol Trinity — MCP + A2A + WebMCP — Three Standards, One Kernel
+
+### 🏛️ Protocol Trinity Implementation
+
+arifOS now implements **all three major AI agent protocols** with unified constitutional governance (F1-F13).
+
+#### The Three Protocols
+
+| Protocol | Standard | Purpose | Status |
+|----------|----------|---------|--------|
+| **MCP** | Anthropic/Linux Foundation (Nov 2024) | Tool execution & context | ✅ Production |
+| **A2A** | Google (Apr 2025) | Agent-to-agent collaboration | ✅ Implemented |
+| **WebMCP** | W3C/Google-Microsoft (Feb 2026) | Browser-native AI | ✅ Implemented |
+
+#### Live Endpoints
+
+```
+# MCP (Model Context Protocol)
+https://arifosmcp.arif-fazil.com/mcp              — JSON-RPC tool execution
+https://arifosmcp.arif-fazil.com/health           — Health check
+https://arifosmcp.arif-fazil.com/tools            — Tool listing
+
+# A2A (Agent-to-Agent Protocol)
+https://arifosmcp.arif-fazil.com/.well-known/agent.json  — Agent Card discovery
+https://arifosmcp.arif-fazil.com/a2a/task                — Submit task
+https://arifosmcp.arif-fazil.com/a2a/status/{id}         — Task status
+https://arifosmcp.arif-fazil.com/a2a/subscribe/{id}      — SSE real-time updates
+
+# WebMCP (Web Model Context Protocol)
+https://arifosmcp.arif-fazil.com/.well-known/webmcp      — WebMCP manifest
+https://arifosmcp.arif-fazil.com/webmcp                  — Browser console UI
+https://arifosmcp.arif-fazil.com/webmcp/sdk.js           — JavaScript SDK
+https://arifosmcp.arif-fazil.com/webmcp/tools.json       — Tool manifest
+```
+
+#### New Features
+
+- **A2A Protocol:** Complete Google A2A implementation
+  - Agent Card discovery at `/.well-known/agent.json`
+  - Task submission with constitutional governance
+  - Real-time SSE streaming for task updates
+  - All tasks pass through F1-F13 constitutional floors
+  
+- **WebMCP Gateway:** W3C-standard WebMCP implementation
+  - Browser-native `navigator.modelContext` API support
+  - Declarative API (HTML forms) + Imperative API (JS)
+  - Human-friendly console UI at `/webmcp`
+  - F12 Injection Guard (XSS/CSRF protection)
+  - F11 Command Auth (session-based)
+
+- **Zero-Chaos Deployment:** 6-stage constitutional deployment
+  - Validate → Test → Backup → Deploy → Health Check → Complete
+  - F1: Automatic rollback on failure
+  - F11: SSH key verification
+  - F13: Manual approval for production
+
+- **CIV Infrastructure Fabric:** 15-container autonomous stack
+  - arifosmcp (constitutional kernel)
+  - code-server (VS Code in browser)
+  - stirling-pdf (PDF automation)
+  - evolution-api (WhatsApp gateway)
+  - n8n (workflow automation)
+  - openclaw (multi-channel gateway)
+  - traefik, postgres, redis, qdrant, ollama, grafana, prometheus
+
+- **Repository Housekeeping:** Root cleanup
+  - 100+ files → 37 essential files
+  - docs/ organized: deploy/, protocols/, reports/, setup/
+  - scripts/ organized: housekeeping/, test/, publish/, utils/
+  - archive/ for test outputs
+
+#### Constitutional Guarantees
+
+All three protocols enforce:
+- **F1 (Amanah):** Reversibility, VAULT999 logging
+- **F2 (Truth):** Grounding requirements
+- **F11 (Command Auth):** Identity verification
+- **F12 (Injection):** Security scanning
+- **F13 (Sovereign):** Human confirmation for critical ops
+
+#### Tool Surface (32 Tools)
+
+- **26 Public Constitutional Tools:** KERNEL (6) + AGI (6) + ASI (4) + APEX (7) + VAULT (2) + Router (1)
+- **9 Machine Tools (Nervous System 9):** System introspection and diagnostics
+- **15 Resources:** PNS organs, vault assets, canon schemas
+- **10 Prompts:** Constitutional tool templates
+
+#### Technical Improvements
+
+- FastMCP 3.1.0 full compliance
+  - Tools: `ctx: Context = CurrentContext()` dependency pattern
+  - Resources: `@mcp.resource()` decorator
+  - Prompts: `@mcp.prompt()` decorator
+  - Context: Full logging, progress reporting, resource access
+- Fixed G_star telemetry extraction bug
+- Added `itsdangerous` dependency for SessionMiddleware (WebMCP F11)
+- Starlette router for A2A well-known endpoints
+
+#### Files Forged
+
+- `arifosmcp/runtime/a2a/` — Complete A2A protocol implementation
+- `arifosmcp/runtime/webmcp/` — WebMCP gateway implementation
+- `arifosmcp/runtime/server.py` — Protocol mounting and integration
+- `arifosmcp/runtime/tools.py` — G_star extraction fix
+- `pyproject.toml` — itsdangerous dependency
+- `README.md` — Complete rewrite with Protocol Trinity
+- `scripts/deploy.py` — Zero-chaos deployment automation
+- `docs/protocols/PROTOCOLS_TRINITY.md` — Protocol documentation
+
+---
+
 ## [2026.3.14-NERVOUS-SYSTEM-9-FORGED] — 2026-03-14 — NERVOUS-SYSTEM-9-FORGED
 
 **T000:** 2026.03.14-NERVOUS-SYSTEM-9-FORGED  
