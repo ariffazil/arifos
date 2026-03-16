@@ -209,7 +209,10 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
                     "type": "boolean",
                     "description": "Enable session memory retrieval and storage.",
                 },
-                "use_heart": {"type": "boolean", "description": "Enable ethical evaluation (666_HEART)."},
+                "use_heart": {
+                    "type": "boolean",
+                    "description": "Enable ethical evaluation (666_HEART).",
+                },
                 "use_critique": {
                     "type": "boolean",
                     "description": "Enable self-critique engine (777_CRITIQUE).",
@@ -218,7 +221,10 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
                     "type": "boolean",
                     "description": "Allow material actions if permitted by ethical vetting.",
                 },
-                "debug": {"type": "boolean", "description": "Include detailed debug telemetry in response."},
+                "debug": {
+                    "type": "boolean",
+                    "description": "Include detailed debug telemetry in response.",
+                },
                 "dry_run": {
                     "type": "boolean",
                     "description": "Run full pipeline without writing to VAULT999.",
@@ -227,6 +233,11 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
                     "type": "string",
                     "enum": ["architect", "engineer", "auditor", "validator"],
                     "description": "Persona to assume for the response (F9-compliant role).",
+                },
+                "caller_context": {
+                    "type": "object",
+                    "description": "Advisory runtime context from calling agent. Server-governed — persona_id may be overridden.",
+                    "additionalProperties": True,
                 },
             },
         },
@@ -242,7 +253,12 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
         input_schema={
             "type": "object",
             "required": ["spec"],
-            "properties": {"spec": {"type": "string", "description": "The design specification or goal to forge."}},
+            "properties": {
+                "spec": {
+                    "type": "string",
+                    "description": "The design specification or goal to forge.",
+                }
+            },
         },
     ),
     # ─── AGI Δ MIND (6 tools) ───
@@ -257,7 +273,12 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
         input_schema={
             "type": "object",
             "required": ["query"],
-            "properties": {"query": {"type": "string", "description": "The reasoning prompt or problem statement."}},
+            "properties": {
+                "query": {
+                    "type": "string",
+                    "description": "The reasoning prompt or problem statement.",
+                }
+            },
         },
     ),
     ToolSpec(
@@ -271,7 +292,12 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
         input_schema={
             "type": "object",
             "required": ["topic"],
-            "properties": {"topic": {"type": "string", "description": "The core topic or decision point to reflect upon."}},
+            "properties": {
+                "topic": {
+                    "type": "string",
+                    "description": "The core topic or decision point to reflect upon.",
+                }
+            },
         },
     ),
     ToolSpec(
@@ -285,7 +311,9 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
         input_schema={
             "type": "object",
             "required": ["input"],
-            "properties": {"input": {"type": "string", "description": "Fact string to verify or URL to fetch."}},
+            "properties": {
+                "input": {"type": "string", "description": "Fact string to verify or URL to fetch."}
+            },
         },
     ),
     ToolSpec(
@@ -299,7 +327,12 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
         input_schema={
             "type": "object",
             "required": ["operation"],
-            "properties": {"operation": {"type": "string", "description": "The atlas operation (merge, query, or build)."}},
+            "properties": {
+                "operation": {
+                    "type": "string",
+                    "description": "The atlas operation (merge, query, or build).",
+                }
+            },
         },
     ),
     ToolSpec(
@@ -342,7 +375,12 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
         input_schema={
             "type": "object",
             "required": ["draft_output"],
-            "properties": {"draft_output": {"type": "string", "description": "The candidate thought or output to audit."}},
+            "properties": {
+                "draft_output": {
+                    "type": "string",
+                    "description": "The candidate thought or output to audit.",
+                }
+            },
         },
     ),
     ToolSpec(
@@ -356,7 +394,12 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
         input_schema={
             "type": "object",
             "required": ["scenario"],
-            "properties": {"scenario": {"type": "string", "description": "The scenario or action plan to simulate."}},
+            "properties": {
+                "scenario": {
+                    "type": "string",
+                    "description": "The scenario or action plan to simulate.",
+                }
+            },
         },
     ),
     ToolSpec(
@@ -370,7 +413,12 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
         input_schema={
             "type": "object",
             "required": ["task_description"],
-            "properties": {"task_description": {"type": "string", "description": "Specific engineering task (e.g. 'write script to X')."}},
+            "properties": {
+                "task_description": {
+                    "type": "string",
+                    "description": "Specific engineering task (e.g. 'write script to X').",
+                }
+            },
         },
     ),
     ToolSpec(
@@ -384,7 +432,9 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
         input_schema={
             "type": "object",
             "required": ["query"],
-            "properties": {"query": {"type": "string", "description": "Recall query or concept keywords."}},
+            "properties": {
+                "query": {"type": "string", "description": "Recall query or concept keywords."}
+            },
         },
     ),
     # ─── APEX Ψ SOUL (7 tools) ───
@@ -399,7 +449,12 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
         input_schema={
             "type": "object",
             "required": ["candidate_output"],
-            "properties": {"candidate_output": {"type": "string", "description": "Final output candidate for judgment."}},
+            "properties": {
+                "candidate_output": {
+                    "type": "string",
+                    "description": "Final output candidate for judgment.",
+                }
+            },
         },
     ),
     ToolSpec(
@@ -413,7 +468,12 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
         input_schema={
             "type": "object",
             "required": ["input_to_validate"],
-            "properties": {"input_to_validate": {"type": "string", "description": "The specific data or artifact to validate."}},
+            "properties": {
+                "input_to_validate": {
+                    "type": "string",
+                    "description": "The specific data or artifact to validate.",
+                }
+            },
         },
     ),
     ToolSpec(
@@ -437,7 +497,9 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
         input_schema={
             "type": "object",
             "required": ["content"],
-            "properties": {"content": {"type": "string", "description": "Untrusted input to scan."}},
+            "properties": {
+                "content": {"type": "string", "description": "Untrusted input to scan."}
+            },
         },
     ),
     ToolSpec(
@@ -448,7 +510,12 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
         description="888_HOLD: Check status of a pending human escalation or sovereign hold. Used when a task requires manual intervention or ratification (F13). Enforces F13.",
         trinity="APEX Ψ",
         floors=("F13",),
-        input_schema={"type": "object", "properties": {"hold_id": {"type": "string", "description": "Specific hold ID to query."}}},
+        input_schema={
+            "type": "object",
+            "properties": {
+                "hold_id": {"type": "string", "description": "Specific hold ID to query."}
+            },
+        },
     ),
     ToolSpec(
         name="check_vital",
@@ -484,7 +551,10 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
             "required": ["verdict", "evidence"],
             "properties": {
                 "verdict": {"type": "string", "description": "The final verdict code (SEAL/VOID)."},
-                "evidence": {"type": "string", "description": "Justification or audit trail summary."},
+                "evidence": {
+                    "type": "string",
+                    "description": "Justification or audit trail summary.",
+                },
             },
         },
     ),
@@ -498,7 +568,12 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
         floors=("F1",),
         input_schema={
             "type": "object",
-            "properties": {"full_scan": {"type": "boolean", "description": "Enable exhaustive ledger validation (deep scan)."}},
+            "properties": {
+                "full_scan": {
+                    "type": "boolean",
+                    "description": "Enable exhaustive ledger validation (deep scan).",
+                }
+            },
         },
     ),
 )
