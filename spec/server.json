@@ -1,6 +1,6 @@
 {
   "name": "io.github.ariffazil/arifos-mcp",
-  "version": "2026.03.14-PRE-RELEASE",
+  "version": "2026.03.14-VALIDATED",
   "description": "Constitutional governance server \u2014 24 canonical MCP tools with F1-F13 floor enforcement, metabolic routing, prompts, and resources.",
   "vendor": {
     "name": "Muhammad Arif bin Fazil",
@@ -14,14 +14,19 @@
     "metabolic_routing": true,
     "vault999": "postgresql+redis+merkle",
     "vector_memory": "qdrant+bge-m3-1024dim",
-    "prompts": 24,
-    "resources": 10
+    "prompts": 25,
+    "resources": 11
   },
   "tools": [
     {
       "name": "init_anchor",
       "stage": "000_INIT",
       "role": "Constitutional Airlock"
+    },
+    {
+      "name": "init_anchor_state",
+      "stage": "000_INIT",
+      "role": "Constitutional Airlock (Legacy)"
     },
     {
       "name": "revoke_anchor_state",
@@ -34,7 +39,7 @@
       "role": "Tool Surface Declaration"
     },
     {
-      "name": "metabolic_loop_router",
+      "name": "arifOS_kernel",
       "stage": "444_ROUTER",
       "role": "Stage Conductor"
     },
@@ -45,7 +50,7 @@
     },
     {
       "name": "agi_reason",
-      "stage": "111_SENSE",
+      "stage": "333_MIND",
       "role": "Governed Reasoning"
     },
     {
@@ -55,7 +60,7 @@
     },
     {
       "name": "reality_compass",
-      "stage": "222_GROUND",
+      "stage": "111_SENSE",
       "role": "Epistemic Intake"
     },
     {
@@ -65,12 +70,12 @@
     },
     {
       "name": "search_reality",
-      "stage": "222_GROUND",
+      "stage": "111_SENSE",
       "role": "Web Acquisition"
     },
     {
       "name": "ingest_evidence",
-      "stage": "222_GROUND",
+      "stage": "111_SENSE",
       "role": "Evidence Normalization"
     },
     {

@@ -1,6 +1,6 @@
 {
   "name": "io.github.ariffazil/arifos-mcp",
-  "version": "2026.03.14-PRE-RELEASE",
+  "version": "2026.03.14-VALIDATED",
   "tools": {
     "init_anchor": {
       "stage": "000_INIT",
@@ -49,6 +49,44 @@
         ]
       }
     },
+    "revoke_anchor_state": {
+      "stage": "000_INIT",
+      "trinity": "INIT",
+      "floors": [
+        "F11",
+        "F13"
+      ],
+      "description": "000_INIT: Immediately invalidate a governed session. Use this to explicitly end authority or terminate a session if a protocol breach is detected. Enforces F11 and F13.",
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "session_id",
+          "reason"
+        ],
+        "properties": {
+          "session_id": {
+            "type": "string",
+            "description": "The ID of the session to revoke."
+          },
+          "reason": {
+            "type": "string",
+            "description": "Justification for the revocation."
+          }
+        }
+      }
+    },
+    "register_tools": {
+      "stage": "000_INIT",
+      "trinity": "INIT",
+      "floors": [
+        "F13"
+      ],
+      "description": "000_INIT: Query the available tool surface and verify registration. Used by agents to understand which arifOS governance capabilities are currently exposed. Enforces F13.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {}
+      }
+    },
     "arifOS_kernel": {
       "stage": "444_ROUTER",
       "trinity": "ROUTER",
@@ -72,7 +110,8 @@
           },
           "auth_context": {
             "type": "object",
-            "description": "Cryptographic authority context for high-risk actions."
+            "description": "Cryptographic authority context for high-risk actions.",
+            "additionalProperties": true
           },
           "risk_tier": {
             "type": "string",
@@ -121,21 +160,397 @@
               "validator"
             ],
             "description": "Persona to assume for the response (F9-compliant role)."
+          },
+          "caller_context": {
+            "type": "object",
+            "description": "Advisory runtime context from calling agent. Server-governed \u2014 persona_id may be overridden.",
+            "additionalProperties": true
           }
         }
       }
-    }
-  },
-  "schema": {
-    "input": {
-      "arifOS_kernel": {
+    },
+    "forge": {
+      "stage": "000_999",
+      "trinity": "ALL",
+      "floors": [
+        "F1-F13"
+      ],
+      "description": "000_999: One-shot metabolic pipeline trigger. Synthesizes a goal into a final, sealed action in a single call. Best for well-defined tasks where separate pipeline steps are unnecessary. Enforces all floors F1-F13.",
+      "inputSchema": {
         "type": "object",
+        "required": [
+          "spec"
+        ],
+        "properties": {
+          "spec": {
+            "type": "string",
+            "description": "The design specification or goal to forge."
+          }
+        }
+      }
+    },
+    "agi_reason": {
+      "stage": "333_MIND",
+      "trinity": "AGI \u0394",
+      "floors": [
+        "F2",
+        "F4",
+        "F7"
+      ],
+      "description": "333_MIND: Perform first-principles structured reasoning. Explores hypotheses through conservative, exploratory, and adversarial paths. Use this for intellectual synthesis. Enforces F2 (Truth) and F4 (Clarity).",
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "query"
+        ],
         "properties": {
           "query": {
-            "type": "string"
+            "type": "string",
+            "description": "The reasoning prompt or problem statement."
+          }
+        }
+      }
+    },
+    "agi_reflect": {
+      "stage": "333_INTEGRATE",
+      "trinity": "AGI \u0394",
+      "floors": [
+        "F4",
+        "F7"
+      ],
+      "description": "555_MEMORY: Perform metacognitive integration. Reflects on the current intelligence state and session context to ensure coherence before committing to a path. Enforces F4 and F7.",
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "topic"
+        ],
+        "properties": {
+          "topic": {
+            "type": "string",
+            "description": "The core topic or decision point to reflect upon."
+          }
+        }
+      }
+    },
+    "reality_compass": {
+      "stage": "111_SENSE",
+      "trinity": "AGI \u0394",
+      "floors": [
+        "F2"
+      ],
+      "description": "111_SENSE: Ground claims in external reality. Use this to verify facts or fetch URL content BEFORE performing reasoning. Enforces F2 (Truth) fidelity.",
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "input"
+        ],
+        "properties": {
+          "input": {
+            "type": "string",
+            "description": "Fact string to verify or URL to fetch."
+          }
+        }
+      }
+    },
+    "reality_atlas": {
+      "stage": "222_GROUND",
+      "trinity": "AGI \u0394",
+      "floors": [
+        "F2",
+        "F3"
+      ],
+      "description": "222_REALITY: Map evidence across multiple sources. Merges and queries EvidenceBundles to create a unified grounding context for complex investigations. Enforces F2 and F3.",
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "operation"
+        ],
+        "properties": {
+          "operation": {
+            "type": "string",
+            "description": "The atlas operation (merge, query, or build)."
+          }
+        }
+      }
+    },
+    "search_reality": {
+      "stage": "111_SENSE",
+      "trinity": "AGI \u0394",
+      "floors": [
+        "F2"
+      ],
+      "description": "111_SENSE: Direct web search for grounding facts. Fetches raw data from the external world to satisfy F2 (Truth) requirements for ungrounded claims.",
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "query"
+        ],
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Search query terms."
+          }
+        }
+      }
+    },
+    "ingest_evidence": {
+      "stage": "111_SENSE",
+      "trinity": "AGI \u0394",
+      "floors": [
+        "F2"
+      ],
+      "description": "111_SENSE: Fetch and normalize evidence artifact. Extracts structured signals from a URL or File for injection into the reasoning pipeline. Enforces F2.",
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "url"
+        ],
+        "properties": {
+          "url": {
+            "type": "string",
+            "description": "Source URL or file path."
+          }
+        }
+      }
+    },
+    "asi_critique": {
+      "stage": "555_ALIGN",
+      "trinity": "ASI \u03a9",
+      "floors": [
+        "F6",
+        "F9"
+      ],
+      "description": "666_HEART: Advanced adversarial critique and thought audit. Detects blind spots, uncertainty, and hidden assumptions before action. Enforces F7 (Humility) and F9 (Anti-Hantu/Shadow).",
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "draft_output"
+        ],
+        "properties": {
+          "draft_output": {
+            "type": "string",
+            "description": "The candidate thought or output to audit."
+          }
+        }
+      }
+    },
+    "asi_simulate": {
+      "stage": "555_ALIGN",
+      "trinity": "ASI \u03a9",
+      "floors": [
+        "F5"
+      ],
+      "description": "666_HEART: Simulate consequences and predict world-model outcomes. Use this to assess the downstream impact of a proposal before execution. Enforces F5 (Peace\u00b2) and F6 (Empathy).",
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "scenario"
+        ],
+        "properties": {
+          "scenario": {
+            "type": "string",
+            "description": "The scenario or action plan to simulate."
+          }
+        }
+      }
+    },
+    "agentzero_engineer": {
+      "stage": "666_EXECUTE",
+      "trinity": "ASI \u03a9",
+      "floors": [
+        "F11"
+      ],
+      "description": "666_EXECUTE: Perform material system actions (code, shell, file ops). Requires valid session auth_context. Only for technical actions vetted by ASI levels. Enforces F11 (Authority).",
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "task_description"
+        ],
+        "properties": {
+          "task_description": {
+            "type": "string",
+            "description": "Specific engineering task (e.g. 'write script to X')."
+          }
+        }
+      }
+    },
+    "agentzero_memory_query": {
+      "stage": "444_MEMORY",
+      "trinity": "ASI \u03a9",
+      "floors": [
+        "F2",
+        "F7"
+      ],
+      "description": "444_MEMORY: Recall semantic context from VAULT999. Retrieves past interactions and sealed truths to maintain session continuity and historical grounding. Enforces F2 and F7.",
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "query"
+        ],
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Recall query or concept keywords."
+          }
+        }
+      }
+    },
+    "apex_judge": {
+      "stage": "777_JUDGE",
+      "trinity": "APEX \u03a8",
+      "floors": [
+        "F3",
+        "F13"
+      ],
+      "description": "888_JUDGE: Render a sovereign constitutional verdict (SEAL, VOID, HOLD, SABAR). Final authority for all candidate outputs. Enforces F3 (Tri-Witness) and F13 (Sovereign Override).",
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "candidate_output"
+        ],
+        "properties": {
+          "candidate_output": {
+            "type": "string",
+            "description": "Final output candidate for judgment."
+          }
+        }
+      }
+    },
+    "agentzero_validate": {
+      "stage": "777_JUDGE",
+      "trinity": "APEX \u03a8",
+      "floors": [
+        "F2",
+        "F9"
+      ],
+      "description": "888_JUDGE: Validator-specific output judgment. Audits the technical and logical correctness of an Engineer's output before final sealing. Enforces F2 and F9.",
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "input_to_validate"
+        ],
+        "properties": {
+          "input_to_validate": {
+            "type": "string",
+            "description": "The specific data or artifact to validate."
+          }
+        }
+      }
+    },
+    "audit_rules": {
+      "stage": "888_FLOOR",
+      "trinity": "APEX \u03a8",
+      "floors": [
+        "F1-F13"
+      ],
+      "description": "333_MIND: Inspect the live status and thresholds of all 13 constitutional floors (F1-F13). Provides transparency into current governance constraints. Enforces F1-F13.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {}
+      }
+    },
+    "agentzero_armor_scan": {
+      "stage": "888_FLOOR",
+      "trinity": "APEX \u03a8",
+      "floors": [
+        "F12"
+      ],
+      "description": "111_SENSE: Scan content for injection attacks and adversarial control. Used as a security guard (F12) before processing external or user input. Enforces F12.",
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "content"
+        ],
+        "properties": {
+          "content": {
+            "type": "string",
+            "description": "Untrusted input to scan."
+          }
+        }
+      }
+    },
+    "agentzero_hold_check": {
+      "stage": "888_HOLD",
+      "trinity": "APEX \u03a8",
+      "floors": [
+        "F13"
+      ],
+      "description": "888_HOLD: Check status of a pending human escalation or sovereign hold. Used when a task requires manual intervention or ratification (F13). Enforces F13.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "hold_id": {
+            "type": "string",
+            "description": "Specific hold ID to query."
+          }
+        }
+      }
+    },
+    "check_vital": {
+      "stage": "888_VITALS",
+      "trinity": "APEX \u03a8",
+      "floors": [
+        "F4",
+        "F5",
+        "F7"
+      ],
+      "description": "000_INIT: System health and thermodynamic telemetry monitor. Reports real-time \u0394S (Entropy), Peace\u00b2, and G\u00f6del Humility metrics. Essential for metabolic budgeting. Enforces F4, F5, F7.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {}
+      }
+    },
+    "open_apex_dashboard": {
+      "stage": "888_OBSERVE",
+      "trinity": "APEX \u03a8",
+      "floors": [
+        "F13"
+      ],
+      "description": "888_JUDGE: Launch the browser-based APEX Dashboard. Provides high-fidelity visualization of constitutional traces, floor scores, and system vitals. Enforces F13.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {}
+      }
+    },
+    "vault_seal": {
+      "stage": "999_SEAL",
+      "trinity": "VAULT",
+      "floors": [
+        "F1",
+        "F13"
+      ],
+      "description": "999_VAULT: Commit a verified verdict and evidence to the immutable VAULT999 ledger. Mints a permanent hash-chain entry. Enforces F1 (Amanah) and F13 (Sovereign).",
+      "inputSchema": {
+        "type": "object",
+        "required": [
+          "verdict",
+          "evidence"
+        ],
+        "properties": {
+          "verdict": {
+            "type": "string",
+            "description": "The final verdict code (SEAL/VOID)."
           },
-          "auth_context": {
-            "type": "object"
+          "evidence": {
+            "type": "string",
+            "description": "Justification or audit trail summary."
+          }
+        }
+      }
+    },
+    "verify_vault_ledger": {
+      "stage": "999_ATTEST",
+      "trinity": "VAULT",
+      "floors": [
+        "F1"
+      ],
+      "description": "999_VAULT: Verify the integrity of the VAULT999 Merkle chain. Detects unauthorized tampering or data corruption in the historical audit trail. Enforces F1.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "full_scan": {
+            "type": "boolean",
+            "description": "Enable exhaustive ledger validation (deep scan)."
           }
         }
       }
@@ -145,6 +560,46 @@
     {
       "uri": "pns://shield",
       "description": "PNS\u00b7SHIELD: Input sanitation status."
+    },
+    {
+      "uri": "pns://search",
+      "description": "PNS\u00b7SEARCH: Web grounding facts."
+    },
+    {
+      "uri": "pns://vision",
+      "description": "PNS\u00b7VISION: Multimodal perception."
+    },
+    {
+      "uri": "pns://health",
+      "description": "PNS\u00b7HEALTH: Model stability metadata."
+    },
+    {
+      "uri": "pns://floor",
+      "description": "PNS\u00b7FLOOR: Hallucination safety floor."
+    },
+    {
+      "uri": "pns://orchestrate",
+      "description": "PNS\u00b7ORCHESTRATE: Tool routing mediation."
+    },
+    {
+      "uri": "pns://redteam",
+      "description": "PNS\u00b7REDTEAM: Adversarial testing."
+    },
+    {
+      "uri": "vault://999",
+      "description": "VAULT999: Sealed constitutional memory."
+    },
+    {
+      "uri": "ledger://cooling",
+      "description": "Cooling Ledger: Ancestry chain."
+    },
+    {
+      "uri": "canon://invariants",
+      "description": "\u0394\u03a9\u03a8 constitutional invariants."
+    },
+    {
+      "uri": "canon://floors",
+      "description": "F1-F13 constitutional floor thresholds \u2014 static reference."
     }
   ]
 }
