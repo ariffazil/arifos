@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime, timezone
 from functools import lru_cache
 from pathlib import Path
 from typing import Any
@@ -710,8 +709,16 @@ def public_resource_uris() -> list[str]:
     return [spec.uri for spec in PUBLIC_RESOURCE_SPECS]
 
 
+def public_resource_specs() -> tuple[ResourceSpec, ...]:
+    return PUBLIC_RESOURCE_SPECS
+
+
 def public_prompt_names() -> tuple[str, ...]:
     return tuple(spec.name for spec in PUBLIC_PROMPT_SPECS)
+
+
+def public_prompt_specs() -> tuple[PromptSpec, ...]:
+    return PUBLIC_PROMPT_SPECS
 
 
 def public_compatibility_specs() -> tuple[CompatibilitySpec, ...]:
