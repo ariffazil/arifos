@@ -649,6 +649,15 @@ def public_tool_names() -> tuple[str, ...]:
     return tuple(spec.name for spec in PUBLIC_TOOL_SPECS)
 
 
+def public_tool_spec_by_name() -> dict[str, ToolSpec]:
+    """Return mapping of tool name to ToolSpec for all public tools."""
+    return {spec.name: spec for spec in PUBLIC_TOOL_SPECS}
+
+
+# Backward compatibility alias
+PUBLIC_TOOL_SPEC_BY_NAME = public_tool_spec_by_name()
+
+
 def internal_tool_specs() -> tuple[ToolSpec, ...]:
     return ()
 

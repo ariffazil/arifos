@@ -16,6 +16,7 @@ from arifosmcp.runtime.metrics import (
 )
 from arifosmcp.runtime.models import (
     AuthContext,
+    RiskClass,
     RuntimeEnvelope,
     RuntimeStatus,
     Stage,
@@ -43,7 +44,6 @@ from arifosmcp.tools.agentzero_tools import (
     agentzero_memory_query,
     agentzero_armor_scan,
 )
-PUBLIC_TOOL_SPEC_BY_NAME = {spec.name: spec for spec in public_tool_specs()}
 PUBLIC_KERNEL_TOOL_NAME = "arifOS_kernel"
 LEGACY_KERNEL_TOOL_NAME = "arifOS-kernel"
 INTELLIGENCE_PROBE_URLS = {
