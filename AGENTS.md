@@ -354,7 +354,7 @@ Key fixtures in `conftest.py`:
 
 > **Internal Stage Tools** (profile=internal only): `integrate_analyze_reflect`, `reason_mind_synthesis`, `assess_heart_impact`, `critique_thought_audit`, `quantum_eureka_forge`, `apex_judge_verdict`, `seal_vault_commit`.
 
-### 7 Canonical Resources
+### 10 Canonical Resources
 
 | URI | Auth | What it exposes |
 | :--- | :--- | :--- |
