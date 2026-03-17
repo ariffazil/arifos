@@ -312,6 +312,96 @@ def _select_philosophy_payload(
     )
 
 
+def _resolve_caller_state(session_id: str, authority: Any) -> tuple[str, list[str], list[dict[str, str]]]:
+    """
+    Anti-chaos: Resolve caller state and tool visibility.
+    Returns: (caller_state, allowed_tools, blocked_tools_with_reasons)
+    """
+    # Determine state from session and authority
+    if session_id == "global":
+        caller_state = "anonymous"
+    elif authority and authority.claim_status == "ANCHORED":
+        caller_state = "anchored"
+    elif authority and authority.claim_status == "VERIFIED":
+        caller_state = "verified"
+    elif authority and authority.actor_id and authority.actor_id != "anonymous":
+        caller_state = "claimed"
+    else:
+        caller_state = "anonymous"
+    
+    # Define tool visibility by state
+    tools_by_state = {
+        "anonymous": {
+            "allowed": ["check_vital", "audit_rules", "get_caller_status", "init_anchor_state"],
+            "blocked": {
+                "arifOS_kernel": "Requires anchored session (run init_anchor_state first)",
+                "verify_vault_ledger": "Requires verified identity",
+                "session_memory": "Requires anchored session",
+            }
+        },
+        "claimed": {
+            "allowed": ["check_vital", "audit_rules", "get_caller_status", "init_anchor_state"],
+            "blocked": {
+                "arifOS_kernel": "Requires anchored session (complete init_anchor_state)",
+                "verify_vault_ledger": "Requires verified identity",
+            }
+        },
+        "anchored": {
+            "allowed": ["check_vital", "audit_rules", "get_caller_status", "init_anchor_state", 
+                       "search_reality", "ingest_evidence", "session_memory", "arifOS_kernel"],
+            "blocked": {
+                "verify_vault_ledger": "Requires cryptographic verification",
+            }
+        },
+        "verified": {
+            "allowed": ["check_vital", "audit_rules", "get_caller_status", "init_anchor_state",
+                       "search_reality", "ingest_evidence", "session_memory", "arifOS_kernel",
+                       "verify_vault_ledger"],
+            "blocked": {}
+        },
+    }
+    
+    state_config = tools_by_state.get(caller_state, tools_by_state["anonymous"])
+    blocked_list = [{"tool": k, "reason": v} for k, v in state_config["blocked"].items()]
+    
+    return caller_state, state_config["allowed"], blocked_list
+
+
+def _resolve_next_action(caller_state: str, blocked_tools: list[dict[str, str]]) -> dict[str, Any] | None:
+    """
+    Anti-chaos: Resolve exact next step for recovery.
+    """
+    if caller_state in ("anonymous", "claimed"):
+        return {
+            "tool": "init_anchor_state",
+            "reason": f"You are {caller_state}. Identity required for governed execution.",
+            "required_args": ["actor_id", "declared_name", "intent"],
+            "example_payload": {
+                "actor_id": "your-name",
+                "declared_name": "Your Name",
+                "intent": "purpose of session"
+            },
+            "retry_safe": True,
+            "human_approval_required": False
+        }
+    
+    if blocked_tools and blocked_tools[0].get("tool") == "arifOS_kernel":
+        return {
+            "tool": "init_anchor_state",
+            "reason": "Kernel requires anchored session with auth_context",
+            "required_args": ["actor_id", "declared_name", "intent"],
+            "example_payload": {
+                "actor_id": "arif",
+                "declared_name": "Muhammad Arif",
+                "intent": "testing kernel governance flow"
+            },
+            "retry_safe": True,
+            "human_approval_required": False
+        }
+    
+    return None
+
+
 async def _wrap_call(
     tool_name: str,
     stage: Stage,
@@ -372,6 +462,14 @@ async def _wrap_call(
         envelope.recoverable = envelope.status != RuntimeStatus.ERROR or any(
             e.recoverable for e in envelope.errors
         )
+        
+        # Anti-chaos: populate caller state visibility (Phase 1)
+        envelope.caller_state, envelope.allowed_next_tools, envelope.blocked_tools = _resolve_caller_state(session_id, envelope.authority)
+        envelope.diagnostics_only = (session_id == "global")
+        
+        # Anti-chaos: populate next_action for recovery
+        if envelope.verdict in (Verdict.HOLD, Verdict.VOID) and not envelope.next_action:
+            envelope.next_action = _resolve_next_action(envelope.caller_state, envelope.blocked_tools)
 
         # Decorate with Stage Motto (Meta Invariant)
         envelope.meta.motto = _resolve_motto(envelope.stage)
@@ -1268,6 +1366,115 @@ async def audit_rules(session_id: str = "global", ctx: Context | None = None) ->
             "Review canon://contracts and canon://states resources "
             "for tool hierarchy and the full Session Ladder bootstrap sequence."
         )
+    return envelope
+
+
+async def get_caller_status(
+    session_id: str = "global",
+    ctx: Context | None = None,
+) -> RuntimeEnvelope:
+    """
+    000_INIT: Single onboarding compass. Returns current state and exact next step.
+    
+    Anti-chaos: This is the de-chaos entry point. Call this first when confused.
+    Returns:
+    - current caller state (anonymous|claimed|anchored|verified|scoped|approved)
+    - accessible tools at current state
+    - blocked tools with reasons
+    - exact next step with example payload
+    - whether global session is diagnostics-only
+    """
+    session_id = _normalize_session_id(session_id)
+    
+    # Resolve state
+    from core.state.session_manager import session_manager
+    session = session_manager.get_session(session_id)
+    
+    if session_id == "global":
+        caller_state = "anonymous"
+    elif session and getattr(session, "approved", False):
+        caller_state = "approved"
+    elif session and getattr(session, "verified", False):
+        caller_state = "verified"
+    elif session and session.owner and session.owner != "anonymous":
+        caller_state = "anchored"
+    else:
+        caller_state = "anonymous"
+    
+    # Tool visibility by state
+    tools_by_state = {
+        "anonymous": {
+            "accessible": ["check_vital", "audit_rules", "get_caller_status", "init_anchor_state"],
+            "blocked": [
+                {"tool": "arifOS_kernel", "reason": "Requires anchored session. Run init_anchor_state first."},
+                {"tool": "verify_vault_ledger", "reason": "Requires verified identity."},
+                {"tool": "session_memory", "reason": "Requires anchored session."},
+            ]
+        },
+        "anchored": {
+            "accessible": ["check_vital", "audit_rules", "get_caller_status", "init_anchor_state",
+                          "search_reality", "ingest_evidence", "session_memory", "arifOS_kernel"],
+            "blocked": [
+                {"tool": "verify_vault_ledger", "reason": "Requires cryptographic verification."},
+            ]
+        },
+        "verified": {
+            "accessible": ["check_vital", "audit_rules", "get_caller_status", "init_anchor_state",
+                          "search_reality", "ingest_evidence", "session_memory", "arifOS_kernel",
+                          "verify_vault_ledger"],
+            "blocked": []
+        },
+    }
+    
+    state_config = tools_by_state.get(caller_state, tools_by_state["anonymous"])
+    
+    # Determine next step
+    next_step = None
+    if caller_state in ("anonymous", "claimed"):
+        next_step = {
+            "tool": "init_anchor_state",
+            "reason": f"You are {caller_state}. Identity required for governed execution.",
+            "required_args": ["actor_id", "declared_name", "intent"],
+            "example_payload": {
+                "actor_id": "your-name",
+                "declared_name": "Your Name",
+                "intent": "purpose of session"
+            },
+        }
+    elif caller_state == "anchored":
+        next_step = {
+            "tool": "arifOS_kernel",
+            "reason": "Ready for governed execution.",
+            "required_args": ["query"],
+            "example_payload": {
+                "query": "analyze system health",
+                "risk_tier": "low",
+            },
+        }
+    
+    envelope = RuntimeEnvelope(
+        tool="get_caller_status",
+        session_id=session_id,
+        stage=Stage.INIT_000.value,
+        verdict=Verdict.SEAL,
+        status=RuntimeStatus.SUCCESS,
+        caller_state=caller_state,
+        allowed_next_tools=state_config["accessible"],
+        blocked_tools=state_config["blocked"],
+        diagnostics_only=(session_id == "global"),
+        next_action=next_step,
+        payload={
+            "bootstrap_sequence": [
+                "1. check_vital - System health (no auth required)",
+                "2. audit_rules - Constitutional floors (no auth required)",
+                "3. init_anchor_state - Establish identity (creates session)",
+                "4. arifOS_kernel - Governed execution (requires anchor)",
+            ],
+            "global_session_rule": "session_id='global' is diagnostics-only. No state changes.",
+            "recovery_rule": "Every blocked call returns: current_state, why_blocked, next_tool, example_payload",
+        },
+    )
+    
     return envelope
 
 
