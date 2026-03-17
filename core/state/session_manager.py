@@ -66,6 +66,14 @@ class SessionManager:
         self._sessions[session_id] = metadata
         return session_id
 
+    def get_session(self, session_id: str) -> SessionMetadata | None:
+        """Retrieve the full session metadata for a specific session."""
+        metadata = self._sessions.get(session_id)
+        if metadata:
+            metadata.last_activity = datetime.now()
+            return metadata
+        return None
+
     def get_kernel(self, session_id: str) -> GovernanceKernel | None:
         """Retrieve the Ψ state for a specific session."""
         metadata = self._sessions.get(session_id)

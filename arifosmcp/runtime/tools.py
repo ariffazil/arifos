@@ -20,6 +20,9 @@ from arifosmcp.runtime.models import (
     RuntimeEnvelope,
     RuntimeStatus,
     Stage,
+    UserModel,
+    UserModelField,
+    UserModelSource,
     Verdict,
 )
 from arifosmcp.runtime.philosophy import select_governed_philosophy
