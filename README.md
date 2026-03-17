@@ -449,7 +449,27 @@ TECHNICAL SPECIFICATION APPENDIX
 
 ## 🛠️ APPENDIX A: Canonical Tool Reference
 
+### Anti-Chaos: Self-Explaining Interface
+
+Every tool response includes caller state visibility and recovery guidance:
+
+```json
+{
+  "caller_state": "anonymous",
+  "allowed_next_tools": ["check_vital", "audit_rules", "get_caller_status"],
+  "blocked_tools": [{"tool": "arifOS_kernel", "reason": "Requires anchored session"}],
+  "next_action": {"tool": "init_anchor_state", "example_payload": {...}}
+}
+```
+
+**Confused or blocked?** Call `get_caller_status` first — it returns your current state, accessible tools, and exact next step.
+
 ### KERNEL Layer Details
+
+#### `get_caller_status`
+- **Purpose:** Onboarding compass — single source of truth for session state
+- **Returns:** `caller_state`, `allowed_next_tools`, `blocked_tools`, `next_action`
+- **Auth:** None — call this when confused
 
 #### `init_anchor`
 - **Location:** `arifosmcp/runtime/tools.py`
