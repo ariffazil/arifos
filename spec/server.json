@@ -14,10 +14,15 @@
     "metabolic_routing": true,
     "vault999": "postgresql+redis+merkle",
     "vector_memory": "qdrant+bge-m3-1024dim",
-    "prompts": 25,
+    "prompts": 26,
     "resources": 5
   },
   "tools": [
+    {
+      "name": "get_caller_status",
+      "stage": "000_INIT",
+      "role": "Onboarding Compass"
+    },
     {
       "name": "init_anchor",
       "stage": "000_INIT",

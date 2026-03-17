@@ -557,7 +557,32 @@ async def init_anchor(
     # Backward compatibility (deprecated)
     raw_input: str | None = None,
 ) -> RuntimeEnvelope:
-    """🚀 START HERE: Initialize a constitutional session (000_INIT)"""
+    """
+    🚀 START HERE: Initialize a constitutional session (000_INIT).
+    This tool is the hinge point between passive discovery and governed participation.
+
+    ### Contract (Missing Contract 1)
+    - **Identity Claim**: Binds an `actor_id` to a `session_id`.
+    - **State Change**: Transitions session from `anonymous` or `claimed` to `anchored`.
+    - **Session Continuity**: If `session_id` is provided, attempts to re-anchor.
+    - **Actor Handling**: If actor already exists, binds to the session; if not, creates a temporary anchor.
+
+    ### Input
+    - `actor_id`: (Required) Machine/Agent ID (e.g., "arif", "gemini-cli").
+    - `declared_name`: (Optional) Human-readable name (e.g., "Muhammad Arif").
+    - `intent`: (Optional) Brief description of the work session.
+
+    ### Returns (RuntimeEnvelope)
+    - `session_id`: The minted or re-anchored session ID.
+    - `caller_state`: Set to "anchored".
+    - `auth_context`: The opaque context required for `arifOS_kernel`.
+        - `session_id`: str
+        - `actor_id`: str (canonicalized)
+        - `capability_class`: str ("operator" by default)
+        - `escalation_hold`: null | str (if gated by F11/F13)
+    - `authority`: Current claiming status.
+    - `next_action`: Guidance for `arifOS_kernel`.
+    """
     effective_actor = (declared_name or actor_id).lower().strip().replace(" ", "-")
     if effective_actor == "arif":
         effective_actor = "ariffazil"
@@ -1070,13 +1095,33 @@ async def arifos_kernel(
     debug: bool = False,
 ) -> RuntimeEnvelope:
     """
-    Stage Conductor: Orchestrates the ΔΩΨ transitions through the pipeline.
+    444_ROUTER: The Governed Conductor (Stage Conductor).
+    Orchestrates ΔΩΨ transitions through the metabolic pipeline.
 
-    Modes:
-    - inspect/analyze: Read-only probe of state
-    - recommend: Synthetic proposal with risk assessment
-    - governed_execute: Live execution under constitutional oversight
-    - dry_run: Full pipeline simulation without side effects
+    ### Contract (Missing Contract 2)
+    - **Governance Requirement**: Executes under F1-F13 constitutional enforcement.
+    - **Mandatory Auth**: Governed `mode`s requires a valid `auth_context` (minted via `init_anchor`).
+    - **Risk Tiering**:
+        - `low`: Minimal friction, diagnostic-heavy.
+        - `medium`: (Default) Standard governance audit.
+        - `high`: Requires F13 human approval (or explicit human_approval flag).
+
+    ### Modes
+    - `inspect/analyze`: Read-only probe of state (low risk).
+    - `recommend`: Synthetic proposal with risk assessment (no execution).
+    - `governed_execute`: Live execution under constitutional oversight.
+    - `dry_run`: Full pipeline simulation without side effects.
+
+    ### Input
+    - `query`: The objective or task (e.g., "Analyze logs and propose a fix").
+    - `auth_context`: (Required for execution) The context returned from `init_anchor`.
+    - `risk_tier`: "low" | "medium" | "high".
+    - `mode`: "recommend" | "inspect" | "governed_execute" | "dry_run".
+
+    ### Returns (RuntimeEnvelope)
+    - `verdict`: SEAL | HOLD | VOID | SABAR.
+    - `remediation`: Recovery path if verdict is not SEAL.
+    - `payload`: Results of the tool/analysis or execution log.
     """
     # Canonical delegation via _wrap_call to ensure Invariants and Philosophy apply
     active_session = session_id or _normalize_session_id(None)
@@ -1310,13 +1355,38 @@ async def check_vital(session_id: str = "global", ctx: Context | None = None) ->
         }
     }
 
+    unlocked_tools = {
+        "anonymous": ["check_vital", "audit_rules", "init_anchor", "search_reality"],
+        "claimed": ["check_vital", "audit_rules", "init_anchor", "search_reality"],
+        "anchored": ["check_vital", "audit_rules", "init_anchor", "search_reality", "session_memory", "ingest_evidence"],
+        "verified": ["check_vital", "audit_rules", "init_anchor", "search_reality", "session_memory", "ingest_evidence", "verify_vault_ledger"],
+        "scoped": ["check_vital", "audit_rules", "init_anchor", "search_reality", "session_memory", "ingest_evidence", "verify_vault_ledger", "arifOS_kernel"],
+        "approved": ["check_vital", "audit_rules", "init_anchor", "search_reality", "session_memory", "ingest_evidence", "verify_vault_ledger", "arifOS_kernel", "forge"],
+    }
+    
+    all_governed_tools = ["session_memory", "ingest_evidence", "verify_vault_ledger", "arifOS_kernel", "forge"]
+    current_unlocked = unlocked_tools.get(current_state, unlocked_tools["anonymous"])
+    current_blocked = [t for t in all_governed_tools if t not in current_unlocked]
+
     envelope.payload["bootstrap"] = {
         "current_state": current_state,
         "description": status_map.get(current_state, "Unknown state."),
         "ladder_resource": "canon://states",
+        "accessible_tools": current_unlocked,
+        "blocked_tools": current_blocked,
         "operator_guidance": next_steps.get(current_state, {"action": "Proceed with current authority."}),
     }
 
+    return envelope
+
+
+async def get_caller_status(session_id: str = "global", ctx: Context | None = None) -> RuntimeEnvelope:
+    """
+    000_INIT: Highest-leverage diagnostic.
+    Explains current session state, accessible tools, and the path to advancement.
+    """
+    envelope = await check_vital(session_id=session_id, ctx=ctx)
+    envelope.tool = "get_caller_status"
     return envelope
 
 
@@ -1424,7 +1494,9 @@ def register_tools(mcp: FastMCP, profile: str = "full") -> None:
     # ─── Tool Mapping (24 Tools) ───
     tool_handlers = {
         # KERNEL
+        "get_caller_status": get_caller_status,
         "init_anchor": init_anchor,
+        "init_anchor_state": init_anchor_state,
         "revoke_anchor_state": revoke_anchor_state,
         "register_tools": lambda: {"status": "SUCCESS", "tools": public_tool_names()},
         "arifOS_kernel": arifos_kernel,
