@@ -9,10 +9,6 @@ async def test_get_caller_status_decoration():
     """Verify get_caller_status correctly decorates the envelope via _wrap_call."""
     # We mock call_kernel so _wrap_call can run its decoration logic
     with patch("arifosmcp.runtime.tools.call_kernel", new_callable=AsyncMock) as mock_kernel:
-        mock_auth = MagicMock()
-        mock_auth.claim_status = "anonymous"
-        mock_auth.actor_id = "anonymous"
-        
         mock_kernel.return_value = {
             "tool": "get_caller_status",
             "session_id": "global",
@@ -21,7 +17,7 @@ async def test_get_caller_status_decoration():
             "status": RuntimeStatus.SUCCESS.value,
             "payload": {},
             "metrics": {"telemetry": {"G_star": 0.5, "confidence": 0.8}, "basis": {}, "witness": {}},
-            "authority": mock_auth
+            "authority": {"claim_status": "anonymous", "actor_id": "anonymous"}
         }
         
         envelope = await get_caller_status(session_id="global")
@@ -39,11 +35,6 @@ async def test_get_caller_status_decoration():
 async def test_get_caller_status_anchored_visibility():
     """Verify get_caller_status shows mind/heart tools when anchored."""
     with patch("arifosmcp.runtime.tools.call_kernel", new_callable=AsyncMock) as mock_kernel:
-        # Create a mock authority object that satisfies getattr(authority, "claim_status", ...)
-        mock_auth = MagicMock()
-        mock_auth.claim_status = "anchored"
-        mock_auth.actor_id = "arif"
-        
         mock_kernel.return_value = {
             "tool": "get_caller_status",
             "session_id": "session-123",
@@ -51,7 +42,7 @@ async def test_get_caller_status_anchored_visibility():
             "verdict": Verdict.SEAL.value,
             "status": RuntimeStatus.SUCCESS.value,
             "payload": {},
-            "authority": mock_auth
+            "authority": {"claim_status": "anchored", "actor_id": "arif"}
         }
         
         envelope = await get_caller_status(session_id="session-123")
