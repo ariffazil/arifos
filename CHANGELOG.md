@@ -7,6 +7,62 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2026.03.17-ANTICHAOS] - 2026-03-17
+
+### 🔧 Anti-Chaos Phase 1 — Self-Explaining Server Interface
+
+**Status:** ✅ Interface Hardening — State Visibility, Recovery-First Errors
+
+Reduced server chaos by making the interface self-explaining under stress. Every response now carries caller state visibility; every error teaches recovery.
+
+#### Anti-Chaos Rules Enforced
+
+| Rule | Implementation |
+|------|----------------|
+| **One truth for state** | `caller_state` field in every `RuntimeEnvelope` |
+| **One truth for path** | `get_caller_status` tool is the single onboarding compass |
+| **One truth for errors** | Every blocking error includes `next_action` with exact recovery payload |
+| **One truth for consequence** | `diagnostics_only` flag marks `global` session limitations |
+
+#### New Fields in Every Response
+
+```json
+{
+  "caller_state": "anonymous|claimed|anchored|verified|scoped|approved",
+  "allowed_next_tools": ["check_vital", "audit_rules", ...],
+  "blocked_tools": [{"tool": "arifOS_kernel", "reason": "Requires anchored session"}],
+  "diagnostics_only": true,
+  "next_action": {
+    "tool": "init_anchor_state",
+    "reason": "You are anonymous. Identity required.",
+    "required_args": ["actor_id", "declared_name", "intent"],
+    "example_payload": {...},
+    "retry_safe": true
+  }
+}
+```
+
+#### New Tools
+
+- **`get_caller_status`** — Single onboarding compass. Returns current state, accessible/blocked tools, and exact next step with example payload. Call this when confused or blocked.
+
+#### New Resources (SPEC.md Aligned)
+
+- **`arifos://status/vitals`** — Health, capability map, degraded components
+- **`arifos://governance/floors`** — Constitutional F1-F13 thresholds
+- **`arifos://bootstrap/guide`** — Startup path, canonical sequence, examples
+- **`arifos://contracts/tools`** — Tool risk/auth/mutability contracts
+- **`arifos://caller/state`** — Current state, allowed/blocked tools
+
+#### Files Modified
+
+- `arifosmcp/runtime/models.py` — Added `caller_state`, `allowed_next_tools`, `blocked_tools`, `diagnostics_only`, `next_action` to `RuntimeEnvelope`
+- `arifosmcp/runtime/tools.py` — Added `_resolve_caller_state()`, `_resolve_next_action()`, `get_caller_status()` tool
+- `SPEC.md` — Formal MCP protocol profile (new document)
+- `AGENTS.md` — Updated resource table, added SPEC.md reference
+
+---
+
 ## [2026.03.15-TRINITY] - 2026-03-15
 
 ### 🏛️ Protocol Trinity — MCP + A2A + WebMCP
