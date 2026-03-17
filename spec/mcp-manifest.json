@@ -562,6 +562,10 @@
       "description": "Tool Contract Table: Hierarchy and bootstrap requirements."
     },
     {
+      "uri": "canon://states",
+      "description": "Session Ladder: State machine and transition requirements."
+    },
+    {
       "uri": "canon://index",
       "description": "High-level arifOS canon map: tools, floors, and resources."
     },
