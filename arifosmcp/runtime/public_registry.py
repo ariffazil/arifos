@@ -609,14 +609,25 @@ PUBLIC_COMPATIBILITY_SPECS: tuple[CompatibilitySpec, ...] = (
     ),
 )
 
-PUBLIC_PROMPT_SPECS: tuple[PromptSpec, ...] = tuple(
-    PromptSpec(spec.name, spec.name, spec.description) for spec in PUBLIC_TOOL_SPECS
+PUBLIC_PROMPT_SPECS: tuple[PromptSpec, ...] = (
+    # Formal prompts per SPEC.md Section 6.2
+    PromptSpec("bootstrap_session", "init_anchor_state", "Guide identity establishment with actor_id, declared_name, intent"),
+    PromptSpec("explain_blocked_state", "arifOS_kernel", "Explain why blocked and how to recover"),
+    PromptSpec("prepare_kernel_call", "arifOS_kernel", "Prepare governed execution with goal and risk_tier"),
+    PromptSpec("summarize_constitutional_floors", "audit_rules", "Explain F1-F13 floors in context"),
 )
 
 PUBLIC_RESOURCE_SPECS: tuple[ResourceSpec, ...] = (
-    ResourceSpec("canon://contracts", "Tool Contract Table: Hierarchy and bootstrap requirements."),
-    ResourceSpec("canon://states", "Session Ladder: State machine and transition requirements."),
-    ResourceSpec("canon://index", "High-level arifOS canon map: tools, floors, and resources."),
+    # SPEC.md Section 6.1: Required Public Resources
+    ResourceSpec("arifos://status/vitals", "Current health, capability map, degraded components"),
+    ResourceSpec("arifos://governance/floors", "Constitutional F1-F13 thresholds and doctrine hooks"),
+    ResourceSpec("arifos://bootstrap/guide", "Startup path, canonical sequence, example payloads"),
+    ResourceSpec("arifos://contracts/tools", "Tool contract table: risk, auth, mutability"),
+    ResourceSpec("arifos://caller/state", "Current caller state, allowed tools, blocked tools"),
+    # Legacy aliases (maintained for compatibility)
+    ResourceSpec("canon://contracts", "Tool Contract Table: Hierarchy and bootstrap requirements. [LEGACY: use arifos://contracts/tools]"),
+    ResourceSpec("canon://states", "Session Ladder: State machine. [LEGACY: use arifos://bootstrap/guide]"),
+    ResourceSpec("canon://index", "High-level arifOS canon map. [LEGACY: use arifos://status/vitals]"),
     ResourceSpec("schema://tools/input", "Canonical JSON Schema input specs for public tools."),
     ResourceSpec("schema://tools/output", "Canonical RuntimeEnvelope output schema."),
 )
