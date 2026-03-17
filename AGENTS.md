@@ -354,16 +354,21 @@ Key fixtures in `conftest.py`:
 
 > **Internal Stage Tools** (profile=internal only): `integrate_analyze_reflect`, `reason_mind_synthesis`, `assess_heart_impact`, `critique_thought_audit`, `quantum_eureka_forge`, `apex_judge_verdict`, `seal_vault_commit`.
 
-### 4 Canonical Resources
-| URI | What it exposes |
-| :--- | :--- |
-| `canon://index` | Version, tool surface map, and resource index |
-| `canon://contracts` | Tool Contract Table: Hierarchy and bootstrap requirements |
-| `canon://states` | Session Ladder: State machine and transition requirements |
-| `schema://tools/input` | Canonical JSON Schema input specs for public tools |
-| `schema://tools/output` | Canonical RuntimeEnvelope output schema |
+### Resources (SPEC.md Aligned)
 
-> **Note:** Peripheral Nervous System (PNS) resources like `pns://health` are deprecated or internal; use `check_vital` and `audit_rules` for current system state.
+| URI | Auth | What it exposes |
+| :--- | :--- | :--- |
+| `arifos://status/vitals` | None | Current health, capability map, degraded components |
+| `arifos://governance/floors` | None | Constitutional F1-F13 thresholds and doctrine hooks |
+| `arifos://bootstrap/guide` | None | Startup path, canonical sequence, example payloads |
+| `arifos://contracts/tools` | None | Tool contract table: risk, auth, mutability |
+| `arifos://caller/state` | Anchored | Current caller state, allowed/blocked tools |
+| `schema://tools/input` | None | Canonical JSON Schema input specs |
+| `schema://tools/output` | None | Canonical RuntimeEnvelope output schema |
+
+> **Legacy Aliases:** `canon://index`, `canon://contracts`, `canon://states` maintained for backward compatibility.
+
+> **Full Specification:** See [SPEC.md](./SPEC.md) for normative protocol profile.
 
 ### 8 Prompt Templates
 One per public tool — each describes when and how to invoke it.
