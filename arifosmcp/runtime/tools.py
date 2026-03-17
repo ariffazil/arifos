@@ -505,7 +505,12 @@ async def init_anchor(
     if effective_actor == "arif":
         effective_actor = "ariffazil"
 
-    effective_query = query or raw_input or (intent.get("query") if isinstance(intent, dict) else intent) or "Initialize session"
+    effective_query = (
+        query
+        or raw_input
+        or (intent.get("query") if isinstance(intent, dict) else intent)
+        or "Initialize session"
+    )
 
     payload = {
         "intent": {"query": effective_query},
@@ -554,7 +559,6 @@ async def init_anchor_state(
     )
     envelope.tool = "init_anchor_state"
     return envelope
-
 
 
 async def agi_reason(
@@ -965,7 +969,6 @@ async def forge(
     return envelope
 
 
-
 async def arifos_kernel(
     query: str,
     ctx: Context | None = None,
@@ -989,7 +992,7 @@ async def arifos_kernel(
     """Stage Conductor: Orchestrates the ΔΩΨ transitions through the pipeline."""
     # Canonical delegation via _wrap_call to ensure Invariants and Philosophy apply
     active_session = session_id or _normalize_session_id(None)
-    
+
     return await _wrap_call(
         tool_name="arifOS_kernel",
         stage=Stage.ROUTER_444,
@@ -1014,7 +1017,6 @@ async def arifos_kernel(
         ctx=ctx,
         caller_context=caller_context,
     )
-
 
 
 async def reality_compass(
@@ -1292,10 +1294,9 @@ def register_tools(mcp: FastMCP, profile: str = "full") -> None:
 
     # ─── Server-injected args hidden from client schema ───
     # session_id: server always auto-generates via _normalize_session_id
-    # caller_context: advisory, server-governed — never client-controlled (F9)
+    # caller_context: advisory — now visible in schema (F9-compliant, server governs final persona_id)
     _kernel_hidden = {
         "session_id": ArgTransform(hide=True, default=None),
-        "caller_context": ArgTransform(hide=True, default=None),
     }
     _transform_names = {"arifOS_kernel", "metabolic_loop_router"}
 
