@@ -519,8 +519,14 @@ class RuntimeEnvelope(BaseModel):
     requires_auth: bool = False
     requires_human: bool = False
     recoverable: bool = True
-    next_action: str | None = None
+    next_action: dict[str, Any] | None = None  # Anti-chaos: exact next step
     state_transition: str | None = None
+    
+    # Anti-chaos: caller state visibility (Phase 1)
+    caller_state: str = "anonymous"  # anonymous|claimed|anchored|verified|scoped|approved
+    allowed_next_tools: list[str] = Field(default_factory=list)
+    blocked_tools: list[dict[str, str]] = Field(default_factory=list)  # [{tool, reason}]
+    diagnostics_only: bool = False  # True for global session
 
     session_id: str | None = None
     stage: str
