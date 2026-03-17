@@ -6,7 +6,7 @@ from unittest.mock import Mock, AsyncMock, patch, MagicMock
 from fastmcp import FastMCP
 from arifosmcp.runtime.resources import register_resources, read_resource_content
 from arifosmcp.runtime.tools import init_anchor, check_vital, Stage
-from arifosmcp.runtime.models import Verdict, RuntimeEnvelope, CanonicalAuthority
+from arifosmcp.runtime.models import Verdict, RuntimeEnvelope, CanonicalAuthority, RuntimeStatus
 
 @pytest.fixture
 def mcp():
@@ -36,6 +36,14 @@ class TestResourceAlignment:
         assert "canon://states" in data["resources"]
         assert len(data["resources"]) >= 5
 
+    @pytest.mark.asyncio
+    async def test_prompts_registered(self):
+        """Verify prompt templates are defined in the registry."""
+        from arifosmcp.runtime.public_registry import public_prompt_specs
+        prompts = public_prompt_specs()
+        assert len(prompts) == 4
+        assert any(p.name == "bootstrap_session" for p in prompts)
+
 class TestToolPayloadAlignment:
     @pytest.mark.asyncio
     async def test_init_anchor_enriched_payload(self):
@@ -43,21 +51,26 @@ class TestToolPayloadAlignment:
         # We need to mock _wrap_call because init_anchor calls it
         # and _wrap_call calls call_kernel which requires a running server/engine
         with patch("arifosmcp.runtime.tools._wrap_call", new_callable=AsyncMock) as mock_wrap:
-            mock_envelope = MagicMock(spec=RuntimeEnvelope)
-            mock_envelope.ok = True
-            mock_envelope.payload = {
-                "session_id": "test-sid",
-                "caller_state": "anchored",
-                "authority": "OPERATOR",
-                "auth_context": {"actor_id": "test-actor"},
-                "next_action": "Use arifOS_kernel"
-            }
+            mock_envelope = RuntimeEnvelope(
+                tool="init_anchor",
+                session_id="test-sid",
+                stage=Stage.INIT_000.value,
+                verdict=Verdict.SEAL,
+                status=RuntimeStatus.SUCCESS,
+                payload={
+                    "session_id": "test-sid",
+                    "caller_state": "anchored",
+                    "authority": "OPERATOR",
+                    "auth_context": {"actor_id": "test-actor"},
+                    "next_action": "Use arifOS_kernel"
+                }
+            )
             mock_wrap.return_value = mock_envelope
             
             result = await init_anchor(actor_id="test-actor")
             
             # Since we mock _wrap_call, we just need to verify it returns what we expect
-            assert result.payload["authority"] == "OPERATOR"
+            assert result.payload["authority"]["claim_status"] == "anchored"
             assert "next_action" in result.payload
             assert result.payload["caller_state"] == "anchored"
 
@@ -65,8 +78,14 @@ class TestToolPayloadAlignment:
     async def test_check_vital_bootstrap_guidance(self):
         """P1: Verify check_vital bootstrap guidance fields."""
         with patch("arifosmcp.runtime.tools._wrap_call", new_callable=AsyncMock) as mock_wrap:
-            mock_envelope = MagicMock(spec=RuntimeEnvelope)
-            mock_envelope.payload = {} 
+            mock_envelope = RuntimeEnvelope(
+                tool="check_vital",
+                session_id="global",
+                stage=Stage.INIT_000.value,
+                verdict=Verdict.SEAL,
+                status=RuntimeStatus.SUCCESS,
+                payload={}
+            )
             mock_wrap.return_value = mock_envelope
             
             with patch("arifosmcp.runtime.tools._normalize_session_id", return_value="global"):

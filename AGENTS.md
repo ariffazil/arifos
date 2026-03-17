@@ -354,7 +354,7 @@ Key fixtures in `conftest.py`:
 
 > **Internal Stage Tools** (profile=internal only): `integrate_analyze_reflect`, `reason_mind_synthesis`, `assess_heart_impact`, `critique_thought_audit`, `quantum_eureka_forge`, `apex_judge_verdict`, `seal_vault_commit`.
 
-### Resources (SPEC.md Aligned)
+### 7 Canonical Resources
 
 | URI | Auth | What it exposes |
 | :--- | :--- | :--- |
@@ -370,7 +370,7 @@ Key fixtures in `conftest.py`:
 
 > **Full Specification:** See [SPEC.md](./SPEC.md) for normative protocol profile.
 
-### 8 Prompt Templates
+### 4 Prompt Templates
 One per public tool — each describes when and how to invoke it.
 
 ---
