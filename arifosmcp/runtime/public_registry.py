@@ -610,7 +610,7 @@ PUBLIC_COMPATIBILITY_SPECS: tuple[CompatibilitySpec, ...] = (
 
 PUBLIC_PROMPT_SPECS: tuple[PromptSpec, ...] = (
     # Formal prompts per SPEC.md Section 6.2
-    PromptSpec("bootstrap_session", "init_anchor_state", "Guide identity establishment with actor_id, declared_name, intent"),
+    PromptSpec("bootstrap_session", "init_anchor", "Guide identity establishment with raw_input containing identity declaration"),
     PromptSpec("explain_blocked_state", "arifOS_kernel", "Explain why blocked and how to recover"),
     PromptSpec("prepare_kernel_call", "arifOS_kernel", "Prepare governed execution with goal and risk_tier"),
     PromptSpec("summarize_constitutional_floors", "audit_rules", "Explain F1-F13 floors in context"),

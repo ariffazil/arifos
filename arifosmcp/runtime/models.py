@@ -202,6 +202,7 @@ class RiskClass(str, Enum):
 class ClaimStatus(str, Enum):
     ANONYMOUS = "anonymous"
     CLAIMED = "claimed"
+    ANCHORED = "anchored"
     VERIFIED = "verified"
 
 
