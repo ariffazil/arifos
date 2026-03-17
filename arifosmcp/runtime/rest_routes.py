@@ -1220,7 +1220,9 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
         try:
             # The arifos_kernel (metabolic_loop_router) is the single canonical entry point
             # for the full ΔΩΨ metabolic pipe. Using it ensures consistency across all entry points.
-            kernel_tool = tool_registry.get("arifOS_kernel") or tool_registry.get("metabolic_loop_router")
+            kernel_tool = tool_registry.get("arifOS_kernel") or tool_registry.get(
+                "metabolic_loop_router"
+            )
 
             if not kernel_tool:
                 return JSONResponse(
@@ -1233,14 +1235,18 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
                 )
 
             kernel_fn = getattr(kernel_tool, "fn", kernel_tool)
-            
+
             # Execute full metabolic loop in one sovereign call
             envelope = await kernel_fn(
                 query=query,
                 actor_id=actor_id,
                 session_id=session_id,
                 risk_tier=mode if mode in ["low", "medium", "high", "critical"] else "medium",
-                auth_context={"actor_id": actor_id, "authority_level": "agent", "token_fingerprint": "REST-BYPASS"},
+                auth_context={
+                    "actor_id": actor_id,
+                    "authority_level": "agent",
+                    "token_fingerprint": "REST-BYPASS",
+                },
                 use_heart=True,
                 use_critique=True,
                 allow_execution=True,
@@ -1249,12 +1255,12 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
             # Extract results from the RuntimeEnvelope
             judge_data = envelope.model_dump() if hasattr(envelope, "model_dump") else envelope
             verdict = judge_data.get("verdict", "VOID")
-            
+
             # Extract floors and metrics
             metrics = judge_data.get("metrics", {})
             telemetry = metrics.get("telemetry", {})
             truth_score = telemetry.get("G_star")
-            
+
             # Map floors
             floors_passed = judge_data.get("meta", {}).get("floors_passed", [])
             floors_failed = judge_data.get("meta", {}).get("floors_failed", [])
