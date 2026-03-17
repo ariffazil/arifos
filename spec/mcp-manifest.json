@@ -1,6 +1,6 @@
 {
   "name": "io.github.ariffazil/arifos-mcp",
-  "version": "2026.03.14-VALIDATED",
+  "version": "2026.03.17-ANTICHAOS",
   "tools": {
     "get_caller_status": {
       "stage": "000_INIT",
