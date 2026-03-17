@@ -115,6 +115,24 @@ def fastmcp_dependency() -> str:
 PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
     # ─── KERNEL LAYER (5 tools) ───
     ToolSpec(
+        name="get_caller_status",
+        stage="000_INIT",
+        role="Onboarding Compass",
+        layer="KERNEL",
+        description="000_INIT: Highest-leverage diagnostic. Explains current session state, authority ladder, accessible tools, and the exact path to advance your session. Use this if you are 'blocked' or uncertain of your next step.",
+        trinity="INIT",
+        floors=("F11",),
+        input_schema={
+            "type": "object",
+            "properties": {
+                "session_id": {
+                    "type": "string",
+                    "description": "Optional session ID to inspect.",
+                }
+            },
+        },
+    ),
+    ToolSpec(
         name="init_anchor",
         stage="000_INIT",
         role="Constitutional Airlock",
