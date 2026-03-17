@@ -589,6 +589,28 @@ async def init_anchor(
     )
     # Ensure tool name matches the public surface for F2 Truth
     envelope.tool = "init_anchor"
+
+    # Enrich payload with Authority and AuthContext for caller visibility
+    if envelope.ok:
+        envelope.payload["caller_state"] = "anchored"
+        envelope.payload["authority"] = {
+            "actor_id": effective_actor,
+            "declared_name": declared_name or effective_actor,
+            "claim_status": "anchored",
+            "capability_class": "operator",
+            "approval_scope": []
+        }
+        envelope.payload["auth_context"] = {
+            "session_id": envelope.session_id,
+            "actor_id": effective_actor,
+            "capability_class": "operator",
+            "escalation_hold": None
+        }
+        envelope.payload["next_action"] = {
+            "tool": "arifOS_kernel",
+            "action": "Proceed to governed execution.",
+            "example_query": "Analyze system state and propose optimizations."
+        }
     return envelope
 
 
@@ -1195,8 +1217,8 @@ async def audit_rules(session_id: str = "global", ctx: Context | None = None) ->
         }
         envelope.payload["discovery_resource"] = "canon://contracts"
         envelope.payload["guidance"] = (
-            "Review canon://contracts resource or 'tool_contract_table' field "
-            "for detailed tool requirements and bootstrap sequences."
+            "Review canon://contracts and canon://states resources "
+            "for tool hierarchy and the full Session Ladder bootstrap sequence."
         )
     return envelope
 
@@ -1238,47 +1260,61 @@ async def check_vital(session_id: str = "global", ctx: Context | None = None) ->
     session = session_manager.get_session(session_id)
 
     status_map = {
-        "anonymous": (
-            "GUEST: No identity claimed. Restricted to discovery tools (check_vital, audit_rules)."
-        ),
-        "anchored": "OPERATOR (UNVERIFIED): Session anchored. memory/ingest tools unlocked.",
-        "verified": "OPERATOR (Sovereign-Verified): Identity verified via VAULT999.",
-        "approved": "APEX: Full Human Sovereign approval. All kernel capabilities enabled.",
+        "anonymous": "GUEST: No identity claimed. Restricted to discovery (check_vital, audit_rules).",
+        "claimed": "GUEST (CLAIMED): Name/Actor ID provided but session NOT yet anchored.",
+        "anchored": "OPERATOR (ANCHORED): Session active. memory/ingest tools unlocked.",
+        "verified": "OPERATOR (VERIFIED): Identity verified via VAULT999 proof.",
+        "scoped": "APEX (SCOVED): Partial authority granted for low-risk kernel work.",
+        "approved": "APEX (APPROVED): Full Human Sovereign approval. All capabilities enabled.",
     }
 
     current_state = "anonymous"
     if session:
         if session.owner and session.owner != "anonymous":
+            current_state = "claimed"
+        # We check anchored vs claimed by looking for a session record or active context
+        # For simplicity in this tool, we'll use session presence as anchored if owner is set
+        if session.owner and session.owner != "anonymous":
             current_state = "anchored"
         if getattr(session, "verified", False):
             current_state = "verified"
+        if getattr(session, "approved", False):
+            current_state = "approved"
 
     next_steps = {
         "anonymous": {
-            "action": "INIT IDENTITY",
+            "advance_to": "anchored",
             "tool": "init_anchor",
-            "required_args": ["raw_input or actor_id"],
-            "unlocks": "session_memory, ingest_evidence, reality_grounding",
-            "example": "init_anchor(raw_input='My name is arif')"
+            "required": ["actor_id", "declared_name", "intent"],
+            "example": "init_anchor(actor_id='arif', intent='governance test')"
+        },
+        "claimed": {
+            "advance_to": "anchored",
+            "tool": "init_anchor",
+            "action": "Finalize session binding."
         },
         "anchored": {
-            "action": "EXECUTE WORK",
-            "tool": "arifOS_kernel",
-            "unlocks": "Governed metabolic loops",
-            "example": "arifOS_kernel(query='Analyze logs...')"
+            "advance_to": "verified",
+            "tool": "verify_vault_ledger",
+            "action": "Provide cryptographic proof of continuity."
         },
         "verified": {
-            "action": "CRITICAL OPS",
-            "tool": "verify_vault_ledger",
-            "unlocks": "Immutable audit trails",
-            "example": "verify_vault_ledger(full_scan=True)"
+            "advance_to": "scoped",
+            "tool": "arifOS_kernel",
+            "action": "Begin governed metabolic loop.",
+            "example": "arifOS_kernel(query='Deploy patch...')"
+        },
+        "scoped": {
+            "advance_to": "approved",
+            "action": "Wait for F13 Human Veto/Approval signal."
         }
     }
 
     envelope.payload["bootstrap"] = {
         "current_state": current_state,
         "description": status_map.get(current_state, "Unknown state."),
-        "operator_guidance": next_steps.get(current_state, {"action": "Proceed."}),
+        "ladder_resource": "canon://states",
+        "operator_guidance": next_steps.get(current_state, {"action": "Proceed with current authority."}),
     }
 
     return envelope

@@ -359,6 +359,7 @@ Key fixtures in `conftest.py`:
 | :--- | :--- |
 | `canon://index` | Version, tool surface map, and resource index |
 | `canon://contracts` | Tool Contract Table: Hierarchy and bootstrap requirements |
+| `canon://states` | Session Ladder: State machine and transition requirements |
 | `schema://tools/input` | Canonical JSON Schema input specs for public tools |
 | `schema://tools/output` | Canonical RuntimeEnvelope output schema |
 

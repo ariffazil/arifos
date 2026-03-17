@@ -173,13 +173,38 @@ def register_resources(mcp: FastMCP) -> None:
 | **Verification**       | verify_vault_ledger    | ✅ Yes        | ❌ No         | Verify Merkle chain integrity |
 | **Consequential**      | arifOS_kernel, forge   | ✅ Yes        | ❌ No         | Governed execution & actions |
 
+## Transition Pathways
+Review `canon://states` for the full Session Ladder and state transition requirements.
+
 ## Bootstrap Sequence
-1. **check_vital**: Check system readiness.
+1. **check_vital**: Check system readiness and current state.
 2. **audit_rules**: Inspect constitutional thresholds.
 3. **init_anchor_state**: **MANDATORY** establishes your `auth_context`.
 4. **arifOS_kernel**: Use the `auth_context` from step 3 to perform real work.
 """
     _resource_content_functions["canon://contracts"] = canon_contracts
+
+    @mcp.resource("canon://states")
+    def canon_states() -> str:
+        """Session Ladder: State machine and transition requirements."""
+        return """
+# arifOS Session Ladder (State Machine)
+
+| State        | Entry Condition           | Allowed Tools               | Exit Condition          |
+|--------------|---------------------------|-----------------------------|-------------------------|
+| **anonymous**| No identity claim         | diagnostics, read-only search| actor/name claim        |
+| **claimed**  | Actor ID provided         | same as anonymous           | anchor created          |
+| **anchored** | `init_anchor` succeeded   | memory, evidence, kernel prep| cryptographic proof     |
+| **verified** | Proof accepted            | ledger verification         | scope grant             |
+| **scoped**   | Approval scope granted    | low-risk kernel             | human escalation        |
+| **approved** | Human escalation cleared  | high-risk kernel, mutations | completion/revocation   |
+
+## Verification Status
+- **GUEST**: `anonymous` or `claimed`. Passive observer.
+- **OPERATOR**: `anchored` or `verified`. Governed participant.
+- **APEX**: `scoped` or `approved`. Sovereign authority.
+"""
+    _resource_content_functions["canon://states"] = canon_states
 
     @mcp.resource("canon://index")
     def canon_index() -> str:
@@ -189,6 +214,7 @@ def register_resources(mcp: FastMCP) -> None:
                 "version": release_version(),
                 "motto": "DITEMPA BUKAN DIBERI",
                 "architecture": "Double Helix",
+                "authority_ladder": ["anonymous", "claimed", "anchored", "verified", "scoped", "approved"],
                 "resources": public_resource_uris(),
             },
             ensure_ascii=False,

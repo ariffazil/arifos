@@ -829,6 +829,14 @@ def wrap_tool_output(tool: str, payload: dict[str, Any]) -> dict[str, Any]:
             "recoverable": recoverable,
         }
         if next_tool:
+            error_data["remediation"] = {
+                "next_tool": next_tool,
+                "required_args": list(next_args.keys()),
+                "example_payload": next_args,
+                "retry_safe": True,
+                "human_approval_required": any(f in failed_laws for f in ["F13_SOVEREIGN"])
+            }
+            # Keep legacy fields for backward compatibility during transition
             error_data["required_next_tool"] = next_tool
             error_data["example_next_call"] = {"tool": next_tool, "args": next_args}
             

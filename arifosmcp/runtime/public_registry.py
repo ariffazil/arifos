@@ -597,6 +597,7 @@ PUBLIC_PROMPT_SPECS: tuple[PromptSpec, ...] = tuple(
 
 PUBLIC_RESOURCE_SPECS: tuple[ResourceSpec, ...] = (
     ResourceSpec("canon://contracts", "Tool Contract Table: Hierarchy and bootstrap requirements."),
+    ResourceSpec("canon://states", "Session Ladder: State machine and transition requirements."),
     ResourceSpec("canon://index", "High-level arifOS canon map: tools, floors, and resources."),
     ResourceSpec("schema://tools/input", "Canonical JSON Schema input specs for public tools."),
     ResourceSpec("schema://tools/output", "Canonical RuntimeEnvelope output schema."),

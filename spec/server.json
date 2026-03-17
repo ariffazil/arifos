@@ -15,7 +15,7 @@
     "vault999": "postgresql+redis+merkle",
     "vector_memory": "qdrant+bge-m3-1024dim",
     "prompts": 25,
-    "resources": 4
+    "resources": 5
   },
   "tools": [
     {
