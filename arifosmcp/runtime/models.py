@@ -66,7 +66,7 @@ class ArifOSError(FastMCPError):
         self.remediation = remediation
 
 
-class ConstitutionalViolation(ArifOSError, AuthorizationError):
+class ConstitutionalViolationError(ArifOSError, AuthorizationError):
     """Raised when a Hard Constitutional Floor is breached. Results in VOID."""
 
     def __init__(self, message: str, floor_code: Any, extra: dict[str, Any] | None = None, remediation: dict[str, Any] | None = None):
@@ -80,7 +80,7 @@ class ConstitutionalViolation(ArifOSError, AuthorizationError):
         )
 
 
-class InfrastructureFault(ArifOSError, ToolError):
+class InfrastructureFaultError(ArifOSError, ToolError):
     """Raised when a mechanical fault occurs. Results in 888_HOLD."""
 
     def __init__(self, message: str, fault_code: Any, extra: dict[str, Any] | None = None, remediation: dict[str, Any] | None = None):
@@ -94,7 +94,7 @@ class InfrastructureFault(ArifOSError, ToolError):
         )
 
 
-class EpistemicGap(ArifOSError, ToolError):
+class EpistemicGapError(ArifOSError, ToolError):
     """Raised when grounding is insufficient. Results in SABAR."""
 
     def __init__(self, message: str, extra: dict[str, Any] | None = None, remediation: dict[str, Any] | None = None):
@@ -298,11 +298,11 @@ class PersonaRole(str, Enum):
 
 class TelemetryVitals(BaseModel):
     """Rule 3: The Public Score Card — Sovereign Vitals."""
-    dS: float = Field(0.0, description="Entropy Delta (1dp derived)")
+    ds: float = Field(0.0, description="Entropy Delta (1dp derived) (F4)")
     peace2: float = Field(1.0, description="Lyapunov Stability (2dp derived)")
     kappa_r: float | None = Field(None, description="Maruah Score (2dp derived | null)")
     G_star: float = Field(0.0, description="Genius Score (2dp derived)")
-    echoDebt: float = Field(0.1, description="Historical Contradictions (1dp measured)")
+    echo_debt: float = Field(0.0, description="Historical Contradictions (1dp measured) (F5)")
     shadow: float = Field(0.0, description="Hidden Assumption Load (2dp derived)")
     confidence: float = Field(0.0, description="Confidence (2dp derived)")
     psi_le: str = Field("0.0 (Estimate Only)", description="AGI Emergence Pressure (heuristic + Estimate Only)")
@@ -312,7 +312,7 @@ class TelemetryVitals(BaseModel):
 class TelemetryBasis(BaseModel):
     """Rule 1: Basis tracking for every vital sign."""
 
-    dS: str = "derived"
+    ds: str = "derived"
     peace2: str = "derived"
     kappa_r: str | None = "derived"
     G_star: str = "derived"

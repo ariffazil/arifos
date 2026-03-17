@@ -7,9 +7,9 @@ for legacy imports.
 
 from arifosmcp.runtime.models import (
     ArifOSError,
-    ConstitutionalViolation,
-    EpistemicGap,
-    InfrastructureFault,
+    ConstitutionalViolationError as ConstitutionalViolation,
+    EpistemicGapError as EpistemicGap,
+    InfrastructureFaultError as InfrastructureFault,
 )
 
 __all__ = [

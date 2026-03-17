@@ -388,9 +388,10 @@ def _resolve_next_action(caller_state: str, blocked_tools: list[dict[str, str]])
         return {
             "tool": "init_anchor",  # CANONICAL: init_anchor (legacy alias: init_anchor_state)
             "reason": f"You are {caller_state}. Identity required for governed execution.",
-            "required_args": ["raw_input"],
+            "required_args": ["actor_id", "intent"],
             "example_payload": {
-                "raw_input": "I am [name], establishing session for [purpose]"
+                "actor_id": "arif",
+                "intent": "establish session for code review"
             },
             "retry_safe": True,
             "human_approval_required": False
@@ -398,9 +399,9 @@ def _resolve_next_action(caller_state: str, blocked_tools: list[dict[str, str]])
     
     if blocked_tools and blocked_tools[0].get("tool") == "arifOS_kernel":
         return {
-            "tool": "init_anchor_state",
+            "tool": "init_anchor",
             "reason": "Kernel requires anchored session with auth_context",
-            "required_args": ["actor_id", "declared_name", "intent"],
+            "required_args": ["actor_id", "intent"],
             "example_payload": {
                 "actor_id": "arif",
                 "declared_name": "Muhammad Arif",
@@ -530,11 +531,11 @@ async def _wrap_call(
             )
 
     except Exception as e:
-        from arifosmcp.runtime.models import ArifOSError
+        from arifosmcp.runtime.models import ArifOSError, Verdict
 
         if isinstance(e, ArifOSError):
             error_telemetry = TelemetryVitals(
-                dS=0.0,
+                ds=0.0,
                 peace2=0.5,
                 G_star=0.0,
                 shadow=1.0,
@@ -567,7 +568,7 @@ async def _wrap_call(
             )
             # Add next step hint for common auth errors
             if e.fault_code in ("AUTH_TOKEN_MISSING", "AUTH_FAILURE"):
-                envelope.errors[0].required_next_tool = "init_anchor"  # CANONICAL
+                envelope.errors[0].required_next_tool = "init_anchor"
                 envelope.errors[0].required_fields = ["raw_input"]
                 envelope.next_action = "init_anchor"
 
@@ -575,7 +576,7 @@ async def _wrap_call(
 
         # Hardened mechanical fallback
         error_telemetry = TelemetryVitals(
-            dS=0.0,
+            ds=0.0,
             peace2=0.5,
             G_star=0.0,
             shadow=1.0,
@@ -1350,23 +1351,24 @@ async def audit_rules(session_id: str = "global", ctx: Context | None = None) ->
     Enforces F1-F13.
     """
     envelope = await _wrap_call("audit_rules", Stage.JUDGE_888, session_id, {}, ctx)
-    if envelope.ok:
-        from .resources import apex_tools_markdown_table
-        envelope.payload["tool_contract_table"] = apex_tools_markdown_table()
-        envelope.payload["floor_runtime_hooks"] = {
-            "F1_AMANAH": "core.enforcement.reversibility",
-            "F2_TRUTH": "arifosmcp.intelligence.fact_checker",
-            "F3_TRI_WITNESS": "core.shared.consensus",
-            "F4_CLARITY": "core.physics.entropy",
-            "F5_PEACE2": "core.shared.vitality",
-            "F11_AUTHORITY": "core.enforcement.auth_continuity",
-            "F12_DEFENSE": "core.enforcement.injection_scanner",
-        }
-        envelope.payload["discovery_resource"] = "canon://contracts"
-        envelope.payload["guidance"] = (
-            "Review canon://contracts and canon://states resources "
-            "for tool hierarchy and the full Session Ladder bootstrap sequence."
-        )
+    
+    # Discovery: Always surface contract and floor metadata for transparency
+    from .resources import apex_tools_markdown_table
+    envelope.payload["tool_contract_table"] = apex_tools_markdown_table()
+    envelope.payload["floor_runtime_hooks"] = {
+        "F1_AMANAH": "core.enforcement.reversibility",
+        "F2_TRUTH": "arifosmcp.intelligence.fact_checker",
+        "F3_TRI_WITNESS": "core.shared.consensus",
+        "F4_CLARITY": "core.physics.entropy",
+        "F5_PEACE2": "core.shared.vitality",
+        "F11_AUTHORITY": "core.enforcement.auth_continuity",
+        "F12_DEFENSE": "core.enforcement.injection_scanner",
+    }
+    envelope.payload["discovery_resource"] = "canon://contracts"
+    envelope.payload["guidance"] = (
+        "Review canon://contracts and canon://states resources "
+        "for tool hierarchy and the full Session Ladder bootstrap sequence."
+    )
     return envelope
 
 
@@ -1443,13 +1445,13 @@ async def check_vital(session_id: str = "global", ctx: Context | None = None) ->
     next_steps = {
         "anonymous": {
             "advance_to": "anchored",
-            "tool": "init_anchor_state",
-            "required": ["actor_id", "declared_name", "intent"],
-            "example": "init_anchor_state(actor_id='arif', intent='governance test')"
+            "tool": "init_anchor",
+            "required": ["actor_id", "intent"],
+            "example": "init_anchor(actor_id='arif', intent='governance test')"
         },
         "claimed": {
             "advance_to": "anchored",
-            "tool": "init_anchor_state",
+            "tool": "init_anchor",
             "action": "Finalize session binding with identity attestation."
         },
         "anchored": {
