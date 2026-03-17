@@ -56,51 +56,77 @@ class ArifOSError(FastMCPError):
         fault_code: str,
         verdict: str,
         extra: dict[str, Any] | None = None,
+        remediation: dict[str, Any] | None = None,
     ):
         super().__init__(message)
         self.fault_class = fault_class
         self.fault_code = fault_code
         self.verdict = verdict
         self.extra = extra or {}
+        self.remediation = remediation
 
 
 class ConstitutionalViolation(ArifOSError, AuthorizationError):
     """Raised when a Hard Constitutional Floor is breached. Results in VOID."""
 
-    def __init__(self, message: str, floor_code: Any, extra: dict[str, Any] | None = None):
+    def __init__(self, message: str, floor_code: Any, extra: dict[str, Any] | None = None, remediation: dict[str, Any] | None = None):
         super().__init__(
             message=f"CONSTITUTIONAL COLLAPSE: {message}",
             fault_class="CONSTITUTIONAL",
             fault_code=str(floor_code),
             verdict="VOID",
             extra=extra,
+            remediation=remediation,
         )
 
 
 class InfrastructureFault(ArifOSError, ToolError):
     """Raised when a mechanical fault occurs. Results in 888_HOLD."""
 
-    def __init__(self, message: str, fault_code: Any, extra: dict[str, Any] | None = None):
+    def __init__(self, message: str, fault_code: Any, extra: dict[str, Any] | None = None, remediation: dict[str, Any] | None = None):
         super().__init__(
             message=f"MECHANICAL FAULT: {message}",
             fault_class="MECHANICAL",
             fault_code=str(fault_code),
             verdict="888_HOLD",
             extra=extra,
+            remediation=remediation,
         )
 
 
 class EpistemicGap(ArifOSError, ToolError):
     """Raised when grounding is insufficient. Results in SABAR."""
 
-    def __init__(self, message: str, extra: dict[str, Any] | None = None):
+    def __init__(self, message: str, extra: dict[str, Any] | None = None, remediation: dict[str, Any] | None = None):
         super().__init__(
             message=f"EPISTEMIC GAP: {message}",
             fault_class="EPISTEMIC",
             fault_code="NO_RESULTS",
             verdict="SABAR",
             extra=extra,
+            remediation=remediation,
         )
+
+
+class AuthMethod(str, Enum):
+    BEARER = "bearer"
+    SIG_V2 = "sig_v2"
+    SESSION = "session"
+
+
+class AuthContext(BaseModel):
+    """
+    Standardized authentication context for governed tool calls (F11).
+    Established in init_anchor and verified in auth_continuity.
+    """
+
+    method: AuthMethod = AuthMethod.SESSION
+    actor_id: str = "anonymous"
+    credential: str | None = Field(default=None, description="Token, signature, or session key.")
+    scope: list[str] = Field(default_factory=list, description="Authorized capability scopes.")
+    issued_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    expires_at: datetime | None = Field(default=None)
+    nonce: str | None = Field(default=None, description="Anti-replay value.")
 
 
 class Verdict(str, Enum):
@@ -164,6 +190,19 @@ class EntropyState(str, Enum):
     MANAGEABLE = "MANAGEABLE"
     HIGH = "HIGH"
     CRITICAL = "CRITICAL"
+
+
+class RiskClass(str, Enum):
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
+    CRITICAL = "critical"
+
+
+class ClaimStatus(str, Enum):
+    ANONYMOUS = "anonymous"
+    CLAIMED = "claimed"
+    VERIFIED = "verified"
 
 
 class EurekaState(str, Enum):
@@ -317,6 +356,7 @@ class CanonicalMetrics(BaseModel):
 class CanonicalAuthority(BaseModel):
     actor_id: str = "anonymous"
     level: AuthorityLevel = AuthorityLevel.ANONYMOUS
+    claim_status: ClaimStatus = ClaimStatus.ANONYMOUS
     human_required: bool = False
     approval_scope: list[str] = Field(default_factory=list)
     auth_state: str = "unverified"
@@ -327,6 +367,10 @@ class CanonicalError(BaseModel):
     message: str
     stage: str | None = None
     recoverable: bool = True
+    required_next_tool: str | None = None
+    required_fields: list[str] | None = None
+    example_next_call: dict[str, Any] | None = None
+    remediation: dict[str, Any] | None = None
 
 
 class CanonicalMeta(BaseModel):
@@ -335,6 +379,7 @@ class CanonicalMeta(BaseModel):
     debug: bool = False
     dry_run: bool = False
     motto: str | None = None
+    deprecation: dict[str, Any] | None = None
 
 
 class PersonaId(str, Enum):
@@ -469,6 +514,14 @@ class CallerContext(BaseModel):
 class RuntimeEnvelope(BaseModel):
     ok: bool = True
     tool: str
+    canonical_tool_name: str | None = None
+    risk_class: RiskClass = RiskClass.LOW
+    requires_auth: bool = False
+    requires_human: bool = False
+    recoverable: bool = True
+    next_action: str | None = None
+    state_transition: str | None = None
+
     session_id: str | None = None
     stage: str
     verdict: Verdict = Verdict.SABAR
@@ -499,7 +552,7 @@ class RuntimeEnvelope(BaseModel):
     payload: dict[str, Any] = Field(default_factory=dict)
     errors: list[CanonicalError] = Field(default_factory=list)
     meta: CanonicalMeta = Field(default_factory=CanonicalMeta)
-    auth_context: dict[str, Any] | None = Field(default=None)
+    auth_context: AuthContext | None = Field(default=None)
     caller_context: CallerContext | None = Field(
         default=None,
         description="AI execution identity. Auto-populated by MCP server.",

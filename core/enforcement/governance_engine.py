@@ -803,14 +803,36 @@ def wrap_tool_output(tool: str, payload: dict[str, Any]) -> dict[str, Any]:
         elif not str(payload.get("error_code", "")).strip() and auth_state == "unverified":
             error_code = "AUTH_FAILURE"
 
-        errors.append(
-            {
-                "code": error_code,
-                "message": payload.get("error") or f"Verdict {verdict} issued by {stage}",
-                "stage": stage,
-                "recoverable": verdict == "SABAR",
-            }
-        )
+        # --- RECOVERY PATHS (Aligned with kimi) ---
+        next_tool = None
+        next_args = {}
+        recoverable = True
+
+        if "F11_AUTHORITY" in failed_laws or auth_state == "unverified":
+            next_tool = "init_anchor"
+            next_args = {"raw_input": "I am arif"}
+        elif "F2_TRUTH" in failed_laws:
+            next_tool = "search_reality"
+            next_args = {"query": "verify " + tool}
+        elif verdict == "SABAR":
+            next_tool = "check_vital"
+            next_args = {}
+        elif verdict == "HOLD":
+            next_tool = "check_vital" # Check if entropy is the issue
+            next_args = {}
+            recoverable = False
+
+        error_data = {
+            "code": error_code,
+            "message": payload.get("error") or f"Verdict {verdict} issued by {stage}",
+            "stage": stage,
+            "recoverable": recoverable,
+        }
+        if next_tool:
+            error_data["required_next_tool"] = next_tool
+            error_data["example_next_call"] = {"tool": next_tool, "args": next_args}
+            
+        errors.append(error_data)
 
     # Unified Meta
     meta_motto = motto.get("line")

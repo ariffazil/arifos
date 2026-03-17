@@ -14,7 +14,7 @@ import functools
 from collections.abc import Callable
 from typing import Any
 
-from arifosmcp.core.ontology import OntologyRegistry
+from core.ontology import OntologyRegistry
 from arifosmcp.runtime.models import (
     CallerContext,
     CanonicalAuthority,
@@ -27,6 +27,7 @@ from arifosmcp.runtime.models import (
     IntelligenceStage,
     MachineIssueLabel,
     MachineState,
+    RiskClass,
     RuntimeEnvelope,
     RuntimeStatus,
     Verdict,
@@ -230,6 +231,11 @@ def _finalize_envelope(
         envelope = RuntimeEnvelope(
             ok=ok,
             tool=detected_name,
+            canonical_tool_name=detected_name,
+            risk_class=RiskClass.LOW,  # Default for intel tools
+            requires_auth=False,
+            requires_human=verdict in (Verdict.HOLD, Verdict.HOLD_888),
+            recoverable=ok or verdict not in (Verdict.VOID, Verdict.HOLD_888),
             session_id=session_id,
             stage=stage,
             verdict=verdict,
@@ -288,6 +294,7 @@ def _finalize_envelope(
     return RuntimeEnvelope(
         ok=True,
         tool=detected_name,
+        canonical_tool_name=detected_name,
         session_id=session_id,
         stage=stage,
         verdict=default_verdict,
@@ -337,6 +344,7 @@ def _error_envelope(
         ),
         caller_context=caller_ctx if isinstance(caller_ctx, CallerContext) else None,
         auth_context=auth_ctx if auth_ctx else None,
+        canonical_tool_name=detected_name,
     )
 
 

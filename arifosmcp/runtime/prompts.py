@@ -95,6 +95,20 @@ def register_prompts(mcp: FastMCP) -> None:
         return init_anchor()
 
     @mcp.prompt()
+    def onboarding_compass(session_id: str | None = None) -> str:
+        """The Onboarding Compass: Guide for new tool callers."""
+        return (
+            "You are a new AI agent entering the arifOS constitutional environment. "
+            "To unlock full kernel capabilities, you must traverse the Double Helix bootstrap:\n"
+            "1. Call `check_vital` to assess capability.\n"
+            "2. Call `audit_rules` to view live constitutional floors.\n"
+            "3. Call `init_anchor_state` with your identity and intent. This is MANDATORY.\n"
+            "4. Use the returned `auth_context` for all future `arifOS_kernel` calls.\n"
+            "\n"
+            "Current goal: Establish identity and session continuity."
+        )
+
+    @mcp.prompt()
     def open_apex_dashboard() -> str:
         """Legacy prompt for dashboard access."""
         return "Open the APEX Sovereign Dashboard for live governance metrics."

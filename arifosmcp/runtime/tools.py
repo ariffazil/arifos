@@ -12,38 +12,30 @@ from fastmcp.tools import tool as make_tool
 from fastmcp.tools.tool_transform import ArgTransform
 
 from arifosmcp.runtime.metrics import (
-    METABOLIC_LOOP_DURATION,
     helix_tracer,
-    record_constitutional_metrics,
-    record_verdict,
 )
 from arifosmcp.runtime.models import (
-    CallerContext,
+    AuthContext,
     RuntimeEnvelope,
     RuntimeStatus,
     Stage,
-    UserModel,
-    UserModelField,
-    UserModelSource,
     Verdict,
 )
 from arifosmcp.runtime.philosophy import select_governed_philosophy
 from arifosmcp.runtime.public_registry import (
-    is_public_profile,
-    normalize_tool_profile,
+    PUBLIC_TOOL_SPEC_BY_NAME,
     public_tool_names,
     public_tool_specs,
 )
 from arifosmcp.runtime.resources import build_open_apex_dashboard_result
 from arifosmcp.runtime.sessions import _resolve_session_id, set_active_session
-from core.physics.thermodynamics_hardened import get_thermodynamic_report
 from core.shared.mottos import MOTTO_000_INIT_HEADER, MOTTO_999_SEAL_HEADER, get_motto_for_stage
 from core.state.session_manager import session_manager
 from core.telemetry import check_adaptation_status, get_current_hysteresis
 
 from .bridge import call_kernel
 from .reality_handlers import handler as reality_handler
-from .reality_models import BundleInput, EvidenceBundle, Policy
+from .reality_models import BundleInput, Policy
 from arifosmcp.tools.agentzero_tools import (
     agentzero_validate,
     agentzero_engineer,
@@ -51,7 +43,6 @@ from arifosmcp.tools.agentzero_tools import (
     agentzero_memory_query,
     agentzero_armor_scan,
 )
-
 PUBLIC_TOOL_SPEC_BY_NAME = {spec.name: spec for spec in public_tool_specs()}
 PUBLIC_KERNEL_TOOL_NAME = "arifOS_kernel"
 LEGACY_KERNEL_TOOL_NAME = "arifOS-kernel"
@@ -332,7 +323,6 @@ async def _wrap_call(
     """
 
     # ─── F12 SECURITY PRE-SCAN ───
-    # Reject oversized payloads or non-dict inputs to prevent tool poisoning/DDoS
     if not isinstance(payload, dict):
         from arifosmcp.runtime.exceptions import ConstitutionalViolation
         from arifosmcp.runtime.fault_codes import ConstitutionalFaultCode
@@ -356,9 +346,29 @@ async def _wrap_call(
     if caller_context is not None:
         payload["caller_context"] = caller_context.model_dump(mode="json", exclude_none=True)
 
+    # Identify tool metadata for envelope decoration
+    spec = PUBLIC_TOOL_SPEC_BY_NAME.get(tool_name)
+    risk_class = RiskClass.LOW
+    requires_auth = False
+    if spec:
+        if "F11" in spec.floors or "F13" in spec.floors:
+            risk_class = RiskClass.HIGH
+            requires_auth = True
+        elif spec.layer == "KERNEL":
+            risk_class = RiskClass.MEDIUM
+
     try:
         kernel_res = await call_kernel(tool_name, session_id, payload)
         envelope = RuntimeEnvelope(**kernel_res)
+
+        # ─── ENVELOPE DECORATION (Rule 4: Universal Clarity) ───
+        envelope.canonical_tool_name = tool_name
+        envelope.risk_class = risk_class
+        envelope.requires_auth = requires_auth
+        envelope.requires_human = envelope.verdict in (Verdict.HOLD, Verdict.HOLD_888)
+        envelope.recoverable = envelope.status != RuntimeStatus.ERROR or any(
+            e.recoverable for e in envelope.errors
+        )
 
         # Decorate with Stage Motto (Meta Invariant)
         envelope.meta.motto = _resolve_motto(envelope.stage)
@@ -366,7 +376,6 @@ async def _wrap_call(
         # ─── INVARIANT III: ΔΩΨ LAW ───
         from arifosmcp.runtime.models import DeltaOmegaPsi
 
-        # Map metrics into the DeltaOmegaPsi model for verification
         g_star = (
             envelope.metrics.telemetry.G_star
             if envelope.metrics and envelope.metrics.telemetry
@@ -408,7 +417,52 @@ async def _wrap_call(
         from arifosmcp.runtime.models import ArifOSError
 
         if isinstance(e, ArifOSError):
-            raise e
+            from arifosmcp.runtime.models import (
+                CanonicalError,
+                CanonicalMetrics,
+                RuntimeStatus,
+                TelemetryVitals,
+                Verdict,
+            )
+
+            error_telemetry = TelemetryVitals(
+                dS=0.0,
+                peace2=0.5,
+                G_star=0.0,
+                shadow=1.0,
+                confidence=0.0,
+                psi_le="0.0 (Estimate Only)",
+                verdict="HOLD",
+            )
+
+            envelope = RuntimeEnvelope(
+                ok=False,
+                tool=tool_name,
+                canonical_tool_name=tool_name,
+                risk_class=risk_class,
+                requires_auth=requires_auth,
+                session_id=session_id,
+                stage=stage.value,
+                verdict=_normalize_verdict(e.verdict),
+                status=RuntimeStatus.ERROR,
+                errors=[
+                    CanonicalError(
+                        code=e.fault_code,
+                        message=str(e),
+                        stage=stage.value,
+                        recoverable=True,
+                        remediation=getattr(e, "remediation", None),
+                    )
+                ],
+                metrics=CanonicalMetrics(telemetry=error_telemetry),
+            )
+            # Add next step hint for common auth errors
+            if e.fault_code in ("AUTH_TOKEN_MISSING", "AUTH_FAILURE"):
+                envelope.errors[0].required_next_tool = "init_anchor_state"
+                envelope.errors[0].required_fields = ["actor_id", "auth_context"]
+                envelope.next_action = "init_anchor_state"
+
+            return envelope
 
         # Hardened mechanical fallback
         from arifosmcp.runtime.models import (
@@ -426,12 +480,15 @@ async def _wrap_call(
             shadow=1.0,
             confidence=0.0,
             psi_le="0.0 (Estimate Only)",
-            verdict="HOLD",  # Default to HOLD on runtime error for safety
+            verdict="HOLD",
         )
 
         envelope = RuntimeEnvelope(
             ok=False,
             tool=tool_name,
+            canonical_tool_name=tool_name,
+            risk_class=risk_class,
+            requires_auth=requires_auth,
             session_id=session_id,
             stage=stage.value,
             verdict=Verdict.HOLD,
@@ -974,9 +1031,10 @@ async def arifos_kernel(
     ctx: Context | None = None,
     session_id: str | None = None,
     risk_tier: str = "medium",
+    mode: str = "recommend",
     # Legacy compatibility parameters
     context: str | None = None,
-    auth_context: dict[str, Any] | None = None,
+    auth_context: AuthContext | dict[str, Any] | None = None,
     actor_id: str = "anonymous",
     declared_name: str | None = None,
     human_approval: bool = False,
@@ -989,9 +1047,21 @@ async def arifos_kernel(
     caller_context: CallerContext | None = None,
     debug: bool = False,
 ) -> RuntimeEnvelope:
-    """Stage Conductor: Orchestrates the ΔΩΨ transitions through the pipeline."""
+    """
+    Stage Conductor: Orchestrates the ΔΩΨ transitions through the pipeline.
+
+    Modes:
+    - inspect/analyze: Read-only probe of state
+    - recommend: Synthetic proposal with risk assessment
+    - governed_execute: Live execution under constitutional oversight
+    - dry_run: Full pipeline simulation without side effects
+    """
     # Canonical delegation via _wrap_call to ensure Invariants and Philosophy apply
     active_session = session_id or _normalize_session_id(None)
+
+    # Ensure allow_execution is synchronized with mode
+    effective_execution = allow_execution or (mode == "governed_execute")
+    effective_dry_run = dry_run or (mode == "dry_run")
 
     return await _wrap_call(
         tool_name="arifOS_kernel",
@@ -1001,12 +1071,15 @@ async def arifos_kernel(
             "query": query,
             "context": context,
             "risk_tier": risk_tier,
+            "mode": mode,
             "actor_id": actor_id,
             "declared_name": declared_name,
             "human_approval": human_approval,
-            "auth_context": auth_context,
-            "allow_execution": allow_execution,
-            "dry_run": dry_run,
+            "auth_context": auth_context
+            if not hasattr(auth_context, "model_dump")
+            else auth_context.model_dump(mode="json"),
+            "allow_execution": effective_execution,
+            "dry_run": effective_dry_run,
             "caller_context": caller_context.model_dump(mode="json") if caller_context else None,
             "debug": debug,
             "use_memory": use_memory,
@@ -1109,6 +1182,8 @@ async def audit_rules(session_id: str = "global", ctx: Context | None = None) ->
     """
     envelope = await _wrap_call("audit_rules", Stage.MIND_333, session_id, {}, ctx)
     if envelope.ok:
+        from .resources import apex_tools_markdown_table
+        envelope.payload["tool_contract_table"] = apex_tools_markdown_table()
         envelope.payload["floor_runtime_hooks"] = {
             "F1_AMANAH": "core.enforcement.reversibility",
             "F2_TRUTH": "arifosmcp.intelligence.fact_checker",
@@ -1118,6 +1193,11 @@ async def audit_rules(session_id: str = "global", ctx: Context | None = None) ->
             "F11_AUTHORITY": "core.enforcement.auth_continuity",
             "F12_DEFENSE": "core.enforcement.injection_scanner",
         }
+        envelope.payload["discovery_resource"] = "canon://contracts"
+        envelope.payload["guidance"] = (
+            "Review canon://contracts resource or 'tool_contract_table' field "
+            "for detailed tool requirements and bootstrap sequences."
+        )
     return envelope
 
 
@@ -1152,6 +1232,55 @@ async def check_vital(session_id: str = "global", ctx: Context | None = None) ->
         envelope.payload["vital_error"] = f"Failed to fetch detailed vitals: {e}"
 
     envelope.payload["intelligence_services"] = await _probe_intelligence_services()
+
+    # --- BOOTSTRAP GUIDANCE (Consolidated from get_bootstrap_status) ---
+    from core.state.session_manager import session_manager
+    session = session_manager.get_session(session_id)
+
+    status_map = {
+        "anonymous": (
+            "GUEST: No identity claimed. Restricted to discovery tools (check_vital, audit_rules)."
+        ),
+        "anchored": "OPERATOR (UNVERIFIED): Session anchored. memory/ingest tools unlocked.",
+        "verified": "OPERATOR (Sovereign-Verified): Identity verified via VAULT999.",
+        "approved": "APEX: Full Human Sovereign approval. All kernel capabilities enabled.",
+    }
+
+    current_state = "anonymous"
+    if session:
+        if session.owner and session.owner != "anonymous":
+            current_state = "anchored"
+        if getattr(session, "verified", False):
+            current_state = "verified"
+
+    next_steps = {
+        "anonymous": {
+            "action": "INIT IDENTITY",
+            "tool": "init_anchor",
+            "required_args": ["raw_input or actor_id"],
+            "unlocks": "session_memory, ingest_evidence, reality_grounding",
+            "example": "init_anchor(raw_input='My name is arif')"
+        },
+        "anchored": {
+            "action": "EXECUTE WORK",
+            "tool": "arifOS_kernel",
+            "unlocks": "Governed metabolic loops",
+            "example": "arifOS_kernel(query='Analyze logs...')"
+        },
+        "verified": {
+            "action": "CRITICAL OPS",
+            "tool": "verify_vault_ledger",
+            "unlocks": "Immutable audit trails",
+            "example": "verify_vault_ledger(full_scan=True)"
+        }
+    }
+
+    envelope.payload["bootstrap"] = {
+        "current_state": current_state,
+        "description": status_map.get(current_state, "Unknown state."),
+        "operator_guidance": next_steps.get(current_state, {"action": "Proceed."}),
+    }
+
     return envelope
 
 

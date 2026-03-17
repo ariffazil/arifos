@@ -1,4 +1,4 @@
-﻿# AGENTS.md — arifOS Constitutional MCP Server
+# AGENTS.md — arifOS Constitutional MCP Server
 
 > **Motto:** *Ditempa Bukan Diberi* — Forged, Not Given [ΔΩΨ | ARIF]
 
@@ -354,24 +354,15 @@ Key fixtures in `conftest.py`:
 
 > **Internal Stage Tools** (profile=internal only): `integrate_analyze_reflect`, `reason_mind_synthesis`, `assess_heart_impact`, `critique_thought_audit`, `quantum_eureka_forge`, `apex_judge_verdict`, `seal_vault_commit`.
 
-### 15 Resources
+### 4 Canonical Resources
 | URI | What it exposes |
 | :--- | :--- |
-| `canon://index` | Version, organ counts, tool surface map |
-| `canon://tools` | Canonical public tool surface |
-| `canon://floors` | All 13 floors with types/thresholds |
-| `canon://metabolic-loop` | Prose explanation of 000→999 flow |
-| `governance://law` | Invariants, verdict hierarchy, anti-hantu rules |
-| `eval://metabolic-workflows` | Standard workflow recipes |
-| `eval://floors-thresholds` | Numeric thresholds for all 13 floors |
-| `schema://tools/input` | JSON Schema for public tool inputs |
-| `schema://tools/output` | RuntimeEnvelope output schema v1.0.0 |
-| `schema://opex` | Epistemic intake schema |
-| `schema://apex` | Governance output schema |
-| `vault://latest` | Last 5 VAULT999 sealed entries (metadata) |
-| `telemetry://summary` | Live thermodynamic metrics |
-| `runtime://capability-map` | Credential class state (redacted) |
-| `ui://apex/dashboard-v2.html` | Packaged APEX dashboard HTML |
+| `canon://index` | Version, tool surface map, and resource index |
+| `canon://contracts` | Tool Contract Table: Hierarchy and bootstrap requirements |
+| `schema://tools/input` | Canonical JSON Schema input specs for public tools |
+| `schema://tools/output` | Canonical RuntimeEnvelope output schema |
+
+> **Note:** Peripheral Nervous System (PNS) resources like `pns://health` are deprecated or internal; use `check_vital` and `audit_rules` for current system state.
 
 ### 8 Prompt Templates
 One per public tool — each describes when and how to invoke it.

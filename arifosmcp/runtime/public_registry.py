@@ -596,17 +596,10 @@ PUBLIC_PROMPT_SPECS: tuple[PromptSpec, ...] = tuple(
 )
 
 PUBLIC_RESOURCE_SPECS: tuple[ResourceSpec, ...] = (
-    ResourceSpec("pns://shield", "PNS·SHIELD: Input sanitation status."),
-    ResourceSpec("pns://search", "PNS·SEARCH: Web grounding facts."),
-    ResourceSpec("pns://vision", "PNS·VISION: Multimodal perception."),
-    ResourceSpec("pns://health", "PNS·HEALTH: Model stability metadata."),
-    ResourceSpec("pns://floor", "PNS·FLOOR: Hallucination safety floor."),
-    ResourceSpec("pns://orchestrate", "PNS·ORCHESTRATE: Tool routing mediation."),
-    ResourceSpec("pns://redteam", "PNS·REDTEAM: Adversarial testing."),
-    ResourceSpec("vault://999", "VAULT999: Sealed constitutional memory."),
-    ResourceSpec("ledger://cooling", "Cooling Ledger: Ancestry chain."),
-    ResourceSpec("canon://invariants", "ΔΩΨ constitutional invariants."),
-    ResourceSpec("canon://floors", "F1-F13 constitutional floor thresholds — static reference."),
+    ResourceSpec("canon://contracts", "Tool Contract Table: Hierarchy and bootstrap requirements."),
+    ResourceSpec("canon://index", "High-level arifOS canon map: tools, floors, and resources."),
+    ResourceSpec("schema://tools/input", "Canonical JSON Schema input specs for public tools."),
+    ResourceSpec("schema://tools/output", "Canonical RuntimeEnvelope output schema."),
 )
 
 RUNTIME_ENVELOPE_SCHEMA: dict[str, Any] = {
