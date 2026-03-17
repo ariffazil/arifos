@@ -969,7 +969,11 @@ def route_pipeline(query: str, context: dict | None = None) -> list[str]:
         if "222_REALITY" not in plan:
             plan.insert(1, "222_REALITY")
 
-    if context and context.get("human_required"):
+    mode = context.get("mode", "recommend") if context else "recommend"
+    if mode in ("inspect", "analyze"):
+        return ["000_INIT", "333_MIND"]
+
+    if context and context.get("human_required") or mode == "governed_execute":
         if "888_JUDGE" not in plan:
             plan.append("888_JUDGE")
 

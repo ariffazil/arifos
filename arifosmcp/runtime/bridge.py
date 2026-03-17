@@ -30,7 +30,7 @@ from core.organs._4_vault import verify_vault_ledger
 from .models import Verdict
 
 logger = logging.getLogger(__name__)
-DEFAULT_VAULT_PATH = Path("VAULT999/vault999.jsonl")
+DEFAULT_VAULT_PATH = Path(__file__).parents[2] / "VAULT999" / "vault999.jsonl"
 
 TOOL_MAP = {
     "init_anchor": "anchor_session",
@@ -744,6 +744,7 @@ async def call_kernel(
             result = await metabolic_loop(
                 query=query_input,
                 risk_tier=payload.get("risk_tier", "medium"),
+                mode=payload.get("mode", "recommend"),
                 actor_id=actor_id,
                 declared_name=payload.get("declared_name"),
                 human_approval=bool(payload.get("human_approval", False)),

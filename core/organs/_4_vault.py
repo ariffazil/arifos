@@ -24,7 +24,7 @@ from core.shared.types import HashChain, SealRecord, VaultOutput, Verdict
 logger = logging.getLogger(__name__)
 
 # Default storage
-DEFAULT_VAULT_PATH = Path("VAULT999/vault999.jsonl")
+DEFAULT_VAULT_PATH = Path(__file__).parents[2] / "VAULT999" / "vault999.jsonl"
 _CHAIN_SEED = "0x" + "0" * 64
 VAULT_VERSION = "v1"
 

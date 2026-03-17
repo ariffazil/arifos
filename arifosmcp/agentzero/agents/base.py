@@ -16,9 +16,9 @@ import json
 import logging
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum, auto
-from typing import Any, Dict, List, Optional, Protocol, Set
+from typing import Any, Protocol
 from uuid import uuid4
 
 
@@ -48,7 +48,7 @@ class FloorScore:
     score: float        # 0.0-1.0
     threshold: float    # Required threshold
     passed: bool        # Whether floor passed
-    details: Dict[str, Any] = field(default_factory=dict)
+    details: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
@@ -63,20 +63,20 @@ class Verdict:
     execution_id: str
     agent_id: str
     action_type: str
-    floor_scores: List[FloorScore] = field(default_factory=list)
-    violations: List[str] = field(default_factory=list)
-    recommendations: List[str] = field(default_factory=list)
+    floor_scores: list[FloorScore] = field(default_factory=list)
+    violations: list[str] = field(default_factory=list)
+    recommendations: list[str] = field(default_factory=list)
     human_approval_required: bool = False
-    timestamp: datetime = field(default_factory=datetime.utcnow)
-    vault_hash: Optional[str] = None
+    timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    vault_hash: str | None = None
     
     # For HOLD state
-    hold_reason: Optional[str] = None
-    escalation_path: Optional[str] = None
+    hold_reason: str | None = None
+    escalation_path: str | None = None
     
     @classmethod
     def seal(cls, execution_id: str, agent_id: str, action_type: str,
-             floor_scores: List[FloorScore]) -> Verdict:
+             floor_scores: list[FloorScore]) -> Verdict:
         """Create a SEAL verdict (full approval)."""
         return cls(
             status=VerdictStatus.SEAL,
@@ -88,7 +88,7 @@ class Verdict:
     
     @classmethod
     def void(cls, execution_id: str, agent_id: str, action_type: str,
-             violations: List[str], floor_scores: List[FloorScore]) -> Verdict:
+             violations: list[str], floor_scores: list[FloorScore]) -> Verdict:
         """Create a VOID verdict (rejected)."""
         return cls(
             status=VerdictStatus.VOID,
@@ -102,7 +102,7 @@ class Verdict:
     @classmethod
     def hold(cls, execution_id: str, agent_id: str, action_type: str,
              hold_reason: str, escalation_path: str,
-             floor_scores: List[FloorScore]) -> Verdict:
+             floor_scores: list[FloorScore]) -> Verdict:
         """Create a HOLD verdict (888_HOLD escalation)."""
         return cls(
             status=VerdictStatus.HOLD,
@@ -115,7 +115,7 @@ class Verdict:
             escalation_path=escalation_path
         )
     
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert verdict to dictionary for VAULT999 logging."""
         return {
             "status": self.status.name,
@@ -150,8 +150,8 @@ class Verdict:
 class ArifOSClient(Protocol):
     """Protocol for arifOS MCP client."""
     
-    async def evaluate_action(self, action: Dict[str, Any], 
-                              floors: List[str]) -> Verdict:
+    async def evaluate_action(self, action: dict[str, Any], 
+                              floors: list[str]) -> Verdict:
         """Evaluate action against constitutional floors."""
         ...
     
@@ -181,10 +181,10 @@ class ConstitutionalAgent(ABC):
         self,
         agent_id: str,
         role: TrinityRole,
-        enforced_floors: List[str],
+        enforced_floors: list[str],
         arifos_client: ArifOSClient,
         max_subagent_depth: int = 3,
-        parent_agent: Optional[str] = None
+        parent_agent: str | None = None
     ):
         self.agent_id = agent_id
         self.role = role
@@ -195,7 +195,7 @@ class ConstitutionalAgent(ABC):
         self.current_depth = 0 if parent_agent is None else 1
         
         # Execution tracking
-        self.execution_history: List[str] = []
+        self.execution_history: list[str] = []
         self.violation_count = 0
         
         logger.info(f"Initialized {self.__class__.__name__}({agent_id}) "
@@ -207,7 +207,7 @@ class ConstitutionalAgent(ABC):
         """Return agent type (e.g., 'validator', 'engineer')."""
         pass
     
-    async def execute(self, task: Dict[str, Any]) -> Dict[str, Any]:
+    async def execute(self, task: dict[str, Any]) -> dict[str, Any]:
         """
         Execute a task with full constitutional governance.
         
@@ -226,10 +226,10 @@ class ConstitutionalAgent(ABC):
             "agent_type": self.agent_type,
             "trinity_role": self.role.name,
             "task": task,
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.now(timezone.utc).isoformat()
         }
         
-        logger.info(f"[{execution_id}] {self.agent_id} evaluating task: {task.get('type', 'unknown')}")
+        logger.info(f"[{execution_id}] {self.agent_id} eval task: {task.get('type', 'unknown')}")
         
         try:
             # === PRE-EXECUTION: Constitutional evaluation ===
@@ -274,7 +274,7 @@ class ConstitutionalAgent(ABC):
             logger.error(f"[{execution_id}] Execution failed: {e}")
             raise ConstitutionalExecutionError(f"Agent execution failed: {e}") from e
     
-    async def _evaluate_constitutionality(self, action: Dict[str, Any]) -> Verdict:
+    async def _evaluate_constitutionality(self, action: dict[str, Any]) -> Verdict:
         """
         Evaluate action against constitutional floors.
         
@@ -285,12 +285,12 @@ class ConstitutionalAgent(ABC):
         return await self.arifos.evaluate_action(action, self.enforced_floors)
     
     async def _log_to_vault(self, verdict: Verdict, 
-                            result: Optional[Dict] = None) -> str:
+                            result: dict | None = None) -> str:
         """Log execution to VAULT999 immutable ledger."""
         return await self.arifos.seal_to_vault(verdict)
     
     async def _handle_hold_state(self, verdict: Verdict, 
-                                 action: Dict[str, Any]) -> Dict[str, Any]:
+                                 action: dict[str, Any]) -> dict[str, Any]:
         """
         Handle 888_HOLD escalation.
         
@@ -329,9 +329,9 @@ class ConstitutionalAgent(ABC):
         }
     
     @abstractmethod
-    async def _execute_impl(self, task: Dict[str, Any], 
+    async def _execute_impl(self, task: dict[str, Any], 
                            execution_id: str,
-                           verdict: Verdict) -> Dict[str, Any]:
+                           verdict: Verdict) -> dict[str, Any]:
         """
         Actual agent implementation.
         
@@ -344,8 +344,8 @@ class ConstitutionalAgent(ABC):
         """Check if agent can spawn subagents (depth limit)."""
         return self.current_depth < self.max_subagent_depth
     
-    async def spawn_subagent(self, task: Dict[str, Any],
-                           agent_class: type) -> Dict[str, Any]:
+    async def spawn_subagent(self, task: dict[str, Any],
+                           agent_class: type) -> dict[str, Any]:
         """
         Spawn a subagent with inherited constitutional constraints.
         

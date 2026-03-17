@@ -12,6 +12,7 @@ from __future__ import annotations
 import os
 import json
 from fastmcp import FastMCP
+from fastmcp.tools import ToolResult
 from .public_registry import (
     RUNTIME_ENVELOPE_SCHEMA,
     public_resource_uris,
@@ -40,6 +41,10 @@ def apex_tools_markdown_table() -> str:
     return "\n".join([header, *rows])
 
 
+# Registry of resource content functions - populated by register_resources
+_resource_content_functions: dict[str, callable] = {}
+
+
 def register_resources(mcp: FastMCP) -> None:
     """Wire the Double Helix resources (Inner Ring + PNS Outer Ring)."""
 
@@ -56,11 +61,13 @@ def register_resources(mcp: FastMCP) -> None:
                 "f12_threshold": 0.85,
             }
         )
+    _resource_content_functions["pns://shield"] = pns_shield
 
     @mcp.resource("pns://search")
     def pns_search() -> str:
         """PNS·SEARCH: Web search grounding facts and reality feed."""
         return json.dumps({"organ": "PNS·SEARCH", "role": "Reality Acquisition", "status": "READY"})
+    _resource_content_functions["pns://search"] = pns_search
 
     @mcp.resource("pns://vision")
     def pns_vision() -> str:
@@ -73,16 +80,19 @@ def register_resources(mcp: FastMCP) -> None:
                 "capabilities": ["OCR", "ImageSummary", "DocumentLayout"],
             }
         )
+    _resource_content_functions["pns://vision"] = pns_vision
 
     @mcp.resource("pns://health")
     def pns_health() -> str:
         """PNS·HEALTH: Model health and stability metadata."""
         return json.dumps({"organ": "PNS·HEALTH", "role": "Stability Monitor", "status": "STABLE"})
+    _resource_content_functions["pns://health"] = pns_health
 
     @mcp.resource("pns://floor")
     def pns_floor() -> str:
         """PNS·FLOOR: Hallucination safety floor metrics."""
         return json.dumps({"organ": "PNS·FLOOR", "role": "Semantic Grounding", "status": "ACTIVE"})
+    _resource_content_functions["pns://floor"] = pns_floor
 
     @mcp.resource("pns://orchestrate")
     def pns_orchestrate() -> str:
@@ -90,6 +100,7 @@ def register_resources(mcp: FastMCP) -> None:
         return json.dumps(
             {"organ": "PNS·ORCHESTRATE", "role": "Action Mediator", "status": "READY"}
         )
+    _resource_content_functions["pns://orchestrate"] = pns_orchestrate
 
     @mcp.resource("pns://redteam")
     def pns_redteam() -> str:
@@ -97,6 +108,7 @@ def register_resources(mcp: FastMCP) -> None:
         return json.dumps(
             {"organ": "PNS·REDTEAM", "role": "Adversarial Stress", "status": "ACTIVE"}
         )
+    _resource_content_functions["pns://redteam"] = pns_redteam
 
     # --- INNER RING & CANON ---
 
@@ -104,16 +116,19 @@ def register_resources(mcp: FastMCP) -> None:
     def vault_999() -> str:
         """VAULT999: Sealed constitutional memory access point."""
         return json.dumps({"organ": "VAULT", "role": "Immutable Ledger", "version": "v1.0-MERKLE"})
+    _resource_content_functions["vault://999"] = vault_999
 
     @mcp.resource("ledger://cooling")
     def cooling_ledger() -> str:
         """Cooling Ledger: Hash-chain of previous session verdicts."""
         return json.dumps({"asset": "Cooling Ledger", "integrity": "VERIFIED"})
+    _resource_content_functions["ledger://cooling"] = cooling_ledger
 
     @mcp.resource("canon://invariants")
     def canon_invariants() -> str:
         """ΔΩΨ constitutional invariants and thermodynamic laws."""
         return json.dumps({"delta": "ΔS ≤ 0", "omega": "Ω₀ ∈ [0.03, 0.05]", "psi": "G ≥ 0.80"})
+    _resource_content_functions["canon://invariants"] = canon_invariants
 
     @mcp.resource("canon://floors")
     def canon_floors() -> str:
@@ -142,10 +157,33 @@ def register_resources(mcp: FastMCP) -> None:
             },
             ensure_ascii=False,
         )
+    _resource_content_functions["canon://floors"] = canon_floors
+
+    @mcp.resource("canon://contracts")
+    def canon_contracts() -> str:
+        """Tool Contract Table: Hierarchy, authority levels, and bootstrap requirements."""
+        return """
+# arifOS Tool Contract Table (v2026.03.14)
+
+| Class                  | Tools                  | Auth Required | Anonymous OK? | Purpose |
+|------------------------|------------------------|---------------|---------------|---------|
+| **Read-only / Diag**   | check_vital, audit_rules| ❌ No         | ✅ Yes        | Assess health & capability |
+| **Grounding / Sense**  | search_reality, ingest | ⚠️ Optional   | ✅ Yes        | External fact grounding |
+| **Memory / Anchor**    | init_anchor_state      | ⚠️ Start Here | ✅ Yes        | Establish identity & session |
+| **Verification**       | verify_vault_ledger    | ✅ Yes        | ❌ No         | Verify Merkle chain integrity |
+| **Consequential**      | arifOS_kernel, forge   | ✅ Yes        | ❌ No         | Governed execution & actions |
+
+## Bootstrap Sequence
+1. **check_vital**: Check system readiness.
+2. **audit_rules**: Inspect constitutional thresholds.
+3. **init_anchor_state**: **MANDATORY** establishes your `auth_context`.
+4. **arifOS_kernel**: Use the `auth_context` from step 3 to perform real work.
+"""
+    _resource_content_functions["canon://contracts"] = canon_contracts
 
     @mcp.resource("canon://index")
     def canon_index() -> str:
-        """High-level arifOS canon map: tools, floors, and resource index."""
+        """High-level arifOS canon map: tools, floors, and resources."""
         return json.dumps(
             {
                 "version": release_version(),
@@ -155,16 +193,19 @@ def register_resources(mcp: FastMCP) -> None:
             },
             ensure_ascii=False,
         )
+    _resource_content_functions["canon://index"] = canon_index
 
     @mcp.resource("schema://tools/input")
     def schema_tools_input() -> str:
         """Canonical JSON Schema input specs for public tools."""
         return json.dumps(public_tool_input_schemas(), ensure_ascii=False)
+    _resource_content_functions["schema://tools/input"] = schema_tools_input
 
     @mcp.resource("schema://tools/output")
     def schema_tools_output() -> str:
         """Canonical RuntimeEnvelope output schema."""
         return json.dumps(RUNTIME_ENVELOPE_SCHEMA, ensure_ascii=False)
+    _resource_content_functions["schema://tools/output"] = schema_tools_output
 
 
 def manifest_resources() -> list[str]:
@@ -173,22 +214,23 @@ def manifest_resources() -> list[str]:
 
 
 async def read_resource_content(uri: str) -> str | None:
-    """Read resource content by URI (Hardened 9 support)."""
+    """Read resource content by URI (Hardened 9 support).
+    
+    Dispatches to registered resource functions for actual content.
+    """
     if uri not in public_resource_uris():
         return None
-        
-    if uri == "canon://index":
-        return json.dumps({
-            "version": release_version(),
-            "motto": "DITEMPA BUKAN DIBERI",
-            "resources": public_resource_uris()
-        })
-    return f"Content for {uri} (PNS/Canon Asset)"
+    
+    # Call the registered resource function for actual content
+    if uri in _resource_content_functions:
+        return _resource_content_functions[uri]()
+    
+    # Fallback for any URI in registry without registered function
+    return None
 
 
 def build_open_apex_dashboard_result(session_id: str = "global") -> ToolResult | None:
     """Return a ToolResult containing the APEX dashboard v2.1 redirect/HTML."""
-    from fastmcp.tools import ToolResult
     dashboard_path = os.path.join(
         os.path.dirname(__file__), "..", "sites", "dashboard", "index.html"
     )

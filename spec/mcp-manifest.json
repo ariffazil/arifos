@@ -558,48 +558,20 @@
   },
   "resources": [
     {
-      "uri": "pns://shield",
-      "description": "PNS\u00b7SHIELD: Input sanitation status."
+      "uri": "canon://contracts",
+      "description": "Tool Contract Table: Hierarchy and bootstrap requirements."
     },
     {
-      "uri": "pns://search",
-      "description": "PNS\u00b7SEARCH: Web grounding facts."
+      "uri": "canon://index",
+      "description": "High-level arifOS canon map: tools, floors, and resources."
     },
     {
-      "uri": "pns://vision",
-      "description": "PNS\u00b7VISION: Multimodal perception."
+      "uri": "schema://tools/input",
+      "description": "Canonical JSON Schema input specs for public tools."
     },
     {
-      "uri": "pns://health",
-      "description": "PNS\u00b7HEALTH: Model stability metadata."
-    },
-    {
-      "uri": "pns://floor",
-      "description": "PNS\u00b7FLOOR: Hallucination safety floor."
-    },
-    {
-      "uri": "pns://orchestrate",
-      "description": "PNS\u00b7ORCHESTRATE: Tool routing mediation."
-    },
-    {
-      "uri": "pns://redteam",
-      "description": "PNS\u00b7REDTEAM: Adversarial testing."
-    },
-    {
-      "uri": "vault://999",
-      "description": "VAULT999: Sealed constitutional memory."
-    },
-    {
-      "uri": "ledger://cooling",
-      "description": "Cooling Ledger: Ancestry chain."
-    },
-    {
-      "uri": "canon://invariants",
-      "description": "\u0394\u03a9\u03a8 constitutional invariants."
-    },
-    {
-      "uri": "canon://floors",
-      "description": "F1-F13 constitutional floor thresholds \u2014 static reference."
+      "uri": "schema://tools/output",
+      "description": "Canonical RuntimeEnvelope output schema."
     }
   ]
 }

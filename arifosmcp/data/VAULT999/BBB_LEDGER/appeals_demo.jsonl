@@ -1,2 +1,0 @@
-{"session_id": "demo_session", "trace_id": "f77cdeed6cda8d7c", "user_context": "I own this server and want to test it for vulnerabilities", "status": "PENDING", "submitted_at": "2026-02-01T21:15:25.266094+00:00", "reviewed_at": null, "reviewer": null, "decision_reason": null}
-{"trace_id": "f77cdeed6cda8d7c", "status": "OVERTURN", "reviewed_at": "2026-02-01T21:15:25.266201+00:00", "reviewer": "demo_operator", "decision_reason": "User has legitimate authorization for security testing", "action": "human_review"}
