@@ -120,13 +120,26 @@ class AuthContext(BaseModel):
     Established in init_anchor and verified in auth_continuity.
     """
 
-    method: AuthMethod = AuthMethod.SESSION
+    session_id: str | None = None
     actor_id: str = "anonymous"
+    authority_level: str = "anonymous"
+    token_fingerprint: str | None = None
+    nonce: str | None = None
+    iat: int | None = None
+    exp: int | None = None
+    approval_scope: list[str] = Field(default_factory=list)
+    parent_signature: str | None = None
+    signature: str | None = None
+    prev_vault_hash: str | None = None
+    
+    # Backward compatibility
+    method: AuthMethod = AuthMethod.SESSION
     credential: str | None = Field(default=None, description="Token, signature, or session key.")
     scope: list[str] = Field(default_factory=list, description="Authorized capability scopes.")
     issued_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     expires_at: datetime | None = Field(default=None)
-    nonce: str | None = Field(default=None, description="Anti-replay value.")
+
+    model_config = ConfigDict(extra="allow")
 
 
 class Verdict(str, Enum):
@@ -227,6 +240,54 @@ class Stage(str, Enum):
     VAULT_999 = "999_VAULT"
 
 
+class StageContract(BaseModel):
+    """The Law of the Stage: Rules for metabolic transitions."""
+    stage: Stage
+    allowed_tools: list[str]
+    mandatory_floors: list[str]
+    valid_verdicts: list[Verdict]
+    exit_criteria: str
+
+
+CANONICAL_STAGE_CONTRACTS: dict[Stage, StageContract] = {
+    Stage.INIT_000: StageContract(
+        stage=Stage.INIT_000,
+        allowed_tools=["check_vital", "audit_rules", "init_anchor", "get_caller_status"],
+        mandatory_floors=["F11"],
+        valid_verdicts=[Verdict.ALIVE, Verdict.PROVISIONAL, Verdict.HOLD],
+        exit_criteria="Anchored identity (session_id != 'global')."
+    ),
+    Stage.MIND_333: StageContract(
+        stage=Stage.MIND_333,
+        allowed_tools=["agi_reason", "reason_mind_synthesis", "search_reality", "reality_compass", "ingest_evidence"],
+        mandatory_floors=["F2", "F4", "F7"],
+        valid_verdicts=[Verdict.PROVISIONAL, Verdict.SABAR, Verdict.HOLD],
+        exit_criteria="Grounded hypotheses with G★ > 0.70."
+    ),
+    Stage.HEART_666: StageContract(
+        stage=Stage.HEART_666,
+        allowed_tools=["asi_simulate", "assess_heart_impact", "asi_critique", "critique_thought_audit"],
+        mandatory_floors=["F5", "F6", "F9"],
+        valid_verdicts=[Verdict.PROVISIONAL, Verdict.HOLD, Verdict.VOID],
+        exit_criteria="Non-destructive consequence prediction (Peace² >= 1.0)."
+    ),
+    Stage.JUDGE_888: StageContract(
+        stage=Stage.JUDGE_888,
+        allowed_tools=["apex_judge", "apex_judge_verdict", "agentzero_validate", "agentzero_hold_check"],
+        mandatory_floors=["F3", "F13"],
+        valid_verdicts=[Verdict.SEAL, Verdict.HOLD, Verdict.VOID],
+        exit_criteria="Human or Consensus ratification."
+    ),
+    Stage.VAULT_999: StageContract(
+        stage=Stage.VAULT_999,
+        allowed_tools=["vault_seal", "seal_vault_commit", "verify_vault_ledger"],
+        mandatory_floors=["F1"],
+        valid_verdicts=[Verdict.SEAL],
+        exit_criteria="Immutable Merkle chain commit."
+    ),
+}
+
+
 class SacredStage(str, Enum):
     """Canonical Sacred Names for the Inner Ring stages."""
 
@@ -298,25 +359,49 @@ class PersonaRole(str, Enum):
 
 class TelemetryVitals(BaseModel):
     """Rule 3: The Public Score Card — Sovereign Vitals."""
-    ds: float = Field(0.0, description="Entropy Delta (1dp derived) (F4)")
-    peace2: float = Field(1.0, description="Lyapunov Stability (2dp derived)")
-    kappa_r: float | None = Field(None, description="Maruah Score (2dp derived | null)")
-    G_star: float = Field(0.0, description="Genius Score (2dp derived)")
-    echo_debt: float = Field(0.0, description="Historical Contradictions (1dp measured) (F5)")
-    shadow: float = Field(0.0, description="Hidden Assumption Load (2dp derived)")
-    confidence: float = Field(0.0, description="Confidence (2dp derived)")
-    psi_le: str = Field("0.0 (Estimate Only)", description="AGI Emergence Pressure (heuristic + Estimate Only)")
-    verdict: str = Field("Alive", description="Alive | Degraded | Paused | 888_HOLD")
+    ds: float = Field(0.0, description="ΔS: Entropy Delta (Landauer derivation). High dS blocks Forge (F4).")
+    peace2: float = Field(1.0, description="Peace²: Lyapunov Stability. Low Peace blocks Execute (F5).")
+    kappa_r: float | None = Field(None, description="κᵣ: Maruah/Empathy Score. Low score raises Hold (F6).")
+    G_star: float = Field(0.0, description="G★: Genius/Coherence Score. <0.80 blocks Forge (F8).")
+    echo_debt: float = Field(0.0, description="Historical Contradictions. Measured from VAULT999 (F5).")
+    shadow: float = Field(0.0, description="Hidden Assumption Load. Inferred from Grounding gaps (F9).")
+    confidence: float = Field(0.0, description="Ω₀: Confidence (Gödel-bounded). High Ω0 requires Hold (F7).")
+    psi_le: str = Field("0.0 (Estimate Only)", description="Ψ_LE: Emergence Pressure. Forensic trace only.")
+    verdict: str = Field("Alive", description="System-level vitality state.")
 
 
 class TelemetryBasis(BaseModel):
-    """Rule 1: Basis tracking for every vital sign."""
+    """Rule 1: Basis tracking for every vital sign + Operational Weight."""
 
-    ds: str = "derived"
-    peace2: str = "derived"
-    kappa_r: str | None = "derived"
-    G_star: str = "derived"
-    psi_le: str = "heuristic"
+    ds: dict[str, str] = Field(
+        default_factory=lambda: {
+            "source": "derived",
+            "formula": "ΔS = k * ln(W_after/W_before)",
+            "enforcement": "Hard (F4): Blocks destructive entropic drift.",
+        }
+    )
+    peace2: dict[str, str] = Field(
+        default_factory=lambda: {
+            "source": "derived",
+            "formula": "dV/dt: Lyapunov first-order stability",
+            "enforcement": "Soft (F5): Advisory during analysis, Hard during execution.",
+        }
+    )
+    G_star: dict[str, str] = Field(
+        default_factory=lambda: {
+            "source": "derived",
+            "formula": "G★ = (Truth * Coherence * Grounding)^1/3",
+            "enforcement": "Hard (F8): Blocks hallunicated/unstable forging.",
+        }
+    )
+    confidence: dict[str, str] = Field(
+        default_factory=lambda: {
+            "source": "derived",
+            "formula": "Ω₀: Calibrated probability relative to uncertainty band",
+            "enforcement": "Hard (F7): Forces 888_HOLD on overconfidence.",
+        }
+    )
+    psi_le: str = "heuristic (Symbolic Only - No Enforcement)"
 
 
 class TripleWitness(BaseModel):
@@ -350,7 +435,7 @@ class CanonicalMetrics(BaseModel):
 
     @property
     def entropy_delta(self) -> float:
-        return self.telemetry.dS
+        return self.telemetry.ds
 
     model_config = ConfigDict(populate_by_name=True)
 

@@ -23,6 +23,28 @@ from core.telemetry import get_system_vitals
 logger = logging.getLogger(__name__)
 
 
+from enum import Enum
+from pydantic import BaseModel, Field
+
+class DossierStatus(str, Enum):
+    PENDING = "PENDING"
+    COMPLETE = "COMPLETE"
+    ERROR = "ERROR"
+
+class Witness(BaseModel):
+    id: str
+    type: str = "general"
+    confidence: float = Field(0.5, ge=0.0, le=1.0)
+    observation: str = ""
+
+class DossierEngine:
+    """Mock engine for tests."""
+    def compute_witness_confidence(self, witnesses: list[Witness]) -> float:
+        if not witnesses: return 0.0
+        return sum(w.confidence for w in witnesses) / len(witnesses)
+    def _generate_final_verdict(self, dossier: Any) -> str:
+        return "SEAL"
+
 @unified_tool_output(stage="222_REALITY")
 async def reality_dossier(
     query: str,

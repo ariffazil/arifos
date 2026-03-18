@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import sys
 import uuid
 from datetime import datetime
 from typing import Any
@@ -63,7 +64,7 @@ class A2ATaskManager:
             if init_result.get("verdict") == "SEAL":
                 session_id = init_result.get("session_id")
         except Exception as e:
-            print(f"[A2A] Session init warning: {e}")
+            print(f"[A2A] Session init warning: {e}", file=sys.stderr)
         
         task = Task(
             id=task_id,
@@ -209,7 +210,7 @@ class A2ATaskManager:
             task.state = TaskState.FAILED
             task.error_message = str(e)
             task.updated_at = datetime.utcnow()
-            print(f"[A2A] Task execution error: {e}")
+            print(f"[A2A] Task execution error: {e}", file=sys.stderr)
     
     async def _update_task_state(self, task_id: str, state: TaskState, message: str = None):
         """Update task state."""
@@ -249,7 +250,7 @@ class A2ATaskManager:
                     timeout=10.0
                 )
         except Exception as e:
-            print(f"[A2A] Callback failed: {e}")
+            print(f"[A2A] Callback failed: {e}", file=sys.stderr)
     
     def get_all_tasks(self) -> list[Task]:
         """Get all tasks (for debugging)."""

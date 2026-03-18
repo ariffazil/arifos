@@ -98,6 +98,7 @@ def _auth_failure_envelope(
     resolved_actor_id: str = "anonymous",
     next_action_reason: str,
     machine_issue: str = "AUTH_FAILURE",
+    dry_run: bool = False,
 ) -> dict[str, Any]:
     return {
         "ok": False,
@@ -154,7 +155,7 @@ def _auth_failure_envelope(
             "schema_version": "1.0.0",
             "timestamp": datetime.now(timezone.utc).isoformat(),
             "debug": False,
-            "dry_run": False,
+            "dry_run": dry_run,
         },
         "auth_context": None,
     }
@@ -286,6 +287,7 @@ def _trace_replay_envelope(
     entries: list[dict[str, Any]],
     message: str | None = None,
     error: str | None = None,
+    dry_run: bool = False,
 ) -> dict[str, Any]:
     ok = replay_status not in {"ERROR", "TAMPERED"}
     errors = []
@@ -323,8 +325,8 @@ def _trace_replay_envelope(
             "entries": entries,
         },
         "errors": errors,
-        "meta": {"schema_version": "1.0.0", "debug": False, "dry_run": False},
-    }
+        "meta": {"schema_version": "1.0.0", "debug": False, "dry_run": dry_run},
+        }
 
 
 def _build_constitutional_audit(session_id: str) -> dict[str, Any]:
@@ -492,6 +494,7 @@ async def call_kernel(
     t_start = time.perf_counter()
     now_utc = datetime.now(timezone.utc)
     valid_until = now_utc + timedelta(minutes=15)
+    dry_run = bool(payload.get("dry_run", False))
 
     auth_ctx = _normalize_auth_context(payload, payload.get("auth_context"))
     if auth_ctx is not None:
@@ -514,6 +517,7 @@ async def call_kernel(
                     identity_reason="Auto-bootstrap not allowed for this risk/mode.",
                     next_action_reason="Run init_anchor_state first.",
                     machine_issue="AUTH_TOKEN_MISSING",
+                    dry_run=dry_run,
                 )
         else:
             valid, reason = verify_auth_context_cached(session_id, auth_ctx)
@@ -527,6 +531,7 @@ async def call_kernel(
                     identity_reason=reason,
                     next_action_reason="Refresh continuity state.",
                     machine_issue="TOKEN_EXPIRED",
+                    dry_run=dry_run,
                 )
 
     elif canonical_name in REQUIRES_SESSION and canonical_name not in BOOTSTRAP_WHITELIST:
@@ -540,6 +545,7 @@ async def call_kernel(
                 identity_reason="No auth_context.",
                 next_action_reason="Run init_anchor_state first.",
                 machine_issue="AUTH_TOKEN_MISSING",
+                dry_run=dry_run,
             )
         valid, reason = verify_auth_context_cached(session_id, auth_ctx)
         if not valid:
@@ -552,6 +558,7 @@ async def call_kernel(
                 identity_reason=reason,
                 next_action_reason="Refresh continuity state.",
                 machine_issue="TOKEN_EXPIRED",
+                dry_run=dry_run,
             )
 
     if canonical_name == "search_reality":
@@ -568,11 +575,11 @@ async def call_kernel(
             max_entries = 20
 
         if not DEFAULT_VAULT_PATH.exists():
-            return _trace_replay_envelope(session_id, "NO_DATA", [])
+            return _trace_replay_envelope(session_id, "NO_DATA", [], dry_run=dry_run)
 
         integrity_ok, integrity_reason = verify_vault_ledger(DEFAULT_VAULT_PATH)
         if not integrity_ok:
-            return _trace_replay_envelope(session_id, "TAMPERED", [], error=integrity_reason)
+            return _trace_replay_envelope(session_id, "TAMPERED", [], error=integrity_reason, dry_run=dry_run)
 
         replay_entries: list[dict[str, Any]] = []
         try:
@@ -585,9 +592,9 @@ async def call_kernel(
                     if parsed.get("session_id") == session_id:
                         replay_entries.append(parsed)
         except Exception as exc:
-            return _trace_replay_envelope(session_id, "ERROR", [], error=str(exc))
+            return _trace_replay_envelope(session_id, "ERROR", [], error=str(exc), dry_run=dry_run)
 
-        return _trace_replay_envelope(session_id, "SUCCESS", replay_entries[-max_entries:])
+        return _trace_replay_envelope(session_id, "SUCCESS", replay_entries[-max_entries:], dry_run=dry_run)
 
     try:
         query_input = payload.get("query", "")
