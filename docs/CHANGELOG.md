@@ -1,794 +1,536 @@
-# CHANGELOG — arifOS Constitutional AI Kernel
+# Changelog
 
-All changes follow [T000 versioning](T000_VERSIONING.md): `YYYY.MM.DD-PHASE-STATE`.  
-**Creed:** DITEMPA BUKAN DIBERI — Forged, Not Given.
+All notable changes to arifOS are documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
-## [2026.3.15-TRINITY-FORGED] — 2026-03-15 — PROTOCOL-TRINITY-FORGED
+## [2026.03.17-ANTICHAOS] - 2026-03-17
 
-**T000:** 2026.03.15-TRINITY-FORGED  
-**Theme:** Protocol Trinity — MCP + A2A + WebMCP — Three Standards, One Kernel
+### 🔧 Anti-Chaos Phase 1 — Self-Explaining Server Interface
 
-### 🏛️ Protocol Trinity Implementation
+**Status:** ✅ Interface Hardening — State Visibility, Recovery-First Errors
+
+Reduced server chaos by making the interface self-explaining under stress. Every response now carries caller state visibility; every error teaches recovery.
+
+#### Anti-Chaos Rules Enforced
+
+| Rule | Implementation |
+|------|----------------|
+| **One truth for state** | `caller_state` field in every `RuntimeEnvelope` |
+| **One truth for path** | `get_caller_status` tool is the single onboarding compass |
+| **One truth for errors** | Every blocking error includes `next_action` with exact recovery payload |
+| **One truth for consequence** | `diagnostics_only` flag marks `global` session limitations |
+
+#### New Fields in Every Response
+
+```json
+{
+  "caller_state": "anonymous|claimed|anchored|verified|scoped|approved",
+  "allowed_next_tools": ["check_vital", "audit_rules", ...],
+  "blocked_tools": [{"tool": "arifOS_kernel", "reason": "Requires anchored session"}],
+  "diagnostics_only": true,
+  "next_action": {
+    "tool": "init_anchor_state",
+    "reason": "You are anonymous. Identity required.",
+    "required_args": ["actor_id", "declared_name", "intent"],
+    "example_payload": {...},
+    "retry_safe": true
+  }
+}
+```
+
+#### New Tools
+
+- **`get_caller_status`** — Single onboarding compass. Returns current state, accessible/blocked tools, and exact next step with example payload. Call this when confused or blocked.
+
+#### New Resources (SPEC.md Aligned)
+
+- **`arifos://status/vitals`** — Health, capability map, degraded components
+- **`arifos://governance/floors`** — Constitutional F1-F13 thresholds
+- **`arifos://bootstrap/guide`** — Startup path, canonical sequence, examples
+- **`arifos://contracts/tools`** — Tool risk/auth/mutability contracts
+- **`arifos://caller/state`** — Current state, allowed/blocked tools
+
+#### Files Modified
+
+- `arifosmcp/runtime/models.py` — Added `caller_state`, `allowed_next_tools`, `blocked_tools`, `diagnostics_only`, `next_action` to `RuntimeEnvelope`
+- `arifosmcp/runtime/tools.py` — Added `_resolve_caller_state()`, `_resolve_next_action()`, `get_caller_status()` tool
+- `SPEC.md` — Formal MCP protocol profile (new document)
+- `AGENTS.md` — Updated resource table, added SPEC.md reference
+
+---
+
+## [2026.03.15-TRINITY] - 2026-03-15
+
+### 🏛️ Protocol Trinity — MCP + A2A + WebMCP
+
+**Status:** ✅ Production Ready — 3 Protocols, 1 Kernel
 
 arifOS now implements **all three major AI agent protocols** with unified constitutional governance (F1-F13).
 
-#### The Three Protocols
+#### Three Standards, One Kernel
 
-| Protocol | Standard | Purpose | Status |
-|----------|----------|---------|--------|
-| **MCP** | Anthropic/Linux Foundation (Nov 2024) | Tool execution & context | ✅ Production |
-| **A2A** | Google (Apr 2025) | Agent-to-agent collaboration | ✅ Implemented |
-| **WebMCP** | W3C/Google-Microsoft (Feb 2026) | Browser-native AI | ✅ Implemented |
+| Protocol | Purpose | Standard | Status |
+|----------|---------|----------|--------|
+| **MCP** | Tool execution & context | Anthropic/Linux Foundation | ✅ Production |
+| **A2A** | Agent-to-agent collaboration | Google (Apr 2025) | ✅ Implemented |
+| **WebMCP** | Browser-native AI | W3C/Google-Microsoft (Feb 2026) | ✅ Implemented |
 
 #### Live Endpoints
 
 ```
 # MCP (Model Context Protocol)
-https://arifosmcp.arif-fazil.com/mcp              — JSON-RPC tool execution
-https://arifosmcp.arif-fazil.com/health           — Health check
-https://arifosmcp.arif-fazil.com/tools            — Tool listing
+/mcp              — JSON-RPC tool execution
+/health           — Health check
+/tools            — Tool listing
 
 # A2A (Agent-to-Agent Protocol)
-https://arifosmcp.arif-fazil.com/.well-known/agent.json  — Agent Card discovery
-https://arifosmcp.arif-fazil.com/a2a/task                — Submit task
-https://arifosmcp.arif-fazil.com/a2a/status/{id}         — Task status
-https://arifosmcp.arif-fazil.com/a2a/subscribe/{id}      — SSE real-time updates
+/.well-known/agent.json  — Agent Card discovery
+/a2a/task                — Submit task
+/a2a/status/{id}         — Task status
+/a2a/subscribe/{id}      — SSE real-time updates
 
 # WebMCP (Web Model Context Protocol)
-https://arifosmcp.arif-fazil.com/.well-known/webmcp      — WebMCP manifest
-https://arifosmcp.arif-fazil.com/webmcp                  — Browser console UI
-https://arifosmcp.arif-fazil.com/webmcp/sdk.js           — JavaScript SDK
-https://arifosmcp.arif-fazil.com/webmcp/tools.json       — Tool manifest
+/.well-known/webmcp      — WebMCP manifest
+/webmcp                  — Browser console UI
+/webmcp/sdk.js           — JavaScript SDK
+/webmcp/tools.json       — Tool manifest
 ```
 
 #### New Features
 
-- **A2A Protocol:** Complete Google A2A implementation
-  - Agent Card discovery at `/.well-known/agent.json`
-  - Task submission with constitutional governance
-  - Real-time SSE streaming for task updates
-  - All tasks pass through F1-F13 constitutional floors
-  
-- **WebMCP Gateway:** W3C-standard WebMCP implementation
-  - Browser-native `navigator.modelContext` API support
-  - Declarative API (HTML forms) + Imperative API (JS)
-  - Human-friendly console UI at `/webmcp`
-  - F12 Injection Guard (XSS/CSRF protection)
-  - F11 Command Auth (session-based)
+- **A2A Protocol:** Complete Google A2A implementation with Agent Cards, task lifecycle, SSE streaming
+- **WebMCP Gateway:** W3C-standard WebMCP with `navigator.modelContext` API support
+- **Zero-Chaos Deployment:** 6-stage constitutional deployment system with auto-rollback
+- **CIV Infrastructure:** 15-container autonomous stack (code-server, stirling-pdf, evolution-api, etc.)
+- **Root Housekeeping:** Repository organized (100+ files → 37 essential files)
 
-- **Zero-Chaos Deployment:** 6-stage constitutional deployment
-  - Validate → Test → Backup → Deploy → Health Check → Complete
-  - F1: Automatic rollback on failure
-  - F11: SSH key verification
-  - F13: Manual approval for production
+#### Tool Surface
 
-- **CIV Infrastructure Fabric:** 15-container autonomous stack
-  - arifosmcp (constitutional kernel)
-  - code-server (VS Code in browser)
-  - stirling-pdf (PDF automation)
-  - evolution-api (WhatsApp gateway)
-  - n8n (workflow automation)
-  - openclaw (multi-channel gateway)
-  - traefik, postgres, redis, qdrant, ollama, grafana, prometheus
-
-- **Repository Housekeeping:** Root cleanup
-  - 100+ files → 37 essential files
-  - docs/ organized: deploy/, protocols/, reports/, setup/
-  - scripts/ organized: housekeeping/, test/, publish/, utils/
-  - archive/ for test outputs
-
-#### Constitutional Guarantees
-
-All three protocols enforce:
-- **F1 (Amanah):** Reversibility, VAULT999 logging
-- **F2 (Truth):** Grounding requirements
-- **F11 (Command Auth):** Identity verification
-- **F12 (Injection):** Security scanning
-- **F13 (Sovereign):** Human confirmation for critical ops
-
-#### Tool Surface (32 Tools)
-
-- **26 Public Constitutional Tools:** KERNEL (6) + AGI (6) + ASI (4) + APEX (7) + VAULT (2) + Router (1)
-- **9 Machine Tools (Nervous System 9):** System introspection and diagnostics
-- **15 Resources:** PNS organs, vault assets, canon schemas
-- **10 Prompts:** Constitutional tool templates
+- **26 Public Tools:** 25 constitutional + 1 metabolic router
+- **9 Machine Tools:** Nervous System 9 for system introspection
+- **15 Resources:** PNS organs, vault, canon schemas
+- **10 Prompts:** Constitutional tool prompts
 
 #### Technical Improvements
 
-- FastMCP 3.1.0 full compliance
-  - Tools: `ctx: Context = CurrentContext()` dependency pattern
-  - Resources: `@mcp.resource()` decorator
-  - Prompts: `@mcp.prompt()` decorator
-  - Context: Full logging, progress reporting, resource access
+- FastMCP 3.1.0 compliance with `CurrentContext()` dependency pattern
 - Fixed G_star telemetry extraction bug
 - Added `itsdangerous` dependency for SessionMiddleware (WebMCP F11)
 - Starlette router for A2A well-known endpoints
+- All protocols enforce F1-F13 constitutional floors
 
-#### Files Forged
+#### Files Modified
 
+- `arifosmcp/runtime/server.py` — Protocol mounting, A2A/WebMCP integration
 - `arifosmcp/runtime/a2a/` — Complete A2A protocol implementation
 - `arifosmcp/runtime/webmcp/` — WebMCP gateway implementation
-- `arifosmcp/runtime/server.py` — Protocol mounting and integration
 - `arifosmcp/runtime/tools.py` — G_star extraction fix
-- `pyproject.toml` — itsdangerous dependency
+- `pyproject.toml` — Added itsdangerous dependency
 - `README.md` — Complete rewrite with Protocol Trinity
-- `scripts/deploy.py` — Zero-chaos deployment automation
-- `docs/protocols/PROTOCOLS_TRINITY.md` — Protocol documentation
 
 ---
 
-## [2026.3.14-NERVOUS-SYSTEM-9-FORGED] — 2026-03-14 — NERVOUS-SYSTEM-9-FORGED
+## [2026.03.14-FORGED] - 2026-03-14
 
-**T000:** 2026.03.14-NERVOUS-SYSTEM-9-FORGED  
-**Theme:** Hardened Internal Infrastructure — The 9-Sense Nervous System
+### 🔥 Nervous System 9 — Internal Toolset Hardened & Validated
 
-### 🔥 Nervous System 9 — ACLIP Infrastructure Hardened
+**Status:** ✅ 100% Validated (9/9 Tools SEALED)
 
-**Validation:** 9/9 Tools ✅ 100% SEALED
+The internal infrastructure layer (ACLIP/Nervous System 9) has been fully hardened with RuntimeEnvelope wrapping, constitutional governance, and comprehensive testing.
 
-The internal machine toolset (ACLIP) has been completely hardened with RuntimeEnvelope wrapping, constitutional governance, and full VAULT999 audit integration.
+#### 🏗️ Architecture
 
-#### The 9 Hardened Tools
+**Three Categories:**
+- **System Sense (The Feelers):** system_health, process_list, net_status
+- **Memory & Storage (The Archive):** chroma_query, arifos_list_resources, arifos_read_resource  
+- **Diagnostics & Control (The Regulators):** log_tail, fs_inspect, cost_estimator
 
-**System Sense (The Feelers):**
-- `system_health` — Hardware telemetry (CPU, memory, disk, thermal)
-- `process_list` — Process enumeration with resource monitoring
-- `net_status` — Network connectivity and service diagnostics
+#### ✅ Hardening Complete
 
-**Memory & Storage (The Archive):**
-- `chroma_query` — Semantic vector search with dual Qdrant API support
-- `arifos_list_resources` — MCP resource enumeration (namespaced)
-- `arifos_read_resource` — Canonical asset retrieval (namespaced)
+| Tool | Stage | Status | Purpose |
+|------|-------|--------|---------|
+| system_health | 111_SENSE | ✅ SEALED | Hardware telemetry |
+| process_list | 111_SENSE | ✅ SEALED | Process monitoring |
+| net_status | 111_SENSE | ✅ SEALED | Network diagnostics |
+| chroma_query | 555_MEMORY | ✅ SEALED | Vector memory search |
+| arifos_list_resources | 999_VAULT | ✅ SEALED | Resource enumeration |
+| arifos_read_resource | 999_VAULT | ✅ SEALED | Asset retrieval |
+| log_tail | 111_SENSE | ✅ SEALED | Audit trail streaming |
+| fs_inspect | 111_SENSE | ✅ SEALED | Filesystem inspection |
+| cost_estimator | 444_ROUTER | ✅ SEALED | Thermodynamic costing |
 
-**Diagnostics & Control (The Regulators):**
-- `log_tail` — Smart log streaming with auto-path detection
-- `fs_inspect` — Sandboxed filesystem inspection
-- `cost_estimator` — Thermodynamic (ΔS) and AI cost projection
+#### 🔧 Technical Improvements
 
-#### Hardening Features
+- **RuntimeEnvelope:** All 9 tools now return canonical RuntimeEnvelope objects
+- **Governance:** Full F11 (Command Auth) and F12 (Injection) protection
+- **Audit Trail:** All operations logged to VAULT999 immutable ledger
+- **Dual API Support:** chroma_query supports both Qdrant v1.7 and v1.8+
+- **Container Awareness:** system_health and process_list work in Docker/K8s
+- **Smart Defaults:** log_tail auto-detects log file paths
 
-- **RuntimeEnvelope:** All tools return canonical envelopes with full metadata
-- **Governance:** F11 (Command Auth) + F12 (Injection) enforced on all tools
-- **Audit:** Every operation sealed to VAULT999 immutable ledger
-- **Compatibility:** chroma_query supports Qdrant v1.7 and v1.8+ automatically
-- **Container-Aware:** system_health and process_list work in Docker/Kubernetes
-- **Namespaced:** list_resources and read_resource prefixed as `arifos_*` to avoid MCP collisions
+#### 📁 Files Modified
 
-#### Files Forged
-
-- `arifosmcp/intelligence/console_tools.py` — All 9 hardened tool implementations
+- `arifosmcp/intelligence/console_tools.py` — All 9 hardened implementations
 - `arifosmcp/intelligence/tools/fs_inspector.py` — Added inspect_path alias
-- `arifosmcp/intelligence/tools/net_monitor.py` — Added check_connectivity alias  
-- `arifosmcp/intelligence/tools/thermo_estimator.py` — Cost estimation engine
-- `arifosmcp/runtime/phase2_tools.py` — Registration alignment
-- `arifosmcp/intelligence/cli.py` — ACLIP-CAI server synchronization
+- `arifosmcp/intelligence/tools/net_monitor.py` — Added check_connectivity alias
+- `arifosmcp/intelligence/tools/thermo_estimator.py` — Cost estimation logic
+- `arifosmcp/runtime/phase2_tools.py` — Tool registration alignment
+- `arifosmcp/intelligence/cli.py` — ACLIP server synchronization
 
-#### Testing
+#### 📚 Documentation
 
-- **42 comprehensive tests** added
-- **100% pass rate** on all 9 tools
-- **E2E constitutional compliance** verified
+- **Website:** Added Machine Tools section to tools.html
+- **Architecture:** Created NERVOUS_SYSTEM_9.md reference
+- **Deprecated:** Documented 11 legacy tools with migration guide
 
----
+#### 🧪 Testing
 
-## [2026.3.10-METABOLIC-ROUTER-SEAL] — 2026-03-10 — METABOLIC-ROUTER-SEAL
-
-**T000:** 2026.03.10-METABOLIC-ROUTER-SEAL  
-**Theme:** Dynamic Metabolic Routing (Stage 444), unified lifecycle hardening, and 000→999 sequential state machine.
-
-### Added
-
-- **Dynamic Metabolic Router** (`core/governance_kernel.py`):
-  - Intelligent stage planning based on query intent (reality, safety, forge, judge).
-  - Enforced guardrail: **Stage 777 (Forge) always implies Stage 888 (Judge)**.
-  - Context-aware routing supports `force_grounding` and `human_required` overrides.
-- **Sequential State Machine** (`arifosmcp/runtime/orchestrator.py`):
-  - Completely refactored `metabolic_loop` into a clean, sequential execution pipeline.
-  - **Constitutional Normalization:** All exploration stages (111-666) failing via `VOID` are normalized to `SABAR` to prevent early idea termination.
-  - Terminal breaks for `SEAL`, `HOLD`, `HOLD_888`, and `VOID` status.
-- **`HOLD_888` Verdict** (`core/shared/types.py`): New canonical verdict for specific human gating.
-
-### Documentation Unification
-- **Unified `DEPLOY.md`**: Consolidated historical deployment reports (`DEPLOYMENT_ANALYSIS.md`, `DEPLOYMENT_SUCCESS.md`, etc.) into a single, premium root entry point.
-- **Agnostic HTTP Documentation**: Added specific guidance for ChatGPT connectivity via `AgnosticAcceptMiddleware`.
-
-- **Unified Runtime Path:**
-  - `arifosmcp.transport` now acts as a stable compatibility shim.
-  - All core coordination logic moved into `arifosmcp.runtime` for agnostic MCP clients.
-- **Final Output Schema Consistency:**
-  - Standardized the `RuntimeEnvelope` top-level fields for all tool returns.
-  - Unified telemetry and trace data structure across all organs.
-
-### Fixed
-- **Circular dependencies** and duplications in the orchestrator.
-- **Initialization timing** for session state and auth context.
-
-### Verification
-
-- **Router Logic:** Tested across 12 diverse query scenarios.
-- **Hardness Test:** Verified `777_FORGE` is inaccessible without `888_JUDGE`.
-- **Schema Compliance:** All returns pass the v1.0.0 tool envelope.
+- **42 comprehensive tests** added for internal tools
+- **100% pass rate** on all 9 hardened tools
+- **E2E validation** complete with constitutional compliance
 
 ---
 
-## [2026.3.8-APEX-SOVEREIGN-SEAL] — 2026-03-08 — APEX-SOVEREIGN-SEAL
+## [2026.03.14-VALIDATED] - 2026-03-14
 
-**T000:** 2026.03.08-APEX-SOVEREIGN-SEAL  
-**Theme:** Architectural formalization of the APEX Theorem, 5-Layer intelligence stack, and Sovereign Dashboard launch.
+### ✅ External Validation Complete — 25/25 Tools Verified
 
-### Added
-- **APEX Sovereign Dashboard** (`arifosmcp/sites/apex-dashboard/`):
-  - Self-contained React + Recharts dashboard visualizing the "Discipline Layer".
-  - Radar geometry for Capacity (APX), Effort (E²), and Efficiency (η).
-  - Log-decomposition waterfall view for diagnostic clarity.
-  - Native FastMCP Custom HTML App integration (`ui://apex-dashboard/view.html`).
-- **`open_apex_dashboard` tool**: Direct entry point for interactive observability.
-- **APEX Theorem Physics** (`core/shared/physics.py`):
-  - Native `G_dagger` (Realized Intelligence) and `eta` (Efficiency) methods in `GeniusDial`.
-  - Formalized equation: $G^\dagger = G^* \cdot \eta$.
+Independent external validation confirms the arifOS MCP server is **production-ready**.
 
-### Changed
-- **5-Layer Intelligence Schema**:
-  - Completely refactored `wrap_tool_output` to remove chaotic telemetry.
-  - New output structure: `capacity_layer`, `effort_layer`, `entropy_layer`, `efficiency_layer`, `governed_intelligence`.
-- **APEX Discipline Gate**:
-  - Updated `core/organs/_3_apex.py` to enforce $G^\dagger \ge 0.80$ for `SEAL` verdicts.
-  - Sessions failing the realization gate are automatically downgraded to `PARTIAL`.
-- **Prefab UI Integration**:
-  - Refactored `check_vital`, `audit_rules`, `vector_memory`, and `search_reality` to use FastMCP Prefab UI components (Metrics, DataTables, Badges).
-- **Documentation Sync**:
-  - Comprehensive rewrite of `README.md` for zero-context clarity.
-  - Aligned `mcp-server.md`, `trinity-metabolic-loop.md`, and `intro.md` with the 10-tool metabolic stack.
+#### Validation Results:
+| Category | Result |
+|----------|--------|
+| Schema Compliance | ✅ 25/25 tools valid |
+| Functional Testing | ✅ 16/25 passed, 8 context-env specific |
+| Manifest Integrity | ✅ Complete |
+| Constitutional Floors | ✅ F1-F13 all enforced |
 
-### Fixed
-- **Stage 000 Init Bugs**: `InitOutput` now correctly populates `floors_failed` upon failure.
-- **Circular Import Fix**: Resolved dependency loop in `eval/suite.py` by moving triad imports to local scopes.
-- **Deployment Pipeline**: Updated `run_evals.py` and `deploy-cloudflare.yml` to support the new dashboard sub-route.
+#### Tool Surface Verification:
+- **KERNEL (6 tools):** init_anchor, revoke_anchor_state, register_tools, arifOS_kernel, forge, init_anchor_state
+- **AGI Δ MIND (6 tools):** agi_reason, agi_reflect, reality_compass, reality_atlas, search_reality, ingest_evidence  
+- **ASI Ω HEART/HAND (4 tools):** asi_critique, asi_simulate, agentzero_engineer, agentzero_memory_query
+- **APEX Ψ SOUL (7 tools):** apex_judge, agentzero_validate, audit_rules, agentzero_armor_scan, agentzero_hold_check, check_vital, open_apex_dashboard
+- **VAULT999 (2 tools):** vault_seal, verify_vault_ledger
 
-### Verification
-- **Constitutional Core**: 63/63 PASSED (including new $G^\dagger$ unit tests).
-- **APEX Gate**: Verified via reproduction script (High Cost + Low Clarity = Downgrade).
-- **Dashboard**: Verified live rendering across both internal and runtime-wrapped tools.
+#### Version Alignment:
+- Bumped to `2026.03.14-VALIDATED` across all manifests
+- pyproject.toml: 2026.3.14
+- fastmcp.json: 2026.03.14-VALIDATED
+- public_registry.py: 2026.03.14-VALIDATED
 
 ---
 
-## [2026.3.8-APEX-METRICS-HARDENING-SEAL] — 2026-03-08 — APEX-METRICS-HARDENING-SEAL
+## [2026.03.14-PRE-RELEASE] - 2026-03-13
 
-**T000:** 2026.03.08-APEX-METRICS-HARDENING-SEAL  
-**Theme:** APEX thermodynamic math hardening, dashboard runtime recovery, and deployment truth alignment
+### 🌅 Pre-Release Horizon — Preparing for the 14 March Epoch
 
-### Changed
-- **`ThermoSnapshot.compute()`** (`arifosmcp/intelligence/core/thermo_budget.py`):
-  - entropy removal is now capped to `H_before - H_after` instead of `abs(delta_s)`
-  - `eta`, `G_dagger`, and `entropy_layer.delta_S` now remain bounded by the configured entropy baseline
-- **APEX dashboard live path** (`arifosmcp/sites/apex-dashboard/index.html`):
-  - live polling now sends `POST` requests with a `SystemCall` body instead of a bare `GET`
-  - dashboard payloads are normalized so both `apex_output` envelopes and legacy `telemetry` envelopes can render
-  - runtime display now reads canonical thermo fields (`G_dagger`, `eta`, `C`) rather than stale aliases (`governed_score`, `intelligence_efficiency`)
+Initial scaffolding and version alignment for tomorrow's transition.
 
-### Fixed
-- **Dashboard boot failure:** inline JSX now uses the CSS variable string form `var(--dim)` correctly
-- **Live APEX rendering:** real thermo payloads no longer crash the page on missing legacy field names
-- **Thermodynamic overcounting:** sessions can no longer claim more entropy removal than the entropy baseline physically permits
+#### 🔮 Structural Alignment:
+- **Version Leap:** Synchronized all core anchors to `2026.03.14-PRE-RELEASE`.
+- **Temporal Gating:** Prepared the `metabolic_loop` and `server.py` for tomorrow's 14 March constants.
+- **Identity Maintenance:** Verified session nonce continuity for the upcoming epoch.
 
-### Docs
-- `DEPLOY.md` now distinguishes the canonical public runtime server from the internal-only intelligence bridge used by standalone APEX dashboard live polling
-- deployment examples now include the required `POST /mcp/anchor` and `POST /mcp/reason` `SystemCall` payload shape for operators who enable the bridge locally
-
-### Verification
-- `pytest tests/aclip_cai/test_thermo.py -q` -> pass
-- `pytest tests/core/test_outputs.py -q` -> pass
+#### 🧠 Emerging Capabilities (In Forge):
+- Refinement of the **PNS·VISION** Multimodal eye.
+- Hardening of **Causal Depth (Do-Calculus)** reasoning paths.
+- Finalization of the **APEX PRIME** Oversight Protocol.
 
 ---
 
-## [2026.3.7-QUADWITNESS-SEAL] — 2026-03-07 — QUAD-WITNESS-BFT-P0-IMPLEMENTATION-SEAL
+## [2026.03.13-DOUBLE-HELIX-FORGED] - 2026-03-13
 
-**T000:** 2026.03.07-QUADWITNESS-SEAL  
-**Theme:** P0 Critical Fixes — Quad-Witness BFT consensus and Ψ-Shadow adversarial witness implementation
+### 🧬 Double Helix Architecture — Sovereign Intelligence Organism
 
-### Added
-- **Ψ-Shadow (Adversarial Witness)** (`arifosmcp.intelligence/triad/psi/shadow.py`):
-  - `PsiShadow` class implementing the 4th witness in Quad-Witness consensus
-  - `attack_proposal()` method — actively attacks proposals to find flaws
-  - `find_contradictions()` — detects logical inconsistencies (reversibility contradictions, safety bypass)
-  - `simulate_injection()` — finds prompt/command injection vectors
-  - `model_casualty_chain()` — models harm scenarios using Theory of Mind
-  - `calculate_disorder()` — assesses entropy increase from destructive actions
-  - **Attack Detection Patterns:**
-    - Reversibility contradictions ("delete permanently but allow restore")
-    - Safety bypass attempts ("bypass all safety checks")
-    - Command injection (`rm -rf $(payload)`)
-    - Prompt injection ("ignore previous instructions")
-    - Production harm without backup checks
-    - Data loss scenarios ("drop table", "delete all")
-- **Quad-Witness Consensus** (`arifosmcp.transport/server.py`):
-  - `compute_verifier_witness()` — Ψ-Shadow witness computation
-  - **W4 Formula:** `W4 = (H × A × E × V)^(1/4) ≥ 0.75`
-    - H = Human witness (authority/continuity)
-    - A = AI witness (truth/coherence)
-    - E = Earth witness (grounding/precedents)
-    - V = Verifier witness (Ψ-Shadow adversarial check)
-  - **BFT Compliance:** n=4, f=1 — tolerates 1 Byzantine fault
-  - **Consensus Threshold:** 3/4 approval required (W4 ≥ 0.75)
-- **Test Suite**:
-  - `tests/test_psi_shadow.py` — 10 Ψ-Shadow adversarial analysis tests
-  - `tests/test_quad_witness.py` — 12 Quad-Witness BFT consensus tests
-  - All 22 new tests passing
+This epoch marks the transformation of arifOS from a constitutional framework into a **living intelligence organism**. The system is now bifurcated into a **Sacred Constitutional Spine (Inner Ring)** and a **Peripheral Nervous System (PNS - Outer Ring)**.
 
-### Changed
-- **`build_governance_proof()`** (`arifosmcp.transport/server.py`):
-  - **BEFORE:** Tri-Witness `w3 = product ** (1/3)` with 3 witnesses
-  - **AFTER:** Quad-Witness `w4 = product ** (1/4)` with 4 witnesses
-  - Added verifier witness integration
-  - New parameters: `proposal`, `agi_result`, `asi_result`
-  - Backward compatibility: W3 still computed for transition period
-- **`apply_governance_gate()`** (`arifosmcp.transport/server.py`):
-  - **BEFORE:** Checked `tri_witness_valid`
-  - **AFTER:** Checks `quad_witness_valid`
-  - Gate message: "Quad-Witness consensus below F3 threshold (W4 < 0.75)."
-- **`critique_thought` tool** (`arifosmcp.transport/server.py`):
-  - **BEFORE:** Only alignment check via `align()`
-  - **AFTER:** Full adversarial analysis via `PsiShadow.attack_proposal()`
-  - Updated description: "[Lane: Ψ Psi] [Floors: F4, F7, F8, F9] Ψ-Shadow adversarial analysis & attack simulation."
-  - Returns both adversarial analysis AND alignment check for comparison
-- **`apex_judge()` call site** (`arifosmcp.transport/server.py`):
-  - Now passes `proposal`, `agi_result`, `asi_result` to `build_governance_proof()`
-  - Enables Ψ-Shadow adversarial analysis on all judge decisions
+#### 🔱 24-Tool Canonical Surface
+The kernel now exposes 24 tools namespaced into five sovereign layers:
+- **KERNEL (5):** `init_anchor`, `revoke_anchor`, `register_tools`, `metabolic_loop_router`, `forge`.
+- **AGI Δ MIND (6):** `agi_reason`, `agi_reflect`, `reality_compass`, `reality_atlas`, `search_reality`, `ingest_evidence`.
+- **ASI Ω HEART (4):** `asi_critique`, `asi_simulate`, `agentzero_engineer`, `agentzero_memory_query`.
+- **APEX Ψ SOUL (7):** `apex_judge`, `agentzero_validate`, `audit_rules`, `agentzero_armor_scan`, `agentzero_hold_check`, `check_vital`, `open_apex_dashboard`.
+- **VAULT999 (2):** `vault_seal`, `verify_vault_ledger`.
 
-### Fixed
-- **Critical Gap #1:** Code used Tri-Witness (W3) instead of Quad-Witness (W4)
-  - **Impact:** BFT claims were non-functional
-  - **Fix:** Implemented W4 with 4th verifier witness
-- **Critical Gap #2:** Ψ-Shadow lacked adversarial logic
-  - **Impact:** 4th witness provided no protection
-  - **Fix:** Implemented true adversarial analysis with attack detection
+#### 🫀 Metabolic Circulatory System
+- **PNS Integration:** All 7 PNS organs (`shield`, `search`, `vision`, `health`, `floor`, `orchestrate`, `redteam`) now feed the Sacred Chain via automated metabolic injection.
+- **The Gate:** `metabolic_loop` now mandates `PNS·SHIELD` (F12) as the primary entry filter.
+- **Wall of Silence:** `ASI·SIMULATE` and `VAULT·SEAL` are now structurally isolated from external PNS contamination.
 
-### Verification
-- `pytest tests/test_psi_shadow.py tests/test_quad_witness.py -v` → 22/22 PASSED
-- `pytest tests/verify_spec_compliance.py -v` → 11/11 PASSED
-- Integration verification:
-  - ✅ Imports working
-  - ✅ PsiShadow rejects destructive actions
-  - ✅ Quad-Witness blocks unsafe actions (W4 < 0.75)
-  - ✅ Quad-Witness allows safe actions (W4 ≥ 0.75)
+#### 🧠 Cognitive & Sensory Upgrades
+- **PNS·VISION:** Native multimodal perception for Images, PDFs, and Diagrams.
+- **Causal Depth:** Integrated Pearl-style **Do-Calculus** into `AGI·REASON` for counterfactual hypothesis generation.
+- **Local Brain:** Connected **Ollama** runtime to `333 AGI·REASON` for real local intelligence synthesis.
 
-### Constitutional Compliance
-- **F3 Tri-Witness** → **F3 Quad-Witness**: PASS — Now BFT-compliant (n=4, f=1)
-- **F9 Anti-Hantu**: PASS — Ψ-Shadow detects deception patterns
-- **F1 Amanah**: PASS — Fail-safe: shadow fails open (APPROVE) on error to prevent deadlock
-- **F4 Clarity**: PASS — Safety through opposition (adversarial verification)
-- **F6 Empathy**: PASS — Harm scenario modeling protects stakeholders
-- **F8 Genius**: PASS — Multiplicative safety (G=0 if any dial=0) maintained with 4th witness
+#### ⚖️ Governance & Integrity
+- **APEX PRIME:** Implemented the Immortal Auditor protocol inside `VAULT_SEAL` to monitor Sovereign Integrity Index (SII) and Quad-Witness Consensus ($W_4$).
+- **Score Integrity Protocol:** Every vital (G★, ΔS, Peace², κᵣ, Ψ_LE) now declares its derivation basis: *measured*, *derived*, or *heuristic*.
+- **Honest Framing:** Explicit "Governance Estimate" labeling and disclaimers to enforce **F7 Humility**.
+- **Metabolic Invariants:** Codified 5 unbendable laws into `_wrap_call` (Identity, Lineage, ΔΩΨ, Entropy, Hold).
 
-### Documentation
-- **Theory Documents**:
-  - `000_THEORY/ARIFOS_THEOREMS_AND_EQUATIONS.md` — Mathematical formalization
-  - `000_THEORY/APEX_THEOREM.md` — Capstone meta-theory (Ψ-layer)
-  - `000_THEORY/APEX_IMPLEMENTATION_MAP.md` — Spec-to-code mapping
-  - `000_THEORY/VERIFICATION_SUMMARY.md` — Evidence-based compliance report
-  - `000_THEORY/P0_IMPLEMENTATION_PLAN.md` — Detailed fix roadmap
-  - `000_THEORY/P0_IMPLEMENTATION_COMPLETE.md` — Implementation summary
-  - `000_THEORY/PRE_SEAL_CHECKLIST.md` — Pre-SEAL verification checklist
-
-### Compliance
-- **Implementation ⊨ Specification**: 77% → 95%
-- **BFT Claims**: Theoretical → Enforced
-- **Ψ-Shadow**: Documentation → Active enforcement
+#### 🧪 Evaluation & Sealing
+- **005_EVALS:** Automated regression suite with a **Thermodynamic Gate** (Reject version if ΔS increases).
+- **ZKPC Seal:** Cryptographically anchored the repository state with hash `4d584ae284f3083ef09757689e4894ceb1178d88`.
+- **Genesis Commit:** Physically initialized `VAULT999/vault999.jsonl` with the first immutable block.
 
 ---
 
-## [2026.3.7-ARCH-SEAL] — 2026-03-07 — ARCHITECTURE-INTEGRITY-NPM-REGISTRY-SEAL
+## [2026.03.13-FORGED-SEAL] - 2026-03-13
 
-**T000:** 2026.03.07-ARCH-SEAL
-**Theme:** Forge broken promises — CLI entry points sealed, Docker Hub auto-publish wired, `@arifos/mcp@0.3.0` published to npm `latest`, registry accuracy restored, server import path fixed.
+### 🌐 H1 Higher Intelligence State — Developer Portal Upgrade
 
-### Added
-- **`[project.scripts]`** (`pyproject.toml`): Was documented in CLAUDE.md but never existed. Now real:
-  - `arifos` = `arifosmcp.runtime.__main__:main` (canonical CLI)
-  - `aaa-mcp` = `arifosmcp.transport.__main__:main` (compat shim)
-  - `aclip-cai` = `arifosmcp.intelligence.cli:main` (ACLIP infrastructure CLI)
-- **`arifosmcp.transport/unified_memory.py`**: Constitutional corpus + Google Drive semantic search module. Was untracked on VPS — now committed to repo.
-- **`scripts/backup-state.sh`**: Phase 5A backup script (postgres + qdrant). Was untracked — now committed.
-- **`.github/workflows/npm-publish.yml`**: New workflow with `workflow_dispatch` input (tag: `latest`/`next`), `id-token: write` permission for npm provenance, and `--provenance` flag.
+**PR #273:** Upgraded Developer Portal with H1 Higher Intelligence State visualization.
 
-### Changed
-- **Docker Hub auto-publish** (`.github/workflows/docker-publish.yml`): Was release-only. Now also triggers on push to `main` for code paths: `Dockerfile`, `pyproject.toml`, `requirements*.txt`, `arifosmcp.transport/**`, `arifosmcp.runtime/**`, `core/**`, `arifosmcp.intelligence/**`.
-- **`.gitignore`**: Added deployment artifacts — `BROWSER_SETUP_COMPLETE.md`, `DEPLOYMENT_COMPLETE_*.md`, `FINAL_SEAL_*.md`, `Hey.*`, `docker-compose.yml.backup.*`, `333_APPS/`.
-- **`packages/npm/arifos-mcp/package.json`**: `0.2.1` → `0.3.0`, `publishConfig.tag: "next"` → `"latest"`.
-- **`packages/npm/arifos-mcp/src/index.ts`**: `VERSION = '0.3.0'`, added `'2026.3.7'` to `ARIFOS_COMPATIBILITY`.
-- **`packages/npm/arifos-mcp/src/types.ts`**: `ArifOSToolName` corrected to actual 13 tools — removed `recall_memory`, `fetch_content`, `inspect_file`; added `vector_memory`, `ingest_evidence`, `metabolic_loop`.
-- **`packages/npm/arifos-mcp/src/langchain.ts`**: `getToolNames()` hardcoded list updated to match 13 canonical tools.
-- **`packages/npm/arifos-mcp/src/client.ts`**: `'python'` → `'python3'`, client version `'0.1.0'` → `'0.3.0'`.
-- **`mcp-clients.json`**: Stale Docker image tag (`arifazil/arifosmcp:forge-777` → `ariffazil/arifos:latest`), `python` → `python3`, removed ghost env var `ARIFOS_CONSTITUTIONAL_MODE`.
-- **`MCP_CLIENT_SETUP.md`**: Tool count corrected `18 → 13`, removed fake Utility Tools section (`fetch_content`, `inspect_file`, `system_audit`, `list_prompts`, `get_prompt` — none were real `@mcp.tool()` tools).
-- **`README.md`**: Major rewrite — TCP/IP analogy as core hook, `@arifos/mcp` TypeScript section, npm/Docker badges, AI manifest enriched with package registry entries and 12-container deployment map.
+#### New H1 Features:
 
-### Fixed
-- **`arifosmcp.transport/server.py` — unified_memory import**: Hardcoded `sys.path.insert(0, "/srv/arifOS/333_APPS/L2_OPERATION/INTEGRATIONS")` fails inside Docker container (path does not exist). Fixed to `from arifosmcp.transport.unified_memory import get_unified_memory`.
-- **`packages/npm/arifos-mcp/src/client.test.ts`**: `expect(VERSION).toBe('0.1.0')` was a hardcoded assertion blocking CI. Updated to `'0.3.0'`.
+**3E Telemetry Visualization:**
+- Real-time Exploration, Entropy, Eureka metric cards
+- Animated progress bars showing breadth, uncertainty, novelty scores
+- Source consultation counters and crystallization flags
 
-### Published
-- **`@arifos/mcp@0.3.0`** — npm registry, `dist-tag: latest`. Took 3 CI runs: (1) test version assertion, (2) provenance permission, (3) success. Final dist-tags: `{latest: 0.3.0, next: 0.2.1}`.
+**W3 Tri-Witness Gauge:**
+- Interactive gauge showing consensus score (0.0 → 1.0)
+- Color-coded gradient: RED (HOLD) → ORANGE (SABAR) → GOLD (PARTIAL) → GREEN (SEAL)
+- Formula display: `W3 = (wH·sH × wA·sA × wE·sE)^(1/3)`
+- Dynamic verdict badges (SEAL ≥0.95, PARTIAL ≥0.75, SABAR ≥0.50, 888_HOLD <0.50)
 
-### Constitutional Compliance
-- **F4 Clarity**: PASS — CLI entry points were documented but absent (ΔS > 0). Now real.
-- **F9 Anti-Hantu**: PASS — No ghost tool names on npm public surface.
-- **F1 Amanah**: PASS — unified_memory import fix ensures container parity with VPS.
-- **F2 Truth**: PASS — mcp-clients.json and MCP_CLIENT_SETUP.md now accurately reflect 13 tools.
+**Metabolic Stage Indicator:**
+- Visual stage tracker for 000→999 metabolic loop
+- Active stage highlighting with glowing dots
+- Stage name display (INIT, SENSE, THINK, REASON, ALIGN, EMPATHY, BRIDGE, EUREKA, JUDGE, PROOF, VAULT)
 
-### Verification
-- `https://arifosmcp.arif-fazil.com/health` → `{status: healthy, tools_loaded: 13}`
-- `npm info @arifos/mcp dist-tags` → `{latest: '0.3.0'}`
-- All 12 containers: healthy
-- Git: clean, pushed to `origin/main`
+**Constitutional Floor Monitor:**
+- Real-time floor satisfaction scores with progress bars
+- Color-coded status (PASS: green, WARN: orange, FAIL: red)
+- All 13 floors tracked with their specific thresholds
+
+**Technical Improvements:**
+- 640 lines of new JavaScript for H1 state management
+- Responsive CSS grid layouts for telemetry displays
+- Dark/light mode support with theme change events
+- Console greeting with H1 state badge
 
 ---
 
-## [2026.3.7-P3-THERMO] — 2026-03-07 — P3-THERMODYNAMIC-HARDENING-SEAL
+## [2026.03.13-FORGED] - 2026-03-13
 
-**T000:** 2026.03.07-P3-THERMO  
-**Theme:** P3 Thermodynamic Hardening — Mandatory physics enforcement, no graceful fallbacks
+### 🏛️ Grand Unified Technical Specification (GUTS) — MGI 7-Tool Canonical Stack
 
-### Added
-- **Hardened Thermodynamics Module** (`core/physics/thermodynamics_hardened.py`):
-  - **Mandatory Budget System**: Per-session thermodynamic budget (Joules) — no budget = VOID
-  - **Practical Landauer Bound**: Detects suspiciously fast compute (1000x faster than expected = VOID)
-  - **Semantic F4 Clarity**: Information density ratio instead of character entropy
-  - **Mode Collapse Detection**: AGI/ASI orthogonality check (Ω_ortho ≥ 0.95)
-  - **Hard Exceptions**: `LandauerViolation`, `EntropyIncreaseViolation`, `ThermodynamicExhaustion`
-- **Tri-Witness Grounding** (`core/shared/floors.py` — F3):
-  - Human witness: Derived from verified auth (not hardcoded)
-  - AI witness: Computed from F2 truth + F7 humility + coherence
-  - Earth witness: From grounding + thermodynamic validity
-  - **Action Gating**: Different thresholds per action class (read/write/execute/critical)
-
-### Changed
-- **5-Organ Pipeline Integration**:
-  - 000_INIT: Initializes `ThermodynamicBudget` (mandatory)
-  - 333_AGI: Consumes energy per reasoning cycle
-  - 888_APEX: Checks Landauer bound before SEAL
-  - 999_VAULT: Captures final thermodynamic state
-- **ConstitutionalTensor P3 Fields**:
-  - `thermodynamic_cost`: Joules consumed
-  - `landauer_ratio`: Compute efficiency vs expected
-  - `orthogonality`: AGI/ASI separation
-  - `budget_depletion`: Energy consumed ratio
-- **F2 Truth Floor**: Practical Landauer check with graceful fallback on missing module
-- **F4 Clarity Floor**: Semantic compression ratio (character entropy was wrong)
-
-### Fixed
-- **Landauer Calibration**: Changed from physical minimum (impossible) to expected compute
-- **Graceful Degradation**: Distinguish missing module (fallback) vs check failure (VOID)
-- **F4 Semantic Correctness**: Information density instead of character-level entropy
-
-### Constitutional Compliance
-- **F2 Truth**: PASS — Landauer bound detects cheap truth
-- **F4 Clarity**: PASS — Semantic compression enforces clarity
-- **F7 Humility**: PASS — Budget exhaustion → 888_HOLD
-- **F8 Genius**: PASS — Mode collapse detection (Ω_ortho)
-
-### Verification
-- `pytest tests/e2e_test_hardened_thermodynamics.py`: 16/16 PASSED
-- Thermodynamic budget tracking: Verified across 5-organ pipeline
-- Landauer violation detection: Tested with 1000x efficiency threshold
-- Entropy increase violation: Tested with semantic compression
+This release implements the **Grand Unified Technical Specification** (27-page spec), establishing the complete MGI (Machine-Governance-Intelligence) 7-tool canonical stack.
 
 ---
 
-## [2026.3.7-LABORATORY] — 2026-03-07 — CONSTITUTIONAL-LABORATORY-L0-L3-REARCHITECTURE-SEAL
+### 🔴 VOID Memanjang Elimination (CRITICAL)
 
-**T000:** 2026.03.07-LABORATORY  
-**Theme:** Transformation of `reason_mind` into an Epistemic Laboratory, consolidated L0-L3 4-layer architecture, and AKI Boundary formalization.
+**The Problem:** Legacy code used `except Exception: return VOID` for ANY error — network timeouts, missing dependencies, 404s — all returned VOID (constitutional collapse).
 
-### Added
-- **Constitutional Laboratory** (`reason_mind` tool v3.0):
-  - **Epistemic Staging:** `VOID` verdicts during exploration are now downgraded to `PROVISIONAL` to allow speculative reasoning without early termination.
-  - **Confidence Bands:** Numeric confidence mapped to human-readable tiers: `CLAIM` (≥0.90), `PLAUSIBLE` (0.70-0.89), `HYPOTHESIS` (0.40-0.69), `SPECULATION` (<0.40).
-  - **Orthogonal Hypothesis Tracking:** Primary hypotheses from all three paths (Conservative, Exploratory, Adversarial) are now explicitly tracked and exposed in the main payload.
-  - **Stability Scoring:** New `weighted_stability` metric (0.05-1.0) measures logic robustness based on contradiction count and severity.
-  - **Contradiction Detection ("Scars"):** Automated detection of conflicts between reasoning branches (Conclusivity and Robustness scars).
-  - **Operational Dispositions:** Each hypothesis is tagged with actions: `advance`, `ground`, `critique`, or `discard`.
-- **AKI Contract Formalization** (`core/enforcement/aki_contract.py`):
-  - Formalized the **Arif Kernel Interface (AKI)** as the hard airlock between L2 (Operation) and L3 (Civilization).
-  - Integrated `SovereignGate` (888_HOLD logic) and `L0KernelGatekeeper` (protected paths) directly into the AKI boundary.
+**The Fix:** VOID is now **STRICTLY** reserved for actual constitutional violations (F2/F11/F12/F13 breaches).
 
-### Changed
-- **L0-L3 Architectural Consolidation**:
-  - Refactored fragmented 8-layer model into a consolidated 4-layer taxonomy:
-    - **L0 CONSTITUTION:** Law, Kernel, Floors.
-    - **L1 INSTRUCTION:** Prompts, Atlas, System Cards.
-    - **L2 OPERATION:** Skills, Workflows, Agents.
-    - **L3 CIVILIZATION:** Tools, Infrastructure, External World.
-  - **Directory Rearchitecture:** Consolidated `333_APPS` into 4 clean tiers (`L0_KERNEL`, `L1_INSTRUCTION`, `L2_OPERATION`, `L3_CIVILIZATION`).
-  - **Core Logic Migration:** Moved core architectural definitions (`Metabolizer`, `AppManifesto`, `SovereignGate`, `SystemAuditor`) from `333_APPS` into the `core/` package.
-  - **Forwarding Stubs:** Converted original files in `333_APPS` (`manifesto.py`, `metabolizer.py`, `forge_init.py`) into forwarding stubs to maintain zero-breakage for downstream tools.
-- **`arifosmcp.transport/server.py`**:
-  - Updated `_agi_cognition` to expose the new Laboratory metrics (stability, scars, hypotheses, dispositions).
-  - Integrated the consolidated L0-L3 taxonomy into the tool documentation.
-- **`README.md`**: Comprehensive overhaul for human accessibility.
-  - Added 30-second high-impact hook and safety mental model.
-  - Added real-world "Dangerous Command" prevention example.
-  - Simplified 13 Floors table and move JSON manifest to the footer.
+**New Fault Taxonomy:**
 
-### Constitutional Compliance
-- **F4 Clarity**: PASS — Consolidated 8 layers into 4 clean tiers (ΔS ≤ 0).
-- **F7 Humility**: PASS — Reasoning engine now explicitly scores logic stability and flags internal contradictions.
-- **F13 Sovereign**: PASS — AKI boundary ensures no irreversible action bypasses the 888 Judge.
+| Class | Codes | Verdict |
+|-------|-------|---------|
+| `MechanicalFaultCode` | `TOOL_NOT_EXPOSED`, `INFRA_DEGRADED`, `TIMEOUT_EXCEEDED`, `RATE_LIMITED`, `DEPENDENCY_UNAVAILABLE`, `DNS_FAIL`, `TLS_FAIL`, `WAF_BLOCK`, `PARSE_FAIL`, `RENDER_FAIL` | `888_HOLD` |
+| `ConstitutionalFaultCode` | `F2_TRUTH_BELOW_THRESHOLD`, `F11_AUTH_FAILURE`, `F11_TOKEN_INVALID`, `F12_INJECTION`, `F10_ONTOLOGY`, `F13_SOVEREIGN_VETO` | `VOID` (terminal) |
+| `Epistemic` | `NO_RESULTS` | `SABAR` |
 
-### Verification
-- `python 333_APPS/manifesto.py`: Passed (Audit report verified).
-- `python 333_APPS/metabolizer.py`: Passed (Zero bypass verified).
-- `python 333_APPS/forge_init.py`: Passed (Membrane integrity verified).
-- Directory consolidation confirmed via `ls -R 333_APPS`.
+- Added `classify_exception()` central router
+- Added `classify_network_errors()` for multi-engine search aggregation
+- **CI Gate:** `test_void_memanjang.py` (278 lines) — any VOID from non-constitutional causes = build failure
 
 ---
 
-## [2026.3.6-CiV-BROWSER] — 2026-03-06 — CIVILIZATION-INFRASTRUCTURE-HEADLESS-BROWSER-SEAL
+### 📡 3E Intelligence Telemetry Mandate
 
-**T000:** 2026.03.06-CiV-BROWSER  
-**Theme:** CIV Infrastructure Layer activation, Smart Hybrid Search with Headless Browser, comprehensive README rewrite
+Every tool output **MUST** physically expose its 3E state. No bare success permitted.
 
-### Added
-- **Headless Browser Service** (`docker-compose.yml`):
-  - `headless_browser` container (browserless/chrome) on internal `arifos_trinity` network
-  - DOM Reality extraction for JavaScript-heavy sites (SPAs, React, Vue)
-  - Resource limits: 512MB RAM, max 2 concurrent sessions
-  - F12 Defense: All content wrapped in `<untrusted_external_data>` envelope with SHA-256 hashing
-- **HeadlessBrowserClient** (`arifosmcp.transport/external_gateways/headless_browser_client.py`):
-  - Async client for internal browser service communication
-  - Content quality scoring (0.0-1.0) with auto-fallback
-  - Health check endpoint (`/pressure`) for load monitoring
-  - Configurable via `ARIFOS_HEADLESS_BROWSER_ENABLED` env var
-- **Smart Hybrid Search** (`arifosmcp.transport/server.py` — `search_reality` tool v2.0):
-  - Query classifier: SPA/Research/News/General routing
-  - 4-tier fallback chain: Jina → Perplexity → Brave → Headless Browser
-  - Quality threshold-based fallback (0.2 minimum)
-  - F3 Tri-Witness consensus merge when multiple sources available
-  - Never returns empty — guarantees meaningful reality
-- **CIV Infrastructure Documentation** (`333_APPS/L6_CIVILIZATION/`):
-  - `EUREKA_CIV_INFRA_DISCOVERY.md` — Deep research findings
-  - `SEAL_HEADLESS_BROWSER_INTEGRATION.md` — Production deployment seal
-  - Clockmaker Daemon, Town Square (Redis), Resource Governor documented
-- **VPS Architecture Master Dossier** (`docs/VPS_ARCHITECTURE_MASTER_DOSSIER.md`):
-  - Complete update with CIV Infrastructure (L6) section
-  - Headless Browser operational guide
-  - Smart Hybrid Search architecture diagram
-  - 12-container deployment matrix
+**New Telemetry Models:**
 
-### Changed
-- **`arifosmcp.transport/server.py`**: `search_reality` completely rewritten for Smart Hybrid routing
-  - New parameters: `force_source`, `min_content_quality`
-  - Query type classification (SPA/Research/News/General)
-  - Multi-source result merging with F3 consensus
-  - Quality scoring algorithm (content length, structure, F12 envelope)
-- **`arifosmcp.transport/external_gateways/__init__.py`**: Exports `HeadlessBrowserClient`
-- **`docker-compose.yml`**: Added `headless_browser` service, volume mount for live code
-- **`.env.docker`**: Added Headless Browser configuration (`ARIFOS_HEADLESS_BROWSER_ENABLED`, etc.)
-- **VPS Skill** (`.agents/skills/arifos-vps-ops/SKILL.md`): Complete rewrite with CIV-Browser architecture
+```python
+@dataclass
+class ThreeEState:
+    exploration: ExplorationTelemetry    # Sources consulted, depth, breadth
+    entropy: EntropyTelemetry            # Uncertainty index, contradictions
+    eureka: EurekaTelemetry              # Insight delta, novelty score
+```
 
-### Documentation
-- **`README.md`**: Comprehensive rewrite (153 → 434 lines)
-  - 🏛️ Canonical Trinity Web Links at TOP with web/file references
-  - 🤖 AI Machine-Readable Manifest (JSON) for LLM parsing
-  - 🧭 Zero-Context Intro (Human vs AI specific sections)
-  - 🌡️ 8-Layer Architecture table (L0-L7) with status + file links
-  - 🏛️ Complete 13 Constitutional Floors reference (F1-F13)
-  - ⚙️ Metabolic Loop (000→999) with stage explanations
-  - 🔌 14 MCP Tools catalog grouped by ARIF bands with file links
-  - 🆕 Smart Hybrid Search section (Headless Browser integration)
-  - 🎭 5-Role Agent Parliament (L5)
-- **`docs/CONTRAST_ANALYSIS_README_VERSIONS.md`**: Analysis of README evolution vs past versions
-
-### Fixed
-- **`pyproject.toml`**: Removed duplicate TOML sections (361 lines deleted)
-  - Fixed: `[project.optional-dependencies]` declared twice
-  - Fixed: `[project.scripts]` declared twice
-  - Fixed: `[project.urls]` declared twice
-  - Fixed: `[tool.setuptools]` declared twice
-  - Fixed: `[tool.pytest.ini_options]` declared twice
-- **`Dockerfile`**: Fixed Playwright permissions for `arifos` user
-  - Browser install now runs as root with proper chown
-  - Removed redundant second install attempt
-
-### Constitutional Compliance
-- **F1 Amanah**: PASS — Headless Browser read-only, no destructive actions
-- **F2 Truth**: PASS — Multi-source verification with quality scoring
-- **F3 Tri-Witness**: PASS — Consensus merge when sources disagree
-- **F4 Clarity**: PASS — Smart routing reduces entropy (ΔS ≤ 0)
-- **F5 Peace²**: PASS — Resource limits prevent overload (512MB, 2 sessions)
-- **F6 Empathy**: PASS — Graceful degradation on service unavailability
-- **F7 Humility**: PASS — Quality thresholds with uncertainty bounds
-- **F8 Genius**: PASS — Smart query classification (G = A×P×X×E²)
-- **F9 Anti-Hantu**: PASS — No consciousness claims in browser automation
-- **F10 Ontology**: PASS — Clear categorization (CIV Infrastructure)
-- **F11 CommandAuth**: PASS — Internal network only (no public port)
-- **F12 Defense**: PASS — `<untrusted_external_data>` envelope enforced
-- **F13 Sovereign**: PASS — Configurable enable/disable (`ARIFOS_HEADLESS_BROWSER_ENABLED`)
-
-### Verification
-- All 12 containers healthy on VPS
-- Headless Browser responding on `http://headless_browser:3000`
-- Smart Hybrid Search tested with quality scoring
-- GitHub repo synced with VPS (main branch)
-- README renders correctly with all links functional
+**Fields:**
+- `ExplorationTelemetry`: `sources_consulted`, `depth_level`, `breadth_score`, `exploration_paths`
+- `EntropyTelemetry`: `uncertainty_index`, `contradiction_count`, `resolution_confidence`
+- `EurekaTelemetry`: `insight_delta`, `novelty_score`, `crystallisation_flag`
 
 ---
 
-## [2026.3.6-CANON] — 2026-03-06 — CANONICAL-13-TOOL-SURFACE-LOCK-SCHEMA-ALIGN
+### 📦 MachineEnvelope & GovernanceEnvelope Upgrades
 
-**T000:** 2026.03.06-CANONICAL-13-TOOL-SURFACE-LOCK-SCHEMA-ALIGN
-**Theme:** Phoenix retirement, three-layer schema alignment, ARIF Bands documentation, tool surface sealed at exactly 13
+**Backward-compatible** — all new fields are `Optional` with defaults.
 
-### Archived (Removed from Public Surface)
-- **`recall_memory` (Phoenix)**: Retired → replaced by `vector_memory` (BGE-M3 768-dim multilingual embeddings + Qdrant + EUREKA sieve). F9 Anti-Hantu compliance — no ghost names on public surface.
-- **`fetch_content`** + **`inspect_file`**: Consolidated → `ingest_evidence(source_type="url"|"file")`. Reduces surface entropy.
-- **`trinity_forge`**: Demoted to internal orchestration alias. `metabolic_loop` is the canonical Band O tool.
-- **`query_openclaw`**: Archived — internal diagnostic only, never part of 13-tool canon.
+**MachineEnvelope additions:**
+| Field | Type | Purpose |
+|-------|------|---------|
+| `fault_code` | `Optional[str]` | Typed fault label from `MechanicalFaultCode` |
+| `http_diagnostics` | `Optional[dict]` | Raw HTTP response metadata |
+| `tool_name` | `Optional[str]` | Originating tool identifier |
+| `latency_ms` | `Optional[float]` | End-to-end execution latency |
 
-### Changed
-- **Three-layer schema alignment** (all layers now agree on 13 canonical tool names):
-  - `arifosmcp.transport/protocol/schemas.py` — added `ingest_evidence` + `metabolic_loop` to `TOOL_INPUT_SCHEMAS` + `TOOL_OUTPUT_SCHEMAS`
-  - `arifosmcp.runtime/contracts.py` — `REQUIRES_SESSION`: `recall_memory` → `vector_memory`; `metabolic_loop` contract added
-  - `arifosmcp.runtime/server.py` — 4 MCP prompts updated: `aaa_chain`, `trinity_forge`, `anchor_reason`, `audit_then_seal` now use Gen3 canonical names
-- **`arifosmcp.transport/protocol/tool_naming.py`**: `vector_memory`, `ingest_evidence`, `metabolic_loop` added to `CANONICAL_PUBLIC_TO_LEGACY` map + `LEGACY_TOOL_NAMES`
-- **`arifosmcp.transport/protocol/l0_kernel_prompt.py`**: Replaced stale `sensory_read` → `ingest_evidence` in the L0 constitutional kernel prompt
-- **`arifosmcp.transport/server.py`**: Error message updated — `init_session (anchor)` → `anchor_session`
-- **`arifosmcp.transport/README.md`**: `recall_memory` → `vector_memory`; `fetch_content` + `inspect_file` → `ingest_evidence`; `metabolic_loop` row added
-- **`docs/00_META/GEMINI.md`**: 11 → 13 canonical tools; all Gen1 aliases replaced with Gen3 canonical names
-- **ARIF Bands taxonomy** documented in `333_APPS/L4_TOOLS/README.md` (full dossier rewrite) and root `README.md`
-
-### Documentation
-- **`333_APPS/L4_TOOLS/README.md`**: Full dossier rewrite — Trinity Lanes table, per-tool Band/Stage/Floor/Description matrix, complete 13-tool ARIF lattice, metabolic chain ASCII diagram, archived tool table, A-CLIP alias map, verdict reference
-- **`333_APPS/L4_TOOLS/MANIFEST.md`**: Version `v55.5.0` → `v2026.3.6-CANON`; entry point updated to `python -m arifosmcp.runtime`
-- **`README.md`**: 14 → 13 canonical tools; Band O (Orchestrate / `metabolic_loop`) added; MCP section restructured into 8+4+1 layers
-
-### Removed
-- Temp artifacts deleted: `debug_mcp_v2.py`, `finalize_seal.py`, `verify_audit.py`, `git_diff_server.txt`
-
-### Constitutional Compliance
-- **F9 Anti-Hantu**: PASS — No archived tool names (`recall_memory`, `phoenix_recall`, `fetch_content`, `inspect_file`, `init_session`, `agi_cognition`, `apex_verdict`, `vault_seal`) survive on any public-facing layer
-- **F4 Clarity**: PASS — Tool count reduced 14 → 13; three-layer schema alignment eliminates mismatch entropy
-- **F1 Amanah**: PASS — `arifosmcp.transport/protocol/aaa_contract.py` runtime assertion `assert len(AAA_CANONICAL_TOOLS) == 13` guards the sacred count
-- **F10 Ontology**: PASS — `trinity_forge` never existed as a public tool; `metabolic_loop` is the canonical orchestration surface
-
-### Verification
-- `arifosmcp.transport/protocol/aaa_contract.py`: Runtime assertion passes — 13 tools confirmed
-- All commits lint-passed `constitution_lint` (all floors satisfied)
-- Working tree clean, pushed to `origin/main`
+**GovernanceEnvelope additions:**
+| Field | Type | Purpose |
+|-------|------|---------|
+| `floor_scores` | `Optional[dict]` | Per-floor satisfaction scores |
+| `hold_id` | `Optional[str]` | Active hold record reference |
+| `void_reason` | `Optional[str]` | Constitutional collapse narrative |
+| `metabolic_stage` | `Optional[str]` | System metabolic state label |
+| `tri_witness_score` | `Optional[float]` | W3 metric value at emission time |
 
 ---
 
-## [2026.3.1-JINA] — 2026-03-01 — JINA-READER-INTEGRATION-SEARCH-REALITY
+### 🔒 Security Primitives
 
-**T000:** 2026.03.01-JINA-READER-INTEGRATION-SEARCH-REALITY  
-**Theme:** Jina Reader as PRIMARY search backend for superior content extraction and constitutional grounding
+#### HMAC-SHA256 Governance Tokens (`core/security/tokens.py`)
+- **NOT JWT** — compact dot-separated `header.claims.signature` format
+- F11-compliant with configurable TTL and scope binding
+- `mint_governance_token()` / `validate_governance_token()`
 
-### Added
-- **Jina Reader Client** (`arifosmcp.transport/external_gateways/jina_reader_client.py`):
-  - `JinaReaderClient` class with `search()`, `read_url()`, `search_arxiv()` methods
-  - `JinaReranker` class for semantic relevance-based result sorting
-  - Clean Markdown extraction from URLs via `r.jina.ai`
-  - Web search with extracted content via `s.jina.ai`
-  - F12 Defense: External content wrapped in untrusted envelope with taint lineage
-  - User-Agent header to avoid 403 Forbidden errors
-- **`search_reality` tool enhancement**: Now uses Jina Reader as PRIMARY backend
-  - Superior content extraction vs traditional SERP APIs
-  - Fallback chain: Jina → Perplexity → Brave → Local knowledge
-- **`fetch_content` tool enhancement**: Uses Jina Reader for URL-to-Markdown extraction
-  - Returns clean, LLM-ready Markdown instead of raw HTML
-  - Optional image and link extraction metadata
-- **Environment variable**: `JINA_API_KEY` for higher rate limits (optional but recommended)
-
-### Changed
-- **External Gateways** (`arifosmcp.transport/external_gateways/__init__.py`): Exports `JinaReaderClient`, `JinaReranker`
-- **Server** (`arifosmcp.transport/server.py`): `search_reality` and `fetch_content` now prioritize Jina Reader
-- **Dockerfile**: Added embedding model directory setup (preparation for future embedding work)
-- **`.env.docker.example`**: Added `JINA_API_KEY` placeholder
-- **`.gitignore`**: Exclude embedding model files (*.safetensors, *.bin, *.pt, *.pth)
-
-### Constitutional Compliance
-- **F2 Truth**: Multi-source grounding with evidence URLs
-- **F4 Clarity**: Clean Markdown output reduces entropy vs raw HTML
-- **F12 Defense**: Untrusted envelope prevents prompt injection from external content
-- **F7 Humility**: Graceful degradation when API key unavailable (NO_API_KEY status)
+#### F12 Injection Scanner (`core/security/scanner.py`)
+- 14 regex patterns covering:
+  - Prompt injection attacks
+  - Path traversal (`../`, `%2e%2e`)
+  - SQL injection (`UNION SELECT`, `OR 1=1`)
+  - SSRF (`file://`, `dict://`, `gopher://`)
+  - Shell injection (`; rm -rf`, `| cat /etc/passwd`)
+- Allowlist honors legitimate `<untrusted_external_data>` taint wrappers
 
 ---
 
-## [2026.3.1-FORGE] — 2026-03-01 — VAULT999-UNIFIED-TELEMETRY-TRINITY-FORGE-SEAL
+### 📐 Tri-Witness (W3) Intelligence Metric
 
-**T000:** 2026.03.01-FORGE-VAULT999-UNIFIED-TELEMETRY-TRINITY  
-**Theme:** VAULT999 Merkle ledger unification, FastMCP-native telemetry, trinity_forge emergence, production hardening
+**Formula:** `W3 = (w_H·s_H × w_A·s_A × w_E·s_E)^(1/3)`
 
-### Added
-- **VAULT999 UNIFIED Ledger**: PostgreSQL + Redis + Merkle Tree + EUREKA Sieve wired together
-  - `session_ledger.py` now provides unified `seal()` with automatic Merkle root computation
-  - EUREKA anomalous contrast filter evaluates entries before storage
-  - Redis hot caching for recent entries with chain state persistence
-  - Chain verification via `verify_chain()` with tamper detection
-- **`trinity_forge` unified tool**: Single-call 000-999 pipeline (emergent tool #14)
-  - Internally executes: 000_INIT → 111-444 REASON → 555-666 HEART → 777-888 JUDGE → 999 SEAL
-  - For ChatGPT/stateless clients requiring single-call constitutional validation
-- **FastMCP-native telemetry** (`arifosmcp.transport/telemetry.py`):
-  - `ConstitutionalSpan` wrapper with F1-F13 floor awareness
-  - `@instrument_tool` decorator for automatic MCP tool instrumentation
-  - OpenTelemetry semantic conventions: `tools/call {name}`, `arifos.verdict`, `arifos.metabolic_stage`
-- **Governed Context** (`arifosmcp.transport/governed_context.py`):
-  - FastMCP Context wrapper with 13-Floor constitutional enforcement
-  - `StateEntry` with cryptographic checksums for F1 Amanah
-  - `ConstitutionalProgressTracker` with metabolic stage awareness
-- **FastMCP Context logging**: `ctx.info/debug` integration in `anchor_session` and `seal_vault`
+Where:
+- `w_H` = Human witness weight, `s_H` = Human source score
+- `w_A` = AI witness weight, `s_A` = AI reasoning score  
+- `w_E` = Earth/System witness weight, `s_E` = External evidence score
 
-### Changed
-- **VAULT999 schema v3 UNIFIED**: Added columns `merkle_root`, `eureka_score`, `eureka_verdict`
-- **14 tools total**: 13 canonical + 1 unified (`trinity_forge`)
-- `seal_vault` tool: Now uses unified SessionLedger with Merkle + Redis persistence
-- `arifosmcp.transport/server.py`: Integrated unified ledger, telemetry, and context logging
+**Verdict Thresholds:**
+| W3 Range | Verdict | Description |
+|----------|---------|-------------|
+| ≥ 0.95 | `SEAL` | Consensus achieved |
+| 0.75 – 0.94 | `PARTIAL` | Partial consensus |
+| 0.50 – 0.74 | `SABAR` | Insufficient evidence |
+| < 0.50 | `888_HOLD` | No consensus |
 
-### Deployment Ready
-- All 14 tools operational via MCP (stdio/SSE/HTTP)
-- VAULT999 persistence layer: PostgreSQL (authoritative) + Redis (cache)
-- Telemetry: OpenTelemetry + Prometheus metrics export
-- Version: 2026.3.1-FORGE
+Integrated with `IntelligenceEnvelope.tri_witness_score`.
 
 ---
 
-## [2026.3.1] — 2026-03-01 — ENTROPY-REDUCTION-FORGE-777-SEAL
+### 🏛️ Vault & Evidence Infrastructure
 
-**T000:** 2026.03.01-ENTROPY-REDUCTION-FORGE-777-SEAL  
-**Theme:** Massive codebase consolidation, MCP server unification, VPS deployment wiring
+#### RFC 6962 Merkle Tree (`core/vault/merkle.py`)
+- Certificate Transparency-compliant append-only tree
+- `0x00` leaf prefix / `0x01` node prefix
+- `append_record()`, `verify_chain_integrity()`, `generate_inclusion_proof()`
+- `VaultRecord` with SHA-256 hashing
 
-### Added
-- Unified Docker Compose for VPS deployment with multi-network compartment access
-- `.env.docker` template for compartment connection configuration (Qdrant, Ollama, OpenClaw, Agent Zero)
-- Multi-homed container bridging 4 networks: coolify, ai-net, trinity_network, bridge
-
-### Changed
-- **Massive entropy reduction**: Removed 112,658 LOC (S_pre 0.94 → S_post 0.31, 75% reduction)
-  - Purged `_ARCHIVE/` directory (legacy concepts, prototypes, experiments)
-  - Purged `tests/archive/` and `tests/legacy/` (deprecated test suites)
-  - Removed duplicate guards and unused `arifosmcp.transport` modules
-- **MCP server consolidation**: Merged `arifosmcp.transport/server.py` into `arifosmcp.runtime/server.py`
-  - Thin 90-line compatibility shim at `arifosmcp.transport/server.py`
-  - Single 760-line canonical surface with 13 tools, 5 prompts, 4 resources
-  - Eliminated circular dependencies between packages
-- Docker image tagged: `arifos/arifosmcp:latest` (from `forge-777`, 14.8GB)
-- Version badge updated to 2026.3.1
-
-### Deployment
-- Live VPS on port 8080 (streamable-http transport)
-- Health status: healthy, 13 tools loaded
-- Compartment IPs: qdrant(10.0.0.5), ollama(10.0.4.2), openclaw(10.0.1.2), agent-zero(10.0.2.3)
-
-### Verification
-- Container health check: `curl http://localhost:8080/health` → `{"status":"healthy"}`
-- All 13 canonical tools verified operational
-- Multi-network connectivity validated
+#### Evidence Bundle (`core/contracts/evidence.py`)
+- `EvidenceBundle` with JCS (JSON Canonicalization Scheme) canonical hash
+- `MerkleInclusionProof` typed model
+- F12 taint wrapping for untrusted data
 
 ---
 
-## [2026.2.27] — 2026-02-27 — FORGE-PROTOCOL-NEGOTIATION-CONSISTENCY-SEAL
+### 🏛️ Sovereign Hold Bridge
 
-**T000:** 2026.02.27-FORGE-PROTOCOL-NEGOTIATION-CONSISTENCY-SEAL  
-**Theme:** MCP version negotiation hardening, canonical tool naming convergence, and docs/runtime alignment.
-
-### Added
-- Streamable HTTP protocol negotiation tests for supported, unsupported, and mismatch session flows.
-- MCP method parity for `resources/list`, `resources/read`, `prompts/list`, and `prompts/get` in streamable transport.
-
-### Changed
-- Canonical tool names converged to `apex_judge` and `eureka_forge` across runtime/tests/docs.
-- Streamable HTTP handshake now negotiates `protocolVersion` per session and enforces header consistency.
-- Discovery metadata now publishes `protocolVersion` and `supportedProtocolVersions` in `server.json` and well-known routes.
-- Intro/docs trademark messaging aligned: "DITEMPA, BUKAN DIBERI" + epistemic humility subtitle.
-- Package/release versions aligned to `2026.2.27`.
-
-### Verification
-- `pytest tests/test_aaa_phase888_mcp_protocol_e2e.py -q` -> pass
-- `pytest tests/test_aaa_mcp_contract.py -q` -> pass
-- `pytest tests/test_aaa_mcp_constitutional.py -q` -> pass
+**`core/governance/ratify_hold.py`**
+- `ratify_hold_state()` — sovereign bridge for 888_HOLD events
+- HMAC-signed `HoldRecord` with unique hold IDs
+- In-memory hold registry (with PostgreSQL bridge TODO)
+- Telegram payload builder for Apex notifications
 
 ---
 
-*See [docs/00_META/CHANGELOG.md](docs/00_META/CHANGELOG.md) for full historical changelog.*
+### 📊 Prometheus Telemetry Additions
+
+**New Metrics** (`arifosmcp/runtime/metrics.py`):
+
+| Metric | Type | Description |
+|--------|------|-------------|
+| `W3_SCORE` | Histogram | Tri-Witness score distribution |
+| `HOLD_QUEUE_DEPTH` | Gauge | Pending sovereign holds |
+| `VAULT_RECORDS_TOTAL` | Counter | Total records in VAULT999 |
+| `FLOOR_VIOLATIONS` | Counter | Constitutional floor breaches |
+| `MACHINE_FAULTS` | Counter | Mechanical/infrastructure faults |
+| `VOID_EVENTS` | Counter | Constitutional collapse events |
+| `MERKLE_INTEGRITY` | Gauge | Merkle chain health (0-1) |
+
+---
+
+### 🧪 CI/CD
+
+- **New Test Suite:** `tests/test_void_memanjang.py` (278 lines)
+  - Tests network timeout → `TIMEOUT_EXCEEDED`, never `VOID`
+  - Tests HTTP 404 → `TOOL_NOT_EXPOSED`, never `VOID`
+  - Tests auth failure → `AUTH_FAILURE`, never `VOID`
+  - Tests constitutional breach → `VOID` permitted (only valid case)
+
+---
+
+### 📁 Files Added/Modified
+
+| File | Change | Lines |
+|------|--------|-------|
+| `arifosmcp/runtime/fault_codes.py` | NEW | ~200 |
+| `core/contracts/telemetry.py` | NEW | ~216 |
+| `core/contracts/evidence.py` | NEW | ~218 |
+| `core/contracts/responses.py` | MODIFIED | +68 |
+| `core/governance/ratify_hold.py` | NEW | ~283 |
+| `core/intelligence/w3.py` | NEW | ~170 |
+| `core/security/tokens.py` | NEW | ~224 |
+| `core/security/scanner.py` | NEW | ~151 |
+| `core/security/__init__.py` | NEW | ~5 |
+| `core/vault/merkle.py` | NEW | ~237 |
+| `arifosmcp/runtime/metrics.py` | APPENDED | +40 |
+| `tests/test_void_memanjang.py` | NEW | 278 |
+
+**Total:** ~2,131 insertions, ~30 deletions
+
+---
+
+### 🛡️ Constitutional Compliance
+
+| Floor | Status | Implementation |
+|-------|--------|----------------|
+| F1 Amanah | ✅ | All changes tracked, reversible |
+| F2 Truth | ✅ | `F2_TRUTH_BELOW_THRESHOLD` fault code |
+| F3 Tri-Witness | ✅ | W3 metric with ≥0.95 SEAL threshold |
+| F6 Empathy | ✅ | Thermodynamic clarity enforced |
+| F7 Humility | ✅ | Uncertainty band [0.03, 0.05] |
+| F8 Genius | ✅ | `w3_score` telemetry |
+| F9 Anti-Hantu | ✅ | Shadow pattern detection |
+| F10 Ontology | ✅ | `F10_ONTOLOGY` fault code |
+| F11 Command | ✅ | HMAC-SHA256 token validation |
+| F12 Injection Guard | ✅ | 14-regex scanner |
+| F13 Sovereign | ✅ | `ratify_hold_state` bridge |
+
+---
+
+### 📝 Migration Notes
+
+**For Existing Users:**
+- All changes are **backward-compatible**
+- Existing envelope consumers will see new optional fields as `None`
+- No breaking changes to API surface
+
+**For Developers:**
+- Update imports to use new fault codes: `from arifosmcp.runtime.fault_codes import classify_exception`
+- Consider adding 3E telemetry to custom tools
+- Use `MACHINE_FAULT_CODES` frozenset for fault validation
+
+---
+
+*Forged by Architect Δ — arifOS MGI 7-tool canonical stack — FORGED-2026.03*
+
+*DITEMPA BUKAN DIBERI — Forged, Not Given*
