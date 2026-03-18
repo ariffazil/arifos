@@ -17,7 +17,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any, Optional
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator
 
 
 class Verdict(str, Enum):
@@ -53,8 +53,9 @@ class AgentDID(BaseModel):
     human_sovereign: Optional[str] = Field(None, description="did:arifos:human:{id}")
     version: str = "2026.03.14-VALIDATED"
     
-    @validator('did')
-    def validate_did(cls, v):
+    @field_validator('did')
+    @classmethod
+    def validate_did(cls, v: str) -> str:
         if not v.startswith("did:arifos:agent:"):
             raise ValueError("DID must start with did:arifos:agent:")
         return v

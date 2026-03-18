@@ -21,6 +21,7 @@ DITEMPA BUKAN DIBERI — Forged, Not Given
 from __future__ import annotations
 
 import os
+import sys
 from contextlib import asynccontextmanager
 
 from fastmcp import FastMCP
@@ -317,12 +318,12 @@ if _WEBMCP_ENABLED:
         # WebMCP app already has /webmcp, /api/live, /governance prefixes
         _mcp_app.mount("/", _webmcp_app, name="webmcp")
 
-        print("✅ WebMCP gateway integrated at /webmcp, /api/live, /governance")
+        print("✅ WebMCP gateway integrated at /webmcp, /api/live, /governance", file=sys.stderr)
 
     except ImportError as e:
-        print(f"⚠️ WebMCP not available: {e}. Run: pip install itsdangerous fastapi uvicorn redis")
+        print(f"⚠️ WebMCP not available: {e}. Run: pip install itsdangerous fastapi uvicorn redis", file=sys.stderr)
     except Exception as e:
-        print(f"❌ WebMCP integration failed: {e}")
+        print(f"❌ WebMCP integration failed: {e}", file=sys.stderr)
 
 # Serve trinity-nav.js globally
 _sites_dir = os.path.join(os.path.dirname(__file__), "..", "sites")
@@ -371,10 +372,10 @@ try:
     # Mount WebMCP at /webmcp
     _mcp_app.mount("/webmcp", _webmcp_gateway.app, name="webmcp")
 
-    print("✅ Real WebMCP Gateway mounted at /webmcp (W3C Standard)")
+    print("✅ Real WebMCP Gateway mounted at /webmcp (W3C Standard)", file=sys.stderr)
 
 except ImportError as e:
-    print(f"⚠️ WebMCP not available: {e}")
+    print(f"⚠️ WebMCP not available: {e}", file=sys.stderr)
 
     _mcp_app.router.add_route("/llms.txt", get_llms_txt, methods=["GET"], include_in_schema=False)
     _mcp_app.router.add_route("/ai.json", get_ai_json, methods=["GET"], include_in_schema=False)
@@ -441,11 +442,11 @@ try:
     # Register the route using Starlette's router
     _mcp_app.router.add_route("/.well-known/agent.json", well_known_agent, methods=["GET"])
 
-    print("✅ Real A2A Server mounted at /a2a (Google Protocol)")
-    print("✅ Agent Card available at /.well-known/agent.json")
+    print("✅ Real A2A Server mounted at /a2a (Google Protocol)", file=sys.stderr)
+    print("✅ Agent Card available at /.well-known/agent.json", file=sys.stderr)
 
 except ImportError as e:
-    print(f"⚠️ A2A not available: {e}")
+    print(f"⚠️ A2A not available: {e}", file=sys.stderr)
 
 
 def create_aaa_mcp_server() -> FastMCP:

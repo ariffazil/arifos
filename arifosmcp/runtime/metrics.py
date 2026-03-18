@@ -355,23 +355,17 @@ def compute_integrity_telemetry(
 
     return CanonicalMetrics(
         telemetry=TelemetryVitals(
-            dS=ds,
+            ds=ds,
             peace2=peace2,
             kappa_r=kappa_r,
             G_star=g_star,
-            echoDebt=round(float(max(echo_debt_count, 0.1)), 1),
+            echo_debt=round(float(max(echo_debt_count, 0.1)), 1),
             shadow=shadow,
             confidence=confidence,
             psi_le=psi_le,
             verdict=verdict
         ),
-        basis=TelemetryBasis(
-            dS="derived",
-            peace2="derived",
-            kappa_r=kappa_basis,
-            G_star="derived",
-            psi_le="heuristic"
-        ),
+        basis=TelemetryBasis(),
         witness=TripleWitness(
             human=1.0 if human_intent_confirmed else 0.0,
             ai=round(peace2 / 1.3, 2),

@@ -10,6 +10,7 @@ from __future__ import annotations
 import asyncio
 import os
 import time
+from datetime import datetime, timezone
 from typing import Any
 
 from arifosmcp.runtime.metrics import (
@@ -195,6 +196,7 @@ async def run_stage(
         vault_seal,
     )
 
+    verdict_history = verdicts
     sacred_name = _get_sacred_name(stage_id)
     pns_trace = trace.setdefault("pns", {})
 
@@ -296,11 +298,11 @@ async def run_stage(
     if stage_id == Stage.JUDGE_888.value:
         red_res = active_pns.redteam if active_pns else None
         candidate = Verdict.SEAL
-        if Verdict.VOID in verdicts:
+        if Verdict.VOID in verdict_history:
             candidate = Verdict.VOID
-        elif Verdict.HOLD_888 in verdicts or Verdict.HOLD in verdicts:
+        elif Verdict.HOLD_888 in verdict_history or Verdict.HOLD in verdict_history:
             candidate = Verdict.HOLD_888
-        elif Verdict.SABAR in verdicts:
+        elif Verdict.SABAR in verdict_history:
             candidate = Verdict.SABAR
 
         return await apex_judge(
@@ -312,7 +314,7 @@ async def run_stage(
 
     # 8. VAULT·SEAL (999) - FORBIDDEN ZONE
     if stage_id == Stage.VAULT_999.value:
-        last_verdict = verdicts[-1] if verdicts else Verdict.SABAR
+        last_verdict = verdict_history[-1] if verdict_history else Verdict.SABAR
         return await vault_seal(
             verdict=last_verdict.value,
             evidence=query,
@@ -334,6 +336,7 @@ async def run_stage(
 async def metabolic_loop(
     query: str,
     risk_tier: str = "medium",
+    mode: str = "recommend",
     actor_id: str = "anonymous",
     auth_context: dict[str, Any] | None = None,
     session_id: str | None = None,
@@ -382,6 +385,12 @@ async def metabolic_loop(
                 "approval_scope": ["*"],
             },
             "latency_ms": round(elapsed * 1000, 2),
+            "meta": {
+                "schema_version": "1.0.0",
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "debug": False,
+                "dry_run": True,
+            },
         }
 
     from arifosmcp.runtime.tools import _normalize_session_id
@@ -498,7 +507,7 @@ async def metabolic_loop(
             plan.append(Stage.VAULT_999.value)
 
         reality_summary = {"status": "SKIPPED", "required": False, "score": 0.0}
-        verdicts: list[Verdict] = [init_res.verdict]
+        verdict_history: list[Verdict] = [init_res.verdict]
         policy_res: RuntimeEnvelope = init_res
         policy_verdict = init_res.verdict
 
@@ -511,7 +520,7 @@ async def metabolic_loop(
                 query=query,
                 session_id=current_session_id,
                 auth_ctx=auth_ctx,
-                verdicts=verdicts,
+                verdicts=verdict_history,
                 trace=trace,
                 reality_summary=reality_summary,
                 caller_ctx=caller_ctx,
@@ -519,23 +528,23 @@ async def metabolic_loop(
                 dry_run=dry_run,
                 actor_id=actor_id,
             )
-            verdict = res.verdict
+            current_verdict = res.verdict
 
-            if stage_id < Stage.JUDGE_888.value and verdict == Verdict.VOID:
-                verdict = Verdict.SABAR
-                res = res.model_copy(update={"verdict": verdict})
+            if stage_id < Stage.JUDGE_888.value and current_verdict == Verdict.VOID:
+                current_verdict = Verdict.SABAR
+                res = res.model_copy(update={"verdict": current_verdict})
 
-            trace[stage_id] = verdict.value
-            verdicts.append(verdict)
+            trace[stage_id] = current_verdict.value
+            verdict_history.append(current_verdict)
             auth_ctx = _extract_auth_context(res, auth_ctx)
             caller_ctx = _extract_caller_context(res, caller_ctx)
 
             if stage_id != Stage.VAULT_999.value:
                 policy_res = res
-                policy_verdict = verdict
+                policy_verdict = current_verdict
 
             # Loop Termination Logic
-            if stage_id == Stage.JUDGE_888.value and verdict in {
+            if stage_id == Stage.JUDGE_888.value and current_verdict in {
                 Verdict.SEAL,
                 Verdict.VOID,
                 Verdict.HOLD_888,
@@ -546,7 +555,7 @@ async def metabolic_loop(
                         query=query,
                         session_id=current_session_id,
                         auth_ctx=auth_ctx,
-                        verdicts=verdicts,
+                        verdicts=verdict_history,
                         trace=trace,
                         reality_summary=reality_summary,
                         caller_ctx=caller_ctx,
