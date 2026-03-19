@@ -130,9 +130,15 @@ class RealityHandler:
                 r_start = time.time()
                 async with httpx.AsyncClient(timeout=30.0) as b_client:
                     try:
+                        token = os.getenv("BROWSERLESS_TOKEN", "").strip()
+                        endpoint = (
+                            f"{BROWSERLESS_URL}/content?token={token}"
+                            if token
+                            else f"{BROWSERLESS_URL}/content"
+                        )
                         b_res = await b_client.post(
-                            f"{BROWSERLESS_URL}/content?token={os.getenv('BROWSERLESS_TOKEN', '')}",
-                            json={"url": url, "waitFor": 3000, "bestAttempt": True},
+                            endpoint,
+                            json={"url": url},
                             headers={"Content-Type": "application/json"},
                         )
                         if b_res.status_code == 200:
@@ -214,25 +220,26 @@ class RealityHandler:
                     data = response.json()
                     web_results = data.get("web", {}) or {}
                     res.results = web_results.get("results", []) if web_results else []
-                    
+
                     # FALLBACK: If Brave returns empty, try alternative sources
                     if not res.results and query:
                         try:
                             # Try internal search as fallback
                             from .reality_models import WebResult
                             import random
+
                             # Generate placeholder results for testing
                             res.results = [
                                 WebResult(
                                     title=f"Result for: {query}",
                                     url=f"https://search.internal?q={query}",
-                                    description=f"Search completed but no external results. Query: {query}"
+                                    description=f"Search completed but no external results. Query: {query}",
                                 )
                             ]
                             res.fallback_source = "internal"
                         except Exception as fallback_err:
                             pass
-                    
+
                     # Log if still empty
                     if not res.results:
                         res.error = (

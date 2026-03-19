@@ -463,6 +463,11 @@ Every SEALed verdict is stored in a hash-chained ledger:
 
 ## 🏺 14. Historical Logs
 
+### 2026.03.19 — Runtime Hardening SEALED
+- **Fix:** Browserless fetch now works without token and passes payload validation
+- **Fix:** `/tools/*` responses serialize datetime safely over HTTP
+- **Ops:** Increased memory limits for Traefik, AgentZero, and Browserless
+
 ### 2026.03.17 — Operational Resilience SEALED
 - **Feature:** Exposed all 37 canonical tools to MCP (9 Nervous System tools unlocked)
 - **Feature:** Integrated E3E Trinity Choreography end-to-end test suite
