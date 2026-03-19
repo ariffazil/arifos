@@ -1,6 +1,7 @@
 # .github/workflows/deploy-site.yml
 # Deploy arifOS THE MIND documentation to GitHub Pages
 # Target: https://arifos.arif-fazil.com/
+# Custom domain configured via CNAME file in sites/docs/static/
 
 name: Deploy Site to Pages
 
@@ -41,6 +42,8 @@ jobs:
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
+        with:
+          static_site_generator: docusaurus
 
       - name: Install dependencies
         run: |
@@ -52,6 +55,13 @@ jobs:
           cd sites/docs
           npm run build
 
+      - name: Verify CNAME
+        run: |
+          echo "CNAME file contents:"
+          cat sites/docs/static/CNAME
+          echo "Checking if CNAME was copied to build..."
+          ls -la sites/docs/build/ | grep -i cname || echo "CNAME not found in build root"
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
@@ -60,7 +70,7 @@ jobs:
   deploy:
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      url: https://arifos.arif-fazil.com/
     runs-on: ubuntu-latest
     needs: build
     steps:
