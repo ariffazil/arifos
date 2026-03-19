@@ -32,6 +32,10 @@ class ToolSpec:
     floors: tuple[str, ...]
     input_schema: dict[str, Any]
     readonly: bool = False
+    default_budget_tier: str = "medium"
+    min_budget_tier: str = "small"
+    max_budget_tier: str = "large"
+    overflow_policy: str = "truncate"
 
 
 @dataclass(frozen=True)
@@ -130,6 +134,10 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
                 }
             },
         },
+        default_budget_tier="micro",
+        min_budget_tier="micro",
+        max_budget_tier="small",
+        overflow_policy="truncate",
     ),
     ToolSpec(
         name="init_anchor",
@@ -149,6 +157,11 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
                 }
             },
         },
+        
+        default_budget_tier="small",
+        min_budget_tier="small",
+        max_budget_tier="medium",
+        overflow_policy="fail",
     ),
     ToolSpec(
         name="init_anchor_state",
@@ -169,6 +182,10 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
                 }
             ],
         },
+        default_budget_tier="small",
+        min_budget_tier="small",
+        max_budget_tier="medium",
+        overflow_policy="fail",
     ),
     ToolSpec(
         name="revoke_anchor_state",
@@ -186,6 +203,10 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
                 "reason": {"type": "string", "description": "Justification for the revocation."},
             },
         },
+        default_budget_tier="micro",
+        min_budget_tier="micro",
+        max_budget_tier="micro",
+        overflow_policy="fail",
     ),
     ToolSpec(
         name="register_tools",
@@ -196,6 +217,11 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
         trinity="INIT",
         floors=("F13",),
         input_schema={"type": "object", "properties": {}},
+        
+        default_budget_tier="micro",
+        min_budget_tier="micro",
+        max_budget_tier="small",
+        overflow_policy="truncate",
     ),
     ToolSpec(
         name="arifOS_kernel",
@@ -258,6 +284,10 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
                 },
             },
         },
+        default_budget_tier="medium",
+        min_budget_tier="small",
+        max_budget_tier="large",
+        overflow_policy="truncate_and_flag",
     ),
     ToolSpec(
         name="forge",
@@ -277,6 +307,11 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
                 }
             },
         },
+        
+        default_budget_tier="large",
+        min_budget_tier="medium",
+        max_budget_tier="large",
+        overflow_policy="fail",
     ),
     # ─── AGI Δ MIND (6 tools) ───
     ToolSpec(
@@ -297,6 +332,11 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
                 }
             },
         },
+        
+        default_budget_tier="medium",
+        min_budget_tier="small",
+        max_budget_tier="large",
+        overflow_policy="truncate_and_flag",
     ),
     ToolSpec(
         name="agi_reflect",
@@ -316,6 +356,11 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
                 }
             },
         },
+        
+        default_budget_tier="medium",
+        min_budget_tier="small",
+        max_budget_tier="medium",
+        overflow_policy="truncate",
     ),
     ToolSpec(
         name="reality_compass",
@@ -332,6 +377,11 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
                 "input": {"type": "string", "description": "Fact string to verify or URL to fetch."}
             },
         },
+        
+        default_budget_tier="small",
+        min_budget_tier="small",
+        max_budget_tier="medium",
+        overflow_policy="truncate",
     ),
     ToolSpec(
         name="reality_atlas",
@@ -351,6 +401,11 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
                 }
             },
         },
+        
+        default_budget_tier="small",
+        min_budget_tier="small",
+        max_budget_tier="medium",
+        overflow_policy="truncate",
     ),
     ToolSpec(
         name="search_reality",
@@ -365,6 +420,11 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
             "required": ["query"],
             "properties": {"query": {"type": "string", "description": "Search query terms."}},
         },
+        
+        default_budget_tier="small",
+        min_budget_tier="small",
+        max_budget_tier="medium",
+        overflow_policy="truncate",
     ),
     ToolSpec(
         name="ingest_evidence",
@@ -379,6 +439,11 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
             "required": ["url"],
             "properties": {"url": {"type": "string", "description": "Source URL or file path."}},
         },
+        
+        default_budget_tier="small",
+        min_budget_tier="small",
+        max_budget_tier="medium",
+        overflow_policy="truncate",
     ),
     # ─── ASI Ω HEART (4 tools) ───
     ToolSpec(
@@ -399,6 +464,11 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
                 }
             },
         },
+        
+        default_budget_tier="medium",
+        min_budget_tier="small",
+        max_budget_tier="large",
+        overflow_policy="truncate_and_flag",
     ),
     ToolSpec(
         name="asi_simulate",
@@ -418,6 +488,11 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
                 }
             },
         },
+        
+        default_budget_tier="medium",
+        min_budget_tier="small",
+        max_budget_tier="medium",
+        overflow_policy="truncate_and_flag",
     ),
     ToolSpec(
         name="agentzero_engineer",
@@ -438,6 +513,11 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
                 }
             },
         },
+        
+        default_budget_tier="large",
+        min_budget_tier="medium",
+        max_budget_tier="large",
+        overflow_policy="fail",
     ),
     ToolSpec(
         name="agentzero_memory_query",
@@ -454,6 +534,11 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
                 "query": {"type": "string", "description": "Recall query or concept keywords."}
             },
         },
+        
+        default_budget_tier="medium",
+        min_budget_tier="small",
+        max_budget_tier="medium",
+        overflow_policy="truncate",
     ),
     # ─── APEX Ψ SOUL (7 tools) ───
     ToolSpec(
@@ -474,6 +559,11 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
                 }
             },
         },
+        
+        default_budget_tier="medium",
+        min_budget_tier="medium",
+        max_budget_tier="large",
+        overflow_policy="fail",
     ),
     ToolSpec(
         name="agentzero_validate",
@@ -493,6 +583,11 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
                 }
             },
         },
+        
+        default_budget_tier="medium",
+        min_budget_tier="small",
+        max_budget_tier="large",
+        overflow_policy="truncate_and_flag",
     ),
     ToolSpec(
         name="audit_rules",
@@ -503,6 +598,11 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
         trinity="APEX Ψ",
         floors=("F1-F13",),
         input_schema={"type": "object", "properties": {}},
+        
+        default_budget_tier="micro",
+        min_budget_tier="micro",
+        max_budget_tier="small",
+        overflow_policy="truncate",
     ),
     ToolSpec(
         name="agentzero_armor_scan",
@@ -519,6 +619,11 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
                 "content": {"type": "string", "description": "Untrusted input to scan."}
             },
         },
+        
+        default_budget_tier="small",
+        min_budget_tier="micro",
+        max_budget_tier="medium",
+        overflow_policy="fail",
     ),
     ToolSpec(
         name="agentzero_hold_check",
@@ -534,6 +639,11 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
                 "hold_id": {"type": "string", "description": "Specific hold ID to query."}
             },
         },
+        
+        default_budget_tier="small",
+        min_budget_tier="micro",
+        max_budget_tier="medium",
+        overflow_policy="truncate",
     ),
     ToolSpec(
         name="check_vital",
@@ -544,6 +654,11 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
         trinity="APEX Ψ",
         floors=("F4", "F5", "F7"),
         input_schema={"type": "object", "properties": {}},
+        
+        default_budget_tier="micro",
+        min_budget_tier="micro",
+        max_budget_tier="micro",
+        overflow_policy="truncate",
     ),
     ToolSpec(
         name="open_apex_dashboard",
@@ -554,6 +669,11 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
         trinity="APEX Ψ",
         floors=("F13",),
         input_schema={"type": "object", "properties": {}},
+        
+        default_budget_tier="small",
+        min_budget_tier="micro",
+        max_budget_tier="small",
+        overflow_policy="truncate",
     ),
     # ─── VAULT999 (2 tools) ───
     ToolSpec(
@@ -575,6 +695,11 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
                 },
             },
         },
+        
+        default_budget_tier="small",
+        min_budget_tier="small",
+        max_budget_tier="medium",
+        overflow_policy="fail",
     ),
     ToolSpec(
         name="verify_vault_ledger",
@@ -593,6 +718,11 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
                 }
             },
         },
+        
+        default_budget_tier="small",
+        min_budget_tier="small",
+        max_budget_tier="small",
+        overflow_policy="fail",
     ),
 )
 

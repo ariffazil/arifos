@@ -183,6 +183,7 @@ async def forge(
     eureka_type: str = "concept",
     materiality: str = "idea_only",
     auth_context: dict[str, Any] | None = None,
+    max_tokens: int = 1000,
     **kwargs: Any,
 ) -> ApexOutput:
     """
@@ -209,7 +210,7 @@ async def forge(
     next_actions = _derive_next_actions(materiality)
 
     # 3. Construct Output
-    return ApexOutput(
+    out = ApexOutput(
         session_id=session_id,
         verdict=Verdict.SEAL,
         intent=intent,
@@ -221,6 +222,12 @@ async def forge(
         earth_witness=1.0,
         evidence={"grounding": "Constitutional Forge Logic"},
     )
+    
+    # --- V2 Telemetry ---
+    res = out.model_dump(mode="json")
+    res["actual_output_tokens"] = 100  # Simulated
+    res["truncated"] = False
+    return res
 
 
 async def judge(
@@ -228,6 +235,7 @@ async def judge(
     verdict_candidate: str = "SEAL",
     reason_summary: str | None = None,
     auth_context: dict[str, Any] | None = None,
+    max_tokens: int = 1000,
     **kwargs: Any,
 ) -> ApexOutput:
     """
@@ -353,7 +361,7 @@ async def judge(
         floors_status["F2"] = "fail"
 
     # 10. Construct Output
-    return ApexOutput(
+    out = ApexOutput(
         session_id=session_id,
         verdict=candidate,
         final_verdict=candidate,
@@ -375,6 +383,12 @@ async def judge(
         human_approve=True,  # Satisfy F13
         evidence={"grounding": "Constitutional Apex Consensus"},  # Satisfy F2
     )
+    
+    # --- V2 Telemetry ---
+    res = out.model_dump(mode="json")
+    res["actual_output_tokens"] = 60  # Simulated
+    res["truncated"] = False
+    return res
 
 
 async def apex(
@@ -382,6 +396,7 @@ async def apex(
     session_id: str = "global",
     intent: str | None = None,
     verdict_candidate: str = "SEAL",
+    max_tokens: int = 1000,
     **kwargs: Any,
 ) -> ApexOutput:
     """

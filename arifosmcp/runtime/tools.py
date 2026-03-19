@@ -159,7 +159,38 @@ def _build_user_model(
     observed_text = " ".join(part for part in (raw_query, raw_context) if part).lower()
 
     behavioral_constraints: list[UserModelField] = []
+    behavioral_constraints: list[UserModelField] = []
     output_constraints: list[UserModelField] = []
+
+    # 0. Tool Budget Logic (Soft Control)
+    spec = PUBLIC_TOOL_SPEC_BY_NAME.get(tool_name)
+    if spec:
+        from arifosmcp.runtime.models import BUDGET_MAP
+        tier = spec.default_budget_tier
+        max_tokens = BUDGET_MAP.get(tier, 1000)
+        
+        # Soft constraint
+        output_constraints.append(
+            UserModelField(
+                value=f"keep_response_within_{max_tokens}_tokens",
+                source=UserModelSource.DEFAULT_POLICY,
+                evidence=f"tool_default_budget_tier={tier}",
+            )
+        )
+        
+        # Behavioral instructions based on tier
+        if tier == "micro":
+            add_behavioral_constraint(
+                "Return only the required fields. No prose unless explicitly requested.",
+                evidence="budget_tier=micro",
+                source=UserModelSource.DEFAULT_POLICY
+            )
+        elif tier == "small":
+            add_behavioral_constraint(
+                "Be compact. Explain only what is necessary.",
+                evidence="budget_tier=small",
+                source=UserModelSource.DEFAULT_POLICY
+            )
 
     def add_behavioral_constraint(value: str, evidence: str, source: UserModelSource) -> None:
         if any(field.value == value for field in behavioral_constraints):
@@ -542,6 +573,32 @@ async def _wrap_call(
             requires_auth = True
         elif spec.layer == "KERNEL":
             risk_class = RiskClass.MEDIUM
+
+    # ─── Budget & Token Control (V1) ───
+    requested_budget = payload.get("budget_tier") or spec.default_budget_tier if spec else "medium"
+    
+    # Validation against bounds
+    if spec:
+        # Simple string comparison based on power: micro < small < medium < large
+        TIER_POWER = {"micro": 0, "small": 1, "medium": 2, "large": 3}
+        req_p = TIER_POWER.get(requested_budget, 2)
+        min_p = TIER_POWER.get(spec.min_budget_tier, 1)
+        max_p = TIER_POWER.get(spec.max_budget_tier, 3)
+        
+        if req_p < min_p:
+            requested_budget = spec.min_budget_tier
+        elif req_p > max_p:
+            requested_budget = spec.max_budget_tier
+
+    from arifosmcp.runtime.models import BUDGET_MAP
+    max_tokens = BUDGET_MAP.get(requested_budget, 1000)
+    
+    # Pass metadata to bridge
+    payload["_budget_metadata"] = {
+        "requested_max_tokens": max_tokens,
+        "budget_tier": requested_budget,
+        "overflow_policy": spec.overflow_policy if spec else "truncate",
+    }
 
     try:
         kernel_res = await call_kernel(tool_name, session_id, payload)

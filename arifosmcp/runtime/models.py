@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from dataclasses import field
 from datetime import datetime, timezone
 from enum import Enum
 from typing import Any
@@ -112,6 +113,34 @@ class AuthMethod(str, Enum):
     BEARER = "bearer"
     SIG_V2 = "sig_v2"
     SESSION = "session"
+
+
+class BudgetTier(str, Enum):
+    """Token budget tiers for MCP tools."""
+    MICRO = "micro"
+    SMALL = "small"
+    MEDIUM = "medium"
+    LARGE = "large"
+
+
+class OverflowPolicy(str, Enum):
+    """Behavior when a budget is exceeded."""
+    FAIL = "fail"
+    TRUNCATE = "truncate"
+    TRUNCATE_AND_FLAG = "truncate_and_flag"
+
+
+BUDGET_MAP: dict[BudgetTier | str, int] = {
+    BudgetTier.MICRO: 100,
+    BudgetTier.SMALL: 300,
+    BudgetTier.MEDIUM: 1000,
+    BudgetTier.LARGE: 2000,
+    "micro": 100,
+    "small": 300,
+    "medium": 1000,
+    "large": 2000,
+}
+
 
 
 class AuthContext(BaseModel):
@@ -376,6 +405,16 @@ class TelemetryVitals(BaseModel):
     confidence: float = Field(0.0, description="Ω₀: Confidence (Gödel-bounded). High Ω0 requires Hold (F7).")
     psi_le: str = Field("0.0 (Estimate Only)", description="Ψ_LE: Emergence Pressure. Forensic trace only.")
     verdict: str = Field("Alive", description="System-level vitality state.")
+    # Hard Budgeting & Telemetry (V2)
+    token_usage: int = Field(0, description="Total tokens consumed in this tool call.")
+    requested_max_tokens: int = 0
+    actual_output_tokens: int = 0
+    input_tokens: int = 0
+    truncated: bool = False
+    overflow_policy: str = "truncate"  # Default fallback
+    budget_tier: str = "medium"
+    escalated_from_tier: str | None = None
+    phase_token_usage: dict[str, int] = field(default_factory=dict)
 
 
 class TelemetryBasis(BaseModel):

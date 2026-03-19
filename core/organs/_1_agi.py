@@ -70,6 +70,7 @@ async def agi(
     reason_mode: str = "default",
     max_steps: int = 7,
     auth_context: dict[str, Any] | None = None,
+    max_tokens: int = 1000,
 ) -> AgiOutput:
     """
     Stage 111-333: REASON MIND (APEX-G compliant)
@@ -94,20 +95,39 @@ async def agi(
     # 4. Sequential Reasoning via Local Ollama (111→222→333)
     from arifosmcp.intelligence.tools.ollama_local import ollama_local_generate
     
+    # --- ADAPTIVE BUDGET SPLIT ---
+    # Phase 111 (20%, min 80), 222 (30%, min 120), 333 (50%, min 180)
+    b111 = max(80, int(max_tokens * 0.20))
+    b222 = max(120, int(max_tokens * 0.30))
+    b333 = max(180, int(max_tokens * 0.50))
+    
+    # Track actual usage
+    phase_usage = {}
+    actual_total = 0
+
     # --- PHASE 111: SEARCH/UNDERSTAND ---
-    search_prompt = f"Analyze the intent and constraints of this query: {query}. List core facts."
-    search_env = await ollama_local_generate(prompt=search_prompt, max_tokens=256)
+    search_prompt = f"Analyze the intent and constraints: {query}. List core facts."
+    search_env = await ollama_local_generate(prompt=search_prompt, max_tokens=b111)
     search_text = search_env.payload.get("response", "")
+    usage_111 = search_env.payload.get("usage", {}).get("completion_tokens", len(search_text)//4)
+    phase_usage["111_search"] = usage_111
+    actual_total += usage_111
     
     # --- PHASE 222: ANALYZE/COMPARE ---
-    analyze_prompt = f"Given these facts: {search_text}. Compare implications and test assumptions."
-    analyze_env = await ollama_local_generate(prompt=analyze_prompt, max_tokens=512)
+    analyze_prompt = f"Given facts: {search_text}. Compare implications and test assumptions."
+    analyze_env = await ollama_local_generate(prompt=analyze_prompt, max_tokens=b222)
     analyze_text = analyze_env.payload.get("response", "")
+    usage_222 = analyze_env.payload.get("usage", {}).get("completion_tokens", len(analyze_text)//4)
+    phase_usage["222_analyze"] = usage_222
+    actual_total += usage_222
     
     # --- PHASE 333: SYNTHESIZE ---
-    synthesis_prompt = f"Synthesize a final conclusion for: {query}. Based on analysis: {analyze_text}."
-    synthesis_env = await ollama_local_generate(prompt=synthesis_prompt, max_tokens=1024)
+    synthesis_prompt = f"Synthesize final conclusion for: {query}. Based on: {analyze_text}."
+    synthesis_env = await ollama_local_generate(prompt=synthesis_prompt, max_tokens=b333)
     synthesis_text = synthesis_env.payload.get("response", "")
+    usage_333 = synthesis_env.payload.get("usage", {}).get("completion_tokens", len(synthesis_text)//4)
+    phase_usage["333_synthesis"] = usage_333
+    actual_total += usage_333
 
     consume_reason_energy(session_id, n_cycles=3)
 
@@ -154,7 +174,8 @@ async def agi(
 
     # 8. Construct Output
     _organ_verdict = normalize_verdict(333, cognition.verdict)
-    return AgiOutput(
+    
+    out = AgiOutput(
         session_id=session_id,
         verdict=_organ_verdict,
         stage="333",
@@ -170,6 +191,14 @@ async def agi(
         ai_witness=cognition.genius_score,
         earth_witness=1.0 - cognition.safety_omega,
     )
+    
+    # Add hidden fields for bridge consumption (V2 Telemetry)
+    out_dict = out.model_dump(mode="json")
+    out_dict["actual_output_tokens"] = actual_total
+    out_dict["phase_token_usage"] = phase_usage
+    out_dict["truncated"] = any(env.payload.get("truncated", False) for env in (search_env, analyze_env, synthesis_env))
+    
+    return out_dict
 
 
 # Unified aliases

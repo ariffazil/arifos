@@ -638,6 +638,10 @@ async def call_kernel(
         actor_id = payload.get("actor_id", payload.get("declared_name", "anonymous"))
         result: Any = {}
 
+        # ─── Budget & Token Control (V1) ───
+        budget_meta = payload.pop("_budget_metadata", {})
+        default_max_tokens = budget_meta.get("requested_max_tokens", 1000)
+
         caller_ctx_data = payload.get("caller_context")
         caller_ctx_obj = None
         if caller_ctx_data:
@@ -696,6 +700,7 @@ async def call_kernel(
                 reason_mode=payload.get("reason_mode", "default"),
                 max_steps=payload.get("max_steps", 7),
                 auth_context=auth_ctx,
+                max_tokens=payload.get("max_tokens"),
             )
 
         elif canonical_name in ("vector_memory", "session_memory"):
@@ -706,6 +711,7 @@ async def call_kernel(
                 memory_ids=payload.get("memory_ids"),
                 top_k=payload.get("top_k", 5),
                 auth_context=auth_ctx,
+                max_tokens=payload.get("max_tokens") or default_max_tokens,
             )
 
         elif canonical_name in ("simulate_heart", "critique_thought"):
@@ -716,6 +722,7 @@ async def call_kernel(
                 thought_id=payload.get("thought_id"),
                 focus=payload.get("focus") or "general",
                 auth_context=auth_ctx,
+                max_tokens=payload.get("max_tokens") or default_max_tokens,
             )
 
         elif canonical_name == "eureka_forge":
@@ -726,6 +733,7 @@ async def call_kernel(
                 eureka_type=payload.get("eureka_type", "concept"),
                 materiality=payload.get("materiality", "idea_only"),
                 auth_context=auth_ctx,
+                max_tokens=payload.get("max_tokens") or default_max_tokens,
             )
 
         elif canonical_name == "apex_judge":
@@ -735,6 +743,7 @@ async def call_kernel(
                 verdict_candidate=payload.get("verdict_candidate", "SEAL"),
                 reason_summary=payload.get("reason_summary"),
                 auth_context=auth_ctx,
+                max_tokens=payload.get("max_tokens") or default_max_tokens,
             )
 
         elif canonical_name == "seal_vault":
@@ -796,6 +805,7 @@ async def call_kernel(
                 allow_execution=bool(payload.get("allow_execution", False)),
                 dry_run=bool(payload.get("dry_run", False)),
                 caller_context=caller_ctx_obj,
+                max_tokens=payload.get("max_tokens"),
             )
             latency_ms = (time.perf_counter() - t_start) * 1000.0
             contract = TemporalContract(
@@ -833,7 +843,6 @@ async def call_kernel(
                     authority_level=effective_level,
                     prev_vault_hash=(auth_ctx or {}).get("prev_vault_hash"),
                 )
-            return result
 
         elif canonical_name == "system_audit":
             # Constitutional audit: return 13 Floors and governance state
@@ -893,6 +902,23 @@ async def call_kernel(
 
         if "meta" in envelope and isinstance(envelope["meta"], dict):
             envelope["meta"]["temporal_contract"] = contract.model_dump(mode="json")
+
+        # ─── Telemetry Decoration (V2) ───
+        if "vitals" in envelope:
+            vitals = envelope["vitals"]
+            # budget_meta was extracted at the top of call_kernel
+            vitals["requested_max_tokens"] = budget_meta.get("requested_max_tokens", 1000)
+            vitals["budget_tier"] = budget_meta.get("budget_tier", "medium")
+            vitals["overflow_policy"] = budget_meta.get("overflow_policy", "truncate")
+            
+            # Record actual usage if reported by organ in result
+            if isinstance(result, dict):
+                if "actual_output_tokens" in result:
+                    vitals["actual_output_tokens"] = result["actual_output_tokens"]
+                if "truncated" in result:
+                    vitals["truncated"] = result["truncated"]
+                if "phase_token_usage" in result:
+                    vitals["phase_token_usage"] = result["phase_token_usage"]
 
         return envelope
 
