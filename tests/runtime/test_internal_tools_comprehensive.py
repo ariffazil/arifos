@@ -48,50 +48,61 @@ class TestChromaQuery:
         """Verify chroma_query returns dictionary output"""
         from arifosmcp.intelligence.tools.chroma_query import query_memory
 
-        with patch("arifosmcp.intelligence.tools.chroma_query.get_chroma_client") as mock_client:
-            mock_collection = Mock()
-            mock_collection.query.return_value = {
-                "ids": [["doc1", "doc2"]],
-                "distances": [[0.1, 0.2]],
-                "metadatas": [[{"key": "value"}, {"key2": "value2"}]],
-                "documents": [["text1", "text2"]],
-            }
-            mock_client.return_value.get_collection.return_value = mock_collection
+        with patch("qdrant_client.QdrantClient") as mock_client:
+            with patch("arifosmcp.intelligence.embeddings.embed") as mock_embed:
+                mock_embed.return_value = [0.1, 0.2, 0.3]
+                mock_client_instance = mock_client.return_value
+                
+                mock_point = Mock()
+                mock_point.id = "doc1"
+                mock_point.score = 0.9
+                mock_point.payload = {"content": "text1", "key": "value"}
+                mock_point.vector = None
+                
+                mock_client_instance.query_points.return_value = Mock(points=[mock_point])
 
-            result = await query_memory("test query")
+                result = query_memory("test query")
 
-            assert isinstance(result, dict)
-            assert "ids" in result or "results" in result or "error" in result
+                assert isinstance(result, dict)
+                assert "results" in result or "error" in result
 
     @pytest.mark.asyncio
     async def test_chroma_query_with_all_params(self):
         """Test chroma_query with all documented parameters"""
         from arifosmcp.intelligence.tools.chroma_query import query_memory
 
-        with patch("arifosmcp.intelligence.tools.chroma_query.get_chroma_client") as mock_client:
-            mock_collection = Mock()
-            mock_collection.query.return_value = {"ids": [["doc1"]], "distances": [[0.1]]}
-            mock_client.return_value.get_collection.return_value = mock_collection
+        with patch("qdrant_client.QdrantClient") as mock_client:
+            with patch("arifosmcp.intelligence.embeddings.embed") as mock_embed:
+                mock_embed.return_value = [0.1, 0.2, 0.3]
+                mock_client_instance = mock_client.return_value
+                
+                mock_point = Mock()
+                mock_point.id = "doc1"
+                mock_point.score = 0.9
+                mock_point.payload = {"content": "text1"}
+                mock_point.vector = [0.1, 0.2, 0.3]
+                
+                mock_client_instance.query_points.return_value = Mock(points=[mock_point])
+                
+                result = query_memory(
+                    query="semantic search",
+                    collection="default",
+                    n_results=10,
+                    where={"category": "test"},
+                    include_embeddings=True,
+                )
 
-            result = await query_memory(
-                query="semantic search",
-                collection="default",
-                n_results=10,
-                where={"category": "test"},
-                include_embeddings=True,
-            )
-
-            assert isinstance(result, dict)
+                assert isinstance(result, dict)
 
     @pytest.mark.asyncio
     async def test_chroma_query_error_handling(self):
         """Verify chroma_query handles errors gracefully"""
         from arifosmcp.intelligence.tools.chroma_query import query_memory
 
-        with patch("arifosmcp.intelligence.tools.chroma_query.get_chroma_client") as mock_client:
+        with patch("qdrant_client.QdrantClient") as mock_client:
             mock_client.side_effect = Exception("Connection failed")
 
-            result = await query_memory("test")
+            result = query_memory("test")
 
             # Should return error dict, not raise
             assert isinstance(result, dict)
@@ -202,7 +213,7 @@ class TestFsInspect:
                         mock_listdir.return_value = ["file1.txt", "file2.py"]
                         mock_isdir.return_value = False
 
-                        result = await inspect_path("/test/path")
+                        result = inspect_path("/test/path")
 
                         assert isinstance(result, dict), f"Expected dict, got {type(result)}"
         except ImportError:
@@ -281,7 +292,7 @@ class TestLogTail:
             with patch("builtins.open", mock_open(read_data="line1\nline2\nline3")):
                 mock_exists.return_value = True
 
-                result = await log_tail(log_file="test.log", lines=10)
+                result = log_tail(log_file="test.log", lines=10)
 
                 assert isinstance(result, dict), f"Expected dict, got {type(result)}"
 
@@ -294,7 +305,7 @@ class TestLogTail:
             with patch("builtins.open", mock_open(read_data="test log line\nanother line")):
                 mock_exists.return_value = True
 
-                result = await log_tail(
+                result = log_tail(
                     log_file="test.log",
                     lines=50,
                     pattern="test",
@@ -312,7 +323,7 @@ class TestLogTail:
         with patch("os.path.exists") as mock_exists:
             mock_exists.return_value = False
 
-            result = await log_tail(log_file="nonexistent.log")
+            result = log_tail(log_file="nonexistent.log")
 
             # Should return error dict, not raise
             assert isinstance(result, dict)
@@ -353,15 +364,16 @@ class TestMetabolicLoop:
         """Verify metabolic_loop returns dictionary"""
         from arifosmcp.runtime.orchestrator import metabolic_loop
 
-        with patch("arifosmcp.runtime.orchestrator.run_stage") as mock_run:
-            mock_run.return_value = AsyncMock()
-            mock_run.return_value.verdict = Mock()
-            mock_run.return_value.verdict.value = "SEAL"
-            mock_run.return_value.model_dump.return_value = {
+        with patch("arifosmcp.runtime.orchestrator.run_stage", new_callable=AsyncMock) as mock_run:
+            return_mock = Mock()
+            return_mock.verdict = Mock()
+            return_mock.verdict.value = "SEAL"
+            return_mock.model_dump.return_value = {
                 "ok": True,
                 "verdict": "SEAL",
                 "status": "SUCCESS",
             }
+            mock_run.return_value = return_mock
 
             result = await metabolic_loop(query="test query", session_id="test")
 
@@ -372,11 +384,12 @@ class TestMetabolicLoop:
         """Test metabolic_loop with timeout_seconds parameter"""
         from arifosmcp.runtime.orchestrator import metabolic_loop
 
-        with patch("arifosmcp.runtime.orchestrator.run_stage") as mock_run:
-            mock_run.return_value = AsyncMock()
-            mock_run.return_value.verdict = Mock()
-            mock_run.return_value.verdict.value = "SEAL"
-            mock_run.return_value.model_dump.return_value = {"ok": True}
+        with patch("arifosmcp.runtime.orchestrator.run_stage", new_callable=AsyncMock) as mock_run:
+            return_mock = Mock()
+            return_mock.verdict = Mock()
+            return_mock.verdict.value = "SEAL"
+            return_mock.model_dump.return_value = {"ok": True}
+            mock_run.return_value = return_mock
 
             result = await metabolic_loop(query="test", session_id="test", timeout_seconds=30.0)
 

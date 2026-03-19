@@ -45,7 +45,14 @@ class TestSystemHealthHardened:
         auth = {"actor_id": "arif", "clearance": "sovereign"}
         result = await system_health(auth_context=auth)
 
-        assert result.auth_context == auth
+        # Handle AuthContext BaseModel equivalence with dict
+        if hasattr(result.auth_context, "model_dump"):
+            dumped = result.auth_context.model_dump(exclude_none=True)
+            for k, v in auth.items():
+                assert dumped.get(k) == v
+        else:
+            for k, v in auth.items():
+                assert result.auth_context.get(k) == v
 
     @pytest.mark.asyncio
     async def test_system_health_with_all_params(self):
@@ -94,7 +101,11 @@ class TestFsInspectHardened:
             )
 
             assert result.session_id == "sess-123"
-            assert result.auth_context == {"actor": "test"}
+            if hasattr(result.auth_context, "model_dump"):
+                dumped = result.auth_context.model_dump(exclude_none=True)
+                assert dumped.get("actor") == "test"
+            else:
+                assert result.auth_context.get("actor") == "test"
 
 
 class TestChromaQueryHardened:
@@ -220,24 +231,24 @@ class TestNetStatusHardened:
 
 
 class TestListResourcesHardened:
-    """Test hardened list_resources tool"""
+    """Test hardened arifos_list_resources tool"""
 
     @pytest.mark.asyncio
     async def test_list_resources_returns_runtime_envelope(self):
-        """Verify list_resources returns RuntimeEnvelope"""
-        from arifosmcp.intelligence.console_tools import list_resources
+        """Verify arifos_list_resources returns RuntimeEnvelope"""
+        from arifosmcp.intelligence.console_tools import arifos_list_resources
         from arifosmcp.runtime.models import RuntimeEnvelope
 
-        result = await list_resources()
+        result = await arifos_list_resources()
 
         assert isinstance(result, RuntimeEnvelope)
 
     @pytest.mark.asyncio
     async def test_list_resources_accepts_governance_params(self):
-        """Verify list_resources accepts session_id and auth_context"""
-        from arifosmcp.intelligence.console_tools import list_resources
+        """Verify arifos_list_resources accepts session_id and auth_context"""
+        from arifosmcp.intelligence.console_tools import arifos_list_resources
 
-        result = await list_resources(
+        result = await arifos_list_resources(
             session_id="resource-session", auth_context={"actor": "resource-admin"}
         )
 
@@ -245,24 +256,24 @@ class TestListResourcesHardened:
 
 
 class TestReadResourceHardened:
-    """Test hardened read_resource tool"""
+    """Test hardened arifos_read_resource tool"""
 
     @pytest.mark.asyncio
     async def test_read_resource_returns_runtime_envelope(self):
-        """Verify read_resource returns RuntimeEnvelope"""
-        from arifosmcp.intelligence.console_tools import read_resource
+        """Verify arifos_read_resource returns RuntimeEnvelope"""
+        from arifosmcp.intelligence.console_tools import arifos_read_resource
         from arifosmcp.runtime.models import RuntimeEnvelope
 
-        result = await read_resource(uri="canon://floors")
+        result = await arifos_read_resource(uri="canon://floors")
 
         assert isinstance(result, RuntimeEnvelope)
 
     @pytest.mark.asyncio
     async def test_read_resource_accepts_governance_params(self):
-        """Verify read_resource accepts session_id and auth_context"""
-        from arifosmcp.intelligence.console_tools import read_resource
+        """Verify arifos_read_resource accepts session_id and auth_context"""
+        from arifosmcp.intelligence.console_tools import arifos_read_resource
 
-        result = await read_resource(
+        result = await arifos_read_resource(
             uri="canon://tools", session_id="read-session", auth_context={"actor": "reader"}
         )
 
@@ -310,8 +321,8 @@ class TestAllNineTools:
             (console_tools.log_tail, ["test.log"]),
             (console_tools.process_list, []),
             (console_tools.net_status, []),
-            (console_tools.list_resources, []),
-            (console_tools.read_resource, ["canon://floors"]),
+            (console_tools.arifos_list_resources, []),
+            (console_tools.arifos_read_resource, ["canon://floors"]),
             (console_tools.cost_estimator, ["search"]),
         ]
 
@@ -345,8 +356,8 @@ class TestAllNineTools:
             console_tools.log_tail,
             console_tools.process_list,
             console_tools.net_status,
-            console_tools.list_resources,
-            console_tools.read_resource,
+            console_tools.arifos_list_resources,
+            console_tools.arifos_read_resource,
             console_tools.cost_estimator,
         ]
 

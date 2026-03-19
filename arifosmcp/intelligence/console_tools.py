@@ -26,7 +26,7 @@ async def system_health(
     include_swap: bool = True,
     include_io: bool = False,
     include_temp: bool = False,
-    session_id: str = "global",
+    session_id: str | None = None,
     auth_context: dict[str, Any] | None = None,
 ) -> RuntimeEnvelope:
     """Retrieve comprehensive system health metrics."""
@@ -58,7 +58,7 @@ async def fs_inspect(
     min_size_bytes: int = 0,
     pattern: str | None = None,
     max_files: int = 100,
-    session_id: str = "global",
+    session_id: str | None = None,
     auth_context: dict[str, Any] | None = None,
 ) -> RuntimeEnvelope:
     """Inspect filesystem structure and file metadata."""
@@ -92,7 +92,7 @@ async def chroma_query(
     n_results: int = 5,
     where_filter: dict | None = None,
     include_embeddings: bool = False,
-    session_id: str = "global",
+    session_id: str | None = None,
     auth_context: dict[str, Any] | None = None,
 ) -> RuntimeEnvelope:
     """Query ChromaDB vector store for semantic search."""
@@ -126,7 +126,7 @@ async def log_tail(
     follow: bool = False,
     grep_pattern: str | None = None,
     since_minutes: int | None = None,
-    session_id: str = "global",
+    session_id: str | None = None,
     auth_context: dict[str, Any] | None = None,
 ) -> RuntimeEnvelope:
     """Tail and search log files."""
@@ -161,7 +161,7 @@ async def process_list(
     min_memory_mb: float = 0.0,
     limit: int = 50,
     include_threads: bool = False,
-    session_id: str = "global",
+    session_id: str | None = None,
     auth_context: dict[str, Any] | None = None,
 ) -> RuntimeEnvelope:
     """List and filter system processes."""
@@ -194,7 +194,7 @@ async def net_status(
     check_interfaces: bool = True,
     check_routing: bool = True,
     target_host: str | None = None,
-    session_id: str = "global",
+    session_id: str | None = None,
     auth_context: dict[str, Any] | None = None,
 ) -> RuntimeEnvelope:
     """Network connectivity and interface status."""
@@ -221,7 +221,7 @@ async def net_status(
 # =============================================================================
 
 async def arifos_list_resources(
-    session_id: str = "global",
+    session_id: str | None = None,
     auth_context: dict[str, Any] | None = None,
 ) -> RuntimeEnvelope:
     """List available arifOS resources."""
@@ -243,7 +243,7 @@ async def arifos_list_resources(
 
 async def arifos_read_resource(
     uri: str,
-    session_id: str = "global",
+    session_id: str | None = None,
     auth_context: dict[str, Any] | None = None,
 ) -> RuntimeEnvelope:
     """Read a specific arifOS resource by URI."""
@@ -276,7 +276,7 @@ async def cost_estimator(
     provider: str = "openai",
     model: str = "gpt-4",
     operation: str | None = None, # Alias alias
-    session_id: str = "global",
+    session_id: str | None = None,
     auth_context: dict[str, Any] | None = None,
 ) -> RuntimeEnvelope:
     """Estimate costs for AI operations."""

@@ -345,6 +345,7 @@ class PNSContext(BaseModel):
 
 class AuthorityLevel(str, Enum):
     HUMAN = "human"
+    USER = "user"
     AGENT = "agent"
     SYSTEM = "system"
     ANONYMOUS = "anonymous"
