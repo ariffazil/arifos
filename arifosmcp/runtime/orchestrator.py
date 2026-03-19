@@ -463,8 +463,8 @@ async def metabolic_loop(
 
         auth_ctx = _extract_auth_context(init_res, auth_context)
 
-        # For dry_run, we inject a mock context if the real one is missing/blocked
-        if dry_run and (not auth_ctx or init_res.verdict == Verdict.PAUSED):
+        # For dry_run, we inject a mock context if the real one is missing/blocked/unsuccessful
+        if dry_run and (not auth_ctx or init_res.verdict != Verdict.SEAL):
             from core.enforcement.auth_continuity import mint_auth_context
 
             auth_ctx = mint_auth_context(
@@ -483,8 +483,14 @@ async def metabolic_loop(
         caller_ctx = _extract_caller_context(init_res, caller_context)
         trace = {Stage.INIT_000.value: init_res.verdict.value}
 
-        if init_res.verdict == Verdict.VOID and not dry_run:
-            return init_res.model_dump(mode="json")
+        # Early exit if initialization was not successful and we are not in dry_run
+        if init_res.verdict != Verdict.SEAL and not dry_run:
+            import sys
+            print(f"DEBUG: Early exit. Init verdict: {init_res.verdict}", file=sys.stderr)
+            # We return the initialization failure directly
+            out = init_res.model_dump(mode="json")
+            out["trace"] = trace
+            return out
 
         # Early timeout check after init
         if _check_timeout():

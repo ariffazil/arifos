@@ -85,7 +85,6 @@ BENCHMARK_CASES = [
         "dry_run": True,
         "expected_status": "DRY_RUN",
         "expected_final_verdict": ["SEAL", "VOID", "HOLD", "HOLD_888"],
-        "expected_error_codes": ["AUTH_FAILURE", "AUTH_TOKEN_MISSING"],
     },
 ]
 
