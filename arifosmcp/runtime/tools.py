@@ -22,9 +22,11 @@ from arifosmcp.runtime.models import (
     ArifOSError,
     AuthContext,
     CallerContext,
+    CanonicalAuthority,
     CanonicalError,
     CanonicalMetrics,
     CANONICAL_STAGE_CONTRACTS,
+    ClaimStatus,
     PersonaId,
     RiskClass,
     RuntimeEnvelope,
@@ -43,7 +45,12 @@ from arifosmcp.runtime.public_registry import (
     public_tool_specs,
 )
 from arifosmcp.runtime.resources import build_open_apex_dashboard_result
-from arifosmcp.runtime.sessions import _resolve_session_id, set_active_session
+from arifosmcp.runtime.sessions import (
+    _resolve_session_id,
+    set_active_session,
+    bind_session_identity,
+    get_session_identity,
+)
 from arifosmcp.intelligence import console_tools as aclip_tools
 from core.shared.mottos import MOTTO_000_INIT_HEADER, MOTTO_999_SEAL_HEADER, get_motto_for_stage
 from core.enforcement.auth_continuity import mint_auth_context
@@ -329,9 +336,22 @@ def _resolve_caller_state(session_id: str, authority: Any) -> tuple[str, list[st
     """
     Anti-chaos: Resolve caller state and tool visibility.
     Aligns with the 26 canonical tools across Trinity layers.
+
+    P0 FIX: Check stored session identity FIRST before falling back to
+    envelope authority (which may be stale/wrong from bridge).
     """
-    # Determine state from session and authority
-    if session_id == "global":
+    # ── P0: Check stored session identity (canonical source of truth) ──
+    stored = get_session_identity(session_id)
+    if stored:
+        # Session was anchored via init_anchor — use stored state
+        authority_level = stored.get("authority_level", "anonymous")
+        if authority_level in ("sovereign", "operator"):
+            caller_state = "verified"
+        elif authority_level in ("agent", "user", "declared"):
+            caller_state = "anchored"
+        else:
+            caller_state = "anchored"  # Any stored identity is at least anchored
+    elif session_id == "global":
         caller_state = "anonymous"
     elif authority and getattr(authority, "claim_status", "anonymous") == "verified":
         caller_state = "verified"
@@ -354,7 +374,7 @@ def _resolve_caller_state(session_id: str, authority: Any) -> tuple[str, list[st
         "anonymous": {
             "allowed": ["get_caller_status", "init_anchor", "init_anchor_state", "register_tools", "audit_rules", "check_vital"],
             "blocked": {
-                "arifOS_kernel": "Requires anchored session. Run init_anchor_state first.",
+                "arifOS_kernel": "Requires anchored session. Run init_anchor first.",
                 "agi_reason": "Requires anchored session.",
                 "agentzero_engineer": "Requires anchored session and high-tier auth.",
                 "forge": "Requires approved session status (F13).",
@@ -364,7 +384,7 @@ def _resolve_caller_state(session_id: str, authority: Any) -> tuple[str, list[st
         "claimed": {
             "allowed": ["get_caller_status", "init_anchor", "init_anchor_state", "register_tools", "audit_rules", "check_vital"],
             "blocked": {
-                "arifOS_kernel": "Complete init_anchor_state to unlock kernel.",
+                "arifOS_kernel": "Complete init_anchor to unlock kernel.",
                 "agentzero_engineer": "Requires verified identity.",
             }
         },
@@ -388,13 +408,20 @@ def _resolve_caller_state(session_id: str, authority: Any) -> tuple[str, list[st
     return caller_state, state_config["allowed"], blocked_list
 
 
-def _resolve_next_action(caller_state: str, blocked_tools: list[dict[str, str]]) -> dict[str, Any] | None:
+def _resolve_next_action(
+    caller_state: str,
+    blocked_tools: list[dict[str, str]],
+    auth_context: dict[str, Any] | None = None,
+) -> dict[str, Any] | None:
     """
     Anti-chaos: Resolve exact next step for recovery.
+
+    P1 FIX: Only suggest arifOS_kernel if auth_context is non-anonymous
+    and approval_scope includes kernel execution.
     """
     if caller_state in ("anonymous", "claimed"):
         return {
-            "tool": "init_anchor",  # CANONICAL: init_anchor (legacy alias: init_anchor_state)
+            "tool": "init_anchor",
             "reason": f"You are {caller_state}. Identity required for governed execution.",
             "required_args": ["actor_id", "intent"],
             "example_payload": {
@@ -404,6 +431,29 @@ def _resolve_next_action(caller_state: str, blocked_tools: list[dict[str, str]])
             "retry_safe": True,
             "human_approval_required": False
         }
+    
+    # P1 FIX: For anchored/verified, suggest kernel ONLY if auth allows it
+    if caller_state in ("anchored", "verified"):
+        if auth_context:
+            ac_actor = auth_context.get("actor_id", "anonymous")
+            ac_scope = auth_context.get("approval_scope", [])
+            has_kernel = any(
+                s.startswith("arifOS_kernel:") or s == "*" for s in ac_scope
+            )
+            if ac_actor != "anonymous" and has_kernel:
+                return {
+                    "tool": "arifOS_kernel",
+                    "reason": f"Session anchored as {ac_actor}. Kernel execution available.",
+                    "required_args": ["query"],
+                    "example_payload": {
+                        "query": "Analyze system state",
+                        "auth_context": "<use auth_context from init_anchor response>",
+                    },
+                    "retry_safe": True,
+                    "human_approval_required": False
+                }
+        # Fallback: suggest init_anchor if no valid auth
+        return None
     
     if blocked_tools and blocked_tools[0].get("tool") == "arifOS_kernel":
         return {
@@ -512,7 +562,17 @@ async def _wrap_call(
         
         # Anti-chaos: populate next_action for recovery if not provided by kernel
         if envelope.verdict in (Verdict.HOLD, Verdict.VOID) and not envelope.next_action:
-            envelope.next_action = _resolve_next_action(envelope.caller_state, envelope.blocked_tools)
+            # Pass auth_context dict for next_action gating
+            ac_dict = envelope.auth_context.model_dump(mode="json") if envelope.auth_context and hasattr(envelope.auth_context, "model_dump") else (envelope.auth_context if isinstance(envelope.auth_context, dict) else None)
+            envelope.next_action = _resolve_next_action(envelope.caller_state, envelope.blocked_tools, ac_dict)
+
+        # Propagate next_action remediation info to error objects
+        if envelope.next_action and envelope.errors:
+            for err in envelope.errors:
+                if not err.required_next_tool:
+                    err.required_next_tool = envelope.next_action.get("tool")
+                if not err.required_fields:
+                    err.required_fields = envelope.next_action.get("required_args")
 
         envelope.recoverable = envelope.status != RuntimeStatus.ERROR or any(
             e.recoverable for e in envelope.errors
@@ -600,7 +660,7 @@ async def _wrap_call(
 
         # Anti-chaos: populate recovery guidance even on failure
         envelope.caller_state, envelope.allowed_next_tools, envelope.blocked_tools = _resolve_caller_state(session_id, None)
-        envelope.next_action = _resolve_next_action(envelope.caller_state, envelope.blocked_tools)
+        envelope.next_action = _resolve_next_action(envelope.caller_state, envelope.blocked_tools, None)
         
         # Add next step hint for common auth errors
         if envelope.next_action and error_code in ("AUTH_TOKEN_MISSING", "AUTH_FAILURE", "F11_COMMAND_AUTH"):
@@ -693,8 +753,14 @@ async def init_anchor(
     - `authority`: Current claiming status.
     - `next_action`: Guidance for `arifOS_kernel`.
     """
-    effective_actor = (declared_name or actor_id).lower().strip().replace(" ", "-")
-    if effective_actor == "arif":
+    # P0: actor_id is the canonical identity key. declared_name is display only.
+    # Only fall back to declared_name if actor_id is anonymous/empty.
+    raw_actor = actor_id.lower().strip() if actor_id else ""
+    if raw_actor in ("anonymous", ""):
+        raw_actor = (declared_name or "anonymous").lower().strip().replace(" ", "-")
+    effective_actor = raw_actor
+    # Normalize well-known aliases to canonical form
+    if effective_actor in ("arif", "arif-fazil", "muhammad-arif"):
         effective_actor = "ariffazil"
 
     effective_query = (
@@ -714,10 +780,11 @@ async def init_anchor(
         "token_fingerprint": uuid.uuid4().hex[:16],
     }
 
+    resolved_session = _normalize_session_id(session_id)
     envelope = await _wrap_call(
         "init_anchor",  # Use canonical tool name
         Stage.INIT_000,
-        _normalize_session_id(session_id),
+        resolved_session,
         payload,
         ctx,
         caller_context,
@@ -725,10 +792,15 @@ async def init_anchor(
     # Ensure tool name matches the public surface for F2 Truth
     envelope.tool = "init_anchor"
 
-    # Enrich payload with Authority and AuthContext for caller visibility
+    # ═══════════════════════════════════════════════════════════════════════
+    # P0 FIX: init_anchor is the SINGLE SOURCE OF TRUTH for identity.
+    #
+    # After _wrap_call returns, the envelope may contain stale/wrong
+    # authority and auth_context from the bridge's wrap_tool_output.
+    # We override ALL identity fields here — no exceptions.
+    # ═══════════════════════════════════════════════════════════════════════
     if envelope.ok:
-        # Determine authority level and scopes based on actor
-        # Authority levels: anonymous < declared < user < operator < sovereign < system
+        # ── Step 1: Determine authority level and scopes ──
         authority_level = "anonymous"
         approval_scope: list[str] = []
         
@@ -747,17 +819,8 @@ async def init_anchor(
         elif effective_actor not in ("anonymous", "", None):
             authority_level = "declared"
             approval_scope = ["audit_rules:read"]  # Diagnostics only
-        
-        envelope.payload["caller_state"] = "anchored"
-        envelope.payload["authority"] = {
-            "actor_id": effective_actor,
-            "declared_name": declared_name or effective_actor,
-            "claim_status": "anchored",
-            "capability_class": authority_level,
-            "approval_scope": approval_scope
-        }
-        
-        # Build proper signed auth_context using mint_auth_context
+
+        # ── Step 2: Mint signed auth_context ──
         new_auth_context = mint_auth_context(
             session_id=envelope.session_id,
             actor_id=effective_actor,
@@ -768,20 +831,84 @@ async def init_anchor(
             authority_level=authority_level,
             prev_vault_hash="0x0000000000000000000000000000000000000000000000000000000000000000"
         )
-        envelope.payload["auth_context"] = new_auth_context
-        # Also update top-level auth_context for consistency
-        from arifosmcp.runtime.models import AuthContext
+
+        # ── Step 3: Override TOP-LEVEL auth_context (P0 fix) ──
         try:
             envelope.auth_context = AuthContext(**new_auth_context)
         except Exception:
-            # Fallback: keep as dict if AuthContext model doesn't match
             envelope.auth_context = new_auth_context
-        
-        envelope.payload["next_action"] = {
-            "tool": "arifOS_kernel",
-            "action": "Proceed to governed execution.",
-            "example_query": "Analyze system state and propose optimizations."
+
+        # ── Step 4: Override TOP-LEVEL authority (P0 fix) ──
+        envelope.authority = CanonicalAuthority(
+            actor_id=effective_actor,
+            level=authority_level,
+            claim_status=ClaimStatus.ANCHORED,
+            human_required=False,
+            approval_scope=approval_scope,
+            auth_state="verified",
+        )
+
+        # ── Step 5: Override caller_state and tool visibility (P0 fix) ──
+        envelope.caller_state, envelope.allowed_next_tools, envelope.blocked_tools = (
+            _resolve_caller_state(envelope.session_id, envelope.authority)
+        )
+
+        # ── Step 6: Gate next_action on REAL capability (P1 fix) ──
+        has_kernel_scope = any(
+            s.startswith("arifOS_kernel:") or s == "*" for s in approval_scope
+        )
+        if has_kernel_scope:
+            envelope.next_action = {
+                "tool": "arifOS_kernel",
+                "reason": f"Session anchored as {effective_actor} ({authority_level}). Kernel execution available.",
+                "required_args": ["query", "auth_context"],
+                "example_payload": {
+                    "query": "Analyze system state and propose optimizations.",
+                    "auth_context": "<use auth_context from this response>",
+                },
+            }
+        else:
+            envelope.next_action = {
+                "tool": "audit_rules",
+                "reason": f"Session anchored as {effective_actor} ({authority_level}). Kernel requires elevated scope.",
+                "required_args": [],
+            }
+
+        # ── Step 7: Sync payload fields with top-level (P1 fix) ──
+        envelope.payload["caller_state"] = envelope.caller_state
+        envelope.payload["authority"] = {
+            "actor_id": effective_actor,
+            "declared_name": declared_name or effective_actor,
+            "claim_status": "anchored",
+            "authority_level": authority_level,
+            "approval_scope": approval_scope,
+            "auth_state": "verified",
         }
+        envelope.payload["auth_context"] = new_auth_context
+        envelope.payload["next_action"] = envelope.next_action
+
+        # ── Step 8: Persist identity in session store (P0 fix) ──
+        bind_session_identity(
+            session_id=envelope.session_id,
+            actor_id=effective_actor,
+            authority_level=authority_level,
+            auth_context=new_auth_context,
+            approval_scope=approval_scope,
+        )
+
+        # Update core session manager with identity
+        try:
+            from core.shared.types import ActorIdentity
+            identity = ActorIdentity(
+                actor_id=effective_actor,
+                declared_name=declared_name or effective_actor,
+            )
+            session_manager.get_session(envelope.session_id)
+            # Store in the runtime session map too
+            set_active_session(envelope.session_id)
+        except Exception:
+            pass
+
     return envelope
 
 
@@ -1260,10 +1387,15 @@ async def arifos_kernel(
             verified_actor = auth_context.get("actor_id", "anonymous")
 
     if verified_actor == "anonymous":
-        # Check system memory for anchored actor
-        session_state = session_manager.get_session(active_session)
-        if session_state and session_state.actor_id:
-            verified_actor = session_state.actor_id
+        # P0: Check stored session identity first (canonical source)
+        stored = get_session_identity(active_session)
+        if stored and stored.get("actor_id", "anonymous") != "anonymous":
+            verified_actor = stored["actor_id"]
+        else:
+            # Fallback: Check core session manager
+            session_state = session_manager.get_session(active_session)
+            if session_state and session_state.actor_identity:
+                verified_actor = getattr(session_state.actor_identity, "actor_id", "anonymous")
 
     # 3. Resolve Effective Context
     effective_caller_ctx = _resolve_caller_context(caller_context, requested_persona)
@@ -1427,13 +1559,59 @@ async def get_caller_status(
     """
     envelope = await _wrap_call("get_caller_status", Stage.INIT_000, session_id, {}, ctx)
     envelope.tool = "get_caller_status"
+
+    # ═══════════════════════════════════════════════════════════════════════
+    # P0 FIX: Check stored session identity and override stale bridge data.
+    # If this session was previously anchored via init_anchor, use that
+    # stored identity instead of the anonymous defaults from the bridge.
+    # ═══════════════════════════════════════════════════════════════════════
+    stored = get_session_identity(session_id)
+    if stored:
+        actor_id = stored["actor_id"]
+        authority_level = stored["authority_level"]
+        stored_auth = stored["auth_context"]
+        stored_scope = stored.get("approval_scope", [])
+
+        # Override top-level auth_context
+        try:
+            envelope.auth_context = AuthContext(**stored_auth)
+        except Exception:
+            envelope.auth_context = stored_auth
+
+        # Override top-level authority
+        envelope.authority = CanonicalAuthority(
+            actor_id=actor_id,
+            level=authority_level,
+            claim_status=ClaimStatus.ANCHORED,
+            human_required=False,
+            approval_scope=stored_scope,
+            auth_state="verified",
+        )
+
+        # Re-resolve caller state with correct identity
+        envelope.caller_state, envelope.allowed_next_tools, envelope.blocked_tools = (
+            _resolve_caller_state(session_id, envelope.authority)
+        )
+
+        # Gate next_action on real capability
+        ac_dict = stored_auth if isinstance(stored_auth, dict) else {}
+        envelope.next_action = _resolve_next_action(
+            envelope.caller_state, envelope.blocked_tools, ac_dict
+        )
+
+        # Sync payload
+        envelope.payload["caller_state"] = envelope.caller_state
+        envelope.payload["actor_id"] = actor_id
+        envelope.payload["authority_level"] = authority_level
+        envelope.payload["auth_state"] = "verified"
+        envelope.payload["approval_scope"] = stored_scope
     
-    # Enrichment: Add walkthrough guidance if this is the first call
+    # Enrichment: Add walkthrough guidance
     envelope.payload.update({
         "bootstrap_sequence": [
             "1. check_vital - System health and vitals (no auth required)",
             "2. audit_rules - Constitutional floors and tool contracts (no auth required)",
-            "3. init_anchor_state - Establish identity (creates session anchor)",
+            "3. init_anchor - Establish identity (creates session anchor)",
             "4. arifOS_kernel - Primary metabolic loop for governed execution",
         ],
         "system_motto": "DITEMPA BUKAN DIBERI — Forged, Not Given",

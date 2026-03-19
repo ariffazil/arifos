@@ -167,10 +167,12 @@ When `init_anchor` succeeds, it returns an `auth_context` — a **signed, time-b
 ```
 
 **Rules:**
-1. **Forward auth_context** — All `arifOS_kernel` calls must include the auth_context from init_anchor
-2. **Expiry** — Tokens valid for 15 minutes (TTL=900s). Re-anchor to refresh.
-3. **Session binding** — Tokens are bound to session_id; cross-session use fails F11
-4. **Signature verification** — Tampered tokens are rejected with `TOKEN_EXPIRED`
+
+1. **Identity Precedence** — Core to F1 (Amanah) and F11 (Command Auth), the system enforces a strict identity hierarchy: `actor_id` (canonical) > `declared_name` (display) > `anonymous` (fallback). `actor_id` is the indisputable cryptographically bound source of truth.
+2. **Forward auth_context** — All `arifOS_kernel` calls must include the auth_context from init_anchor
+3. **Expiry** — Tokens valid for 15 minutes (TTL=900s). Re-anchor to refresh.
+4. **Session binding** — Tokens are bound to session_id; cross-session use fails F11
+5. **Signature verification** — Tampered tokens are rejected with `TOKEN_EXPIRED`
 
 ### Anonymous Callers
 
