@@ -1,0 +1,65 @@
+{
+  "$schema": "https://raw.githubusercontent.com/cloudflare/workers-sdk/main/wrangler-schema.json",
+  "name": "arifos-aaa-mcp",
+  "main": "index.ts",
+  "compatibility_date": "2026-02-09",
+  "compatibility_flags": ["nodejs_compat"],
+  "node_compat": true,
+  
+  // Custom domain configuration (optional)
+  // Uncomment and modify for custom domain deployment
+  // "routes": [
+  //   { "pattern": "mcp.arifos.dev/mcp", "zone_name": "arifos.dev" }
+  // ],
+  
+  // KV namespace for session persistence
+  // Create with: wrangler kv:namespace create AAA_SESSION_STORE
+  "kv_namespaces": [
+    {
+      "binding": "AAA_SESSION_STORE",
+      "id": "YOUR_KV_NAMESPACE_ID_HERE"
+    }
+  ],
+  
+  // Environment variables (non-secret)
+  "vars": {
+    "MCP_PROTOCOL_VERSION": "2025-11-25",
+    "AAA_ISSUER": "https://auth.arifos.dev",
+    "OAUTH_AUTHORIZATION_ENDPOINT": "https://auth.arifos.dev/authorize",
+    "OAUTH_TOKEN_ENDPOINT": "https://auth.arifos.dev/token",
+    "ARIFOS_CONSTITUTIONAL_MODE": "AAA",
+    "FLOOR_ENFORCEMENT": "HARD",
+    "LOG_LEVEL": "info"
+  },
+  
+  // Secrets (set via: wrangler secret put <NAME>)
+  "secrets": [
+    "AAA_JWT_SECRET",
+    "OAUTH_CLIENT_SECRET",
+    "BRAVE_API_KEY",
+    "BROWSERBASE_API_KEY"
+  ],
+  
+  // Development configuration
+  "dev": {
+    "port": 8787,
+    "local_protocol": "http",
+    "cors": {
+      "origins": ["http://localhost:5173", "http://localhost:3000"],
+      "methods": ["GET", "POST", "OPTIONS"],
+      "headers": ["Content-Type", "Authorization", "Mcp-Session-Id"]
+    }
+  },
+  
+  // Build configuration
+  "build": {
+    "command": "",
+    "cwd": ".",
+    "watch_dir": "."
+  },
+  
+  // Deployment configuration
+  "deploy": {
+    "message": "Deploy arifOS AAA MCP Server"
+  }
+}

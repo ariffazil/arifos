@@ -1,0 +1,52 @@
+import json
+import re
+import subprocess
+import sys
+from pathlib import Path
+
+import pytest
+
+REPO_ROOT = Path(__file__).resolve().parents[1]
+ROUTE_SCRIPT = (
+    REPO_ROOT / "333_APPS" / "L2_SKILLS" / "UTILITIES" / "route-tasks" / "scripts" / "route_task.py"
+)
+ROUTING_JSON = (
+    REPO_ROOT / "_ARCHIVE" / "archive" / "cleanup_root_20260208" / "config" / "routing.json"
+)
+_ROUTING_MISSING = not ROUTING_JSON.exists()
+
+
+def run_route(prompt: str) -> str:
+    cmd = [sys.executable, str(ROUTE_SCRIPT), "--prompt", prompt, "--config", str(ROUTING_JSON)]
+    result = subprocess.check_output(
+        cmd,
+        text=True,
+    )
+    return result.strip()
+
+
+@pytest.mark.skipif(_ROUTING_MISSING, reason="Legacy routing.json not present in _ARCHIVE")
+def test_route_matches_keyword() -> None:
+    policy = json.loads(ROUTING_JSON.read_text(encoding="utf-8"))
+    expected_model = None
+    for route in policy["routes"]:
+        if route.get("task_type") == "constitutional_audit":
+            expected_model = route.get("primary")
+            break
+
+    assert expected_model is not None
+
+    output = run_route("please audit and verify floors")
+    assert "TASK: constitutional_audit" in output
+    assert f"MODEL: {expected_model}" in output
+
+
+@pytest.mark.skipif(_ROUTING_MISSING, reason="Legacy routing.json not present in _ARCHIVE")
+def test_route_default_model() -> None:
+    policy = json.loads(ROUTING_JSON.read_text(encoding="utf-8"))
+    default_model = policy["default_model"]
+
+    output = run_route("this prompt has no keywords")
+    assert "TASK: unknown_default" in output
+    assert f"MODEL: {default_model}" in output
+    assert re.search(r"\[\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z\]", output)

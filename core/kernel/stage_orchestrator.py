@@ -1,0 +1,629 @@
+"""Kernel stage orchestration for 444-999 flow.
+
+Pure orchestration logic for constitutional stages.
+No transport/storage modules are imported directly; all side effects are injected.
+"""
+
+import logging
+from collections.abc import Awaitable, Callable
+from typing import Any
+
+from core import organs as core_organs
+from core.shared.physics import Peace2
+
+logger = logging.getLogger("STAGE_ADAPTER")
+
+GetStageResult = Callable[[str, str], dict[str, Any]]
+StoreStageResult = Callable[[str, str, dict[str, Any]], None]
+LogAsiDecision = Callable[..., Awaitable[None]]
+
+
+def _default_get_stage_result(_session_id: str, _stage: str) -> dict[str, Any]:
+    return {}
+
+
+def _default_store_stage_result(_session_id: str, _stage: str, _payload: dict[str, Any]) -> None:
+    return None
+
+
+async def _default_log_asi_decision(**_kwargs: Any) -> None:
+    return None
+
+
+def _get_first_stage_result(
+    get_stage_result_fn: GetStageResult,
+    session_id: str,
+    *stage_names: str,
+) -> dict[str, Any]:
+    for stage_name in stage_names:
+        result = get_stage_result_fn(session_id, stage_name)
+        if result:
+            return result
+    return {}
+
+
+def _store_stage_with_aliases(
+    store_stage_result_fn: StoreStageResult,
+    session_id: str,
+    result: dict[str, Any],
+    *stage_names: str,
+) -> None:
+    for stage_name in stage_names:
+        store_stage_result_fn(session_id, stage_name, result)
+
+
+def _as_dict(payload: Any) -> dict[str, Any]:
+    if isinstance(payload, dict):
+        return payload
+    if hasattr(payload, "model_dump"):
+        return payload.model_dump()
+    if hasattr(payload, "dict"):
+        return payload.dict()
+    return {}
+
+
+def _extract_query_from_stage_inputs(
+    agi_result: dict[str, Any],
+    asi_result: dict[str, Any],
+    stage: str,
+) -> str:
+    query = agi_result.get("query") or asi_result.get("query") or ""
+    if not query:
+        raise ValueError(f"Missing query for stage {stage}")
+    return query
+
+
+async def _build_agi_tensor(query: str, session_id: str) -> Any:
+    sense_out = await core_organs.sense(query, session_id)
+    think_out = await core_organs.think(query, sense_out, session_id)
+    agi_tensor = await core_organs.reason(query, think_out, session_id)
+    if agi_tensor.peace is None:
+        agi_tensor.peace = Peace2({})
+    return agi_tensor
+
+
+def _build_asi_output(asi_result: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "kappa_r": asi_result.get("kappa_r", asi_result.get("empathy_kappa_r", 0.7)),
+        "peace_squared": asi_result.get("peace_squared", 1.0),
+        "is_reversible": asi_result.get("is_reversible", True),
+        "verdict": asi_result.get("verdict", "SEAL"),
+    }
+
+
+def _collect_floor_failures_from_scores(
+    floor_scores: dict[str, Any],
+    *,
+    threshold: float = 0.5,
+) -> list[str]:
+    floor_key_map = {
+        "f1_amanah": "F1",
+        "f5_peace": "F5",
+        "f6_empathy": "F6",
+        "f9_anti_hantu": "F9",
+    }
+    failed: list[str] = []
+    for raw_key, raw_score in floor_scores.items():
+        score = float(raw_score) if isinstance(raw_score, (int, float)) else 1.0
+        norm_key = str(raw_key).lower()
+        mapped = floor_key_map.get(norm_key)
+        if mapped and score < threshold and mapped not in failed:
+            failed.append(mapped)
+    return failed
+
+
+def _collect_floor_failures_from_violations(violations: list[Any]) -> list[str]:
+    failed: list[str] = []
+    for violation in violations:
+        text = str(violation)
+        for floor_id in ("F1", "F5", "F6", "F9"):
+            if text.startswith(f"{floor_id}_") and floor_id not in failed:
+                failed.append(floor_id)
+    return failed
+
+
+async def run_stage_444_trinity_sync(
+    session_id: str,
+    agi_result: dict[str, Any] | None = None,
+    asi_result: dict[str, Any] | None = None,
+    *,
+    get_stage_result_fn: GetStageResult = _default_get_stage_result,
+    store_stage_result_fn: StoreStageResult = _default_store_stage_result,
+) -> dict[str, Any]:
+    """
+    Stage 444: Trinity Sync - Merge AGI and ASI outputs.
+
+    Called by: apex_verdict tool (before judgment)
+    """
+    try:
+        agi_result = agi_result or _get_first_stage_result(
+            get_stage_result_fn, session_id, "agi", "think"
+        )
+        asi_result = asi_result or _get_first_stage_result(
+            get_stage_result_fn,
+            session_id,
+            "asi_empathize",
+            "stage_555",
+            "empathy",
+            "asi",
+        )
+        query = _extract_query_from_stage_inputs(agi_result, asi_result, "444")
+        agi_tensor = await _build_agi_tensor(query, session_id)
+        asi_output = _build_asi_output(asi_result)
+
+        sync_out = await core_organs.sync(agi_tensor, asi_output, session_id)
+
+        # Handle Pydantic model output
+        if hasattr(sync_out, "verdict"):
+            pre_verdict = (
+                sync_out.verdict.value
+                if hasattr(sync_out.verdict, "value")
+                else str(sync_out.verdict)
+            )
+            w3_score = (
+                sync_out.floor_scores.f3_tri_witness if hasattr(sync_out, "floor_scores") else 0.95
+            )
+        else:
+            sync_data = _as_dict(sync_out)
+            pre_verdict = sync_data.get("verdict", "SEAL")
+            w3_score = sync_data.get("floor_scores", {}).get("f3_tri_witness", 0.95)
+
+        result = {
+            "stage": "444",
+            "pre_verdict": pre_verdict,
+            "consensus_score": w3_score,
+            "session_id": session_id,
+            "status": "completed",
+        }
+        _store_stage_with_aliases(store_stage_result_fn, session_id, result, "stage_444", "sync")
+        return result
+
+    except Exception as e:
+        logger.error(f"[444] Stage execution failed: {e}")
+        return {
+            "stage": "444",
+            "pre_verdict": "VOID",
+            "error": str(e),
+            "session_id": session_id,
+            "status": "failed",
+        }
+
+
+async def run_stage_555_empathy(
+    session_id: str,
+    query: str,
+    *,
+    store_stage_result_fn: StoreStageResult = _default_store_stage_result,
+    log_asi_decision_fn: LogAsiDecision = _default_log_asi_decision,
+) -> dict[str, Any]:
+    """
+    Stage 555: ASI Empathy - Identify stakeholders and compute κᵣ.
+
+    Called by: asi_empathize tool
+    """
+    try:
+        agi_tensor = await _build_agi_tensor(query, session_id)
+
+        emp_out = await core_organs.empathize(query, agi_tensor, session_id)
+
+        emp_data = _as_dict(emp_out)
+
+        kappa_r = emp_data.get("kappa_r", 0.96)
+
+        result = {
+            "stage": "555",
+            "verdict": "SEAL" if kappa_r >= 0.70 else "VOID",
+            "empathy_kappa_r": kappa_r,
+            "stakeholders": emp_data.get("stakeholders", []),
+            "weakest_stakeholder": emp_data.get("weakest_stakeholder", "unknown"),
+            "high_vulnerability": emp_data.get("weakest_vulnerability", 0.0) >= 0.8,
+            "care_recommendations": emp_data.get("care_recommendations", []),
+            "session_id": session_id,
+            "status": "completed",
+        }
+        _store_stage_with_aliases(
+            store_stage_result_fn,
+            session_id,
+            result,
+            "stage_555",
+            "asi_empathize",
+            "empathy",
+            "asi",
+        )
+        # Ω Incident Logging
+        try:
+            floor_scores = emp_data.get("floor_scores", {})
+            floors_checked = ["F5", "F6", "F9"]
+            floors_failed = _collect_floor_failures_from_scores(floor_scores)
+            await log_asi_decision_fn(
+                session_id=session_id,
+                stage="555",
+                query=query,
+                asi_output=emp_data,
+                verdict=result["verdict"],
+                floors_checked=floors_checked,
+                floors_failed=floors_failed,
+            )
+        except Exception as e:
+            logger.warning(f"[555] Failed to log ASI incident: {e}")
+        return result
+
+    except Exception as e:
+        logger.error(f"[555] Stage execution failed: {e}")
+        return {
+            "stage": "555",
+            "verdict": "VOID",
+            "error": str(e),
+            "session_id": session_id,
+            "status": "failed",
+        }
+
+
+async def run_stage_666_align(
+    session_id: str,
+    query: str,
+    *,
+    store_stage_result_fn: StoreStageResult = _default_store_stage_result,
+    log_asi_decision_fn: LogAsiDecision = _default_log_asi_decision,
+) -> dict[str, Any]:
+    """
+    Stage 666: ASI Align - Safety & reversibility check.
+
+    Called by: asi_align tool
+    """
+    try:
+        agi_tensor = await _build_agi_tensor(query, session_id)
+
+        emp_out = await core_organs.empathize(query, agi_tensor, session_id)
+        align_out = await core_organs.align(query, emp_out, agi_tensor, session_id)
+
+        align_data = _as_dict(align_out)
+
+        result = {
+            "stage": "666",
+            "verdict": align_data.get("verdict", "SEAL"),
+            "omega_bundle": align_data,
+            "floor_scores": {
+                "F1_amanah": 1.0 if align_data.get("is_reversible") else 0.0,
+                "F5_peace": align_data.get("peace_squared", 1.0),
+                "F6_empathy": align_data.get("kappa_r", 0.96),
+            },
+            "session_id": session_id,
+            "status": "completed",
+        }
+        _store_stage_with_aliases(
+            store_stage_result_fn,
+            session_id,
+            result,
+            "stage_666",
+            "asi_align",
+            "align",
+        )
+        # Ω Incident Logging
+        try:
+            floors_checked = ["F1", "F5", "F6", "F9"]
+            floors_failed = _collect_floor_failures_from_violations(
+                align_data.get("violations", [])
+            )
+            for floor_id in _collect_floor_failures_from_scores(align_data.get("floor_scores", {})):
+                if floor_id not in floors_failed:
+                    floors_failed.append(floor_id)
+            await log_asi_decision_fn(
+                session_id=session_id,
+                stage="666",
+                query=query,
+                asi_output=align_data,
+                verdict=result["verdict"],
+                floors_checked=floors_checked,
+                floors_failed=floors_failed,
+            )
+        except Exception as e:
+            logger.warning(f"[666] Failed to log ASI incident: {e}")
+        return result
+
+    except Exception as e:
+        logger.error(f"[666] Stage execution failed: {e}")
+        return {
+            "stage": "666",
+            "verdict": "VOID",
+            "error": str(e),
+            "session_id": session_id,
+            "status": "failed",
+        }
+
+
+async def run_stage_777_forge(
+    session_id: str,
+    agi_result: dict[str, Any] | None = None,
+    asi_result: dict[str, Any] | None = None,
+    context: dict[str, Any] | None = None,
+    *,
+    get_stage_result_fn: GetStageResult = _default_get_stage_result,
+    store_stage_result_fn: StoreStageResult = _default_store_stage_result,
+) -> dict[str, Any]:
+    """
+    Stage 777: EUREKA FORGE - Phase transition / synthesis.
+
+    Called by: apex_verdict tool (during judgment)
+    """
+    if context is None:
+        context = {}
+
+    try:
+        agi_result = agi_result or _get_first_stage_result(
+            get_stage_result_fn, session_id, "agi", "think"
+        )
+        asi_result = asi_result or _get_first_stage_result(
+            get_stage_result_fn,
+            session_id,
+            "asi_empathize",
+            "stage_555",
+            "empathy",
+            "asi",
+        )
+        query = _extract_query_from_stage_inputs(agi_result, asi_result, "777")
+        agi_tensor = await _build_agi_tensor(query, session_id)
+        asi_output = _build_asi_output(asi_result)
+
+        sync_out = await core_organs.sync(agi_tensor, asi_output, session_id)
+        forge_out = await core_organs.forge(sync_out, agi_tensor, session_id)
+
+        # Handle dict output from forge
+        forge_data = _as_dict(forge_out)
+
+        result = {
+            "stage": "777",
+            "stage_name": "EUREKA_FORGE",
+            "forge_result": forge_data,
+            "low_coherence_warning": forge_data.get("coherence", 1.0) < 0.7,
+            "session_id": session_id,
+            "status": "completed",
+        }
+        _store_stage_with_aliases(
+            store_stage_result_fn, session_id, result, "stage_777", "forge", "eureka_forge"
+        )
+        return result
+
+    except Exception as e:
+        logger.error(f"[777] Stage execution failed: {e}")
+        return {"stage": "777", "error": str(e), "session_id": session_id, "status": "failed"}
+
+
+async def run_stage_888_judge(
+    session_id: str,
+    agi_result: dict[str, Any] | None = None,
+    asi_result: dict[str, Any] | None = None,
+    context: dict[str, Any] | None = None,
+    *,
+    get_stage_result_fn: GetStageResult = _default_get_stage_result,
+    store_stage_result_fn: StoreStageResult = _default_store_stage_result,
+) -> dict[str, Any]:
+    """
+    Stage 888: APEX Judge Metabolic Layer - Executive veto / final judgment.
+
+    Called by: apex_verdict tool (final judgment)
+    """
+    if context is None:
+        context = {}
+
+    try:
+        agi_result = agi_result or _get_first_stage_result(
+            get_stage_result_fn, session_id, "agi", "think"
+        )
+        asi_result = asi_result or _get_first_stage_result(
+            get_stage_result_fn,
+            session_id,
+            "asi_empathize",
+            "stage_555",
+            "empathy",
+            "asi",
+        )
+        query = _extract_query_from_stage_inputs(agi_result, asi_result, "888")
+        agi_tensor = await _build_agi_tensor(query, session_id)
+        asi_output = _build_asi_output(asi_result)
+
+        sync_out = await core_organs.sync(agi_tensor, asi_output, session_id)
+        forge_out = await core_organs.forge(sync_out, agi_tensor, session_id)
+        judge_out = await core_organs.judge(forge_out, sync_out, asi_output, session_id)
+
+        # Handle both Pydantic model and dict outputs
+        judge_data = _as_dict(judge_out)
+
+        # Get verdict - handle both object attribute and dict access
+        if hasattr(judge_out, "verdict"):
+            verdict_val = (
+                judge_out.verdict.value
+                if hasattr(judge_out.verdict, "value")
+                else str(judge_out.verdict)
+            )
+            floors_failed = getattr(judge_out, "violations", [])
+        else:
+            verdict_val = judge_data.get("verdict", "VOID")
+            floors_failed = judge_data.get("violations", [])
+
+        result = {
+            "stage": "888",
+            "stage_name": "APEX_JUDGE_METABOLIC",
+            "verdict": verdict_val,
+            "judge_result": judge_data,
+            "floor_violations": floors_failed,
+            "session_id": session_id,
+            "status": "completed",
+        }
+        _store_stage_with_aliases(
+            store_stage_result_fn,
+            session_id,
+            result,
+            "stage_888",
+            "judge",
+            "audit",
+            "apex_verdict",
+        )
+        return result
+
+    except Exception as e:
+        logger.error(f"[888] Stage execution failed: {e}")
+        return {
+            "stage": "888",
+            "verdict": "VOID",
+            "error": str(e),
+            "session_id": session_id,
+            "status": "failed",
+        }
+
+
+async def run_stage_999_seal(
+    session_id: str,
+    judge_result: dict[str, Any] | None = None,
+    agi_result: dict[str, Any] | None = None,
+    asi_result: dict[str, Any] | None = None,
+    summary: str | None = None,
+    *,
+    get_stage_result_fn: GetStageResult = _default_get_stage_result,
+    store_stage_result_fn: StoreStageResult = _default_store_stage_result,
+) -> dict[str, Any]:
+    """
+    Stage 999: Seal - EUREKA-filtered immutable audit.
+
+    Called by: vault_seal tool
+    """
+    try:
+        agi_result = agi_result or _get_first_stage_result(
+            get_stage_result_fn, session_id, "agi", "think"
+        )
+        asi_result = asi_result or _get_first_stage_result(
+            get_stage_result_fn,
+            session_id,
+            "asi_align",
+            "stage_666",
+            "align",
+            "asi_empathize",
+            "stage_555",
+            "empathy",
+            "asi",
+        )
+        query = _extract_query_from_stage_inputs(agi_result, asi_result, "999")
+        agi_tensor = await _build_agi_tensor(query, session_id)
+
+        emp_out = await core_organs.empathize(query, agi_tensor, session_id)
+        align_out = await core_organs.align(query, emp_out, agi_tensor, session_id)
+
+        align_data = _as_dict(align_out)
+        asi_output = _build_asi_output(align_data)
+
+        apex_out = await core_organs.apex(agi_tensor, asi_output, session_id, action="full")
+
+        apex_data = _as_dict(apex_out)
+
+        judge_out = judge_result or apex_data.get("judge", {})
+
+        receipt = await core_organs.seal(
+            judge_out,
+            agi_tensor,
+            asi_output,
+            session_id,
+            query=summary or query,
+            authority="mcp_server",
+        )
+
+        result = {
+            "stage": "999",
+            "status": receipt.status,
+            "apex_verdict": judge_out.get("verdict"),
+            "eureka_verdict": receipt.status,
+            "hash": receipt.entry_hash,
+            "seal_id": receipt.seal_id,
+            "session_id": session_id,
+        }
+        _store_stage_with_aliases(store_stage_result_fn, session_id, result, "stage_999", "seal")
+        return result
+
+    except Exception as e:
+        logger.error(f"[999] Stage execution failed: {e}")
+        return {
+            "stage": "999",
+            "status": "VOID",
+            "error": str(e),
+            "session_id": session_id,
+        }
+
+
+# Convenience function to run full 444-999 pipeline
+async def run_metabolic_pipeline(
+    session_id: str,
+    query: str,
+    *,
+    get_stage_result_fn: GetStageResult = _default_get_stage_result,
+    store_stage_result_fn: StoreStageResult = _default_store_stage_result,
+    log_asi_decision_fn: LogAsiDecision = _default_log_asi_decision,
+) -> dict[str, Any]:
+    """
+    Run the full metabolic pipeline (444-999) for a session.
+
+    Returns:
+        Dict containing results from all stages.
+    """
+    results = {"session_id": session_id, "stages": {}}
+
+    # Stage 444: Trinity Sync
+    results["stages"]["444"] = await run_stage_444_trinity_sync(
+        session_id=session_id,
+        get_stage_result_fn=get_stage_result_fn,
+        store_stage_result_fn=store_stage_result_fn,
+    )
+
+    # Stage 555: Empathy (if not already run)
+    if not get_stage_result_fn(session_id, "stage_555"):
+        results["stages"]["555"] = await run_stage_555_empathy(
+            session_id=session_id,
+            query=query,
+            store_stage_result_fn=store_stage_result_fn,
+            log_asi_decision_fn=log_asi_decision_fn,
+        )
+
+    # Stage 666: Align (if not already run)
+    if not get_stage_result_fn(session_id, "stage_666"):
+        results["stages"]["666"] = await run_stage_666_align(
+            session_id=session_id,
+            query=query,
+            store_stage_result_fn=store_stage_result_fn,
+            log_asi_decision_fn=log_asi_decision_fn,
+        )
+
+    # Stage 777: Forge
+    results["stages"]["777"] = await run_stage_777_forge(
+        session_id=session_id,
+        get_stage_result_fn=get_stage_result_fn,
+        store_stage_result_fn=store_stage_result_fn,
+    )
+
+    # Stage 888: Judge
+    results["stages"]["888"] = await run_stage_888_judge(
+        session_id=session_id,
+        get_stage_result_fn=get_stage_result_fn,
+        store_stage_result_fn=store_stage_result_fn,
+    )
+
+    # Stage 999: Seal
+    results["stages"]["999"] = await run_stage_999_seal(
+        session_id=session_id,
+        get_stage_result_fn=get_stage_result_fn,
+        store_stage_result_fn=store_stage_result_fn,
+    )
+
+    # Determine final verdict
+    final_verdict = results["stages"]["888"].get("verdict", "VOID")
+    results["final_verdict"] = final_verdict
+
+    return results
+
+
+__all__ = [
+    "run_stage_444_trinity_sync",
+    "run_stage_555_empathy",
+    "run_stage_666_align",
+    "run_stage_777_forge",
+    "run_stage_888_judge",
+    "run_stage_999_seal",
+    "run_metabolic_pipeline",
+]
