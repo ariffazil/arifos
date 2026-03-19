@@ -19,7 +19,7 @@
 ---
 
 [![Status](https://img.shields.io/badge/Status-Alive%20(COHERENT)-00b894.svg?style=flat-square)](https://arifosmcp.arif-fazil.com/health)
-[![Release](https://img.shields.io/badge/Version-2026.03.17--TRINITY-blue.svg?style=flat-square)](https://github.com/ariffazil/arifosmcp/releases)
+[![Release](https://img.shields.io/badge/Version-2026.03.19--ANTICHAOS-blue.svg?style=flat-square)](https://github.com/ariffazil/arifosmcp/releases)
 [![Tools](https://img.shields.io/badge/Canonical%20Tools-42-success.svg?style=flat-square)](https://arifosmcp.arif-fazil.com/tools)
 [![Protocols](https://img.shields.io/badge/Protocols-MCP%2BA2A%2BWebMCP-orange.svg?style=flat-square)](./docs/protocols/PROTOCOLS_TRINITY.md)
 [![Validation](https://img.shields.io/badge/External%20Validation-HIGH-brightgreen.svg?style=flat-square)](./docs/reports/EXTERNAL_VALIDATION_REPORT.md)
@@ -467,6 +467,14 @@ Every SEALed verdict is stored in a hash-chained ledger:
 - **Fix:** Browserless fetch now works without token and passes payload validation
 - **Fix:** `/tools/*` responses serialize datetime safely over HTTP
 - **Ops:** Increased memory limits for Traefik, AgentZero, and Browserless
+
+### 2026.03.19 — ANTI-CHAOS Protocol SEALED
+- **Feature**: Retired Implicit Truth Promotion — fallback values can no longer masquerade as canonical truth.
+- **Feature**: Unified Session Truth Surface — tool envelopes explicitly emit `transport_session_id` and `resolved_session_id`.
+- **Feature**: Hardened OpenClaw Preflight — added Redis health checks and service-aware arifOS MCP routing.
+- **Fix**: Resolved route shadowing for `/.well-known/agent.json` and discovery files.
+- **Fix**: Added `user` level to `AuthorityLevel` for standardized Pydantic validation.
+- **Release**: Version bumped to 2026.03.19-ANTICHAOS
 
 ### 2026.03.17 — Operational Resilience SEALED
 - **Feature:** Exposed all 37 canonical tools to MCP (9 Nervous System tools unlocked)
