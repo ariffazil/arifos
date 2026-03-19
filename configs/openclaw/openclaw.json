@@ -1,7 +1,7 @@
 {
   "meta": {
-    "lastTouchedVersion": "2026.3.13",
-    "lastTouchedAt": "2026-03-14T05:00:00.000Z"
+    "lastTouchedVersion": "2026.3.12",
+    "lastTouchedAt": "2026-03-19T02:32:24.788Z"
   },
   "logging": {
     "level": "info"
@@ -293,9 +293,9 @@
       "enabled": true
     },
     "exec": {
+      "host": "gateway",
       "security": "full",
-      "ask": "off",
-      "host": "gateway"
+      "ask": "off"
     },
     "fs": {
       "workspaceOnly": false
@@ -322,7 +322,7 @@
   "gateway": {
     "port": 18789,
     "mode": "local",
-    "bind": "all",
+    "bind": "lan",
     "controlUi": {
       "allowedOrigins": [
         "http://localhost:18789",
@@ -330,7 +330,8 @@
       ]
     },
     "auth": {
-      "mode": "none"
+      "mode": "token",
+      "token": "086d04d3e8da9b2463fe9bb70c221f7299b88b15e2530714"
     },
     "trustedProxies": [
       "10.0.10.6"
