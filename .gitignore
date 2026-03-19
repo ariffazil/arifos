@@ -366,3 +366,6 @@ docker-compose.override.yml
 .git_*_backup/
 .env.pre-production-*
 .env.backup-*
+# OpenClaw runtime configs (contain API keys)
+configs/openclaw/*.json
+

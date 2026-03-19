@@ -20,7 +20,7 @@
 
 [![Status](https://img.shields.io/badge/Status-Alive%20(COHERENT)-00b894.svg?style=flat-square)](https://arifosmcp.arif-fazil.com/health)
 [![Release](https://img.shields.io/badge/Version-2026.03.17--TRINITY-blue.svg?style=flat-square)](https://github.com/ariffazil/arifosmcp/releases)
-[![Tools](https://img.shields.io/badge/Canonical%20Tools-37-success.svg?style=flat-square)](https://arifosmcp.arif-fazil.com/tools)
+[![Tools](https://img.shields.io/badge/Canonical%20Tools-42-success.svg?style=flat-square)](https://arifosmcp.arif-fazil.com/tools)
 [![Protocols](https://img.shields.io/badge/Protocols-MCP%2BA2A%2BWebMCP-orange.svg?style=flat-square)](./docs/protocols/PROTOCOLS_TRINITY.md)
 [![Validation](https://img.shields.io/badge/External%20Validation-HIGH-brightgreen.svg?style=flat-square)](./docs/reports/EXTERNAL_VALIDATION_REPORT.md)
 [![License](https://img.shields.io/badge/License-AGPL%203.0-lightgrey.svg?style=flat-square)](./LICENSE)
@@ -188,9 +188,60 @@ The bedrock of arifOS. These are hard-coded constraints enforced at every stage 
 
 ---
 
-## 🧬 6. The 37-Tool Canonical Surface
+## 🔐 6. Identity & Authentication (F11)
 
-### 6.1 Public Constitutional Tools (28 tools)
+arifOS implements a **hierarchical identity model** with cryptographic session binding. All kernel execution requires a valid `auth_context` minted via `init_anchor`.
+
+### 6.1 Actor Registry
+
+| Actor ID | Authority Level | Scopes | Description |
+|----------|----------------|--------|-------------|
+| `arif` / `ariffazil` | **sovereign** | `arifOS_kernel:execute`, `vault:seal`, `audit_rules:read`, `agentzero:engineer` | Human sovereign (Muhammad Arif) |
+| `openclaw` / `agentzero` | **agent** | `arifOS_kernel:execute_limited`, `audit_rules:read` | Meta-agents with limited scope |
+| `operator` / `cli` | **operator** | `arifOS_kernel:execute`, `audit_rules:read` | Trusted human operators |
+| `user` / `test_user` | **user** | `arifOS_kernel:execute_limited` | Standard users |
+| *(any other)* | **declared** | `audit_rules:read` | Diagnostics only |
+| `anonymous` | **anonymous** | *(none)* | **Blocked from kernel execution** |
+
+### 6.2 Auth Context Structure
+
+```json
+{
+  "session_id": "uuid-v7",
+  "actor_id": "ariffazil",
+  "authority_level": "sovereign",
+  "token_fingerprint": "abc123...",
+  "nonce": "xyz789...",
+  "iat": 1773897701,
+  "exp": 1773898601,
+  "approval_scope": ["arifOS_kernel:execute", "vault:seal"],
+  "parent_signature": "",
+  "prev_vault_hash": "0x...",
+  "signature": "hmac-sha256-signed"
+}
+```
+
+### 6.3 Authentication Flow
+
+1. **Bootstrap**: Call `init_anchor` with `actor_id` and `session_id`
+2. **Mint**: Server returns signed `auth_context` with appropriate scopes
+3. **Execute**: Include `auth_context` in all `arifOS_kernel` calls
+4. **Verify**: Server validates signature, expiry, and session binding
+5. **Enforce**: Kernel checks `approval_scope` before execution
+
+### 6.4 Security Properties
+
+- **Cryptographic Signing**: HMAC-SHA256 with governance secret
+- **Time-bound**: 15-minute TTL (`exp` timestamp)
+- **Session Binding**: Token locked to specific `session_id`
+- **Scope Enforcement**: Authority level determines allowed operations
+- **No Anonymous Execution**: Anonymous actors receive `HOLD` with `AUTH_FAILURE`
+
+---
+
+## 🧬 7. The 42-Tool Canonical Surface
+
+### 7.1 Public Constitutional Tools (28 tools)
 
 #### KERNEL Layer (System Control)
 - `get_caller_status`: Single onboarding compass for session state.
