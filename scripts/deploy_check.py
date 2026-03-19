@@ -101,7 +101,7 @@ class DeploymentReadinessChecker:
     def check_tests_pass(self) -> CheckResult:
         """Check if tests are passing."""
         critical_tests = [
-            ("Unit Tests", ["pytest", "tests/00_unit/", "-x", "-q"]),
+            ("Unit Tests", ["pytest", "tests/core/", "-x", "-q"]),
             ("Constitutional Tests", ["pytest", "tests/03_constitutional/", "-x", "-q"]),
         ]
         
