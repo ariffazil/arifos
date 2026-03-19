@@ -1,7 +1,7 @@
 {
   "meta": {
     "lastTouchedVersion": "2026.3.12",
-    "lastTouchedAt": "2026-03-19T03:00:00.000Z"
+    "lastTouchedAt": "2026-03-19T03:05:00.000Z"
   },
   "logging": {
     "level": "info"
@@ -45,6 +45,7 @@
       "dmPolicy": "pairing",
       "botToken": "8697661462:AAHo_UP0LzKAuM1zBTitFVRm6PDIMASVBtQ",
       "groupPolicy": "open",
+      "allowFrom": ["267378578"],
       "streaming": "partial"
     }
   },
