@@ -1,5 +1,19 @@
 # docs/ README
 
+> **Documentation Layer for arifOS**
+
+---
+
+## 🧭 Repository Identity: The Trinity
+
+| Repository | Role | Purpose |
+|:-----------|:-----|:--------|
+| [**arifOS**](https://github.com/ariffazil/arifOS) | **THE MIND** | Theory, Constitution, Canonical Law |
+| [**arifosmcp**](https://github.com/ariffazil/arifosmcp) | **THE BODY** | Runtime MCP server, Execution |
+| [**ariffazil**](https://github.com/ariffazil/ariffazil) | **THE SURFACE** | Human professional portal, Interface |
+
+---
+
 `docs/` is the operational documentation layer for arifOS. Use it to understand runtime behavior, endpoint usage, deployment, and maintenance workflows without digging through source code first.
 
 ## Where to start

@@ -140,8 +140,8 @@ The `docker-compose.yml` defines 12 production containers:
 | `core/organs/_3_apex.py` | Stages 444-888 — sync, forge, judge (APEX Soul Ψ) |
 | `core/organs/_4_vault.py` | Stage 999 — seal, query, verify |
 | `core/physics/thermodynamics_hardened.py` | P3 mandatory thermodynamic enforcement |
-| `aaa_mcp/server.py` | 13 MCP tools with `@mcp.tool()` decorators |
-| `arifos_aaa_mcp/server.py` | Canonical public entrypoint |
+| `arifosmcp/runtime/mcp_server.py` | 42 MCP tools with `@mcp.tool()` decorators |
+| `arifos_arifosmcp/runtime/mcp_server.py` | Canonical public entrypoint |
 | `docker-compose.yml` | 12-service production stack |
 | `.pre-commit-config.yaml` | Constitutional quality gates (Black, Ruff, MyPy, Bandit, custom F1/F9 checks) |
 
@@ -377,9 +377,9 @@ pre-commit run --all-files
 
 ---
 
-## 8. The 13 Canonical MCP Tools
+## 8. The 42-Tool Canonical Surface
 
-All tools are defined in `aaa_mcp/server.py` with `@mcp.tool()` decorators.
+All tools are defined in `arifosmcp/runtime/mcp_server.py` with `@mcp.tool()` decorators.
 
 | Tool | Stage | Action | Purpose |
 |------|:-----:|:------:|---------|
@@ -502,13 +502,13 @@ docker compose logs -f arifosmcp  # Watch MCP server logs
 
 To add a new tool to the 13-tool surface:
 
-1. **Add `@mcp.tool()`** in `aaa_mcp/server.py`
+1. **Add `@mcp.tool()`** in `arifosmcp/runtime/mcp_server.py`
 2. **Create backend** in `aclip_cai/triad/` (appropriate Δ/Ω/Ψ subdirectory)
 3. **Wire kernel logic** via `core/` imports
 4. **Register floor mapping** in `core/kernel/constitutional_decorator.py`
-5. **Mirror** in `arifos_aaa_mcp/server.py` and add to `AAA_TOOLS`
+5. **Mirror** in `arifos_arifosmcp/runtime/mcp_server.py` and add to `AAA_TOOLS`
 6. **Add tests** in `tests/`
-7. **Update tool count assertion:** `assert len(AAA_CANONICAL_TOOLS) == 13`
+7. **Update tool count assertion:** `assert len(AAA_CANONICAL_TOOLS) == 42`
 
 **Note:** The tool count is a runtime invariant. If adding a tool, you must remove or consolidate another to maintain exactly 13 tools.
 

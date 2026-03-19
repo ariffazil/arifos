@@ -1,9 +1,21 @@
 # arifOS MIND — Canonical Index
 
-**Version:** 2026.03.13-FORGED  
+**Version:** 2026.03.19-PURE-THEORY  
 **Classification:** Theory & Reference (The Mind)  
 **Authority:** 888_JUDGE — Muhammad Arif bin Fazil  
 **Motto:** *Ditempa Bukan Diberi* — Forged, Not Given
+
+---
+
+## 🧭 Repository Identity: The Trinity
+
+| Repository | Role | Purpose |
+|:-----------|:-----|:--------|
+| **arifOS** (this) | **THE MIND** | Theory, Constitution, Canonical Law |
+| [**arifosmcp**](https://github.com/ariffazil/arifosmcp) | **THE BODY** | Runtime MCP server, Execution |
+| [**ariffazil**](https://github.com/ariffazil/ariffazil) | **THE SURFACE** | Human professional portal, Interface |
+
+> **⚠️ IMPORTANT:** This repository contains **NO executable code**. For the runtime implementation, see [arifosmcp](https://github.com/ariffazil/arifosmcp).
 
 ---
 

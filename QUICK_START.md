@@ -6,6 +6,19 @@
 
 ---
 
+## 🧭 Repository Identity: The Trinity
+
+| Repository | Role | Purpose |
+|:-----------|:-----|:--------|
+| **arifOS** (this) | **THE MIND** | Theory, Constitution, Canonical Law |
+| [**arifosmcp**](https://github.com/ariffazil/arifosmcp) | **THE BODY** | Runtime MCP server, Execution |
+| [**ariffazil**](https://github.com/ariffazil/ariffazil) | **THE SURFACE** | Human professional portal, Interface |
+
+> **⚠️ NO CODE HERE:** This repository contains **theory and documentation only**.  
+> 👉 For installation and runtime, go to [**arifosmcp**](https://github.com/ariffazil/arifosmcp).
+
+---
+
 ## 🎯 The 30-Second Summary
 
 **arifOS** is a **Constitutional AI Governance System**. It sits between AI agents and the real world, ensuring every action passes 13 mathematical safety checks (F1-F13) before execution.
@@ -131,10 +144,20 @@ Read: 0_KERNEL/ROOT/mcp/QUICK_REF.md
 Read: PATTERNS/README.md (P-009 Constitutional Decorator)
 ```
 
+### "I want to run arifOS"
+```
+👉 GO TO: https://github.com/ariffazil/arifosmcp
+
+pip install arifos
+python -m arifos_aaa_mcp
+```
+
 ### "I need deployment info"
 ```
-Read: OPERATION/O_DEPLOY_MASTER.md
-Read: OPERATION/O_MONITORING.md
+👉 GO TO: https://github.com/ariffazil/arifosmcp
+
+Read: OPERATION/O_DEPLOY_MASTER.md (theory)
+Read: arifosmcp deployment docs (implementation)
 ```
 
 ### "I need agent specifications"

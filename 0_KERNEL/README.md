@@ -27,6 +27,16 @@ The following core kernel files have been SHA-256 hashed and sealed at the curre
 
 ---
 
+## 🧭 Repository Identity: The Trinity
+
+| Repository | Role | Purpose |
+|:-----------|:-----|:--------|
+| [**arifOS**](https://github.com/ariffazil/arifOS) | **THE MIND** | Theory, Constitution, Canonical Law |
+| [**arifosmcp**](https://github.com/ariffazil/arifosmcp) | **THE BODY** | Runtime MCP server, Execution |
+| [**ariffazil**](https://github.com/ariffazil/ariffazil) | **THE SURFACE** | Human professional portal, Interface |
+
+---
+
 ## 🏛️ Topographical Map
 
 ### 1. ROOT (The Mind)
