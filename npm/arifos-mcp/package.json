@@ -1,6 +1,6 @@
 {
   "name": "@arifos/mcp",
-  "version": "2026.3.15",
+  "version": "2026.3.17",
   "description": "arifOS MCP Server - Constitutional AI Governance System with Protocol Trinity (MCP + A2A + WebMCP)",
   "main": "index.js",
   "bin": {
