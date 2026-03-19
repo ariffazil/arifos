@@ -471,11 +471,21 @@ async def _wrap_call(
         payload["caller_context"] = caller_context.model_dump(mode="json", exclude_none=True)
 
     # Identify tool metadata for envelope decoration
-    spec = PUBLIC_TOOL_SPEC_BY_NAME.get(tool_name)
+    from arifosmcp.runtime.public_registry import public_tool_spec_by_name
+    all_specs = public_tool_spec_by_name()
+    spec = all_specs.get(tool_name)
     risk_class = RiskClass.LOW
     requires_auth = False
+    
+    BOOTSTRAP_TOOLS = {"init_anchor", "init_anchor_state", "get_caller_status", "register_tools"}
+    
     if spec:
-        if "F11" in spec.floors or "F13" in spec.floors:
+        # F11/F13 normally require auth, but BOOTSTRAP EXCEPTION applies to identity providers.
+        # Check by name first to ensure no stale metadata can block bootstrap.
+        if tool_name in BOOTSTRAP_TOOLS:
+            risk_class = RiskClass.LOW
+            requires_auth = False
+        elif "F11" in spec.floors or "F13" in spec.floors:
             risk_class = RiskClass.HIGH
             requires_auth = True
         elif spec.layer == "KERNEL":
@@ -1176,87 +1186,81 @@ async def forge(
 
 async def arifos_kernel(
     query: str,
-    ctx: Context | None = None,
+    ctx: Context = CurrentContext(),
     session_id: str | None = None,
     risk_tier: str = "medium",
     mode: str = "recommend",
-    # Legacy compatibility parameters
-    context: str | None = None,
     auth_context: AuthContext | dict[str, Any] | None = None,
-    actor_id: str = "anonymous",
-    declared_name: str | None = None,
-    human_approval: bool = False,
-    use_memory: bool = False,
-    use_heart: bool = False,
-    use_critique: bool = False,
-    allow_execution: bool = False,
-    dry_run: bool = False,
-    requested_persona: str | None = None,
     caller_context: CallerContext | None = None,
+    dry_run: bool = False,
+    allow_execution: bool = True,
     debug: bool = False,
+    # Explicit legacy/identity parameters
+    actor_id: str | None = None,
+    context: str | None = None,
+    requested_persona: str | None = None,
 ) -> RuntimeEnvelope:
     """
     444_ROUTER: The Governed Conductor (Stage Conductor).
     Orchestrates ΔΩΨ transitions through the metabolic pipeline.
 
-    ### Contract (Missing Contract 2)
-    - **Governance Requirement**: Executes under F1-F13 constitutional enforcement.
-    - **Mandatory Auth**: Governed `mode`s requires a valid `auth_context` (minted via `init_anchor`).
-    - **Risk Tiering**:
-        - `low`: Minimal friction, diagnostic-heavy.
-        - `medium`: (Default) Standard governance audit.
-        - `high`: Requires F13 human approval (or explicit human_approval flag).
-
-    ### Modes
-    - `inspect/analyze`: Read-only probe of state (low risk).
-    - `recommend`: Synthetic proposal with risk assessment (no execution).
-    - `governed_execute`: Live execution under constitutional oversight.
-    - `dry_run`: Full pipeline simulation without side effects.
-
-    ### Input
-    - `query`: The objective or task (e.g., "Analyze logs and propose a fix").
-    - `auth_context`: (Required for execution) The context returned from `init_anchor`.
-    - `risk_tier`: "low" | "medium" | "high".
-    - `mode`: "recommend" | "inspect" | "governed_execute" | "dry_run".
-
-    ### Returns (RuntimeEnvelope)
-    - `verdict`: SEAL | HOLD | VOID | SABAR.
-    - `remediation`: Recovery path if verdict is not SEAL.
-    - `payload`: Results of the tool/analysis or execution log.
+    ### Identity Alignment
+    - Prioritizes verified identity from AuthContext.
+    - Cascades to SessionManager for system-level anchoring.
+    - Rejects unanchored execution attempts.
     """
-    # Canonical delegation via _wrap_call to ensure Invariants and Philosophy apply
-    active_session = session_id or _normalize_session_id(None)
+    from core.state.session_manager import session_manager
 
+    # 1. Resolve Identity Nonce
+    active_session = session_id or getattr(ctx, "session_id", None) or _normalize_session_id(None)
+
+    # 2. Extract Authority (Verified > Claimed)
+    verified_actor = "anonymous"
+    if auth_context:
+        if hasattr(auth_context, "actor_id"):
+            verified_actor = auth_context.actor_id
+        elif isinstance(auth_context, dict):
+            verified_actor = auth_context.get("actor_id", "anonymous")
+
+    if verified_actor == "anonymous":
+        # Check system memory for anchored actor
+        session_state = session_manager.get_session(active_session)
+        if session_state and session_state.actor_id:
+            verified_actor = session_state.actor_id
+
+    # 3. Resolve Effective Context
+    effective_caller_ctx = _resolve_caller_context(caller_context, requested_persona)
+
+    # 4. Handle Discovery Calls (Don't block bootstrap)
+    is_discovery = not query or query.startswith("Discovery call for")
+    
     # Ensure allow_execution is synchronized with mode
     effective_execution = allow_execution or (mode == "governed_execute")
     effective_dry_run = dry_run or (mode == "dry_run")
 
+    payload = {
+        "query": query,
+        "context": context,
+        "mode": mode,
+        "actor_id": verified_actor,
+        "is_discovery": is_discovery,
+        "auth_context": auth_context
+        if not hasattr(auth_context, "model_dump")
+        else auth_context.model_dump(mode="json"),
+        "allow_execution": effective_execution,
+        "dry_run": effective_dry_run,
+        "risk_tier": risk_tier,
+        "debug": debug,
+    }
+
+    # Execute via the Secure Bridge
     return await _wrap_call(
-        tool_name="arifOS_kernel",
-        stage=Stage.ROUTER_444,
-        session_id=active_session,
-        payload={
-            "query": query,
-            "context": context,
-            "risk_tier": risk_tier,
-            "mode": mode,
-            "actor_id": actor_id,
-            "declared_name": declared_name,
-            "human_approval": human_approval,
-            "auth_context": auth_context
-            if not hasattr(auth_context, "model_dump")
-            else auth_context.model_dump(mode="json"),
-            "allow_execution": effective_execution,
-            "dry_run": effective_dry_run,
-            "caller_context": caller_context.model_dump(mode="json") if caller_context else None,
-            "debug": debug,
-            "use_memory": use_memory,
-            "use_heart": use_heart,
-            "use_critique": use_critique,
-            "requested_persona": requested_persona,
-        },
-        ctx=ctx,
-        caller_context=caller_context,
+        "arifOS_kernel",
+        Stage.ROUTER_444,
+        active_session,
+        payload,
+        ctx,
+        effective_caller_ctx,
     )
 
 
@@ -1660,6 +1664,7 @@ def register_tools(mcp: FastMCP, profile: str = "full") -> None:
         "session_id": ArgTransform(hide=True, default=None),
     }
     _transform_names = {"arifOS_kernel", "metabolic_loop_router"}
+    _direct_names = {"init_anchor", "init_anchor_state", "get_caller_status"}
 
     # ─── Internal tools: hidden from public clients until validated ───
     # agentzero_engineer: authorized=True hardcoded — F11 risk until real auth wired
@@ -1671,7 +1676,11 @@ def register_tools(mcp: FastMCP, profile: str = "full") -> None:
         spec = specs.get(name)
         description = spec.description if spec else None
         tags = {"internal"} if name in _internal_tool_names else None
-        if name in _transform_names:
+        
+        if name in _direct_names:
+            # Bypass tool transformation for bootstrap tools to avoid discovery gating
+            mcp.tool(name=name, description=description, tags=tags)(handler)
+        elif name in _transform_names:
             base = make_tool(handler)
             transformed = Tool.from_tool(
                 base,
