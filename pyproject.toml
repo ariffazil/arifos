@@ -1,12 +1,13 @@
 [project]
 name = "arifosmcp"
-version = "2026.3.17"
+version = "2026.03.19"
 # T000 Versioning: YYYY.MM.DD — see T000_VERSIONING.md and CHANGELOG.md for full history
-# 2026.03.17 — Anti-Chaos Protocol (v2026.03.17-ANTICHAOS)
+# 2026.03.19 — Anti-Chaos Protocol (v2026.03.19-ANTICHAOS)
 #   One Truth for State: get_caller_status onboarding compass, 6-state ladder
 #   One Truth for Path: Explicit allowed_next_tools, blocked_tools with remediation
 #   One Truth for Errors: Recovery packets with next_tool, required_args, example_payload
 #   One Truth for Consequence: diagnostics_only flag for global session
+#   Truth Retirement: Implicit fallback authority and unverified truth promotion removed.
 # 2026.03.14 — Kernel Coverage Forge (v2026.03.14-FORGED)
 #   Stationary kernel at 90%+ coverage. 450+ tests. 888_JUDGE ratification.
 #   Added: test_constants.py, test_judgment.py, test_governance_engine.py

@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2026.03.19] - ANTI-CHAOS
+
+### Added
+- **One Truth for State**: Unified session and identity resolution via `resolve_runtime_context`.
+- **Identity Precedence**: Hard enforcement of `actor_id` > `declared_name` > `anonymous`.
+- **Session Truth Surface**: Tool envelopes now explicitly emit `transport_session_id` (debug) and `resolved_session_id` (canonical).
+- **Recovery Packets**: Error envelopes now include `required_next_tool`, `required_fields`, and `example_payload` for autonomous healing.
+- **Authority Levels**: Added `user` level to `AuthorityLevel` enum for standardized validation.
+- **Hardened Preflight**: Enhanced `openclaw-preflight.sh` with Redis health checks and service-aware arifOS MCP routing.
+
+### Changed
+- **Truth Retirement**: Retired "Implicit Fallback Authority" — raw transport values can no longer masquerade as resolved truth.
+- **`global` Demotion**: The `global` session ID is now explicitly labeled as a `fallback` transport value, not anchored truth.
+- **`AuthorityLevel` Alignment**: Pydantic validation now strictly enforces the 9 canonical authority levels.
+
+### Fixed
+- **Identity Promotion Bug**: Prevented `declared_name` from overriding `actor_id` in `init_anchor` and `metabolic_loop`.
+- **Preflight Reachability**: Fixed Docker-to-Host networking defaults in preflight scripts.
+
 ## [2026.03.17] - ANTICHAOS
 
 ### 🔐 Security & Identity (F11/F13)
