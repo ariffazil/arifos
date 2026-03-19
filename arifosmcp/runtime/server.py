@@ -29,6 +29,7 @@ from fastmcp.server.transforms import ResourcesAsTools, Visibility
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.middleware.cors import CORSMiddleware
 from starlette.responses import JSONResponse
+from starlette.routing import Mount
 from starlette.staticfiles import StaticFiles
 
 from arifosmcp.runtime.fastmcp_ext.transports import (
@@ -306,6 +307,12 @@ if os.path.isdir(_developer_dir):
 
 _WEBMCP_ENABLED = os.getenv("ARIFOS_WEBMCP_ENABLED", "true").lower() in ("true", "1", "yes")
 
+# Serve trinity-nav.js globally (MUST be before WebMCP mount to avoid route shadowing)
+_sites_dir = os.path.join(os.path.dirname(__file__), "..", "sites")
+if os.path.isdir(_sites_dir):
+    # Insert at beginning to ensure it takes priority over the WebMCP catch-all
+    _mcp_app.routes.insert(0, Mount("/static-sites", StaticFiles(directory=_sites_dir, html=True), name="static-sites"))
+
 if _WEBMCP_ENABLED:
     try:
         from .webmcp import WebMCPGateway
@@ -324,11 +331,6 @@ if _WEBMCP_ENABLED:
         print(f"⚠️ WebMCP not available: {e}. Run: pip install itsdangerous fastapi uvicorn redis", file=sys.stderr)
     except Exception as e:
         print(f"❌ WebMCP integration failed: {e}", file=sys.stderr)
-
-# Serve trinity-nav.js globally
-_sites_dir = os.path.join(os.path.dirname(__file__), "..", "sites")
-if os.path.isdir(_sites_dir):
-    _mcp_app.mount("/static-sites", StaticFiles(directory=_sites_dir), name="static-sites")
 
     # Root-level discovery files
     from starlette.responses import FileResponse
