@@ -1,0 +1,94 @@
+{
+  "session_id": "567796df-090c-4d03-a95d-84ddd3b93fc8",
+  "timestamp": "2026-02-01T19:24:36.283077+00:00Z",
+  "verdict": "VOID",
+  "init_result": {},
+  "genius_result": {},
+  "act_result": {},
+  "judge_result": {
+    "verdict_struct": {
+      "stage": "888_JUDGE",
+      "session_id": "567796df-090c-4d03-a95d-84ddd3b93fc8",
+      "lane": "SOFT",
+      "verdict": "VOID",
+      "reason": "VOID: Failed: ['F6(clarity)'], Warnings: ['F8(tri_witness)', 'F3(peace)']",
+      "p_truth": 0.0,
+      "tri_witness": 0.8833333333333333,
+      "votes": {
+        "mind": 0.9,
+        "heart": 0.8,
+        "earth": 0.95
+      },
+      "violated_floors": [],
+      "cooling": {
+        "tier": "L2_PHOENIX",
+        "hold_hours": 72
+      },
+      "proof_hash": "469b985dfecd7906f6ff20b77ae122f7e42913edc18732b2df52cc38cde1fbaa",
+      "metrics": {
+        "truth": 0.95,
+        "delta_s": 0.050000000000000044,
+        "peace_squared": 0.0,
+        "kappa_r": 0.95,
+        "omega_0": 0.04,
+        "amanah": true,
+        "tri_witness": 0.8833333333333333,
+        "rasa": true,
+        "anti_hantu": true,
+        "psi": 1.0
+      },
+      "psi_kernel": {
+        "psi_verdict": "PARTIAL",
+        "psi_f8_genius": 0.8833333333333333,
+        "psi_passed": false,
+        "psi_overrode": false
+      },
+      "nine_fold": {
+        "equilibrium_gm": null,
+        "equilibrium_std": 0.6813332338561422
+      }
+    },
+    "proof": {
+      "stage": "889_PROOF",
+      "session_id": "567796df-090c-4d03-a95d-84ddd3b93fc8",
+      "merkle_root": "e7966b09ad73e9da0f84d36e67e4866c33874fb51e5996d4602e9a6a72d3f2f7",
+      "signature_ed25519": "e85cfe262132182ecb0aa7830a0c34f164e26f0b79756c185c9545a8375920288511b2f6e5f047be8796b11eba3f9a3015e10a05fcb5964326268ade6c279e05",
+      "public_key_ed25519": "8db4c4fd27ce1f7f19359ee5cabf571e07743e3b6cf464fa5f98583f0cf48cb9",
+      "leaves": [
+        "54f6b577c81ed0ce19d1cdb6fc44ea5aba3c87e56a947a49b39db109777f418b",
+        "1e6e2c629c423157dc7ab78067ef665356654f34c56021979f29ebaee874698a",
+        "2d056443437412308c9e876500d41170f0b19393a599c8692e98ce709c367fac",
+        "cebe97aa3a966cefe38fe760d6aec6fbd6401b06dbe6240f2a7a72e1c60b3f97",
+        "06ff4e80f31626451bb9b0b133df2d58ec66d19e53ec931e221d49b906d96b97",
+        "8f62412431cdc61022858d2d0e92faca047534f6ce47f2f2288847a1eaa8730e",
+        "5c4b1181fd140503091fbd867fa585bfb625a4e40e0983ecebbdbf862bdb87d7",
+        "aa0bf1c58f2b4eb996b59042ea8bbc9288d3654c618ca2966bb144f7f68006bf",
+        "c25098a0a5f2f57b782b94fe8bb1e6b6aad72dc6a1b9f3cf7bf1c6f21e23b885",
+        "a74c60bc04b44e3a2bd0a125d607a660b89d0b576dcb66732c5387504f7edfb0",
+        "f5de4c623f966aed7faac75addef69fd8bd2df8821c44abacd55530795158f24"
+      ]
+    }
+  },
+  "telemetry": {
+    "verdict": "VOID",
+    "p_truth": 0.0,
+    "TW": 0.8833333333333333,
+    "dS": 0.050000000000000044,
+    "peace2": 0.0,
+    "kappa_r": 0.95,
+    "omega_0": 0.04,
+    "cooling": {
+      "tier": "L2_PHOENIX",
+      "hold_hours": 72
+    },
+    "proof": {
+      "merkle_root": "e7966b09ad73e9da0f84d36e67e4866c33874fb51e5996d4602e9a6a72d3f2f7",
+      "public_key": "8db4c4fd27ce1f7f19359ee5cabf571e07743e3b6cf464fa5f98583f0cf48cb9"
+    }
+  },
+  "prev_hash": "325e8043aefeefabc18cb67c78cecae1760f25a56668954a911aba286bfe2062",
+  "merkle_root": "9c13a776351602e495e17c7c3f59e9b134dbf9a69c598cc3bd37e44da1c5d457",
+  "entry_hash": "711ec851484b66b46726efbaf7f03c277100762c6963598e8377924954ef9c92",
+  "context_summary": "VOID: VOID: Failed: ['F6(clarity)'], Warnings: ['F8(tri_witness)', 'F3(peace)']",
+  "key_insights": []
+}

@@ -1,0 +1,79 @@
+{
+  "name": "@arifos/mcp",
+  "version": "0.3.0",
+  "description": "arifOS MCP Client \u2014 TypeScript types and minimal client for Constitutional AI Governance (L2 Skills Adapter)",
+  "keywords": [
+    "mcp",
+    "arifos",
+    "ai-governance",
+    "constitutional-ai",
+    "model-context-protocol"
+  ],
+  "homepage": "https://arifos.arif-fazil.com",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ariffazil/arifOS.git",
+    "directory": "packages/npm/arifos-mcp"
+  },
+  "bugs": {
+    "url": "https://github.com/ariffazil/arifOS/issues"
+  },
+  "license": "AGPL-3.0-only",
+  "author": "Muhammad Arif bin Fazil <arifos@arif-fazil.com>",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./types": {
+      "import": "./dist/types.mjs",
+      "require": "./dist/types.js",
+      "types": "./dist/types.d.ts"
+    },
+    "./client": {
+      "import": "./dist/client.mjs",
+      "require": "./dist/client.js",
+      "types": "./dist/client.d.ts"
+    },
+    "./langchain": {
+      "import": "./dist/langchain.mjs",
+      "require": "./dist/langchain.js",
+      "types": "./dist/langchain.d.ts"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts src/types.ts src/client.ts src/langchain.ts --format cjs,esm --dts --clean",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src/**/*.ts",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "zod": "^3.22.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "tsup": "^8.0.0",
+    "tsx": "^4.21.0",
+    "typescript": "^5.3.0",
+    "vitest": "^1.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "publishConfig": {
+    "access": "public",
+    "tag": "latest"
+  },
+  "_updated": "2026.03.07b"
+}

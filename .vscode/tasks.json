@@ -1,0 +1,71 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Capture Terminal to Kimi",
+            "type": "shell",
+            "command": "python",
+            "args": [
+                "${workspaceFolder}/scripts/kimi_terminal_bridge.py",
+                "--preview",
+                "/paste"
+            ],
+            "group": "test",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            },
+            "problemMatcher": [],
+            "icon": {
+                "color": "terminal.ansiGreen",
+                "id": "terminal"
+            }
+        },
+        {
+            "label": "Capture Last 100 Lines",
+            "type": "shell",
+            "command": "python",
+            "args": [
+                "${workspaceFolder}/scripts/kimi_terminal_bridge.py",
+                "--lines", "100",
+                "--preview",
+                "/explain"
+            ],
+            "group": "test",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            },
+            "problemMatcher": [],
+            "icon": {
+                "color": "terminal.ansiYellow",
+                "id": "search"
+            }
+        },
+        {
+            "label": "Setup Terminal Logging",
+            "type": "shell",
+            "command": "powershell",
+            "args": [
+                "-Command",
+                "New-Item -ItemType Directory -Force -Path $env:USERPROFILE/.arifos_clip; Write-Host '✓ Terminal logging directory created'"
+            ],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "silent",
+                "focus": false,
+                "panel": "shared"
+            },
+            "problemMatcher": [],
+            "icon": {
+                "color": "terminal.ansiBlue",
+                "id": "gear"
+            }
+        }
+    ]
+}

@@ -1,0 +1,27 @@
+{
+  "recommendations": [
+    // -- THE AI AGENT STACK (The "Soul" of arifOS) --
+    "saoudrizwan.claude-dev",      // Cline (Primary Agentic Coding)
+    "GitHub.copilot",              // GitHub Copilot
+    "GitHub.copilot-chat",         // GitHub Copilot Chat
+
+    // -- LANGUAGE & FRAMEWORKS (The "Mind") --
+    "ms-python.python",            // Python language support
+    "ms-python.vscode-pylance",    // Advanced Python IntelliSense
+    "charliermarsh.ruff",          // Ruff (Linter & Formatter - Replaces Black/isort)
+    "ms-python.mypy-type-checker", // Mypy Type Checker
+
+    // -- DOCUMENTATION & DATA (The "Memory") --
+    "yzhang.markdown-all-in-one",  // Markdown support
+    "davidanson.vscode-markdownlint", // Markdown linting
+    "tamasfe.even-better-toml",    // TOML support
+    "redhat.vscode-yaml",          // YAML support
+    "gruntfuggly.todo-tree",       // Todo Tree
+
+    // -- INFRASTRUCTURE & TOOLS (The "Body") --
+    "eamodio.gitlens",             // GitLens
+    "usernamehw.errorlens",        // Error Lens (Inline errors)
+    "aaron-bond.better-comments",  // Better Comments
+    "emmanuelbeziat.vscode-great-icons" // Better file icons
+  ]
+}
