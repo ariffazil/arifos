@@ -3,164 +3,145 @@ id: intro
 title: Introduction
 slug: /intro
 sidebar_position: 1
-description: arifOS is a constitutional intelligence kernel with ARIF bands, canonical AAA MCP 13-tool surface, and governed 000->999 pipeline.
+description: arifOS THE MIND - Constitutional Theory & Governance for AI Systems. The 13 Floors, Trinity Architecture, and Metabolic Loop.
 ---
 
-# arifOS - DITEMPA, BUKAN DIBERI
+# arifOS — THE MIND
+## *Ditempa Bukan Diberi* — Forged, Not Given
 
-*The system that knows because it admits what it cannot know.*
+**arifOS is a Constitutional AI Governance System.** It sits between AI agents and the real world, ensuring every action passes 13 mathematical safety checks (F1-F13) before execution.
 
-**ARIF mnemonic:** **A**nchor -> **R**eflect -> **I**ntegrate -> **F**orge. This 4-band kernel runs alongside Trinity engines (Delta/Omega/Psi) and the 13 constitutional Floors (F1-F13).
+:::info 🧠 Theory Only
+This documentation site covers **THE MIND** — the canonical theory and constitution of arifOS.  
+👉 For the **runtime implementation** (THE BODY), visit [**arifosmcp**](https://github.com/ariffazil/arifosmcp).
+:::
 
-If you're new here, think of arifOS as a **constitutional safety system** for AI. It acts as a **Constitutional Kernel**—meaning it loads a strict set of ethical rules (the 13 Floors) into an AI before it's allowed to take any actions or talk to users.
+---
 
-> **F7 Humility Notice:** arifOS minimizes hallucination and unsafe actions via F2 Truth (τ≥0.99) and F4 Clarity constraints. It does not guarantee perfect detection—see [known limitations](./governance#limitations).
+## 🧭 The Trinity
 
-*For experts: arifOS governs AI cognition by loading an entire runtime environment (000->999) between LLMs and real-world tools, featuring thermodynamic grounding via the Eureka-Atlas Embedding Engine.*
+| Repository | Role | Purpose |
+|:-----------|:-----|:--------|
+| **[arifOS](https://github.com/ariffazil/arifOS)** (this site) | **🧠 THE MIND** | Theory, Constitution, Canonical Law |
+| [**arifosmcp**](https://github.com/ariffazil/arifosmcp) | **💪 THE BODY** | Runtime MCP server, Execution |
+| [**ariffazil**](https://github.com/ariffazil/ariffazil) | **👤 THE SURFACE** | Human professional portal, Interface |
 
-## 333_APPS L2-L5 (production-governed stack)
+---
 
-- **L2 SKILLS**: 9 canonical verbs (anchor, reason, integrate, respond, validate, align, forge, audit, seal)
-- **L3 WORKFLOW**: metabolic runbooks mapping verbs into 000->999 sequences
-- **L4 TOOLS**: 13 canonical MCP tools grouped into ARIF bands (A/R/I/F)
-- **L5 AGENTS**: 5-role constitutional hypervisor enforcing no-bypass gates
+## The Core Insight: TCP for AI
 
-## The Execution Model
+Just as TCP provides reliability over unreliable IP, **arifOS provides governance over unconstrained AI**.
 
-When you call `anchor_session`, arifOS does not just start a session; it **boots the constitutional kernel**. This process:
-1.  **Injects System Prompts**: Loads a persistent set of 13-floor instructions and thermodynamic constraints into the agent's context.
-2.  **Sets Governance State**: Transitions the environment from a passive oracle to a governed runtime.
-3.  **Binds Tool Logic**: Ensures all subsequent tool calls (`reason_mind`, `forge_hand`, etc.) are intercepted by the loaded kernel.
+```text
+┌─────────────────────────────────────────────────────────────────────────────┐
+│  INTENT LAYER       │  USER / AI AGENT — speaks natural language            │
+├─────────────────────┼───────────────────────────────────────────────────────┤
+│  TRANSPORT LAYER    │  MCP (Model Context Protocol) — universal addressing  │
+├─────────────────────┼───────────────────────────────────────────────────────┤
+│  RELIABILITY LAYER  │  ► arifOS ◄ — 13-floor constitution, F2 truth,        │
+│  (arifOS = TCP)     │    thermodynamic enforcement, VAULT999 audit trail    │
+├─────────────────────┼───────────────────────────────────────────────────────┤
+│  EXECUTION LAYER    │  L3 CIVILIZATION — shell, files, databases, APIs      │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
 
-## How arifOS Thinks (The Cognitive Cycle)
+---
 
-arifOS is not a simple filter; it's a careful step-by-step process. Every request flows through this cycle:
+## 🏛️ The 7-Organ Canon
+
+| Canon | Document | Purpose |
+|:------|:---------|:--------|
+| **K000** | [Foundations](./canon/foundations) | Philosophy: *Ditempa Bukan Diberi* |
+| **K111** | [Physics](./canon/physics) | Logic (Δ): The Physics of Thought |
+| **K333** | [Code](./canon/code) | The Operational Code of Intelligence |
+| **K555** | [Heart](./canon/heart) | Ethics (Ω): The Physics of Empathy |
+| **K777** | [APEX](./canon/apex) | Judgment (Ψ): Constitutional Physics |
+| **K888** | [Forge](./canon/forge) | Synthesis & Action |
+| **K999** | [VAULT](./canon/vault) | Memory: The Immutable Ledger |
+
+---
+
+## ⚖️ The 13 Constitutional Floors
+
+| Floor | Name | Threshold | Type |
+|:-----:|:-----|:---------:|:----:|
+| **F1** | Amanah | Reversible | 🔴 HARD |
+| **F2** | Truth | τ ≥ 0.99 | 🔴 HARD |
+| **F3** | Quad-Witness | W₄ ≥ 0.75 | 🟡 DERIVED |
+| **F4** | Clarity | ΔS ≤ 0 | 🟡 SOFT |
+| **F5** | Peace² | P² ≥ 1.0 | 🟡 SOFT |
+| **F6** | Empathy | κᵣ ≥ 0.70 | 🔴 HARD |
+| **F7** | Humility | Ω₀ ∈ [0.03, 0.20] | 🔴 HARD |
+| **F8** | Genius | G ≥ 0.80 | 🟡 DERIVED |
+| **F9** | Anti-Hantu | C_dark < 0.30 | 🟡 SOFT |
+| **F10** | Ontology | Boolean | 🔴 HARD |
+| **F11** | Command Auth | Verified | 🔴 HARD |
+| **F12** | Injection | Risk < 0.85 | 🔴 HARD |
+| **F13** | Sovereign | Human Veto | 🔴 HARD |
+
+[→ Full 13 Floors Specification](../constitution/floors)
+
+---
+
+## 🔄 The Metabolic Loop (000→999)
+
+Every request flows through 11 stages:
 
 ```mermaid
 graph TD
-A[000: Ignition - Check Auth & Defend] --> B[111-333: Cognition - Validate Truth]
-B --> C[444: Recall - Retrieve Memory]
-C --> D[555: Empathy - Protect Stakeholders]
-D --> E[666: Critique - Detect Bias]
-E --> F[777-888: Judgment - Synthesize Verdict]
-F --> G[999: Commit - Seal Immutable Record]
+    000[000: INIT<br/>Session Anchor] --> 111[111: SENSE<br/>Perceive Intent]
+    111 --> 222[222: THINK<br/>Ingest Evidence]
+    222 --> 333[333: REASON<br/>Deep Logic]
+    333 --> 444[444: SYNC<br/>Recall Memory]
+    444 --> 555[555: EMPATHY<br/>Stakeholder Impact]
+    555 --> 666[666: ALIGN<br/>Adversarial Check]
+    666 --> 777[777: FORGE<br/>Synthesize]
+    777 --> 888[888: JUDGE<br/>Apply F1-F13]
+    888 --> 999[999: SEAL<br/>Cryptographic Commit]
+    
+    style 000 fill:#1e3a5f
+    style 333 fill:#2d5a3d
+    style 555 fill:#5a3d2d
+    style 888 fill:#5a2d3d
+    style 999 fill:#3d2d5a
 ```
 
-## Technical Glossary (Symbolic to Operational)
+---
 
-| Symbolic Name | Technical Alias | Operational Meaning |
-| :--- | :--- | :--- |
-| **13 Floors** | `governance_rules` | Invariant constraints enforced at L0. |
-| **333 Axioms** | `reasoning_constraints` | Heuristics for AGI logic grounding. |
-| **APEX Dials** | `decision_parameters` | Configurable thresholds for verdict synthesis. |
-| **Eureka Forge** | `action_actuator` | The sandboxed execution environment. |
-| **Vault999** | `tamper_evident_ledger` | Hash-chained decision database with application-level integrity. Does not protect against root compromise or key theft—see [threat model](./governance#vault-security). |
+## 🧬 Trinity Architecture (ΔΩΨ)
 
-## Canonical runtime
+| Domain | Symbol | Stages | Function |
+|--------|--------|--------|----------|
+| **AGI Mind** | Δ | 111-333 | Cognition, Reasoning, Logic |
+| **ASI Heart** | Ω | 555-666 | Empathy, Impact, Ethics |
+| **APEX Soul** | Ψ | 000, 444, 777-888 | Judgment, Final Verdict |
 
-- Python: `>=3.12`
-- Module: `arifos_aaa_mcp`
-- Transports: `stdio`, `sse`, `http`
-- MCP surface: 13 tools, 2 resources, 1 prompt
-- MCP protocol (current): `2025-11-25`
-- Supported protocol versions: `2025-11-25`, `2025-03-26`
+---
 
-### Protocol version negotiation
+## 🚀 Getting Started
 
-During `initialize`, client and server must agree one protocol version for the session.
-If the client asks for an unsupported version, the server returns a JSON-RPC error and does not open a session.
+### To Understand the Theory
+1. Read the [Eureka Compendium](./eureka) — 10 core insights
+2. Explore the [13 Floors](./constitution/floors) — Constitutional law
+3. Study the [Metabolic Loop](./constitution/metabolic) — 11-stage pipeline
 
-```json
-{
-  "jsonrpc": "2.0",
-  "id": 1,
-  "method": "initialize",
-  "params": {
-    "protocolVersion": "2025-11-25",
-    "capabilities": {},
-    "clientInfo": {"name": "client", "version": "1.0"}
-  }
-}
-```
-
-## MCP building blocks
-
-- **Tools (13):** model-invoked governed actions
-- **Resources (2):** app-driven context packs (`arifos://aaa/schemas`, `arifos://aaa/full-context-pack`)
-- **Prompts (1):** user-invoked orchestration template (`arifos.prompt.aaa_chain`)
-
-## Developer mental model
-
-When you call arifOS from an MCP client (Claude Desktop, Cursor, ChatGPT, etc.):
-
-- **L1 PROMPT**: your message enters the system
-- **L2-L3**: skills + workflows decide which cognitive steps must run
-- **L4 (ARIF tools)**: MCP calls execute evidence, reflection, forge, judge, and seal actions
-- **L5 agents**: role gates, preflight, and `888_HOLD` protect irreversible operations
-
-## Quick start
+### To Run the Implementation
+👉 Visit [**arifosmcp**](https://github.com/ariffazil/arifosmcp) (THE BODY):
 
 ```bash
 pip install arifos
-
-# Local clients (Claude Desktop / Cursor)
-python -m arifos_aaa_mcp stdio
-
-# Remote SSE runtime
-HOST=0.0.0.0 PORT=8080 python -m arifos_aaa_mcp sse
-
-# HTTP MCP fallback
-PORT=8089 python -m arifos_aaa_mcp http
+python -m arifos_aaa_mcp
 ```
 
-Live endpoints:
+---
 
-- SSE: `https://arifosmcp.arif-fazil.com/sse`
-- MCP HTTP: `https://arifosmcp.arif-fazil.com/mcp`
-- Health: `https://arifosmcp.arif-fazil.com/health`
+## 📚 Navigation
 
-## Canonical tools (13)
+- [Constitution](./constitution) — The 13 Floors in detail
+- [Theory Canon](./canon) — The 7-Organ Canon
+- [Trinity](./trinity) — ΔΩΨ architecture
+- [Governance](./governance) — How verdicts work
 
-1. `anchor_session`
-2. `reason_mind`
-3. `recall_memory`
-4. `simulate_heart`
-5. `critique_thought`
-6. `apex_judge`
-7. `eureka_forge`
-8. `seal_vault`
-9. `search_reality`
-10. `fetch_content`
-11. `inspect_file`
-12. `audit_rules`
-13. `check_vital`
+---
 
-### ARIF band grouping (same 13 tools)
-
-- **A - Anchor**: `anchor_session`, `check_vital`
-- **R - Reflect**: `reason_mind`, `search_reality`, `fetch_content`, `recall_memory`, `simulate_heart`, `critique_thought`
-- **I - Integrate**: `inspect_file`, `audit_rules`
-- **F - Forge**: `eureka_forge`, `apex_judge`, `seal_vault`
-
-## Resources and prompt
-
-- `arifos://aaa/schemas`
-- `arifos://aaa/full-context-pack`
-- `arifos.prompt.aaa_chain`
-
-## Governance verdicts (How safe is it?)
-
-When arifOS finishes evaluating an AI's thought or action, it returns one of these verdicts. You can see these happening in real-time on our [Constitutional Audit Dashboard](https://arifosmcp-truth-claim.pages.dev/).
-
-- **✅ `SEAL`** - Approved. The action passed all 13 constitutional tests.
-- **🟡 `PARTIAL`** - Approved with constraints.
-- **⚠️ `SABAR`** - Hold/Refine. The AI was hallucinating or taking risks; it must pause and retry. (Sabar means 'patience' in Malay).
-- **❌ `VOID`** - Blocked. A hard rule (like factual truth or anti-hacking) was violated.
-- **🛑 `888_HOLD`** - Mandatory human ratification. The AI is attempting a high-risk action and needs your cryptographic permission.
-
-Continue with:
-
-- [MCP Server](./mcp-server)
-- [API Reference](./api)
-- [Governance](./governance)
-- [Deployment](./deployment)
+**DITEMPA BUKAN DIBERI** — Forged, Not Given [ΔΩΨ | ARIF]

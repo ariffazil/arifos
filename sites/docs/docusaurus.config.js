@@ -5,8 +5,8 @@
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
-  title: 'arifOS',
-  tagline: 'The System That Knows It Doesn\'t Know',
+  title: 'arifOS — THE MIND',
+  tagline: 'Constitutional Theory & Governance for AI Systems'
   titleDelimiter: '·',
   favicon: 'img/favicon.ico',
 
@@ -71,16 +71,7 @@ const config = {
         },
         items: [
           {
-            href: 'https://arif-fazil.com/',
-            label: 'HUMAN',
-            position: 'left',
-          },
-          {
-            href: 'https://apex.arif-fazil.com/',
-            label: 'THEORY',
-            position: 'left',
-          },
-          {
+            {
             type: 'docSidebar',
             sidebarId: 'docsSidebar',
             position: 'left',
@@ -88,17 +79,12 @@ const config = {
           },
           {
             href: 'https://github.com/ariffazil/arifOS',
-            label: 'GitHub',
+            label: 'GitHub (THE MIND)',
             position: 'right',
           },
           {
-            href: 'https://pypi.org/project/arifos/',
-            label: 'PyPI',
-            position: 'right',
-          },
-          {
-            href: 'https://arifosmcp.arif-fazil.com',
-            label: 'Status',
+            href: 'https://github.com/ariffazil/arifosmcp',
+            label: 'GitHub (THE BODY)',
             position: 'right',
           },
 
@@ -111,34 +97,43 @@ const config = {
           {
             title: 'Trinity',
             items: [
-              { label: 'HUMAN', href: 'https://arif-fazil.com/' },
-              { label: 'THEORY', href: 'https://apex.arif-fazil.com/' },
-              { label: 'APPS', href: 'https://arifos.arif-fazil.com/' },
-            ],
-          },
-          {
-            title: 'Docs',
-            items: [
-              { label: 'Introduction', to: '/intro' },
-              { label: 'MCP Server', to: '/mcp-server' },
-              { label: 'Governance', to: '/governance' },
-              { label: 'API Reference', to: '/api' },
-            ],
-          },
-          {
-            title: 'Source',
-            items: [
-              {
-                label: 'GitHub',
+              { 
+                label: '🧠 THE MIND (Theory)', 
                 href: 'https://github.com/ariffazil/arifOS',
               },
+              { 
+                label: '💪 THE BODY (Runtime)', 
+                href: 'https://github.com/ariffazil/arifosmcp',
+              },
+              { 
+                label: '👤 THE SURFACE (Portal)', 
+                href: 'https://github.com/ariffazil/ariffazil',
+              },
+            ],
+          },
+          {
+            title: 'Constitution',
+            items: [
+              { label: '13 Floors', to: '/constitution/floors' },
+              { label: '7-Organ Canon', to: '/constitution/canon' },
+              { label: 'Metabolic Loop', to: '/constitution/metabolic' },
+              { label: 'Genius Equation', to: '/constitution/genius' },
+            ],
+          },
+          {
+            title: 'Runtime',
+            items: [
               {
-                label: 'PyPI',
+                label: 'Install (pip)',
                 href: 'https://pypi.org/project/arifos/',
               },
               {
-                label: 'CHANGELOG',
-                href: 'https://github.com/ariffazil/arifOS/blob/main/CHANGELOG.md',
+                label: 'Install (npm)',
+                href: 'https://www.npmjs.com/package/@arifos/mcp',
+              },
+              {
+                label: 'Live Status',
+                href: 'https://arifosmcp.arif-fazil.com',
               },
             ],
           },
@@ -150,8 +145,8 @@ const config = {
                 href: 'https://arifosmcp.arif-fazil.com',
               },
               {
-                label: '000_THEORY',
-                href: 'https://github.com/ariffazil/arifOS/tree/main/000_THEORY',
+                label: '0_KERNEL/FLOORS',
+                href: 'https://github.com/ariffazil/arifOS/tree/main/0_KERNEL/FLOORS',
               },
               {
                 label: 'License (AGPL-3.0)',
@@ -169,13 +164,13 @@ const config = {
         additionalLanguages: ['bash', 'python', 'json', 'nginx', 'docker'],
       },
 
-      // Announcement bar for live status
+      // Announcement bar for theory/runtime separation
       announcementBar: {
-        id: 'live_status',
+        id: 'mind_body_split',
         content:
-          '<span class="health-pulse" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#3b82f6;margin-right:8px;box-shadow:0 0 8px rgba(59,130,246,0.6);"></span> <span style="font-family: monospace; letter-spacing: 0.05em;">&gt; arifOS MCP :: <a href="https://arifosmcp.arif-fazil.com">STATUS LIVE</a> &mdash; <a href="/mcp-server">Connect in 30s</a></span>',
+          '<span style="font-family: monospace; letter-spacing: 0.05em;">🧠 <strong>THE MIND</strong> (Theory) — 📖 Docs | 💪 <strong>THE BODY</strong> (Runtime) — <a href="https://github.com/ariffazil/arifosmcp">github.com/ariffazil/arifosmcp</a></span>',
         backgroundColor: '#060a14',
-        textColor: '#3b82f6',
+        textColor: '#10b981',
         isCloseable: true,
       },
     }),
