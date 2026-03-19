@@ -149,6 +149,8 @@ def _auth_failure_envelope(
                 "message": error_message,
                 "stage": "000_INIT",
                 "recoverable": True,
+                "required_next_tool": "init_anchor",
+                "required_fields": ["actor_id", "intent"],
             }
         ],
         "meta": {

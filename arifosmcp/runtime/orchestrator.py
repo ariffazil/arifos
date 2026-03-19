@@ -374,13 +374,13 @@ async def metabolic_loop(
                 }
             },
             "authority": {
-                "actor_id": declared_name or actor_id,
+                "actor_id": actor_id or "anonymous",  # EXPLICIT: actor_id only, no declared_name fallback
                 "level": "sovereign",
                 "auth_state": "verified"
             },
             "auth_context": auth_context or {
-                "session_id": session_id or "dry-run-session",
-                "actor_id": declared_name or actor_id,
+                "session_id": session_id or "dry-run-session",  # EXPLICIT: fallback labeled as dry-run
+                "actor_id": actor_id or "anonymous",  # EXPLICIT: no declared_name promotion
                 "authority_level": "sovereign",
                 "approval_scope": ["*"],
             },

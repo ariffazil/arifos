@@ -18,6 +18,35 @@ from arifosmcp.runtime.exceptions import ConstitutionalViolation, Infrastructure
 from arifosmcp.runtime.fault_codes import ConstitutionalFaultCode, MechanicalFaultCode
 from arifosmcp.runtime.metrics import helix_tracer
 from arifosmcp.runtime.models import RuntimeEnvelope
+from arifosmcp.runtime.sessions import resolve_runtime_context
+
+
+def _resolve_organ_session(
+    session_id: str,
+    ctx: CurrentContext,
+    actor_id: str | None = None,
+) -> tuple[str, str]:
+    """
+    EXPLICIT SESSION RESOLUTION: No implicit fallback to "global" as truth.
+    Returns (transport_session, resolved_session) tuple.
+    """
+    # Get from context if available
+    ctx_session = getattr(ctx, "session_id", None) if ctx else None
+    
+    # Transport is the raw incoming value (for debug/tracing)
+    transport_session = session_id or ctx_session or "global"
+    
+    # Resolve canonical session using the centralized resolver
+    # This ensures truth surface consistency across all organs
+    resolved_ctx = resolve_runtime_context(
+        incoming_session_id=transport_session,
+        auth_context=None,  # Organs rely on outer auth context
+        actor_id=actor_id,
+        declared_name=None,
+    )
+    
+    # Return both: transport for debug/tracing, resolved for operational truth
+    return transport_session, resolved_ctx["resolved_session_id"]
 
 
 async def asi_critique_metabolism(
@@ -30,13 +59,14 @@ async def asi_critique_metabolism(
     """
     Metabolic function for ASI·CRITIQUE (Stage 666B).
 
-    1. Resolve session continuity.
+    1. Resolve session continuity (EXPLICIT: no implicit fallback).
     2. Inject PNS·HEALTH and PNS·FLOOR signals into the audit payload.
     3. Execute thought audit against the governance kernel.
     4. Enforce F7 Humility gate (confidence must stay in [0.03, 0.05]).
     5. Emit organ span and constitutional event.
     """
-    active_session = session_id or getattr(ctx, "session_id", None) or "global"
+    transport_session, resolved_session = _resolve_organ_session(session_id, ctx)
+    active_session = resolved_session  # OPERATIONAL TRUTH
 
     with helix_tracer.start_organ_span("ASI·CRITIQUE", active_session) as span:
         from arifosmcp.runtime.bridge import call_kernel

@@ -18,6 +18,24 @@ from arifosmcp.runtime.exceptions import InfrastructureFault
 from arifosmcp.runtime.fault_codes import MechanicalFaultCode
 from arifosmcp.runtime.metrics import helix_tracer
 from arifosmcp.runtime.models import RuntimeEnvelope
+from arifosmcp.runtime.sessions import resolve_runtime_context
+
+
+def _resolve_organ_session(
+    session_id: str,
+    ctx: CurrentContext,
+    actor_id: str | None = None,
+) -> tuple[str, str]:
+    """EXPLICIT SESSION RESOLUTION: Returns (transport_session, resolved_session)."""
+    ctx_session = getattr(ctx, "session_id", None) if ctx else None
+    transport_session = session_id or ctx_session or "global"
+    resolved_ctx = resolve_runtime_context(
+        incoming_session_id=transport_session,
+        auth_context=None,
+        actor_id=actor_id,
+        declared_name=None,
+    )
+    return transport_session, resolved_ctx["resolved_session_id"]
 
 
 async def agi_asi_forge_metabolism(
@@ -30,12 +48,13 @@ async def agi_asi_forge_metabolism(
     """
     Metabolic function for AGI·ASI·FORGE (Stage 777).
 
-    1. Resolve session continuity.
+    1. Resolve session continuity (EXPLICIT: no implicit fallback).
     2. Inject PNS·ORCHESTRATE routing signal.
     3. Execute forge synthesis via governance kernel.
     4. Emit organ span and constitutional event.
     """
-    active_session = session_id or getattr(ctx, "session_id", None) or "global"
+    transport_session, resolved_session = _resolve_organ_session(session_id, ctx)
+    active_session = resolved_session  # OPERATIONAL TRUTH
 
     with helix_tracer.start_organ_span("AGI\u2013ASI\u00b7FORGE", active_session) as span:
         from arifosmcp.runtime.bridge import call_kernel

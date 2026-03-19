@@ -72,3 +72,90 @@ def clear_session_identity(session_id: str) -> None:
     """Remove stored identity for a session (e.g., on revocation)."""
     _SESSION_IDENTITY.pop(session_id, None)
     _ACTOR_SESSION_MAP.pop(session_id, None)
+
+
+# ── Session Truth Resolution ──────────────────────────────────────────────
+# F2 Truth: Single canonical resolution of session + identity continuity.
+# Session Precedence: auth_context.session_id (verified) > anchored session 
+# state > request session_id > "global"
+
+def resolve_runtime_context(
+    incoming_session_id: str | None,
+    auth_context: dict[str, Any] | None,
+    actor_id: str | None,
+    declared_name: str | None,
+) -> dict[str, Any]:
+    """
+    Canonical resolution of session and identity truth.
+    
+    Returns unified context with explicit separation of:
+    - transport_session_id: raw incoming value (for debugging)
+    - resolved_session_id: canonical continuity-verified truth
+    - canonical_actor_id: authority-bearing identity
+    - display_name: human-readable only
+    - authority_source: provenance for audit
+    """
+    # Identity precedence: actor_id > declared_name > anonymous
+    canonical_actor_id = _resolve_canonical_actor(actor_id, declared_name)
+    
+    # Transport session: raw incoming value, may be "global"
+    transport_session_id = incoming_session_id or "global"
+    
+    # Session resolution with precedence
+    resolved_session_id: str = transport_session_id
+    authority_source: str = "fallback"
+    
+    # 1. auth_context.session_id (verified token)
+    if auth_context and auth_context.get("session_id"):
+        resolved_session_id = auth_context["session_id"]
+        authority_source = "token"
+    # 2. Anchored session state for this actor
+    elif stored := get_session_identity(transport_session_id):
+        resolved_session_id = transport_session_id
+        authority_source = "session"
+    # 3. Check if actor has any anchored session
+    elif canonical_actor_id != "anonymous":
+        # Find session by actor mapping
+        for sid, aid in _ACTOR_SESSION_MAP.items():
+            if aid == canonical_actor_id:
+                resolved_session_id = sid
+                authority_source = "session"
+                break
+    
+    # Display name is presentation-only
+    display_name = declared_name or actor_id or "anonymous"
+    
+    return {
+        "transport_session_id": transport_session_id,
+        "resolved_session_id": resolved_session_id,
+        "canonical_actor_id": canonical_actor_id,
+        "display_name": display_name,
+        "authority_source": authority_source,
+    }
+
+
+def _resolve_canonical_actor(actor_id: str | None, declared_name: str | None) -> str:
+    """
+    Identity precedence: actor_id > declared_name > anonymous.
+    Handles alias normalization (arif -> ariffazil).
+    """
+    # Normalize inputs
+    aid = (actor_id or "").strip().lower()
+    dname = (declared_name or "").strip().lower()
+    
+    # Sovereign actor aliases
+    SOVEREIGN_ALIASES = {"arif", "arif-fazil", "ariffazil", "muhammad-arif"}
+    
+    # Precedence: actor_id first
+    if aid and aid != "anonymous":
+        if aid in SOVEREIGN_ALIASES:
+            return "ariffazil"
+        return aid
+    
+    # Fallback: declared_name (normalized)
+    if dname and dname != "anonymous":
+        if dname in SOVEREIGN_ALIASES:
+            return "ariffazil"
+        return dname
+    
+    return "anonymous"

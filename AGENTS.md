@@ -169,10 +169,12 @@ When `init_anchor` succeeds, it returns an `auth_context` — a **signed, time-b
 **Rules:**
 
 1. **Identity Precedence** — Core to F1 (Amanah) and F11 (Command Auth), the system enforces a strict identity hierarchy: `actor_id` (canonical) > `declared_name` (display) > `anonymous` (fallback). `actor_id` is the indisputable cryptographically bound source of truth.
-2. **Forward auth_context** — All `arifOS_kernel` calls must include the auth_context from init_anchor
-3. **Expiry** — Tokens valid for 15 minutes (TTL=900s). Re-anchor to refresh.
-4. **Session binding** — Tokens are bound to session_id; cross-session use fails F11
-5. **Signature verification** — Tampered tokens are rejected with `TOKEN_EXPIRED`
+2. **Session Precedence** — For continuity and audit truth (F2), the system enforces: `auth_context.session_id` (verified token) > anchored session state > request `session_id` > `"global"`. `"global"` is transport fallback, not anchored truth. All status surfaces expose both `transport_session_id` (debug) and `resolved_session_id` (canonical).
+3. **No Implicit Truth Promotion** — RETIRED: The system no longer permits fallback values to masquerade as resolved truth. `declared_name` cannot override `actor_id`. Transport defaults (`"global"`, raw request values) cannot stand in for verified continuity. All truth surfaces must emit explicit `resolved_*` values or clearly labeled `transport_*` debug context. Fallback is demoted to debug metadata, never authority.
+4. **Forward auth_context** — All `arifOS_kernel` calls must include the auth_context from init_anchor
+5. **Expiry** — Tokens valid for 15 minutes (TTL=900s). Re-anchor to refresh.
+6. **Session binding** — Tokens are bound to session_id; cross-session use fails F11
+7. **Signature verification** — Tampered tokens are rejected with `TOKEN_EXPIRED`
 
 ### Anonymous Callers
 
