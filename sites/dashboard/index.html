@@ -250,7 +250,7 @@
             <p class="subtitle">
                 <span class="live-indicator">
                     <span class="live-dot"></span>
-                    LIVE — v2026.03.14-VALIDATED
+                    LIVE — <span id="live-version">loading...</span>
                 </span>
             </p>
         </header>
@@ -333,18 +333,18 @@
             </div>
 
             <div class="card">
-                <h3>📊 System Vitals (Static Demo)</h3>
+                <h3>📊 System Vitals (Live)</h3>
                 <div class="metric">
                     <span class="metric-label">Status</span>
-                    <span class="metric-value good">HEALTHY</span>
+                    <span class="metric-value good" id="live-status">--</span>
                 </div>
                 <div class="metric">
-                    <span class="metric-label">Tools Loaded (Static)</span>
-                    <span class="metric-value">32/32</span>
+                    <span class="metric-label">Tools Loaded</span>
+                    <span class="metric-value" id="live-tools">--</span>
                 </div>
                 <div class="metric">
-                    <span class="metric-label">Floors Active</span>
-                    <span class="metric-value good">13/13</span>
+                    <span class="metric-label">Machine Status</span>
+                    <span class="metric-value" id="live-machine">--</span>
                 </div>
             </div>
 
@@ -352,15 +352,15 @@
                 <h3>🎯 Telemetry</h3>
                 <div class="metric">
                     <span class="metric-label">G★ (Genius)</span>
-                    <span class="metric-value good">≥ 0.80</span>
+                    <span class="metric-value good" id="live-gstar">--</span>
                 </div>
                 <div class="metric">
                     <span class="metric-label">ΔS (Entropy)</span>
-                    <span class="metric-value good">≤ 0</span>
+                    <span class="metric-value good" id="live-ds">--</span>
                 </div>
                 <div class="metric">
                     <span class="metric-label">Peace²</span>
-                    <span class="metric-value good">≥ 1.0</span>
+                    <span class="metric-value good" id="live-peace">--</span>
                 </div>
             </div>
 
@@ -446,16 +446,51 @@
         </footer>
     </div>
 
-    <!-- Auto-refresh every 30 seconds -->
+    <!-- Live refresh every 10 seconds -->
     <script>
-        setInterval(() => {
-            fetch('/health')
-                .then(r => r.json())
-                .then(data => {
-                    console.log('Health check:', data.status);
-                })
-                .catch(e => console.error('Health check failed:', e));
-        }, 30000);
+        const API_BASE = window.location.origin.includes('localhost')
+            ? 'http://localhost:8080'
+            : window.location.origin;
+
+        async function fetchJson(url, options) {
+            const response = await fetch(url, options);
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            return response.json();
+        }
+
+        async function refreshDashboard() {
+            try {
+                const [health, vital] = await Promise.all([
+                    fetchJson(`${API_BASE}/health`),
+                    fetchJson(`${API_BASE}/tools/check_vital`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({})
+                    })
+                ]);
+
+                const result = vital && vital.result ? vital.result : {};
+                const telemetry = result.metrics && result.metrics.telemetry ? result.metrics.telemetry : {};
+
+                const setText = (id, value) => {
+                    const el = document.getElementById(id);
+                    if (el) el.textContent = value;
+                };
+
+                setText('live-version', health.version || '--');
+                setText('live-status', (health.status || '--').toUpperCase());
+                setText('live-tools', (health.tools_loaded ?? '--').toString());
+                setText('live-machine', result.machine_status || '--');
+                setText('live-gstar', (telemetry.G_star ?? '--').toString());
+                setText('live-ds', (telemetry.ds ?? telemetry.dS ?? '--').toString());
+                setText('live-peace', (telemetry.peace2 ?? '--').toString());
+            } catch (error) {
+                console.error('Live refresh failed:', error);
+            }
+        }
+
+        refreshDashboard();
+        setInterval(refreshDashboard, 10000);
     </script>
 </body>
 </html>

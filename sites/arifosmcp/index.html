@@ -96,6 +96,10 @@
             border-radius: 8px;
             border: 1px solid var(--border);
         }
+
+        .status.ok { border-color: var(--accent-success); }
+        .status.warn { border-color: var(--accent-psi); }
+        .status.error { border-color: var(--accent-omega); }
         
         .status-dot {
             width: 10px;
@@ -104,6 +108,9 @@
             border-radius: 50%;
             animation: pulse 2s infinite;
         }
+
+        .status.warn .status-dot { background: var(--accent-psi); }
+        .status.error .status-dot { background: var(--accent-omega); }
         
         @keyframes pulse {
             0%, 100% { opacity: 1; }
@@ -142,6 +149,40 @@
             border-radius: 12px;
             padding: 2rem;
             margin-bottom: 2rem;
+        }
+
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .status-item {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        .status-item h4 {
+            color: var(--accent-delta);
+            margin-bottom: 0.4rem;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .status-item .value {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: var(--text-primary);
+        }
+
+        .status-item .meta {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-top: 0.3rem;
         }
         
         h2 {
@@ -321,12 +362,12 @@
         <header>
             <div class="logo">🔱</div>
             <h1>arifOS MCP Server</h1>
-            <div class="version-badge">v2026.03.14-VALIDATED</div>
+            <div class="version-badge" id="version-badge">Loading...</div>
             <p class="motto">Ditempa Bukan Diberi — Forged, Not Given</p>
             <div class="trinity-symbols">Δ Ω Ψ</div>
-            <div class="status">
-                <span class="status-dot"></span>
-                <span>System Online — 32 Tools Active — 13 Floors Enforced</span>
+            <div class="status ok" id="status-badge">
+                <span class="status-dot" id="status-dot"></span>
+                <span id="status-text">System Online — Loading live status</span>
             </div>
         </header>
 
@@ -339,6 +380,54 @@
             <a href="https://github.com/ariffazil/arifosmcp" target="_blank">GitHub</a>
             <a href="https://pypi.org/project/arifosmcp/" target="_blank">PyPI</a>
         </nav>
+
+        <div class="section live-status">
+            <h2>📡 Live Intelligence Status</h2>
+            <p>Live data from <code>/health</code> and <code>check_vital</code>. Auto-refresh every 10 seconds.</p>
+            <div class="status-grid">
+                <div class="status-item">
+                    <h4>Version</h4>
+                    <div class="value" id="live-version">--</div>
+                    <div class="meta" id="live-transport">--</div>
+                </div>
+                <div class="status-item">
+                    <h4>Tools Loaded</h4>
+                    <div class="value" id="live-tools">--</div>
+                    <div class="meta" id="live-service">--</div>
+                </div>
+                <div class="status-item">
+                    <h4>Machine Status</h4>
+                    <div class="value" id="live-machine">--</div>
+                    <div class="meta" id="live-stage">--</div>
+                </div>
+                <div class="status-item">
+                    <h4>Verdict</h4>
+                    <div class="value" id="live-verdict">--</div>
+                    <div class="meta" id="live-latency">--</div>
+                </div>
+                <div class="status-item">
+                    <h4>Exploration</h4>
+                    <div class="value" id="live-exploration">--</div>
+                    <div class="meta" id="live-entropy">--</div>
+                </div>
+                <div class="status-item">
+                    <h4>Uncertainty</h4>
+                    <div class="value" id="live-uncertainty">--</div>
+                    <div class="meta" id="live-confidence">--</div>
+                </div>
+                <div class="status-item">
+                    <h4>Browserless</h4>
+                    <div class="value" id="live-browserless">--</div>
+                    <div class="meta" id="live-qdrant">--</div>
+                </div>
+                <div class="status-item">
+                    <h4>Insight</h4>
+                    <div class="value" id="live-insight">--</div>
+                    <div class="meta" id="live-decisions">--</div>
+                </div>
+            </div>
+            <p style="margin-top: 1rem; color: var(--text-secondary);" id="live-updated">Last update: --</p>
+        </div>
 
         <div class="section quickstart">
             <h2>🚀 Quick Start</h2>
@@ -650,6 +739,102 @@
             <p style="margin-top: 0.5rem; font-size: 0.9rem;">© 2026 arifOS Project</p>
         </footer>
     </div>
+
+    <script>
+        const API_BASE = window.location.origin.includes('localhost')
+            ? 'http://localhost:8080'
+            : window.location.origin;
+
+        function setStatusBadge(level, text) {
+            const badge = document.getElementById('status-badge');
+            const label = document.getElementById('status-text');
+            if (!badge || !label) return;
+            badge.classList.remove('ok', 'warn', 'error');
+            badge.classList.add(level);
+            label.textContent = text;
+        }
+
+        async function fetchJson(url, options) {
+            const response = await fetch(url, options);
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            return response.json();
+        }
+
+        async function refreshLiveStatus() {
+            try {
+                const started = performance.now();
+                const [health, vital] = await Promise.all([
+                    fetchJson(`${API_BASE}/health`),
+                    fetchJson(`${API_BASE}/tools/check_vital`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({})
+                    })
+                ]);
+                const latencyMs = Math.round(performance.now() - started);
+                const result = vital && vital.result ? vital.result : {};
+                const intelligence = result.intelligence_state || {};
+                const services = result.payload && result.payload.intelligence_services
+                    ? result.payload.intelligence_services
+                    : {};
+
+                const version = health.version || '--';
+                const versionBadge = document.getElementById('version-badge');
+                if (versionBadge) versionBadge.textContent = `v${version}`;
+
+                const status = (health.status || '').toLowerCase();
+                if (status === 'healthy') {
+                    setStatusBadge('ok', `System Online — ${health.tools_loaded || '--'} Tools Active — 13 Floors Enforced`);
+                } else if (status) {
+                    setStatusBadge('warn', `System ${status.toUpperCase()} — Monitoring`);
+                }
+
+                const setText = (id, value) => {
+                    const el = document.getElementById(id);
+                    if (el) el.textContent = value;
+                };
+
+                setText('live-version', version);
+                setText('live-transport', health.transport ? `transport: ${health.transport}` : '--');
+                setText('live-tools', (health.tools_loaded ?? '--').toString());
+                setText('live-service', health.service ? `service: ${health.service}` : '--');
+                setText('live-machine', result.machine_status || '--');
+                setText('live-stage', result.stage ? `stage: ${result.stage}` : '--');
+                setText('live-verdict', result.verdict || '--');
+                setText('live-latency', `latency: ${latencyMs}ms`);
+                setText('live-exploration', intelligence.exploration || '--');
+                setText('live-entropy', intelligence.entropy ? `entropy: ${intelligence.entropy}` : '--');
+                setText('live-uncertainty', (intelligence.uncertainty_score ?? '--').toString());
+                setText('live-confidence', (intelligence.confidence ?? '--').toString());
+                setText('live-browserless', services.browserless ? services.browserless.status : '--');
+                setText('live-qdrant', services.qdrant ? `qdrant: ${services.qdrant.status}` : '--');
+                setText('live-insight', intelligence.insight || 'none');
+                setText('live-decisions', (intelligence.decision_required && intelligence.decision_required.length)
+                    ? `${intelligence.decision_required.length} pending`
+                    : 'none');
+
+                const updated = document.getElementById('live-updated');
+                if (updated) updated.textContent = `Last update: ${new Date().toLocaleTimeString()}`;
+
+                const metadata = document.getElementById('arifos-metadata');
+                if (metadata) {
+                    try {
+                        const parsed = JSON.parse(metadata.textContent);
+                        parsed.version = version;
+                        parsed.tools.total = health.tools_loaded ?? parsed.tools.total;
+                        metadata.textContent = JSON.stringify(parsed, null, 4);
+                    } catch (err) {
+                        // ignore metadata update errors
+                    }
+                }
+            } catch (error) {
+                setStatusBadge('error', 'System Degraded — Live status unavailable');
+            }
+        }
+
+        refreshLiveStatus();
+        setInterval(refreshLiveStatus, 10000);
+    </script>
 
     <!-- AI-Readable Structured Data -->
     <script type="application/json" id="arifos-metadata">

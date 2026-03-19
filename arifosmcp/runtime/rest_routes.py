@@ -1100,6 +1100,28 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
         )
         return JSONResponse(payload)
 
+    @mcp.custom_route("/.well-known/agent.json", methods=["GET"])
+    async def agent_well_known(request: Request) -> Response:
+        base_url = _public_base_url(request)
+        payload = {
+            "schema": "agent-manifest/v1",
+            "name": "arifOS MCP Server",
+            "description": (
+                "Constitutional AI Governance server with 13 floors (F1-F13) and Trinity Architecture (ΔΩΨ)."
+            ),
+            "version": BUILD_INFO.get("version", "unknown"),
+            "url": base_url,
+            "endpoints": {
+                "mcp": f"{base_url}/mcp",
+                "health": f"{base_url}/health",
+                "tools": f"{base_url}/tools",
+                "openapi": f"{base_url}/openapi.json",
+                "server_json": f"{base_url}/.well-known/mcp/server.json",
+            },
+            "auth": {"type": "none"},
+        }
+        return JSONResponse(payload)
+
     @mcp.custom_route("/.well-known/mcp/internal-server.json", methods=["GET"])
     async def internal_well_known(request: Request) -> Response:
         profile = os.getenv("ARIFOS_PUBLIC_TOOL_PROFILE", "public").strip().lower() or "public"

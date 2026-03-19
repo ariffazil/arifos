@@ -197,6 +197,46 @@
         color: #92400e;
       }
 
+      .live-status {
+        margin-top: 1.5rem;
+      }
+
+      .live-meta {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+        color: #64748b;
+        font-size: 0.85rem;
+      }
+
+      .live-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 0.75rem;
+      }
+
+      .live-item {
+        background: rgba(37, 99, 235, 0.08);
+        border: 1px solid rgba(37, 99, 235, 0.15);
+        border-radius: 10px;
+        padding: 0.75rem 1rem;
+      }
+
+      .live-label {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: #64748b;
+        margin-bottom: 0.35rem;
+      }
+
+      .live-value {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--dark);
+      }
+
       .tools-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -462,6 +502,48 @@
           governance, system monitoring, and reality grounding.
         </div>
 
+        <div class="card live-status">
+          <h3><i>🧠</i> Real-time Intelligence State</h3>
+          <div class="live-meta">
+            <span class="status-badge status-live" id="live-status-badge">LIVE</span>
+            <span id="live-updated">Updated: --</span>
+          </div>
+          <div class="live-grid">
+            <div class="live-item">
+              <div class="live-label">Version</div>
+              <div class="live-value" id="live-version">--</div>
+            </div>
+            <div class="live-item">
+              <div class="live-label">Tools Loaded</div>
+              <div class="live-value" id="live-tools">--</div>
+            </div>
+            <div class="live-item">
+              <div class="live-label">Machine Status</div>
+              <div class="live-value" id="live-machine">--</div>
+            </div>
+            <div class="live-item">
+              <div class="live-label">Verdict</div>
+              <div class="live-value" id="live-verdict">--</div>
+            </div>
+            <div class="live-item">
+              <div class="live-label">Exploration</div>
+              <div class="live-value" id="live-exploration">--</div>
+            </div>
+            <div class="live-item">
+              <div class="live-label">Uncertainty</div>
+              <div class="live-value" id="live-uncertainty">--</div>
+            </div>
+            <div class="live-item">
+              <div class="live-label">Entropy</div>
+              <div class="live-value" id="live-entropy">--</div>
+            </div>
+            <div class="live-item">
+              <div class="live-label">Browserless</div>
+              <div class="live-value" id="live-browserless">--</div>
+            </div>
+          </div>
+        </div>
+
         <div class="grid">
           <div class="card">
             <h3><i>⚡</i> Core MCP Endpoints</h3>
@@ -644,7 +726,57 @@
       // Initialize
       document.addEventListener("DOMContentLoaded", () => {
         loadTools();
+        refreshLiveStatus();
+        setInterval(refreshLiveStatus, 10000);
       });
+
+      async function refreshLiveStatus() {
+        try {
+          const [health, vital] = await Promise.all([
+            fetch("/health").then((r) => r.json()),
+            fetch("/tools/check_vital", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({}),
+            }).then((r) => r.json()),
+          ]);
+
+          const result = vital && vital.result ? vital.result : {};
+          const intelligence = result.intelligence_state || {};
+          const services = result.payload && result.payload.intelligence_services
+            ? result.payload.intelligence_services
+            : {};
+
+          const setText = (id, value) => {
+            const el = document.getElementById(id);
+            if (el) el.textContent = value;
+          };
+
+          setText("live-version", health.version || "--");
+          setText("live-tools", (health.tools_loaded ?? "--").toString());
+          setText("live-machine", result.machine_status || "--");
+          setText("live-verdict", result.verdict || "--");
+          setText("live-exploration", intelligence.exploration || "--");
+          setText("live-uncertainty", (intelligence.uncertainty_score ?? "--").toString());
+          setText("live-entropy", intelligence.entropy || "--");
+          setText("live-browserless", services.browserless ? services.browserless.status : "--");
+
+          const badge = document.getElementById("live-status-badge");
+          if (badge) {
+            badge.textContent = (health.status || "live").toUpperCase();
+          }
+
+          const updated = document.getElementById("live-updated");
+          if (updated) {
+            updated.textContent = `Updated: ${new Date().toLocaleTimeString()}`;
+          }
+        } catch (error) {
+          const badge = document.getElementById("live-status-badge");
+          if (badge) {
+            badge.textContent = "DEGRADED";
+          }
+        }
+      }
     </script>
   </body>
 </html>

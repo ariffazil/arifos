@@ -108,6 +108,27 @@
             font-weight: 600;
             color: var(--success);
         }
+
+        .status-badge.ok {
+            background: rgba(34, 197, 94, 0.1);
+            border-color: rgba(34, 197, 94, 0.3);
+            color: var(--success);
+        }
+
+        .status-badge.warn {
+            background: rgba(245, 158, 11, 0.1);
+            border-color: rgba(245, 158, 11, 0.3);
+            color: var(--warning);
+        }
+
+        .status-badge.error {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: rgba(239, 68, 68, 0.3);
+            color: var(--danger);
+        }
+
+        .status-badge.warn .status-dot { background: var(--warning); }
+        .status-badge.error .status-dot { background: var(--danger); }
         
         .status-dot {
             width: 8px;
@@ -490,9 +511,9 @@
                     <span>Constitutional AI Governance</span>
                 </div>
             </div>
-            <div class="status-badge">
-                <span class="status-dot"></span>
-                <span>OPERATIONAL</span>
+            <div class="status-badge ok" id="status-badge">
+                <span class="status-dot" id="status-dot"></span>
+                <span id="status-text">OPERATIONAL</span>
             </div>
         </div>
     </header>
@@ -501,24 +522,24 @@
         <!-- Top Metrics -->
         <div class="metrics-row">
             <div class="metric-card">
-                <div class="metric-label">Total Requests</div>
-                <div class="metric-value" id="total-requests">15,247</div>
-                <div class="metric-change positive">↑ 12% from last hour</div>
+                <div class="metric-label">Version</div>
+                <div class="metric-value" id="version-value">Loading...</div>
+                <div class="metric-change" id="version-note">--</div>
             </div>
             <div class="metric-card">
-                <div class="metric-label">SEAL Rate</div>
-                <div class="metric-value" id="seal-rate">97.8%</div>
-                <div class="metric-change positive">↑ 0.3%</div>
+                <div class="metric-label">Tools Loaded</div>
+                <div class="metric-value" id="tools-loaded">--</div>
+                <div class="metric-change" id="tools-note">--</div>
             </div>
             <div class="metric-card">
-                <div class="metric-label">Avg Latency</div>
-                <div class="metric-value" id="avg-latency">42ms</div>
-                <div class="metric-change positive">↓ 8ms</div>
+                <div class="metric-label">Machine Status</div>
+                <div class="metric-value" id="machine-status">--</div>
+                <div class="metric-change" id="machine-note">--</div>
             </div>
             <div class="metric-card">
-                <div class="metric-label">Active Sessions</div>
-                <div class="metric-value" id="active-sessions">128</div>
-                <div class="metric-change negative">↓ 5</div>
+                <div class="metric-label">Fetch Latency</div>
+                <div class="metric-value" id="fetch-latency">--</div>
+                <div class="metric-change" id="latency-note">--</div>
             </div>
         </div>
 
@@ -554,35 +575,35 @@
             <div class="card">
                 <div class="card-header">
                     <div class="card-title">
-                        <span>📊</span> 3E Telemetry
-                        <span class="mock-badge">MOCK</span>
+                        <span>📊</span> Intelligence State
+                        <span class="live-badge"><span class="heartbeat"></span> LIVE</span>
                     </div>
                 </div>
                 <div class="card-body">
                     <div class="telemetry-grid">
                         <div class="telemetry-item">
                             <div class="telemetry-label">Confidence</div>
-                            <div class="telemetry-value" style="color: var(--delta)">0.87</div>
+                            <div class="telemetry-value" id="telemetry-confidence" style="color: var(--delta)">--</div>
                         </div>
                         <div class="telemetry-item">
-                            <div class="telemetry-label">Harm Score</div>
-                            <div class="telemetry-value" style="color: var(--success)">0.02</div>
+                            <div class="telemetry-label">Uncertainty</div>
+                            <div class="telemetry-value" id="telemetry-uncertainty" style="color: var(--info)">--</div>
                         </div>
                         <div class="telemetry-item">
-                            <div class="telemetry-label">Fairness</div>
-                            <div class="telemetry-value" style="color: var(--success)">0.95</div>
+                            <div class="telemetry-label">Exploration</div>
+                            <div class="telemetry-value" id="telemetry-exploration" style="color: var(--success)">--</div>
                         </div>
                         <div class="telemetry-item">
-                            <div class="telemetry-label">Evidence</div>
-                            <div class="telemetry-value" style="color: var(--info)">5</div>
+                            <div class="telemetry-label">Entropy</div>
+                            <div class="telemetry-value" id="telemetry-entropy" style="color: var(--omega)">--</div>
                         </div>
                         <div class="telemetry-item">
-                            <div class="telemetry-label">Tokens</div>
-                            <div class="telemetry-value">3.2k</div>
+                            <div class="telemetry-label">Insight</div>
+                            <div class="telemetry-value" id="telemetry-insight">--</div>
                         </div>
                         <div class="telemetry-item">
-                            <div class="telemetry-label">Budget</div>
-                            <div class="telemetry-value" style="color: var(--omega)">68%</div>
+                            <div class="telemetry-label">Decisions</div>
+                            <div class="telemetry-value" id="telemetry-decisions" style="color: var(--psi)">--</div>
                         </div>
                     </div>
                 </div>
@@ -615,15 +636,15 @@
                     <div class="telemetry-grid">
                         <div class="telemetry-item">
                             <div class="telemetry-label">G* (Genius)</div>
-                            <div class="telemetry-value" style="color: var(--delta)">0.87</div>
+                            <div class="telemetry-value" id="telemetry-gstar" style="color: var(--delta)">--</div>
                         </div>
                         <div class="telemetry-item">
                             <div class="telemetry-label">ΔS (Entropy)</div>
-                            <div class="telemetry-value" style="color: var(--success)">-0.15</div>
+                            <div class="telemetry-value" id="telemetry-ds" style="color: var(--success)">--</div>
                         </div>
                         <div class="telemetry-item">
                             <div class="telemetry-label">Peace²</div>
-                            <div class="telemetry-value" style="color: var(--omega)">1.23</div>
+                            <div class="telemetry-value" id="telemetry-peace" style="color: var(--omega)">--</div>
                         </div>
                     </div>
                     <div class="chart-container" style="margin-top: 16px;">
@@ -649,7 +670,7 @@
                 <span>Ψ Psi (APEX Soul)</span>
             </div>
         </div>
-        <p>arifOS MCP v2026.03.14-FORGED | ΔΩΨ Trinity Architecture</p>
+        <p>arifOS MCP <span id="footer-version">v2026.03.19</span> | ΔΩΨ Trinity Architecture</p>
         <p style="margin-top: 8px;">
             <a href="/">Home</a> • 
             <a href="/static-sites/arifosmcp/docs.html">Documentation</a> • 
@@ -752,82 +773,117 @@
             }, 600);
         }
 
-        // Simulate Real-time Updates
-        function updateMetrics() {
-            // Random small fluctuations
-            const requests = document.getElementById('total-requests');
-            const current = parseInt(requests.textContent.replace(',', ''));
-            requests.textContent = (current + Math.floor(Math.random() * 5)).toLocaleString();
-        }
-
-        // REAL API Integration
+        // Live API Integration
         const API_BASE = window.location.origin.includes('localhost') 
             ? 'http://localhost:8080' 
             : window.location.origin;
 
+        async function fetchJson(url, options) {
+            const response = await fetch(url, options);
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+            return response.json();
+        }
+
         async function fetchRealData() {
             try {
-                // Fetch governance status
-                const response = await fetch(`${API_BASE}/api/governance-status`);
-                if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                
-                const data = await response.json();
-                console.log('Real telemetry:', data);
-                
-                // Update dashboard with real data
-                updateDashboard(data);
+                const started = performance.now();
+                const [health, vital] = await Promise.all([
+                    fetchJson(`${API_BASE}/health`),
+                    fetchJson(`${API_BASE}/tools/check_vital`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({})
+                    })
+                ]);
+
+                const elapsed = performance.now() - started;
+                updateDashboard({ health, vital, latencyMs: elapsed });
             } catch (error) {
                 console.error('Failed to fetch real data:', error);
-                // Fallback to simulated data for demo
-                console.log('Using fallback data');
+                setStatusBadge('error', 'DEGRADED');
             }
         }
 
+        function setStatusBadge(level, label) {
+            const badge = document.getElementById('status-badge');
+            const statusText = document.getElementById('status-text');
+            if (!badge || !statusText) return;
+            badge.classList.remove('ok', 'warn', 'error');
+            badge.classList.add(level);
+            statusText.textContent = label;
+        }
+
         function updateDashboard(data) {
+            const health = data.health || {};
+            const vital = (data.vital && data.vital.result) ? data.vital.result : {};
+
             // Update timestamp
             const updateEl = document.getElementById('last-update');
             if (updateEl) {
                 updateEl.textContent = 'Updated: ' + new Date().toLocaleTimeString();
             }
-            
-            // Update system status
-            if (data.version) {
-                document.querySelector('.brand-text h1').textContent = `arifOS APEX ${data.version}`;
-            }
-            
-            // Update floors if provided
-            if (data.floors) {
-                const tbody = document.getElementById('floors-body');
-                tbody.innerHTML = Object.entries(data.floors).map(([id, floor]) => `
-                    <tr>
-                        <td class="floor-id">${id}</td>
-                        <td class="floor-name">${floor.name || id}</td>
-                        <td class="floor-threshold">${floor.threshold || 'N/A'}</td>
-                        <td><span class="badge ${floor.passed ? 'success' : 'danger'}">${floor.passed ? 'pass' : 'fail'}</span></td>
-                    </tr>
-                `).join('');
-            }
-            
-            // Update telemetry
-            if (data.telemetry) {
-                const t = data.telemetry;
-                // Update physics engine values (first 3 in Physics Engine card)
-                const physicsCards = document.querySelectorAll('.telemetry-item .telemetry-value');
-                if (physicsCards[0]) physicsCards[0].textContent = t.confidence?.toFixed(2) || t.G_star?.toFixed(2) || '0.87';
-                if (physicsCards[1]) physicsCards[1].textContent = t.dS?.toFixed(2) || '-0.15';
-                if (physicsCards[2]) physicsCards[2].textContent = t.peace2?.toFixed(2) || '1.23';
-            }
-            
-            // Update machine vitals (LIVE)
-            if (data.machine_vitals) {
-                const mv = data.machine_vitals;
-                const cpuEl = document.getElementById('cpu-val');
-                const memEl = document.getElementById('mem-val');
-                const diskEl = document.getElementById('disk-val');
-                if (cpuEl) cpuEl.textContent = mv.cpu_percent?.toFixed(1) + '%';
-                if (memEl) memEl.textContent = mv.memory_percent?.toFixed(1) + '%';
-                if (diskEl) diskEl.textContent = mv.disk_percent?.toFixed(1) + '%';
-            }
+
+            const versionValue = document.getElementById('version-value');
+            const versionNote = document.getElementById('version-note');
+            if (versionValue) versionValue.textContent = health.version || '--';
+            if (versionNote) versionNote.textContent = health.transport ? `transport: ${health.transport}` : '--';
+
+            const toolsLoaded = document.getElementById('tools-loaded');
+            const toolsNote = document.getElementById('tools-note');
+            if (toolsLoaded) toolsLoaded.textContent = (health.tools_loaded ?? '--').toString();
+            if (toolsNote) toolsNote.textContent = health.service ? `service: ${health.service}` : '--';
+
+            const machineStatus = document.getElementById('machine-status');
+            const machineNote = document.getElementById('machine-note');
+            if (machineStatus) machineStatus.textContent = vital.machine_status || '--';
+            if (machineNote) machineNote.textContent = vital.stage ? `stage: ${vital.stage}` : '--';
+
+            const latencyEl = document.getElementById('fetch-latency');
+            const latencyNote = document.getElementById('latency-note');
+            if (latencyEl) latencyEl.textContent = `${Math.round(data.latencyMs || 0)}ms`;
+            if (latencyNote) latencyNote.textContent = vital.verdict ? `verdict: ${vital.verdict}` : '--';
+
+            const status = (health.status || '').toLowerCase();
+            if (status === 'healthy') setStatusBadge('ok', 'OPERATIONAL');
+            else if (status) setStatusBadge('warn', status.toUpperCase());
+
+            const intelligence = vital.intelligence_state || {};
+            const telemetry = (vital.metrics && vital.metrics.telemetry) ? vital.metrics.telemetry : {};
+            const internal = (vital.metrics && vital.metrics.internal) ? vital.metrics.internal : {};
+
+            const confidenceEl = document.getElementById('telemetry-confidence');
+            if (confidenceEl) confidenceEl.textContent = (intelligence.confidence ?? telemetry.confidence ?? '--').toString();
+
+            const uncertaintyEl = document.getElementById('telemetry-uncertainty');
+            if (uncertaintyEl) uncertaintyEl.textContent = (intelligence.uncertainty_score ?? '--').toString();
+
+            const explorationEl = document.getElementById('telemetry-exploration');
+            if (explorationEl) explorationEl.textContent = intelligence.exploration || '--';
+
+            const entropyEl = document.getElementById('telemetry-entropy');
+            if (entropyEl) entropyEl.textContent = intelligence.entropy || '--';
+
+            const insightEl = document.getElementById('telemetry-insight');
+            if (insightEl) insightEl.textContent = intelligence.insight || 'none';
+
+            const decisionsEl = document.getElementById('telemetry-decisions');
+            if (decisionsEl) decisionsEl.textContent = (intelligence.decision_required && intelligence.decision_required.length)
+                ? `${intelligence.decision_required.length} pending`
+                : 'none';
+
+            const gstarEl = document.getElementById('telemetry-gstar');
+            if (gstarEl) gstarEl.textContent = (telemetry.G_star ?? '--').toString();
+
+            const dsEl = document.getElementById('telemetry-ds');
+            if (dsEl) dsEl.textContent = (telemetry.ds ?? telemetry.dS ?? '--').toString();
+
+            const peaceEl = document.getElementById('telemetry-peace');
+            if (peaceEl) peaceEl.textContent = (telemetry.peace2 ?? '--').toString();
+
+            const footerVersion = document.getElementById('footer-version');
+            if (footerVersion && health.version) footerVersion.textContent = `v${health.version}`;
         }
 
         // Initialize
@@ -837,7 +893,6 @@
         // Fetch real data immediately and every 10 seconds
         fetchRealData();
         setInterval(fetchRealData, 10000);
-        setInterval(updateMetrics, 5000);
     </script>
 </body>
 </html>
