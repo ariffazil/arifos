@@ -439,9 +439,9 @@ def _build_vitals_report(session_id: str) -> dict[str, Any]:
         "external_grounding": {"enabled": True, "status": "configured"},
         "model_provider_access": {"enabled": True, "status": "configured"},
         "local_model_runtime": {"enabled": True, "status": "configured"},
-        "auto_deploy": {"enabled": False, "status": "manual_only"},
+        "auto_deploy": {"enabled": True, "status": "governed_continuous_delivery"},
         "credential_classes": ["bearer", "sig_v2"],
-        "providers": ["ollama", "qdrant", "openai", "anthropic"],
+        "providers": ["ollama", "qdrant", "openai", "anthropic", "google", "openrouter", "brave", "jina", "perplexity"],
     }
 
     # Check thermodynamic module

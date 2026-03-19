@@ -1473,28 +1473,56 @@ async def check_vital(session_id: str = "global", ctx: Context | None = None) ->
 
 async def _probe_intelligence_services() -> dict[str, dict[str, Any]]:
     results: dict[str, dict[str, Any]] = {}
-    async with httpx.AsyncClient(timeout=5.0) as client:
-        for service_name, (env_name, path) in INTELLIGENCE_PROBE_URLS.items():
-            client_base = os.getenv(env_name, "").strip()
-            if service_name == "browserless" and not client_base:
-                client_base = "http://headless_browser:3000"
-            if not client_base:
-                results[service_name] = {"status": "not_configured", "reachable": False}
-                continue
-            url = f"{client_base.rstrip('/')}{path}"
-            try:
-                response = await client.get(url)
-                results[service_name] = {
+
+    async def _probe_one(name: str, env: str, path: str) -> tuple[str, dict[str, Any]]:
+        client_base = os.getenv(env, "").strip()
+        if name == "browserless" and not client_base:
+            client_base = "http://headless_browser:3000"
+        if not client_base:
+            return name, {"status": "not_configured", "reachable": False}
+        
+        url = f"{client_base.rstrip('/')}{path}"
+        try:
+            async with httpx.AsyncClient(timeout=3.0) as client:
+                headers = {}
+                if name == "browserless":
+                    token = os.getenv("BROWSERLESS_TOKEN")
+                    if token:
+                        # Append token to URL if using the direct path
+                        if "?" in url:
+                            url += f"&token={token}"
+                        else:
+                            url += f"?token={token}"
+                
+                response = await client.get(url, headers=headers)
+                return name, {
                     "status": "healthy" if response.status_code < 400 else "degraded",
                     "reachable": response.status_code < 400,
                     "status_code": response.status_code,
                 }
-            except Exception as exc:
-                results[service_name] = {
-                    "status": "unreachable",
-                    "reachable": False,
-                    "error": str(exc),
-                }
+        except Exception as exc:
+            return name, {
+                "status": "unreachable",
+                "reachable": False,
+                "error": str(exc),
+            }
+
+    # Parallel probe with exception safety (Prevents 424 TaskGroup-like crashes)
+    tasks = [
+        _probe_one(name, env, path)
+        for name, (env, path) in INTELLIGENCE_PROBE_URLS.items()
+    ]
+    
+    probe_results = await asyncio.gather(*tasks, return_exceptions=True)
+    
+    for res in probe_results:
+        if isinstance(res, tuple):
+            name, data = res
+            results[name] = data
+        elif isinstance(res, Exception):
+            # This shouldn't happen due to internal try/except, but safety first
+            logger.error(f"Probe task failed: {res}")
+            
     return results
 
 
