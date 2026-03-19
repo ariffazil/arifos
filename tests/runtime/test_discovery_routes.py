@@ -39,3 +39,11 @@ def test_ai_json_reachable(client):
     """Test that /ai.json is reachable."""
     response = client.get("/ai.json")
     assert response.status_code != 401
+
+def test_health_reachable(client):
+    """Test that /health is reachable and returns JSON."""
+    response = client.get("/health")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["status"] == "healthy"
+    assert "version" in data

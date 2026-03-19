@@ -329,7 +329,30 @@ async def well_known_agent(request):
     )
 
 
+async def get_health_reentry(request):
+    """Re-entry point for /health to avoid shadowing."""
+    from arifosmcp.runtime.rest_routes import BUILD_INFO
+    from core.shared.floor_audit import get_ml_floor_runtime
+    from arifosmcp.runtime.capability_map import build_runtime_capability_map
+    from datetime import datetime, timezone
+
+    return JSONResponse(
+        {
+            "status": "healthy",
+            "service": "arifos-aaa-mcp",
+            "version": BUILD_INFO["version"],
+            "transport": "streamable-http",
+            "tools_loaded": len(CORE_TOOL_REGISTRY),
+            "ml_floors": get_ml_floor_runtime(),
+            "capability_map": build_runtime_capability_map(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+        },
+        headers={"Access-Control-Allow-Origin": "*"},
+    )
+
+
 # Register all root-level discovery routes at the beginning to avoid shadowing
+_mcp_app.routes.insert(0, Route("/health", get_health_reentry, methods=["GET"]))
 _mcp_app.routes.insert(0, Route("/.well-known/agent.json", well_known_agent, methods=["GET"]))
 _mcp_app.routes.insert(0, Route("/llms.txt", get_llms_txt, methods=["GET"]))
 _mcp_app.routes.insert(0, Route("/ai.json", get_ai_json, methods=["GET"]))
