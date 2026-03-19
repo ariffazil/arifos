@@ -40,6 +40,7 @@ from arifosmcp.runtime.public_registry import (
 )
 from arifosmcp.runtime.resources import build_open_apex_dashboard_result
 from arifosmcp.runtime.sessions import _resolve_session_id, set_active_session
+from arifosmcp.intelligence import console_tools as aclip_tools
 from core.shared.mottos import MOTTO_000_INIT_HEADER, MOTTO_999_SEAL_HEADER, get_motto_for_stage
 from core.state.session_manager import session_manager
 from core.telemetry import check_adaptation_status, get_current_hysteresis
@@ -1606,6 +1607,16 @@ def register_tools(mcp: FastMCP, profile: str = "full") -> None:
         # VAULT999
         "vault_seal": vault_seal,
         "verify_vault_ledger": verify_vault_ledger,
+        # ─── Nervous System (Operational) ───
+        "system_health": aclip_tools.system_health,
+        "fs_inspect": aclip_tools.fs_inspect,
+        "chroma_query": aclip_tools.chroma_query,
+        "log_tail": aclip_tools.log_tail,
+        "process_list": aclip_tools.process_list,
+        "net_status": aclip_tools.net_status,
+        "cost_estimator": aclip_tools.cost_estimator,
+        "arifos_list_resources": aclip_tools.arifos_list_resources,
+        "arifos_read_resource": aclip_tools.arifos_read_resource,
     }
 
     specs = {spec.name: spec for spec in public_tool_specs()}
