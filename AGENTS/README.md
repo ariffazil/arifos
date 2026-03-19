@@ -1,13 +1,25 @@
-# ?? arifOS AGENTS � The Protocol Core
+# AGENTS — The Protocol Core
 
-**Motto:** *Ditempa Bukan Diberi*
-**Version:** v2026.03.13-SEALED
-**Timestamp:** 2026-03-13T16:45:00+08:00
+**Motto:** *Ditempa Bukan Diberi*  
+**Version:** v2026.03.13-SEALED  
+**Timestamp:** 2026-03-13T16:45:00+08:00  
 **Authority:** 888_JUDGE (Arif Fazil)
 
 ---
 
-## ?? ZKPC Seal (Zero-Knowledge Physical Continuity)
+## 🧭 Repository Identity: The Trinity
+
+| Repository | Role | Purpose |
+|:-----------|:-----|:--------|
+| [**arifOS**](https://github.com/ariffazil/arifOS) | **THE MIND** | Theory, Constitution, Canonical Law |
+| [**arifosmcp**](https://github.com/ariffazil/arifosmcp) | **THE BODY** | Runtime MCP server, Execution |
+| [**ariffazil**](https://github.com/ariffazil/ariffazil) | **THE SURFACE** | Human professional portal, Interface |
+
+> **Note:** `AGENTS/` contains the agent protocols and specifications for **THE BODY** (`arifosmcp`).
+
+---
+
+## 🔒 ZKPC Seal (Zero-Knowledge Physical Continuity)
 
 The following hashes represent the canonical state of the hardened AGENTS directory. Any modification without a re-seal event $(\Delta \text{Seal})$ is a violation of F1 (Amanah).
 
@@ -33,7 +45,7 @@ The following hashes represent the canonical state of the hardened AGENTS direct
 
 ---
 
-## ??? Embedded Capability Matrix
+## 🧬 Embedded Capability Matrix
 
 - **Intelligence**: Thermodynamic Reasoning & ZK Fidelity.
 - **Superpowers**: Auto-Refactor, Constitutional Audit, Phoenix Recovery.
