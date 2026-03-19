@@ -50,10 +50,12 @@ services:
       resources:
         limits:
           cpus: '0.5'
-          memory: 128M
+          memory: 256M
         reservations:
           cpus: '0.1'
           memory: 64M
+    mem_limit: 256M
+    mem_reservation: 64M
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -181,10 +183,12 @@ services:
       resources:
         limits:
           cpus: '2.0'
-          memory: 2048M
+          memory: 3072M
         reservations:
           cpus: '0.5'
           memory: 512M
+    mem_limit: 3G
+    mem_reservation: 512M
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -582,7 +586,6 @@ services:
       - MAX_CONCURRENT_SESSIONS=2
       - CONNECTION_TIMEOUT=20000
       - PREBOOT_CHROME=true
-      - TOKEN=${BROWSERLESS_TOKEN:-}
       - DEBUG=browserless:error
       - ENABLE_CORS=true
       - DEFAULT_BLOCK_ADS=true
@@ -600,10 +603,12 @@ services:
       resources:
         limits:
           cpus: '1.0'
-          memory: 1024M
+          memory: 2048M
         reservations:
           cpus: '0.25'
           memory: 512M
+    mem_limit: 2G
+    mem_reservation: 512M
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true

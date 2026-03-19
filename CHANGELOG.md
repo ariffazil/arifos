@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- **Runtime Limits**: Increased memory ceilings for Traefik, AgentZero, and Browserless to prevent OOM under load.
+
+### Fixed
+- **Browserless Fetch**: Token is optional when unset; content requests now match Browserless payload validation.
+- **REST Tool Output**: Normalized datetime serialization for `/tools/*` responses.
+
 ## [2026.03.19] - ANTI-CHAOS
 
 ### Added

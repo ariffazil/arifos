@@ -15,13 +15,14 @@ DITEMPA BUKAN DIBERI
 from __future__ import annotations
 
 import inspect
+import json
 import logging
 import os
 import secrets
 import time
 import uuid
 from collections.abc import Callable
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from typing import Any
 
 from starlette.requests import Request
@@ -99,6 +100,18 @@ _DEFAULT_METABOLIC_STAGE: int = 333
 
 def _cache_headers() -> dict[str, str]:
     return {"Cache-Control": "no-store"}
+
+
+def _json_safe(value: Any) -> Any:
+    if isinstance(value, (datetime, date)):
+        return value.isoformat()
+    if isinstance(value, dict):
+        return {k: _json_safe(v) for k, v in value.items()}
+    if isinstance(value, list):
+        return [_json_safe(v) for v in value]
+    if isinstance(value, tuple):
+        return [_json_safe(v) for v in value]
+    return value
 
 
 def _dashboard_cors_headers(request: Request) -> dict[str, str]:
@@ -1060,6 +1073,8 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
         else:
             result_dict = result
 
+        safe_result = _json_safe(result_dict)
+        safe_result = json.loads(json.dumps(safe_result, default=str))
         return JSONResponse(
             {
                 "status": "success",
@@ -1067,7 +1082,7 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
                 "canonical": canonical_name,
                 "request_id": request_id,
                 "latency_ms": round(latency_ms, 2),
-                "result": result_dict,
+                "result": safe_result,
             }
         )
 
