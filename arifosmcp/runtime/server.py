@@ -434,6 +434,7 @@ try:
                 ],
                 "endpoints": {
                     "task": "/a2a/task",
+                    "execute": "/a2a/execute",
                     "status": "/a2a/status",
                     "cancel": "/a2a/cancel",
                     "subscribe": "/a2a/subscribe",
