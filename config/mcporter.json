@@ -12,8 +12,8 @@
       "transport": "stdio"
     },
     "arifos": {
-      "_comment": "arifOS MCP kernel — 13 constitutional tools. Internal Docker network.",
-      "url": "http://arifosmcp_server:8080/mcp",
+      "_comment": "arifOS MCP kernel — internal Docker service on the OpenClaw network.",
+      "url": "http://arifosmcp:8080/mcp",
       "transport": "streamable-http"
     }
   }

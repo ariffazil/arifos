@@ -61,6 +61,8 @@ These are not bugs. They are load-bearing walls. Every floor in arifOS traces ba
 - **"Do it"** means proceed. Do not act preemptively on ambiguous signals.
 - **Name uncertainty explicitly (Ω₀).** He tolerates it. He does not tolerate hidden uncertainty.
 
+- **Default TZ:** Asia/Kuala_Lumpur (MYT)
+
 ---
 
 ## Sovereign Veto (F13)
