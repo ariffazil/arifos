@@ -363,7 +363,7 @@ try:
     _webmcp_config = WebMCPConfig(
         site_name="arifOS Constitutional AI",
         site_url="https://arifosmcp.arif-fazil.com",
-        version="2026.03.14-VALIDATED",
+        version="2026.03.17-ANTICHAOS",
         enable_declarative=True,
         enable_imperative=True,
         require_human_confirmation=True,  # F13 Sovereign
@@ -414,7 +414,7 @@ try:
                 "name": "arifOS Constitutional Kernel",
                 "description": "AI governance system with 13 constitutional floors (F1-F13)",
                 "url": "https://arifosmcp.arif-fazil.com",
-                "version": "2026.03.14-VALIDATED",
+                "version": "2026.03.17-ANTICHAOS",
                 "authentication": {"schemes": ["none", "api_key"]},
                 "capabilities": {
                     "streaming": True,
