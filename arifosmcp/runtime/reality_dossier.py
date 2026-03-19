@@ -56,7 +56,7 @@ class IntelligenceState3E(BaseModel):
 
 class RealityDossier(BaseModel):
     id: str = Field(default_factory=lambda: f"dossier-{uuid.uuid4().hex[:8]}")
-    session_id: str = "global"
+    session_id: str | None = None
     actor_id: str = "anonymous"
     authority_level: str = "anonymous"
     
@@ -239,7 +239,7 @@ class DossierEngine:
     async def build_dossier(
         self,
         bundles: list[EvidenceBundle],
-        session_id: str = "global",
+        session_id: str | None = None,
         actor_id: str = "anonymous",
         authority_level: str = "anonymous",
     ) -> RealityDossier:

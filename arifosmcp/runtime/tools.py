@@ -320,7 +320,7 @@ def _select_philosophy_payload(
     )
     failed_floors = _infer_failed_floors(envelope_data)
     verdict_value = str(envelope_data.get("verdict") or "SABAR")
-    session_value = str(envelope_data.get("session_id") or payload.get("session_id") or "global")
+    session_value = str(envelope_data.get("session_id") or payload.get("session_id") or _normalize_session_id(None))
 
     return select_governed_philosophy(
         context_text,
@@ -341,8 +341,10 @@ def _resolve_caller_state(session_id: str, authority: Any) -> tuple[str, list[st
     envelope authority (which may be stale/wrong from bridge).
     """
     # ── P0: Check stored session identity (canonical source of truth) ──
-    stored = get_session_identity(session_id)
-    if stored:
+    # EXCEPTION: "global" session is always anonymous (never anchored)
+    if session_id == "global":
+        caller_state = "anonymous"
+    elif stored := get_session_identity(session_id):
         # Session was anchored via init_anchor — use stored state
         authority_level = stored.get("authority_level", "anonymous")
         if authority_level in ("sovereign", "operator"):
@@ -351,8 +353,6 @@ def _resolve_caller_state(session_id: str, authority: Any) -> tuple[str, list[st
             caller_state = "anchored"
         else:
             caller_state = "anchored"  # Any stored identity is at least anchored
-    elif session_id == "global":
-        caller_state = "anonymous"
     elif authority and getattr(authority, "claim_status", "anonymous") == "verified":
         caller_state = "verified"
     elif authority and getattr(authority, "claim_status", "anonymous") == "anchored":
@@ -577,6 +577,14 @@ async def _wrap_call(
         envelope.recoverable = envelope.status != RuntimeStatus.ERROR or any(
             e.recoverable for e in envelope.errors
         )
+
+        # ═══════════════════════════════════════════════════════════════════════
+        # SESSION TRUTH FIX: Ensure envelope.session_id matches the normalized
+        # session_id passed to this function. The kernel may return a different
+        # value (e.g., "global" as default), but we must report the canonical
+        # session_id for truth surface consistency (F2).
+        # ═══════════════════════════════════════════════════════════════════════
+        envelope.session_id = session_id
 
         # Decorate with Stage Motto (Meta Invariant)
         envelope.meta.motto = _resolve_motto(envelope.stage)
@@ -950,7 +958,7 @@ async def agi_reason(
     Explores hypotheses through conservative, exploratory, and adversarial paths.
     Enforces F2 (Truth) and F4 (Clarity).
     """
-    active_session = session_id or getattr(ctx, "session_id", None) or "global"
+    active_session = session_id or getattr(ctx, "session_id", None) or _normalize_session_id(None)
 
     with helix_tracer.start_organ_span("AGI·REASON", active_session) as span:
         # F2 Haqq: Inject Grounding Facts
@@ -997,7 +1005,7 @@ async def agi_reflect(
     topic: str = "",
     ctx: Context = CurrentContext(),
     server: FastMCP = CurrentFastMCP(),
-    session_id: str = "global",
+    session_id: str | None = None,
     pns_vision: dict[str, Any] | None = None,
     operation: str = "search",
     content: str | None = None,
@@ -1008,7 +1016,7 @@ async def agi_reflect(
     Reflects on the current intelligence state and session context to ensure coherence.
     Enforces F4 and F7.
     """
-    active_session = session_id or getattr(ctx, "session_id", None) or "global"
+    active_session = session_id or getattr(ctx, "session_id", None) or _normalize_session_id(None)
 
     with helix_tracer.start_organ_span("AGI·REFLECT", active_session) as span:
         # PNS·VISION Injection: Reflect on sensory input before mirroring memory
@@ -1043,7 +1051,7 @@ async def asi_simulate(
     scenario: str,
     ctx: Context = CurrentContext(),
     server: FastMCP = CurrentFastMCP(),
-    session_id: str = "global",
+    session_id: str | None = None,
     auth_context: dict[str, Any] | None = None,
 ) -> RuntimeEnvelope:
     """
@@ -1051,7 +1059,7 @@ async def asi_simulate(
     Assess the downstream impact of a proposal before execution.
     Enforces F5 (Peace²) and F6 (Empathy).
     """
-    active_session = session_id or getattr(ctx, "session_id", None) or "global"
+    active_session = session_id or getattr(ctx, "session_id", None) or _normalize_session_id(None)
 
     with helix_tracer.start_organ_span("ASI·SIMULATE", active_session) as span:
         payload = {
@@ -1110,14 +1118,14 @@ async def asi_critique(
     ctx: Context = CurrentContext(),
     health: dict[str, Any] | None = None,
     floor: dict[str, Any] | None = None,
-    session_id: str = "global",
+    session_id: str | None = None,
 ) -> RuntimeEnvelope:
     """
     666_HEART: Advanced adversarial critique and thought audit.
     Detects blind spots, uncertainty, and hidden assumptions before action.
     Enforces F7 (Humility) and F9 (Anti-Hantu/Shadow).
     """
-    active_session = session_id or getattr(ctx, "session_id", None) or "global"
+    active_session = session_id or getattr(ctx, "session_id", None) or _normalize_session_id(None)
 
     with helix_tracer.start_organ_span("ASI·CRITIQUE", active_session) as span:
         payload = {
@@ -1156,12 +1164,12 @@ async def agi_asi_forge_handler(
     ctx: Context = CurrentContext(),
     server: FastMCP = CurrentFastMCP(),
     tools: list[str] | None = None,
-    session_id: str = "global",
+    session_id: str | None = None,
     pns_orchestrate: dict[str, Any] | None = None,
     dry_run: bool = False,
 ) -> RuntimeEnvelope:
     """AGI·ASI·FORGE (Stage 777): Forge a sandboxed discovery or implementation proposal."""
-    active_session = session_id or getattr(ctx, "session_id", None) or "global"
+    active_session = session_id or getattr(ctx, "session_id", None) or _normalize_session_id(None)
 
     with helix_tracer.start_organ_span("AGI–ASI·FORGE", active_session) as span:
         payload = {
@@ -1196,14 +1204,14 @@ async def apex_judge(
     candidate_output: str,
     ctx: Context = CurrentContext(),
     redteam: dict[str, Any] | None = None,
-    session_id: str = "global",
+    session_id: str | None = None,
 ) -> RuntimeEnvelope:
     """
     888_JUDGE: Render a sovereign constitutional verdict (SEAL, VOID, HOLD, SABAR).
     Final authority for all candidate outputs in the arifOS Double Helix.
     Enforces F3 (Tri-Witness) and F13 (Sovereign Override).
     """
-    active_session = session_id or getattr(ctx, "session_id", None) or "global"
+    active_session = session_id or getattr(ctx, "session_id", None) or _normalize_session_id(None)
 
     with helix_tracer.start_organ_span("APEX·JUDGE", active_session) as span:
         payload = {
@@ -1244,7 +1252,7 @@ async def vault_seal(
     verdict: str,
     evidence: str,
     ctx: Context = CurrentContext(),
-    session_id: str = "global",
+    session_id: str | None = None,
     auth_context: dict[str, Any] | None = None,
 ) -> RuntimeEnvelope:
     """
@@ -1252,7 +1260,7 @@ async def vault_seal(
     Mints a permanent hash-chain entry in the Cooling Ledger.
     Enforces F1 (Amanah) and F13 (Sovereign).
     """
-    active_session = session_id or getattr(ctx, "session_id", None) or "global"
+    active_session = session_id or getattr(ctx, "session_id", None) or _normalize_session_id(None)
 
     with helix_tracer.start_organ_span("VAULT·SEAL", active_session) as span:
         # ─── APEX PRIME: THE IMMORTAL AUDITOR ───
@@ -1435,7 +1443,7 @@ async def arifos_kernel(
 
 async def reality_compass(
     input: str,
-    session_id: str = "global",
+    session_id: str | None = None,
     actor_id: str = "anonymous",
     authority_level: str = "anonymous",
     mode: str = "auto",
@@ -1487,7 +1495,7 @@ async def reality_compass(
 
 async def reality_atlas(
     operation: str,
-    session_id: str = "global",
+    session_id: str | None = None,
     bundles: list[Any] = [],
     query: dict[str, Any] = {},
     ctx: Context | None = None,
@@ -1515,7 +1523,7 @@ async def ingest_evidence(url: str, ctx: Context | None = None) -> RuntimeEnvelo
     return await reality_compass(input=url, mode="fetch", ctx=ctx)
 
 
-async def audit_rules(session_id: str = "global", ctx: Context | None = None) -> RuntimeEnvelope:
+async def audit_rules(session_id: str | None = None, ctx: Context | None = None) -> RuntimeEnvelope:
     """
     333_MIND: Inspect the live status and thresholds of all 13 constitutional floors (F1-F13).
     Provides transparency into current governance constraints.
@@ -1544,7 +1552,7 @@ async def audit_rules(session_id: str = "global", ctx: Context | None = None) ->
 
 
 async def get_caller_status(
-    session_id: str = "global",
+    session_id: str | None = None,
     ctx: Context | None = None,
 ) -> RuntimeEnvelope:
     """
@@ -1605,6 +1613,7 @@ async def get_caller_status(
         envelope.payload["authority_level"] = authority_level
         envelope.payload["auth_state"] = "verified"
         envelope.payload["approval_scope"] = stored_scope
+        envelope.payload["session_id"] = session_id  # SESSION TRUTH: explicit sync
     
     # Enrichment: Add walkthrough guidance
     envelope.payload.update({
@@ -1618,7 +1627,7 @@ async def get_caller_status(
     })
     
     return envelope
-async def check_vital(session_id: str = "global", ctx: Context | None = None) -> RuntimeEnvelope:
+async def check_vital(session_id: str | None = None, ctx: Context | None = None) -> RuntimeEnvelope:
     """
     000_INIT: System health and thermodynamic telemetry monitor.
     Reports real-time ΔS (Entropy), Peace², and Gödel Humility metrics.
@@ -1750,7 +1759,7 @@ async def _probe_intelligence_services() -> dict[str, dict[str, Any]]:
 
 
 async def verify_vault_ledger(
-    session_id: str = "global",
+    session_id: str | None = None,
     full_scan: bool = True,
     ctx: Context | None = None,
 ) -> RuntimeEnvelope:
@@ -1761,7 +1770,7 @@ async def verify_vault_ledger(
 
 async def office_forge_audit(
     markdown: str,
-    session_id: str = "global",
+    session_id: str | None = None,
     ctx: Context | None = None,
 ) -> RuntimeEnvelope:
     """777 FORGE - Office Forge Audit. Analyze markdown complexity before rendering."""
@@ -1775,7 +1784,7 @@ async def forge_office_document(
     output_mode: str = "pdf",
     theme: str = "default",
     filename: str | None = None,
-    session_id: str = "global",
+    session_id: str | None = None,
     ctx: Context | None = None,
 ) -> RuntimeEnvelope:
     """888 JUDGE - Office Forge Render. Render professional PDF/PPTX from markdown."""
@@ -1789,7 +1798,7 @@ async def forge_office_document(
 
 
 async def open_apex_dashboard(
-    session_id: str = "global", ctx: Context | None = None
+    session_id: str | None = None, ctx: Context | None = None
 ) -> ToolResult | RuntimeEnvelope:
     """Sovereign monitoring interface. UI dashboard for live metrics and trace visibility."""
     res = build_open_apex_dashboard_result(session_id)
@@ -1918,14 +1927,14 @@ async def trace_replay(
     payload = {"limit": limit}
     return await _wrap_call("trace_replay", Stage.VAULT_999, session_id, payload, ctx)
 
-async def list_resources(session_id: str = "global", ctx: Context | None = None) -> RuntimeEnvelope:
+async def list_resources(session_id: str | None = None, ctx: Context | None = None) -> RuntimeEnvelope:
     return await _wrap_call("list_resources", Stage.SENSE_111, session_id, {}, ctx)
 
-async def read_resource(uri: str, session_id: str = "global", ctx: Context | None = None) -> RuntimeEnvelope:
+async def read_resource(uri: str, session_id: str | None = None, ctx: Context | None = None) -> RuntimeEnvelope:
     payload = {"uri": uri}
     return await _wrap_call("read_resource", Stage.SENSE_111, session_id, payload, ctx)
 
-async def search_with_consensus(query: str, session_id: str = "global") -> RuntimeEnvelope:
+async def search_with_consensus(query: str, session_id: str | None = None) -> RuntimeEnvelope:
     payload = {"query": query}
     return await _wrap_call("search_with_consensus", Stage.REALITY_222, session_id, payload)
 
@@ -1990,10 +1999,10 @@ metabolic_loop_router = arifos_kernel
 agi_asi_forge = agi_asi_forge_handler
 apex_judge_verdict = apex_judge
 
-async def grounding_search(query: str, session_id: str = "global") -> RuntimeEnvelope:
+async def grounding_search(query: str, session_id: str | None = None) -> RuntimeEnvelope:
     return await reality_compass(input=query, session_id=session_id, mode="search")
 
-async def search_reality(query: str, session_id: str = "global") -> RuntimeEnvelope:
+async def search_reality(query: str, session_id: str | None = None) -> RuntimeEnvelope:
     return await reality_compass(input=query, session_id=session_id, mode="search")
 
 async def ollama_local_generate(
@@ -2002,7 +2011,7 @@ async def ollama_local_generate(
     system: str | None = None,
     temperature: float = 0.2,
     max_tokens: int = 512,
-    session_id: str = "global",
+    session_id: str | None = None,
 ) -> RuntimeEnvelope:
     payload = {
         "prompt": prompt,
