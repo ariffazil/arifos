@@ -50,6 +50,7 @@ from arifosmcp.runtime.sessions import (
     set_active_session,
     bind_session_identity,
     get_session_identity,
+    resolve_runtime_context,
 )
 from arifosmcp.intelligence import console_tools as aclip_tools
 from core.shared.mottos import MOTTO_000_INIT_HEADER, MOTTO_999_SEAL_HEADER, get_motto_for_stage
@@ -917,6 +918,37 @@ async def init_anchor(
         except Exception:
             pass
 
+        # ═══════════════════════════════════════════════════════════════════════
+        # SESSION TRUTH UNIFICATION: Expose canonical resolution in init_anchor
+        # Same pattern as get_caller_status for consistency
+        # ═══════════════════════════════════════════════════════════════════════
+        ctx = resolve_runtime_context(
+            incoming_session_id=session_id,
+            auth_context=new_auth_context,
+            actor_id=effective_actor,
+            declared_name=declared_name,
+        )
+        
+        # Session truth: resolved is canonical
+        envelope.session_id = ctx["resolved_session_id"]
+        envelope.payload["transport_session_id"] = ctx["transport_session_id"]
+        envelope.payload["resolved_session_id"] = ctx["resolved_session_id"]
+        envelope.payload["session_id"] = ctx["resolved_session_id"]  # Backward compat
+        
+        # Identity truth
+        envelope.payload["canonical_actor_id"] = ctx["canonical_actor_id"]
+        envelope.payload["display_name"] = ctx["display_name"]
+        envelope.payload["authority_source"] = ctx["authority_source"]
+        
+        # Ensure auth_context carries resolved truth
+        if envelope.auth_context:
+            envelope.auth_context.session_id = ctx["resolved_session_id"]
+            envelope.auth_context.actor_id = ctx["canonical_actor_id"]
+        # Update payload auth_context to match
+        new_auth_context["session_id"] = ctx["resolved_session_id"]
+        new_auth_context["actor_id"] = ctx["canonical_actor_id"]
+        envelope.payload["auth_context"] = new_auth_context
+
     return envelope
 
 
@@ -1607,13 +1639,45 @@ async def get_caller_status(
             envelope.caller_state, envelope.blocked_tools, ac_dict
         )
 
-        # Sync payload
-        envelope.payload["caller_state"] = envelope.caller_state
+        # Sync payload specific to stored identity
         envelope.payload["actor_id"] = actor_id
         envelope.payload["authority_level"] = authority_level
         envelope.payload["auth_state"] = "verified"
         envelope.payload["approval_scope"] = stored_scope
-        envelope.payload["session_id"] = session_id  # SESSION TRUTH: explicit sync
+
+    # SESSION TRUTH: explicit sync unconditionally
+    envelope.payload["caller_state"] = envelope.caller_state
+    
+    # ═══════════════════════════════════════════════════════════════════════
+    # SESSION TRUTH UNIFICATION: Expose canonical resolution
+    # F2 Truth: session_id is alias for resolved_session_id (continuity truth)
+    # transport_session_id is raw incoming value (for debugging)
+    # ═══════════════════════════════════════════════════════════════════════
+    
+    # Resolve canonical context for this response
+    auth_ctx_dict = envelope.auth_context.model_dump(mode="json") if envelope.auth_context else None
+    ctx = resolve_runtime_context(
+        incoming_session_id=session_id,
+        auth_context=auth_ctx_dict,
+        actor_id=envelope.authority.actor_id if envelope.authority else None,
+        declared_name=None,  # No declared_name in this flow
+    )
+    
+    # Session truth: resolved is canonical, transport is debug
+    envelope.session_id = ctx["resolved_session_id"]  # Backward compat: truth
+    envelope.payload["transport_session_id"] = ctx["transport_session_id"]
+    envelope.payload["resolved_session_id"] = ctx["resolved_session_id"]
+    envelope.payload["session_id"] = ctx["resolved_session_id"]  # Alias
+    
+    # Identity truth: canonical vs display
+    envelope.payload["canonical_actor_id"] = ctx["canonical_actor_id"]
+    envelope.payload["display_name"] = ctx["display_name"]
+    envelope.payload["authority_source"] = ctx["authority_source"]
+    
+    # Ensure auth_context carries resolved truth
+    if envelope.auth_context:
+        envelope.auth_context.session_id = ctx["resolved_session_id"]
+        envelope.auth_context.actor_id = ctx["canonical_actor_id"]
     
     # Enrichment: Add walkthrough guidance
     envelope.payload.update({
