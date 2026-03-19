@@ -294,7 +294,8 @@
     },
     "exec": {
       "security": "full",
-      "ask": "off"
+      "ask": "off",
+      "host": "gateway"
     },
     "fs": {
       "workspaceOnly": false

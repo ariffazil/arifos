@@ -269,6 +269,7 @@ services:
       - GH_TOKEN=${GITHUB_TOKEN:-}
       - BROWSERLESS_URL=http://headless_browser:3000
       - OLLAMA_API_BASE=http://ollama:11434
+      - TELEGRAM_BOT_TOKEN=8697661462:AAHo_UP0LzKAuM1zBTitFVRm6PDIMASVBtQ
     networks:
       - arifos_trinity
     ports:
@@ -320,6 +321,8 @@ services:
       - /proc:/host/proc:ro
       - /sys:/host/sys:ro
       - /srv/arifosmcp/arifosmcp:/usr/src/app/arifosmcp:ro
+      - /srv/arifosmcp/core:/usr/src/app/core:ro
+      - /srv/arifosmcp/spec:/usr/src/app/spec:ro
       - /opt/arifos/secrets:/opt/arifos/secrets:ro
       - arifosmcp_telemetry:/usr/src/app/telemetry:rw
       - arifosmcp_vault:/usr/src/app/VAULT999:rw
