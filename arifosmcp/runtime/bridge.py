@@ -533,6 +533,45 @@ async def call_kernel(
                     machine_issue="TOKEN_EXPIRED",
                     dry_run=dry_run,
                 )
+            
+            # F11: Authority and Scope Validation
+            # After token verification, check if actor has required scope for kernel execution
+            authority_level = auth_ctx.get("authority_level", "anonymous")
+            approval_scope = auth_ctx.get("approval_scope", [])
+            
+            # Anonymous actors cannot execute kernel
+            if authority_level == "anonymous":
+                return _auth_failure_envelope(
+                    tool=canonical_name,
+                    session_id=session_id,
+                    error_message="F11: Anonymous actors cannot execute kernel operations. Use a recognized actor_id.",
+                    claimed_actor_id=claimed_actor_id,
+                    identity_claim_status="INSUFFICIENT_SCOPE",
+                    identity_reason="Anonymous authority level",
+                    next_action_reason="Call init_anchor with actor_id like 'arif', 'openclaw', or 'operator'.",
+                    machine_issue="AUTH_FAILURE",
+                    dry_run=dry_run,
+                )
+            
+            # Check if actor has required scope for kernel execution
+            required_scope = "arifOS_kernel:execute"
+            required_scope_limited = "arifOS_kernel:execute_limited"
+            
+            has_full_scope = required_scope in approval_scope or "*" in approval_scope
+            has_limited_scope = required_scope_limited in approval_scope or "*" in approval_scope
+            
+            if not (has_full_scope or has_limited_scope):
+                return _auth_failure_envelope(
+                    tool=canonical_name,
+                    session_id=session_id,
+                    error_message=f"F11: Actor '{authority_level}' lacks required scope for kernel execution.",
+                    claimed_actor_id=claimed_actor_id,
+                    identity_claim_status="INSUFFICIENT_SCOPE",
+                    identity_reason=f"Missing {required_scope} or {required_scope_limited}",
+                    next_action_reason="Request operator or sovereign authority.",
+                    machine_issue="AUTH_FAILURE",
+                    dry_run=dry_run,
+                )
 
     elif canonical_name in REQUIRES_SESSION and canonical_name not in BOOTSTRAP_WHITELIST:
         if not auth_ctx:

@@ -46,6 +46,7 @@ from arifosmcp.runtime.resources import build_open_apex_dashboard_result
 from arifosmcp.runtime.sessions import _resolve_session_id, set_active_session
 from arifosmcp.intelligence import console_tools as aclip_tools
 from core.shared.mottos import MOTTO_000_INIT_HEADER, MOTTO_999_SEAL_HEADER, get_motto_for_stage
+from core.enforcement.auth_continuity import mint_auth_context
 from core.state.session_manager import session_manager
 from core.telemetry import check_adaptation_status, get_current_hysteresis
 
@@ -726,20 +727,56 @@ async def init_anchor(
 
     # Enrich payload with Authority and AuthContext for caller visibility
     if envelope.ok:
+        # Determine authority level and scopes based on actor
+        # Authority levels: anonymous < declared < user < operator < sovereign < system
+        authority_level = "anonymous"
+        approval_scope: list[str] = []
+        
+        if effective_actor in ("ariffazil", "arif-fazil", "arif-the-apex"):
+            authority_level = "sovereign"
+            approval_scope = ["arifOS_kernel:execute", "vault:seal", "audit_rules:read", "agentzero:engineer"]
+        elif effective_actor in ("openclaw", "agentzero"):
+            authority_level = "agent"
+            approval_scope = ["arifOS_kernel:execute_limited", "audit_rules:read"]
+        elif effective_actor in ("operator", "cli"):
+            authority_level = "operator"
+            approval_scope = ["arifOS_kernel:execute", "audit_rules:read"]
+        elif effective_actor in ("user", "test_user"):
+            authority_level = "user"
+            approval_scope = ["arifOS_kernel:execute_limited"]
+        elif effective_actor not in ("anonymous", "", None):
+            authority_level = "declared"
+            approval_scope = ["audit_rules:read"]  # Diagnostics only
+        
         envelope.payload["caller_state"] = "anchored"
         envelope.payload["authority"] = {
             "actor_id": effective_actor,
             "declared_name": declared_name or effective_actor,
             "claim_status": "anchored",
-            "capability_class": "operator",
-            "approval_scope": []
+            "capability_class": authority_level,
+            "approval_scope": approval_scope
         }
-        envelope.payload["auth_context"] = {
-            "session_id": envelope.session_id,
-            "actor_id": effective_actor,
-            "capability_class": "operator",
-            "escalation_hold": None
-        }
+        
+        # Build proper signed auth_context using mint_auth_context
+        new_auth_context = mint_auth_context(
+            session_id=envelope.session_id,
+            actor_id=effective_actor,
+            token_fingerprint=uuid.uuid4().hex[:16],
+            approval_scope=approval_scope,
+            parent_signature="",  # Genesis anchor has no parent
+            ttl=900,  # 15 minutes
+            authority_level=authority_level,
+            prev_vault_hash="0x0000000000000000000000000000000000000000000000000000000000000000"
+        )
+        envelope.payload["auth_context"] = new_auth_context
+        # Also update top-level auth_context for consistency
+        from arifosmcp.runtime.models import AuthContext
+        try:
+            envelope.auth_context = AuthContext(**new_auth_context)
+        except Exception:
+            # Fallback: keep as dict if AuthContext model doesn't match
+            envelope.auth_context = new_auth_context
+        
         envelope.payload["next_action"] = {
             "tool": "arifOS_kernel",
             "action": "Proceed to governed execution.",
