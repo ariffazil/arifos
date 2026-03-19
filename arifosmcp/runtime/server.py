@@ -28,8 +28,9 @@ from fastmcp import FastMCP
 from fastmcp.server.transforms import ResourcesAsTools, Visibility
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.middleware.cors import CORSMiddleware
-from starlette.responses import JSONResponse
-from starlette.routing import Mount
+from starlette.middleware.sessions import SessionMiddleware
+from starlette.responses import JSONResponse, FileResponse
+from starlette.routing import Mount, Route
 from starlette.staticfiles import StaticFiles
 
 from arifosmcp.runtime.fastmcp_ext.transports import (
@@ -254,10 +255,6 @@ app = _mcp_app
 app.add_middleware(_APIKeyMiddleware)
 
 # Session middleware required for WebMCP (F11 Command Auth)
-# Must be added before WebMCP mounts
-import os
-from starlette.middleware.sessions import SessionMiddleware
-
 _session_secret = os.getenv("SESSION_SECRET") or os.urandom(32).hex()
 app.add_middleware(
     SessionMiddleware,
@@ -268,17 +265,94 @@ app.add_middleware(
     session_cookie="arifos_session",
 )
 
-# Additional middleware can be added here if needed,
-# but CORS and Auth are already handled by _build_http_middleware()
+# Root-level discovery configuration
+_sites_dir = os.path.join(os.path.dirname(__file__), "..", "sites")
 
-# Mount APEX dashboard static files (v2.1 - Real-time governance dashboard)
+
+async def get_llms_txt(request):
+    return FileResponse(os.path.join(_sites_dir, "llms.txt"))
+
+
+async def get_ai_json(request):
+    return FileResponse(os.path.join(_sites_dir, "ai.json"))
+
+
+async def get_robots_txt(request):
+    return FileResponse(os.path.join(_sites_dir, "robots.txt"))
+
+
+async def get_openapi_json(request):
+    return FileResponse(os.path.join(_sites_dir, "openapi.json"))
+
+
+async def get_rag_context(request):
+    return FileResponse(os.path.join(_sites_dir, "RAG_CONTEXT.md"))
+
+
+async def get_delegation_protocol(request):
+    return FileResponse(os.path.join(_sites_dir, "DELEGATION_PROTOCOL.md"))
+
+
+async def well_known_agent(request):
+    """A2A Agent Card discovery endpoint (Google Protocol - April 2025)."""
+    return JSONResponse(
+        {
+            "name": "arifOS Constitutional Kernel",
+            "description": "AI governance system with 13 constitutional floors (F1-F13)",
+            "url": "https://arifosmcp.arif-fazil.com",
+            "version": "2026.03.19-ANTICHAOS",
+            "authentication": {"schemes": ["none", "api_key"]},
+            "capabilities": {
+                "streaming": True,
+                "pushNotifications": False,
+            },
+            "skills": [
+                {
+                    "id": "constitutional_review",
+                    "name": "Constitutional Review",
+                    "description": "Review actions against 13 constitutional floors",
+                },
+                {
+                    "id": "task_execution",
+                    "name": "Governed Task Execution",
+                    "description": "Execute tasks with full constitutional oversight",
+                },
+            ],
+            "endpoints": {
+                "task": "/a2a/task",
+                "execute": "/a2a/execute",
+                "status": "/a2a/status",
+                "cancel": "/a2a/cancel",
+                "subscribe": "/a2a/subscribe",
+            },
+        }
+    )
+
+
+# Register all root-level discovery routes at the beginning to avoid shadowing
+_mcp_app.routes.insert(0, Route("/.well-known/agent.json", well_known_agent, methods=["GET"]))
+_mcp_app.routes.insert(0, Route("/llms.txt", get_llms_txt, methods=["GET"]))
+_mcp_app.routes.insert(0, Route("/ai.json", get_ai_json, methods=["GET"]))
+_mcp_app.routes.insert(0, Route("/robots.txt", get_robots_txt, methods=["GET"]))
+_mcp_app.routes.insert(0, Route("/openapi.json", get_openapi_json, methods=["GET"]))
+_mcp_app.routes.insert(0, Route("/RAG_CONTEXT.md", get_rag_context, methods=["GET"]))
+_mcp_app.routes.insert(
+    0, Route("/DELEGATION_PROTOCOL.md", get_delegation_protocol, methods=["GET"])
+)
+
+# Mount Static sites
+if os.path.isdir(_sites_dir):
+    _mcp_app.routes.insert(
+        0, Mount("/static-sites", StaticFiles(directory=_sites_dir, html=True), name="static-sites")
+    )
+
+# Mount APEX dashboard static files
 _dashboard_dir = os.path.join(os.path.dirname(__file__), "..", "sites", "dashboard")
 if os.path.isdir(_dashboard_dir):
-    # Add redirect for /dashboard → /dashboard/ before mount
-    from starlette.responses import RedirectResponse
-    from starlette.routing import Route
 
     async def _dashboard_slash_redirect(request):
+        from starlette.responses import RedirectResponse
+
         return RedirectResponse(url="/dashboard/", status_code=307)
 
     _mcp_app.routes.insert(0, Route("/dashboard", _dashboard_slash_redirect))
@@ -301,17 +375,8 @@ if os.path.isdir(_developer_dir):
 # ---------------------------------------------------------------------------
 # WebMCP Integration - AI-Governed Web Environment
 # ---------------------------------------------------------------------------
-# WebMCP extends MCP to browsers with constitutional enforcement (F1-F13)
-# Every HTTP request passes through the 000→999 metabolic loop.
-# ---------------------------------------------------------------------------
 
 _WEBMCP_ENABLED = os.getenv("ARIFOS_WEBMCP_ENABLED", "true").lower() in ("true", "1", "yes")
-
-# Serve trinity-nav.js globally (MUST be before WebMCP mount to avoid route shadowing)
-_sites_dir = os.path.join(os.path.dirname(__file__), "..", "sites")
-if os.path.isdir(_sites_dir):
-    # Insert at beginning to ensure it takes priority over the WebMCP catch-all
-    _mcp_app.routes.insert(0, Mount("/static-sites", StaticFiles(directory=_sites_dir, html=True), name="static-sites"))
 
 if _WEBMCP_ENABLED:
     try:
@@ -323,79 +388,40 @@ if _WEBMCP_ENABLED:
 
         # Mount WebMCP routes into main app
         # WebMCP app already has /webmcp, /api/live, /governance prefixes
-        _mcp_app.mount("/", _webmcp_app, name="webmcp")
+        _mcp_app.mount("/", _webmcp_app, name="webmcp_root")
 
-        print("✅ WebMCP gateway integrated at /webmcp, /api/live, /governance", file=sys.stderr)
+        print("✅ WebMCP gateway integrated at root", file=sys.stderr)
 
     except ImportError as e:
-        print(f"⚠️ WebMCP not available: {e}. Run: pip install itsdangerous fastapi uvicorn redis", file=sys.stderr)
+        print(f"⚠️ WebMCP not available: {e}", file=sys.stderr)
     except Exception as e:
         print(f"❌ WebMCP integration failed: {e}", file=sys.stderr)
 
-    # Root-level discovery files
-    from starlette.responses import FileResponse
-    from starlette.routing import Route
-
-    async def get_llms_txt(request):
-        return FileResponse(os.path.join(_sites_dir, "llms.txt"))
-
-    async def get_ai_json(request):
-        return FileResponse(os.path.join(_sites_dir, "ai.json"))
-
-    async def get_robots_txt(request):
-        return FileResponse(os.path.join(_sites_dir, "robots.txt"))
-
-    async def get_openapi_json(request):
-        return FileResponse(os.path.join(_sites_dir, "openapi.json"))
-
-    async def get_rag_context(request):
-        return FileResponse(os.path.join(_sites_dir, "RAG_CONTEXT.md"))
-
-    async def get_delegation_protocol(request):
-        return FileResponse(os.path.join(_sites_dir, "DELEGATION_PROTOCOL.md"))
-
 
 # Mount REAL WebMCP Gateway (W3C Standard - Feb 2026)
-# This provides browser-native MCP with navigator.modelContext API
 try:
     from arifosmcp.runtime.webmcp.real_webmcp import create_real_webmcp, WebMCPConfig
 
     _webmcp_config = WebMCPConfig(
         site_name="arifOS Constitutional AI",
         site_url="https://arifosmcp.arif-fazil.com",
-        version="2026.03.17-ANTICHAOS",
+        version="2026.03.19-ANTICHAOS",
         enable_declarative=True,
         enable_imperative=True,
         require_human_confirmation=True,  # F13 Sovereign
     )
 
-    _webmcp_gateway = create_real_webmcp(mcp, _webmcp_config)
+    _webmcp_gateway_v2 = create_real_webmcp(mcp, _webmcp_config)
 
     # Mount WebMCP at /webmcp
-    _mcp_app.mount("/webmcp", _webmcp_gateway.app, name="webmcp")
+    _mcp_app.mount("/webmcp", _webmcp_gateway_v2.app, name="webmcp_v2")
 
     print("✅ Real WebMCP Gateway mounted at /webmcp (W3C Standard)", file=sys.stderr)
 
 except ImportError as e:
-    print(f"⚠️ WebMCP not available: {e}", file=sys.stderr)
-
-    _mcp_app.router.add_route("/llms.txt", get_llms_txt, methods=["GET"], include_in_schema=False)
-    _mcp_app.router.add_route("/ai.json", get_ai_json, methods=["GET"], include_in_schema=False)
-    _mcp_app.router.add_route(
-        "/robots.txt", get_robots_txt, methods=["GET"], include_in_schema=False
-    )
-    _mcp_app.router.add_route(
-        "/openapi.json", get_openapi_json, methods=["GET"], include_in_schema=False
-    )
-    _mcp_app.router.add_route(
-        "/RAG_CONTEXT.md", get_rag_context, methods=["GET"], include_in_schema=False
-    )
-    _mcp_app.router.add_route(
-        "/DELEGATION_PROTOCOL.md", get_delegation_protocol, methods=["GET"], include_in_schema=False
-    )
+    print(f"⚠️ Real WebMCP not available: {e}", file=sys.stderr)
 
 # Mount REAL A2A Server (Google Protocol - April 2025)
-# This provides Agent-to-Agent protocol for multi-agent collaboration
 try:
     from arifosmcp.runtime.a2a import create_a2a_server
 
@@ -404,49 +430,7 @@ try:
     # Mount A2A at /a2a
     _mcp_app.mount("/a2a", _a2a_server.app, name="a2a")
 
-    # Also mount at root for /.well-known/agent.json
-    from starlette.responses import JSONResponse
-
-    async def well_known_agent(request):
-        """A2A Agent Card discovery endpoint."""
-        return JSONResponse(
-            {
-                "name": "arifOS Constitutional Kernel",
-                "description": "AI governance system with 13 constitutional floors (F1-F13)",
-                "url": "https://arifosmcp.arif-fazil.com",
-                "version": "2026.03.17-ANTICHAOS",
-                "authentication": {"schemes": ["none", "api_key"]},
-                "capabilities": {
-                    "streaming": True,
-                    "pushNotifications": False,
-                },
-                "skills": [
-                    {
-                        "id": "constitutional_review",
-                        "name": "Constitutional Review",
-                        "description": "Review actions against 13 constitutional floors",
-                    },
-                    {
-                        "id": "task_execution",
-                        "name": "Governed Task Execution",
-                        "description": "Execute tasks with full constitutional oversight",
-                    },
-                ],
-                "endpoints": {
-                    "task": "/a2a/task",
-                    "execute": "/a2a/execute",
-                    "status": "/a2a/status",
-                    "cancel": "/a2a/cancel",
-                    "subscribe": "/a2a/subscribe",
-                },
-            }
-        )
-
-    # Register the route using Starlette's router
-    _mcp_app.router.add_route("/.well-known/agent.json", well_known_agent, methods=["GET"])
-
     print("✅ Real A2A Server mounted at /a2a (Google Protocol)", file=sys.stderr)
-    print("✅ Agent Card available at /.well-known/agent.json", file=sys.stderr)
 
 except ImportError as e:
     print(f"⚠️ A2A not available: {e}", file=sys.stderr)
