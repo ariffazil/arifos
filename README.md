@@ -19,8 +19,8 @@
 ---
 
 [![Status](https://img.shields.io/badge/Status-Alive%20(COHERENT)-00b894.svg?style=flat-square)](https://arifosmcp.arif-fazil.com/health)
-[![Release](https://img.shields.io/badge/Version-2026.03.15--TRINITY-blue.svg?style=flat-square)](https://github.com/ariffazil/arifosmcp/releases)
-[![Tools](https://img.shields.io/badge/Canonical%20Tools-32-success.svg?style=flat-square)](https://arifosmcp.arif-fazil.com/tools)
+[![Release](https://img.shields.io/badge/Version-2026.03.17--TRINITY-blue.svg?style=flat-square)](https://github.com/ariffazil/arifosmcp/releases)
+[![Tools](https://img.shields.io/badge/Canonical%20Tools-37-success.svg?style=flat-square)](https://arifosmcp.arif-fazil.com/tools)
 [![Protocols](https://img.shields.io/badge/Protocols-MCP%2BA2A%2BWebMCP-orange.svg?style=flat-square)](./docs/protocols/PROTOCOLS_TRINITY.md)
 [![Validation](https://img.shields.io/badge/External%20Validation-HIGH-brightgreen.svg?style=flat-square)](./docs/reports/EXTERNAL_VALIDATION_REPORT.md)
 [![License](https://img.shields.io/badge/License-AGPL%203.0-lightgrey.svg?style=flat-square)](./LICENSE)
@@ -78,6 +78,7 @@ https://arifosmcp.arif-fazil.com/.well-known/webmcp      ← WebMCP manifest
 https://arifosmcp.arif-fazil.com/webmcp                  ← Browser console UI
 https://arifosmcp.arif-fazil.com/webmcp/sdk.js           ← JavaScript SDK
 https://arifosmcp.arif-fazil.com/webmcp/tools.json       ← Tool manifest
+https://arifosmcp.arif-fazil.com/governance/evaluate      ← GaaS evaluation endpoint
 ```
 
 ### 2.2 Protocol Comparison
@@ -123,7 +124,7 @@ https://arifosmcp.arif-fazil.com/webmcp/tools.json       ← Tool manifest
 │                      EXECUTION LAYER                                 │
 │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐                  │
 │  │ MCP Tools   │  │ A2A Tasks   │  │ WebMCP UI   │                  │
-│  │ 25 Tools    │  │ Real-time   │  │ Browser SDK │                  │
+│  │ 37 Tools    │  │ Real-time   │  │ Browser SDK │                  │
 │  └─────────────┘  └─────────────┘  └─────────────┘                  │
 └─────────────────────────────────────────────────────────────────────┘
 ```
@@ -187,11 +188,12 @@ The bedrock of arifOS. These are hard-coded constraints enforced at every stage 
 
 ---
 
-## 🧬 6. The 32-Tool Canonical Surface
+## 🧬 6. The 37-Tool Canonical Surface
 
-### 6.1 Public Constitutional Tools (25 tools)
+### 6.1 Public Constitutional Tools (28 tools)
 
 #### KERNEL Layer (System Control)
+- `get_caller_status`: Single onboarding compass for session state.
 - `forge`: One-shot entry point to run the entire 000-999 pipeline.
 - `init_anchor`: Establish a governed session and mint `auth_context`.
 - `revoke_anchor_state`: Invalidate a session token (Kill Switch).
@@ -226,9 +228,9 @@ The bedrock of arifOS. These are hard-coded constraints enforced at every stage 
 - `vault_seal`: Commit verified verdict to immutable ledger.
 - `verify_vault_ledger`: Perform Merkle integrity check.
 
-### 6.2 Nervous System 9: Machine Introspection Tools
+### 6.2 Nervous System 9: Machine Introspection (Exposed to MCP)
 
-The internal infrastructure layer for system visibility:
+The internal infrastructure layer now fully accessible via MCP for OpenClaw integration:
 
 | Category | Tools | Purpose |
 |----------|-------|---------|
@@ -410,6 +412,14 @@ Every SEALed verdict is stored in a hash-chained ledger:
 
 ## 🏺 14. Historical Logs
 
+### 2026.03.17 — Operational Resilience SEALED
+- **Feature:** Exposed all 37 canonical tools to MCP (9 Nervous System tools unlocked)
+- **Feature:** Integrated E3E Trinity Choreography end-to-end test suite
+- **Fix:** Resolved 424 TaskGroup concurrency errors in health probes (asyncio.gather transition)
+- **Fix:** Repaired Browserless 401 status via token-aware health headers
+- **Fix:** Restored full provider visibility (Brave, Jina, Perplexity visibility fixed)
+- **Release:** Version bumped to 2026.03.17-TRINITY
+
 ### 2026.03.15 — Protocol Trinity FORGED
 - **Feature:** Implemented A2A (Google) + WebMCP (W3C) + MCP (Anthropic) protocols
 - **Feature:** Zero-Chaos Deployment System with 6-stage constitutional pipeline
@@ -474,8 +484,9 @@ Every tool response includes caller state visibility and recovery guidance:
 #### `init_anchor`
 - **Location:** `arifosmcp/runtime/tools.py`
 - **Parameters:**
-  - `raw_input` (str): The initial user intent.
-  - `actor_id` (str): The identity of the requester.
+  - `actor_id` (str): (Required) The identity of the requester (e.g., "arif").
+  - `declared_name` (str): (Optional) Human-readable name.
+  - `intent` (str): (Optional) The initial user objective.
 - **Logic:** Enforces Floor 11. Checks cryptographic validity and mints session token.
 
 #### `metabolic_loop_router`

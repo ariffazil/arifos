@@ -120,7 +120,7 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
         layer="KERNEL",
         description="000_INIT: Highest-leverage diagnostic. Explains current session state, authority ladder, accessible tools, and the exact path to advance your session. Use this if you are 'blocked' or uncertain of your next step.",
         trinity="INIT",
-        floors=("F11",),
+        floors=(),
         input_schema={
             "type": "object",
             "properties": {
@@ -138,7 +138,7 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
         layer="KERNEL",
         description="000_INIT: Establish a governed session and verify identity. Use this tool first to authorize a session and mint the auth_context required for subsequent governed tools. Enforces F11 (Command Auth), F12 (Injection Defense), and F13 (Sovereign Override).",
         trinity="INIT",
-        floors=("F11", "F12", "F13"),
+        floors=("F12",),
         input_schema={
             "type": "object",
             "required": ["raw_input"],
@@ -157,7 +157,7 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
         layer="KERNEL",
         description="Legacy alias for init_anchor.",
         trinity="INIT",
-        floors=("F11", "F12", "F13"),
+        floors=("F12",),
         input_schema={
             "type": "object",
             "anyOf": [
@@ -426,8 +426,9 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
         layer="ASI Ω HAND",
         description="666_EXECUTE: Perform material system actions (code, shell, file ops). Requires valid session auth_context. Only for technical actions vetted by ASI levels. Enforces F11 (Authority).",
         trinity="ASI Ω",
-        floors=("F11",),
+        floors=(),
         input_schema={
+
             "type": "object",
             "required": ["task_description"],
             "properties": {

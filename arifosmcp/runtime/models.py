@@ -252,10 +252,17 @@ class StageContract(BaseModel):
 CANONICAL_STAGE_CONTRACTS: dict[Stage, StageContract] = {
     Stage.INIT_000: StageContract(
         stage=Stage.INIT_000,
-        allowed_tools=["check_vital", "audit_rules", "init_anchor", "get_caller_status"],
+        allowed_tools=["check_vital", "audit_rules", "init_anchor", "init_anchor_state", "get_caller_status", "register_tools"],
         mandatory_floors=["F11"],
-        valid_verdicts=[Verdict.ALIVE, Verdict.PROVISIONAL, Verdict.HOLD],
+        valid_verdicts=[Verdict.ALIVE, Verdict.PROVISIONAL, Verdict.HOLD, Verdict.SEAL],
         exit_criteria="Anchored identity (session_id != 'global')."
+    ),
+    Stage.ROUTER_444: StageContract(
+        stage=Stage.ROUTER_444,
+        allowed_tools=["arifOS_kernel", "metabolic_loop_router"],
+        mandatory_floors=["F11", "F12"],
+        valid_verdicts=[Verdict.PROVISIONAL, Verdict.HOLD, Verdict.VOID, Verdict.SEAL],
+        exit_criteria="Directed reasoning path."
     ),
     Stage.MIND_333: StageContract(
         stage=Stage.MIND_333,
