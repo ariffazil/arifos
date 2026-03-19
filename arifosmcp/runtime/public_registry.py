@@ -97,7 +97,7 @@ def release_version() -> str:
 
 
 def release_version_label() -> str:
-    return "2026.03.14-VALIDATED"
+    return "2026.03.17-ANTICHAOS"
 
 
 def release_version_compact() -> str:
