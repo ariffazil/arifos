@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Combined PyPI + npm publication script for arifOS v2026.03.14-VALIDATED
+Combined PyPI + npm publication script for arifOS v2026.03.17-ANTICHAOS
 
 Usage:
     python publish_all.py --pypi    # Publish to PyPI only
@@ -14,7 +14,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).parent
+REPO_ROOT = Path(__file__).parent.parent.parent
 DIST_DIR = REPO_ROOT / "dist"
 NPM_DIR = REPO_ROOT / "npm" / "arifos-mcp"
 
@@ -35,7 +35,7 @@ def run(cmd, cwd=None, timeout=300, shell=True):
 def publish_pypi():
     """Publish Python package to PyPI."""
     print("=" * 60)
-    print("PYPI PUBLICATION: arifosmcp v2026.3.14-VALIDATED")
+    print("PYPI PUBLICATION: arifosmcp v2026.03.17-ANTICHAOS")
     print("=" * 60)
 
     # 1. Clean
@@ -85,14 +85,14 @@ def publish_pypi():
         return False
 
     print("\n✅ PyPI publication successful!")
-    print("   pip install arifosmcp==2026.3.14")
+    print("   pip install arifosmcp==2026.3.17")
     return True
 
 
 def publish_npm():
     """Publish npm package."""
     print("\n" + "=" * 60)
-    print("NPM PUBLICATION: @arifos/mcp v2026.3.14")
+    print("NPM PUBLICATION: @arifos/mcp v2026.3.17")
     print("=" * 60)
 
     if not NPM_DIR.exists():
@@ -156,15 +156,15 @@ def main():
 
     print("=" * 60)
     print("arifOS PUBLICATION SCRIPT")
-    print("Version: 2026.03.14-VALIDATED")
+    print("Version: 2026.03.17-ANTICHAOS")
     print("=" * 60)
 
     if args.dry_run:
         print("\n🔍 DRY RUN MODE - No actual publishing will occur")
         if args.all or args.pypi:
-            print("   Would publish to PyPI: arifosmcp==2026.3.14")
+            print("   Would publish to PyPI: arifosmcp==2026.3.17")
         if args.all or args.npm:
-            print("   Would publish to npm: @arifos/mcp@2026.3.14")
+            print("   Would publish to npm: @arifos/mcp@2026.3.17")
         return 0
 
     results = []
@@ -203,9 +203,9 @@ def main():
         print("🎉 ALL PUBLICATIONS SUCCESSFUL!")
         print("\nInstallation:")
         if args.all or args.pypi:
-            print("  pip install arifosmcp==2026.3.14")
+            print("  pip install arifosmcp==2026.3.17")
         if args.all or args.npm:
-            print("  npm install -g @arifos/mcp")
+            print("  npm install -g @arifos/mcp@2026.3.17")
     else:
         print("⚠️  SOME PUBLICATIONS FAILED")
     print("=" * 60)

@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - 'packages/npm/arifos-mcp/**'
+      - 'npm/arifos-mcp/**'
   workflow_dispatch:
     inputs:
       tag:
@@ -35,21 +35,21 @@ jobs:
         run: npm install -g pnpm
 
       - name: Install deps
-        working-directory: packages/npm/arifos-mcp
+        working-directory: npm/arifos-mcp
         run: pnpm install
 
       - name: Build
-        working-directory: packages/npm/arifos-mcp
+        working-directory: npm/arifos-mcp
         run: pnpm run build
 
       - name: Test
-        working-directory: packages/npm/arifos-mcp
+        working-directory: npm/arifos-mcp
         run: pnpm test
         env:
           SKIP_INTEGRATION_TESTS: 'true'
 
       - name: Publish to npm
-        working-directory: packages/npm/arifos-mcp
+        working-directory: npm/arifos-mcp
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: npm publish --access public --tag ${{ github.event.inputs.tag || 'latest' }} --provenance

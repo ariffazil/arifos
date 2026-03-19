@@ -270,7 +270,7 @@ class A2AServer:
         self.app = FastAPI(
             title="arifOS A2A Server",
             description="Agent-to-Agent protocol with constitutional governance",
-            version="2026.03.14-VALIDATED",
+            version="2026.03.17-ANTICHAOS",
         )
         self._setup_routes()
     
@@ -302,6 +302,54 @@ class A2AServer:
                 "state": task.state,
                 "session_id": task.session_id,
                 "message": "Task submitted for constitutional review",
+            }
+        
+        # Trinity Probe: Execute Task Synchronously
+        @self.app.post("/a2a/execute")
+        async def execute_task(request: Request):
+            """
+            Synchronously execute a governed task (Phase 3: The Trinity Probe).
+            Supports 'governed_execution' mode for immediate AGI/ASI loop validation.
+            """
+            data = await request.json()
+            query = data.get("query", "No query provided")
+            mode = data.get("mode", "governed_execution")
+            auth_context = data.get("auth_context", {})
+            actor_id = auth_context.get("actor_id", "anonymous")
+            
+            # Step 1: Initialize constitutional anchor
+            init_result = await self.task_manager._call_mcp_tool(
+                "init_anchor",
+                {
+                    "query": query,
+                    "actor_id": actor_id,
+                }
+            )
+            
+            session_id = init_result.get("session_id", "global")
+            
+            # Step 2: Execute full metabolic loop via arifOS_kernel
+            execution_result = await self.task_manager._call_mcp_tool(
+                "arifOS_kernel",
+                {
+                    "query": query,
+                    "session_id": session_id,
+                    "context": f"A2A direct-execution probe (actor={actor_id}, mode={mode})",
+                    "allow_execution": True,
+                }
+            )
+            
+            return {
+                "ok": execution_result.get("ok", True),
+                "verdict": execution_result.get("verdict", "SEAL"),
+                "status": execution_result.get("status", "SUCCESS"),
+                "session_id": session_id,
+                "payload": execution_result.get("payload", {}),
+                "meta": {
+                    "release": "v2026.03.17-ANTICHAOS",
+                    "protocol": "A2A/Trinity-Probe",
+                    "governance": "F1-F13 LOCK",
+                }
             }
         
         # Get Task Status
@@ -380,7 +428,7 @@ class A2AServer:
             return {
                 "status": "healthy",
                 "protocol": "A2A",
-                "version": "2026.03.14-VALIDATED",
+                "version": "2026.03.17-ANTICHAOS",
                 "constitutional_floors": 13,
                 "motto": "Ditempa Bukan Diberi",
             }
