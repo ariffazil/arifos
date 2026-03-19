@@ -1,7 +1,7 @@
 # ── arifOS AAA MCP Server ──────────────────────────────────────────────
 # Single process, single port. Runs FastMCP streamable-HTTP transport
 # with REST endpoints (/health, /tools, /version) as custom routes.
-# Hardened for Production (v2026.03.17-ANTICHAOS)
+# Hardened for Production (v2026.03.19-ANTI-CHAOS)
 # ───────────────────────────────────────────────────────────────────────
 
 FROM python:3.12-slim AS build
@@ -48,7 +48,7 @@ RUN groupadd -g 1000 arifos && \
 WORKDIR /usr/src/app
 
 # Build arguments for metadata
-ARG ARIFOS_VERSION=2026.03.17-ANTICHAOS
+ARG ARIFOS_VERSION=2026.03.19-ANTI-CHAOS
 ARG GIT_SHA=unknown
 ARG BUILD_TIME=unknown
 
@@ -96,7 +96,7 @@ HEALTHCHECK --interval=20s --timeout=5s --start-period=30s --retries=3 \
 
 # Metadata Labels
 LABEL io.modelcontextprotocol.server.name="io.github.ariffazil/arifos-mcp"
-LABEL io.modelcontextprotocol.server.version="2026.03.17-ANTICHAOS"
+LABEL io.modelcontextprotocol.server.version="2026.03.19-ANTI-CHAOS"
 LABEL io.modelcontextprotocol.server.description="Constitutional AI governance server with a 10-tool APEX-G core stack plus legacy Phase 2 capability tools."
 
 # Execute consolidated entrypoint
