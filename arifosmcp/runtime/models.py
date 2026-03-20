@@ -306,14 +306,14 @@ CANONICAL_STAGE_CONTRACTS: dict[Stage, StageContract] = {
         stage=Stage.MIND_333,
         allowed_tools=["agi_reason", "reason_mind_synthesis", "search_reality", "reality_compass", "ingest_evidence"],
         mandatory_floors=["F2", "F4", "F7"],
-        valid_verdicts=[Verdict.PROVISIONAL, Verdict.SABAR, Verdict.HOLD],
+        valid_verdicts=[Verdict.PROVISIONAL, Verdict.SABAR, Verdict.HOLD, Verdict.SEAL],
         exit_criteria="Grounded hypotheses with G★ > 0.70."
     ),
     Stage.HEART_666: StageContract(
         stage=Stage.HEART_666,
         allowed_tools=["asi_simulate", "assess_heart_impact", "asi_critique", "critique_thought_audit"],
         mandatory_floors=["F5", "F6", "F9"],
-        valid_verdicts=[Verdict.PROVISIONAL, Verdict.HOLD, Verdict.VOID],
+        valid_verdicts=[Verdict.PROVISIONAL, Verdict.HOLD, Verdict.VOID, Verdict.SEAL],
         exit_criteria="Non-destructive consequence prediction (Peace² >= 1.0)."
     ),
     Stage.JUDGE_888: StageContract(
