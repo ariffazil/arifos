@@ -21,6 +21,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Any, Callable
 
+from arifosmcp.runtime.mcp_utils import call_mcp_tool, normalize_tool_result
 from arifosmcp.runtime.public_registry import PUBLIC_TOOL_SPECS, ToolSpec
 from arifosmcp.runtime.webmcp.live_metrics import get_live_metrics
 
@@ -179,10 +180,10 @@ class RealWebMCPGateway:
                         })
                         
                 except Exception as e:
-                await websocket.send_json({
-                    "type": "error",
-                    "error": str(e),
-                })
+                    await websocket.send_json({
+                        "type": "error",
+                        "error": str(e),
+                    })
 
     def _register_tools(self) -> None:
         for spec in PUBLIC_TOOL_SPECS:
@@ -593,7 +594,7 @@ function initDeclarativeTools() {
         tokens_total = intelligence.get("tokens_total", 0)
         model = intelligence.get("active_model", "unset")
 
-        return f\"\"\"<!DOCTYPE html>
+        return f"""<!DOCTYPE html>
 <html>
 <head>
     <title>arifOS WebMCP Dashboard</title>
@@ -624,7 +625,7 @@ function initDeclarativeTools() {
         <div class="metric">
             <div class="label">Disk</div>
             <div class="value">{machine.get("disk_percent", 0.0):.1f}%</div>
-            <div class="label">Load avg: {', '.join(f\"{v:.2f}\" for v in machine.get('load_avg', [])[:3]) or 'n/a'}</div>
+            <div class="label">Load avg: {', '.join(f'{v:.2f}' for v in machine.get('load_avg', [])[:3]) or 'n/a'}</div>
         </div>
         <div class="metric">
             <div class="label">Governance Verdict</div>
@@ -648,29 +649,11 @@ function initDeclarativeTools() {
     </script>
 </body>
 </html>
-\"\"\"
-    
+"""
+
     async def _call_mcp_tool(self, tool_name: str, params: dict[str, Any]) -> dict[str, Any]:
         """Call the actual MCP tool through the kernel."""
-        if params is None:
-            params = {}
-
-        caller = getattr(self.mcp, "_call_tool", None) or getattr(self.mcp, "call_tool", None)
-        if not callable(caller):
-            raise RuntimeError("MCP server does not expose a callable tool interface")
-
-        result = await caller(tool_name, params)
-        return self._normalize_tool_result(result)
-
-    @staticmethod
-    def _normalize_tool_result(result: Any) -> dict[str, Any]:
-        if hasattr(result, "model_dump"):
-            return result.model_dump()
-        if hasattr(result, "dict"):
-            return result.dict()
-        if isinstance(result, dict):
-            return result
-        return {"result": result}
+        return await call_mcp_tool(self.mcp, tool_name, params)
 
 
 # Factory function for easy integration

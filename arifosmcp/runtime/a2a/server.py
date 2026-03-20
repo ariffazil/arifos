@@ -18,6 +18,7 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse, StreamingResponse
 
 from arifosmcp.runtime.build_info import get_build_info
+from arifosmcp.runtime.mcp_utils import call_mcp_tool, normalize_tool_result
 
 from .models import (
     AgentCard,
@@ -228,25 +229,7 @@ class A2ATaskManager:
     
     async def _call_mcp_tool(self, tool_name: str, params: dict[str, Any]) -> dict[str, Any]:
         """Call the MCP tool through the internal FastMCP kernel."""
-        if params is None:
-            params = {}
-
-        call = getattr(self.mcp, "_call_tool", None) or getattr(self.mcp, "call_tool", None)
-        if not callable(call):
-            raise RuntimeError("MCP server does not expose a callable tool interface")
-
-        result = await call(tool_name, params)
-        return self._normalize_tool_result(result)
-
-    @staticmethod
-    def _normalize_tool_result(result: Any) -> dict[str, Any]:
-        if hasattr(result, "model_dump"):
-            return result.model_dump()
-        if hasattr(result, "dict"):
-            return result.dict()
-        if isinstance(result, dict):
-            return result
-        return {"result": result}
+        return await call_mcp_tool(self.mcp, tool_name, params)
     
     async def _send_callback(self, task: Task):
         """Send status callback to client agent."""

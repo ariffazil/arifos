@@ -87,8 +87,6 @@ def normalize_tool_profile(profile: str | None) -> str:
 
 def build_server_json(public_base_url: str = DEFAULT_PUBLIC_BASE_URL) -> dict[str, Any]:
     """Build the canonical server.json manifest with the live public tool surface."""
-    tool_count = len(PUBLIC_TOOL_SPECS)
-
     tools = []
     for spec in PUBLIC_TOOL_SPECS:
         tools.append(
@@ -130,7 +128,7 @@ def build_server_json(public_base_url: str = DEFAULT_PUBLIC_BASE_URL) -> dict[st
         "name": "arifOS-APEX-G",
         "version": release_version_label(),
         "description": (
-            f"Constitutional governance server — {tool_count} canonical MCP tools "
+            f"Constitutional governance server — {len(PUBLIC_TOOL_SPECS)} canonical MCP tools "
             "with F1-F13 floor enforcement, metabolic routing, prompts, and resources."
         ),
         "vendor": {"name": "Muhammad Arif bin Fazil", "url": "https://arif-fazil.com"},

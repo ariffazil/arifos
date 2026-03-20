@@ -63,6 +63,7 @@ class WebMCPGateway:
         self.mcp = mcp_server
         self.config = config or WebMCPConfig.from_env()
         self.build_info = get_build_info()
+        self._cached_tool_manifest: list[dict[str, Any]] | None = None
         self.app = FastAPI(
             title="arifOS WebMCP",
             version=self.build_info["version"],
@@ -688,16 +689,18 @@ class WebMCPGateway:
                 await websocket.close()
 
     def _tool_manifest(self) -> list[dict[str, Any]]:
-        """Expose the live public tool registry in WebMCP-friendly form."""
-        return [
-            {
-                "name": spec.name,
-                "stage": spec.stage,
-                "layer": spec.role,
-                "description": spec.description,
-            }
-            for spec in PUBLIC_TOOL_SPECS
-        ]
+        """Expose the live public tool registry in WebMCP-friendly form (cached)."""
+        if self._cached_tool_manifest is None:
+            self._cached_tool_manifest = [
+                {
+                    "name": spec.name,
+                    "stage": spec.stage,
+                    "layer": spec.role,
+                    "description": spec.description,
+                }
+                for spec in PUBLIC_TOOL_SPECS
+            ]
+        return self._cached_tool_manifest
 
     def _build_sdk_js(self) -> str:
         """Minimal browser SDK for imperative WebMCP integration."""
