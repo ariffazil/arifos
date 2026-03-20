@@ -405,12 +405,12 @@ class Intent(BaseModel):
     """G in APEX-G: Human goal and task details."""
 
     query: str = Field(..., min_length=1)
-    task_type: Literal["ask", "analyze", "design", "decide", "audit", "execute", "general", "unknown"] = (
-        "unknown"
-    )
+    task_type: str = "unknown"
     domain: str = "general"
-    desired_output: Literal["text", "json", "table", "code", "report", "mixed"] = "text"
-    reversibility: Literal["reversible", "mixed", "irreversible", "unknown"] = "unknown"
+    desired_output: str = "text"
+    reversibility: str = "unknown"
+
+    model_config = ConfigDict(extra="allow", populate_by_name=True)
 
 
 class MathDials(BaseModel):

@@ -206,6 +206,10 @@ async def _wrap_call(
 
         failed_codes = [e.code for e in envelope.errors if str(e.code).startswith("F")]
 
+        # Force deep contrast for failures
+        if envelope.stage == "000_INIT" and envelope.verdict in (Verdict.VOID, Verdict.HOLD):
+            g_score = 0.33
+
         envelope.philosophy = select_governed_philosophy(
             context=str(payload.get("query") or payload.get("intent") or payload.get("content") or tool_name),
             stage=envelope.stage,
@@ -214,6 +218,11 @@ async def _wrap_call(
             failed_floors=failed_codes,
             session_id=session_id,
         )
+
+        # Final ABI Alignment: Sync flags from payload to authority
+        if envelope.payload and "human_approval_persisted" in envelope.payload:
+            if envelope.authority:
+                envelope.authority.human_required = not bool(envelope.payload["human_approval_persisted"])
 
         if ctx and hasattr(ctx, "info"):
             await ctx.info(f"Metabolic transition complete: {envelope.verdict}")
@@ -227,11 +236,30 @@ async def _wrap_call(
         if ctx and hasattr(ctx, "error"):
             await ctx.error(f"Metabolic failure in {tool_name}: {error_msg}")
             
-        return RuntimeEnvelope(
-            ok=False, tool=tool_name, session_id=session_id, stage=stage.value,
-            verdict=verdict, status=RuntimeStatus.ERROR,
-            errors=[CanonicalError(code="INTERNAL_ERROR", message=error_msg, stage=stage.value)]
+        envelope = RuntimeEnvelope(
+            ok=False,
+            tool=tool_name,
+            session_id=session_id,
+            stage=stage.value,
+            verdict=verdict,
+            status=RuntimeStatus.ERROR,
+            errors=[CanonicalError(code="INTERNAL_ERROR", message=error_msg, stage=stage.value)],
         )
+
+        # ── Philosophy Injection (Failure Anchor) ──
+        from arifosmcp.runtime.philosophy import select_governed_philosophy
+
+        envelope.philosophy = select_governed_philosophy(
+            context=str(payload.get("query") or payload.get("intent") or tool_name),
+            stage=envelope.stage,
+            verdict=str(envelope.verdict.value)
+            if hasattr(envelope.verdict, "value")
+            else str(envelope.verdict),
+            g_score=0.33,  # Humility floor for failures
+            session_id=session_id,
+        )
+
+        return envelope
 
 # --- GOVERNANCE IMPLEMENTATIONS ---
 
