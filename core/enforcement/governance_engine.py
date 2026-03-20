@@ -251,14 +251,19 @@ def _calculate_tri_witness_consensus(tool: str, payload: dict[str, Any]) -> dict
     witnesses = {"human": human_score, "ai": ai_score, "earth": earth_score}
 
     for witness_name, score in witnesses.items():
-        if score < witness_floor and not (tool == "reason_mind" and witness_name == "ai"):
+        # MIND stage has expanded tolerance for AI witness (0.70)
+        effective_floor = witness_floor
+        if tool == "reason_mind" and witness_name == "ai":
+            effective_floor = 0.70
+
+        if score < effective_floor:
             return {
                 "pass": False,
                 "verdict": "VOID",
                 "w3": 0.0,
                 "threshold": consensus_threshold,
                 "shattered_by": witness_name,
-                "shatter_reason": f"{witness_name} score {score:.4f} < floor {witness_floor}",
+                "shatter_reason": f"{witness_name} score {score:.4f} < floor {effective_floor}",
                 "witnesses": witnesses,
                 "tool_class": tool_class["class"],
             }
@@ -341,16 +346,28 @@ def _law13_checks(tool: str, payload: dict[str, Any]) -> dict[str, Any]:
         if law == "F1_AMANAH":
             passed = "delete all" not in text and "rm -rf" not in text
         elif law == "F2_TRUTH":
-            passed = any(
-                k in text for k in ["evidence", "grounding", "results", "citations", "ids"]
-            ) or tool in {
+            # P0: Identity/Health tools are inherently grounded in system state
+            inherently_grounded = tool in {
                 "anchor_session",
                 "check_vital",
                 "sense_health",
                 "system_audit",
                 "metabolic_loop",
-                "eureka_forge",  # Command execution truth is in exit_code/output
+                "eureka_forge",
             }
+            # P0: Check for explicit grounding fields in dictionary if available
+            has_grounding_fields = False
+            if isinstance(payload, dict):
+                has_grounding_fields = any(
+                    payload.get(k)
+                    for k in ["evidence", "grounding", "results", "citations", "ids", "steps"]
+                )
+
+            passed = (
+                has_grounding_fields
+                or any(k in text for k in ["evidence", "grounding", "results", "citations", "ids"])
+                or inherently_grounded
+            )
         elif law == "F4_CLARITY":
             # HARDENED: Strict entropy reduction - ΔS must be ≤ 0
             # Previous: d_s <= 0.2 (too permissive - allowed 20% entropy increase)

@@ -33,6 +33,7 @@ from arifosmcp.runtime.models import (
     UserModelSource,
     Verdict,
 )
+from arifosmcp.runtime.schemas import IntentType, IntentSpec
 from arifosmcp.runtime.public_registry import (
     PUBLIC_TOOL_SPEC_BY_NAME,
     public_tool_names,
@@ -184,6 +185,7 @@ async def _wrap_call(
         kernel_res = await call_kernel(tool_name, session_id, payload)
         envelope = RuntimeEnvelope(**kernel_res)
         envelope.session_id = session_id
+        envelope.stage = stage.value # Ensure string value
         envelope.meta.motto = _resolve_motto(envelope.stage)
         
         # Ensure status matches dry_run intent
@@ -231,6 +233,9 @@ async def _wrap_call(
     except Exception as e:
         # P0: Detect Security Rejections
         error_msg = str(e)
+        print(f"DEBUG: _wrap_call exception in {tool_name}: {e}") # Direct visibility for tests
+        import traceback
+        traceback.print_exc()
         verdict = Verdict.VOID if "AUTH_FAILURE" in error_msg else Verdict.HOLD
         
         if ctx and hasattr(ctx, "error"):
@@ -263,10 +268,6 @@ async def _wrap_call(
 
 # --- GOVERNANCE IMPLEMENTATIONS ---
 
-from arifosmcp.runtime.schemas import IntentType, IntentSpec
-
-# ... (rest of imports)
-
 async def init_anchor_impl(
     actor_id: str,
     intent: IntentType,
@@ -285,6 +286,9 @@ async def init_anchor_impl(
     elif isinstance(intent, str):
         normalized_intent = {"query": intent, "task_type": "general"}
     elif isinstance(intent, dict):
+        # ABI v1.0: Ensure 'query' field is present for downstream organs
+        if "query" not in intent:
+            intent["query"] = str(intent.get("task") or intent.get("intent") or "Session Action")
         normalized_intent = intent
     elif hasattr(intent, "model_dump"):
         normalized_intent = intent.model_dump(mode="json")
@@ -360,8 +364,24 @@ async def refresh_anchor_impl(session_id: str | None, ctx: Context) -> RuntimeEn
         verdict="SEAL", status="SUCCESS", payload={"refreshed": True, "ttl": 900}
     )
 
-async def arifos_kernel_impl(query: str, risk_tier: str, auth_context: dict | None, dry_run: bool, allow_execution: bool, session_id: str | None, ctx: Context) -> RuntimeEnvelope:
-    payload = {"query": query, "risk_tier": risk_tier, "auth_context": auth_context or {}, "dry_run": dry_run, "allow_execution": allow_execution}
+async def arifos_kernel_impl(
+    query: str | None,
+    risk_tier: str,
+    auth_context: dict | None,
+    dry_run: bool,
+    allow_execution: bool,
+    session_id: str | None,
+    ctx: Context,
+    intent: IntentType = None,
+) -> RuntimeEnvelope:
+    payload = {
+        "query": query or "",
+        "intent": intent,
+        "risk_tier": risk_tier,
+        "auth_context": auth_context or {},
+        "dry_run": dry_run,
+        "allow_execution": allow_execution,
+    }
     return await _wrap_call("arifOS_kernel", Stage.ROUTER_444, session_id, payload, ctx)
 
 async def get_caller_status_impl(session_id: str | None, ctx: Context) -> RuntimeEnvelope:
