@@ -792,7 +792,8 @@ def wrap_tool_output(tool: str, payload: dict[str, Any]) -> dict[str, Any]:
     elif auth_ctx.get("actor_id") == "anonymous":
         auth_state = "anonymous"
 
-    # P0: Allow payload to provide a pre-built authority block (bridge propagation)
+    # P0: Unified Sovereign Authority (ABI v1.0 Hardening)
+    # Priority: 1. Payload 'authority' (bridge) > 2. Auth Context > 3. Flat payload fields
     authority = payload.get("authority")
     if not isinstance(authority, dict):
         authority = {
@@ -801,12 +802,23 @@ def wrap_tool_output(tool: str, payload: dict[str, Any]) -> dict[str, Any]:
             "human_required": verdict in ["HOLD", "HOLD_888", "VOID"],
             "approval_scope": auth_ctx.get("approval_scope", []),
             "auth_state": auth_state,
+            "claim_status": payload.get("claim_status", "anonymous"),
+            "human_approval_persisted": payload.get("human_approval_persisted", False),
         }
     else:
-        # Update dynamic fields even if pre-built
-        authority["human_required"] = verdict in ["HOLD", "HOLD_888", "VOID"]
+        # P0: Sync dynamic fields while preserving pre-built sovereign flags
+        # Only overwrite human_required if not explicitly set to false by a human_approval=True override
+        if not authority.get("human_approval_persisted"):
+            authority["human_required"] = verdict in ["HOLD", "HOLD_888", "VOID"]
+
         if "auth_state" not in authority:
             authority["auth_state"] = auth_state
+
+        # Propagate sovereign identity fields if missing
+        if "claim_status" not in authority and "claim_status" in payload:
+            authority["claim_status"] = payload["claim_status"]
+        if "human_approval_persisted" not in authority and "human_approval_persisted" in payload:
+            authority["human_approval_persisted"] = payload["human_approval_persisted"]
 
     # Unified Errors
     errors = []

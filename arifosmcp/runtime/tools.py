@@ -46,6 +46,7 @@ from arifosmcp.runtime.governance_identities import (
     is_protected_sovereign_id,
     validate_sovereign_proof,
 )
+from arifosmcp.runtime.schemas import IntentType
 from arifosmcp.runtime.tools_internal import (
     agi_mind_dispatch_impl,
     apex_soul_dispatch_impl,
@@ -140,7 +141,7 @@ async def init_anchor(
     dry_run: bool = True,
     actor_id: str | None = None,
     declared_name: str | None = None,
-    intent: str | dict[str, Any] | None = None,
+    intent: IntentType = None,
     raw_input: str | None = None,
     session_id: str | None = None,
     human_approval: bool = False,
@@ -151,17 +152,42 @@ async def init_anchor(
     del auth_context, risk_tier, dry_run, caller_context
     ctx = ctx or CurrentContext()
 
+    # P0: Normalize intent (string or structured object)
+    normalized_intent: str | dict[str, Any]
+    if intent is None:
+        normalized_intent = raw_input or {"query": "Session init", "task_type": "general"}
+    elif isinstance(intent, str):
+        normalized_intent = {"query": intent, "task_type": "general"}
+    elif isinstance(intent, dict):
+        normalized_intent = intent  # Structured intent object
+    else:
+        normalized_intent = {"query": str(intent), "task_type": "general"}
+    
     # P0: Build payload with human_approval support
     if mode is None:
         mode = "init"
         payload = {
             "actor_id": actor_id or declared_name or "anonymous",
-            "intent": intent or raw_input,
+            "intent": normalized_intent,
             "session_id": session_id,
             "human_approval": human_approval,  # Use parameter value, not hardcoded False
         }
 
     payload = dict(payload or {})
+    
+    # P0: Normalize intent in payload if present (for MCP calls with explicit mode/payload)
+    if "intent" in payload:
+        payload_intent = payload["intent"]
+        if payload_intent is None:
+            payload["intent"] = {"query": "Session init", "task_type": "general"}
+        elif isinstance(payload_intent, str):
+            payload["intent"] = {"query": payload_intent, "task_type": "general"}
+        elif isinstance(payload_intent, dict):
+            pass  # Already structured, keep as-is
+        else:
+            payload["intent"] = {"query": str(payload_intent), "task_type": "general"}
+    else:
+        payload["intent"] = normalized_intent
     
     # P0: Ensure human_approval is propagated to payload (for MCP calls with explicit mode)
     if human_approval and not payload.get("human_approval"):
@@ -646,12 +672,8 @@ async def _wrap_call(
     )
 
     # Final ABI Alignment: Sync flags from payload to authority if they were explicitly confirmed
-    if envelope.payload and "human_approval_persisted" in envelope.payload:
-        if not envelope.authority:
-            from .models import Authority
-            envelope.authority = Authority(actor_id="anonymous")
-        
-        envelope.authority.human_required = not bool(envelope.payload["human_approval_persisted"])
+    if envelope.authority:
+        envelope.authority.human_required = not bool(envelope.payload.get("human_approval_persisted", False))
         
     return envelope
 
@@ -719,16 +741,29 @@ async def init_anchor_state(
     ctx: Context | None = None,
     **kwargs: Any,
 ) -> RuntimeEnvelope:
-    del human_approval
     envelope = await init_anchor(
         actor_id=declared_name,
         session_id=session_id,
         auth_context=auth_context,
         intent=intent,
+        human_approval=human_approval,
         caller_context=caller_context,
         ctx=ctx,
         **kwargs,
     )
+    # Decorate envelope with forensic metadata
+    envelope.payload.update({
+        "claimed_actor_id": envelope.authority.actor_id if envelope.authority else None,
+        "resolved_actor_id": envelope.authority.actor_id if envelope.authority else None,
+        "claim_status": envelope.caller_state,
+        "abi_version": "1.0",
+        "human_approval_persisted": human_approval
+    })
+
+    # F11/F13: Sync persistence to authority object
+    if envelope.authority:
+        envelope.authority.human_required = not bool(human_approval)
+    
     envelope.tool = "init_anchor_state"
     return envelope
 
@@ -1213,7 +1248,9 @@ def register_tools(mcp: FastMCP, profile: str = "full") -> None:
             query: str | None = None,
             session_id: str | None = None,
             actor_id: str | None = None,
-            intent: Any | None = None,
+            declared_name: str | None = None,  # P0: ABI v1.0 Identity
+            intent: IntentType = None,         # P0: ABI v1.0 Structured Intent
+            human_approval: bool = False,      # P0: ABI v1.0 Sovereign Flag
             url: str | None = None,
             content: str | None = None,
             spec: str | None = None,
@@ -1233,6 +1270,7 @@ def register_tools(mcp: FastMCP, profile: str = "full") -> None:
             hold_id: str | None = None,
             full_scan: bool | None = None,
             auth_context: dict[str, Any] | None = None,
+            caller_context: dict[str, Any] | None = None,  # P0: ABI v1.0 Context
             risk_tier: str = "medium",
             dry_run: bool = True,
             allow_execution: bool = False,
@@ -1245,7 +1283,9 @@ def register_tools(mcp: FastMCP, profile: str = "full") -> None:
                     "query": query,
                     "session_id": session_id,
                     "actor_id": actor_id,
+                    "declared_name": declared_name,
                     "intent": intent,
+                    "human_approval": human_approval,
                     "url": url,
                     "content": content,
                     "spec": spec,
@@ -1267,6 +1307,21 @@ def register_tools(mcp: FastMCP, profile: str = "full") -> None:
                 },
             )
             handler = FINAL_TOOL_IMPLEMENTATIONS[mega_tool]
+
+            # P0: Governance Parameter Extraction
+            # Ensure governance flags are passed explicitly if the handler accepts them
+            gov_params = {}
+            if mega_tool == "init_anchor":
+                gov_params = {
+                    "actor_id": actor_id or declared_name,
+                    "declared_name": declared_name,
+                    "intent": intent,
+                    "human_approval": human_approval,
+                    "session_id": session_id,
+                    # CallerContext expects a model, but we might receive a dict from MCP
+                    "caller_context": caller_context,
+                }
+
             if mega_tool == "arifOS_kernel":
                 return await handler(
                     mode=mode,
@@ -1277,6 +1332,17 @@ def register_tools(mcp: FastMCP, profile: str = "full") -> None:
                     allow_execution=allow_execution,
                     ctx=ctx,
                 )
+
+            if mega_tool == "init_anchor" and mode == "init":
+                return await handler(
+                    mode=mode,
+                    auth_context=auth_context,
+                    risk_tier=risk_tier,
+                    dry_run=dry_run,
+                    ctx=ctx,
+                    **gov_params,
+                )
+
             return await handler(
                 mode=mode,
                 payload=payload,
