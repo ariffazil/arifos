@@ -184,18 +184,19 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
         layer="GOVERNANCE",
         description=(
             "888_JUDGE: Final authority for verdicts and defense. "
-            "Modes: 'judge', 'rules', 'validate', 'hold', 'armor', 'notify'."
+            "Modes: 'judge', 'rules', 'validate', 'hold', 'armor', 'notify', 'probe' (test floors)."
         ),
         trinity="PSI Ψ",
         floors=("F3", "F12", "F13"),
         input_schema=_build_mega_schema(
             "apex_soul",
-            ["judge", "rules", "validate", "hold", "armor", "notify"],
+            ["judge", "rules", "validate", "hold", "armor", "notify", "probe"],
             {
                 "candidate": {"type": "string"},
                 "hold_id": {"type": "string"},
                 "message": {"type": "string"},
-                "session_id": {"type": "string"}
+                "session_id": {"type": "string"},
+                "target_floor": {"type": "string", "description": "Specific floor to probe (e.g. 'F12')."}
             }
         ),
     ),

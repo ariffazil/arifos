@@ -83,11 +83,19 @@ Always use the appropriate 'mode' for each mega-tool to access underlying functi
 @asynccontextmanager
 async def arifos_lifespan(server: FastMCP):
     """Lifecycle management for the arifOS Double Helix organs."""
-    # INIT Stage: Ignition — verify contract, sync Mind to Body
+    # Register arifOS-specific Prometheus metrics
+    from arifosmcp.runtime.metrics import FLOOR_VIOLATIONS, VERDICT_TOTAL, GENIUS_SCORE, ENTROPY_DELTA, HUMILITY_BAND, PEACE_SQUARED, Counter
+    
+    # Custom metric for registry panic monitoring
+    DRIFT_PANICS = Counter(
+        "arifos_registry_drift_panics_total",
+        "Total number of server start-up failures due to registry drift."
+    )
 
     # CRITICAL: Verify 11-tool contract on startup
     drift_check = verify_no_drift()
     if not drift_check["ok"]:
+        DRIFT_PANICS.inc()
         raise RuntimeError(
             f"arifOS FATAL: Tool registry drift detected!\n"
             f"Expected {drift_check['expected_count']} tools, got {drift_check['actual_count']}\n"

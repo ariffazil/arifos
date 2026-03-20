@@ -395,7 +395,7 @@ async def metabolic_loop(
             },
         }
 
-    from arifosmcp.runtime.tools import _normalize_session_id
+    from arifosmcp.runtime.sessions import _resolve_session_id as _normalize_session_id
     from core.governance_kernel import route_pipeline
     from core.organs._0_init import coerce_stakes_class
 
