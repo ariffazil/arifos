@@ -225,7 +225,7 @@ async def revoke_anchor_state_impl(session_id: str, reason: str, ctx: Context) -
 async def refresh_anchor_impl(session_id: str | None, ctx: Context) -> RuntimeEnvelope:
     """F11: Mid-session token rotation and continuity check."""
     session_id = _normalize_session_id(session_id)
-    if ctx:
+    if ctx and hasattr(ctx, "info"):
         await ctx.info(f"Refreshing session continuity for {session_id}")
     # Mocking refresh logic
     return RuntimeEnvelope(
@@ -344,10 +344,26 @@ async def math_estimator_dispatch_impl(mode: str, payload: dict, auth_context: d
     session_id = payload.get("session_id")
     if mode == "cost":
         res = internal_tools.cost_estimator(action_description=payload.get("action", ""))
-        return RuntimeEnvelope(ok=True, tool="cost_estimator", payload=res, verdict="SEAL")
+        return RuntimeEnvelope(
+            ok=True,
+            tool="cost_estimator",
+            session_id=session_id,
+            stage=Stage.ROUTER_444.value,
+            verdict=Verdict.SEAL,
+            status=RuntimeStatus.SUCCESS,
+            payload=res,
+        )
     elif mode == "health":
         res = internal_tools.system_health()
-        return RuntimeEnvelope(ok=True, tool="system_health", payload=res, verdict="SEAL")
+        return RuntimeEnvelope(
+            ok=True,
+            tool="system_health",
+            session_id=session_id,
+            stage=Stage.ROUTER_444.value,
+            verdict=Verdict.SEAL,
+            status=RuntimeStatus.SUCCESS,
+            payload=res,
+        )
     elif mode == "vitals":
         return await _wrap_call("check_vital", Stage.INIT_000, session_id, {}, ctx)
     raise ValueError(f"Invalid mode for math_estimator: {mode}")
@@ -357,16 +373,48 @@ async def code_engine_dispatch_impl(mode: str, payload: dict, auth_context: dict
     limit = payload.get("limit", 50)
     if mode == "fs":
         res = internal_tools.fs_inspect(path=payload.get("path", "."))
-        return RuntimeEnvelope(ok=True, tool="fs_inspect", payload=res, verdict="SEAL")
+        return RuntimeEnvelope(
+            ok=True,
+            tool="fs_inspect",
+            session_id=session_id,
+            stage=Stage.MEMORY_555.value,
+            verdict=Verdict.SEAL,
+            status=RuntimeStatus.SUCCESS,
+            payload=res,
+        )
     elif mode == "process":
         res = internal_tools.process_list(limit=limit)
-        return RuntimeEnvelope(ok=True, tool="process_list", payload=res, verdict="SEAL")
+        return RuntimeEnvelope(
+            ok=True,
+            tool="process_list",
+            session_id=session_id,
+            stage=Stage.MEMORY_555.value,
+            verdict=Verdict.SEAL,
+            status=RuntimeStatus.SUCCESS,
+            payload=res,
+        )
     elif mode == "net":
         res = internal_tools.net_status()
-        return RuntimeEnvelope(ok=True, tool="net_status", payload=res, verdict="SEAL")
+        return RuntimeEnvelope(
+            ok=True,
+            tool="net_status",
+            session_id=session_id,
+            stage=Stage.MEMORY_555.value,
+            verdict=Verdict.SEAL,
+            status=RuntimeStatus.SUCCESS,
+            payload=res,
+        )
     elif mode == "tail":
         res = internal_tools.log_tail(lines=limit)
-        return RuntimeEnvelope(ok=True, tool="log_tail", payload=res, verdict="SEAL")
+        return RuntimeEnvelope(
+            ok=True,
+            tool="log_tail",
+            session_id=session_id,
+            stage=Stage.MEMORY_555.value,
+            verdict=Verdict.SEAL,
+            status=RuntimeStatus.SUCCESS,
+            payload=res,
+        )
     elif mode == "replay":
         return await _wrap_call("trace_replay", Stage.VAULT_999, session_id or "global", {"limit": limit}, ctx)
     raise ValueError(f"Invalid mode for code_engine: {mode}")
@@ -374,7 +422,15 @@ async def code_engine_dispatch_impl(mode: str, payload: dict, auth_context: dict
 async def architect_registry_dispatch_impl(mode: str, payload: dict, auth_context: dict | None, risk_tier: str, dry_run: bool, ctx: Context) -> RuntimeEnvelope:
     session_id = payload.get("session_id")
     if mode == "register":
-        return {"status": "SUCCESS", "tools": public_tool_names()}
+        return RuntimeEnvelope(
+            ok=True,
+            tool="architect_registry",
+            session_id=session_id,
+            stage=Stage.ROUTER_444.value,
+            verdict=Verdict.SEAL,
+            status=RuntimeStatus.SUCCESS,
+            payload={"tools": list(public_tool_names())},
+        )
     elif mode == "list":
         return await arifos_list_resources_impl(session_id=session_id)
     elif mode == "read":
@@ -383,9 +439,25 @@ async def architect_registry_dispatch_impl(mode: str, payload: dict, auth_contex
 
 async def arifos_list_resources_impl(session_id: str | None) -> RuntimeEnvelope:
     from arifosmcp.runtime.resources import manifest_resources
-    return RuntimeEnvelope(ok=True, tool="arifos_list_resources", payload={"resources": manifest_resources()}, verdict="SEAL")
+    return RuntimeEnvelope(
+        ok=True,
+        tool="arifos_list_resources",
+        session_id=session_id,
+        stage=Stage.ROUTER_444.value,
+        verdict=Verdict.SEAL,
+        status=RuntimeStatus.SUCCESS,
+        payload={"resources": manifest_resources()},
+    )
 
 async def arifos_read_resource_impl(uri: str, session_id: str | None) -> RuntimeEnvelope:
     from arifosmcp.runtime.resources import read_resource_content
     content = await read_resource_content(uri)
-    return RuntimeEnvelope(ok=True, tool="arifos_read_resource", payload={"uri": uri, "content": content}, verdict="SEAL")
+    return RuntimeEnvelope(
+        ok=True,
+        tool="arifos_read_resource",
+        session_id=session_id,
+        stage=Stage.ROUTER_444.value,
+        verdict=Verdict.SEAL,
+        status=RuntimeStatus.SUCCESS,
+        payload={"uri": uri, "content": content},
+    )

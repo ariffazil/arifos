@@ -866,6 +866,10 @@ async def call_kernel(
         if hasattr(result, "model_dump"):
             result = result.model_dump(mode="json")
 
+        # Ensure dry_run is preserved for status determination in wrap_tool_output
+        if isinstance(result, dict):
+            result["dry_run"] = dry_run
+
         envelope = wrap_tool_output(canonical_name, result)
 
         if caller_ctx_data and "caller_context" not in envelope:

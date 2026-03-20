@@ -1,8 +1,8 @@
 {
   "$schema": "https://gofastmcp.com/public/schemas/fastmcp.json/v1.json",
   "name": "arifos-mcp",
-  "version": "2026.03.14-VALIDATED",
-  "description": "arifOS Constitutional AI Governance MCP Server - profile-aware APEX-G hub with VAULT999 ledger",
+  "version": "2026.03.20-CONSOLIDATION",
+  "description": "arifOS Constitutional AI Governance MCP Server - 11 Mega-Tools (37 modes), backward-compatible legacy aliases, and VAULT999 ledger",
   "source": {
     "type": "filesystem",
     "path": "arifosmcp/runtime/server.py",
@@ -12,7 +12,7 @@
     "type": "uv",
     "python": ">=3.12",
     "dependencies": [
-      "fastmcp==3.1.0",
+      "fastmcp==3.1.1",
       "fastapi>=0.115.0",
       "uvicorn>=0.32.0",
       "redis>=5.0.0",
@@ -38,16 +38,16 @@
     }
   },
   "profiles": {
-    "full": "All tools + phase2 external capability tools. Default for VPS/local use.",
-    "copilot": "Copilot Studio-safe surface: 6 flat-schema tools, no legacy aliases, no phase2 tools. Set ARIFOS_PUBLIC_TOOL_PROFILE=copilot.",
-    "chatgpt": "ChatGPT/OpenAI compatible surface. No phase2 tools.",
-    "agnostic_public": "Minimal public surface. No phase2 tools."
+    "full": "Canonical 11 mega-tools with deprecated legacy aliases for compatibility. Default for VPS/local use.",
+    "copilot": "Copilot Studio-safe surface with canonical mega-tools only. Set ARIFOS_PUBLIC_TOOL_PROFILE=copilot.",
+    "chatgpt": "ChatGPT/OpenAI compatible canonical mega-tool surface.",
+    "agnostic_public": "Minimal public mega-tool surface."
   },
   "tools": {
-    "core_constitutional_stack": 6,
-    "phase2_legacy_tools_enabled": true,
+    "core_constitutional_stack": 11,
+    "phase2_legacy_tools_enabled": false,
     "governance": true,
-    "description": "6-tool Copilot Studio-safe core stack (profile=copilot). Full profile adds legacy orchestration tools."
+    "description": "Canonical 11-tool governed surface. Full profile keeps deprecated aliases registered as compatibility shims."
   },
   "authentication": {
     "mode": "optional_api_key",
