@@ -186,8 +186,8 @@ async def _wrap_call(
         envelope.session_id = session_id
         envelope.meta.motto = _resolve_motto(envelope.stage)
         
-        # Ensure status matches dry_run intent if successful
-        if payload.get("dry_run") and envelope.status == RuntimeStatus.SUCCESS:
+        # Ensure status matches dry_run intent
+        if payload.get("dry_run"):
             envelope.status = RuntimeStatus.DRY_RUN
         
         # Anti-chaos decoration
