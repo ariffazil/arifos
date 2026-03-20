@@ -792,13 +792,21 @@ def wrap_tool_output(tool: str, payload: dict[str, Any]) -> dict[str, Any]:
     elif auth_ctx.get("actor_id") == "anonymous":
         auth_state = "anonymous"
 
-    authority = {
-        "actor_id": auth_ctx.get("actor_id", "anonymous"),
-        "level": auth_ctx.get("authority_level", "anonymous"),
-        "human_required": verdict in ["HOLD", "HOLD_888", "VOID"],
-        "approval_scope": auth_ctx.get("approval_scope", []),
-        "auth_state": auth_state,
-    }
+    # P0: Allow payload to provide a pre-built authority block (bridge propagation)
+    authority = payload.get("authority")
+    if not isinstance(authority, dict):
+        authority = {
+            "actor_id": auth_ctx.get("actor_id", payload.get("actor_id", "anonymous")),
+            "level": auth_ctx.get("authority_level", payload.get("authority_level", "anonymous")),
+            "human_required": verdict in ["HOLD", "HOLD_888", "VOID"],
+            "approval_scope": auth_ctx.get("approval_scope", []),
+            "auth_state": auth_state,
+        }
+    else:
+        # Update dynamic fields even if pre-built
+        authority["human_required"] = verdict in ["HOLD", "HOLD_888", "VOID"]
+        if "auth_state" not in authority:
+            authority["auth_state"] = auth_state
 
     # Unified Errors
     errors = []

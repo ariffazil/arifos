@@ -250,8 +250,8 @@ def verify_auth(actor_id: str, auth_token: str | None = None) -> tuple[bool, Aut
     
     # F11/F13: Protected IDs REQUIRES crypto (token)
     if actor_id_clean in PROTECTED_SOVEREIGN_IDS and not auth_token:
-        # P0 Rule: Sovereign claim without token is demoted to anonymous/VOID
-        return False, AuthorityLevel.ANONYMOUS
+        # P0 Rule: Sovereign claim without token is REJECTED (F11 Breach)
+        return False, AuthorityLevel.NONE
 
     if actor_id_clean in VALID_ACTORS:
         if not auth_token:

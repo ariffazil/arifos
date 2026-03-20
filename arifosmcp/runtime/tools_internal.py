@@ -211,7 +211,13 @@ async def _wrap_call(
 
 # --- GOVERNANCE IMPLEMENTATIONS ---
 
-async def init_anchor_impl(actor_id: str, intent: str | dict | None, session_id: str | None, ctx: Context) -> RuntimeEnvelope:
+async def init_anchor_impl(
+    actor_id: str,
+    intent: str | dict | None,
+    session_id: str | None,
+    ctx: Context,
+    human_approval: bool = False,
+) -> RuntimeEnvelope:
     # Normalize intent to object format for bridge compatibility
     if intent is None:
         normalized_intent = {"query": "Session Init", "task_type": "general"}
@@ -221,11 +227,32 @@ async def init_anchor_impl(actor_id: str, intent: str | dict | None, session_id:
         # Already an object, ensure required fields
         normalized_intent = {
             "query": intent.get("query", "Session Init"),
-            "task_type": intent.get("task_type", "general")
+            "task_type": intent.get("task_type", "general"),
+            "domain": intent.get("domain"),
+            "desired_output": intent.get("desired_output"),
         }
-    payload = {"actor_id": actor_id, "intent": normalized_intent}
+    
+    payload = {
+        "actor_id": actor_id,
+        "intent": normalized_intent,
+        "human_approval": human_approval,
+    }
+    
     envelope = await _wrap_call("init_anchor", Stage.INIT_000, session_id, payload, ctx)
-    bind_session_identity(envelope.session_id, actor_id, "operator", {}, [])
+    
+    # P0 Sync: Bind session identity from kernel verdict/authority
+    if envelope.ok and envelope.verdict != Verdict.VOID:
+        authority_level = "anonymous"
+        if envelope.authority:
+            authority_level = getattr(envelope.authority, "level", "anonymous")
+        
+        bind_session_identity(
+            envelope.session_id, 
+            actor_id, 
+            authority_level, 
+            envelope.auth_context.model_dump(mode="json") if hasattr(envelope.auth_context, "model_dump") else {},
+            getattr(envelope.authority, "approval_scope", []) if envelope.authority else []
+        )
     return envelope
 
 async def revoke_anchor_state_impl(session_id: str, reason: str, ctx: Context) -> RuntimeEnvelope:

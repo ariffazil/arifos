@@ -674,17 +674,21 @@ async def call_kernel(
                 caller_context=caller_ctx_obj,
             )
             result = res.model_dump(mode="json")
-            if res.verdict != Verdict.VOID:
-                # If human_approval was True in input OR it's a low-risk auto-anchor ID, 
-                # we promote the minted level to declared
-                auth_level = res.governance.authority_level
-                if payload.get("human_approval") is True or _can_auto_anchor_declared_identity(payload, actor_id):
+            
+            # F11: Ensure authority block is synced from governance
+            auth_level = res.governance.authority_level
+            if payload.get("human_approval") is True or _can_auto_anchor_declared_identity(payload, actor_id):
+                if auth_level == "anonymous":
                     auth_level = "declared"
-                
-                # Update authority level in the result as well
-                if "authority" in result:
-                    result["authority"]["level"] = auth_level
+            
+            # Always ensure authority block is present for wrap_tool_output to pick up
+            result["authority"] = {
+                "actor_id": res.governance.actor_id,
+                "level": auth_level,
+                "auth_state": "verified" if res.verdict != Verdict.VOID else "unverified"
+            }
 
+            if res.verdict != Verdict.VOID:
                 result["auth_context"] = mint_auth_context(
                     session_id=res.session_id,
                     actor_id=res.governance.actor_id,
@@ -814,6 +818,9 @@ async def call_kernel(
             contract = TemporalContract(
                 observed_at=now_utc, request_latency_ms=latency_ms, valid_until=valid_until
             )
+            if hasattr(result, "model_dump"):
+                result = result.model_dump(mode="json")
+
             if isinstance(result, dict) and "meta" in result:
                 result["meta"]["temporal_contract"] = contract.model_dump(mode="json")
             if isinstance(result, dict) and result.get("verdict") != "VOID":
@@ -899,14 +906,20 @@ async def call_kernel(
                 "level": auth_ctx.get("authority_level", "anonymous"),
                 "auth_state": "verified",
             }
-        elif tool_name == "anchor_session" and "auth_context" in result:
-            envelope["auth_context"] = result["auth_context"]
-            # Sync authority block with the anchored identity
-            envelope["authority"] = {
-                "actor_id": result["auth_context"].get("actor_id", claimed_actor_id),
-                "level": result["auth_context"].get("authority_level", "declared"),
-                "auth_state": "verified" if result.get("verdict") != "VOID" else "unverified",
-            }
+        elif tool_name == "anchor_session":
+            if "auth_context" in result:
+                envelope["auth_context"] = result["auth_context"]
+            
+            # Sync authority block from result if present (populated above)
+            if "authority" in result:
+                envelope["authority"] = result["authority"]
+            elif "governance" in result:
+                # Fallback to governance metadata
+                envelope["authority"] = {
+                    "actor_id": result["governance"].get("actor_id", claimed_actor_id),
+                    "level": result["governance"].get("authority_level", "anonymous"),
+                    "auth_state": "unverified"
+                }
 
         if "meta" in envelope and isinstance(envelope["meta"], dict):
             envelope["meta"]["temporal_contract"] = contract.model_dump(mode="json")

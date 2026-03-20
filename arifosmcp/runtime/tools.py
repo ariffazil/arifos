@@ -41,6 +41,11 @@ from arifosmcp.runtime.sessions import (
     resolve_runtime_context,
     set_active_session,
 )
+from arifosmcp.runtime.governance_identities import (
+    PROTECTED_SOVEREIGN_IDS,
+    is_protected_sovereign_id,
+    validate_sovereign_proof,
+)
 from arifosmcp.runtime.tools_internal import (
     agi_mind_dispatch_impl,
     apex_soul_dispatch_impl,
@@ -60,6 +65,16 @@ from arifosmcp.runtime.tools_internal import (
 
 logger = logging.getLogger(__name__)
 
+
+# P0: Helper function to check for valid cryptographic proof
+def _has_valid_proof(payload: dict[str, Any], actor_id: str) -> bool:
+    """Check if payload contains valid cryptographic proof for protected ID."""
+    proof = payload.get("auth_token") or payload.get("proof") or payload.get("signature")
+    if isinstance(proof, dict):
+        return validate_sovereign_proof(actor_id, proof)
+    return False
+
+
 def select_governed_philosophy(
     query: str,
     stage: str,
@@ -70,26 +85,28 @@ def select_governed_philosophy(
 ) -> dict[str, Any]:
     """Provides a constitutional philosophy snippet for any stage result."""
     from core.shared.mottos import get_motto_by_stage, get_motto_by_floor
-    
-    del query, session_id # Unused currently
-    
+
+    del query, session_id  # Unused currently
+
     motto_text = "DITEMPA, BUKAN DIBERI — Forged, Not Given"
     motto_obj = get_motto_by_stage(stage)
-    
+
     if failed_floors:
         floor_motto = get_motto_by_floor(failed_floors[0])
         if floor_motto:
             motto_text = f"{floor_motto.malay} — {floor_motto.english}"
     elif motto_obj:
         motto_text = f"{motto_obj.malay} — {motto_obj.english}"
-        
+
     return {
         "motto": motto_text,
         "stage": stage,
         "g_score": g_score,
         "verdict": verdict,
-        "failed_floors": failed_floors or []
+        "failed_floors": failed_floors or [],
+        "agi": {"source": "deterministic_33", "model": "rule_based_0"},
     }
+
 
 _public_tool_names_fn = _registry_tool_names
 _public_tool_specs_fn = _registry_tool_specs
@@ -101,6 +118,7 @@ LEGACY_KERNEL_TOOL_NAME = "metabolic_loop_router"
 try:
     from core.telemetry import check_adaptation_status, get_current_hysteresis
 except Exception:  # pragma: no cover
+
     def check_adaptation_status() -> dict[str, Any]:
         return {"status": "unavailable"}
 
@@ -111,6 +129,7 @@ except Exception:  # pragma: no cover
 try:
     from core.physics.thermodynamics_hardened import get_thermodynamic_report
 except Exception:  # pragma: no cover
+
     def get_thermodynamic_report(session_id: str) -> dict[str, Any]:
         return {"status": "unavailable", "session_id": session_id}
 
@@ -132,7 +151,7 @@ async def init_anchor(
     dry_run: bool = True,
     actor_id: str | None = None,
     declared_name: str | None = None,
-    intent: Any | None = None,
+    intent: str | dict[str, Any] | None = None,
     raw_input: str | None = None,
     session_id: str | None = None,
     caller_context: CallerContext | None = None,
@@ -140,22 +159,60 @@ async def init_anchor(
 ) -> RuntimeEnvelope:
     del auth_context, risk_tier, dry_run, caller_context
     ctx = ctx or CurrentContext()
+
+    # P0: Build payload with human_approval support
     if mode is None:
         mode = "init"
         payload = {
             "actor_id": actor_id or declared_name or "anonymous",
             "intent": intent or raw_input,
             "session_id": session_id,
+            "human_approval": False,  # Default to false for legacy calls
         }
 
     payload = dict(payload or {})
     payload["session_id"] = _normalize_session_id(payload.get("session_id") or session_id)
 
+    # P0: Protected Sovereign ID Check (F11)
+    claimed_actor_id = payload.get("actor_id", "anonymous")
+    human_approval = payload.get("human_approval", False)
+
+    # P0: Check if this is a protected sovereign ID
+    if is_protected_sovereign_id(claimed_actor_id):
+        # P0: Hard-fail without cryptographic proof or human_approval
+        has_proof = validate_sovereign_proof(
+            claimed_actor_id, payload.get("auth_token") or payload.get("proof")
+        )
+        if not human_approval and not has_proof:
+            return RuntimeEnvelope(
+                ok=False,
+                tool="init_anchor",
+                session_id=payload["session_id"],
+                stage=Stage.INIT_000,
+                verdict=Verdict.VOID,
+                status=RuntimeStatus.ERROR,
+                errors=[
+                    CanonicalError(
+                        code="AUTH_PROTECTED_ID_REQUIRED",
+                        message=f"Protected sovereign ID '{claimed_actor_id}' requires cryptographic proof or human_approval flag",
+                        stage=Stage.INIT_000.value,
+                    )
+                ],
+                payload={
+                    "claimed_actor_id": claimed_actor_id,
+                    "resolved_actor_id": "anonymous",
+                    "claim_status": "rejected_protected_id",
+                    "required": ["signed_token", "human_approval"],
+                    "remediation": "Provide valid auth_token signed by sovereign key, or set human_approval: true with explicit acknowledgment",
+                },
+            )
+
     if mode == "init":
         return await init_anchor_impl(
-            actor_id=payload.get("actor_id", "anonymous"),
+            actor_id=claimed_actor_id,
             intent=payload.get("intent"),
             session_id=payload.get("session_id"),
+            human_approval=human_approval,
             ctx=ctx,
         )
     if mode == "revoke":
@@ -377,22 +434,36 @@ async def architect_registry(
     )
 
 
-def _build_user_model(tool_name: str, stage_value: str, payload: dict[str, Any], envelope_data: dict[str, Any]) -> UserModel:
-    query = str(payload.get("query") or payload.get("intent") or payload.get("content") or "").strip()
+def _build_user_model(
+    tool_name: str, stage_value: str, payload: dict[str, Any], envelope_data: dict[str, Any]
+) -> UserModel:
+    query = str(
+        payload.get("query") or payload.get("intent") or payload.get("content") or ""
+    ).strip()
     context = str(payload.get("context") or "").strip()
     output_constraints: list[UserModelField] = []
     lowered = f"{query} {context}".lower()
     if "concise" in lowered:
-        output_constraints.append(UserModelField(value="keep_response_concise", source=UserModelSource.EXPLICIT))
+        output_constraints.append(
+            UserModelField(value="keep_response_concise", source=UserModelSource.EXPLICIT)
+        )
     if envelope_data.get("meta", {}).get("dry_run") or payload.get("dry_run"):
-        output_constraints.append(UserModelField(value="state_that_execution_is_simulated", source=UserModelSource.OBSERVABLE))
+        output_constraints.append(
+            UserModelField(
+                value="state_that_execution_is_simulated", source=UserModelSource.OBSERVABLE
+            )
+        )
     return UserModel(
-        stated_goal=UserModelField(value=query or context or f"{tool_name}:{stage_value}", source=UserModelSource.EXPLICIT),
+        stated_goal=UserModelField(
+            value=query or context or f"{tool_name}:{stage_value}", source=UserModelSource.EXPLICIT
+        ),
         output_constraints=output_constraints,
     )
 
 
-def _resolve_caller_context(caller_context: CallerContext | None, requested_persona: str | None) -> CallerContext:
+def _resolve_caller_context(
+    caller_context: CallerContext | None, requested_persona: str | None
+) -> CallerContext:
     base = caller_context or CallerContext()
     if requested_persona:
         try:
@@ -402,18 +473,30 @@ def _resolve_caller_context(caller_context: CallerContext | None, requested_pers
     return base
 
 
-def _resolve_caller_state(session_id: str, authority: Any) -> tuple[str, list[str], list[dict[str, str]]]:
+def _resolve_caller_state(
+    session_id: str, authority: Any
+) -> tuple[str, list[str], list[dict[str, str]]]:
     if session_id == "global":
         caller_state = "anonymous"
     elif stored := get_session_identity(session_id):
-        caller_state = "verified" if stored.get("authority_level") in {"sovereign", "operator"} else "anchored"
+        caller_state = (
+            "verified" if stored.get("authority_level") in {"sovereign", "operator"} else "anchored"
+        )
     else:
         if isinstance(authority, dict):
             claim_status = authority.get("claim_status", "anonymous")
             actor_id = authority.get("actor_id", "anonymous")
         else:
-            claim_status = getattr(authority, "claim_status", "anonymous") if authority is not None else "anonymous"
-            actor_id = getattr(authority, "actor_id", "anonymous") if authority is not None else "anonymous"
+            claim_status = (
+                getattr(authority, "claim_status", "anonymous")
+                if authority is not None
+                else "anonymous"
+            )
+            actor_id = (
+                getattr(authority, "actor_id", "anonymous")
+                if authority is not None
+                else "anonymous"
+            )
         claim_status_value = getattr(claim_status, "value", claim_status)
         if str(claim_status_value).lower() == "verified":
             caller_state = "verified"
@@ -425,10 +508,43 @@ def _resolve_caller_state(session_id: str, authority: Any) -> tuple[str, list[st
             caller_state = "anonymous"
 
     allowed = {
-        "anonymous": ["get_caller_status", "init_anchor", "init_anchor_state", "register_tools", "audit_rules", "check_vital"],
-        "claimed": ["get_caller_status", "init_anchor", "init_anchor_state", "register_tools", "audit_rules", "check_vital"],
-        "anchored": ["get_caller_status", "check_vital", "audit_rules", "agi_reason", "search_reality", "reality_compass", "asi_critique"],
-        "verified": ["get_caller_status", "check_vital", "audit_rules", "agi_reason", "search_reality", "reality_compass", "asi_critique", "arifOS_kernel", "forge", "vault_seal"],
+        "anonymous": [
+            "get_caller_status",
+            "init_anchor",
+            "init_anchor_state",
+            "register_tools",
+            "audit_rules",
+            "check_vital",
+        ],
+        "claimed": [
+            "get_caller_status",
+            "init_anchor",
+            "init_anchor_state",
+            "register_tools",
+            "audit_rules",
+            "check_vital",
+        ],
+        "anchored": [
+            "get_caller_status",
+            "check_vital",
+            "audit_rules",
+            "agi_reason",
+            "search_reality",
+            "reality_compass",
+            "asi_critique",
+        ],
+        "verified": [
+            "get_caller_status",
+            "check_vital",
+            "audit_rules",
+            "agi_reason",
+            "search_reality",
+            "reality_compass",
+            "asi_critique",
+            "arifOS_kernel",
+            "forge",
+            "vault_seal",
+        ],
     }
     blocked = {
         "anonymous": [
@@ -439,10 +555,16 @@ def _resolve_caller_state(session_id: str, authority: Any) -> tuple[str, list[st
             {"tool": "arifOS_kernel", "reason": "Anchor identity before kernel execution."},
             {"tool": "agentzero_engineer", "reason": "Execution requires anchored authority."},
         ],
-        "anchored": [{"tool": "agentzero_engineer", "reason": "High-risk execution remains gated."}],
+        "anchored": [
+            {"tool": "agentzero_engineer", "reason": "High-risk execution remains gated."}
+        ],
         "verified": [],
     }
-    return caller_state, allowed.get(caller_state, allowed["anonymous"]), blocked.get(caller_state, blocked["anonymous"])
+    return (
+        caller_state,
+        allowed.get(caller_state, allowed["anonymous"]),
+        blocked.get(caller_state, blocked["anonymous"]),
+    )
 
 
 async def _wrap_call(
@@ -482,13 +604,17 @@ async def _wrap_call(
         )
 
     if envelope.user_model is None:
-        envelope.user_model = _build_user_model(tool_name, envelope.stage, payload, envelope.model_dump(mode="json"))
+        envelope.user_model = _build_user_model(
+            tool_name, envelope.stage, payload, envelope.model_dump(mode="json")
+        )
 
     envelope.tool = tool_name
     envelope.session_id = normalized_session
-    envelope.caller_state, envelope.allowed_next_tools, envelope.blocked_tools = _resolve_caller_state(
-        normalized_session,
-        getattr(envelope, "authority", None),
+    envelope.caller_state, envelope.allowed_next_tools, envelope.blocked_tools = (
+        _resolve_caller_state(
+            normalized_session,
+            getattr(envelope, "authority", None),
+        )
     )
     return envelope
 
@@ -511,11 +637,15 @@ async def metabolic_loop_router(
         "auth_context": auth_context,
         **kwargs,
     }
-    return await _wrap_call("arifOS_kernel", Stage.ROUTER_444, session_id, payload, caller_context=resolved_caller)
+    return await _wrap_call(
+        "arifOS_kernel", Stage.ROUTER_444, session_id, payload, caller_context=resolved_caller
+    )
 
 
 async def check_vital(session_id: str = "global", **kwargs: Any) -> RuntimeEnvelope:
-    envelope = await _wrap_call("check_vital", Stage.INIT_000, session_id, {"session_id": session_id, **kwargs})
+    envelope = await _wrap_call(
+        "check_vital", Stage.INIT_000, session_id, {"session_id": session_id, **kwargs}
+    )
     try:
         envelope.payload["thermodynamic_vitality"] = get_thermodynamic_report(session_id)
         envelope.payload["constitutional_telemetry"] = {
@@ -528,7 +658,9 @@ async def check_vital(session_id: str = "global", **kwargs: Any) -> RuntimeEnvel
     envelope.philosophy = select_governed_philosophy(
         "Checking system vitals.",
         stage=Stage.INIT_000.value,
-        verdict=envelope.verdict.name if hasattr(envelope.verdict, "name") else str(envelope.verdict),
+        verdict=envelope.verdict.name
+        if hasattr(envelope.verdict, "name")
+        else str(envelope.verdict),
         g_score=1.0,
         failed_floors=[],
         session_id=session_id,
@@ -541,7 +673,9 @@ async def _probe_intelligence_services() -> dict[str, dict[str, Any]]:
 
 
 async def audit_rules(session_id: str = "global", **kwargs: Any) -> RuntimeEnvelope:
-    return await _wrap_call("audit_rules", Stage.JUDGE_888, session_id, {"session_id": session_id, **kwargs})
+    return await _wrap_call(
+        "audit_rules", Stage.JUDGE_888, session_id, {"session_id": session_id, **kwargs}
+    )
 
 
 async def anchor_session(**kwargs: Any) -> RuntimeEnvelope:
@@ -634,8 +768,13 @@ async def arifos_kernel(
     )
 
 
-async def forge_legacy(spec: str, session_id: str = "global", dry_run: bool = False, **kwargs: Any) -> RuntimeEnvelope:
-    return await agi_mind(mode="forge", payload={"query": spec, "session_id": session_id, "dry_run": dry_run, **kwargs})
+async def forge_legacy(
+    spec: str, session_id: str = "global", dry_run: bool = False, **kwargs: Any
+) -> RuntimeEnvelope:
+    return await agi_mind(
+        mode="forge",
+        payload={"query": spec, "session_id": session_id, "dry_run": dry_run, **kwargs},
+    )
 
 
 async def forge(
@@ -702,7 +841,9 @@ async def asi_simulate(
     ctx: Context | None = None,
     **kwargs: Any,
 ) -> RuntimeEnvelope:
-    return await _wrap_call("asi_simulate", Stage.HEART_666, session_id, {"scenario": scenario, **kwargs}, ctx)
+    return await _wrap_call(
+        "asi_simulate", Stage.HEART_666, session_id, {"scenario": scenario, **kwargs}, ctx
+    )
 
 
 async def asi_critique(
@@ -711,7 +852,13 @@ async def asi_critique(
     ctx: Context | None = None,
     **kwargs: Any,
 ) -> RuntimeEnvelope:
-    return await _wrap_call("asi_critique", Stage.CRITIQUE_666, session_id, {"draft_output": draft_output, **kwargs}, ctx)
+    return await _wrap_call(
+        "asi_critique",
+        Stage.CRITIQUE_666,
+        session_id,
+        {"draft_output": draft_output, **kwargs},
+        ctx,
+    )
 
 
 async def apex_judge(
@@ -720,7 +867,13 @@ async def apex_judge(
     ctx: Context | None = None,
     **kwargs: Any,
 ) -> RuntimeEnvelope:
-    return await _wrap_call("apex_judge", Stage.JUDGE_888, session_id, {"candidate_output": candidate_output, **kwargs}, ctx)
+    return await _wrap_call(
+        "apex_judge",
+        Stage.JUDGE_888,
+        session_id,
+        {"candidate_output": candidate_output, **kwargs},
+        ctx,
+    )
 
 
 async def vault_seal(
@@ -752,9 +905,13 @@ async def reality_compass(
     **kwargs: Any,
 ) -> RuntimeEnvelope:
     if mode == "search":
-        result = await reality_handler.handle_compass(BundleInput(type="query", value=input, mode="search"), {})
+        result = await reality_handler.handle_compass(
+            BundleInput(type="query", value=input, mode="search"), {}
+        )
     elif mode == "fetch":
-        result = await reality_handler.handle_compass(BundleInput(type="url", value=input, mode="fetch"), {})
+        result = await reality_handler.handle_compass(
+            BundleInput(type="url", value=input, mode="fetch"), {}
+        )
     else:
         result = await reality_handler.handle_compass(
             BundleInput(type="query", value=input),
@@ -786,7 +943,9 @@ async def search_reality(
     ctx: Context | None = None,
     **kwargs: Any,
 ) -> RuntimeEnvelope:
-    return await reality_compass(input=query, mode="search", session_id=session_id, ctx=ctx, **kwargs)
+    return await reality_compass(
+        input=query, mode="search", session_id=session_id, ctx=ctx, **kwargs
+    )
 
 
 async def ingest_evidence(
@@ -853,7 +1012,9 @@ async def agentzero_armor_scan(
     ctx: Context | None = None,
     **kwargs: Any,
 ) -> RuntimeEnvelope:
-    return await _wrap_call("agentzero_armor_scan", Stage.JUDGE_888, session_id, {"content": content, **kwargs}, ctx)
+    return await _wrap_call(
+        "agentzero_armor_scan", Stage.JUDGE_888, session_id, {"content": content, **kwargs}, ctx
+    )
 
 
 async def agentzero_hold_check(
@@ -870,7 +1031,9 @@ async def agentzero_memory_query(
     ctx: Context | None = None,
     **kwargs: Any,
 ) -> RuntimeEnvelope:
-    return await _wrap_call("agentzero_memory_query", Stage.MEMORY_555, session_id, {"query": query, **kwargs}, ctx)
+    return await _wrap_call(
+        "agentzero_memory_query", Stage.MEMORY_555, session_id, {"query": query, **kwargs}, ctx
+    )
 
 
 async def chroma_query(**kwargs: Any) -> RuntimeEnvelope:
@@ -896,7 +1059,9 @@ async def seal_vault_commit(
     ctx: Context | None = None,
     **kwargs: Any,
 ) -> RuntimeEnvelope:
-    return await vault_seal(verdict=verdict, evidence=evidence, session_id=session_id, ctx=ctx, **kwargs)
+    return await vault_seal(
+        verdict=verdict, evidence=evidence, session_id=session_id, ctx=ctx, **kwargs
+    )
 
 
 async def open_apex_dashboard(**kwargs: Any) -> RuntimeEnvelope:
@@ -958,11 +1123,22 @@ ALL_TOOL_IMPLEMENTATIONS = {**FINAL_TOOL_IMPLEMENTATIONS, **LEGACY_COMPAT_MAP}
 def _build_legacy_payload(mega_tool: str, mode: str, values: dict[str, Any]) -> dict[str, Any]:
     payload = {key: value for key, value in values.items() if value is not None}
     if mega_tool == "apex_soul":
-        candidate = payload.get("candidate") or payload.get("candidate_output") or payload.get("input_to_validate") or payload.get("content") or payload.get("query")
+        candidate = (
+            payload.get("candidate")
+            or payload.get("candidate_output")
+            or payload.get("input_to_validate")
+            or payload.get("content")
+            or payload.get("query")
+        )
         if candidate is not None:
             payload.setdefault("candidate", candidate)
     elif mega_tool == "asi_heart":
-        content = payload.get("content") or payload.get("draft_output") or payload.get("scenario") or payload.get("query")
+        content = (
+            payload.get("content")
+            or payload.get("draft_output")
+            or payload.get("scenario")
+            or payload.get("query")
+        )
         if content is not None:
             payload.setdefault("content", content)
     elif mega_tool == "physics_reality":
