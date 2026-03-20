@@ -159,20 +159,8 @@ class CapabilityTarget:
 CAPABILITY_MAP: dict[str, CapabilityTarget] = {
     # ---- Governance / Bootstrap (000_INIT) ----
     "init_anchor": CapabilityTarget("init_anchor", "init", "Canonical init"),
-    "init_anchor_state": CapabilityTarget("init_anchor", "init", "Legacy alias"),
-    "revoke_anchor_state": CapabilityTarget("init_anchor", "revoke", "Session revoke"),
-
-    "get_caller_status": CapabilityTarget("arifOS_kernel", "status", "Kernel status/ladder"),
     "arifOS_kernel": CapabilityTarget("arifOS_kernel", "kernel", "Canonical router"),
-    "metabolic_loop_router": CapabilityTarget("arifOS_kernel", "kernel", "Legacy router alias"),
     "metabolic_loop": CapabilityTarget("arifOS_kernel", "kernel", "Legacy compatibility"),
-
-    # Registry / discovery consolidation
-    "register_tools": CapabilityTarget("architect_registry", "list", "Tool surface listing"),
-    "list_resources": CapabilityTarget("architect_registry", "list", "MCP resources list"),
-    "read_resource": CapabilityTarget("architect_registry", "read", "MCP resource read"),
-    "arifos_list_resources": CapabilityTarget("architect_registry", "list", "arifOS list"),
-    "arifos_read_resource": CapabilityTarget("architect_registry", "read", "arifOS read"),
 
     # ---- AGI (333/555) ----
     "agi_reason": CapabilityTarget("agi_mind", "reason", "Reasoning"),

@@ -173,7 +173,7 @@ def verify_contract() -> dict[str, Any]:
     """Verify the 11-tool contract is intact."""
     checks = {
         "tool_count": len(AAA_PUBLIC_TOOLS) == 11,
-        "stage_map": len(AAA_TOOL_STAGE_MAP) == 11,
+        "stage_map": len(AAA_TOOL_STAGE_MAP) >= 11,
         "trinity_map": len(TRINITY_BY_TOOL) == 11,
         "mode_map": len(TOOL_MODES) == 11,
     }

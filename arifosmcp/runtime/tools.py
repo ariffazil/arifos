@@ -375,6 +375,7 @@ async def engineering_memory(
     auth_context: dict[str, Any] | None = None,
     risk_tier: str = "medium",
     dry_run: bool = True,
+    ctx: Context | None = None,
 ) -> RuntimeEnvelope:
     resolved_payload = dict(payload or {})
     return await engineering_memory_dispatch_impl(
@@ -383,6 +384,7 @@ async def engineering_memory(
         auth_context=resolved_payload.get("auth_context", auth_context),
         risk_tier=resolved_payload.get("risk_tier", risk_tier),
         dry_run=bool(resolved_payload.get("dry_run", dry_run)),
+        ctx=ctx or CurrentContext(),
     )
 
 

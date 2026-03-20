@@ -341,13 +341,13 @@ services:
       PYTHONUNBUFFERED: 1
       PYTHONDONTWRITEBYTECODE: 1
       ARIFOS_WORKDIR: /usr/src/app
-      DATABASE_URL: postgresql://${POSTGRES_USER:-arifos_admin}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-arifos_vault}
-      REDIS_URL: redis://redis:6379/0
-      QDRANT_URL: http://qdrant:6333
-      OLLAMA_URL: http://ollama:11434
+      DATABASE_URL: postgresql://${POSTGRES_USER:-arifos_admin}:${POSTGRES_PASSWORD}@arifos_postgres:5432/${POSTGRES_DB:-arifos_vault}
+      REDIS_URL: redis://arifos_redis:6379/0
+      QDRANT_URL: http://qdrant_memory:6333
+      OLLAMA_URL: http://ollama_engine:11434
       BROWSERLESS_URL: http://headless_browser:3000
-      OPENCLAW_URL: http://openclaw:18789
-      AGENT_ZERO_URL: http://agent-zero:80
+      OPENCLAW_URL: http://openclaw_gateway:18789
+      AGENT_ZERO_URL: http://agent_zero_reasoner:80
       DASHBOARD_ENABLED: "true"
       AAA_MCP_TRANSPORT: http
       ARIFOS_GOVERNANCE_SECRET_FILE: ${ARIFOS_GOVERNANCE_SECRET_FILE:-}

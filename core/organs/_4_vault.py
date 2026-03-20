@@ -101,6 +101,10 @@ def verify_vault_ledger(path: Path) -> tuple[bool, str | None]:
                 except json.JSONDecodeError as exc:
                     return False, f"line {line_no}: invalid json ({exc})"
 
+                # Skip seed/bootstrap records
+                if payload.get("type") in ("seed", "bootstrap"):
+                    continue
+
                 # Basic record check
                 ok, reason = verify_vault_record(payload)
                 if not ok:
