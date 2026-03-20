@@ -312,6 +312,17 @@ Review `canon://states` for the full Session Ladder and state transition require
         )
     _resource_content_functions["canon://index"] = canon_index
 
+    @mcp.resource("arifos://sessions/{session_id}/vitals")
+    def arifos_session_vitals(session_id: str) -> str:
+        """arifOS Session Vitals: Real-time telemetry for a specific session."""
+        from core.physics.thermodynamics_hardened import get_thermodynamic_report
+        try:
+            report = get_thermodynamic_report(session_id)
+            return json.dumps({"session_id": session_id, "vitals": report}, ensure_ascii=False)
+        except Exception:
+            return json.dumps({"session_id": session_id, "status": "UNKNOWN"}, ensure_ascii=False)
+    _resource_content_functions["arifos://sessions/{session_id}/vitals"] = arifos_session_vitals
+
     @mcp.resource("schema://tools/input")
     def schema_tools_input() -> str:
         """Canonical JSON Schema input specs for public tools."""

@@ -1,618 +1,1163 @@
 {
-  "name": "io.github.ariffazil/arifos-mcp",
-  "version": "2026.03.17-ANTICHAOS",
-  "tools": {
-    "get_caller_status": {
-      "stage": "000_INIT",
-      "trinity": "INIT",
-      "floors": [
-        "F11"
-      ],
-      "description": "000_INIT: Highest-leverage diagnostic. Explains current session state, authority ladder, accessible tools, and the exact path to advance your session. Use this if you are 'blocked' or uncertain of your next step.",
+  "mcpVersion": "2025-11-25",
+  "name": "arifOS-APEX-G",
+  "version": "2026.03.20",
+  "serverUrl": "https://arifosmcp.arif-fazil.com",
+  "tools": [
+    {
+      "name": "init_anchor",
+      "description": "000_INIT: Establish, revoke, or refresh a governed session identity. Required before all other actions. Modes: 'init' (new session), 'revoke' (kill switch), 'refresh' (continuity refresh).",
       "inputSchema": {
         "type": "object",
-        "properties": {
-          "session_id": {
-            "type": "string",
-            "description": "Optional session ID to inspect."
-          }
-        }
-      }
-    },
-    "init_anchor": {
-      "stage": "000_INIT",
-      "trinity": "INIT",
-      "floors": [
-        "F11",
-        "F12",
-        "F13"
-      ],
-      "description": "000_INIT: Establish a governed session and verify identity. Use this tool first to authorize a session and mint the auth_context required for subsequent governed tools. Enforces F11 (Command Auth), F12 (Injection Defense), and F13 (Sovereign Override).",
-      "inputSchema": {
-        "type": "object",
+        "additionalProperties": false,
         "required": [
-          "raw_input"
+          "mode",
+          "payload"
         ],
         "properties": {
-          "raw_input": {
+          "mode": {
             "type": "string",
-            "description": "Initialization query or identity declaration (e.g. 'I am arif')."
-          }
-        }
-      }
-    },
-    "init_anchor_state": {
-      "stage": "000_INIT",
-      "trinity": "INIT",
-      "floors": [
-        "F11",
-        "F12",
-        "F13"
-      ],
-      "description": "Legacy alias for init_anchor.",
-      "inputSchema": {
-        "type": "object",
-        "anyOf": [
-          {
+            "description": "Mode selector for init_anchor.",
+            "enum": [
+              "init",
+              "revoke",
+              "refresh"
+            ]
+          },
+          "payload": {
+            "type": "object",
+            "description": "Mode-specific payload.",
+            "required": [],
             "properties": {
-              "declared_name": {
-                "type": "string"
+              "actor_id": {
+                "type": "string",
+                "minLength": 2,
+                "maxLength": 64
               },
-              "human_approval": {
-                "type": "boolean"
+              "intent": {
+                "type": "string",
+                "minLength": 4,
+                "maxLength": 20000
+              },
+              "declared_name": {
+                "type": "string",
+                "maxLength": 64
+              },
+              "session_id": {
+                "type": "string",
+                "minLength": 8,
+                "maxLength": 128
+              },
+              "reason": {
+                "type": "string",
+                "maxLength": 1000
               }
-            }
-          }
-        ]
-      }
-    },
-    "revoke_anchor_state": {
-      "stage": "000_INIT",
-      "trinity": "INIT",
-      "floors": [
-        "F11",
-        "F13"
-      ],
-      "description": "000_INIT: Immediately invalidate a governed session. Use this to explicitly end authority or terminate a session if a protocol breach is detected. Enforces F11 and F13.",
-      "inputSchema": {
-        "type": "object",
-        "required": [
-          "session_id",
-          "reason"
-        ],
-        "properties": {
-          "session_id": {
-            "type": "string",
-            "description": "The ID of the session to revoke."
-          },
-          "reason": {
-            "type": "string",
-            "description": "Justification for the revocation."
-          }
-        }
-      }
-    },
-    "register_tools": {
-      "stage": "000_INIT",
-      "trinity": "INIT",
-      "floors": [
-        "F13"
-      ],
-      "description": "000_INIT: Query the available tool surface and verify registration. Used by agents to understand which arifOS governance capabilities are currently exposed. Enforces F13.",
-      "inputSchema": {
-        "type": "object",
-        "properties": {}
-      }
-    },
-    "arifOS_kernel": {
-      "stage": "444_ROUTER",
-      "trinity": "ROUTER",
-      "floors": [
-        "F4"
-      ],
-      "description": "444_ROUTER: Canonical metabolic transition router. The primary entry point for arifOS governance. Routes complex queries through the full \u0394\u03a9\u03a8 metabolic pipe (Reasoning, Memory, Ethics, Judgment). Use this when you need a single sovereign response vetted through all 13 floors.",
-      "inputSchema": {
-        "type": "object",
-        "required": [
-          "query"
-        ],
-        "properties": {
-          "query": {
-            "type": "string",
-            "description": "The question or task to process."
-          },
-          "context": {
-            "type": "string",
-            "description": "Additional context for the query"
+            },
+            "additionalProperties": false
           },
           "auth_context": {
-            "type": "object",
-            "description": "Cryptographic authority context for high-risk actions.",
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "Optional auth context for continuity (F11) and sovereignty (F13).",
+            "additionalProperties": true
+          },
+          "caller_context": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "Optional caller metadata.",
             "additionalProperties": true
           },
           "risk_tier": {
             "type": "string",
+            "description": "Requested risk posture.",
             "enum": [
               "low",
               "medium",
               "high",
               "critical"
             ],
-            "description": "Risk classification \u2014 higher tiers trigger stricter floor checks."
-          },
-          "actor_id": {
-            "type": "string",
-            "description": "Identity of the requesting actor."
-          },
-          "use_memory": {
-            "type": "boolean",
-            "description": "Enable session memory retrieval and storage."
-          },
-          "use_heart": {
-            "type": "boolean",
-            "description": "Enable ethical evaluation (666_HEART)."
-          },
-          "use_critique": {
-            "type": "boolean",
-            "description": "Enable self-critique engine (777_CRITIQUE)."
-          },
-          "allow_execution": {
-            "type": "boolean",
-            "description": "Allow material actions if permitted by ethical vetting."
-          },
-          "debug": {
-            "type": "boolean",
-            "description": "Include detailed debug telemetry in response."
+            "default": "medium"
           },
           "dry_run": {
             "type": "boolean",
-            "description": "Run full pipeline without writing to VAULT999."
+            "description": "If true, compute/plan/validate only.",
+            "default": true
           },
-          "requested_persona": {
+          "allow_execution": {
+            "type": "boolean",
+            "description": "If true, execution is permitted IF floors pass.",
+            "default": false
+          },
+          "debug": {
+            "type": "boolean",
+            "description": "Include additional diagnostics.",
+            "default": false
+          },
+          "request_id": {
             "type": "string",
+            "description": "Client trace ID.",
+            "minLength": 8,
+            "maxLength": 128
+          },
+          "timestamp": {
+            "type": "string",
+            "description": "ISO 8601 timestamp.",
+            "format": "date-time"
+          }
+        }
+      }
+    },
+    {
+      "name": "arifOS_kernel",
+      "description": "444_ROUTER: Primary metabolic conductor. Processes complex queries through the 000-999 pipe. Modes: 'kernel' (reasoning), 'status' (vitals).",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "mode",
+          "payload"
+        ],
+        "properties": {
+          "mode": {
+            "type": "string",
+            "description": "Mode selector for arifOS_kernel.",
             "enum": [
-              "architect",
-              "engineer",
-              "auditor",
-              "validator"
+              "kernel",
+              "status"
+            ]
+          },
+          "payload": {
+            "type": "object",
+            "description": "Mode-specific payload.",
+            "required": [],
+            "properties": {
+              "query": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 40000
+              },
+              "context": {
+                "type": "string",
+                "maxLength": 100000
+              },
+              "max_steps": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 50,
+                "default": 13
+              },
+              "session_id": {
+                "type": "string"
+              },
+              "detail": {
+                "type": "string",
+                "enum": [
+                  "brief",
+                  "full"
+                ],
+                "default": "full"
+              }
+            },
+            "additionalProperties": false
+          },
+          "auth_context": {
+            "type": [
+              "object",
+              "null"
             ],
-            "description": "Persona to assume for the response (F9-compliant role)."
+            "description": "Optional auth context for continuity (F11) and sovereignty (F13).",
+            "additionalProperties": true
           },
           "caller_context": {
-            "type": "object",
-            "description": "Advisory runtime context from calling agent. Server-governed \u2014 persona_id may be overridden.",
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "Optional caller metadata.",
             "additionalProperties": true
-          }
-        }
-      }
-    },
-    "forge": {
-      "stage": "000_999",
-      "trinity": "ALL",
-      "floors": [
-        "F1-F13"
-      ],
-      "description": "000_999: One-shot metabolic pipeline trigger. Synthesizes a goal into a final, sealed action in a single call. Best for well-defined tasks where separate pipeline steps are unnecessary. Enforces all floors F1-F13.",
-      "inputSchema": {
-        "type": "object",
-        "required": [
-          "spec"
-        ],
-        "properties": {
-          "spec": {
-            "type": "string",
-            "description": "The design specification or goal to forge."
-          }
-        }
-      }
-    },
-    "agi_reason": {
-      "stage": "333_MIND",
-      "trinity": "AGI \u0394",
-      "floors": [
-        "F2",
-        "F4",
-        "F7"
-      ],
-      "description": "333_MIND: Perform first-principles structured reasoning. Explores hypotheses through conservative, exploratory, and adversarial paths. Use this for intellectual synthesis. Enforces F2 (Truth) and F4 (Clarity).",
-      "inputSchema": {
-        "type": "object",
-        "required": [
-          "query"
-        ],
-        "properties": {
-          "query": {
-            "type": "string",
-            "description": "The reasoning prompt or problem statement."
-          }
-        }
-      }
-    },
-    "agi_reflect": {
-      "stage": "333_INTEGRATE",
-      "trinity": "AGI \u0394",
-      "floors": [
-        "F4",
-        "F7"
-      ],
-      "description": "555_MEMORY: Perform metacognitive integration. Reflects on the current intelligence state and session context to ensure coherence before committing to a path. Enforces F4 and F7.",
-      "inputSchema": {
-        "type": "object",
-        "required": [
-          "topic"
-        ],
-        "properties": {
-          "topic": {
-            "type": "string",
-            "description": "The core topic or decision point to reflect upon."
-          }
-        }
-      }
-    },
-    "reality_compass": {
-      "stage": "111_SENSE",
-      "trinity": "AGI \u0394",
-      "floors": [
-        "F2"
-      ],
-      "description": "111_SENSE: Ground claims in external reality. Use this to verify facts or fetch URL content BEFORE performing reasoning. Enforces F2 (Truth) fidelity.",
-      "inputSchema": {
-        "type": "object",
-        "required": [
-          "input"
-        ],
-        "properties": {
-          "input": {
-            "type": "string",
-            "description": "Fact string to verify or URL to fetch."
-          }
-        }
-      }
-    },
-    "reality_atlas": {
-      "stage": "222_GROUND",
-      "trinity": "AGI \u0394",
-      "floors": [
-        "F2",
-        "F3"
-      ],
-      "description": "222_REALITY: Map evidence across multiple sources. Merges and queries EvidenceBundles to create a unified grounding context for complex investigations. Enforces F2 and F3.",
-      "inputSchema": {
-        "type": "object",
-        "required": [
-          "operation"
-        ],
-        "properties": {
-          "operation": {
-            "type": "string",
-            "description": "The atlas operation (merge, query, or build)."
-          }
-        }
-      }
-    },
-    "search_reality": {
-      "stage": "111_SENSE",
-      "trinity": "AGI \u0394",
-      "floors": [
-        "F2"
-      ],
-      "description": "111_SENSE: Direct web search for grounding facts. Fetches raw data from the external world to satisfy F2 (Truth) requirements for ungrounded claims.",
-      "inputSchema": {
-        "type": "object",
-        "required": [
-          "query"
-        ],
-        "properties": {
-          "query": {
-            "type": "string",
-            "description": "Search query terms."
-          }
-        }
-      }
-    },
-    "ingest_evidence": {
-      "stage": "111_SENSE",
-      "trinity": "AGI \u0394",
-      "floors": [
-        "F2"
-      ],
-      "description": "111_SENSE: Fetch and normalize evidence artifact. Extracts structured signals from a URL or File for injection into the reasoning pipeline. Enforces F2.",
-      "inputSchema": {
-        "type": "object",
-        "required": [
-          "url"
-        ],
-        "properties": {
-          "url": {
-            "type": "string",
-            "description": "Source URL or file path."
-          }
-        }
-      }
-    },
-    "asi_critique": {
-      "stage": "555_ALIGN",
-      "trinity": "ASI \u03a9",
-      "floors": [
-        "F6",
-        "F9"
-      ],
-      "description": "666_HEART: Advanced adversarial critique and thought audit. Detects blind spots, uncertainty, and hidden assumptions before action. Enforces F7 (Humility) and F9 (Anti-Hantu/Shadow).",
-      "inputSchema": {
-        "type": "object",
-        "required": [
-          "draft_output"
-        ],
-        "properties": {
-          "draft_output": {
-            "type": "string",
-            "description": "The candidate thought or output to audit."
-          }
-        }
-      }
-    },
-    "asi_simulate": {
-      "stage": "555_ALIGN",
-      "trinity": "ASI \u03a9",
-      "floors": [
-        "F5"
-      ],
-      "description": "666_HEART: Simulate consequences and predict world-model outcomes. Use this to assess the downstream impact of a proposal before execution. Enforces F5 (Peace\u00b2) and F6 (Empathy).",
-      "inputSchema": {
-        "type": "object",
-        "required": [
-          "scenario"
-        ],
-        "properties": {
-          "scenario": {
-            "type": "string",
-            "description": "The scenario or action plan to simulate."
-          }
-        }
-      }
-    },
-    "agentzero_engineer": {
-      "stage": "666_EXECUTE",
-      "trinity": "ASI \u03a9",
-      "floors": [
-        "F11"
-      ],
-      "description": "666_EXECUTE: Perform material system actions (code, shell, file ops). Requires valid session auth_context. Only for technical actions vetted by ASI levels. Enforces F11 (Authority).",
-      "inputSchema": {
-        "type": "object",
-        "required": [
-          "task_description"
-        ],
-        "properties": {
-          "task_description": {
-            "type": "string",
-            "description": "Specific engineering task (e.g. 'write script to X')."
-          }
-        }
-      }
-    },
-    "agentzero_memory_query": {
-      "stage": "444_MEMORY",
-      "trinity": "ASI \u03a9",
-      "floors": [
-        "F2",
-        "F7"
-      ],
-      "description": "444_MEMORY: Recall semantic context from VAULT999. Retrieves past interactions and sealed truths to maintain session continuity and historical grounding. Enforces F2 and F7.",
-      "inputSchema": {
-        "type": "object",
-        "required": [
-          "query"
-        ],
-        "properties": {
-          "query": {
-            "type": "string",
-            "description": "Recall query or concept keywords."
-          }
-        }
-      }
-    },
-    "apex_judge": {
-      "stage": "777_JUDGE",
-      "trinity": "APEX \u03a8",
-      "floors": [
-        "F3",
-        "F13"
-      ],
-      "description": "888_JUDGE: Render a sovereign constitutional verdict (SEAL, VOID, HOLD, SABAR). Final authority for all candidate outputs. Enforces F3 (Tri-Witness) and F13 (Sovereign Override).",
-      "inputSchema": {
-        "type": "object",
-        "required": [
-          "candidate_output"
-        ],
-        "properties": {
-          "candidate_output": {
-            "type": "string",
-            "description": "Final output candidate for judgment."
-          }
-        }
-      }
-    },
-    "agentzero_validate": {
-      "stage": "777_JUDGE",
-      "trinity": "APEX \u03a8",
-      "floors": [
-        "F2",
-        "F9"
-      ],
-      "description": "888_JUDGE: Validator-specific output judgment. Audits the technical and logical correctness of an Engineer's output before final sealing. Enforces F2 and F9.",
-      "inputSchema": {
-        "type": "object",
-        "required": [
-          "input_to_validate"
-        ],
-        "properties": {
-          "input_to_validate": {
-            "type": "string",
-            "description": "The specific data or artifact to validate."
-          }
-        }
-      }
-    },
-    "audit_rules": {
-      "stage": "888_FLOOR",
-      "trinity": "APEX \u03a8",
-      "floors": [
-        "F1-F13"
-      ],
-      "description": "333_MIND: Inspect the live status and thresholds of all 13 constitutional floors (F1-F13). Provides transparency into current governance constraints. Enforces F1-F13.",
-      "inputSchema": {
-        "type": "object",
-        "properties": {}
-      }
-    },
-    "agentzero_armor_scan": {
-      "stage": "888_FLOOR",
-      "trinity": "APEX \u03a8",
-      "floors": [
-        "F12"
-      ],
-      "description": "111_SENSE: Scan content for injection attacks and adversarial control. Used as a security guard (F12) before processing external or user input. Enforces F12.",
-      "inputSchema": {
-        "type": "object",
-        "required": [
-          "content"
-        ],
-        "properties": {
-          "content": {
-            "type": "string",
-            "description": "Untrusted input to scan."
-          }
-        }
-      }
-    },
-    "agentzero_hold_check": {
-      "stage": "888_HOLD",
-      "trinity": "APEX \u03a8",
-      "floors": [
-        "F13"
-      ],
-      "description": "888_HOLD: Check status of a pending human escalation or sovereign hold. Used when a task requires manual intervention or ratification (F13). Enforces F13.",
-      "inputSchema": {
-        "type": "object",
-        "properties": {
-          "hold_id": {
-            "type": "string",
-            "description": "Specific hold ID to query."
-          }
-        }
-      }
-    },
-    "check_vital": {
-      "stage": "888_VITALS",
-      "trinity": "APEX \u03a8",
-      "floors": [
-        "F4",
-        "F5",
-        "F7"
-      ],
-      "description": "000_INIT: System health and thermodynamic telemetry monitor. Reports real-time \u0394S (Entropy), Peace\u00b2, and G\u00f6del Humility metrics. Essential for metabolic budgeting. Enforces F4, F5, F7.",
-      "inputSchema": {
-        "type": "object",
-        "properties": {}
-      }
-    },
-    "open_apex_dashboard": {
-      "stage": "888_OBSERVE",
-      "trinity": "APEX \u03a8",
-      "floors": [
-        "F13"
-      ],
-      "description": "888_JUDGE: Launch the browser-based APEX Dashboard. Provides high-fidelity visualization of constitutional traces, floor scores, and system vitals. Enforces F13.",
-      "inputSchema": {
-        "type": "object",
-        "properties": {}
-      }
-    },
-    "vault_seal": {
-      "stage": "999_SEAL",
-      "trinity": "VAULT",
-      "floors": [
-        "F1",
-        "F13"
-      ],
-      "description": "999_VAULT: Commit a verified verdict and evidence to the immutable VAULT999 ledger. Mints a permanent hash-chain entry. Enforces F1 (Amanah) and F13 (Sovereign).",
-      "inputSchema": {
-        "type": "object",
-        "required": [
-          "verdict",
-          "evidence"
-        ],
-        "properties": {
-          "verdict": {
-            "type": "string",
-            "description": "The final verdict code (SEAL/VOID)."
           },
-          "evidence": {
+          "risk_tier": {
             "type": "string",
-            "description": "Justification or audit trail summary."
+            "description": "Requested risk posture.",
+            "enum": [
+              "low",
+              "medium",
+              "high",
+              "critical"
+            ],
+            "default": "medium"
+          },
+          "dry_run": {
+            "type": "boolean",
+            "description": "If true, compute/plan/validate only.",
+            "default": true
+          },
+          "allow_execution": {
+            "type": "boolean",
+            "description": "If true, execution is permitted IF floors pass.",
+            "default": false
+          },
+          "debug": {
+            "type": "boolean",
+            "description": "Include additional diagnostics.",
+            "default": false
+          },
+          "request_id": {
+            "type": "string",
+            "description": "Client trace ID.",
+            "minLength": 8,
+            "maxLength": 128
+          },
+          "timestamp": {
+            "type": "string",
+            "description": "ISO 8601 timestamp.",
+            "format": "date-time"
           }
         }
       }
     },
-    "verify_vault_ledger": {
-      "stage": "999_ATTEST",
-      "trinity": "VAULT",
-      "floors": [
-        "F1"
-      ],
-      "description": "999_VAULT: Verify the integrity of the VAULT999 Merkle chain. Detects unauthorized tampering or data corruption in the historical audit trail. Enforces F1.",
+    {
+      "name": "apex_soul",
+      "description": "888_JUDGE: Final authority for verdicts and defense. Modes: 'judge', 'rules', 'validate', 'hold', 'armor', 'notify'.",
       "inputSchema": {
         "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "mode",
+          "payload"
+        ],
         "properties": {
-          "full_scan": {
+          "mode": {
+            "type": "string",
+            "description": "Mode selector for apex_soul.",
+            "enum": [
+              "judge",
+              "rules",
+              "validate",
+              "hold",
+              "armor",
+              "notify"
+            ]
+          },
+          "payload": {
+            "type": "object",
+            "description": "Mode-specific payload.",
+            "required": [],
+            "properties": {
+              "candidate": {
+                "type": "string"
+              },
+              "hold_id": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              },
+              "session_id": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          },
+          "auth_context": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "Optional auth context for continuity (F11) and sovereignty (F13).",
+            "additionalProperties": true
+          },
+          "caller_context": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "Optional caller metadata.",
+            "additionalProperties": true
+          },
+          "risk_tier": {
+            "type": "string",
+            "description": "Requested risk posture.",
+            "enum": [
+              "low",
+              "medium",
+              "high",
+              "critical"
+            ],
+            "default": "medium"
+          },
+          "dry_run": {
             "type": "boolean",
-            "description": "Enable exhaustive ledger validation (deep scan)."
+            "description": "If true, compute/plan/validate only.",
+            "default": true
+          },
+          "allow_execution": {
+            "type": "boolean",
+            "description": "If true, execution is permitted IF floors pass.",
+            "default": false
+          },
+          "debug": {
+            "type": "boolean",
+            "description": "Include additional diagnostics.",
+            "default": false
+          },
+          "request_id": {
+            "type": "string",
+            "description": "Client trace ID.",
+            "minLength": 8,
+            "maxLength": 128
+          },
+          "timestamp": {
+            "type": "string",
+            "description": "ISO 8601 timestamp.",
+            "format": "date-time"
+          }
+        }
+      }
+    },
+    {
+      "name": "vault_ledger",
+      "description": "999_VAULT: Permanent decision recording and integrity. Modes: 'seal', 'verify'.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "mode",
+          "payload"
+        ],
+        "properties": {
+          "mode": {
+            "type": "string",
+            "description": "Mode selector for vault_ledger.",
+            "enum": [
+              "seal",
+              "verify"
+            ]
+          },
+          "payload": {
+            "type": "object",
+            "description": "Mode-specific payload.",
+            "required": [],
+            "properties": {
+              "verdict": {
+                "type": "string"
+              },
+              "evidence": {
+                "type": "string"
+              },
+              "full_scan": {
+                "type": "boolean",
+                "default": true
+              },
+              "session_id": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          },
+          "auth_context": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "Optional auth context for continuity (F11) and sovereignty (F13).",
+            "additionalProperties": true
+          },
+          "caller_context": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "Optional caller metadata.",
+            "additionalProperties": true
+          },
+          "risk_tier": {
+            "type": "string",
+            "description": "Requested risk posture.",
+            "enum": [
+              "low",
+              "medium",
+              "high",
+              "critical"
+            ],
+            "default": "medium"
+          },
+          "dry_run": {
+            "type": "boolean",
+            "description": "If true, compute/plan/validate only.",
+            "default": true
+          },
+          "allow_execution": {
+            "type": "boolean",
+            "description": "If true, execution is permitted IF floors pass.",
+            "default": false
+          },
+          "debug": {
+            "type": "boolean",
+            "description": "Include additional diagnostics.",
+            "default": false
+          },
+          "request_id": {
+            "type": "string",
+            "description": "Client trace ID.",
+            "minLength": 8,
+            "maxLength": 128
+          },
+          "timestamp": {
+            "type": "string",
+            "description": "ISO 8601 timestamp.",
+            "format": "date-time"
+          }
+        }
+      }
+    },
+    {
+      "name": "agi_mind",
+      "description": "333_MIND: Core reasoning and synthesis engine. Modes: 'reason', 'reflect', 'forge'.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "mode",
+          "payload"
+        ],
+        "properties": {
+          "mode": {
+            "type": "string",
+            "description": "Mode selector for agi_mind.",
+            "enum": [
+              "reason",
+              "reflect",
+              "forge"
+            ]
+          },
+          "payload": {
+            "type": "object",
+            "description": "Mode-specific payload.",
+            "required": [
+              "query"
+            ],
+            "properties": {
+              "query": {
+                "type": "string"
+              },
+              "topic": {
+                "type": "string"
+              },
+              "session_id": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          },
+          "auth_context": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "Optional auth context for continuity (F11) and sovereignty (F13).",
+            "additionalProperties": true
+          },
+          "caller_context": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "Optional caller metadata.",
+            "additionalProperties": true
+          },
+          "risk_tier": {
+            "type": "string",
+            "description": "Requested risk posture.",
+            "enum": [
+              "low",
+              "medium",
+              "high",
+              "critical"
+            ],
+            "default": "medium"
+          },
+          "dry_run": {
+            "type": "boolean",
+            "description": "If true, compute/plan/validate only.",
+            "default": true
+          },
+          "allow_execution": {
+            "type": "boolean",
+            "description": "If true, execution is permitted IF floors pass.",
+            "default": false
+          },
+          "debug": {
+            "type": "boolean",
+            "description": "Include additional diagnostics.",
+            "default": false
+          },
+          "request_id": {
+            "type": "string",
+            "description": "Client trace ID.",
+            "minLength": 8,
+            "maxLength": 128
+          },
+          "timestamp": {
+            "type": "string",
+            "description": "ISO 8601 timestamp.",
+            "format": "date-time"
+          }
+        }
+      }
+    },
+    {
+      "name": "asi_heart",
+      "description": "666_HEART: Safety, empathy, and consequence modeling. Modes: 'critique', 'simulate'.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "mode",
+          "payload"
+        ],
+        "properties": {
+          "mode": {
+            "type": "string",
+            "description": "Mode selector for asi_heart.",
+            "enum": [
+              "critique",
+              "simulate"
+            ]
+          },
+          "payload": {
+            "type": "object",
+            "description": "Mode-specific payload.",
+            "required": [
+              "content"
+            ],
+            "properties": {
+              "content": {
+                "type": "string"
+              },
+              "session_id": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          },
+          "auth_context": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "Optional auth context for continuity (F11) and sovereignty (F13).",
+            "additionalProperties": true
+          },
+          "caller_context": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "Optional caller metadata.",
+            "additionalProperties": true
+          },
+          "risk_tier": {
+            "type": "string",
+            "description": "Requested risk posture.",
+            "enum": [
+              "low",
+              "medium",
+              "high",
+              "critical"
+            ],
+            "default": "medium"
+          },
+          "dry_run": {
+            "type": "boolean",
+            "description": "If true, compute/plan/validate only.",
+            "default": true
+          },
+          "allow_execution": {
+            "type": "boolean",
+            "description": "If true, execution is permitted IF floors pass.",
+            "default": false
+          },
+          "debug": {
+            "type": "boolean",
+            "description": "Include additional diagnostics.",
+            "default": false
+          },
+          "request_id": {
+            "type": "string",
+            "description": "Client trace ID.",
+            "minLength": 8,
+            "maxLength": 128
+          },
+          "timestamp": {
+            "type": "string",
+            "description": "ISO 8601 timestamp.",
+            "format": "date-time"
+          }
+        }
+      }
+    },
+    {
+      "name": "engineering_memory",
+      "description": "555_MEMORY: Governed autonomous engineering and recall. Modes: 'engineer', 'query', 'recall', 'write', 'generate'.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "mode",
+          "payload"
+        ],
+        "properties": {
+          "mode": {
+            "type": "string",
+            "description": "Mode selector for engineering_memory.",
+            "enum": [
+              "engineer",
+              "query",
+              "recall",
+              "write",
+              "generate"
+            ]
+          },
+          "payload": {
+            "type": "object",
+            "description": "Mode-specific payload.",
+            "required": [],
+            "properties": {
+              "task": {
+                "type": "string"
+              },
+              "query": {
+                "type": "string"
+              },
+              "prompt": {
+                "type": "string"
+              },
+              "content": {
+                "type": "string"
+              },
+              "session_id": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          },
+          "auth_context": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "Optional auth context for continuity (F11) and sovereignty (F13).",
+            "additionalProperties": true
+          },
+          "caller_context": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "Optional caller metadata.",
+            "additionalProperties": true
+          },
+          "risk_tier": {
+            "type": "string",
+            "description": "Requested risk posture.",
+            "enum": [
+              "low",
+              "medium",
+              "high",
+              "critical"
+            ],
+            "default": "medium"
+          },
+          "dry_run": {
+            "type": "boolean",
+            "description": "If true, compute/plan/validate only.",
+            "default": true
+          },
+          "allow_execution": {
+            "type": "boolean",
+            "description": "If true, execution is permitted IF floors pass.",
+            "default": false
+          },
+          "debug": {
+            "type": "boolean",
+            "description": "Include additional diagnostics.",
+            "default": false
+          },
+          "request_id": {
+            "type": "string",
+            "description": "Client trace ID.",
+            "minLength": 8,
+            "maxLength": 128
+          },
+          "timestamp": {
+            "type": "string",
+            "description": "ISO 8601 timestamp.",
+            "format": "date-time"
+          }
+        }
+      }
+    },
+    {
+      "name": "physics_reality",
+      "description": "111_SENSE: Earth-Witness fact acquisition and mapping. Modes: 'search', 'ingest', 'compass', 'atlas'.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "mode",
+          "payload"
+        ],
+        "properties": {
+          "mode": {
+            "type": "string",
+            "description": "Mode selector for physics_reality.",
+            "enum": [
+              "search",
+              "ingest",
+              "compass",
+              "atlas"
+            ]
+          },
+          "payload": {
+            "type": "object",
+            "description": "Mode-specific payload.",
+            "required": [],
+            "properties": {
+              "input": {
+                "type": "string"
+              },
+              "operation": {
+                "type": "string"
+              },
+              "session_id": {
+                "type": "string"
+              },
+              "top_k": {
+                "type": "integer",
+                "default": 5
+              }
+            },
+            "additionalProperties": false
+          },
+          "auth_context": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "Optional auth context for continuity (F11) and sovereignty (F13).",
+            "additionalProperties": true
+          },
+          "caller_context": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "Optional caller metadata.",
+            "additionalProperties": true
+          },
+          "risk_tier": {
+            "type": "string",
+            "description": "Requested risk posture.",
+            "enum": [
+              "low",
+              "medium",
+              "high",
+              "critical"
+            ],
+            "default": "medium"
+          },
+          "dry_run": {
+            "type": "boolean",
+            "description": "If true, compute/plan/validate only.",
+            "default": true
+          },
+          "allow_execution": {
+            "type": "boolean",
+            "description": "If true, execution is permitted IF floors pass.",
+            "default": false
+          },
+          "debug": {
+            "type": "boolean",
+            "description": "Include additional diagnostics.",
+            "default": false
+          },
+          "request_id": {
+            "type": "string",
+            "description": "Client trace ID.",
+            "minLength": 8,
+            "maxLength": 128
+          },
+          "timestamp": {
+            "type": "string",
+            "description": "ISO 8601 timestamp.",
+            "format": "date-time"
+          }
+        }
+      }
+    },
+    {
+      "name": "math_estimator",
+      "description": "Quantitative health and metabolic estimation. Modes: 'cost', 'health', 'vitals'.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "mode",
+          "payload"
+        ],
+        "properties": {
+          "mode": {
+            "type": "string",
+            "description": "Mode selector for math_estimator.",
+            "enum": [
+              "cost",
+              "health",
+              "vitals"
+            ]
+          },
+          "payload": {
+            "type": "object",
+            "description": "Mode-specific payload.",
+            "required": [],
+            "properties": {
+              "action": {
+                "type": "string"
+              },
+              "session_id": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          },
+          "auth_context": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "Optional auth context for continuity (F11) and sovereignty (F13).",
+            "additionalProperties": true
+          },
+          "caller_context": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "Optional caller metadata.",
+            "additionalProperties": true
+          },
+          "risk_tier": {
+            "type": "string",
+            "description": "Requested risk posture.",
+            "enum": [
+              "low",
+              "medium",
+              "high",
+              "critical"
+            ],
+            "default": "medium"
+          },
+          "dry_run": {
+            "type": "boolean",
+            "description": "If true, compute/plan/validate only.",
+            "default": true
+          },
+          "allow_execution": {
+            "type": "boolean",
+            "description": "If true, execution is permitted IF floors pass.",
+            "default": false
+          },
+          "debug": {
+            "type": "boolean",
+            "description": "Include additional diagnostics.",
+            "default": false
+          },
+          "request_id": {
+            "type": "string",
+            "description": "Client trace ID.",
+            "minLength": 8,
+            "maxLength": 128
+          },
+          "timestamp": {
+            "type": "string",
+            "description": "ISO 8601 timestamp.",
+            "format": "date-time"
+          }
+        }
+      }
+    },
+    {
+      "name": "code_engine",
+      "description": "System-level hygiene and observation. Modes: 'fs', 'process', 'net', 'tail', 'replay'.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "mode",
+          "payload"
+        ],
+        "properties": {
+          "mode": {
+            "type": "string",
+            "description": "Mode selector for code_engine.",
+            "enum": [
+              "fs",
+              "process",
+              "net",
+              "tail",
+              "replay"
+            ]
+          },
+          "payload": {
+            "type": "object",
+            "description": "Mode-specific payload.",
+            "required": [],
+            "properties": {
+              "path": {
+                "type": "string",
+                "default": "."
+              },
+              "limit": {
+                "type": "integer",
+                "default": 50
+              },
+              "session_id": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          },
+          "auth_context": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "Optional auth context for continuity (F11) and sovereignty (F13).",
+            "additionalProperties": true
+          },
+          "caller_context": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "Optional caller metadata.",
+            "additionalProperties": true
+          },
+          "risk_tier": {
+            "type": "string",
+            "description": "Requested risk posture.",
+            "enum": [
+              "low",
+              "medium",
+              "high",
+              "critical"
+            ],
+            "default": "medium"
+          },
+          "dry_run": {
+            "type": "boolean",
+            "description": "If true, compute/plan/validate only.",
+            "default": true
+          },
+          "allow_execution": {
+            "type": "boolean",
+            "description": "If true, execution is permitted IF floors pass.",
+            "default": false
+          },
+          "debug": {
+            "type": "boolean",
+            "description": "Include additional diagnostics.",
+            "default": false
+          },
+          "request_id": {
+            "type": "string",
+            "description": "Client trace ID.",
+            "minLength": 8,
+            "maxLength": 128
+          },
+          "timestamp": {
+            "type": "string",
+            "description": "ISO 8601 timestamp.",
+            "format": "date-time"
+          }
+        }
+      }
+    },
+    {
+      "name": "architect_registry",
+      "description": "Tool and resource discovery. Modes: 'register', 'list', 'read'.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "mode",
+          "payload"
+        ],
+        "properties": {
+          "mode": {
+            "type": "string",
+            "description": "Mode selector for architect_registry.",
+            "enum": [
+              "register",
+              "list",
+              "read"
+            ]
+          },
+          "payload": {
+            "type": "object",
+            "description": "Mode-specific payload.",
+            "required": [],
+            "properties": {
+              "uri": {
+                "type": "string"
+              },
+              "session_id": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          },
+          "auth_context": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "Optional auth context for continuity (F11) and sovereignty (F13).",
+            "additionalProperties": true
+          },
+          "caller_context": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "Optional caller metadata.",
+            "additionalProperties": true
+          },
+          "risk_tier": {
+            "type": "string",
+            "description": "Requested risk posture.",
+            "enum": [
+              "low",
+              "medium",
+              "high",
+              "critical"
+            ],
+            "default": "medium"
+          },
+          "dry_run": {
+            "type": "boolean",
+            "description": "If true, compute/plan/validate only.",
+            "default": true
+          },
+          "allow_execution": {
+            "type": "boolean",
+            "description": "If true, execution is permitted IF floors pass.",
+            "default": false
+          },
+          "debug": {
+            "type": "boolean",
+            "description": "Include additional diagnostics.",
+            "default": false
+          },
+          "request_id": {
+            "type": "string",
+            "description": "Client trace ID.",
+            "minLength": 8,
+            "maxLength": 128
+          },
+          "timestamp": {
+            "type": "string",
+            "description": "ISO 8601 timestamp.",
+            "format": "date-time"
           }
         }
       }
     }
-  },
+  ],
   "resources": [
     {
-      "uri": "arifos://status/vitals",
-      "description": "Current health, capability map, degraded components"
+      "uri": "about://arifos",
+      "name": "About arifOS",
+      "description": "High-level overview of the arifOS Constitutional Governance system.",
+      "mimeType": "application/json"
     },
     {
-      "uri": "arifos://governance/floors",
-      "description": "Constitutional F1-F13 thresholds and doctrine hooks"
-    },
-    {
-      "uri": "arifos://bootstrap/guide",
-      "description": "Startup path, canonical sequence, example payloads"
-    },
-    {
-      "uri": "arifos://contracts/tools",
-      "description": "Tool contract table: risk, auth, mutability"
-    },
-    {
-      "uri": "arifos://caller/state",
-      "description": "Current caller state, allowed tools, blocked tools"
+      "uri": "canon://floors",
+      "name": "Constitutional Floors",
+      "description": "Detailed specification of the 13 Constitutional Floors (F1-F13).",
+      "mimeType": "application/json"
     },
     {
       "uri": "canon://contracts",
-      "description": "Tool Contract Table: Hierarchy and bootstrap requirements. [LEGACY: use arifos://contracts/tools]"
+      "name": "Tool Contracts",
+      "description": "Functional and safety contracts for the 11 Mega-Tools.",
+      "mimeType": "application/json"
     },
     {
-      "uri": "canon://states",
-      "description": "Session Ladder: State machine. [LEGACY: use arifos://bootstrap/guide]"
+      "uri": "arifos://status/vitals",
+      "name": "System Vitals",
+      "description": "Real-time thermodynamic and metabolic health of the kernel.",
+      "mimeType": "application/json"
     },
     {
-      "uri": "canon://index",
-      "description": "High-level arifOS canon map. [LEGACY: use arifos://status/vitals]"
+      "uri": "arifos://caller/state",
+      "name": "Caller State",
+      "description": "Current session identity, authority level, and available next actions.",
+      "mimeType": "application/json"
+    }
+  ],
+  "resourceTemplates": [
+    {
+      "uriTemplate": "arifos://sessions/{session_id}/vitals",
+      "name": "Session Vitals",
+      "description": "Dynamic vitals for a specific governed session.",
+      "mimeType": "application/json"
+    }
+  ],
+  "prompts": [
+    {
+      "name": "init_anchor",
+      "description": "Prompt for establishing a constitutional session.",
+      "arguments": []
     },
     {
-      "uri": "schema://tools/input",
-      "description": "Canonical JSON Schema input specs for public tools."
+      "name": "arifOS_kernel",
+      "description": "Prompt for the primary metabolic conductor.",
+      "arguments": []
     },
     {
-      "uri": "schema://tools/output",
-      "description": "Canonical RuntimeEnvelope output schema."
+      "name": "agi_mind",
+      "description": "Prompt for first-principles reasoning and reflection.",
+      "arguments": []
+    },
+    {
+      "name": "asi_heart",
+      "description": "Prompt for ethical simulation and adversarial critique.",
+      "arguments": []
+    },
+    {
+      "name": "apex_soul",
+      "description": "Prompt for sovereign judgment and safety auditing.",
+      "arguments": []
+    },
+    {
+      "name": "vault_ledger",
+      "description": "Prompt for immutable recording and verification.",
+      "arguments": []
+    },
+    {
+      "name": "physics_reality",
+      "description": "Prompt for grounding thoughts in the physical world.",
+      "arguments": []
+    },
+    {
+      "name": "code_engine",
+      "description": "Prompt for OS-level hygiene and computational execution.",
+      "arguments": []
     }
   ]
 }

@@ -348,6 +348,7 @@ async def metabolic_loop(
     declared_name: str | None = None,
     human_approval: bool = False,
     tool_name: str = "arifOS_kernel",
+    **kwargs,
 ) -> dict[str, Any]:
     """Run the Double Helix metabolic loop (Inner Ring + Outer Ring)."""
     start_time = time.perf_counter()
@@ -385,6 +386,7 @@ async def metabolic_loop(
                 "approval_scope": ["*"],
             },
             "latency_ms": round(elapsed * 1000, 2),
+            "dry_run": True,
             "meta": {
                 "schema_version": "1.0.0",
                 "timestamp": datetime.now(timezone.utc).isoformat(),

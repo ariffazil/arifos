@@ -14,6 +14,45 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Browserless Fetch**: Token is optional when unset; content requests now match Browserless payload validation.
 - **REST Tool Output**: Normalized datetime serialization for `/tools/*` responses.
 
+## [2026.03.20] - CONSOLIDATION
+
+### 🔧 11-Tool Mega-Surface Consolidation
+**BREAKING CHANGE**: The 42-tool surface has been consolidated into 11 constitutional mega-tools with mode-based dispatch.
+
+- **Governance Layer (4 tools)**
+  - `init_anchor` — Session establishment with modes: `init`, `revoke`, `refresh`
+  - `arifOS_kernel` — Metabolic orchestration with modes: `kernel`, `status`
+  - `apex_soul` — Constitutional judgment with modes: `judge`, `rules`, `validate`, `hold`, `armor`, `notify`
+  - `vault_ledger` — Immutable persistence with modes: `seal`, `verify`
+
+- **Intelligence Layer (3 tools)**
+  - `agi_mind` — First-principles reasoning with modes: `reason`, `reflect`, `forge`
+  - `asi_heart` — Safety & empathy with modes: `critique`, `simulate`
+  - `engineering_memory` — Technical execution with modes: `engineer`, `recall`, `write`, `generate`
+
+- **Machine Layer (4 tools)**
+  - `physics_reality` — World grounding with modes: `search`, `ingest`, `compass`, `atlas`
+  - `math_estimator` — Quantitative analysis with modes: `cost`, `health`, `vitals`
+  - `code_engine` — System introspection with modes: `fs`, `process`, `net`, `tail`, `replay`
+  - `architect_registry` — Resource discovery with modes: `register`, `list`, `read`
+
+**Impact**: 37 modes across 11 tools provide the same functional surface as 42 individual tools, with cleaner constitutional governance and reduced cognitive load for agent callers.
+
+### 🐛 Bug Fixes
+- **Circular Import Resolution**: Fixed infinite recursion in `arifosmcp/runtime/__init__.py` that blocked server startup
+  - Changed `from . import tools_internal` to `importlib.import_module()` pattern
+  - All 11 tools now load without ImportError
+
+### 📚 Documentation
+- **DEPLOY_CHECKLIST.md**: Comprehensive VPS deployment guide
+- **FINAL_SEAL.md**: Pre-deployment verification checklist
+- **AUDIT_REPORT_11_MEGA_TOOLS.md**: Architecture audit of tool consolidation
+
+### 🏛️ Architectural Improvements
+- **F1-F13 Coverage**: All 13 constitutional floors explicitly mapped to 11-tool surface
+- **Mode Dispatch**: Legacy tool functions accessible via `mode` parameter (no orphaned capabilities)
+- **Tool Registry**: Updated `public_registry.py` with 11-tool contracts and mode specifications
+
 ## [2026.03.19] - ANTI-CHAOS
 
 ### Added
@@ -74,7 +113,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Telegram bot config changed to pairing mode with user ID allowlist
 
 ### 📚 Documentation
-- **AGENTS.md v2**: Complete rewrite with 42-tool runtime documentation
+- **AGENTS.md v2**: Complete rewrite with 11-tool mega-surface documentation
   - Identity & Auth section with actor registry
   - F1-F13 floor enforcement details
   - Canonical tool contract examples

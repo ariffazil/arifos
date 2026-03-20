@@ -30,21 +30,35 @@ Historical docs referenced `arifOS.kernel` (dot notation). **Current canonical n
 
 ---
 
-## 42-Tool Runtime (Don't Hard-Code Count)
+## 11-Tool Canonical Surface (The M-11 Trinity)
 
-The server currently exposes **42 tools** grouped by function. Tool count is an implementation detail — it expands as the kernel evolves. Agents must not assert exact counts; assert **capability presence** instead.
+The arifOS surface is consolidated into 11 **Governed Mega-Tools**. Legacy subtools are now **internal modes** of these 11 conductors.
 
-| Group | Tools |
-|-------|-------|
-| **Constitutional** | `arifOS_kernel`, `metabolic_loop_router` (legacy alias), `audit_rules`, `apex_judge` |
-| **Anchor/Auth** | `init_anchor`, `init_anchor_state`, `revoke_anchor_state`, `get_caller_status` |
-| **Evidence** | `search_reality`, `ingest_evidence`, `reality_compass`, `reality_atlas` |
-| **Intelligence** | `agi_reason`, `agi_reflect`, `asi_critique`, `asi_simulate` |
-| **AgentZero** | `agentzero_engineer`, `agentzero_memory_query`, `agentzero_validate`, `agentzero_armor_scan`, `agentzero_hold_check` |
-| **VAULT** | `vault_seal`, `verify_vault_ledger` |
-| **System** | `check_vital`, `system_health`, `fs_inspect`, `process_list`, `net_status` |
-| **Resources** | `arifos_list_resources`, `arifos_read_resource`, `list_resources`, `read_resource` |
-| **Utils** | `forge`, `cost_estimator`, `log_tail`, `chroma_query`, `trace_replay` |
+### Governance Layer ⚖️
+
+| Tool | Stage | Modes | Purpose |
+|---|---|---|---|
+| `init_anchor` | 000_INIT | `init`, `revoke` | Session identity, auth continuity, and sovereign revoke. |
+| `arifOS_kernel` | 444_ROUTER | `kernel`, `status` | Primary orchestration path and metabolic conductor. |
+| `apex_soul` | 888_JUDGE | `judge`, `rules`, `validate`, `hold`, `armor` | Constitutional authority, verdicts, and injection defense. |
+| `vault_ledger` | 999_VAULT | `seal`, `verify` | Immutable decision recording and integrity verification. |
+
+### Intelligence Layer 🧠
+
+| Tool | Stage | Modes | Purpose |
+|---|---|---|---|
+| `agi_mind` | 333_MIND | `reason`, `reflect`, `forge` | Core reasoning, first-principles reflection, and commitment. |
+| `asi_heart` | 666_HEART | `critique`, `simulate` | Adversarial critique and ethical consequence simulation. |
+| `engineering_memory` | 555_MEMORY | `engineer`, `query`, `generate` | Technical recall and governed execution. |
+
+### Machine Layer ⚙️
+
+| Tool | Stage | Modes | Purpose |
+|---|---|---|---|
+| `physics_reality` | 111_SENSE | `search`, `ingest`, `compass`, `atlas` | External grounding and factual acquisition. |
+| `math_estimator` | 444_ROUTER | `cost`, `health`, `vitals` | Quantitative vitals and metabolic telemetry. |
+| `code_engine` | M-3_EXEC | `fs`, `process`, `net`, `tail`, `replay` | System-level hygiene and computational observation. |
+| `architect_registry` | M-4_ARCH | `register`, `list`, `read` | Tool discovery and resource registration. |
 
 **Sanity check:** Query `tools/list` via MCP. Expect diverse schema versions. Don't cache tool list across sessions.
 
@@ -217,7 +231,7 @@ Query `GET /health` for runtime capabilities:
 {
   "status": "healthy",
   "version": "2026.03.14-VALIDATED",
-  "tools_loaded": 42,
+  "tools_loaded": 40,
   "ml_floors": {
     "ml_floors_enabled": true,
     "ml_model_available": true,

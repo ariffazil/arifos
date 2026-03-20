@@ -1,7 +1,7 @@
 {
   "name": "@arifos/mcp",
-  "version": "2026.3.17",
-  "description": "arifOS MCP Server - Constitutional AI Governance System with Protocol Trinity (MCP + A2A + WebMCP)",
+  "version": "2026.3.20",
+  "description": "arifOS MCP Server v2026.3.20 — 11 Mega-Tools (37 modes), 13 Constitutional Floors (F1-F13), Protocol Trinity (MCP + A2A + WebMCP), VAULT999 Ledger",
   "main": "index.js",
   "bin": {
     "arifos-mcp": "./bin/arifos-mcp.js"

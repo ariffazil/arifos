@@ -1,7 +1,7 @@
 """
 arifosmcp/runtime/prompts.py — arifOS Sacred Prompts
 
-Constitutional prompts for the Double Helix tool surface (arifOS v36Ω).
+Constitutional prompts for the 11 Mega-Tool surface.
 Register via register_prompts(mcp).
 
 DITEMPA BUKAN DIBERI — Forged, Not Given
@@ -13,102 +13,69 @@ from fastmcp import FastMCP
 
 
 def register_prompts(mcp: FastMCP) -> None:
-    """Wire the 8 Sacred Prompts onto *mcp*."""
+    """Wire the 11 Mega-Tool Prompts onto *mcp*."""
 
     @mcp.prompt()
-    def init_anchor() -> str:
-        """Prompt for the init_anchor tool."""
+    def init_anchor(actor_id: str = "anonymous", intent: str = "") -> str:
+        """Prompt for the init_anchor mega-tool."""
         return (
-            "You are entering a constitutional arifOS session. Declare your identity and parse "
-            "the user's intent. You must apply F12 (Injection Defense) pre-scanning to the input. "
-            "Use this tool to establish the initial auth_context and session jurisdiction."
+            f"You are entering a constitutional arifOS session as {actor_id}. "
+            f"Intent: {intent}. Use init_anchor(mode='init') to establish your identity. "
+            "Always apply F12 (Injection Defense) scanning."
         )
 
     @mcp.prompt()
-    def agi_reason() -> str:
-        """Prompt for the agi_reason tool."""
+    def arifOS_kernel(query: str = "") -> str:
+        """Prompt for the arifOS_kernel mega-tool."""
         return (
-            "As the ARCHITECT, perform first-principles 3-path reasoning. Focus exclusively on "
-            "logical consistency and factual grounding. Do NOT worry about safety or ethics "
-            "yet—that's for the next stage. Your goal: reduce entropy through pure synthesis. "
-            "Adhere to F2 (Truth) and F4 (Clarity)."
+            f"Conductor request: {query}. Use arifOS_kernel(mode='kernel') "
+            "for full metabolic reasoning. Use mode='status' to check authority."
         )
 
     @mcp.prompt()
-    def agi_reflect() -> str:
-        """Prompt for the agi_reflect tool."""
+    def agi_mind(query: str, context: str = "") -> str:
+        """Prompt for the agi_mind mega-tool."""
         return (
-            "As the OBSERVER, retrieve memory from VAULT999. Do not reason; simply recall and "
-            "integrate existing context. Your role is context continuity. Mirror the past to "
-            "prevent the current mind from repetition or drift."
+            f"Architect task: {query}. Context: {context}. Perform first-principles reasoning. "
+            "Modes: 'reason', 'reflect', 'forge'. Focus on F2 (Truth) and F4 (Clarity)."
         )
 
     @mcp.prompt()
-    def asi_simulate() -> str:
-        """Prompt for the asi_simulate tool."""
+    def asi_heart(content: str) -> str:
+        """Prompt for the asi_heart mega-tool."""
         return (
-            "As the EMPATH, simulate the emotional and societal impact of the proposed logic.\n"
-            "Ignore the raw data; focus on the human ripples. Predict harm, bias, and side-effects. "
+            f"Empath evaluation: {content}. Simulate impact. Modes: 'critique', 'simulate'. "
             "Adhere to F5 (Peace²) and F6 (Empathy)."
         )
 
     @mcp.prompt()
-    def asi_critique() -> str:
-        """Prompt for the asi_critique tool."""
+    def apex_soul(candidate: str = "") -> str:
+        """Prompt for the apex_soul mega-tool."""
         return (
-            "As the ADVERSARY, you are hired to find the 'Dark Cleverness' in the output. Your\n"
-            "only job is to find what's wrong, what's hidden, and what's arrogant. Be\n"
-            "critical. Apply the F7 (Humility) gate and detect F9 (Shadow) slippage."
+            f"Judge verdict required for: {candidate}. Modes: 'judge', 'rules', 'validate'. "
+            "Final authority for SEAL/VOID decisions."
         )
 
     @mcp.prompt()
-    def forge() -> str:
-        """Prompt for the forge tool."""
+    def vault_ledger() -> str:
+        """Prompt for the vault_ledger mega-tool."""
         return (
-            "Synthesize the final solution based on the preceding reasoning and ethical stages. "
-            "Generate the required artifacts or material actions. Ensure the output is ready "
-            "for the F11 (Command Auth) execution gate."
+            "As the AUDITOR, commit truths to history. Modes: 'seal' to hash a decision "
+            "and 'verify' to scan the Merkle chain."
         )
 
     @mcp.prompt()
-    def apex_judge() -> str:
-        """Prompt for the apex_judge tool."""
+    def physics_reality(input: str = "") -> str:
+        """Prompt for the physics_reality mega-tool."""
         return (
-            "Issue a sovereign constitutional verdict on the final output candidate. Choose from: "
-            "SEAL (approve), VOID (reject), HOLD (escalate), PARTIAL (incomplete), or SABAR "
-            "(insufficient grounding). Apply Ψ (Vitality) scoring and enforce F13 (Sovereign)."
+            f"Grounding request: {input}. Modes: 'search', 'ingest', 'compass', 'atlas'. "
+            "Connect thought to the physical Earth-Witness."
         )
 
     @mcp.prompt()
-    def vault_seal() -> str:
-        """Prompt for the vault_seal tool."""
+    def code_engine(path: str = ".") -> str:
+        """Prompt for the code_engine mega-tool."""
         return (
-            "Commit the final decision, verdict, and session telemetry to the VAULT999 ledger. "
-            "Update the immutable Cooling Ledger and produce a cryptographically signed "
-            "Merkle hash-chain entry. Enforces F1 (Amanah)."
+            f"System hygiene at {path}. Modes: 'fs', 'process', 'net', 'tail', 'replay'. "
+            "Default to dry_run=True for safety."
         )
-
-    # Legacy prompt aliases for backward compatibility
-    @mcp.prompt()
-    def init_anchor_state_prompt() -> str:
-        """Legacy alias for init_anchor."""
-        return init_anchor()
-
-    @mcp.prompt()
-    def onboarding_compass(session_id: str | None = None) -> str:
-        """The Onboarding Compass: Guide for new tool callers."""
-        return (
-            "You are a new AI agent entering the arifOS constitutional environment. "
-            "To unlock full kernel capabilities, you must traverse the Double Helix bootstrap:\n"
-            "1. Call `check_vital` to assess capability.\n"
-            "2. Call `audit_rules` to view live constitutional floors.\n"
-            "3. Call `init_anchor_state` with your identity and intent. This is MANDATORY.\n"
-            "4. Use the returned `auth_context` for all future `arifOS_kernel` calls.\n"
-            "\n"
-            "Current goal: Establish identity and session continuity."
-        )
-
-    @mcp.prompt()
-    def open_apex_dashboard() -> str:
-        """Legacy prompt for dashboard access."""
-        return "Open the APEX Sovereign Dashboard for live governance metrics."

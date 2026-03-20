@@ -39,12 +39,10 @@ from arifosmcp.runtime.fastmcp_ext.transports import (
     run_server,
 )
 from arifosmcp.runtime.orchestrator import metabolic_loop
-from arifosmcp.runtime.phase2_tools import register_phase2_tools
 from arifosmcp.runtime.prompts import register_prompts
 from arifosmcp.runtime.public_registry import (
     is_public_profile,
     normalize_tool_profile,
-    release_version_label,
 )
 from arifosmcp.runtime.resources import register_resources
 from arifosmcp.runtime.rest_routes import register_rest_routes
@@ -56,33 +54,13 @@ try:
     _PREFAB_APPS_AVAILABLE = True
 except ImportError:
     _PREFAB_APPS_AVAILABLE = False
+
 from arifosmcp.runtime.tools import (
-    agi_reason,
-    agi_reflect,
-    asi_critique,
-    asi_simulate,
-    apex_judge,
-    audit_rules,
-    agentzero_armor_scan,
-    agentzero_engineer,
-    agentzero_hold_check,
-    agentzero_memory_query,
-    agentzero_validate,
-    check_vital,
-    forge,
-    ingest_evidence,
-    init_anchor,
-    arifos_kernel,
-    open_apex_dashboard,
-    reality_atlas,
-    reality_compass,
     register_tools,
-    revoke_anchor_state,
-    search_reality,
-    vault_seal,
-    verify_vault_ledger,
+    ALL_TOOL_IMPLEMENTATIONS,
 )
-from arifosmcp.intelligence import console_tools as aclip_tools
+from arifosmcp.runtime.contracts import verify_contract
+from arifosmcp.runtime.public_registry import verify_no_drift
 from core.shared.manifest_loader import sync_runtime_floors
 
 # ---------------------------------------------------------------------------
@@ -91,32 +69,50 @@ from core.shared.manifest_loader import sync_runtime_floors
 
 CONSTITUTIONAL_INSTRUCTIONS = """
 You are interacting with arifOS, a Constitutional AGI Governance System.
-All actions must pass the 13 Constitutional Floors:
-F1 Amanah, F2 Truth, F3 Tri-Witness, F4 ΔS Clarity, F5 Peace², F6 kr Empathy, 
-F7 Omega Humility, F8 G Genius, F9 C_dark, F10 Ontology, F11 Command Auth, 
-F12 Injection, F13 Sovereign.
+All actions must pass the 13 Constitutional Floors (F1-F13).
 
-The architecture is a Double Helix:
-- Inner Ring: 8 Sacred Constitutional Organs (init_anchor, agi_reason, etc.)
-- Outer Ring: 7 Peripheral Nervous System (PNS) Organs (shield, search, etc.)
+The architecture is consolidated into 11 Final Mega-Tools across three layers:
+- ⚖️ GOVERNANCE: init_anchor, arifOS_kernel, apex_soul, vault_ledger
+- 🧠 INTELLIGENCE: agi_mind, asi_heart, engineering_memory
+- ⚙️ MACHINE: physics_reality, math_estimator, code_engine, architect_registry
 
-Strictly follow the Sacred Chain loop: INIT -> REASON -> REFLECT -> SIMULATE -> CRITIQUE -> FORGE -> JUDGE -> SEAL.
+Always use the appropriate 'mode' for each mega-tool to access underlying functions.
 """
 
 
 @asynccontextmanager
 async def arifos_lifespan(server: FastMCP):
     """Lifecycle management for the arifOS Double Helix organs."""
-    # INIT Stage: Ignition — sync Mind to Body
+    # INIT Stage: Ignition — verify contract, sync Mind to Body
+
+    # CRITICAL: Verify 11-tool contract on startup
+    drift_check = verify_no_drift()
+    if not drift_check["ok"]:
+        raise RuntimeError(
+            f"arifOS FATAL: Tool registry drift detected!\n"
+            f"Expected {drift_check['expected_count']} tools, got {drift_check['actual_count']}\n"
+            f"Missing: {drift_check.get('missing', [])}\n"
+            f"Extra: {drift_check.get('extra', [])}"
+        )
+
+    contract_check = verify_contract()
+    if not contract_check["ok"]:
+        raise RuntimeError(
+            f"arifOS FATAL: Contract verification failed!\nChecks: {contract_check['checks']}"
+        )
+
     sync_runtime_floors()
     yield
 
 
 mcp = FastMCP(
     "arifOS-APEX-G",
-    version="2026.03.14-VALIDATED",
+    version="2026.03.20-CONSOLIDATION",
     instructions=CONSTITUTIONAL_INSTRUCTIONS,
+    website_url="https://arifosmcp.arif-fazil.com",
     lifespan=arifos_lifespan,
+    strict_input_validation=True,
+    list_page_size=20,
 )
 PUBLIC_TOOL_PROFILE = normalize_tool_profile(os.getenv("ARIFOS_PUBLIC_TOOL_PROFILE", "public"))
 # SSE removed: deprecated by MCP spec (2025-03) and Copilot Studio (2025-08)
@@ -183,57 +179,7 @@ mcp.add_transform(ResourcesAsTools(mcp))
 # Sync Mind to Body (Dynamic Connection)
 sync_runtime_floors()
 
-CORE_TOOL_REGISTRY = {
-    # ── Orchestration entry point ────────────────────────────────────────────
-    "arifOS_kernel": arifos_kernel,
-    # ── 8 Sacred Constitutional Organs (Inner Ring) ──────────────────────────
-    "init_anchor": init_anchor,
-    "agi_reason": agi_reason,
-    "agi_reflect": agi_reflect,
-    "asi_simulate": asi_simulate,
-    "asi_critique": asi_critique,
-    "forge": forge,
-    "apex_judge": apex_judge,
-    "vault_seal": vault_seal,
-    # ── Reality / Evidence layer ─────────────────────────────────────────────
-    "search_reality": search_reality,
-    "ingest_evidence": ingest_evidence,
-    "reality_compass": reality_compass,
-    "reality_atlas": reality_atlas,
-    # ── Constitutional utilities ─────────────────────────────────────────────
-    "audit_rules": audit_rules,
-    "check_vital": check_vital,
-    "open_apex_dashboard": open_apex_dashboard,
-    "verify_vault_ledger": verify_vault_ledger,
-    # ── AgentZero Parliament Tools (Outer Ring) ──────────────────────────────
-    "agentzero_validate": agentzero_validate,
-    "agentzero_engineer": agentzero_engineer,
-    "agentzero_hold_check": agentzero_hold_check,
-    "agentzero_memory_query": agentzero_memory_query,
-    "agentzero_armor_scan": agentzero_armor_scan,
-    # ── Session lifecycle ────────────────────────────────────────────────────
-    "revoke_anchor_state": revoke_anchor_state,
-    # ── ACLIP Nervous System Tools (Operational) ───────────────────────────────
-    "system_health": aclip_tools.system_health,
-    "process_list": aclip_tools.process_list,
-    "fs_inspect": aclip_tools.fs_inspect,
-    "log_tail": aclip_tools.log_tail,
-    "net_status": aclip_tools.net_status,
-    "chroma_query": aclip_tools.chroma_query,
-    "arifos_list_resources": aclip_tools.arifos_list_resources,
-    "arifos_read_resource": aclip_tools.arifos_read_resource,
-    "cost_estimator": aclip_tools.cost_estimator,
-}
-
-register_rest_routes(mcp, CORE_TOOL_REGISTRY)
-
-
-# ---------------------------------------------------------------------------
-# Phase 2 — External Capability Tools (legacy-enabled, not in new loop)
-# ---------------------------------------------------------------------------
-
-if not is_public_profile(PUBLIC_TOOL_PROFILE):
-    register_phase2_tools(mcp, profile=PUBLIC_TOOL_PROFILE)
+register_rest_routes(mcp, ALL_TOOL_IMPLEMENTATIONS)
 
 
 # ---------------------------------------------------------------------------
@@ -300,7 +246,7 @@ async def well_known_agent(request):
             "name": "arifOS Constitutional Kernel",
             "description": "AI governance system with 13 constitutional floors (F1-F13)",
             "url": "https://arifosmcp.arif-fazil.com",
-            "version": "2026.03.19-ANTICHAOS",
+            "version": "2026.03.20-CONSOLIDATION",
             "authentication": {"schemes": ["none", "api_key"]},
             "capabilities": {
                 "streaming": True,
@@ -342,7 +288,7 @@ async def get_health_reentry(request):
             "service": "arifos-aaa-mcp",
             "version": BUILD_INFO["version"],
             "transport": "streamable-http",
-            "tools_loaded": len(CORE_TOOL_REGISTRY),
+            "tools_loaded": len(ALL_TOOL_IMPLEMENTATIONS),
             "ml_floors": get_ml_floor_runtime(),
             "capability_map": build_runtime_capability_map(),
             "timestamp": datetime.now(timezone.utc).isoformat(),
@@ -428,7 +374,7 @@ try:
     _webmcp_config = WebMCPConfig(
         site_name="arifOS Constitutional AI",
         site_url="https://arifosmcp.arif-fazil.com",
-        version="2026.03.19-ANTICHAOS",
+        version="2026.03.20-CONSOLIDATION",
         enable_declarative=True,
         enable_imperative=True,
         require_human_confirmation=True,  # F13 Sovereign
@@ -466,24 +412,28 @@ def create_aaa_mcp_server() -> FastMCP:
 
 __all__ = [
     "app",
-    "arifos_kernel",
-    "audit_rules",
-    "check_vital",
-    "create_aaa_mcp_server",
-    "ingest_evidence",
     "mcp",
-    "open_apex_dashboard",
+    "create_aaa_mcp_server",
     "PUBLIC_TOOL_PROFILE",
     "register_tools",
-    "search_reality",
-    # FastMCP Apps
-    "apex_score_app",
-    "stage_pipeline_app",
+    # 11 MEGA-TOOLS
+    "init_anchor",
+    "arifOS_kernel",
+    "apex_soul",
+    "vault_ledger",
+    "agi_mind",
+    "asi_heart",
+    "engineering_memory",
+    "physics_reality",
+    "math_estimator",
+    "code_engine",
+    "architect_registry",
 ]
 
 
 if __name__ == "__main__":
-    mode = _validate_transport_mode(os.getenv("AAA_MCP_TRANSPORT", "stdio"))
+    t_mode = os.getenv("AAA_MCP_TRANSPORT", "stdio").strip().lower()
+    mode = _validate_transport_mode(t_mode)
     host = os.getenv("HOST", "0.0.0.0")
     port = _parse_port(os.getenv("PORT", "8080"))
     run_server(mcp, mode=mode, host=host, port=port)

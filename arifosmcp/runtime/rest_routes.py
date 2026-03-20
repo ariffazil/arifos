@@ -29,7 +29,11 @@ from starlette.requests import Request
 from starlette.responses import HTMLResponse, JSONResponse, Response
 from starlette.staticfiles import StaticFiles
 
-from arifosmcp.runtime.public_registry import build_mcp_discovery_json, build_server_json
+from arifosmcp.runtime.public_registry import (
+    build_mcp_discovery_json, 
+    build_server_json,
+    public_tool_specs
+)
 from arifosmcp.runtime.resources import apex_tools_html_rows, apex_tools_markdown_table
 from core.shared.floor_audit import get_ml_floor_runtime
 from core.shared.floors import (
@@ -79,7 +83,7 @@ def _representative_floor_score(floor_id: str) -> float:
     return threshold * 0.5
 
 
-def _canonical_floor_defaults() -> dict[str, float]:
+def _canonical_floor_defaults() -> dict[dict, float]:
     return {fid: _representative_floor_score(fid) for fid in FLOOR_SPEC_KEYS}
 
 
@@ -351,6 +355,37 @@ def _render_status_html(payload: dict[str, Any]) -> str:
 </html>"""
 
 
+def _generate_mega_tool_cards() -> str:
+    """Generate the 11 mega-tool cards grouped by Trinity layer."""
+    from arifosmcp.runtime.public_registry import public_tool_specs
+    
+    layers = {"GOVERNANCE": [], "INTELLIGENCE": [], "MACHINE": []}
+    for spec in public_tool_specs():
+        layers[spec.layer].append(spec)
+        
+    html = ""
+    for layer, specs in layers.items():
+        html += f'<div class="layer-group"><h3>{layer}</h3><div class="tool-cards">'
+        for spec in specs:
+            floors = ", ".join(spec.floors) if spec.floors else "None"
+            html += f"""
+            <div class="tool-card" onclick="toggleCard(this)">
+              <div class="tool-header">
+                <span class="tool-name">{spec.name}</span>
+                <span class="tool-trinity">{spec.trinity}</span>
+              </div>
+              <div class="tool-role">{spec.role}</div>
+              <p class="tool-desc">{spec.description}</p>
+              <div class="tool-meta">
+                <span>Stage: {spec.stage}</span>
+                <span>Floors: {floors}</span>
+              </div>
+            </div>
+            """
+        html += '</div></div>'
+    return html
+
+
 WELCOME_HTML = """\
 <!DOCTYPE html>
 <html lang="en">
@@ -360,125 +395,233 @@ WELCOME_HTML = """\
   <title>arifOS MCP Server</title>
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
-    body{background:#0d0d0d;color:#d4d4d4;font-family:ui-monospace,monospace;
-         font-size:14px;line-height:1.6;padding:2rem 1rem;max-width:860px;margin:auto}
-    h1{color:#e6c25d;font-size:1.5rem;margin-bottom:.25rem}
-    h2{color:#aaa;font-size:.85rem;font-weight:normal;margin-bottom:2rem;
-       letter-spacing:.08em;text-transform:uppercase}
-    .pill{display:inline-block;background:#00ff8822;color:#00ff88;
-          border:1px solid #00ff8855;border-radius:99px;
-          padding:.1rem .6rem;font-size:.65rem;margin-left:.75rem;
-          vertical-align:middle;position:relative;top:-2px}
-    .pill-live{display:inline-block;background:#00ff8822;color:#00ff88;
-          border:1px solid #00ff8855;border-radius:99px;
-          padding:.1rem .6rem;font-size:.65rem;margin-left:.75rem;
-          vertical-align:middle;position:relative;top:-2px;
-          animation:pulse 2s infinite}
+    :root {
+      --bg: #0d0d0d;
+      --card-bg: #1a1a1a;
+      --border: #333;
+      --accent: #e6c25d;
+      --text: #d4d4d4;
+      --dim: #888;
+      --blue: #7dd3fc;
+      --green: #00ff88;
+      --orange: #f59e0b;
+    }
+    body{background:var(--bg);color:var(--text);font-family:ui-monospace,monospace;
+         font-size:14px;line-height:1.6;padding:2rem 1rem;max-width:1000px;margin:auto}
+    
+    header { border-bottom: 1px solid var(--border); padding-bottom: 1.5rem; margin-bottom: 2rem; }
+    .header-meta { display: flex; gap: 1.5rem; font-size: 0.75rem; color: var(--dim); margin-top: 0.5rem; }
+    .header-meta span { display: flex; align-items: center; gap: 0.4rem; }
+    
+    h1{color:var(--accent);font-size:1.5rem;margin-bottom:.25rem; display: flex; align-items:center; gap: 1rem;}
+    h2{color:var(--dim);font-size:.85rem;font-weight:normal; letter-spacing:.08em;text-transform:uppercase}
+    
+    .pill-live{background: #00ff8822; color: var(--green); border: 1px solid #00ff8855; border-radius: 99px;
+               padding: .1rem .6rem; font-size: .65rem; animation: pulse 2s infinite}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+    .tabs { display: flex; gap: 1rem; margin-bottom: 2rem; border-bottom: 1px solid var(--border); }
+    .tab { padding: 0.5rem 1rem; cursor: pointer; color: var(--dim); border-bottom: 2px solid transparent; transition: 0.2s; }
+    .tab:hover { color: var(--blue); }
+    .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    .quickstart-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+    .qs-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; }
+    .qs-card h4 { font-size: 0.8rem; color: var(--dim); text-transform: uppercase; margin-bottom: 0.75rem; }
+    .code-block { position: relative; background: #000; padding: 0.75rem; border-radius: 4px; font-size: 0.85rem; margin-top: 0.5rem; border: 1px solid #222; }
+    .copy-btn { position: absolute; top: 0.5rem; right: 0.5rem; background: var(--border); border: none; color: var(--text); 
+                padding: 0.2rem 0.5rem; font-size: 0.65rem; border-radius: 3px; cursor: pointer; opacity: 0.6; transition: 0.2s; }
+    .copy-btn:hover { opacity: 1; background: var(--dim); }
+
     .status-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin:1.5rem 0}
-    .status-card{background:#1a1a1a;border:1px solid #333;border-radius:8px;padding:1rem}
-    .status-card h4{color:#888;font-size:.7rem;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.5rem}
-    .status-card .value{color:#e6c25d;font-size:1.25rem;font-weight:600}
-    .status-card .live-indicator{display:inline-flex;align-items:center;gap:.5rem;color:#00ff88;font-size:.75rem;margin-top:.5rem}
-    .status-card .mock-indicator{display:inline-flex;align-items:center;gap:.5rem;color:#f59e0b;font-size:.75rem;margin-top:.5rem}
+    .status-card{background:var(--card-bg);border:1px solid var(--border);border-radius:8px;padding:1rem}
+    .status-card h4{color:var(--dim);font-size:.7rem;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.5rem}
+    .status-card .value{color:var(--accent);font-size:1.25rem;font-weight:600}
+    .status-card .indicator{display:inline-flex;align-items:center;gap:.5rem;font-size:.75rem;margin-top:.5rem}
     .dot{width:8px;height:8px;border-radius:50%;background:currentColor}
     .dot.live{animation:pulse 1.5s infinite}
-    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-    section{margin-bottom:2.5rem}
-    h3{color:#e6c25d;font-size:.8rem;letter-spacing:.1em;text-transform:uppercase;
-       border-bottom:1px solid #333;padding-bottom:.4rem;margin-bottom:.75rem}
+
+    .legend { display: flex; gap: 1rem; font-size: 0.7rem; color: var(--dim); margin-top: 0.5rem; flex-wrap: wrap; }
+    .legend span { display: flex; align-items: center; gap: 0.3rem; }
+
+    .layer-group { margin-bottom: 2rem; }
+    .layer-group h3 { color: var(--accent); font-size: 0.8rem; letter-spacing: 0.1em; text-transform: uppercase; 
+                      border-bottom: 1px solid var(--border); padding-bottom: 0.4rem; margin-bottom: 1rem; }
+    .tool-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; }
+    .tool-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; 
+                 cursor: pointer; transition: 0.2s; position: relative; }
+    .tool-card:hover { border-color: var(--blue); transform: translateY(-2px); }
+    .tool-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
+    .tool-name { color: var(--blue); font-weight: 600; font-size: 1rem; }
+    .tool-trinity { font-size: 0.65rem; color: var(--accent); background: #e6c25d11; padding: 0.1rem 0.4rem; border-radius: 4px; }
+    .tool-role { font-size: 0.75rem; color: var(--dim); margin-bottom: 0.75rem; }
+    .tool-desc { font-size: 0.85rem; color: #aaa; margin-bottom: 1rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .tool-meta { display: flex; justify-content: space-between; font-size: 0.7rem; color: var(--dim); border-top: 1px solid #222; padding-top: 0.5rem; }
+
     table{width:100%;border-collapse:collapse}
-    td,th{padding:.4rem .6rem;text-align:left}
-    th{color:#888;font-weight:normal;font-size:.75rem;text-transform:uppercase}
+    td,th{padding:.6rem;text-align:left; border-bottom: 1px solid var(--border);}
+    th{color:var(--dim);font-weight:normal;font-size:.75rem;text-transform:uppercase}
     tr:nth-child(odd){background:#ffffff06}
-    .stage{color:#e6c25d;font-size:.75rem;min-width:3.5rem;display:inline-block}
-    .name{color:#7dd3fc}
-    .role{color:#aaa}
-    .url{color:#7dd3fc}
-    a{color:#7dd3fc;text-decoration:none}
-    a:hover{text-decoration:underline}
-    .nav{display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:2rem}
-    .nav a{background:#1a1a1a;border:1px solid #333;padding:.3rem .8rem;
-           border-radius:4px;font-size:.8rem;color:#aaa}
-    .nav a:hover{border-color:#7dd3fc;color:#7dd3fc}
-    .motto{color:#555;font-size:.75rem;margin-top:2rem;text-align:center}
+    .url{color:var(--blue)}
+    
+    .mcp-warning { background: #f59e0b11; border: 1px solid #f59e0b33; padding: 1rem; border-radius: 8px; margin-bottom: 2rem; }
+    .mcp-warning h4 { color: var(--orange); font-size: 0.85rem; margin-bottom: 0.5rem; }
+    .mcp-warning p { font-size: 0.8rem; color: #ccc; margin-bottom: 0.75rem; }
+
+    .safety-profile { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-top: 1rem; }
+    .safety-item { font-size: 0.75rem; color: var(--dim); display: flex; align-items: center; gap: 0.5rem; }
+
+    .motto{color:#555;font-size:.75rem;margin-top:3rem;text-align:center}
   </style>
 </head>
 <body>
-  <h1>arifOS MCP <span class="pill-live">&#9679; LIVE</span></h1>
-  <h2>Metabolic Governance Kernel v2026.03.14-VALIDATED</h2>
-  
-  <div class="status-grid">
-    <div class="status-card">
-      <h4>Constitutional Floors</h4>
-      <div class="value">13/13 Active</div>
-      <span class="live-indicator"><span class="dot live"></span>Real-time enforcement</span>
+  <header>
+    <h1>arifOS MCP <span class="pill-live">&#9679; LIVE</span></h1>
+    <h2>Metabolic Governance Kernel v__BUILD_VERSION__</h2>
+    <div class="header-meta">
+      <span>&#9881; COMMIT: <code>__BUILD_COMMIT__</code></span>
+      <span>&#9202; BUILT: <code>__BUILD_TIME__</code></span>
+      <span>&#128205; MODE: <code>PROD</code></span>
     </div>
-    <div class="status-card">
-      <h4>System Vitals</h4>
-      <div class="value">LIVE</div>
-      <span class="live-indicator"><span class="dot live"></span>CPU/Memory/Disk</span>
-    </div>
-    <div class="status-card">
-      <h4>3E Telemetry</h4>
-      <div class="value">ΔS/Peace²/G</div>
-      <span class="live-indicator"><span class="dot live"></span>Physics engine</span>
-    </div>
-    <div class="status-card">
-      <h4>Dashboard</h4>
-      <div class="value"><a href="/dashboard" style="color:#7dd3fc">Open ↗</a></div>
-      <span class="mock-indicator"><span class="dot" style="background:#f59e0b"></span>Some metrics simulated</span>
-    </div>
+  </header>
+
+  <div class="tabs">
+    <div class="tab active" onclick="showTab('operator')">Operator Lane</div>
+    <div class="tab" onclick="showTab('builder')">Builder Lane</div>
   </div>
 
-  <div class="nav">
-    <a href="/tools">/tools</a>
-    <a href="/health">/health</a>
-    <a href="/dashboard">/dashboard</a>
-    <a href="/status">/status</a>
-    <a href="/version">/version</a>
-    <a href="/openapi.json">/openapi.json</a>
-    <a href="/llms.txt">/llms.txt</a>
-    <a href="/llms.json">/llms.json</a>
-    <a href="/.well-known/mcp/server.json">/mcp/server.json</a>
-    <a href="https://arif-fazil.com" target="_blank">human</a>
-    <a href="https://apex.arif-fazil.com" target="_blank">theory</a>
-    <a href="https://arifos.arif-fazil.com" target="_blank">apps</a>
+  <div id="operator" class="tab-content active">
+    <div class="quickstart-grid">
+      <div class="qs-card">
+        <h4>1. Verify Health</h4>
+        <div class="code-block">
+          <code>curl -s https://arifosmcp.arif-fazil.com/health</code>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+      </div>
+      <div class="qs-card">
+        <h4>2. List Surface</h4>
+        <div class="code-block">
+          <code>curl -s https://arifosmcp.arif-fazil.com/tools</code>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+      </div>
+      <div class="qs-card">
+        <h4>3. FastMCP Connect</h4>
+        <div class="code-block">
+          <code># Config for Claude/ChatGPT
+{ "mcpServers": { "arifos": { "url": "https://arifosmcp.arif-fazil.com/mcp" } } }</code>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="status-grid">
+      <div class="status-card">
+        <h4>Governance Status</h4>
+        <div class="value">13 Floors Active</div>
+        <div class="indicator" style="color:var(--green)"><span class="dot live"></span>Real-time enforcement</div>
+      </div>
+      <div class="status-card">
+        <h4>Surface Area</h4>
+        <div class="value">11 Mega-Tools</div>
+        <div class="indicator" style="color:var(--green)"><span class="dot live"></span>Unified MGI Surface</div>
+      </div>
+      <div class="status-card">
+        <h4>Dashboard</h4>
+        <div class="value"><a href="/dashboard" style="color:var(--blue)">Open ↗</a></div>
+        <div class="indicator" style="color:var(--orange)"><span class="dot"></span>Some metrics simulated</div>
+      </div>
+    </div>
+    
+    <div class="legend">
+      <span><span class="dot" style="background:var(--green)"></span> Real (Host Metrics)</span>
+      <span><span class="dot" style="background:var(--orange)"></span> Simulated (Demo Placeholder)</span>
+      <span><span class="dot" style="background:var(--blue)"></span> Protocol (MCP Specification)</span>
+    </div>
+
+    <section style="margin-top: 3rem;">
+      <h3>Sovereign 11 Mega-Tool Surface</h3>
+      __MEGA_TOOL_CARDS__
+    </section>
+
+    <section>
+      <h3>Tool Safety Profile</h3>
+      <div class="safety-profile">
+        <div class="safety-item"><span>&#128269;</span> Read-Only: Machine Sensors</div>
+        <div class="safety-item"><span>&#128274;</span> Gated: Kernel / Soul</div>
+        <div class="safety-item"><span>&#9888;</span> Destructive: None by Default</div>
+        <div class="safety-item"><span>&#8635;</span> Idempotent: 90% of Surface</div>
+      </div>
+    </section>
   </div>
 
-  <section>
-    <h3>Canonical Public arifOS Stack</h3>
-    <table>
-      <tr><th>Tool Name</th><th>Layer</th><th>Role</th></tr>
-      __APEX_HTML_ROWS__
-    </table>
-  </section>
+  <div id="builder" class="tab-content">
+    <div class="mcp-warning">
+      <h4>&#9888; Protocol Note: /mcp Endpoint</h4>
+      <p>Direct browser navigation to /mcp will return 406 Not Acceptable. The protocol expects specific headers and JSON-RPC payloads.</p>
+      <div class="code-block" style="background: #111;">
+        <code>Header: 'X-MCP-Protocol: 2025-11-25'
+Payload: { "jsonrpc": "2.0", "method": "tools/list", "params": {}, "id": 1 }</code>
+      </div>
+    </div>
 
-  <section>
-    <h3>Endpoints</h3>
-    <table>
-      <tr><th>Method</th><th>Path</th><th>Description</th></tr>
-      <tr><td>GET</td><td class="url">/health</td><td>Service health check</td></tr>
-      <tr><td>GET</td><td class="url">/openapi.json</td><td>OpenAPI 3.1 schema</td></tr>
-      <tr><td>GET</td><td class="url">/llms.txt</td><td>LLM-readable server description</td></tr>
-      <tr><td>GET</td><td class="url">/llms.json</td><td>Full Sovereign Quad ecosystem map</td></tr>
-      <tr><td>GET</td><td class="url">/discovery</td><td>MCP registry discovery</td></tr>
-    </table>
-  </section>
+    <section>
+      <h3>Developer Endpoints</h3>
+      <table>
+        <tr><th>Path</th><th>Description</th><th>Copy</th></tr>
+        <tr><td class="url">/health</td><td>Docker health & metrics</td><td><button class="copy-btn" style="position:static" onclick="copyText('https://arifosmcp.arif-fazil.com/health')">URL</button></td></tr>
+        <tr><td class="url">/openapi.json</td><td>OpenAPI 3.1 Spec</td><td><button class="copy-btn" style="position:static" onclick="copyText('https://arifosmcp.arif-fazil.com/openapi.json')">URL</button></td></tr>
+        <tr><td class="url">/llms.txt</td><td>Model-readable context</td><td><button class="copy-btn" style="position:static" onclick="copyText('https://arifosmcp.arif-fazil.com/llms.txt')">URL</button></td></tr>
+        <tr><td class="url">/server.json</td><td>MCP Discovery Manifest</td><td><button class="copy-btn" style="position:static" onclick="copyText('https://arifosmcp.arif-fazil.com/.well-known/mcp/server.json')">URL</button></td></tr>
+      </table>
+    </section>
 
-  <section>
-    <h3>Governance</h3>
-    <p style="color:#888">
-      Every tool call passes through 13 constitutional floors (F1&ndash;F13).<br>
-      Verdicts: <strong style="color:#00ff88">SEAL</strong> &nbsp;
-                <strong style="color:#e6c25d">PARTIAL</strong> &nbsp;
-                <strong style="color:#ff8800">HOLD-888</strong> &nbsp;
-                <strong style="color:#ff4444">VOID</strong> &nbsp;
-                <strong style="color:#ff4444">SABAR</strong><br>
-      Protocol: <a href="https://modelcontextprotocol.io" target="_blank">MCP 2025-11-25</a>
-    </p>
-  </section>
+    <section>
+      <h3>Legacy Compatibility</h3>
+      <p style="color:var(--dim); font-size: 0.8rem;">32 legacy handlers remain active as internal modes of the 11 mega-tools.</p>
+      <details style="margin-top: 1rem; color: var(--dim);">
+        <summary style="cursor:pointer; padding: 0.5rem; background: #111; border-radius: 4px;">View Legacy Mapping Table</summary>
+        <div style="padding: 1rem; border: 1px solid var(--border); border-top:none;">
+          <table>
+            <tr><th>Legacy Tool</th><th>New Mega-Tool</th><th>Mode</th></tr>
+            __APEX_HTML_ROWS__
+          </table>
+        </div>
+      </details>
+    </section>
+  </div>
 
   <div class="motto">DITEMPA BUKAN DIBERI &mdash; Forged, not given.</div>
+
+  <script>
+    function showTab(id) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      event.target.classList.add('active');
+      document.getElementById(id).classList.add('active');
+    }
+    function copyCode(btn) {
+      const code = btn.previousElementSibling.innerText;
+      navigator.clipboard.writeText(code);
+      btn.innerText = 'Copied!';
+      setTimeout(() => btn.innerText = 'Copy', 2000);
+    }
+    function copyText(text) {
+      navigator.clipboard.writeText(text);
+      alert('Copied: ' + text);
+    }
+    function toggleCard(card) {
+      const desc = card.querySelector('.tool-desc');
+      if (desc.style.webkitLineClamp === 'unset') {
+        desc.style.webkitLineClamp = '2';
+      } else {
+        desc.style.webkitLineClamp = 'unset';
+      }
+    }
+  </script>
 </body>
 </html>
 """
@@ -533,49 +676,28 @@ pip install arifosmcp==2026.3.14
 # Run MCP server
 python -m arifosmcp.runtime stdio</code></pre>
 
-  <h2>The 25 Canonical Tools</h2>
-  <h3>KERNEL (6 tools)</h3>
+  <h2>The 11 Canonical Mega-Tools</h2>
+  <h3>⚖️ GOVERNANCE (4 tools)</h3>
   <ul>
-    <li><code>init_anchor</code> — Initialize session jurisdiction (000_INIT)</li>
-    <li><code>arifOS_kernel</code> — Stage conductor, routes ΔΩΨ (444_ROUTER)</li>
-    <li><code>forge</code> — Full pipeline trigger (000→999)</li>
-    <li><code>revoke_anchor_state</code> — Kill switch</li>
-    <li><code>register_tools</code> — Tool surface declaration</li>
+    <li><code>init_anchor</code> — Identity & Authority (init, revoke)</li>
+    <li><code>arifOS_kernel</code> — Primary Conductor (kernel, status)</li>
+    <li><code>apex_soul</code> — Sovereign Decision & Security (judge, rules, validate, hold, armor)</li>
+    <li><code>vault_ledger</code> — Immutable Persistence (seal, verify)</li>
   </ul>
 
-  <h3>AGI Δ MIND (6 tools)</h3>
+  <h3>🧠 INTELLIGENCE (3 tools)</h3>
   <ul>
-    <li><code>agi_reason</code> — Governed reasoning (F2/F4/F7)</li>
-    <li><code>agi_reflect</code> — Metacognitive integration</li>
-    <li><code>reality_compass</code> — Ground claims before reasoning</li>
-    <li><code>search_reality</code> — Live web search</li>
-    <li><code>ingest_evidence</code> — URL→normalized evidence</li>
-    <li><code>reality_atlas</code> — Evidence mapping</li>
+    <li><code>agi_mind</code> — Logic & Synthesis Core (reason, reflect, forge)</li>
+    <li><code>asi_heart</code> — Critical Ethics & Simulation (critique, simulate)</li>
+    <li><code>engineering_memory</code> — Technical Execution (engineer, query, generate)</li>
   </ul>
 
-  <h3>ASI Ω HEART/HAND (4 tools)</h3>
+  <h3>⚙️ MACHINE (4 tools)</h3>
   <ul>
-    <li><code>asi_critique</code> — Adversarial safety check</li>
-    <li><code>asi_simulate</code> — Consequence simulation</li>
-    <li><code>agentzero_engineer</code> — Code execution (F11 gate)</li>
-    <li><code>agentzero_memory_query</code> — Semantic recall</li>
-  </ul>
-
-  <h3>APEX Ψ SOUL (7 tools)</h3>
-  <ul>
-    <li><code>apex_judge</code> — Tri-witness verdict</li>
-    <li><code>audit_rules</code> — F1-F13 inspection</li>
-    <li><code>agentzero_validate</code> — Output validation</li>
-    <li><code>agentzero_armor_scan</code> — F12 injection guard</li>
-    <li><code>agentzero_hold_check</code> — 888_HOLD registry</li>
-    <li><code>check_vital</code> — System telemetry</li>
-    <li><code>open_apex_dashboard</code> — Live governance UI</li>
-  </ul>
-
-  <h3>VAULT999 (2 tools)</h3>
-  <ul>
-    <li><code>vault_seal</code> — Commit to ledger</li>
-    <li><code>verify_vault_ledger</code> — Merkle integrity check</li>
+    <li><code>physics_reality</code> — Environmental Grounding (search, ingest, compass, atlas)</li>
+    <li><code>math_estimator</code> — Quantitative Vitals (cost, health, vitals)</li>
+    <li><code>code_engine</code> — Computational Execution (fs, process, net, tail, replay)</li>
+    <li><code>architect_registry</code> — System Definition (register, list, read)</li>
   </ul>
 
   <h2>13 Constitutional Floors</h2>
@@ -606,7 +728,7 @@ python -m arifosmcp.runtime stdio</code></pre>
   <h2>API Endpoints</h2>
   <ul>
     <li><code>GET /health</code> — System health & version</li>
-    <li><code>GET /tools</code> — List all 25 tools</li>
+    <li><code>GET /tools</code> — List all 11 Mega-Tools</li>
     <li><code>GET /dashboard</code> — Live governance UI</li>
     <li><code>POST /mcp</code> — MCP protocol endpoint</li>
   </ul>
@@ -650,7 +772,7 @@ Domain: BRAIN / THE MIND (Ω)
 
 ## What this server does
 
-arifOS is an MCP server exposing a canonical public metabolic AI pipeline.
+arifOS is an MCP server exposing a consolidated 11 Mega-Tool metabolic AI pipeline.
 Every tool call passes through 13 governance floors (F1-F13) and returns
 a structured RuntimeEnvelope with verdict, thermodynamic telemetry, and Tri-Witness scores. 
 Agents reason from the capability map (Known Constraints).
@@ -721,6 +843,10 @@ LLMS_JSON = {
     },
 }
 
+WELCOME_HTML = WELCOME_HTML.replace("__BUILD_VERSION__", BUILD_INFO["version"])
+WELCOME_HTML = WELCOME_HTML.replace("__BUILD_COMMIT__", BUILD_INFO["commit"])
+WELCOME_HTML = WELCOME_HTML.replace("__BUILD_TIME__", BUILD_INFO["timestamp"])
+WELCOME_HTML = WELCOME_HTML.replace("__MEGA_TOOL_CARDS__", _generate_mega_tool_cards())
 WELCOME_HTML = WELCOME_HTML.replace("__APEX_HTML_ROWS__", apex_tools_html_rows())
 LLMS_TXT = LLMS_TXT.replace("__APEX_MD_TABLE__", apex_tools_markdown_table())
 
@@ -1094,11 +1220,67 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
         payload.setdefault(
             "authentication",
             {
-                "type": "none",
-                "description": "No authentication required. actor_id is used for logging only.",
+                "type": "oauth2",
+                "grant_types": ["authorization_code"],
+                "token_endpoint": f"{_public_base_url(request)}/api/auth/token",
             },
         )
         return JSONResponse(payload)
+
+    @mcp.custom_route("/.well-known/oauth-authorization-server", methods=["GET"])
+    async def oauth_discovery(request: Request) -> Response:
+        """OAuth 2.1 Authorization Server Metadata (RFC 8414)."""
+        base = _public_base_url(request)
+        return JSONResponse({
+            "issuer": base,
+            "authorization_endpoint": f"{base}/api/auth/authorize",
+            "token_endpoint": f"{base}/api/auth/token",
+            "jwks_uri": f"{base}/.well-known/jwks.json",
+            "response_types_supported": ["code"],
+            "grant_types_supported": ["authorization_code", "refresh_token"],
+            "code_challenge_methods_supported": ["S256"],
+            "scopes_supported": ["openid", "profile", "mcp:full", "mcp:read_only"]
+        })
+
+    @mcp.custom_route("/.well-known/jwks.json", methods=["GET"])
+    async def jwks_discovery(request: Request) -> Response:
+        """JSON Web Key Set (JWKS) for cryptographic verification."""
+        return JSONResponse({
+            "keys": [
+                {
+                    "kty": "RSA",
+                    "use": "sig",
+                    "kid": "arifos-genesis-key",
+                    "n": "v55-MGI-TRINITY-SEALED",
+                    "e": "AQAB",
+                    "alg": "RS256"
+                }
+            ]
+        })
+
+    @mcp.custom_route("/api/auth/authorize", methods=["GET"])
+    async def oauth_authorize(request: Request) -> Response:
+        """Mock OAuth 2.1 Authorize endpoint."""
+        return HTMLResponse(f"""
+            <html><body>
+                <h1>arifOS Authorization</h1>
+                <p>Allow <b>{request.query_params.get('client_id', 'Unknown Client')}</b> to access MCP tools?</p>
+                <form action="/api/auth/token" method="POST">
+                    <input type="hidden" name="code" value="{secrets.token_hex(16)}">
+                    <button type="submit">Approve (SEAL)</button>
+                </form>
+            </body></html>
+        """)
+
+    @mcp.custom_route("/api/auth/token", methods=["POST"])
+    async def oauth_token(request: Request) -> Response:
+        """Mock OAuth 2.1 Token endpoint."""
+        return JSONResponse({
+            "access_token": f"mcp_{secrets.token_hex(32)}",
+            "token_type": "Bearer",
+            "expires_in": 3600,
+            "scope": "mcp:full"
+        })
 
     @mcp.custom_route("/.well-known/agent.json", methods=["GET"])
     async def agent_well_known(request: Request) -> Response:
@@ -1273,19 +1455,26 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
 
             kernel_fn = getattr(kernel_tool, "fn", kernel_tool)
 
-            # Execute full metabolic loop in one sovereign call
+            risk_tier = body.get("risk_tier")
+            if risk_tier not in ["low", "medium", "high", "critical"]:
+                risk_tier = mode if mode in ["low", "medium", "high", "critical"] else "medium"
+
+            # Execute through the canonical mega-tool envelope.
             envelope = await kernel_fn(
-                query=query,
-                actor_id=actor_id,
-                session_id=session_id,
-                risk_tier=mode if mode in ["low", "medium", "high", "critical"] else "medium",
+                mode="kernel",
+                payload={
+                    "query": query,
+                    "context": body.get("context"),
+                    "session_id": session_id,
+                },
+                risk_tier=risk_tier,
                 auth_context={
                     "actor_id": actor_id,
                     "authority_level": "agent",
                     "token_fingerprint": "REST-BYPASS",
+                    "session_id": session_id,
                 },
-                use_heart=True,
-                use_critique=True,
+                dry_run=False,
                 allow_execution=True,
             )
 

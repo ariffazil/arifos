@@ -19,8 +19,8 @@
 ---
 
 [![Status](https://img.shields.io/badge/Status-Alive%20(COHERENT)-00b894.svg?style=flat-square)](https://arifosmcp.arif-fazil.com/health)
-[![Release](https://img.shields.io/badge/Version-2026.03.19--ANTICHAOS-blue.svg?style=flat-square)](https://github.com/ariffazil/arifosmcp/releases)
-[![Tools](https://img.shields.io/badge/Canonical%20Tools-42-success.svg?style=flat-square)](https://arifosmcp.arif-fazil.com/tools)
+[![Release](https://img.shields.io/badge/Version-2026.03.20--CONSOLIDATION-blue.svg?style=flat-square)](https://github.com/ariffazil/arifosmcp/releases)
+[![Tools](https://img.shields.io/badge/Mega--Tools-11%20(37%20Modes)-success.svg?style=flat-square)](https://arifosmcp.arif-fazil.com/tools)
 [![Protocols](https://img.shields.io/badge/Protocols-MCP%2BA2A%2BWebMCP-orange.svg?style=flat-square)](./docs/protocols/PROTOCOLS_TRINITY.md)
 [![Validation](https://img.shields.io/badge/External%20Validation-HIGH-brightgreen.svg?style=flat-square)](./docs/reports/EXTERNAL_VALIDATION_REPORT.md)
 [![License](https://img.shields.io/badge/License-AGPL%203.0-lightgrey.svg?style=flat-square)](./LICENSE)
@@ -124,7 +124,7 @@ https://arifosmcp.arif-fazil.com/governance/evaluate      ← GaaS evaluation en
 │                      EXECUTION LAYER                                 │
 │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐                  │
 │  │ MCP Tools   │  │ A2A Tasks   │  │ WebMCP UI   │                  │
-│  │ 37 Tools    │  │ Real-time   │  │ Browser SDK │                  │
+│  │ 11 Tools    │  │ Real-time   │  │ Browser SDK │                  │
 │  └─────────────┘  └─────────────┘  └─────────────┘                  │
 └─────────────────────────────────────────────────────────────────────┘
 ```
@@ -239,55 +239,53 @@ arifOS implements a **hierarchical identity model** with cryptographic session b
 
 ---
 
-## 🧬 7. The 42-Tool Canonical Surface
+## 🧬 7. The 11-Tool Mega-Surface
 
-### 7.1 Public Constitutional Tools (28 tools)
+The constitutional kernel exposes **11 Mega-Tools** with **37 operation modes**, consolidating the previous 42-tool surface into a cleaner, mode-dispatch architecture. Each mega-tool owns a slice of the 000→999 pipeline, ensuring no capability is orphaned.
 
-#### KERNEL Layer (System Control)
-- `get_caller_status`: Single onboarding compass for session state.
-- `forge`: One-shot entry point to run the entire 000-999 pipeline.
-- `init_anchor`: Establish a governed session and mint `auth_context`.
-- `revoke_anchor_state`: Invalidate a session token (Kill Switch).
-- `metabolic_loop_router`: Orchestrate transitions between reasoning stages.
-- `register_tools`: Introspection tool to list available canonical tools.
-- `arifOS_kernel`: The core metabolic loop conductor.
+### 7.1 Governance Layer (4 Tools)
 
-#### AGI Δ MIND Layer (Reasoning & Grounding)
-- `agi_reason`: Perform structured first-principles reasoning.
-- `agi_reflect`: Metacognitive self-check of previous outputs.
-- `search_reality`: Live web search for real-world grounding.
-- `reality_compass`: Intake evidence and map to `EvidenceBundle`.
-- `reality_atlas`: Merge and query multiple evidence sources.
-- `ingest_evidence`: Fetch and normalize content from URLs.
+| Tool | Stage | Modes | Purpose | Floors |
+|------|-------|-------|---------|--------|
+| `init_anchor` | 000_INIT | `init`, `revoke`, `refresh` | Session identity & F11 auth | F1, F11, F12 |
+| `arifOS_kernel` | 444_ROUTER | `kernel`, `status` | Metabolic orchestration | F4, F8 |
+| `apex_soul` | 888_JUDGE | `judge`, `rules`, `validate`, `hold`, `armor`, `notify` | Constitutional judgment | F3, F9, F10, F12, F13 |
+| `vault_ledger` | 999_VAULT | `seal`, `verify` | Immutable persistence | F1, F3 |
 
-#### ASI Ω HEART Layer (Safety & Ethics)
-- `asi_critique`: Adversarial thought audit for ethical violations.
-- `asi_simulate`: Predictive simulation of downstream consequences.
-- `agentzero_engineer`: Sandboxed code execution.
-- `agentzero_memory_query`: Semantic recall of constitutional precedents.
+### 7.2 Intelligence Layer (3 Tools)
 
-#### APEX Ψ SOUL Layer (Judgment & Vitals)
-- `apex_judge`: Final Tri-Witness verdict engine (SEAL/VOID/HOLD).
-- `agentzero_validate`: Real-time validation of agent outputs.
-- `audit_rules`: Inspect live status of all 13 floors.
-- `agentzero_armor_scan`: Prefilter inputs for injection (F12).
-- `agentzero_hold_check`: Monitor human escalation queue.
-- `check_vital`: Real-time telemetry ($\Delta S$, Peace², G, $\Omega_0$).
-- `open_apex_dashboard`: Launch visual monitoring interface.
+| Tool | Stage | Modes | Purpose | Floors |
+|------|-------|-------|---------|--------|
+| `agi_mind` | 333_MIND | `reason`, `reflect`, `forge` | First-principles reasoning | F2, F4, F7, F8 |
+| `asi_heart` | 666_HEART | `critique`, `simulate` | Safety & empathy modeling | F5, F6, F9 |
+| `engineering_memory` | 555_MEMORY | `engineer`, `recall`, `write`, `generate` | Technical execution | F1, F11 |
 
-#### VAULT999 Layer (Persistence)
-- `vault_seal`: Commit verified verdict to immutable ledger.
-- `verify_vault_ledger`: Perform Merkle integrity check.
+### 7.3 Machine Layer (4 Tools)
 
-### 6.2 Nervous System 9: Machine Introspection (Exposed to MCP)
+| Tool | Stage | Modes | Purpose | Floors |
+|------|-------|-------|---------|--------|
+| `physics_reality` | 111_SENSE | `search`, `ingest`, `compass`, `atlas` | World grounding | F2, F3, F10 |
+| `math_estimator` | 444_ROUTER | `cost`, `health`, `vitals` | Quantitative analysis | F4, F7 |
+| `code_engine` | M-3_EXEC | `fs`, `process`, `net`, `tail`, `replay` | System introspection | F11, F12 |
+| `architect_registry` | M-4_ARCH | `register`, `list`, `read` | Resource discovery | — |
 
-The internal infrastructure layer now fully accessible via MCP for OpenClaw integration:
+### 7.4 Mode-Based Dispatch
 
-| Category | Tools | Purpose |
-|----------|-------|---------|
-| **System Sense** | `system_health`, `process_list`, `net_status` | Hardware telemetry & diagnostics |
-| **Memory & Archive** | `chroma_query`, `arifos_list_resources`, `arifos_read_resource` | Vector search & resource access |
-| **Diagnostics** | `log_tail`, `fs_inspect`, `cost_estimator` | Audit trails & thermodynamic costing |
+Legacy tool functions are accessed via the `mode` parameter:
+
+```python
+# Example: Using physics_reality modes
+await physics_reality(mode="search", payload={"input": "climate data"})
+await physics_reality(mode="ingest", payload={"input": "https://example.com"})
+await physics_reality(mode="compass", payload={"input": "evidence bundle"})
+
+# Example: Using apex_soul modes
+await apex_soul(mode="judge", payload={"candidate": "proposed action"})
+await apex_soul(mode="armor", payload={"candidate": "user input"})  # F12 injection check
+await apex_soul(mode="notify", payload={"message": "Escalation alert"})
+```
+
+**No capabilities lost**: All 42 legacy tools map to one of the 11 mega-tools via mode dispatch. See [AUDIT_REPORT_11_MEGA_TOOLS.md](./AUDIT_REPORT_11_MEGA_TOOLS.md) for complete mapping.
 
 ---
 
@@ -302,7 +300,7 @@ arifosmcp/
 │   │   ├── a2a/           # Agent-to-Agent protocol
 │   │   ├── webmcp/        # WebMCP gateway
 │   │   ├── server.py      # Main entrypoint
-│   │   └── tools.py       # 25 constitutional tools
+│   │   └── tools.py       # 11 mega-tools with mode dispatch
 │   └── intelligence/      # Sensory & machine tools
 │
 ├── core/                   # Constitutional kernel
@@ -521,7 +519,24 @@ Every SEALed verdict is stored in a hash-chained ledger:
 TECHNICAL SPECIFICATION APPENDIX 
 -->
 
-## 🛠️ APPENDIX A: Canonical Tool Reference
+## 🛠️ APPENDIX A: 11-Tool Mega-Surface Reference
+
+### Mode-Based Tool Architecture
+
+The constitutional kernel exposes **11 Mega-Tools** with **37 operation modes**. Legacy functions are accessed via the `mode` parameter.
+
+### Universal Tool Schema
+
+All tools accept this envelope:
+```json
+{
+  "mode": "<operation_mode>",
+  "payload": {"...mode_specific_params"},
+  "auth_context": {"...session_token"},
+  "risk_tier": "low|medium|high|critical",
+  "dry_run": true
+}
+```
 
 ### Anti-Chaos: Self-Explaining Interface
 
@@ -530,54 +545,91 @@ Every tool response includes caller state visibility and recovery guidance:
 ```json
 {
   "caller_state": "anonymous",
-  "allowed_next_tools": ["check_vital", "audit_rules", "get_caller_status"],
-  "blocked_tools": [{"tool": "arifOS_kernel", "reason": "Requires anchored session"}],
-  "next_action": {"tool": "init_anchor_state", "example_payload": {...}}
+  "allowed_next_tools": ["init_anchor", "audit_rules", "arifOS_kernel"],
+  "blocked_tools": [{"tool": "vault_ledger", "reason": "Requires sovereign scope"}],
+  "next_action": {"tool": "init_anchor", "mode": "init", "example_payload": {...}}
 }
 ```
 
-**Confused or blocked?** Call `get_caller_status` first — it returns your current state, accessible tools, and exact next step.
+**Confused or blocked?** Call `arifOS_kernel(mode="status")` — it returns your current state, accessible tools, and exact next step.
 
-### KERNEL Layer Details
+### Tool Reference by Layer
 
-#### `get_caller_status`
-- **Purpose:** Onboarding compass — single source of truth for session state
-- **Returns:** `caller_state`, `allowed_next_tools`, `blocked_tools`, `next_action`
-- **Auth:** None — call this when confused
+#### Governance Layer (F11/F12/F13)
 
-#### `init_anchor`
-- **Location:** `arifosmcp/runtime/tools.py`
-- **Parameters:**
-  - `actor_id` (str): (Required) The identity of the requester (e.g., "arif").
-  - `declared_name` (str): (Optional) Human-readable name.
-  - `intent` (str): (Optional) The initial user objective.
-- **Logic:** Enforces Floor 11. Checks cryptographic validity and mints session token.
+**`init_anchor`** — Session Identity
+- `mode: "init"` — Establish new session (requires: actor_id, intent)
+- `mode: "revoke"` — Kill switch for session termination
+- `mode: "refresh"` — Mid-session token rotation (F11 continuity)
+- **Floors:** F1 (reversibility), F11 (auth), F12 (injection check)
 
-#### `metabolic_loop_router`
-- **Location:** `arifosmcp/runtime/tools.py`
-- **Logic:** Routes intelligence state through Δ (AGI), Ω (ASI), and Ψ (APEX) layers.
+**`arifOS_kernel`** — Metabolic Orchestration  
+- `mode: "kernel"` — Execute 000→999 pipeline (requires: query)
+- `mode: "status"` — Get caller state and allowed actions
+- **Floors:** F4 (clarity), F8 (genius)
 
-### AGI Layer Details
+**`apex_soul`** — Constitutional Judgment
+- `mode: "judge"` — Final verdict (SEAL/VOID/HOLD)
+- `mode: "rules"` — Inspect all 13 floors
+- `mode: "validate"` — Validate candidate action
+- `mode: "hold"` — Check escalation queue
+- `mode: "armor"` — F12 injection scan
+- `mode: "notify"` — Push escalation alert
+- **Floors:** F3 (tri-witness), F9 (anti-hantu), F10 (ontology), F12, F13 (sovereign)
 
-#### `agi_reason`
-- **Location:** `arifosmcp/runtime/tools.py`
-- **Requirement:** Must output confidence score within F7 Humility Band.
+**`vault_ledger`** — Immutable Persistence
+- `mode: "seal"` — Commit verdict to VAULT999
+- `mode: "verify"` — Merkle integrity check
+- **Floors:** F1 (amanah), F3 (tri-witness)
 
-#### `reality_compass`
-- **Location:** `arifosmcp/runtime/tools.py`
-- **Purpose:** Epistemic grounding via PNS·SEARCH (F2 Truth).
+#### Intelligence Layer (F2/F4/F5/F6/F7/F8/F9)
 
-### ASI Layer Details
+**`agi_mind`** — First-Principles Reasoning
+- `mode: "reason"` — Structured hypothesis generation
+- `mode: "reflect"` — Metacognitive self-check
+- `mode: "forge"` — Commit solution under governance
+- **Floors:** F2 (truth ≥0.99), F4 (ΔS ≤0), F7 (humility), F8 (genius ≥0.80)
 
-#### `asi_critique`
-- **Location:** `arifosmcp/runtime/tools.py`
-- **Logic:** Adversarial audit scanning for hidden assumptions/bias (F6 Empathy).
+**`asi_heart`** — Safety & Empathy
+- `mode: "critique"` — Adversarial ethical audit
+- `mode: "simulate"` — Consequence prediction (F5 Peace²)
+- **Floors:** F5 (peace²), F6 (empathy κᵣ), F9 (anti-hantu)
 
-### APEX Layer Details
+**`engineering_memory`** — Technical Execution
+- `mode: "engineer"` — Sandboxed code execution
+- `mode: "recall"` — Semantic memory query
+- `mode: "write"` — Learned pattern storage
+- `mode: "generate"` — LLM generation via Ollama
+- **Floors:** F1 (amanah), F11 (command auth)
 
-#### `apex_judge`
-- **Location:** `arifosmcp/runtime/tools.py`
-- **Purpose:** Renders final verdict requiring Tri-Witness consensus $W_3 \ge 0.95$.
+#### Machine Layer (F2/F3/F7/F10/F11/F12)
+
+**`physics_reality`** — World Grounding
+- `mode: "search"` — Web search (F2 truth)
+- `mode: "ingest"` — URL content fetch
+- `mode: "compass"` — Evidence bundle mapping
+- `mode: "atlas"` — Multi-source merge
+- **Floors:** F2 (grounding), F3 (witness), F10 (ontology)
+
+**`math_estimator`** — Quantitative Analysis
+- `mode: "cost"` — Operation cost estimation
+- `mode: "health"` — System health telemetry
+- `mode: "vitals"` — Real-time metrics (ΔS, G, Ω₀)
+- **Floors:** F4 (clarity), F7 (uncertainty calibration)
+
+**`code_engine`** — System Introspection
+- `mode: "fs"` — Filesystem inspection
+- `mode: "process"` — Process listing
+- `mode: "net"` — Network status
+- `mode: "tail"` — Log tailing
+- `mode: "replay"` — Trace replay
+- **Floors:** F11 (read-only safe), F12 (injection defense)
+
+**`architect_registry`** — Resource Discovery
+- `mode: "register"` — Tool registration
+- `mode: "list"` — List available resources
+- `mode: "read"` — Read resource content
+- **Floors:** — (read-only discovery)
 
 ---
 

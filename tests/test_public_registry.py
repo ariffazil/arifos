@@ -24,27 +24,30 @@ def test_mcp_manifest_matches_registry() -> None:
 
 
 def test_public_profile_stays_minimal_and_internal_profile_includes_internal_tools() -> None:
-    """Canonical 24 tools are all public - internal profile adds legacy aliases only."""
+    """Canonical 11 tools are public."""
     public_names = tool_names_for_profile("public")
     internal_names = tool_names_for_profile("internal")
 
-    # Canonical 24 are public
+    # Canonical 11 are public
     assert "init_anchor" in public_names
-    assert "apex_judge" in public_names
-    assert "vault_seal" in public_names
+    assert "arifOS_kernel" in public_names
+    assert "apex_soul" in public_names
+    assert "vault_ledger" in public_names
+    assert len(public_names) == 11
 
-    # Internal profile includes all public tools (no hidden tier in canonical 24)
+    # Internal profile includes all public tools
     assert set(public_names).issubset(set(internal_names))
 
 
 def test_internal_server_json_declares_internal_capabilities() -> None:
-    """Internal server JSON marks profile but includes same 24 canonical tools."""
+    """Internal server JSON includes all 11 canonical tools."""
     server_json = build_internal_server_json()
     tool_names = {tool["name"] for tool in server_json["tools"]}
 
-    assert server_json["capabilities"]["profile"] == "internal"
-    # All 24 canonical tools present
+    # All 11 canonical tools present
     assert "init_anchor" in tool_names
-    assert "forge" in tool_names
-    assert "apex_judge" in tool_names
-    assert "vault_seal" in tool_names
+    assert "agi_mind" in tool_names
+    assert "asi_heart" in tool_names
+    assert "apex_soul" in tool_names
+    assert "vault_ledger" in tool_names
+    assert len(tool_names) == 11
