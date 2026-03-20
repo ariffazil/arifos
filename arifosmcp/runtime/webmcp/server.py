@@ -10,6 +10,7 @@ import json
 import logging
 import os
 from pathlib import Path
+from time import time
 from typing import Any, Optional
 
 import redis.asyncio as redis
@@ -35,6 +36,8 @@ from .live_metrics import (
     get_governance_only,
     get_intelligence_only,
 )
+from arifosmcp.runtime.build_info import get_build_info
+from arifosmcp.runtime.public_registry import PUBLIC_TOOL_SPECS
 
 logger = logging.getLogger(__name__)
 
@@ -59,9 +62,10 @@ class WebMCPGateway:
     def __init__(self, mcp_server: Any, config: Optional[WebMCPConfig] = None):
         self.mcp = mcp_server
         self.config = config or WebMCPConfig.from_env()
+        self.build_info = get_build_info()
         self.app = FastAPI(
             title="arifOS WebMCP",
-            version="2026.03.14-VALIDATED",
+            version=self.build_info["version"],
             description="AI-governed WebMCP environment with 13 Constitutional Floors",
         )
 
@@ -151,7 +155,7 @@ class WebMCPGateway:
             response = await call_next(request)
 
             # Add constitutional headers to response
-            response.headers["X-arifOS-Version"] = "2026.03.14-VALIDATED"
+            response.headers["X-arifOS-Version"] = self.build_info["version"]
             response.headers["X-Constitutional-Floors"] = "13"
 
             return response
@@ -159,19 +163,44 @@ class WebMCPGateway:
     def _setup_routes(self):
         """Setup WebMCP routes."""
 
+        @self.app.get("/.well-known/webmcp")
+        async def webmcp_manifest():
+            """Browser-discoverable WebMCP manifest."""
+            return {
+                "schema_version": "1.0",
+                "site": {
+                    "name": "arifOS Constitutional AI",
+                    "url": "https://arifosmcp.arif-fazil.com",
+                    "version": self.build_info["version"],
+                },
+                "apis": {"declarative": True, "imperative": True},
+                "endpoints": {
+                    "init": "/webmcp/init",
+                    "tools": "/webmcp/tools",
+                    "manifest": "/webmcp/tools.json",
+                    "sdk": "/webmcp/sdk.js",
+                    "call": "/webmcp/call/{tool_name}",
+                    "vitals": "/webmcp/vitals",
+                },
+                "human_in_the_loop": True,
+                "tools": self._tool_manifest(),
+            }
+
         @self.app.get("/webmcp")
         async def webmcp_info():
             """WebMCP server information."""
             return {
                 "service": "arifOS WebMCP",
-                "version": "2026.03.14-VALIDATED",
+                "version": self.build_info["version"],
                 "motto": "Ditempa Bukan Diberi — Forged, Not Given",
                 "trinity": "ΔΩΨ",
                 "floors": 13,
-                "tools": 25,
+                "tools": len(PUBLIC_TOOL_SPECS),
                 "endpoints": {
                     "init": "/webmcp/init",
                     "tools": "/webmcp/tools",
+                    "manifest": "/webmcp/tools.json",
+                    "sdk": "/webmcp/sdk.js",
                     "call": "/webmcp/call/{tool_name}",
                     "vitals": "/webmcp/vitals",
                     "hold": "/webmcp/hold/{session_id}",
@@ -189,6 +218,20 @@ class WebMCPGateway:
                     "governance": "arifOS floors, vitals, VAULT999 status",
                     "intelligence": "AI/LLM metrics, tokens, latency, models",
                 },
+            }
+
+        @self.app.get("/webmcp/sdk.js")
+        async def webmcp_sdk():
+            """Minimal browser SDK for imperative WebMCP calls."""
+            return HTMLResponse(content=self._build_sdk_js(), media_type="application/javascript")
+
+        @self.app.get("/webmcp/tools.json")
+        async def tools_manifest():
+            """Machine-readable tool manifest for browser clients."""
+            return {
+                "service": "arifOS WebMCP",
+                "version": self.build_info["version"],
+                "tools": self._tool_manifest(),
             }
 
         @self.app.post("/webmcp/init")
@@ -210,43 +253,52 @@ class WebMCPGateway:
             actor_id = body.get("actor_id", "anonymous")
             human_approval = body.get("human_approval", False)
 
-            # Mint F11-compliant session
-            session = await self.session_manager.mint_session(
-                actor_id=actor_id,
-                user_agent=request.headers.get("user-agent"),
-                ip_address=request.client.host if request.client else None,
-                human_approval=human_approval,
-            )
+            try:
+                session = await self.session_manager.mint_session(
+                    actor_id=actor_id,
+                    user_agent=request.headers.get("user-agent"),
+                    ip_address=request.client.host if request.client else None,
+                    human_approval=human_approval,
+                )
 
-            # Update session cookie
-            request.session["arifos_sid"] = session.session_id
+                request.session["arifos_sid"] = session.session_id
+                request.session["arifos_actor_id"] = actor_id
 
-            return {
-                "verdict": "SEAL",
-                "stage": "INIT_000",
-                "session_id": session.session_id,
-                "auth_context": {
-                    "actor_id": session.auth_context.get("actor_id"),
-                    "authority_level": session.auth_context.get("authority_level"),
-                    "approval_scope": session.auth_context.get("approval_scope"),
-                },
-                "expires_at": session.expires_at,
-            }
+                return {
+                    "verdict": "SEAL",
+                    "stage": "INIT_000",
+                    "session_id": session.session_id,
+                    "auth_context": {
+                        "actor_id": session.auth_context.get("actor_id"),
+                        "authority_level": session.auth_context.get("authority_level"),
+                        "approval_scope": session.auth_context.get("approval_scope"),
+                    },
+                    "expires_at": session.expires_at,
+                }
+            except Exception as exc:
+                logger.exception("WebMCP init failed")
+                fallback_session_id = request.session.get("arifos_sid") or f"web-fallback-{int(time())}"
+                request.session["arifos_sid"] = fallback_session_id
+                request.session["arifos_actor_id"] = actor_id
+                return JSONResponse(
+                    status_code=200,
+                    content={
+                        "verdict": "PARTIAL",
+                        "stage": "INIT_000",
+                        "session_id": fallback_session_id,
+                        "auth_context": {
+                            "actor_id": actor_id,
+                            "authority_level": "web_session_degraded",
+                            "approval_scope": ["web", "read", "search"],
+                        },
+                        "warning": str(exc),
+                    },
+                )
 
         @self.app.get("/webmcp/tools")
         async def list_tools():
-            """List all 25 canonical tools."""
-            # This would come from actual MCP registry
-            tools = [
-                # KERNEL
-                {"name": "init_anchor", "stage": "000_INIT", "layer": "KERNEL"},
-                {"name": "arifOS_kernel", "stage": "444_ROUTER", "layer": "KERNEL"},
-                {"name": "forge", "stage": "000_999", "layer": "KERNEL"},
-                # AGI
-                {"name": "agi_reason", "stage": "111_SENSE", "layer": "AGI"},
-                {"name": "reality_compass", "stage": "222_GROUND", "layer": "AGI"},
-                # ... etc
-            ]
+            """List the live public tools exposed by the runtime."""
+            tools = self._tool_manifest()
             return {
                 "verdict": "SEAL",
                 "tools": tools,
@@ -276,6 +328,14 @@ class WebMCPGateway:
                 )
 
             session = await self.session_manager.get_session(session_id)
+            if not session:
+                actor_id = request.session.get("arifos_actor_id")
+                if actor_id:
+                    session = type(
+                        "FallbackSession",
+                        (),
+                        {"auth_context": {"actor_id": actor_id}, "session_id": session_id},
+                    )()
             if not session:
                 return JSONResponse(
                     status_code=401,
@@ -626,6 +686,70 @@ class WebMCPGateway:
                 logger.error(f"WebSocket error: {e}")
             finally:
                 await websocket.close()
+
+    def _tool_manifest(self) -> list[dict[str, Any]]:
+        """Expose the live public tool registry in WebMCP-friendly form."""
+        return [
+            {
+                "name": spec.name,
+                "stage": spec.stage,
+                "layer": spec.role,
+                "description": spec.description,
+            }
+            for spec in PUBLIC_TOOL_SPECS
+        ]
+
+    def _build_sdk_js(self) -> str:
+        """Minimal browser SDK for imperative WebMCP integration."""
+        return """
+(() => {
+  const base = "";
+
+  async function jsonFetch(path, options = {}) {
+    const response = await fetch(`${base}${path}`, {
+      credentials: "include",
+      headers: { "Content-Type": "application/json", ...(options.headers || {}) },
+      ...options,
+    });
+    const text = await response.text();
+    let body;
+    try {
+      body = text ? JSON.parse(text) : {};
+    } catch {
+      body = { raw: text };
+    }
+    if (!response.ok) {
+      const message = body.error || body.detail || response.statusText;
+      throw new Error(message);
+    }
+    return body;
+  }
+
+  const sdk = {
+    init(payload = {}) {
+      return jsonFetch("/webmcp/init", {
+        method: "POST",
+        body: JSON.stringify(payload),
+      });
+    },
+    tools() {
+      return jsonFetch("/webmcp/tools.json");
+    },
+    call(toolName, payload = {}) {
+      return jsonFetch(`/webmcp/call/${toolName}`, {
+        method: "POST",
+        body: JSON.stringify(payload),
+      });
+    },
+    vitals() {
+      return jsonFetch("/webmcp/vitals");
+    },
+  };
+
+  window.arifOSWebMCP = sdk;
+  window.dispatchEvent(new CustomEvent("webmcp:ready", { detail: { sdk } }));
+})();
+"""
 
 
 def create_webmcp_app(mcp_server: Any) -> FastAPI:

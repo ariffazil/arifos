@@ -18,7 +18,11 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass
+from datetime import datetime
 from typing import Any, Callable
+
+from arifosmcp.runtime.public_registry import PUBLIC_TOOL_SPECS, ToolSpec
+from arifosmcp.runtime.webmcp.live_metrics import get_live_metrics
 
 from fastapi import FastAPI, Request, WebSocket
 from fastapi.responses import HTMLResponse, JSONResponse
@@ -56,11 +60,12 @@ class RealWebMCPGateway:
             description="Real WebMCP implementation - W3C Standard",
         )
         self.tools: dict[str, dict[str, Any]] = {}
+        self._register_tools()
         self._setup_routes()
         
     def _setup_routes(self):
         """Setup WebMCP routes."""
-        
+
         # WebMCP Manifest - tells browsers this site supports WebMCP
         @self.app.get("/.well-known/webmcp")
         async def webmcp_manifest():
@@ -110,34 +115,7 @@ class RealWebMCPGateway:
             Tool manifest for Declarative API
             Returns all available tools with schemas
             """
-            return {
-                "tools": [
-                    {
-                        "name": "init_anchor",
-                        "description": "Initialize constitutional session",
-                        "parameters": {
-                            "query": {"type": "string", "description": "Your query"},
-                            "actor_id": {"type": "string", "description": "Your identity"},
-                        },
-                        "returns": {"session_id": "string", "verdict": "string"},
-                    },
-                    {
-                        "name": "arifOS_kernel",
-                        "description": "Run full constitutional metabolic loop",
-                        "parameters": {
-                            "query": {"type": "string"},
-                            "session_id": {"type": "string"},
-                            "risk_tier": {"type": "string", "enum": ["low", "medium", "high"]},
-                        },
-                    },
-                    {
-                        "name": "audit_rules",
-                        "description": "Check all 13 constitutional floors",
-                        "parameters": {},
-                        "returns": {"floors": "object", "verdict": "string"},
-                    },
-                ]
-            }
+            return {"tools": list(self.tools.values())}
         
         # Execute tool via HTTP (fallback for non-WebMCP browsers)
         @self.app.post("/webmcp/execute/{tool_name}")
@@ -170,7 +148,8 @@ class RealWebMCPGateway:
         @self.app.get("/webmcp/dashboard")
         async def dashboard():
             """Live WebMCP dashboard with metrics."""
-            return HTMLResponse(content=self._render_dashboard())
+            metrics = await get_live_metrics()
+            return HTMLResponse(content=self._render_dashboard(metrics))
         
         # WebSocket for real-time tool execution
         @self.app.websocket("/webmcp/ws")
@@ -200,11 +179,29 @@ class RealWebMCPGateway:
                         })
                         
                 except Exception as e:
-                    await websocket.send_json({
-                        "type": "error",
-                        "error": str(e),
-                    })
-    
+                await websocket.send_json({
+                    "type": "error",
+                    "error": str(e),
+                })
+
+    def _register_tools(self) -> None:
+        for spec in PUBLIC_TOOL_SPECS:
+            self.tools[spec.name] = self._build_tool_entry(spec)
+
+    @staticmethod
+    def _build_tool_entry(spec: ToolSpec) -> dict[str, Any]:
+        return {
+            "name": spec.name,
+            "description": spec.description,
+            "role": spec.role,
+            "layer": spec.layer,
+            "stage": spec.stage,
+            "trinity": spec.trinity,
+            "floors": list(spec.floors),
+            "parameters": spec.input_schema,
+            "readonly": spec.readonly,
+        }
+
     def _render_console(self) -> str:
         """Render the WebMCP console HTML."""
         return f"""
@@ -579,52 +576,101 @@ function initDeclarativeTools() {
 }
         """
     
-    def _render_dashboard(self) -> str:
-        """Render live metrics dashboard."""
-        return """
-<!DOCTYPE html>
+    def _render_dashboard(self, metrics: dict[str, Any]) -> str:
+        """Render live metrics dashboard with the latest data."""
+        machine = metrics.get("machine", {})
+        governance = metrics.get("governance", {})
+        intelligence = metrics.get("intelligence", {})
+        verdict = metrics.get("verdict", "UNKNOWN")
+        timestamp = metrics.get("timestamp", 0)
+        ts_display = (
+            datetime.fromtimestamp(timestamp).strftime("%Y-%m-%d %H:%M:%S UTC")
+            if timestamp
+            else "N/A"
+        )
+        floors = governance.get("floors_passing", 0)
+        failing = governance.get("floors_failing", 0)
+        tokens_total = intelligence.get("tokens_total", 0)
+        model = intelligence.get("active_model", "unset")
+
+        return f\"\"\"<!DOCTYPE html>
 <html>
 <head>
     <title>arifOS WebMCP Dashboard</title>
-    <meta http-equiv="refresh" content="5">
+    <meta http-equiv="refresh" content="10">
     <style>
-        body { font-family: monospace; background: #1a1a2e; color: #fff; padding: 2rem; }
-        .metric { background: rgba(255,255,255,0.1); padding: 1rem; margin: 1rem 0; border-radius: 8px; }
-        .value { font-size: 2rem; color: #00d4ff; }
+        body {{ font-family: 'Fira Code', monospace; background: linear-gradient(120deg,#0b0f14,#1c1c3a); color: #f5f7ff; padding: 2rem; }}
+        .metric {{ background: rgba(255,255,255,0.05); padding: 1rem 1.2rem; margin: 1rem 0; border-radius: 10px; border: 1px solid rgba(255,255,255,0.08); }}
+        .value {{ font-size: 2rem; color: #00d4ff; }}
+        .label {{ text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.25em; color: #8aa0b6; }}
+        pre {{ background: rgba(0,0,0,0.4); border-radius: 8px; padding: 1rem; overflow-x: auto; border: 1px solid rgba(255,255,255,0.08); }}
+        .grid {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; }}
     </style>
 </head>
 <body>
     <h1>🔷 arifOS WebMCP Live Metrics</h1>
-    <p>Auto-refresh every 5 seconds</p>
-    
-    <div class="metric">
-        <div>Status</div>
-        <div class="value">🟢 ONLINE</div>
+    <p>Last refreshed: {ts_display}</p>
+    <div class="grid">
+        <div class="metric">
+            <div class="label">CPU</div>
+            <div class="value">{machine.get("cpu_percent", 0.0):.1f}%</div>
+            <div class="label">{machine.get("cpu_count", 0)} cores · {machine.get("cpu_freq_mhz", 0):.0f} MHz</div>
+        </div>
+        <div class="metric">
+            <div class="label">Memory</div>
+            <div class="value">{machine.get("ram_percent", 0.0):.1f}%</div>
+            <div class="label">{machine.get("ram_used_gb", 0):.1f}GB / {machine.get("ram_total_gb", 0):.1f}GB</div>
+        </div>
+        <div class="metric">
+            <div class="label">Disk</div>
+            <div class="value">{machine.get("disk_percent", 0.0):.1f}%</div>
+            <div class="label">Load avg: {', '.join(f\"{v:.2f}\" for v in machine.get('load_avg', [])[:3]) or 'n/a'}</div>
+        </div>
+        <div class="metric">
+            <div class="label">Governance Verdict</div>
+            <div class="value">{verdict}</div>
+            <div class="label">{floors} floors passing · {failing} failing</div>
+        </div>
+        <div class="metric">
+            <div class="label">Model Activity</div>
+            <div class="value">{tokens_total:,} tokens</div>
+            <div class="label">Active model: {model}</div>
+        </div>
+        <div class="metric">
+            <div class="label">System</div>
+            <div class="value">{governance.get('system_status', 'UNKNOWN')}</div>
+            <div class="label">G={governance.get('G_star', 0.0):.2f} · dS={governance.get('dS', 0.0):.2f}</div>
+        </div>
     </div>
-    
-    <div class="metric">
-        <div>Constitutional Floors</div>
-        <div class="value">13/13 ACTIVE</div>
-    </div>
-    
+    <pre>{json.dumps(metrics, indent=2)}</pre>
     <script>
-        // Real-time WebSocket updates would go here
+        // Auto-refresh handled by meta tag and WebSocket notifications
     </script>
 </body>
 </html>
-        """
+\"\"\"
     
-    async def _call_mcp_tool(self, tool_name: str, params: dict) -> dict:
+    async def _call_mcp_tool(self, tool_name: str, params: dict[str, Any]) -> dict[str, Any]:
         """Call the actual MCP tool through the kernel."""
-        # This would integrate with your actual MCP server
-        # For now, return mock response
-        return {
-            "verdict": "SEAL",
-            "tool": tool_name,
-            "params": params,
-            "timestamp": "2026-03-15T06:00:00Z",
-            "note": "Real MCP integration would call arifOS_kernel here"
-        }
+        if params is None:
+            params = {}
+
+        caller = getattr(self.mcp, "_call_tool", None) or getattr(self.mcp, "call_tool", None)
+        if not callable(caller):
+            raise RuntimeError("MCP server does not expose a callable tool interface")
+
+        result = await caller(tool_name, params)
+        return self._normalize_tool_result(result)
+
+    @staticmethod
+    def _normalize_tool_result(result: Any) -> dict[str, Any]:
+        if hasattr(result, "model_dump"):
+            return result.model_dump()
+        if hasattr(result, "dict"):
+            return result.dict()
+        if isinstance(result, dict):
+            return result
+        return {"result": result}
 
 
 # Factory function for easy integration

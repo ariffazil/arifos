@@ -94,6 +94,7 @@ class WebSessionManager:
                 f"{session_id}:{actor_id}:{now}".encode()
             ).hexdigest()[:16],
             approval_scope=["web", "read", "search"] if not human_approval else ["*"],
+            parent_signature="",
             authority_level="web_session",
         )
         

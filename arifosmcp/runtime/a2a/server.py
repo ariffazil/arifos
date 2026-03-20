@@ -17,6 +17,8 @@ from typing import Any
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse, StreamingResponse
 
+from arifosmcp.runtime.build_info import get_build_info
+
 from .models import (
     AgentCard,
     Artifact,
@@ -224,15 +226,27 @@ class A2ATaskManager:
                         content=message
                     ))
     
-    async def _call_mcp_tool(self, tool_name: str, params: dict) -> dict:
-        """Call MCP tool through the kernel."""
-        # This would integrate with your actual MCP server
-        # For now, return mock response
-        return {
-            "verdict": "SEAL",
-            "tool": tool_name,
-            "mock": True,
-        }
+    async def _call_mcp_tool(self, tool_name: str, params: dict[str, Any]) -> dict[str, Any]:
+        """Call the MCP tool through the internal FastMCP kernel."""
+        if params is None:
+            params = {}
+
+        call = getattr(self.mcp, "_call_tool", None) or getattr(self.mcp, "call_tool", None)
+        if not callable(call):
+            raise RuntimeError("MCP server does not expose a callable tool interface")
+
+        result = await call(tool_name, params)
+        return self._normalize_tool_result(result)
+
+    @staticmethod
+    def _normalize_tool_result(result: Any) -> dict[str, Any]:
+        if hasattr(result, "model_dump"):
+            return result.model_dump()
+        if hasattr(result, "dict"):
+            return result.dict()
+        if isinstance(result, dict):
+            return result
+        return {"result": result}
     
     async def _send_callback(self, task: Task):
         """Send status callback to client agent."""
@@ -267,10 +281,11 @@ class A2AServer:
     def __init__(self, mcp_server: Any):
         self.mcp = mcp_server
         self.task_manager = A2ATaskManager(mcp_server)
+        self.build_info = get_build_info()
         self.app = FastAPI(
             title="arifOS A2A Server",
             description="Agent-to-Agent protocol with constitutional governance",
-            version="2026.03.17-ANTICHAOS",
+            version=self.build_info["version"],
         )
         self._setup_routes()
     
@@ -289,7 +304,7 @@ class A2AServer:
             return card.model_dump()
         
         # Submit Task
-        @self.app.post("/a2a/task")
+        @self.app.post("/task")
         async def submit_task(request: SubmitTaskRequest):
             """
             Submit a new task to arifOS.
@@ -305,7 +320,7 @@ class A2AServer:
             }
         
         # Trinity Probe: Execute Task Synchronously
-        @self.app.post("/a2a/execute")
+        @self.app.post("/execute")
         async def execute_task(request: Request):
             """
             Synchronously execute a governed task (Phase 3: The Trinity Probe).
@@ -346,14 +361,14 @@ class A2AServer:
                 "session_id": session_id,
                 "payload": execution_result.get("payload", {}),
                 "meta": {
-                    "release": "v2026.03.17-ANTICHAOS",
+                    "release": f"v{self.build_info['version']}",
                     "protocol": "A2A/Trinity-Probe",
                     "governance": "F1-F13 LOCK",
                 }
             }
         
         # Get Task Status
-        @self.app.get("/a2a/status/{task_id}")
+        @self.app.get("/status/{task_id}")
         async def get_task(task_id: str):
             """Get current status of a task."""
             task = await self.task_manager.get_task(task_id)
@@ -362,14 +377,14 @@ class A2AServer:
             return GetTaskResponse(task=task).model_dump()
         
         # Cancel Task
-        @self.app.post("/a2a/cancel/{task_id}")
+        @self.app.post("/cancel/{task_id}")
         async def cancel_task(task_id: str):
             """Cancel a running or pending task."""
             result = await self.task_manager.cancel_task(task_id)
             return result.model_dump()
         
         # Subscribe to Task Updates (SSE)
-        @self.app.get("/a2a/subscribe/{task_id}")
+        @self.app.get("/subscribe/{task_id}")
         async def subscribe_task(task_id: str, request: Request):
             """
             Subscribe to real-time task updates via Server-Sent Events.
@@ -412,7 +427,7 @@ class A2AServer:
             )
         
         # List all tasks (debug/admin)
-        @self.app.get("/a2a/tasks")
+        @self.app.get("/tasks")
         async def list_tasks():
             """List all tasks (admin/debug endpoint)."""
             tasks = self.task_manager.get_all_tasks()
@@ -422,13 +437,13 @@ class A2AServer:
             }
         
         # Health check
-        @self.app.get("/a2a/health")
+        @self.app.get("/health")
         async def health():
             """A2A health check."""
             return {
                 "status": "healthy",
                 "protocol": "A2A",
-                "version": "2026.03.17-ANTICHAOS",
+                "version": self.build_info["version"],
                 "constitutional_floors": 13,
                 "motto": "Ditempa Bukan Diberi",
             }

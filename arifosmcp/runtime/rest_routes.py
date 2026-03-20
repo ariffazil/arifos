@@ -48,6 +48,7 @@ from .capability_map import build_runtime_capability_map
 from .contracts import AAA_TOOL_ALIASES, AAA_TOOL_STAGE_MAP, TRINITY_BY_TOOL
 
 BUILD_INFO = get_build_info()
+BUILD_VERSION = BUILD_INFO["version"]
 MCP_PROTOCOL_VERSION = "2025-11-25"
 MCP_SUPPORTED_PROTOCOL_VERSIONS = ["2025-11-25"]
 
@@ -261,16 +262,14 @@ def _render_status_html(payload: dict[str, Any]) -> str:
     vitals = payload["machine_vitals"]
     witness = payload["witness"]
 
-    floor_rows: list[str] = []
-    for floor_id in sorted(FLOOR_SPEC_KEYS.keys(), key=lambda item: int(item[1:])):
-        score = float(floors.get(floor_id, _FLOOR_DEFAULTS.get(floor_id, 0.0)))
-        passed = _floor_passes(floor_id, score)
-        status = "PASS" if passed else "FAIL"
-        row_class = "pass" if passed else "fail"
-        floor_rows.append(
-            '<tr class="%s"><td>%s</td><td>%0.3f</td><td>%s</td></tr>'
-            % (row_class, floor_id, score, status)
+    floor_html = "".join(
+        '<div class="floor {}"><strong>{}</strong><span>{:.3f}</span></div>'.format(
+            "pass" if _floor_passes(floor_id, float(floors.get(floor_id, _FLOOR_DEFAULTS.get(floor_id, 0.0)))) else "fail",
+            floor_id,
+            float(floors.get(floor_id, _FLOOR_DEFAULTS.get(floor_id, 0.0))),
         )
+        for floor_id in sorted(FLOOR_SPEC_KEYS.keys(), key=lambda item: int(item[1:]))
+    )
 
     load_avg = vitals.get("load_avg", [])
     load_text = ", ".join(f"{float(value):.2f}" for value in load_avg[:3]) if load_avg else "n/a"
@@ -279,76 +278,227 @@ def _render_status_html(payload: dict[str, Any]) -> str:
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>arifOS Status</title>
+  <title>arifOS Ops Truth Page</title>
   <style>
-    body {{ background:#0b0f14; color:#e6edf3; font-family: ui-monospace, monospace; margin:0; padding:24px; }}
-    h1,h2 {{ margin:0 0 12px; }}
-    .meta, .grid {{ display:grid; gap:12px; }}
-    .meta {{ grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); margin: 0 0 20px; }}
-    .card {{ background:#111821; border:1px solid #243041; border-radius:10px; padding:14px; }}
-    .label {{ color:#8aa0b6; font-size:12px; text-transform:uppercase; letter-spacing:.08em; }}
-    .value {{ font-size:20px; margin-top:6px; }}
-    table {{ width:100%; border-collapse: collapse; margin-top: 10px; }}
-    th, td {{ padding:8px 10px; border-bottom:1px solid #243041; text-align:left; }}
-    .pass {{ color:#7ee787; }}
-    .fail {{ color:#ff7b72; font-weight:bold; }}
-    code {{ color:#f2cc60; }}
+    :root {{
+      color-scheme: dark;
+      font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+    }}
+    body {{
+      margin: 0;
+      min-height: 100vh;
+      background: radial-gradient(circle at top, rgba(0,212,255,0.15), transparent 55%), #05070a;
+      color: #f5f7ff;
+      padding: 2rem;
+    }}
+    .panel {{
+      background: rgba(6,14,30,0.85);
+      border: 1px solid rgba(0,212,255,0.35);
+      border-radius: 18px;
+      padding: 1.5rem;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.55);
+      margin-bottom: 1.5rem;
+    }}
+    header {{
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 2rem;
+    }}
+    h1 {{
+      font-size: 2.4rem;
+      letter-spacing: 0.06em;
+    }}
+    .meta-grid {{
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 1rem;
+      width: 100%;
+    }}
+    .meta-item {{
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.08);
+      padding: 1rem;
+      background: rgba(255,255,255,0.02);
+    }}
+    .meta-item span {{
+      display: block;
+      font-size: 0.75rem;
+      letter-spacing: 0.1em;
+      color: #7fb8ff;
+      text-transform: uppercase;
+    }}
+    .meta-item strong {{
+      display: block;
+      margin-top: 0.4rem;
+      font-size: 1.3rem;
+    }}
+    .floor-mosaic {{
+      display: grid;
+      grid-template-columns: repeat(7, minmax(40px,1fr));
+      gap: 0.6rem;
+    }}
+    .floor {{
+      border-radius: 10px;
+      padding: 0.8rem;
+      text-align: center;
+      font-weight: 600;
+      border: 1px solid rgba(255,255,255,0.08);
+      transition: transform 0.3s ease, border 0.3s ease;
+    }}
+    .floor.pass {{
+      background: linear-gradient(150deg, rgba(45,255,182,0.15), rgba(0,212,255,0.3));
+      border-color: rgba(0,212,255,0.6);
+    }}
+    .floor.fail {{
+      background: linear-gradient(150deg, rgba(255,85,85,0.18), rgba(255,0,0,0.2));
+      border-color: rgba(255,85,85,0.7);
+    }}
+    .floor span {{
+      font-size: 0.65rem;
+      color: #b2b6c9;
+    }}
+    .grid {{
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.2rem;
+    }}
+    .vitals {{
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px,1fr));
+      gap: 0.8rem;
+      margin-top: 1rem;
+    }}
+    .bar {{
+      height: 8px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.12);
+      overflow: hidden;
+      margin-top: 0.4rem;
+    }}
+    .bar-fill {{
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(to right, #00d4ff, #20c997);
+    }}
+    table {{
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.95rem;
+    }}
+    th, td {{
+      padding: 0.4rem 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      text-align: left;
+    }}
+    th {{
+      color: #8aa6c4;
+      font-size: 0.75rem;
+      letter-spacing: 0.2em;
+    }}
+    tr.fail td {{
+      color: #ff7b72;
+    }}
+    tr.pass td {{
+      color: #9ef5d4;
+    }}
+    @media (max-width: 700px) {{
+      body {{
+        padding: 1rem;
+      }}
+      .floor-mosaic {{
+        grid-template-columns: repeat(4, minmax(40px,1fr));
+      }}
+    }}
   </style>
 </head>
 <body>
-  <h1>arifOS Ops Truth Page</h1>
-  <div class="meta">
-    <div class="card"><div class="label">Verdict</div><div class="value">{telemetry["verdict"]}</div></div>
-    <div class="card"><div class="label">Timestamp</div><div class="value"><code>{payload["timestamp"]}</code></div></div>
-    <div class="card"><div class="label">Session</div><div class="value"><code>{payload["session_id"]}</code></div></div>
-    <div class="card"><div class="label">Metabolic Stage</div><div class="value">{payload["metabolic_stage"]}</div></div>
-  </div>
+  <header>
+    <h1>arifOS Ops Truth</h1>
+    <div class="meta-grid">
+      <div class="meta-item">
+        <span>Verdict</span>
+        <strong>{telemetry["verdict"]}</strong>
+      </div>
+      <div class="meta-item">
+        <span>Timestamp</span>
+        <strong>{payload["timestamp"]}</strong>
+      </div>
+      <div class="meta-item">
+        <span>Session</span>
+        <strong>{payload["session_id"]}</strong>
+      </div>
+      <div class="meta-item">
+        <span>Stage</span>
+        <strong>{payload["metabolic_stage"]}</strong>
+      </div>
+    </div>
+  </header>
+
+  <section class="panel">
+    <div class="floor-mosaic">
+      {floor_html}
+    </div>
+    <p style="margin-top:1rem; color:#92a1b5;">Each floor is rendered as a status chip that pulses when passing and glows red when locked.</p>
+  </section>
 
   <div class="grid">
-    <div class="card">
-      <h2>Floors</h2>
-      <table>
-        <thead><tr><th>Floor</th><th>Score</th><th>Status</th></tr></thead>
-        <tbody>
-          {"".join(floor_rows)}
-        </tbody>
-      </table>
+    <div class="panel">
+      <h2>Telemetry Bars</h2>
+      <div class="vitals">
+        <div>
+          <strong>dS</strong>
+          <div class="bar"><div class="bar-fill" style="width:{min(max((float(telemetry.get("dS", -0.35)) + 1) * 50, 0), 100)}%;"></div></div>
+          <small>{float(telemetry.get("dS", 0.0)):.3f}</small>
+        </div>
+        <div>
+          <strong>Peace²</strong>
+          <div class="bar"><div class="bar-fill" style="width:{min(max(float(telemetry.get("peace2", 1.05)) / 2 * 100, 0), 100)}%;"></div></div>
+          <small>{float(telemetry.get("peace2", 0.0)):.3f}</small>
+        </div>
+        <div>
+          <strong>EchoDebt</strong>
+          <div class="bar"><div class="bar-fill" style="width:{min(max((1 - float(telemetry.get("echoDebt", 0.4))) * 100, 0), 100)}%;"></div></div>
+          <small>{float(telemetry.get("echoDebt", 0.0)):.3f}</small>
+        </div>
+        <div>
+          <strong>Omega</strong>
+          <div class="bar"><div class="bar-fill" style="width:{min(max(float(telemetry.get("omega", 0.04)) * 1000, 0), 100)}%;"></div></div>
+          <small>{float(telemetry.get("omega", 0.0)):.3f}</small>
+        </div>
+        <div>
+          <strong>Psi</strong>
+          <div class="bar"><div class="bar-fill" style="width:{min(max(float(telemetry.get("psi_le", 0.82)) * 100, 0), 100)}%;"></div></div>
+          <small>{float(telemetry.get("psi_le", 0.0)):.3f}</small>
+        </div>
+      </div>
     </div>
 
-    <div class="card">
-      <h2>Telemetry</h2>
-      <table>
-        <tbody>
-          <tr><td>dS</td><td>{float(telemetry.get("dS", 0.0)):.3f}</td></tr>
-          <tr><td>peace2</td><td>{float(telemetry.get("peace2", 0.0)):.3f}</td></tr>
-          <tr><td>echoDebt</td><td>{float(telemetry.get("echoDebt", 0.0)):.3f}</td></tr>
-          <tr><td>shadow</td><td>{float(telemetry.get("shadow", 0.0)):.3f}</td></tr>
-          <tr><td>psi_le</td><td>{float(telemetry.get("psi_le", 0.0)):.3f}</td></tr>
-        </tbody>
-      </table>
-    </div>
-
-    <div class="card">
+    <div class="panel">
       <h2>Machine Vitals</h2>
       <table>
         <tbody>
-          <tr><td>CPU</td><td>{float(vitals.get("cpu_percent", 0.0)):.1f}%</td></tr>
-          <tr><td>Memory</td><td>{float(vitals.get("memory_percent", 0.0)):.1f}%</td></tr>
-          <tr><td>Disk</td><td>{float(vitals.get("disk_percent", 0.0)):.1f}%</td></tr>
-          <tr><td>Load</td><td>{load_text}</td></tr>
+          <tr><th>CPU</th><td>{float(vitals.get("cpu_percent", 0.0)):.1f}% · {vitals.get("cpu_count", 0)} cores</td></tr>
+          <tr><th>Memory</th><td>{float(vitals.get("memory_percent", 0.0)):.1f}% · {vitals.get("ram_used_gb", 0):.1f}/{vitals.get("ram_total_gb", 0):.1f} GB</td></tr>
+          <tr><th>Disk</th><td>{float(vitals.get("disk_percent", 0.0)):.1f}%</td></tr>
+          <tr><th>Load</th><td>{load_text}</td></tr>
+          <tr><th>Net</th><td>Sent {vitals.get("net_io_sent_mb", 0):.1f}MB · Recv {vitals.get("net_io_recv_mb", 0):.1f}MB</td></tr>
         </tbody>
       </table>
     </div>
 
-    <div class="card">
-      <h2>Witness</h2>
+    <div class="panel">
+      <h2>Witness Triad</h2>
       <table>
         <tbody>
-          <tr><td>Human</td><td>{float(witness.get("human", 0.0)):.3f}</td></tr>
-          <tr><td>AI</td><td>{float(witness.get("ai", 0.0)):.3f}</td></tr>
-          <tr><td>Earth</td><td>{float(witness.get("earth", 0.0)):.3f}</td></tr>
+          <tr><th>Human</th><td>{float(witness.get("human", 0.0)):.3f}</td></tr>
+          <tr><th>AI</th><td>{float(witness.get("ai", 0.0)):.3f}</td></tr>
+          <tr><th>Earth</th><td>{float(witness.get("earth", 0.0)):.3f}</td></tr>
         </tbody>
       </table>
+      <p style="margin-top:1rem; font-size:0.85rem; color:#9fb7d6;">Governance consensus (Tri-Witness) remains visible throughout the loop.</p>
     </div>
   </div>
 </body>
@@ -358,11 +508,11 @@ def _render_status_html(payload: dict[str, Any]) -> str:
 def _generate_mega_tool_cards() -> str:
     """Generate the 11 mega-tool cards grouped by Trinity layer."""
     from arifosmcp.runtime.public_registry import public_tool_specs
-    
+
     layers = {"GOVERNANCE": [], "INTELLIGENCE": [], "MACHINE": []}
     for spec in public_tool_specs():
         layers[spec.layer].append(spec)
-        
+
     html = ""
     for layer, specs in layers.items():
         html += f'<div class="layer-group"><h3>{layer}</h3><div class="tool-cards">'
@@ -408,14 +558,14 @@ WELCOME_HTML = """\
     }
     body{background:var(--bg);color:var(--text);font-family:ui-monospace,monospace;
          font-size:14px;line-height:1.6;padding:2rem 1rem;max-width:1000px;margin:auto}
-    
+
     header { border-bottom: 1px solid var(--border); padding-bottom: 1.5rem; margin-bottom: 2rem; }
     .header-meta { display: flex; gap: 1.5rem; font-size: 0.75rem; color: var(--dim); margin-top: 0.5rem; }
     .header-meta span { display: flex; align-items: center; gap: 0.4rem; }
-    
+
     h1{color:var(--accent);font-size:1.5rem;margin-bottom:.25rem; display: flex; align-items:center; gap: 1rem;}
     h2{color:var(--dim);font-size:.85rem;font-weight:normal; letter-spacing:.08em;text-transform:uppercase}
-    
+
     .pill-live{background: #00ff8822; color: var(--green); border: 1px solid #00ff8855; border-radius: 99px;
                padding: .1rem .6rem; font-size: .65rem; animation: pulse 2s infinite}
     @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
@@ -431,7 +581,7 @@ WELCOME_HTML = """\
     .qs-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; }
     .qs-card h4 { font-size: 0.8rem; color: var(--dim); text-transform: uppercase; margin-bottom: 0.75rem; }
     .code-block { position: relative; background: #000; padding: 0.75rem; border-radius: 4px; font-size: 0.85rem; margin-top: 0.5rem; border: 1px solid #222; }
-    .copy-btn { position: absolute; top: 0.5rem; right: 0.5rem; background: var(--border); border: none; color: var(--text); 
+    .copy-btn { position: absolute; top: 0.5rem; right: 0.5rem; background: var(--border); border: none; color: var(--text);
                 padding: 0.2rem 0.5rem; font-size: 0.65rem; border-radius: 3px; cursor: pointer; opacity: 0.6; transition: 0.2s; }
     .copy-btn:hover { opacity: 1; background: var(--dim); }
 
@@ -447,10 +597,10 @@ WELCOME_HTML = """\
     .legend span { display: flex; align-items: center; gap: 0.3rem; }
 
     .layer-group { margin-bottom: 2rem; }
-    .layer-group h3 { color: var(--accent); font-size: 0.8rem; letter-spacing: 0.1em; text-transform: uppercase; 
+    .layer-group h3 { color: var(--accent); font-size: 0.8rem; letter-spacing: 0.1em; text-transform: uppercase;
                       border-bottom: 1px solid var(--border); padding-bottom: 0.4rem; margin-bottom: 1rem; }
     .tool-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; }
-    .tool-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; 
+    .tool-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 1rem;
                  cursor: pointer; transition: 0.2s; position: relative; }
     .tool-card:hover { border-color: var(--blue); transform: translateY(-2px); }
     .tool-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
@@ -465,7 +615,7 @@ WELCOME_HTML = """\
     th{color:var(--dim);font-weight:normal;font-size:.75rem;text-transform:uppercase}
     tr:nth-child(odd){background:#ffffff06}
     .url{color:var(--blue)}
-    
+
     .mcp-warning { background: #f59e0b11; border: 1px solid #f59e0b33; padding: 1rem; border-radius: 8px; margin-bottom: 2rem; }
     .mcp-warning h4 { color: var(--orange); font-size: 0.85rem; margin-bottom: 0.5rem; }
     .mcp-warning p { font-size: 0.8rem; color: #ccc; margin-bottom: 0.75rem; }
@@ -535,7 +685,7 @@ WELCOME_HTML = """\
         <div class="indicator" style="color:var(--orange)"><span class="dot"></span>Some metrics simulated</div>
       </div>
     </div>
-    
+
     <div class="legend">
       <span><span class="dot" style="background:var(--green)"></span> Real (Host Metrics)</span>
       <span><span class="dot" style="background:var(--orange)"></span> Simulated (Demo Placeholder)</span>
@@ -626,7 +776,7 @@ Payload: { "jsonrpc": "2.0", "method": "tools/list", "params": {}, "id": 1 }</co
 </html>
 """
 
-DOCS_HTML = """\
+DOCS_HTML = f"""\
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -634,33 +784,33 @@ DOCS_HTML = """\
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Documentation | arifOS MCP Server</title>
   <style>
-    *{box-sizing:border-box;margin:0;padding:0}
-    body{background:#0d0d0d;color:#d4d4d4;font-family:ui-monospace,monospace;
-         font-size:14px;line-height:1.6;padding:2rem 1rem;max-width:900px;margin:auto}
-    h1{color:#e6c25d;font-size:1.5rem;margin-bottom:.25rem}
-    h2{color:#e6c25d;font-size:1.1rem;margin:2rem 0 1rem;border-bottom:1px solid #333;padding-bottom:.5rem}
-    h3{color:#7dd3fc;font-size:1rem;margin:1.5rem 0 .5rem}
-    p{margin-bottom:1rem}
-    ul,ol{margin-left:2rem;margin-bottom:1rem}
-    li{margin-bottom:.5rem}
-    code{background:#1a1a1a;padding:.2rem .4rem;border-radius:4px;font-size:.9rem}
-    pre{background:#1a1a1a;padding:1rem;border-radius:8px;overflow-x:auto;margin:1rem 0;border:1px solid #333}
-    a{color:#7dd3fc;text-decoration:none}
-    a:hover{text-decoration:underline}
-    .nav{display:flex;gap:1rem;margin-bottom:2rem;flex-wrap:wrap}
-    .nav a{background:#1a1a1a;border:1px solid #333;padding:.3rem .8rem;border-radius:4px;font-size:.8rem;color:#aaa}
-    .nav a:hover{border-color:#7dd3fc;color:#7dd3fc}
-    .version{color:#888;font-size:.9rem;margin-bottom:2rem}
-    .note{background:#1a1a1a;border-left:3px solid #7dd3fc;padding:1rem;margin:1rem 0}
-    table{width:100%;border-collapse:collapse;margin:1rem 0}
-    th,td{padding:.5rem;text-align:left;border-bottom:1px solid #333}
-    th{color:#e6c25d;font-weight:normal}
-    footer{text-align:center;margin-top:3rem;padding-top:2rem;border-top:1px solid #333;color:#666;font-size:.85rem}
+    *{{box-sizing:border-box;margin:0;padding:0}}
+    body{{background:#0d0d0d;color:#d4d4d4;font-family:ui-monospace,monospace;
+         font-size:14px;line-height:1.6;padding:2rem 1rem;max-width:900px;margin:auto}}
+    h1{{color:#e6c25d;font-size:1.5rem;margin-bottom:.25rem}}
+    h2{{color:#e6c25d;font-size:1.1rem;margin:2rem 0 1rem;border-bottom:1px solid #333;padding-bottom:.5rem}}
+    h3{{color:#7dd3fc;font-size:1rem;margin:1.5rem 0 .5rem}}
+    p{{margin-bottom:1rem}}
+    ul,ol{{margin-left:2rem;margin-bottom:1rem}}
+    li{{margin-bottom:.5rem}}
+    code{{background:#1a1a1a;padding:.2rem .4rem;border-radius:4px;font-size:.9rem}}
+    pre{{background:#1a1a1a;padding:1rem;border-radius:8px;overflow-x:auto;margin:1rem 0;border:1px solid #333}}
+    a{{color:#7dd3fc;text-decoration:none}}
+    a:hover{{text-decoration:underline}}
+    .nav{{display:flex;gap:1rem;margin-bottom:2rem;flex-wrap:wrap}}
+    .nav a{{background:#1a1a1a;border:1px solid #333;padding:.3rem .8rem;border-radius:4px;font-size:.8rem;color:#aaa}}
+    .nav a:hover{{border-color:#7dd3fc;color:#7dd3fc}}
+    .version{{color:#888;font-size:.9rem;margin-bottom:2rem}}
+    .note{{background:#1a1a1a;border-left:3px solid #7dd3fc;padding:1rem;margin:1rem 0}}
+    table{{width:100%;border-collapse:collapse;margin:1rem 0}}
+    th,td{{padding:.5rem;text-align:left;border-bottom:1px solid #333}}
+    th{{color:#e6c25d;font-weight:normal}}
+    footer{{text-align:center;margin-top:3rem;padding-top:2rem;border-top:1px solid #333;color:#666;font-size:.85rem}}
   </style>
 </head>
 <body>
   <h1>📚 arifOS Documentation</h1>
-  <div class="version">Version 2026.03.14-VALIDATED</div>
+  <div class="version">Version {BUILD_VERSION}</div>
   
   <div class="nav">
     <a href="/">← Home</a>
@@ -671,7 +821,7 @@ DOCS_HTML = """\
 
   <h2>Quick Start</h2>
   <pre><code># Install
-pip install arifosmcp==2026.3.14
+pip install arifosmcp
 
 # Run MCP server
 python -m arifosmcp.runtime stdio</code></pre>
@@ -728,20 +878,20 @@ python -m arifosmcp.runtime stdio</code></pre>
   <h2>API Endpoints</h2>
   <ul>
     <li><code>GET /health</code> — System health & version</li>
-    <li><code>GET /tools</code> — List all 11 Mega-Tools</li>
+    <li><code>GET /tools</code> — List the live public tool surface</li>
     <li><code>GET /dashboard</code> — Live governance UI</li>
     <li><code>POST /mcp</code> — MCP protocol endpoint</li>
   </ul>
 
   <h2>MCP Client Setup</h2>
-  <pre><code>{
-  "mcpServers": {
-    "arifos": {
+  <pre><code>{{
+  "mcpServers": {{
+    "arifos": {{
       "command": "npx",
       "args": ["-y", "@arifos/mcp"]
-    }
-  }
-}</code></pre>
+    }}
+  }}
+}}</code></pre>
 
   <footer>
     <p>Ditempa Bukan Diberi — Forged, Not Given [ΔΩΨ | ARIF]</p>
@@ -761,10 +911,10 @@ Sitemap: https://arifosmcp.arif-fazil.com/llms.txt
 Sitemap: https://arifosmcp.arif-fazil.com/llms.json
 """
 
-LLMS_TXT = """\
+LLMS_TXT = f"""\
 # arifOS Brain (Runtime)
 Location: https://arifosmcp.arif-fazil.com/llms.txt
-Version: 2026.03.14-VALIDATED
+Version: {BUILD_VERSION}
 Domain: BRAIN / THE MIND (Ω)
 
 > arifOS Constitutional Kernel — a governed Model Context Protocol (MCP) server.
@@ -808,7 +958,7 @@ __APEX_MD_TABLE__
 LLMS_JSON = {
     "name": "arifOS Sovereign Quad",
     "description": "Unified Governance Kernel Map for Human, Theory, Law, and Brain domains.",
-    "version": "2026.03.14-VALIDATED",
+    "version": BUILD_VERSION,
     "authority": "Muhammad Arif bin Fazil (888 Judge)",
     "motto": "Ditempa Bukan Diberi (Forged, Not Given)",
     "domains": {
@@ -838,7 +988,7 @@ LLMS_JSON = {
         },
     },
     "status": {
-        "version": "2026.03.14-VALIDATED",
+        "version": BUILD_VERSION,
         "status": "FORGED",
     },
 }
@@ -1299,10 +1449,29 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
                 "tools": f"{base_url}/tools",
                 "openapi": f"{base_url}/openapi.json",
                 "server_json": f"{base_url}/.well-known/mcp/server.json",
+                "a2a_task": f"{base_url}/a2a/task",
+                "a2a_status": f"{base_url}/a2a/status/{{task_id}}",
+                "a2a_cancel": f"{base_url}/a2a/cancel/{{task_id}}",
+                "a2a_subscribe": f"{base_url}/a2a/subscribe/{{task_id}}",
+                "webmcp": f"{base_url}/webmcp",
+                "webmcp_manifest": f"{base_url}/.well-known/webmcp",
+                "webmcp_tools": f"{base_url}/webmcp/tools.json",
+                "webmcp_sdk": f"{base_url}/webmcp/sdk.js",
             },
             "auth": {"type": "none"},
         }
         return JSONResponse(payload)
+
+    @mcp.custom_route("/discovery", methods=["GET"])
+    async def discovery_alias(request: Request) -> Response:
+        payload = build_server_json(_public_base_url(request))
+        payload.setdefault("protocolVersion", MCP_PROTOCOL_VERSION)
+        payload.setdefault("supportedProtocolVersions", MCP_SUPPORTED_PROTOCOL_VERSIONS)
+        return JSONResponse(payload)
+
+    @mcp.custom_route("/ready", methods=["GET"])
+    async def readiness_alias(request: Request) -> Response:
+        return await health(request)
 
     @mcp.custom_route("/.well-known/mcp/internal-server.json", methods=["GET"])
     async def internal_well_known(request: Request) -> Response:

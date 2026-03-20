@@ -47,3 +47,64 @@ def test_health_reachable(client):
     data = response.json()
     assert data["status"] == "healthy"
     assert "version" in data
+
+
+def test_discovery_alias_reachable(client):
+    """Test that /discovery resolves to the MCP discovery manifest."""
+    response = client.get("/discovery")
+    assert response.status_code == 200
+    data = response.json()
+    assert "name" in data
+    assert "tools" in data
+
+
+def test_ready_alias_reachable(client):
+    """Test that /ready mirrors health instead of 404ing."""
+    response = client.get("/ready")
+    assert response.status_code == 200
+    assert response.json()["status"] == "healthy"
+
+
+def test_webmcp_manifest_and_assets_reachable(client):
+    """Test that the public WebMCP discovery and browser assets are mounted."""
+    manifest = client.get("/.well-known/webmcp")
+    assert manifest.status_code == 200
+    assert manifest.json()["site"]["version"]
+
+    sdk = client.get("/webmcp/sdk.js")
+    assert sdk.status_code == 200
+    assert "application/javascript" in sdk.headers.get("content-type", "")
+
+    tools = client.get("/webmcp/tools.json")
+    assert tools.status_code == 200
+    assert "tools" in tools.json()
+
+
+def test_webmcp_init_returns_session(client):
+    """Test that WebMCP init returns a governed session payload."""
+    response = client.post("/webmcp/init", json={"actor_id": "test", "human_approval": True})
+    assert response.status_code == 200
+    data = response.json()
+    assert data["verdict"] in {"SEAL", "PARTIAL"}
+    assert "session_id" in data
+
+
+def test_a2a_routes_reachable(client):
+    """Test that mounted A2A routes are exposed on the public app."""
+    health = client.get("/a2a/health")
+    assert health.status_code == 200
+    assert health.json()["protocol"] == "A2A"
+
+    submit = client.post(
+        "/a2a/task",
+        json={
+            "client_agent_id": "pytest",
+            "messages": [{"role": "user", "content": "protocol regression"}],
+        },
+    )
+    assert submit.status_code == 200
+    task_id = submit.json()["task_id"]
+
+    status = client.get(f"/a2a/status/{task_id}")
+    assert status.status_code == 200
+    assert status.json()["task"]["id"] == task_id

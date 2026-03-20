@@ -86,7 +86,9 @@ def normalize_tool_profile(profile: str | None) -> str:
 
 
 def build_server_json(public_base_url: str = DEFAULT_PUBLIC_BASE_URL) -> dict[str, Any]:
-    """Build the standard MCP server.json discovery manifest."""
+    """Build the canonical server.json manifest with the live public tool surface."""
+    tool_count = len(PUBLIC_TOOL_SPECS)
+
     tools = []
     for spec in PUBLIC_TOOL_SPECS:
         tools.append(
@@ -127,11 +129,27 @@ def build_server_json(public_base_url: str = DEFAULT_PUBLIC_BASE_URL) -> dict[st
         "mcpVersion": "2025-11-25",
         "name": "arifOS-APEX-G",
         "version": release_version_label(),
+        "description": (
+            f"Constitutional governance server — {tool_count} canonical MCP tools "
+            "with F1-F13 floor enforcement, metabolic routing, prompts, and resources."
+        ),
+        "vendor": {"name": "Muhammad Arif bin Fazil", "url": "https://arif-fazil.com"},
+        "license": "AGPL-3.0-only",
+        "homepage": "https://github.com/ariffazil/arifosmcp",
+        "repository": "https://github.com/ariffazil/arifosmcp",
+        "capabilities": {
+            "constitutional_floors": 13,
+            "metabolic_routing": True,
+            "vault999": "postgresql+redis+merkle",
+            "vector_memory": "qdrant+bge-m3-1024dim",
+            "prompts": len(PUBLIC_PROMPT_SPECS),
+            "resources": len(PUBLIC_RESOURCE_SPECS),
+        },
         "serverUrl": public_base_url,
         "tools": tools,
         "resources": resources,
         "resourceTemplates": resource_templates,
-        "prompts": prompts
+        "prompts": prompts,
     }
 
 

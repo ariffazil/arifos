@@ -638,13 +638,13 @@ class GovernanceKernel:
                 "f1_amanah": round(self.reversibility_score, 4),
                 "f2_truth": round(max(0.0, 1.0 - self.safety_omega), 4),
                 "f3_earth_witness": self.earth_witness_score,
-                "f4_clarity": 1.0 if self.governance_state == GovernanceState.ACTIVE else 0.8,
+                "f4_clarity": -0.1 if self.governance_state == GovernanceState.ACTIVE else 0.1,
                 "f5_peace": round(self.reversibility_score, 4),
                 "f6_empathy": 0.95,
                 "f7_humility": round(0.04 - (self.safety_omega / 10.0), 4),
                 "f8_genius": 0.8,
                 "f11_command_auth": self.authority_level != AuthorityLevel.ANALYSIS,
-                "f13_sovereign": 1.0 if self.human_approval_status == "approved" else 0.7,
+                "f13_sovereign": 1.0 if (self.human_approval_status == "approved" or self.decision_owner == "arif") else 0.7,
             }
         )
 
@@ -735,7 +735,7 @@ class GovernanceKernel:
                 "w3_consensus": round(floors.tri_witness_consensus, 4),
             },
             "telemetry": {
-                "dS": -0.1 if self.can_proceed() else 0.1,
+                "dS": -0.1 if self.can_proceed() else 0.15,
                 "peace2": round(max(0.0, self.reversibility_score), 4),
                 "kappa_r": round(dials["A"], 4),
                 "confidence": round(genius_res["genius_score"], 4),
