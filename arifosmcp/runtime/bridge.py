@@ -9,6 +9,7 @@ DITEMPA BUKAN DIBERI — Forged, Not Given
 
 import json
 import logging
+import sys
 import time
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -172,14 +173,16 @@ def _can_auto_anchor_declared_identity(payload: dict[str, Any], claimed_actor_id
     if claimed in {"", "anonymous"}:
         return False
     
-    # If human_approval is explicitly True, we can auto-anchor as 'declared'
-    # even for protected IDs (it's an explicit bypass for test/local mode)
+    # P0: If human_approval is explicitly True, we can auto-anchor as 'declared'
+    # even for protected IDs (it's an explicit bypass for sovereign identity)
+    # This MUST be checked FIRST, before protected ID checks
     if human_approval is True:
         return True
 
+    # Protected IDs require additional checks when human_approval is not given
     if claimed in PROTECTED_AUTO_ANCHOR_IDS:
         return False
-    # Proteced IDs ALWAYS require verified auth context if they want to execute
+    # Protected IDs ALWAYS require verified auth context if they want to execute
     if allow_execution and claimed_actor_id in PROTECTED_AUTO_ANCHOR_IDS:
         return False
 
@@ -672,6 +675,7 @@ async def call_kernel(
                 auth_token=payload.get("auth_token"),
                 session_id=session_id,
                 caller_context=caller_ctx_obj,
+                human_approval=ha_value,
             )
             result = res.model_dump(mode="json")
             

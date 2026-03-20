@@ -76,7 +76,8 @@ def _has_valid_proof(payload: dict[str, Any], actor_id: str) -> bool:
 
 
 def select_governed_philosophy(
-    query: str,
+    context: str,
+    *,
     stage: str,
     verdict: str,
     g_score: float = 1.0,
@@ -84,29 +85,16 @@ def select_governed_philosophy(
     session_id: str = "global",
 ) -> dict[str, Any]:
     """Provides a constitutional philosophy snippet for any stage result."""
-    from core.shared.mottos import get_motto_by_stage, get_motto_by_floor
+    from arifosmcp.runtime.philosophy import select_governed_philosophy as _select
 
-    del query, session_id  # Unused currently
-
-    motto_text = "DITEMPA, BUKAN DIBERI — Forged, Not Given"
-    motto_obj = get_motto_by_stage(stage)
-
-    if failed_floors:
-        floor_motto = get_motto_by_floor(failed_floors[0])
-        if floor_motto:
-            motto_text = f"{floor_motto.malay} — {floor_motto.english}"
-    elif motto_obj:
-        motto_text = f"{motto_obj.malay} — {motto_obj.english}"
-
-    return {
-        "motto": motto_text,
-        "stage": stage,
-        "g_score": g_score,
-        "verdict": verdict,
-        "failed_floors": failed_floors or [],
-        "agi": {"source": "deterministic_33", "model": "rule_based_0"},
-        "asi": None,
-    }
+    return _select(
+        context=context,
+        stage=stage,
+        verdict=verdict,
+        g_score=g_score,
+        failed_floors=failed_floors,
+        session_id=session_id,
+    )
 
 
 _public_tool_names_fn = _registry_tool_names
@@ -170,23 +158,28 @@ async def init_anchor(
             "actor_id": actor_id or declared_name or "anonymous",
             "intent": intent or raw_input,
             "session_id": session_id,
-            "human_approval": False,  # Default to false for legacy calls
+            "human_approval": human_approval,  # Use parameter value, not hardcoded False
         }
 
     payload = dict(payload or {})
+    
+    # P0: Ensure human_approval is propagated to payload (for MCP calls with explicit mode)
+    if human_approval and not payload.get("human_approval"):
+        payload["human_approval"] = human_approval
     payload["session_id"] = _normalize_session_id(payload.get("session_id") or session_id)
 
     # P0: Protected Sovereign ID Check (F11)
     claimed_actor_id = payload.get("actor_id", "anonymous")
-    human_approval = payload.get("human_approval", False)
-
+    # Use payload value if present, otherwise fall back to parameter (for direct calls)
+    effective_human_approval = payload.get("human_approval", human_approval)
+    
     # P0: Check if this is a protected sovereign ID
     if is_protected_sovereign_id(claimed_actor_id):
         # P0: Hard-fail without cryptographic proof or human_approval
         has_proof = validate_sovereign_proof(
             claimed_actor_id, payload.get("auth_token") or payload.get("proof")
         )
-        if not human_approval and not has_proof:
+        if not effective_human_approval and not has_proof:
             return RuntimeEnvelope(
                 ok=False,
                 tool="init_anchor",
@@ -207,6 +200,7 @@ async def init_anchor(
                     "claim_status": "rejected_protected_id",
                     "required": ["signed_token", "human_approval"],
                     "remediation": "Provide valid auth_token signed by sovereign key, or set human_approval: true with explicit acknowledgment",
+                    "note": "human_approval must be set in direct call parameters or payload",
                 },
             )
 
@@ -215,7 +209,7 @@ async def init_anchor(
             actor_id=claimed_actor_id,
             intent=payload.get("intent"),
             session_id=payload.get("session_id"),
-            human_approval=human_approval,
+            human_approval=effective_human_approval,
             ctx=ctx,
         )
     if mode == "revoke":
@@ -619,6 +613,32 @@ async def _wrap_call(
             getattr(envelope, "authority", None),
         )
     )
+
+    # ── Philosophy Injection (APEX-G) ──
+    # Wire the 33-quote rich wisdom layer to every tool output.
+    g_score = 1.0
+    if envelope.metrics and envelope.metrics.telemetry:
+        g_score = envelope.metrics.telemetry.G_star
+
+    failed_codes = [e.code for e in envelope.errors if str(e.code).startswith("F")]
+
+    envelope.philosophy = select_governed_philosophy(
+        context=str(
+            payload.get("query")
+            or payload.get("intent")
+            or payload.get("content")
+            or payload.get("spec")
+            or tool_name
+        ),
+        stage=envelope.stage,
+        verdict=str(envelope.verdict.value)
+        if hasattr(envelope.verdict, "value")
+        else str(envelope.verdict),
+        g_score=g_score,
+        failed_floors=failed_codes,
+        session_id=normalized_session,
+    )
+
     return envelope
 
 
@@ -658,16 +678,6 @@ async def check_vital(session_id: str = "global", **kwargs: Any) -> RuntimeEnvel
     except Exception as exc:
         envelope.payload["vital_error"] = str(exc)
     envelope.payload["intelligence_services"] = await _probe_intelligence_services()
-    envelope.philosophy = select_governed_philosophy(
-        "Checking system vitals.",
-        stage=Stage.INIT_000.value,
-        verdict=envelope.verdict.name
-        if hasattr(envelope.verdict, "name")
-        else str(envelope.verdict),
-        g_score=1.0,
-        failed_floors=[],
-        session_id=session_id,
-    )
     return envelope
 
 

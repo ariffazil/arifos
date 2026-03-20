@@ -196,6 +196,25 @@ async def _wrap_call(
             ac_dict = envelope.auth_context.model_dump(mode="json") if envelope.auth_context and hasattr(envelope.auth_context, "model_dump") else (envelope.auth_context if isinstance(envelope.auth_context, dict) else None)
             envelope.next_action = _resolve_next_action(envelope.caller_state, envelope.blocked_tools, ac_dict)
 
+        # ── Philosophy Injection (APEX-G) ──
+        # Wire the 33-quote rich wisdom layer to every tool output.
+        from arifosmcp.runtime.philosophy import select_governed_philosophy
+        
+        g_score = 1.0
+        if envelope.metrics and envelope.metrics.telemetry:
+            g_score = envelope.metrics.telemetry.G_star
+
+        failed_codes = [e.code for e in envelope.errors if str(e.code).startswith("F")]
+
+        envelope.philosophy = select_governed_philosophy(
+            context=str(payload.get("query") or payload.get("intent") or payload.get("content") or tool_name),
+            stage=envelope.stage,
+            verdict=str(envelope.verdict.value) if hasattr(envelope.verdict, "value") else str(envelope.verdict),
+            g_score=g_score,
+            failed_floors=failed_codes,
+            session_id=session_id,
+        )
+
         if ctx and hasattr(ctx, "info"):
             await ctx.info(f"Metabolic transition complete: {envelope.verdict}")
             

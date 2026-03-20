@@ -27,7 +27,134 @@ from arifosmcp.runtime.models import (
     PNSContext,
     PNSSignal,
     SacredStage,
+    CanonicalError,
 )
+
+# ---------------------------------------------------------------------------
+# STAGE FAILURE HANDLERS (F4: Deterministic Failure Semantics)
+# ---------------------------------------------------------------------------
+
+STAGE_FAILURE_HANDLERS: dict[str, dict[str, Any]] = {
+    Stage.INIT_000.value: {
+        "verdict": Verdict.VOID,
+        "status": RuntimeStatus.ERROR,
+        "action": "session_invalid",
+        "recoverable": False,
+        "error_code": "INIT_FAILED",
+        "description": "Session initialization failed. Anchor rejected.",
+    },
+    Stage.SENSE_111.value: {
+        "verdict": Verdict.HOLD,
+        "status": RuntimeStatus.SABAR,
+        "action": "request_more_context",
+        "recoverable": True,
+        "error_code": "SENSE_INSUFFICIENT",
+        "description": "Insufficient reality grounding. Evidence required.",
+    },
+    Stage.MIND_333.value: {
+        "verdict": Verdict.HOLD,
+        "status": RuntimeStatus.ERROR,
+        "action": "clarify_intent",
+        "recoverable": True,
+        "error_code": "MIND_INCOHERENT",
+        "description": "Cannot form coherent reasoning plan. Clarify intent.",
+    },
+    Stage.MEMORY_555.value: {
+        "verdict": Verdict.DEGRADED,
+        "status": RuntimeStatus.SUCCESS,
+        "action": "continue_without_memory",
+        "recoverable": True,
+        "error_code": "MEMORY_UNAVAILABLE",
+        "description": "Vector memory unavailable. Continuing without recall.",
+    },
+    Stage.HEART_666.value: {
+        "verdict": Verdict.HOLD_888,
+        "status": RuntimeStatus.ERROR,
+        "action": "safety_review_required",
+        "recoverable": True,
+        "error_code": "HEART_SAFETY_BLOCK",
+        "description": "Safety critique blocked. Human review required (F6/F7/F8).",
+    },
+    Stage.CRITIQUE_666.value: {
+        "verdict": Verdict.HOLD_888,
+        "status": RuntimeStatus.ERROR,
+        "action": "critique_review_required",
+        "recoverable": True,
+        "error_code": "CRITIQUE_BLOCK",
+        "description": "Metacognitive critique blocked. Review required.",
+    },
+    Stage.FORGE_777.value: {
+        "verdict": Verdict.SABAR,
+        "status": RuntimeStatus.ERROR,
+        "action": "forging_failed",
+        "recoverable": True,
+        "error_code": "FORGE_FAILED",
+        "description": "Commitment forging failed. Retry or refine.",
+    },
+    Stage.JUDGE_888.value: {
+        "verdict": Verdict.HOLD_888,
+        "status": RuntimeStatus.ERROR,
+        "action": "await_human",
+        "recoverable": True,
+        "error_code": "JUDGE_UNDECIDED",
+        "description": "APEX judgment requires human ratification (F13).",
+    },
+    Stage.VAULT_999.value: {
+        "verdict": Verdict.SABAR,
+        "status": RuntimeStatus.ERROR,
+        "action": "seal_failed",
+        "recoverable": False,
+        "error_code": "VAULT_COMMIT_FAILED",
+        "description": "Cryptographic sealing failed. Audit logged, no commit.",
+    },
+}
+
+
+def handle_stage_failure(
+    stage_id: str,
+    original_error: Exception | None = None,
+    session_id: str = "unknown",
+    context: dict[str, Any] | None = None,
+) -> RuntimeEnvelope:
+    """
+    Generate standardized failure envelope for a stage.
+    
+    Ensures F4 (Clarity): All failures have deterministic, documented semantics.
+    """
+    handler = STAGE_FAILURE_HANDLERS.get(stage_id, STAGE_FAILURE_HANDLERS[Stage.INIT_000.value])
+    
+    error_details = {
+        "stage": stage_id,
+        "error_code": handler["error_code"],
+        "description": handler["description"],
+        "action": handler["action"],
+        "recoverable": handler["recoverable"],
+    }
+    
+    if original_error:
+        error_details["original_error"] = str(original_error)
+    
+    if context:
+        error_details["context"] = context
+    
+    return RuntimeEnvelope(
+        tool="arifOS_kernel",
+        session_id=session_id,
+        stage=stage_id,
+        verdict=handler["verdict"],
+        status=handler["status"],
+        errors=[CanonicalError(
+            code=handler["error_code"],
+            message=handler["description"],
+            stage=stage_id,
+        )],
+        payload={
+            "failure_handler": handler["action"],
+            "recoverable": handler["recoverable"],
+            "error_details": error_details,
+        },
+    )
+
 
 # ---------------------------------------------------------------------------
 # PNS CIRCULATORY HANDLERS
@@ -183,7 +310,9 @@ async def run_stage(
     human_approval: bool = False,
 ) -> RuntimeEnvelope:
     """Execute one routed stage for the metabolic loop.
-    ...
+    
+    Includes deterministic failure handling per F4 (Clarity).
+    All stage failures are caught and mapped to standardized responses.
     """
     from arifosmcp.runtime.tools import (
         init_anchor,
@@ -195,133 +324,144 @@ async def run_stage(
         apex_judge,
         vault_seal,
     )
+    
+    try:
+        verdict_history = verdicts
+        sacred_name = _get_sacred_name(stage_id)
+        pns_trace = trace.setdefault("pns", {})
 
-    verdict_history = verdicts
-    sacred_name = _get_sacred_name(stage_id)
-    pns_trace = trace.setdefault("pns", {})
+        # === FORBIDDEN ZONES: No PNS data allowed ===
+        active_pns = pns_context
+        if stage_id in {Stage.HEART_666.value, Stage.VAULT_999.value}:
+            active_pns = None
 
-    # === FORBIDDEN ZONES: No PNS data allowed ===
-    active_pns = pns_context
-    if stage_id in {Stage.HEART_666.value, Stage.VAULT_999.value}:
-        active_pns = None
-
-    # 1. INIT·ANCHOR (000) - Entry Gate (Feeds PNS·SHIELD)
-    if stage_id == Stage.INIT_000.value:
-        shield = active_pns.shield if active_pns else None
-        return await init_anchor(
-            raw_input=query,
-            session_id=session_id,
-            pns_shield=shield.model_dump() if shield else None,
-            ctx=None,  # type: ignore
-            actor_id=actor_id,
-            declared_name=declared_name,
-            human_approval=human_approval,
-            auth_context=auth_ctx,
-        )
-
-    # 2. AGI·REASON (333) - Grounding (Feeds PNS·SEARCH)
-    if stage_id == Stage.MIND_333.value:
-        search_res = active_pns.search if active_pns else None
-        if not search_res:
-            try:
-                # Add timeout to prevent hanging on search
-                search_env = await asyncio.wait_for(
-                    handle_pns_search(query=query, session_id=session_id), timeout=10.0
-                )
-                search_res = PNSSignal(source="PNS_SEARCH", payload=search_env.payload)
-                pns_trace["PNS_SEARCH"] = search_res.model_dump(mode="json")
-            except asyncio.TimeoutError:
-                # Continue without search results if timeout
-                pns_trace["PNS_SEARCH"] = {"error": "timeout", "source": "PNS_SEARCH"}
-
-        return await agi_reason(
-            query=query,
-            session_id=session_id,
-            pns_search=search_res.model_dump() if search_res else None,
-            ctx=None,  # type: ignore
-            auth_context=auth_ctx,
-        )
-
-    # 3. AGI·REFLECT (555) - Sensory (Feeds PNS·VISION)
-    if stage_id == Stage.MEMORY_555.value:
-        vision_res = active_pns.vision if active_pns else None
-
-        # Multimodal Auto-Trigger: If binary data is detected in query, trigger vision
-        if not vision_res and (query.startswith("data:") or "IMAGE_ATTACHED" in query):
-            vision_env = await handle_pns_vision(
-                content_type="image", data=b"", session_id=session_id
+        # 1. INIT·ANCHOR (000) - Entry Gate (Feeds PNS·SHIELD)
+        if stage_id == Stage.INIT_000.value:
+            shield = active_pns.shield if active_pns else None
+            return await init_anchor(
+                raw_input=query,
+                session_id=session_id,
+                pns_shield=shield.model_dump() if shield else None,
+                ctx=None,  # type: ignore
+                actor_id=actor_id,
+                declared_name=declared_name,
+                human_approval=human_approval,
+                auth_context=auth_ctx,
             )
-            vision_res = PNSSignal(source="PNS_VISION", payload=vision_env.payload)
-            pns_trace["PNS_VISION"] = vision_res.model_dump(mode="json")
 
-        return await agi_reflect(
-            topic=query,
+        # 2. AGI·REASON (333) - Grounding (Feeds PNS·SEARCH)
+        if stage_id == Stage.MIND_333.value:
+            search_res = active_pns.search if active_pns else None
+            if not search_res:
+                try:
+                    # Add timeout to prevent hanging on search
+                    search_env = await asyncio.wait_for(
+                        handle_pns_search(query=query, session_id=session_id), timeout=10.0
+                    )
+                    search_res = PNSSignal(source="PNS_SEARCH", payload=search_env.payload)
+                    pns_trace["PNS_SEARCH"] = search_res.model_dump(mode="json")
+                except asyncio.TimeoutError:
+                    # Continue without search results if timeout
+                    pns_trace["PNS_SEARCH"] = {"error": "timeout", "source": "PNS_SEARCH"}
+
+            return await agi_reason(
+                query=query,
+                session_id=session_id,
+                pns_search=search_res.model_dump() if search_res else None,
+                ctx=None,  # type: ignore
+                auth_context=auth_ctx,
+            )
+
+        # 3. AGI·REFLECT (555) - Sensory (Feeds PNS·VISION)
+        if stage_id == Stage.MEMORY_555.value:
+            vision_res = active_pns.vision if active_pns else None
+
+            # Multimodal Auto-Trigger: If binary data is detected in query, trigger vision
+            if not vision_res and (query.startswith("data:") or "IMAGE_ATTACHED" in query):
+                vision_env = await handle_pns_vision(
+                    content_type="image", data=b"", session_id=session_id
+                )
+                vision_res = PNSSignal(source="PNS_VISION", payload=vision_env.payload)
+                pns_trace["PNS_VISION"] = vision_res.model_dump(mode="json")
+
+            return await agi_reflect(
+                topic=query,
+                session_id=session_id,
+                pns_vision=vision_res.model_dump() if vision_res else None,
+                ctx=None,  # type: ignore
+            )
+
+        # 4. ASI·SIMULATE (666) - FORBIDDEN ZONE
+        if stage_id == Stage.HEART_666.value:
+            return await asi_simulate(
+                scenario=query,
+                session_id=session_id,
+                ctx=None,  # type: ignore
+            )
+
+        # 5. ASI·CRITIQUE (666B) - Metacognition (Feeds PNS·HEALTH + PNS·FLOOR)
+        if stage_id == Stage.CRITIQUE_666.value:
+            health_res = active_pns.health if active_pns else None
+            floor_res = active_pns.floor if active_pns else None
+            return await asi_critique(
+                draft_output=query,
+                session_id=session_id,
+                health=health_res.model_dump() if health_res else None,
+                floor=floor_res.model_dump() if floor_res else None,
+                ctx=None,  # type: ignore
+            )
+
+        # 6. AGI–ASI·FORGE (777) - Action (Feeds PNS·ORCHESTRATE)
+        if stage_id == Stage.FORGE_777.value:
+            from arifosmcp.runtime.tools import agi_asi_forge_handler
+
+            orch_res = active_pns.orchestrate if active_pns else None
+            return await agi_asi_forge_handler(
+                spec=query,
+                session_id=session_id,
+                pns_orchestrate=orch_res.model_dump() if orch_res else None,
+                ctx=None,  # type: ignore
+                dry_run=dry_run,
+            )
+
+        # 7. APEX·JUDGE (888) - Verdict (Feeds PNS·REDTEAM)
+        if stage_id == Stage.JUDGE_888.value:
+            red_res = active_pns.redteam if active_pns else None
+            candidate = Verdict.SEAL
+            if Verdict.VOID in verdict_history:
+                candidate = Verdict.VOID
+            elif Verdict.HOLD_888 in verdict_history or Verdict.HOLD in verdict_history:
+                candidate = Verdict.HOLD_888
+            elif Verdict.SABAR in verdict_history:
+                candidate = Verdict.SABAR
+
+            return await apex_judge(
+                candidate_output=query,
+                session_id=session_id,
+                redteam=red_res.model_dump() if red_res else None,
+                ctx=None,  # type: ignore
+            )
+
+        # 8. VAULT·SEAL (999) - FORBIDDEN ZONE
+        if stage_id == Stage.VAULT_999.value:
+            last_verdict = verdict_history[-1] if verdict_history else Verdict.SABAR
+            return await vault_seal(
+                verdict=last_verdict.value,
+                evidence=query,
+                session_id=session_id,
+                ctx=None,  # type: ignore
+            )
+
+
+    except Exception as e:
+        # F4: Deterministic failure handling
+        return handle_stage_failure(
+            stage_id=stage_id,
+            original_error=e,
             session_id=session_id,
-            pns_vision=vision_res.model_dump() if vision_res else None,
-            ctx=None,  # type: ignore
+            context={"query": query[:100] if query else None},  # Truncate for safety
         )
-
-    # 4. ASI·SIMULATE (666) - FORBIDDEN ZONE
-    if stage_id == Stage.HEART_666.value:
-        return await asi_simulate(
-            scenario=query,
-            session_id=session_id,
-            ctx=None,  # type: ignore
-        )
-
-    # 5. ASI·CRITIQUE (666B) - Metacognition (Feeds PNS·HEALTH + PNS·FLOOR)
-    if stage_id == Stage.CRITIQUE_666.value:
-        health_res = active_pns.health if active_pns else None
-        floor_res = active_pns.floor if active_pns else None
-        return await asi_critique(
-            draft_output=query,
-            session_id=session_id,
-            health=health_res.model_dump() if health_res else None,
-            floor=floor_res.model_dump() if floor_res else None,
-            ctx=None,  # type: ignore
-        )
-
-    # 6. AGI–ASI·FORGE (777) - Action (Feeds PNS·ORCHESTRATE)
-    if stage_id == Stage.FORGE_777.value:
-        from arifosmcp.runtime.tools import agi_asi_forge_handler
-
-        orch_res = active_pns.orchestrate if active_pns else None
-        return await agi_asi_forge_handler(
-            spec=query,
-            session_id=session_id,
-            pns_orchestrate=orch_res.model_dump() if orch_res else None,
-            ctx=None,  # type: ignore
-            dry_run=dry_run,
-        )
-
-    # 7. APEX·JUDGE (888) - Verdict (Feeds PNS·REDTEAM)
-    if stage_id == Stage.JUDGE_888.value:
-        red_res = active_pns.redteam if active_pns else None
-        candidate = Verdict.SEAL
-        if Verdict.VOID in verdict_history:
-            candidate = Verdict.VOID
-        elif Verdict.HOLD_888 in verdict_history or Verdict.HOLD in verdict_history:
-            candidate = Verdict.HOLD_888
-        elif Verdict.SABAR in verdict_history:
-            candidate = Verdict.SABAR
-
-        return await apex_judge(
-            candidate_output=query,
-            session_id=session_id,
-            redteam=red_res.model_dump() if red_res else None,
-            ctx=None,  # type: ignore
-        )
-
-    # 8. VAULT·SEAL (999) - FORBIDDEN ZONE
-    if stage_id == Stage.VAULT_999.value:
-        last_verdict = verdict_history[-1] if verdict_history else Verdict.SABAR
-        return await vault_seal(
-            verdict=last_verdict.value,
-            evidence=query,
-            session_id=session_id,
-            ctx=None,  # type: ignore
-        )
-
+    
     return RuntimeEnvelope(
         tool="arifOS_kernel",
         session_id=session_id,

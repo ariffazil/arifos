@@ -204,6 +204,51 @@ To execute kernel operations, callers must:
 
 ---
 
+## Constitutional Floors: Clarifications
+
+### F2 Truth (τ ≥ 0.99) vs F7 Humility (Ω₀ ∈ [0.03,0.05])
+
+**Apparent tension:** F2 requires near-certainty while F7 requires uncertainty acknowledgment.
+
+**Resolution:** These operate in different domains — no conflict.
+
+| Floor | Applies To | Threshold | Purpose |
+|-------|-----------|-----------|---------|
+| **F2 (τ)** | **Output claims** | τ ≥ 0.99 | Factual assertions must be grounded |
+| **F7 (Ω₀)** | **Reasoning process** | Ω₀ ∈ [0.03,0.05] | Epistemic humility in conclusions |
+
+**Epistemic firewall:**
+- 333_MIND can explore with high uncertainty (Ω₀ ~0.50)
+- 666_HEART critiques with calibrated confidence
+- 888_JUDGE only SEALs when τ ≥ 0.99 on **final output claims**
+
+**Example:**
+- ❌ Bad: "X is definitely true" (claim without τ ≥ 0.99 evidence)
+- ✅ Good: "Based on evidence A, B, C, X appears likely (τ=0.95). Ω₀=0.04 acknowledges residual uncertainty."
+
+### F6 Empathy (κᵣ ≥ 0.95) vs F4 Clarity (ΔS ≤ 0)
+
+**Apparent tension:** Empathy adds nuance (entropy↑) while clarity compresses (entropy↓).
+
+**Resolution:** Priority hierarchy when floors conflict:
+
+```
+Safety (F1, F6, F7) > Clarity (F4) > Empathy nuance (F6)
+```
+
+**Decision rule:**
+1. **Safety first:** If clarity vs empathy conflict affects safety, prioritize clarity
+2. **Compression second:** Reduce entropy while preserving essential care
+3. **Nuance last:** Add empathetic detail only after safety and clarity are secured
+
+**Example (ethical dilemma):**
+- Input: "Should we cut healthcare to reduce costs?"
+- F6 Empathy: Consider impact on vulnerable patients
+- F4 Clarity: Frame as reversibility test (F1) + care metric (F6)
+- Outcome: "This requires human ratification (F13). Care impact: κᵣ drops to 0.82 if proceeding."
+
+---
+
 ## For Agent Authors: Do / Don't
 
 ### ✅ Do

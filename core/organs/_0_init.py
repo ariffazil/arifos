@@ -242,16 +242,21 @@ def infer_identity(query: str) -> str | None:
 PROTECTED_SOVEREIGN_IDS: set[str] = {"arif-fazil", "ariffazil", "arif", "arif-the-apex"}
 
 
-def verify_auth(actor_id: str, auth_token: str | None = None) -> tuple[bool, AuthorityLevel]:
+def verify_auth(actor_id: str, auth_token: str | None = None, human_approval: bool = False) -> tuple[bool, AuthorityLevel]:
     if not actor_id or actor_id == "anonymous":
         return True, AuthorityLevel.ANONYMOUS
 
     actor_id_clean = actor_id.lower().strip()
     
-    # F11/F13: Protected IDs REQUIRES crypto (token)
-    if actor_id_clean in PROTECTED_SOVEREIGN_IDS and not auth_token:
-        # P0 Rule: Sovereign claim without token is REJECTED (F11 Breach)
+    # F11/F13: Protected IDs REQUIRES crypto (token) OR explicit human_approval
+    # P0: human_approval=True is explicit sovereign acknowledgment, bypasses token requirement
+    if actor_id_clean in PROTECTED_SOVEREIGN_IDS and not auth_token and not human_approval:
+        # P0 Rule: Sovereign claim without token or human_approval is REJECTED (F11 Breach)
         return False, AuthorityLevel.NONE
+    
+    # If human_approval is True for protected ID, treat as DECLARED (not fully verified but allowed)
+    if actor_id_clean in PROTECTED_SOVEREIGN_IDS and human_approval and not auth_token:
+        return True, AuthorityLevel.DECLARED
 
     if actor_id_clean in VALID_ACTORS:
         if not auth_token:
@@ -352,8 +357,9 @@ async def init(
     # Always normalize governance actor_id
     governance.actor_id = current_actor_id
 
-    # 6b. Verification
-    is_auth, authority = verify_auth(current_actor_id, auth_token)
+    # 6b. Verification (with human_approval support for sovereign identity)
+    human_approval = kwargs.get("human_approval", False)
+    is_auth, authority = verify_auth(current_actor_id, auth_token, human_approval)
 
     if not is_auth:
         floors["F11"] = "fail"

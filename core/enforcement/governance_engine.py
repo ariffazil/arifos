@@ -824,6 +824,14 @@ def wrap_tool_output(tool: str, payload: dict[str, Any]) -> dict[str, Any]:
         error_msg = payload.get("error") or payload.get("error_message")
         if not error_msg:
             error_msg = f"Verdict {verdict} issued by {stage}"
+            
+        recoverable = payload.get("recoverable", True)
+        next_tool = payload.get("next_tool")
+        next_args = payload.get("next_args", {})
+
+        error_data = {
+            "code": error_code,
+            "message": error_msg,
             "stage": stage,
             "recoverable": recoverable,
         }
