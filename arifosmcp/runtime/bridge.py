@@ -496,7 +496,7 @@ async def call_kernel(
     auth_ctx = _normalize_auth_context(payload, payload.get("auth_context"))
     if auth_ctx is not None:
         payload["auth_context"] = auth_ctx
-    if canonical_name == "metabolic_loop":
+    if tool_name == "metabolic_loop":
         if not auth_ctx:
             # Check if we can auto-anchor this specific call
             if _can_auto_anchor_declared_identity(payload, claimed_actor_id):
@@ -597,13 +597,13 @@ async def call_kernel(
                 dry_run=dry_run,
             )
 
-    if canonical_name == "search_reality":
+    if tool_name == "search_reality":
         res = await reality_check(query=payload.get("query", ""))
         from core.enforcement.governance_engine import wrap_tool_output; return wrap_tool_output(canonical_name, res)
-    if canonical_name == "ingest_evidence":
+    if tool_name == "ingest_evidence":
         res = await open_web_page(url=payload.get("source_url", ""))
         from core.enforcement.governance_engine import wrap_tool_output; return wrap_tool_output(canonical_name, res)
-    if canonical_name == "trace_replay":
+    if tool_name == "trace_replay":
         limit = payload.get("limit", 20)
         try:
             max_entries = max(1, min(int(limit), 200))
@@ -650,7 +650,7 @@ async def call_kernel(
             except ValidationError:
                 caller_ctx_obj = None
 
-        if canonical_name == "anchor_session":
+        if tool_name == "anchor_session":
             intent_payload = payload.get("intent", {})
             if isinstance(intent_payload, str):
                 intent_payload = {"query": intent_payload}
@@ -695,7 +695,7 @@ async def call_kernel(
                     prev_vault_hash=res.prev_vault_hash,
                 )
 
-        elif canonical_name == "reason_mind":
+        elif tool_name == "reason_mind":
             result = await agi(
                 query=query_input,
                 session_id=session_id,
@@ -728,7 +728,7 @@ async def call_kernel(
                 max_tokens=payload.get("max_tokens") or default_max_tokens,
             )
 
-        elif canonical_name == "eureka_forge":
+        elif tool_name == "eureka_forge":
             result = await apex(
                 action="forge",
                 session_id=session_id,
@@ -739,7 +739,7 @@ async def call_kernel(
                 max_tokens=payload.get("max_tokens") or default_max_tokens,
             )
 
-        elif canonical_name == "apex_judge":
+        elif tool_name == "apex_judge":
             result = await apex(
                 action="judge",
                 session_id=session_id,
@@ -749,7 +749,7 @@ async def call_kernel(
                 max_tokens=payload.get("max_tokens") or default_max_tokens,
             )
 
-        elif canonical_name == "seal_vault":
+        elif tool_name == "seal_vault":
             result = await vault(
                 operation="seal",
                 session_id=session_id,
@@ -763,7 +763,7 @@ async def call_kernel(
                 expected_prev_hash=auth_ctx.get("prev_vault_hash") if auth_ctx else None,
             )
 
-        elif canonical_name == "verify_vault_ledger":
+        elif tool_name == "verify_vault_ledger":
             ok, reason = verify_vault_ledger(DEFAULT_VAULT_PATH)
             result = {
                 "ok": ok,
@@ -772,10 +772,10 @@ async def call_kernel(
                 "path": str(DEFAULT_VAULT_PATH),
             }
 
-        elif canonical_name == "office_forge_audit":
+        elif tool_name == "office_forge_audit":
             result = await audit_markdown(markdown=payload.get("markdown") or query_input)
 
-        elif canonical_name == "office_forge":
+        elif tool_name == "office_forge":
             result = await render_office_document(
                 session_id=session_id,
                 markdown=payload.get("markdown") or query_input,
@@ -784,7 +784,7 @@ async def call_kernel(
                 filename=payload.get("filename"),
             )
 
-        elif canonical_name == "ollama_local_generate":
+        elif tool_name == "ollama_local_generate":
             result = await ollama_local_generate_call(
                 prompt=payload.get("prompt") or query_input,
                 model=payload.get("model", "qwen2.5:3b"),
@@ -793,7 +793,7 @@ async def call_kernel(
                 max_tokens=payload.get("max_tokens", 512),
             )
 
-        elif canonical_name == "metabolic_loop":
+        elif tool_name == "metabolic_loop":
             from arifosmcp.runtime.orchestrator import metabolic_loop
 
             result = await metabolic_loop(
@@ -847,11 +847,11 @@ async def call_kernel(
                     prev_vault_hash=(auth_ctx or {}).get("prev_vault_hash"),
                 )
 
-        elif canonical_name == "system_audit":
+        elif tool_name == "system_audit":
             # Constitutional audit: return 13 Floors and governance state
             result = _build_constitutional_audit(session_id)
 
-        elif canonical_name == "sense_health":
+        elif tool_name == "sense_health":
             # System health check with constitutional telemetry
             result = _build_vitals_report(session_id)
 
@@ -899,7 +899,7 @@ async def call_kernel(
                 "level": auth_ctx.get("authority_level", "anonymous"),
                 "auth_state": "verified",
             }
-        elif canonical_name == "anchor_session" and "auth_context" in result:
+        elif tool_name == "anchor_session" and "auth_context" in result:
             envelope["auth_context"] = result["auth_context"]
             # Sync authority block with the anchored identity
             envelope["authority"] = {

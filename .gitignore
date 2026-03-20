@@ -369,3 +369,7 @@ docker-compose.override.yml
 # OpenClaw runtime configs (contain API keys)
 configs/openclaw/*.json
 
+# PyPI package builds
+arifosmcp-2026.*/
+*.tar.gz
+

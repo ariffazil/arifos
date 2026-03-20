@@ -84,12 +84,20 @@ Always use the appropriate 'mode' for each mega-tool to access underlying functi
 async def arifos_lifespan(server: FastMCP):
     """Lifecycle management for the arifOS Double Helix organs."""
     # Register arifOS-specific Prometheus metrics
-    from arifosmcp.runtime.metrics import FLOOR_VIOLATIONS, VERDICT_TOTAL, GENIUS_SCORE, ENTROPY_DELTA, HUMILITY_BAND, PEACE_SQUARED, Counter
-    
+    from arifosmcp.runtime.metrics import (
+        FLOOR_VIOLATIONS,
+        VERDICT_TOTAL,
+        GENIUS_SCORE,
+        ENTROPY_DELTA,
+        HUMILITY_BAND,
+        PEACE_SQUARED,
+        Counter,
+    )
+
     # Custom metric for registry panic monitoring
     DRIFT_PANICS = Counter(
         "arifos_registry_drift_panics_total",
-        "Total number of server start-up failures due to registry drift."
+        "Total number of server start-up failures due to registry drift.",
     )
 
     # CRITICAL: Verify 11-tool contract on startup
@@ -397,7 +405,6 @@ try:
 
 except ImportError as e:
     print(f"⚠️ Real WebMCP not available: {e}", file=sys.stderr)
-
 # Mount REAL A2A Server (Google Protocol - April 2025)
 try:
     from arifosmcp.runtime.a2a import create_a2a_server
@@ -411,6 +418,30 @@ try:
 
 except ImportError as e:
     print(f"⚠️ A2A not available: {e}", file=sys.stderr)
+
+
+# ---------------------------------------------------------------------------
+# WebMCP Integration - AI-Governed Web Environment
+# ---------------------------------------------------------------------------
+
+_WEBMCP_ENABLED = os.getenv("ARIFOS_WEBMCP_ENABLED", "true").lower() in ("true", "1", "yes")
+
+if _WEBMCP_ENABLED:
+    try:
+        from .webmcp import WebMCPGateway
+
+        # Mount the legacy WebMCP gateway last so its root mount does not
+        # swallow more specific protocol routes such as /a2a/*.
+        _webmcp_gateway = WebMCPGateway(mcp)
+        _webmcp_app = _webmcp_gateway.app
+        _mcp_app.mount("/", _webmcp_app, name="webmcp_root")
+
+        print("✅ WebMCP gateway integrated at root", file=sys.stderr)
+
+    except ImportError as e:
+        print(f"⚠️ WebMCP not available: {e}", file=sys.stderr)
+    except Exception as e:
+        print(f"❌ WebMCP integration failed: {e}", file=sys.stderr)
 
 
 def create_aaa_mcp_server() -> FastMCP:

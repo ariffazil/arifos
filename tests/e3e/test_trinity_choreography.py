@@ -520,47 +520,50 @@ class TestTrinityProtocolStatus:
 
     def test_e3e_webmcp_protocol_status(self, test_client):
         """
-        E3E: WebMCP protocol implementation status.
+        E3E: WebMCP protocol is mounted on the live app surface.
         """
-        # Check if WebMCP endpoints are mounted
-        webmcp_endpoints = [
-            "/.well-known/webmcp",
-            "/webmcp",
-            "/webmcp/init",
-        ]
-        
-        mounted = []
-        for endpoint in webmcp_endpoints:
-            response = test_client.get(endpoint)
-            if response.status_code != 404:
-                mounted.append(endpoint)
-        
-        if mounted:
-            print(f"[E3E] WebMCP Protocol: ✅ PARTIAL ({len(mounted)} endpoints)")
-        else:
-            print("[E3E] WebMCP Protocol: ⏳ PLANNED (modules exist, pending mount)")
+        manifest = test_client.get("/.well-known/webmcp")
+        assert manifest.status_code == 200
+
+        info = test_client.get("/webmcp")
+        assert info.status_code == 200
+
+        sdk = test_client.get("/webmcp/sdk.js")
+        assert sdk.status_code == 200
+
+        tools = test_client.get("/webmcp/tools.json")
+        assert tools.status_code == 200
+
+        init = test_client.post("/webmcp/init", json={"actor_id": "e3e", "human_approval": True})
+        assert init.status_code == 200
+        assert init.json()["verdict"] in {"SEAL", "PARTIAL"}
+
+        print("[E3E] WebMCP Protocol: ✅ IMPLEMENTED")
 
     def test_e3e_a2a_protocol_status(self, test_client):
         """
-        E3E: A2A protocol implementation status.
+        E3E: A2A protocol is mounted on the live app surface.
         """
-        # Check if A2A endpoints are mounted
-        a2a_endpoints = [
-            "/.well-known/agent.json",
+        card = test_client.get("/.well-known/agent.json")
+        assert card.status_code == 200
+
+        health = test_client.get("/a2a/health")
+        assert health.status_code == 200
+
+        submit = test_client.post(
             "/a2a/task",
-            "/a2a/health",
-        ]
-        
-        mounted = []
-        for endpoint in a2a_endpoints:
-            response = test_client.get(endpoint)
-            if response.status_code != 404:
-                mounted.append(endpoint)
-        
-        if mounted:
-            print(f"[E3E] A2A Protocol: ✅ PARTIAL ({len(mounted)} endpoints)")
-        else:
-            print("[E3E] A2A Protocol: ⏳ PLANNED (modules exist, pending mount)")
+            json={
+                "client_agent_id": "e3e",
+                "messages": [{"role": "user", "content": "protocol status probe"}],
+            },
+        )
+        assert submit.status_code == 200
+        task_id = submit.json()["task_id"]
+
+        status = test_client.get(f"/a2a/status/{task_id}")
+        assert status.status_code == 200
+
+        print("[E3E] A2A Protocol: ✅ IMPLEMENTED")
 
 
 # ============================================================================
