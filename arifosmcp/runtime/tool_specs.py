@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from typing import Any, Literal
 
+
 @dataclass(frozen=True)
 class ToolSpec:
     name: str
@@ -15,6 +16,8 @@ class ToolSpec:
     min_budget_tier: str = "micro"
     max_budget_tier: str = "large"
     overflow_policy: str = "truncate"
+    readonly: bool = True
+
 
 @dataclass(frozen=True)
 class ResourceSpec:
@@ -25,11 +28,13 @@ class ResourceSpec:
     # Unified flag for resource templates
     is_template: bool = False
 
+
 @dataclass(frozen=True)
 class PromptSpec:
     name: str
     description: str
     arguments: list[dict[str, Any]] = None
+
 
 MegaToolName = Literal[
     "init_anchor",
@@ -59,11 +64,12 @@ MEGA_TOOLS: tuple[str, ...] = (
     "architect_registry",
 )
 
+
 def _build_mega_schema(
     tool_name: str,
     modes: list[str],
     payload_properties: dict[str, Any],
-    required_payload: list[str] = None
+    required_payload: list[str] = None,
 ) -> dict[str, Any]:
     """Helper to build the unified request envelope schema for a mega-tool."""
     return {
@@ -74,59 +80,60 @@ def _build_mega_schema(
             "mode": {
                 "type": "string",
                 "description": f"Mode selector for {tool_name}.",
-                "enum": modes
+                "enum": modes,
             },
             "payload": {
                 "type": "object",
                 "description": "Mode-specific payload.",
                 "required": required_payload or [],
                 "properties": payload_properties,
-                "additionalProperties": False
+                "additionalProperties": False,
             },
             "auth_context": {
                 "type": ["object", "null"],
                 "description": "Optional auth context for continuity (F11) and sovereignty (F13).",
-                "additionalProperties": True
+                "additionalProperties": True,
             },
             "caller_context": {
                 "type": ["object", "null"],
                 "description": "Optional caller metadata.",
-                "additionalProperties": True
+                "additionalProperties": True,
             },
             "risk_tier": {
                 "type": "string",
                 "description": "Requested risk posture.",
                 "enum": ["low", "medium", "high", "critical"],
-                "default": "medium"
+                "default": "medium",
             },
             "dry_run": {
                 "type": "boolean",
                 "description": "If true, compute/plan/validate only.",
-                "default": True
+                "default": True,
             },
             "allow_execution": {
                 "type": "boolean",
                 "description": "If true, execution is permitted IF floors pass.",
-                "default": False
+                "default": False,
             },
             "debug": {
                 "type": "boolean",
                 "description": "Include additional diagnostics.",
-                "default": False
+                "default": False,
             },
             "request_id": {
                 "type": "string",
                 "description": "Client trace ID.",
                 "minLength": 8,
-                "maxLength": 128
+                "maxLength": 128,
             },
             "timestamp": {
                 "type": "string",
                 "description": "ISO 8601 timestamp.",
-                "format": "date-time"
-            }
-        }
+                "format": "date-time",
+            },
+        },
     }
+
 
 PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
     # ─── ⚖️ GOVERNANCE LAYER (G-1 to G-4) ───
@@ -148,21 +155,39 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
                 "actor_id": {"type": "string", "minLength": 2, "maxLength": 64},
                 "intent": {
                     "oneOf": [
-                        {"type": "string", "minLength": 4, "maxLength": 20000},
+                        {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 20000,
+                            "description": "Legacy string format (auto-normalized to object)",
+                        },
                         {
                             "type": "object",
                             "properties": {
                                 "query": {"type": "string", "minLength": 1, "maxLength": 20000},
-                                "task_type": {"type": "string", "maxLength": 64}
+                                "task_type": {
+                                    "type": "string",
+                                    "maxLength": 64,
+                                    "default": "general",
+                                },
+                                "domain": {"type": "string", "maxLength": 64},
+                                "desired_output": {"type": "string", "maxLength": 64},
                             },
-                            "required": ["query"]
-                        }
-                    ]
+                            "required": ["query"],
+                            "description": "Structured intent object (preferred)",
+                        },
+                    ],
+                    "description": "User intent - accepts string (legacy) or object with query, task_type, domain, desired_output",
                 },
                 "declared_name": {"type": "string", "maxLength": 64},
                 "session_id": {"type": "string", "minLength": 8, "maxLength": 128},
-                "reason": {"type": "string", "maxLength": 1000}
-            }
+                "reason": {"type": "string", "maxLength": 1000},
+                "human_approval": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Whether human has pre-approved this action (F13 Sovereign override)",
+                },
+            },
         ),
         default_budget_tier="small",
     ),
@@ -185,8 +210,8 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
                 "context": {"type": "string", "maxLength": 100000},
                 "max_steps": {"type": "integer", "minimum": 1, "maximum": 50, "default": 13},
                 "session_id": {"type": "string"},
-                "detail": {"type": "string", "enum": ["brief", "full"], "default": "full"}
-            }
+                "detail": {"type": "string", "enum": ["brief", "full"], "default": "full"},
+            },
         ),
     ),
     ToolSpec(
@@ -208,8 +233,11 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
                 "hold_id": {"type": "string"},
                 "message": {"type": "string"},
                 "session_id": {"type": "string"},
-                "target_floor": {"type": "string", "description": "Specific floor to probe (e.g. 'F12')."}
-            }
+                "target_floor": {
+                    "type": "string",
+                    "description": "Specific floor to probe (e.g. 'F12').",
+                },
+            },
         ),
     ),
     ToolSpec(
@@ -229,11 +257,10 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
                 "verdict": {"type": "string"},
                 "evidence": {"type": "string"},
                 "full_scan": {"type": "boolean", "default": True},
-                "session_id": {"type": "string"}
-            }
+                "session_id": {"type": "string"},
+            },
         ),
     ),
-
     # ─── 🧠 INTELLIGENCE LAYER (I-1 to I-3) ───
     ToolSpec(
         name="agi_mind",
@@ -251,9 +278,9 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
             {
                 "query": {"type": "string"},
                 "topic": {"type": "string"},
-                "session_id": {"type": "string"}
+                "session_id": {"type": "string"},
             },
-            required_payload=["query"]
+            required_payload=["query"],
         ),
     ),
     ToolSpec(
@@ -269,11 +296,8 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
         input_schema=_build_mega_schema(
             "asi_heart",
             ["critique", "simulate"],
-            {
-                "content": {"type": "string"},
-                "session_id": {"type": "string"}
-            },
-            required_payload=["content"]
+            {"content": {"type": "string"}, "session_id": {"type": "string"}},
+            required_payload=["content"],
         ),
     ),
     ToolSpec(
@@ -295,11 +319,10 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
                 "query": {"type": "string"},
                 "prompt": {"type": "string"},
                 "content": {"type": "string"},
-                "session_id": {"type": "string"}
-            }
+                "session_id": {"type": "string"},
+            },
         ),
     ),
-
     # ─── ⚙️ MACHINE LAYER (M-1 to M-4) ───
     ToolSpec(
         name="physics_reality",
@@ -316,11 +339,10 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
                 "input": {"type": "string"},
                 "operation": {"type": "string"},
                 "session_id": {"type": "string"},
-                "top_k": {"type": "integer", "default": 5}
-            }
+                "top_k": {"type": "integer", "default": 5},
+            },
         ),
     ),
-
     ToolSpec(
         name="math_estimator",
         stage="444_ROUTER",
@@ -334,10 +356,7 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
         input_schema=_build_mega_schema(
             "math_estimator",
             ["cost", "health", "vitals"],
-            {
-                "action": {"type": "string"},
-                "session_id": {"type": "string"}
-            }
+            {"action": {"type": "string"}, "session_id": {"type": "string"}},
         ),
     ),
     ToolSpec(
@@ -356,8 +375,8 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
             {
                 "path": {"type": "string", "default": "."},
                 "limit": {"type": "integer", "default": 50},
-                "session_id": {"type": "string"}
-            }
+                "session_id": {"type": "string"},
+            },
         ),
     ),
     ToolSpec(
@@ -371,10 +390,7 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
         input_schema=_build_mega_schema(
             "architect_registry",
             ["register", "list", "read"],
-            {
-                "uri": {"type": "string"},
-                "session_id": {"type": "string"}
-            }
+            {"uri": {"type": "string"}, "session_id": {"type": "string"}},
         ),
     ),
 )
@@ -383,43 +399,51 @@ PUBLIC_RESOURCE_SPECS: tuple[ResourceSpec, ...] = (
     ResourceSpec(
         uri="about://arifos",
         name="About arifOS",
-        description="High-level overview of the arifOS Constitutional Governance system."
+        description="High-level overview of the arifOS Constitutional Governance system.",
     ),
     ResourceSpec(
         uri="canon://floors",
         name="Constitutional Floors",
-        description="Detailed specification of the 13 Constitutional Floors (F1-F13)."
+        description="Detailed specification of the 13 Constitutional Floors (F1-F13).",
     ),
     ResourceSpec(
         uri="canon://contracts",
         name="Tool Contracts",
-        description="Functional and safety contracts for the 11 Mega-Tools."
+        description="Functional and safety contracts for the 11 Mega-Tools.",
     ),
     ResourceSpec(
         uri="arifos://status/vitals",
         name="System Vitals",
-        description="Real-time thermodynamic and metabolic health of the kernel."
+        description="Real-time thermodynamic and metabolic health of the kernel.",
     ),
     ResourceSpec(
         uri="arifos://caller/state",
         name="Caller State",
-        description="Current session identity, authority level, and available next actions."
+        description="Current session identity, authority level, and available next actions.",
     ),
     ResourceSpec(
         uri="arifos://sessions/{session_id}/vitals",
         name="Session Vitals",
         description="Dynamic vitals for a specific governed session.",
-        is_template=True
+        is_template=True,
     ),
 )
 
 PUBLIC_PROMPT_SPECS: tuple[PromptSpec, ...] = (
     PromptSpec(name="init_anchor", description="Prompt for establishing a constitutional session."),
     PromptSpec(name="arifOS_kernel", description="Prompt for the primary metabolic conductor."),
-    PromptSpec(name="agi_mind", description="Prompt for first-principles reasoning and reflection."),
-    PromptSpec(name="asi_heart", description="Prompt for ethical simulation and adversarial critique."),
+    PromptSpec(
+        name="agi_mind", description="Prompt for first-principles reasoning and reflection."
+    ),
+    PromptSpec(
+        name="asi_heart", description="Prompt for ethical simulation and adversarial critique."
+    ),
     PromptSpec(name="apex_soul", description="Prompt for sovereign judgment and safety auditing."),
     PromptSpec(name="vault_ledger", description="Prompt for immutable recording and verification."),
-    PromptSpec(name="physics_reality", description="Prompt for grounding thoughts in the physical world."),
-    PromptSpec(name="code_engine", description="Prompt for OS-level hygiene and computational execution."),
+    PromptSpec(
+        name="physics_reality", description="Prompt for grounding thoughts in the physical world."
+    ),
+    PromptSpec(
+        name="code_engine", description="Prompt for OS-level hygiene and computational execution."
+    ),
 )

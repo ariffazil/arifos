@@ -239,22 +239,27 @@ def infer_identity(query: str) -> str | None:
     return None
 
 
+PROTECTED_SOVEREIGN_IDS: set[str] = {"arif-fazil", "ariffazil", "arif", "arif-the-apex"}
+
+
 def verify_auth(actor_id: str, auth_token: str | None = None) -> tuple[bool, AuthorityLevel]:
     if not actor_id or actor_id == "anonymous":
         return True, AuthorityLevel.ANONYMOUS
 
     actor_id_clean = actor_id.lower().strip()
+    
+    # F11/F13: Protected IDs REQUIRES crypto (token)
+    if actor_id_clean in PROTECTED_SOVEREIGN_IDS and not auth_token:
+        # P0 Rule: Sovereign claim without token is demoted to anonymous/VOID
+        return False, AuthorityLevel.ANONYMOUS
+
     if actor_id_clean in VALID_ACTORS:
+        if not auth_token:
+            return True, AuthorityLevel.DECLARED
         return True, ACTOR_AUTHORITY.get(actor_id_clean, AuthorityLevel.USER)
 
     # GRACEFUL DEGRADATION (F11): If we have a name but no token, it's DECLARED/UNVERIFIED.
-    # We do NOT block at 000 INIT unless it's a high-stakes action.
-    if not auth_token:
-        return True, AuthorityLevel.DECLARED
-
-    # If it reached here with a token, we still assume USER for now
-    # unless we implement a real token verify logic.
-    return True, AuthorityLevel.USER
+    return True, AuthorityLevel.DECLARED
 
 
 def requires_sovereign(query: str) -> bool:

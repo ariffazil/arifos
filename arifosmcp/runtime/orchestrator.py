@@ -356,6 +356,41 @@ async def metabolic_loop(
     # Fast-path for dry_run mode - skip all LLM calls
     if dry_run:
         elapsed = time.perf_counter() - start_time
+        
+        # F11/F13: Protected IDs REQUIRES crypto (token) - even in dry_run fast-path
+        protected_ids = {"arif", "arif-fazil", "ariffazil", "arif-the-apex"}
+        actor_clean = (actor_id or "anonymous").lower().strip()
+        
+        is_protected = actor_clean in protected_ids
+        has_token = bool(auth_context) or bool(kwargs.get("auth_token"))
+        
+        if is_protected and not has_token:
+            # P0 Rule: Sovereign claim without token is demoted to anonymous/VOID
+            return {
+                "ok": True,
+                "tool": tool_name,
+                "session_id": session_id or "dry-run-session",
+                "stage": "444_ROUTER",
+                "verdict": "VOID",
+                "status": "AUTH_FAILURE",
+                "machine_status": "BLOCKED",
+                "machine_issue": "PROTECTED_IDENTITY_REQUIRES_CRYPTO",
+                "authority": {
+                    "actor_id": "anonymous",
+                    "level": "anonymous",
+                    "auth_state": "unverified"
+                },
+                "auth_context": None,
+                "latency_ms": round(elapsed * 1000, 2),
+                "dry_run": True,
+                "meta": {
+                    "schema_version": "1.0.0",
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
+                    "debug": False,
+                    "dry_run": True,
+                },
+            }
+
         return {
             "ok": True,
             "tool": tool_name,
@@ -375,15 +410,15 @@ async def metabolic_loop(
                 }
             },
             "authority": {
-                "actor_id": actor_id or "anonymous",  # EXPLICIT: actor_id only, no declared_name fallback
-                "level": "sovereign",
-                "auth_state": "verified"
+                "actor_id": actor_id or "anonymous",
+                "level": "sovereign" if (actor_id or "anonymous").lower() == "arif-the-apex" else "declared",
+                "auth_state": "verified" if has_token else "declared"
             },
             "auth_context": auth_context or {
-                "session_id": session_id or "dry-run-session",  # EXPLICIT: fallback labeled as dry-run
-                "actor_id": actor_id or "anonymous",  # EXPLICIT: no declared_name promotion
-                "authority_level": "sovereign",
-                "approval_scope": ["*"],
+                "session_id": session_id or "dry-run-session",
+                "actor_id": actor_id or "anonymous",
+                "authority_level": "sovereign" if (actor_id or "anonymous").lower() == "arif-the-apex" else "declared",
+                "approval_scope": ["*"] if ((actor_id or "anonymous").lower() == "arif-the-apex" or has_token) else ["read_safe"],
             },
             "latency_ms": round(elapsed * 1000, 2),
             "dry_run": True,
