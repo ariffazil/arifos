@@ -105,6 +105,7 @@ def select_governed_philosophy(
         "verdict": verdict,
         "failed_floors": failed_floors or [],
         "agi": {"source": "deterministic_33", "model": "rule_based_0"},
+        "asi": None,
     }
 
 
@@ -837,6 +838,16 @@ async def integrate_analyze_reflect(**kwargs: Any) -> RuntimeEnvelope:
     return await agi_reason(**kwargs)
 
 
+async def agi_asi_forge_handler(
+    spec: str,
+    session_id: str | None = None,
+    ctx: Context | None = None,
+    **kwargs: Any,
+) -> RuntimeEnvelope:
+    payload = {"spec": spec, **kwargs}
+    return await _wrap_call("agi_asi_forge_handler", Stage.FORGE_777, session_id, payload, ctx)
+
+
 async def asi_simulate(
     scenario: str,
     session_id: str | None = None,
@@ -1117,6 +1128,8 @@ LEGACY_COMPAT_MAP: dict[str, Callable[..., Any]] = {
     "agentzero_memory_query": agentzero_memory_query,
     "seal_vault_commit": seal_vault_commit,
     "forge": forge_legacy,
+    "reason_mind_synthesis": reason_mind_synthesis,
+    "agi_asi_forge_handler": agi_asi_forge_handler,
 }
 
 ALL_TOOL_IMPLEMENTATIONS = {**FINAL_TOOL_IMPLEMENTATIONS, **LEGACY_COMPAT_MAP}

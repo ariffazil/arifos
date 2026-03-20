@@ -835,6 +835,13 @@ async def call_kernel(
                 # Update authority level in the result as well
                 if "authority" in result:
                     result["authority"]["level"] = effective_level
+                    result["authority"]["auth_state"] = "verified"
+                else:
+                    result["authority"] = {
+                        "actor_id": effective_actor,
+                        "level": effective_level,
+                        "auth_state": "verified"
+                    }
                 
                 result["auth_context"] = mint_auth_context(
                     session_id=session_id,
