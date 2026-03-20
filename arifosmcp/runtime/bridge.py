@@ -31,45 +31,63 @@ from core.organs._4_vault import verify_vault_ledger
 from .models import ClaimStatus, Verdict
 
 logger = logging.getLogger(__name__)
+
+# P0: VPS Infrastructure Integration — Use Redis as primary vault backend
+# Docker network: arifos_redis:6379 (already running on VPS)
 DEFAULT_VAULT_PATH = Path(__file__).parents[2] / "VAULT999" / "vault999.jsonl"
 
-# P0: Ensure VAULT999 directory and file exist on module load
+# Import Redis vault (graceful fallback to file if Redis unavailable)
+try:
+    from .vault_redis import get_vault_store
+    _USE_REDIS_VAULT = True
+    logger.info("VAULT999: Redis backend enabled (VPS infrastructure)")
+except ImportError as e:
+    logger.warning(f"VAULT999: Redis backend unavailable ({e}), falling back to file")
+    _USE_REDIS_VAULT = False
+
+# Legacy file-based vault init (fallback)
 def _ensure_vault_exists():
-    """Lazy initialization of VAULT999 directory and ledger file."""
+    """Lazy initialization of VAULT999 directory and ledger file (fallback)."""
     try:
         vault_dir = DEFAULT_VAULT_PATH.parent
         vault_dir.mkdir(parents=True, exist_ok=True)
         if not DEFAULT_VAULT_PATH.exists():
             DEFAULT_VAULT_PATH.touch()
-            # Write header/seed entry
             with open(DEFAULT_VAULT_PATH, 'w') as f:
                 f.write(json.dumps({"type": "seed", "timestamp": datetime.now(timezone.utc).isoformat(), "hash": "0x" + "0"*64}) + "\n")
     except Exception as e:
-        logger.warning(f"VAULT999 initialization warning: {e}")
+        logger.warning(f"VAULT999 file fallback initialization warning: {e}")
 
-_ensure_vault_exists()
+if not _USE_REDIS_VAULT:
+    _ensure_vault_exists()
 
 TOOL_MAP = {
     "init_anchor": "anchor_session",
     "init_anchor_state": "anchor_session",
-    "integrate_analyze_reflect": "reason_mind",
-    "reason_mind_synthesis": "reason_mind",
     "arifOS_kernel": "metabolic_loop",
     "arifOS.kernel": "metabolic_loop",
     "metabolic_loop_router": "metabolic_loop",
-    "vector_memory_store": "vector_memory",
-    "assess_heart_impact": "simulate_heart",
-    "critique_thought_audit": "critique_thought",
-    "quantum_eureka_forge": "eureka_forge",
-    "apex_judge_verdict": "apex_judge",
-    "seal_vault_commit": "seal_vault",
-    "session_memory": "session_memory",
+    "agi_reason": "reason_mind",
+    "agi_reflect": "session_memory",
+    "asi_critique": "critique_thought",
+    "asi_simulate": "simulate_heart",
+    "apex_judge": "apex_judge",
+    "vault_seal": "seal_vault",
     "verify_vault_ledger": "verify_vault_ledger",
+    "reality_check": "search_reality",
+    "search_reality": "search_reality",
+    "open_web_page": "ingest_evidence",
+    "ingest_evidence": "ingest_evidence",
+    "agentzero_engineer": "agentzero_engineer",
+    "agentzero_validate": "agentzero_validate",
+    "reality_atlas": "reality_atlas",
+    "check_vital": "sense_health",
+    "sense_health": "sense_health",
+    "audit_rules": "system_audit",
     "office_forge_audit": "office_forge_audit",
     "forge_office_document": "office_forge",
     "ollama_local_generate": "ollama_local_generate",
-    "audit_rules": "system_audit",
-    "check_vital": "sense_health",
+    "trace_replay": "trace_replay",
 }
 
 AUTO_BOOTSTRAP_RISK_TIERS = frozenset({"low", "medium"})
@@ -100,8 +118,8 @@ def _resolve_claimed_actor_id(payload: dict[str, Any]) -> str:
     if "arif" in claim_lower and "arif-the-apex" not in claim_lower and "arif-fazil" not in claim_lower:
         return claim_lower.replace(" ", "").replace("-", "")
     
-    # Normalize spaces to hyphens (align with _0_init.py)
-    return claim_lower.replace(" ", "-") or "anonymous"
+    # Normalize spaces/underscores to hyphens (align with sessions.py and _0_init.py)
+    return claim_lower.replace(" ", "-").replace("_", "-") or "anonymous"
 
 
 def _auth_failure_envelope(
@@ -304,6 +322,7 @@ def _trace_replay_envelope(
     message: str | None = None,
     error: str | None = None,
     dry_run: bool = False,
+    backend: str = "file",
 ) -> dict[str, Any]:
     ok = replay_status not in {"ERROR", "TAMPERED"}
     errors = []
@@ -339,6 +358,7 @@ def _trace_replay_envelope(
             "trace_count": len(entries),
             "message": message,
             "entries": entries,
+            "backend": backend,
         },
         "errors": errors,
         "meta": {"schema_version": "1.0.0", "debug": False, "dry_run": dry_run},
@@ -642,6 +662,30 @@ async def call_kernel(
         except (TypeError, ValueError):
             max_entries = 20
 
+        # P0: VPS Infrastructure — Use Redis vault if available
+        if _USE_REDIS_VAULT:
+            try:
+                vault_store = get_vault_store()
+                replay_entries = await vault_store.get_session_entries(session_id)
+                
+                if not replay_entries:
+                    return _trace_replay_envelope(session_id, "NO_DATA", [], dry_run=dry_run)
+                
+                integrity_ok, integrity_reason = await vault_store.verify_chain()
+                if not integrity_ok:
+                    return _trace_replay_envelope(session_id, "TAMPERED", [], error=integrity_reason, dry_run=dry_run)
+                
+                return _trace_replay_envelope(
+                    session_id, "SUCCESS", 
+                    replay_entries[-max_entries:], 
+                    dry_run=dry_run,
+                    backend="redis"
+                )
+            except Exception as exc:
+                logger.error(f"Redis trace_replay failed: {exc}")
+                # Fall through to file fallback
+        
+        # File fallback
         if not DEFAULT_VAULT_PATH.exists():
             return _trace_replay_envelope(session_id, "NO_DATA", [], dry_run=dry_run)
 
@@ -802,7 +846,7 @@ async def call_kernel(
             result = await vault(
                 operation="seal",
                 session_id=session_id,
-                summary=payload.get("summary"),
+                summary=payload.get("summary") or payload.get("evidence"),
                 verdict=payload.get("verdict", "SEAL"),
                 approved_by=payload.get("approved_by"),
                 approval_reference=payload.get("approval_reference"),
@@ -812,14 +856,62 @@ async def call_kernel(
                 expected_prev_hash=auth_ctx.get("prev_vault_hash") if auth_ctx else None,
             )
 
+        elif canonical_name == "agentzero_engineer":
+            from arifosmcp.tools.agentzero_tools import agentzero_engineer
+            result = await agentzero_engineer(
+                task=payload.get("task") or query_input,
+                session_id=session_id
+            )
+
+        elif canonical_name == "agentzero_validate":
+            from arifosmcp.tools.agentzero_tools import agentzero_validate
+            result = await agentzero_validate(
+                input_to_validate=payload.get("input_to_validate") or query_input,
+                session_id=session_id
+            )
+
+        elif canonical_name == "reality_atlas":
+            from arifosmcp.runtime.tools_internal import reality_atlas
+            result = await reality_atlas(
+                operation=payload.get("operation", "merge"),
+                session_id=session_id,
+                bundles=payload.get("bundles"),
+                query=payload.get("query")
+            )
+
         elif canonical_name == "verify_vault_ledger":
-            ok, reason = verify_vault_ledger(DEFAULT_VAULT_PATH)
-            result = {
-                "ok": ok,
-                "status": "INTACT" if ok else "BROKEN",
-                "message": reason or "Chain Integrity: VERIFIED (SHA-256 Merkle)",
-                "path": str(DEFAULT_VAULT_PATH),
-            }
+            # P0: VPS Infrastructure — Use Redis vault if available
+            if _USE_REDIS_VAULT:
+                try:
+                    vault_store = get_vault_store()
+                    ok, reason = await vault_store.verify_chain()
+                    result = {
+                        "ok": ok,
+                        "status": "INTACT" if ok else "BROKEN",
+                        "message": reason or "Chain Integrity: VERIFIED (Redis + SHA-256 Merkle)",
+                        "backend": "redis",
+                        "host": "arifos_redis:6379",
+                    }
+                except Exception as e:
+                    logger.error(f"Redis vault verify failed: {e}")
+                    # Fallback to file
+                    ok, reason = verify_vault_ledger(DEFAULT_VAULT_PATH)
+                    result = {
+                        "ok": ok,
+                        "status": "INTACT" if ok else "BROKEN",
+                        "message": reason or "Chain Integrity: VERIFIED (File Fallback)",
+                        "path": str(DEFAULT_VAULT_PATH),
+                        "backend": "file",
+                    }
+            else:
+                ok, reason = verify_vault_ledger(DEFAULT_VAULT_PATH)
+                result = {
+                    "ok": ok,
+                    "status": "INTACT" if ok else "BROKEN",
+                    "message": reason or "Chain Integrity: VERIFIED (SHA-256 Merkle)",
+                    "path": str(DEFAULT_VAULT_PATH),
+                    "backend": "file",
+                }
 
         elif canonical_name == "office_forge_audit":
             result = await audit_markdown(markdown=payload.get("markdown") or query_input)

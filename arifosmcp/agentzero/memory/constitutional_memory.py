@@ -120,7 +120,7 @@ class MemoryEntry:
 
 
 def _build_qdrant_client():
-    """Build Qdrant client — remote when QDRANT_URL set, in-memory otherwise."""
+    """Build Qdrant client — remote when QDRANT_URL set, VPS host otherwise."""
     from qdrant_client import QdrantClient
 
     if QDRANT_URL:
@@ -128,7 +128,9 @@ def _build_qdrant_client():
         if QDRANT_API_KEY:
             kwargs["api_key"] = QDRANT_API_KEY
         return QdrantClient(**kwargs)
-    return QdrantClient(":memory:")
+    
+    # Wired for srv1325122.hstgr.cloud internal Docker networking
+    return QdrantClient(host="qdrant_memory", port=6333)
 
 
 def _embed(text: str) -> list[float]:
@@ -179,7 +181,8 @@ class ConstitutionalMemoryStore:
         }
 
     def _collection_name(self, project_id: str, area: MemoryArea) -> str:
-        return f"{project_id}_{area.name.lower()}"
+        # Use arifos_memory as a unified collection per Job 2 blueprint
+        return os.getenv("ARIFOS_MEMORY_COLLECTION", "arifos_memory")
 
     def _ensure_collection(self, collection_name: str) -> None:
         from qdrant_client.models import Distance, VectorParams

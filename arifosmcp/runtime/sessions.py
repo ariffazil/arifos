@@ -76,6 +76,11 @@ def clear_session_identity(session_id: str) -> None:
     _ACTOR_SESSION_MAP.pop(session_id, None)
 
 
+def list_active_sessions_count() -> int:
+    """Return the total number of currently anchored sessions."""
+    return len(_SESSION_IDENTITY)
+
+
 # ── Session Truth Resolution ──────────────────────────────────────────────
 # F2 Truth: Single canonical resolution of session + identity continuity.
 # Session Precedence: auth_context.session_id (verified) > anchored session 
@@ -112,7 +117,7 @@ def resolve_runtime_context(
         resolved_session_id = auth_context["session_id"]
         authority_source = "token"
     # 2. Anchored session state for this actor
-    elif stored := get_session_identity(transport_session_id):
+    elif get_session_identity(transport_session_id):
         resolved_session_id = transport_session_id
         authority_source = "session"
     # 3. Check if actor has any anchored session
@@ -142,21 +147,27 @@ def _resolve_canonical_actor(actor_id: str | None, declared_name: str | None) ->
     Handles alias normalization (arif -> ariffazil).
     """
     # Normalize inputs
-    aid = (actor_id or "").strip().lower()
-    dname = (declared_name or "").strip().lower()
+    aid = (actor_id or "").strip().lower().replace("_", "-")
+    dname = (declared_name or "").strip().lower().replace("_", "-")
     
     # Sovereign actor aliases
-    SOVEREIGN_ALIASES = {"arif", "arif-fazil", "ariffazil", "muhammad-arif"}
+    sovereign_aliases = {
+        "arif", 
+        "arif-fazil", 
+        "arif_fazil", 
+        "ariffazil", 
+        "muhammad-arif",
+    }
     
     # Precedence: actor_id first
     if aid and aid != "anonymous":
-        if aid in SOVEREIGN_ALIASES:
+        if aid in sovereign_aliases or aid.replace("-", "") == "ariffazil":
             return "ariffazil"
         return aid
     
     # Fallback: declared_name (normalized)
     if dname and dname != "anonymous":
-        if dname in SOVEREIGN_ALIASES:
+        if dname in sovereign_aliases or dname.replace("-", "") == "ariffazil":
             return "ariffazil"
         return dname
     

@@ -132,11 +132,15 @@ dependencies = [
     "playwright>=1.40.0",  # Browser-based fetch/search fallback
     "beautifulsoup4>=4.12.0",  # HTML parsing for fetch/reality tools
     "requests>=2.31.0",  # HTTP client used by CLI and fetch wrappers
-    "redis>=5.0.0",  # Session persistence backend
+    "redis>=5.0.0",  # Session persistence backend + VAULT999 storage
+    "cryptography>=42.0.0",  # Fernet encryption for vault at-rest
     "psutil>=5.9.0",  # System health and thermo instrumentation
     "python-dotenv>=1.0.0",  # Environment file loading
     "pyyaml>=6.0.0",  # Rule/config parsing for floors and wrappers
     "python-lsp-server>=1.11.0",  # LSP bridge for code intelligence
+    "py-key-value-aio[redis]>=0.4.0",  # Redis storage backend
+    "cryptography>=42.0.0",  # Encryption for vault/session storage
+    "psycopg2-binary>=2.9.0",  # Postgres adapter (binary)
 ]
 
 [project.optional-dependencies]
