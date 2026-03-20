@@ -148,6 +148,9 @@ def build_server_json(public_base_url: str = DEFAULT_PUBLIC_BASE_URL) -> dict[st
         "resources": resources,
         "resourceTemplates": resource_templates,
         "prompts": prompts,
+        "schema": {
+            "input": {spec.name: spec.input_schema for spec in PUBLIC_TOOL_SPECS}
+        }
     }
 
 
