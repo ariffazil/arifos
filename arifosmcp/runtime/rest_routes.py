@@ -1466,16 +1466,16 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
                     "query": query,
                     "context": body.get("context"),
                     "session_id": session_id,
+                    "risk_tier": risk_tier,
+                    "auth_context": {
+                        "actor_id": actor_id,
+                        "authority_level": "agent",
+                        "token_fingerprint": "REST-BYPASS",
+                        "session_id": session_id,
+                    },
+                    "dry_run": False,
+                    "allow_execution": True,
                 },
-                risk_tier=risk_tier,
-                auth_context={
-                    "actor_id": actor_id,
-                    "authority_level": "agent",
-                    "token_fingerprint": "REST-BYPASS",
-                    "session_id": session_id,
-                },
-                dry_run=False,
-                allow_execution=True,
             )
 
             # Extract results from the RuntimeEnvelope
