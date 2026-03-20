@@ -245,10 +245,16 @@ class RiskClass(str, Enum):
 
 
 class ClaimStatus(str, Enum):
+    """Forensic status of an identity claim (F11)."""
+
     ANONYMOUS = "anonymous"
     CLAIMED = "claimed"
     ANCHORED = "anchored"
     VERIFIED = "verified"
+    ACCEPTED = "accepted"
+    REJECTED = "rejected"
+    DEMOTED = "demoted"
+    REJECTED_PROTECTED_ID = "rejected_protected_id"
 
 
 class EurekaState(str, Enum):

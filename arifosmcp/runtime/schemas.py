@@ -7,7 +7,7 @@ Ensures FastMCP generates correct JSON Schema from type hints.
 
 from __future__ import annotations
 
-from typing import Any, Literal
+from typing import Any, Dict, Literal, Union
 from pydantic import BaseModel, Field
 
 
@@ -43,7 +43,7 @@ class IntentSpec(BaseModel):
 
 
 # P0: Intent can be string (legacy) or object (structured)
-IntentType = str | IntentSpec | None
+IntentType = Union[str, Dict[str, Any], None]
 
 
 # =============================================================================

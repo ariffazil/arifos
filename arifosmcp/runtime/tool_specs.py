@@ -168,11 +168,11 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
                                 "task_type": {
                                     "type": "string",
                                     "maxLength": 64,
-                                    "enum": ["general", "audit", "design", "decide", "analyze", "execute"],
+                                    "enum": ["general", "ask", "audit", "design", "decide", "analyze", "execute"],
                                     "default": "general",
                                 },
                                 "domain": {"type": "string", "maxLength": 64},
-                                "desired_output": {"type": "string", "maxLength": 64, "enum": ["text", "json", "table", "code", "report", "decision"]},
+                                "desired_output": {"type": "string", "maxLength": 64, "enum": ["text", "json", "table", "code", "report", "decision", "mixed"]},
                                 "reversibility": {"type": "string", "enum": ["reversible", "irreversible", "auditable"], "default": "auditable"},
                             },
                             "required": ["query"],

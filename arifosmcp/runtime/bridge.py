@@ -696,7 +696,7 @@ async def call_kernel(
                 "level": auth_level,
                 "auth_state": "verified" if res.verdict != Verdict.VOID else "unverified",
                 "human_approval_persisted": ha_value,
-                "claim_status": "accepted" if res.verdict != Verdict.VOID else "rejected_protected_id"
+                "claim_status": ClaimStatus.ACCEPTED.value if res.verdict != Verdict.VOID else ClaimStatus.REJECTED_PROTECTED_ID.value
             }
             result["human_approval_persisted"] = ha_value
             result["abi_version"] = "1.0"

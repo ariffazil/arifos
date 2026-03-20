@@ -3,7 +3,7 @@ from __future__ import annotations
 import asyncio
 import logging
 import uuid
-from typing import Any, Callable
+from typing import Any, Callable, Dict, Union
 
 from fastmcp import FastMCP
 from fastmcp.dependencies import CurrentContext
@@ -148,8 +148,9 @@ async def init_anchor(
     reason: str | None = None,
     caller_context: CallerContext | None = None,
     ctx: Context | None = None,
+    pns_shield: dict[str, Any] | None = None,  # P0: F12 injection defense data from orchestrator
 ) -> RuntimeEnvelope:
-    del auth_context, risk_tier, dry_run, caller_context
+    del auth_context, risk_tier, dry_run, caller_context, pns_shield
     ctx = ctx or CurrentContext()
 
     # P0: Normalize intent (string or structured object)
@@ -736,7 +737,7 @@ async def init_anchor_state(
     session_id: str | None = None,
     auth_context: dict[str, Any] | None = None,
     human_approval: bool = False,
-    intent: Any | None = None,
+    intent: IntentType = None,
     caller_context: CallerContext | None = None,
     ctx: Context | None = None,
     **kwargs: Any,

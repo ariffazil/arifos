@@ -807,8 +807,10 @@ def wrap_tool_output(tool: str, payload: dict[str, Any]) -> dict[str, Any]:
         }
     else:
         # P0: Sync dynamic fields while preserving pre-built sovereign flags
-        # Only overwrite human_required if not explicitly set to false by a human_approval=True override
-        if not authority.get("human_approval_persisted"):
+        # If human has already approved, no additional human is required for this stage.
+        if authority.get("human_approval_persisted") is True:
+            authority["human_required"] = False
+        else:
             authority["human_required"] = verdict in ["HOLD", "HOLD_888", "VOID"]
 
         if "auth_state" not in authority:

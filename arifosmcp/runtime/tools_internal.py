@@ -263,9 +263,13 @@ async def _wrap_call(
 
 # --- GOVERNANCE IMPLEMENTATIONS ---
 
+from arifosmcp.runtime.schemas import IntentType, IntentSpec
+
+# ... (rest of imports)
+
 async def init_anchor_impl(
     actor_id: str,
-    intent: str | dict | None,
+    intent: IntentType,
     session_id: str | None,
     ctx: Context,
     human_approval: bool = False,
@@ -275,13 +279,17 @@ async def init_anchor_impl(
     Separates 'claimed' vs 'resolved' identity for forensic audit.
     """
     # Normalize intent to object format for bridge compatibility
+    normalized_intent: dict[str, Any]
     if intent is None:
         normalized_intent = {"query": "Session Init", "task_type": "general"}
     elif isinstance(intent, str):
         normalized_intent = {"query": intent, "task_type": "general"}
-    else:
-        # Pydantic validation handles structured intent now
+    elif isinstance(intent, dict):
         normalized_intent = intent
+    elif hasattr(intent, "model_dump"):
+        normalized_intent = intent.model_dump(mode="json")
+    else:
+        normalized_intent = {"query": str(intent), "task_type": "general"}
     
     payload = {
         "actor_id": actor_id,
@@ -294,12 +302,13 @@ async def init_anchor_impl(
     # Forensic Separation (P0 Requirement)
     claimed_id = actor_id
     resolved_id = "anonymous"
-    claim_status = "rejected"
+    claim_status = ClaimStatus.REJECTED.value
     
     if envelope.ok and envelope.verdict != Verdict.VOID:
         if envelope.authority:
             resolved_id = getattr(envelope.authority, "actor_id", "anonymous")
-            claim_status = "accepted" if resolved_id == claimed_id else "demoted"
+            # P0: Map to valid ClaimStatus enum values
+            claim_status = ClaimStatus.ACCEPTED.value if resolved_id == claimed_id else ClaimStatus.DEMOTED.value
         
         # Persistent state binding
         bind_session_identity(
@@ -312,10 +321,10 @@ async def init_anchor_impl(
     else:
         # F11 Hard Rejection Case detection
         err_str = str(envelope.errors)
-        if "AUTH_FAILURE_PROTECTED_ID" in err_str:
-            claim_status = "rejected_protected_id"
+        if "AUTH_FAILURE_PROTECTED_ID" in err_str or "AUTH_PROTECTED_ID_REQUIRED" in err_str:
+            claim_status = ClaimStatus.REJECTED_PROTECTED_ID.value
         else:
-            claim_status = "rejected"
+            claim_status = ClaimStatus.REJECTED.value
 
     # Decorate envelope with forensic metadata
     envelope.payload.update({
