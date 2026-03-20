@@ -19,7 +19,7 @@
 ---
 
 [![Status](https://img.shields.io/badge/Status-Alive%20(COHERENT)-00b894.svg?style=flat-square)](https://arifosmcp.arif-fazil.com/health)
-[![Release](https://img.shields.io/badge/Version-2026.03.21--RELIABLE-blue.svg?style=flat-square)](https://github.com/ariffazil/arifosmcp/releases)
+[![Release](https://img.shields.io/badge/Version-2026.03.21--SOVEREIGN-blue.svg?style=flat-square)](https://github.com/ariffazil/arifosmcp/releases)
 [![Tools](https://img.shields.io/badge/Mega--Tools-11%20(37%20Modes)-success.svg?style=flat-square)](https://arifosmcp.arif-fazil.com/tools)
 [![Protocols](https://img.shields.io/badge/Protocols-MCP%2BA2A%2BWebMCP-orange.svg?style=flat-square)](./docs/protocols/PROTOCOLS_TRINITY.md)
 [![Validation](https://img.shields.io/badge/External%20Validation-HIGH-brightgreen.svg?style=flat-square)](./docs/reports/EXTERNAL_VALIDATION_REPORT.md)
@@ -656,4 +656,30 @@ Every tool response includes caller state visibility and recovery guidance:
 
 ---
 
-*(Final Verification: This document is grounded in the actual v2026.03.21-RELIABLE codebase. SEALed.)*
+---
+
+## 🔌 Infrastructure: What's Wired (as of 2026-03-20)
+
+| Service | Container | Status | arifOS Use |
+|---------|-----------|--------|------------|
+| Redis | `arifos_redis:6379` | ✅ Connected | Session + storage backend |
+| Qdrant | `qdrant_memory:6333` | ✅ Connected | `engineering_memory` vector store |
+| Postgres | `arifos_postgres:5432` | ✅ Connected | `vault_audit` table — every SEAL queryable |
+| Ollama | `ollama_engine:11434` | ✅ Connected | Local LLM generation |
+| Prometheus | `arifos_prometheus:9090` | ✅ Scraping | `/metrics` → `arifos_*` counters |
+| Grafana | `arifos_grafana:3000` | ✅ Running | Monitor constitutional health |
+| Brave Search | API key set | ✅ Active | `physics_reality` fact-checking |
+
+### Storage Persistence
+- **Vault JSONL**: Docker volume `arifosmcp_arifosmcp_vault` → `/usr/src/app/VAULT999/` (survives restarts)
+- **Vault Postgres**: Every `vault_ledger seal` writes to `vault_audit` table (queryable, permanent)
+- **Vector memory**: `engineering_memory write/recall` backed by Qdrant `arifos_memory` collection
+- **Sessions**: Redis-backed session state via `arifos_redis`
+
+### Deprecated Tools Removed (2026-03-20)
+The following 8 aliases have been removed from the MCP surface. Only the 11 canonical mega-tools are exposed:
+`init_anchor_state`, `revoke_anchor_state`, `get_caller_status`, `metabolic_loop_router`, `register_tools`, `list_resources`, `read_resource`, `arifos_list_resources`
+
+---
+
+*(Final Verification: This document is grounded in the actual v2026.03.21-SOVEREIGN codebase. SEALed. Last infrastructure verification: 2026-03-20)*
