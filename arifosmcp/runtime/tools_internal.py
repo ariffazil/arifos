@@ -325,6 +325,13 @@ async def init_anchor_impl(
         "abi_version": "1.0",
         "human_approval_persisted": human_approval
     })
+
+    # P0/F13: Sync human_approval to authority object for downstream gating
+    # If human_approval was explicitly given, mark authority as pre-cleared
+    if envelope.authority:
+        # human_required indicates if ADDITIONAL human approval is needed
+        # If human_approval was already given, no additional approval required
+        envelope.authority.human_required = False if human_approval else True
     
     return envelope
 

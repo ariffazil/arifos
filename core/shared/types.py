@@ -653,6 +653,10 @@ class InitOutput(BaseOrganOutput):
     f2_threshold: float = 0.99
     init_process_status: str = "ACTIVE"
     floors_failed: list[str] = Field(default_factory=list)
+    
+    # P0: Human approval tracking (F13 Sovereign)
+    human_approval: bool = False
+    human_approval_persisted: bool = False
 
     @property
     def is_void(self) -> bool:

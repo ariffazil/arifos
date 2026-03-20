@@ -426,6 +426,9 @@ async def init(
     except Exception:
         prev_vault_hash = "0x" + "0" * 64
 
+    # P0: Track human_approval in output for audit trail
+    human_approval_received = kwargs.get("human_approval", False)
+    
     return InitOutput(
         session_id=final_session_id,
         verdict=Verdict.SEAL,
@@ -443,6 +446,8 @@ async def init(
         injection_score=injection.score,
         tri_witness={"human": 1.0, "ai": 1.0, "earth": 1.0},
         prev_vault_hash=prev_vault_hash,
+        human_approval=human_approval_received,
+        human_approval_persisted=human_approval_received,
     )
 
 
