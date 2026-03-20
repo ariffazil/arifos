@@ -65,7 +65,7 @@ class TestDossierVerdict:
         
         assert verdict.claim == "The sky is blue"
         assert verdict.verdict == "SUPPORTED"
-        assert len(witnesses) == 2
+        assert len(verdict.witnesses) == 2
     
     def test_verdict_with_floor_impacts(self):
         """Test verdict with floor impacts"""

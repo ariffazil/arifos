@@ -622,6 +622,14 @@ async def _wrap_call(
 
     failed_codes = [e.code for e in envelope.errors if str(e.code).startswith("F")]
 
+    # If this is an init call, we want to reflect the resolve status in the philosophy
+    effective_stage = envelope.stage
+    effective_verdict = str(envelope.verdict.value) if hasattr(envelope.verdict, "value") else str(envelope.verdict)
+    
+    # Force deep contrast for 000_INIT failures
+    if effective_stage == "000_INIT" and envelope.verdict == Verdict.VOID:
+        g_score = 0.33 # Force humility quote
+
     envelope.philosophy = select_governed_philosophy(
         context=str(
             payload.get("query")
@@ -630,15 +638,21 @@ async def _wrap_call(
             or payload.get("spec")
             or tool_name
         ),
-        stage=envelope.stage,
-        verdict=str(envelope.verdict.value)
-        if hasattr(envelope.verdict, "value")
-        else str(envelope.verdict),
+        stage=effective_stage,
+        verdict=effective_verdict,
         g_score=g_score,
         failed_floors=failed_codes,
         session_id=normalized_session,
     )
 
+    # Final ABI Alignment: Sync flags from payload to authority if they were explicitly confirmed
+    if envelope.payload and "human_approval_persisted" in envelope.payload:
+        if not envelope.authority:
+            from .models import Authority
+            envelope.authority = Authority(actor_id="anonymous")
+        
+        envelope.authority.human_required = not bool(envelope.payload["human_approval_persisted"])
+        
     return envelope
 
 

@@ -3,7 +3,7 @@ from __future__ import annotations
 import uuid
 from typing import Any, Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 StatusState = Literal["SUCCESS", "PARTIAL", "SABAR", "VOID", "ERROR"]
 Stage = Literal["111_SENSE", "222_REALITY", "333_MIND"]
@@ -25,6 +25,14 @@ ErrorCode = Literal[
 ]
 
 
+class classproperty(object):
+    def __init__(self, f):
+        self.f = f
+
+    def __get__(self, obj, owner):
+        return self.f(owner)
+
+
 class StatusError(BaseModel):
     code: ErrorCode
     detail: str
@@ -33,11 +41,27 @@ class StatusError(BaseModel):
 
 
 class BundleStatus(BaseModel):
+    model_config = ConfigDict(ignored_types=(classproperty,))
+
     state: StatusState
     stage: Stage
     verdict: Verdict
     message: str = ""
+    label: str | None = None
     errors: list[StatusError] = Field(default_factory=list)
+
+    # Legacy attributes for test compatibility
+    @classproperty
+    def COMPLETE(cls):
+        return cls(state="SUCCESS", stage="222_REALITY", verdict="SEAL", label="COMPLETE")
+
+    @classproperty
+    def PENDING(cls):
+        return cls(state="SABAR", stage="111_SENSE", verdict="SABAR", label="PENDING")
+
+    @classproperty
+    def ERROR(cls):
+        return cls(state="ERROR", stage="111_SENSE", verdict="VOID", label="ERROR")
 
 
 class Policy(BaseModel):
@@ -103,9 +127,9 @@ class FetchResult(BaseModel):
 
 class EvidenceBundle(BaseModel):
     id: str = Field(default_factory=lambda: f"eb-{uuid.uuid4().hex[:8]}")
-    status: BundleStatus
-    input: BundleInput
-    actor: Actor
+    status: BundleStatus = Field(default_factory=lambda: BundleStatus.PENDING)
+    input: BundleInput = Field(default_factory=lambda: BundleInput(type="query", value="INIT"))
+    actor: Actor = Field(default_factory=Actor)
     claims: list[Claim] = Field(default_factory=list)
     results: list[SearchResult | FetchResult] = Field(default_factory=list)
     provenance: dict[str, Any] = Field(default_factory=dict)

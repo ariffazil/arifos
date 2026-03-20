@@ -654,14 +654,19 @@ async def call_kernel(
                 caller_ctx_obj = None
 
         if canonical_name == "anchor_session":
-            intent_payload = payload.get("intent", {})
-            if isinstance(intent_payload, str):
-                intent_payload = {"query": intent_payload}
-            intent = (
-                Intent(**intent_payload)
-                if intent_payload
-                else Intent(query=query_input or "INIT")
-            )
+            ha_value = bool(payload.get("human_approval", False))
+            intent_raw = payload.get("intent")
+            if intent_raw is None:
+                intent_raw = payload.get("query", "INIT")
+            
+            # Support both string and structured intent
+            if isinstance(intent_raw, str):
+                intent = Intent(query=intent_raw)
+            elif isinstance(intent_raw, dict):
+                intent = Intent(**intent_raw)
+            else:
+                intent = Intent(query=str(intent_raw))
+
             math = MathDials(**payload.get("math", {})) if payload.get("math") else MathDials()
             gov = (
                 GovernanceMetadata(**payload.get("governance", {}))
@@ -679,9 +684,9 @@ async def call_kernel(
             )
             result = res.model_dump(mode="json")
             
-            # F11: Ensure authority block is synced from governance
+            # F11/F13: Persist human approval into the governance output
             auth_level = res.governance.authority_level
-            if payload.get("human_approval") is True or _can_auto_anchor_declared_identity(payload, actor_id):
+            if ha_value or _can_auto_anchor_declared_identity(payload, actor_id):
                 if auth_level == "anonymous":
                     auth_level = "declared"
             
@@ -689,8 +694,12 @@ async def call_kernel(
             result["authority"] = {
                 "actor_id": res.governance.actor_id,
                 "level": auth_level,
-                "auth_state": "verified" if res.verdict != Verdict.VOID else "unverified"
+                "auth_state": "verified" if res.verdict != Verdict.VOID else "unverified",
+                "human_approval_persisted": ha_value,
+                "claim_status": "accepted" if res.verdict != Verdict.VOID else "rejected_protected_id"
             }
+            result["human_approval_persisted"] = ha_value
+            result["abi_version"] = "1.0"
 
             if res.verdict != Verdict.VOID:
                 result["auth_context"] = mint_auth_context(
