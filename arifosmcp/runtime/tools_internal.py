@@ -313,6 +313,7 @@ async def init_anchor_impl(
             resolved_id = getattr(envelope.authority, "actor_id", "anonymous")
             # P0: Map to valid ClaimStatus enum values
             claim_status = ClaimStatus.ANCHORED.value if resolved_id == claimed_id else ClaimStatus.DEMOTED.value
+
         
         # Persistent state binding
         bind_session_identity(
