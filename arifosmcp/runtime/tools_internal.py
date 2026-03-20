@@ -110,7 +110,7 @@ def _resolve_caller_state(session_id: str, authority: Any) -> tuple[str, list[st
                 "arifOS_kernel": "Requires anchored session. Run init_anchor first.",
                 "agi_mind": "Requires anchored session.",
                 "engineering_memory": "Requires anchored session and high-tier auth.",
-                "vault_ledger": "Requires verified identity (F11).",
+                "vault_ledger": "Requires anchored session and high-tier auth.",
             }
         },
         "claimed": {
@@ -122,10 +122,7 @@ def _resolve_caller_state(session_id: str, authority: Any) -> tuple[str, list[st
         },
         "anchored": {
             "allowed": MEGA_TOOLS,
-            "blocked": {
-                "engineering_memory": "Requires cryptographic verification.",
-                "vault_ledger": "Requires verified identity.",
-            }
+            "blocked": {}
         },
         "verified": {
             "allowed": MEGA_TOOLS,
@@ -285,11 +282,49 @@ async def init_anchor_impl(
         normalized_intent = {"query": "Session Init", "task_type": "general"}
     elif isinstance(intent, str):
         normalized_intent = {"query": intent, "task_type": "general"}
-    elif isinstance(intent, dict):
-        # ABI v1.0: Ensure 'query' field is present for downstream organs
-        if "query" not in intent:
-            intent["query"] = str(intent.get("task") or intent.get("intent") or "Session Action")
-        normalized_intent = intent
+    # P0: Cryptographic Identity Anchoring (ABI v1.0)
+    # If the actor_id is a protected sovereign ID, we REQUIRE a valid proof.
+    if is_protected_sovereign_id(actor_id):
+        # Extract proof from intent or top-level kwargs passed via MCP
+        proof = (normalized_intent.get("auth_token") or 
+                 normalized_intent.get("proof") or 
+                 normalized_intent.get("signature"))
+        
+        if not proof:
+             # Fail-closed on protected IDs without proof
+             return RuntimeEnvelope(
+                 ok=False,
+                 tool="init_anchor",
+                 session_id=session_id,
+                 stage="000_INIT",
+                 verdict=Verdict.VOID,
+                 status=RuntimeStatus.ERROR,
+                 errors=[CanonicalError(
+                     code="AUTH_FAILURE", 
+                     message=f"Protected ID '{actor_id}' requires cryptographic proof.",
+                     stage="000_INIT"
+                 )]
+             )
+             
+        # Validate the proof (calls internal HMAC/RSA/ED25519 logic)
+        if not validate_sovereign_proof(actor_id, proof):
+            return RuntimeEnvelope(
+                 ok=False,
+                 tool="init_anchor",
+                 session_id=session_id,
+                 stage="000_INIT",
+                 verdict=Verdict.VOID,
+                 status=RuntimeStatus.ERROR,
+                 errors=[CanonicalError(
+                     code="AUTH_FAILURE", 
+                     message=f"Invalid cryptographic proof for protected ID '{actor_id}'.",
+                     stage="000_INIT"
+                 )]
+             )
+
+    # ABI v1.0: Ensure 'query' field is present for downstream organs
+    if "query" not in normalized_intent:
+        normalized_intent["query"] = str(normalized_intent.get("task") or normalized_intent.get("intent") or "Session Action")
     elif hasattr(intent, "model_dump"):
         normalized_intent = intent.model_dump(mode="json")
     else:

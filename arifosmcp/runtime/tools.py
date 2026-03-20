@@ -11,6 +11,11 @@ from fastmcp.server.context import Context
 
 from arifosmcp.capability_map import CAPABILITY_MAP
 from arifosmcp.runtime.bridge import call_kernel
+from arifosmcp.runtime.governance_identities import (
+    PROTECTED_SOVEREIGN_IDS,
+    is_protected_sovereign_id,
+    validate_sovereign_proof,
+)
 from arifosmcp.runtime.models import (
     ArifOSError,
     CallerContext,
@@ -40,11 +45,6 @@ from arifosmcp.runtime.sessions import (
     get_session_identity,
     resolve_runtime_context,
     set_active_session,
-)
-from arifosmcp.runtime.governance_identities import (
-    PROTECTED_SOVEREIGN_IDS,
-    is_protected_sovereign_id,
-    validate_sovereign_proof,
 )
 from arifosmcp.runtime.schemas import IntentType
 from arifosmcp.runtime.tools_internal import (
@@ -503,98 +503,10 @@ def _resolve_caller_context(
     return base
 
 
-def _resolve_caller_state(
-    session_id: str, authority: Any
-) -> tuple[str, list[str], list[dict[str, str]]]:
-    if session_id == "global":
-        caller_state = "anonymous"
-    elif stored := get_session_identity(session_id):
-        caller_state = (
-            "verified" if stored.get("authority_level") in {"sovereign", "operator"} else "anchored"
-        )
-    else:
-        if isinstance(authority, dict):
-            claim_status = authority.get("claim_status", "anonymous")
-            actor_id = authority.get("actor_id", "anonymous")
-        else:
-            claim_status = (
-                getattr(authority, "claim_status", "anonymous")
-                if authority is not None
-                else "anonymous"
-            )
-            actor_id = (
-                getattr(authority, "actor_id", "anonymous")
-                if authority is not None
-                else "anonymous"
-            )
-        claim_status_value = getattr(claim_status, "value", claim_status)
-        if str(claim_status_value).lower() == "verified":
-            caller_state = "verified"
-        elif str(claim_status_value).lower() == "anchored":
-            caller_state = "anchored"
-        elif actor_id != "anonymous":
-            caller_state = "claimed"
-        else:
-            caller_state = "anonymous"
-
-    allowed = {
-        "anonymous": [
-            "get_caller_status",
-            "init_anchor",
-            "init_anchor_state",
-            "register_tools",
-            "audit_rules",
-            "check_vital",
-        ],
-        "claimed": [
-            "get_caller_status",
-            "init_anchor",
-            "init_anchor_state",
-            "register_tools",
-            "audit_rules",
-            "check_vital",
-        ],
-        "anchored": [
-            "get_caller_status",
-            "check_vital",
-            "audit_rules",
-            "agi_reason",
-            "search_reality",
-            "reality_compass",
-            "asi_critique",
-        ],
-        "verified": [
-            "get_caller_status",
-            "check_vital",
-            "audit_rules",
-            "agi_reason",
-            "search_reality",
-            "reality_compass",
-            "asi_critique",
-            "arifOS_kernel",
-            "forge",
-            "vault_seal",
-        ],
-    }
-    blocked = {
-        "anonymous": [
-            {"tool": "arifOS_kernel", "reason": "Session anchor required."},
-            {"tool": "agentzero_engineer", "reason": "Execution requires anchored authority."},
-        ],
-        "claimed": [
-            {"tool": "arifOS_kernel", "reason": "Anchor identity before kernel execution."},
-            {"tool": "agentzero_engineer", "reason": "Execution requires anchored authority."},
-        ],
-        "anchored": [
-            {"tool": "agentzero_engineer", "reason": "High-risk execution remains gated."}
-        ],
-        "verified": [],
-    }
-    return (
-        caller_state,
-        allowed.get(caller_state, allowed["anonymous"]),
-        blocked.get(caller_state, blocked["anonymous"]),
-    )
+def _resolve_caller_state(session_id: str, authority: Any) -> tuple[str, list[str], list[dict[str, str]]]:
+    """Single source of truth for caller state resolution."""
+    from .tools_internal import _resolve_caller_state as _resolve
+    return _resolve(session_id, authority)
 
 
 async def _wrap_call(
@@ -1362,15 +1274,10 @@ def register_tools(mcp: FastMCP, profile: str = "full") -> None:
         _shim.__name__ = f"{alias}_shim"
         return _shim
 
-    for legacy_name, target in CAPABILITY_MAP.items():
-        if legacy_name in FINAL_TOOL_IMPLEMENTATIONS:
-            continue
-        shim = _make_legacy_shim(legacy_name, target.mega_tool, target.mode)
-        note = f" {target.note}" if target.note else ""
-        mcp.tool(
-            name=legacy_name,
-            description=f"[DEPRECATED] Routes to {target.mega_tool} mode='{target.mode}'.{note}",
-        )(shim)
+    # P0: DEPRECATED TOOLS REMOVED FROM PUBLIC REGISTRY
+    # Legacy shims remain available for internal routing via CAPABILITY_MAP
+    # but are no longer registered as public MCP tools to clean up the surface.
+    pass
 
 
 class _CallableList(list):

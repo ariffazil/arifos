@@ -691,6 +691,9 @@ async def metabolic_loop(
 
         reality_summary = {"status": "SKIPPED", "required": False, "score": 0.0}
         verdict_history: list[Verdict] = [init_res.verdict]
+        
+        # P0: Cumulative payload preservation (Fix: Wire kernel to agi_mind output)
+        cumulative_payload = init_res.payload.copy() if init_res.payload else {}
         policy_res: RuntimeEnvelope = init_res
         policy_verdict = init_res.verdict
 
@@ -713,6 +716,7 @@ async def metabolic_loop(
             )
             current_verdict = res.verdict
 
+            # Constitutional Verdict Normalization: stage < 888 and VOID -> SABAR
             if stage_id < Stage.JUDGE_888.value and current_verdict == Verdict.VOID:
                 current_verdict = Verdict.SABAR
                 res = res.model_copy(update={"verdict": current_verdict})
@@ -721,6 +725,17 @@ async def metabolic_loop(
             verdict_history.append(current_verdict)
             auth_ctx = _extract_auth_context(res, auth_ctx)
             caller_ctx = _extract_caller_context(res, caller_ctx)
+
+            # Accumulate payloads (MIND/AGI results are high-fidelity)
+            if res.payload:
+                if stage_id == Stage.MIND_333.value:
+                    # Promote mind results to top-level fields for visibility
+                    cumulative_payload["answer"] = res.payload.get("answer")
+                    cumulative_payload["thought"] = res.payload.get("thought")
+                    cumulative_payload["steps"] = res.payload.get("steps")
+                
+                # Merge the rest
+                cumulative_payload.update(res.payload)
 
             if stage_id != Stage.VAULT_999.value:
                 policy_res = res
@@ -778,6 +793,7 @@ async def metabolic_loop(
                 "verdict": final_metrics.telemetry.verdict,
                 "status": "SUCCESS" if final_metrics.telemetry.verdict == "Alive" else "ERROR",
                 "trace": trace,
+                "payload": cumulative_payload,  # Replaces overwritten payload with cumulative one
                 "final_verdict": final_metrics.telemetry.verdict,
                 "metrics": final_metrics.model_dump(mode="json"),  # Rule 3 Format
                 "pns_active": pns_context is not None,

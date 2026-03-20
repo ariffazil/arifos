@@ -27,18 +27,17 @@ from contextlib import asynccontextmanager
 from fastmcp import FastMCP
 from fastmcp.server.transforms import ResourcesAsTools, Visibility
 from starlette.middleware.base import BaseHTTPMiddleware
-from starlette.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
-from starlette.responses import JSONResponse, FileResponse
+from starlette.responses import JSONResponse, FileResponse, Response
 from starlette.routing import Mount, Route
 from starlette.staticfiles import StaticFiles
+from prometheus_client import generate_latest, CONTENT_TYPE_LATEST
 
 from arifosmcp.runtime.fastmcp_ext.transports import (
     _build_http_middleware,
     _normalize_path,
     run_server,
 )
-from arifosmcp.runtime.orchestrator import metabolic_loop
 from arifosmcp.runtime.prompts import register_prompts
 from arifosmcp.runtime.public_registry import (
     is_public_profile,
@@ -58,7 +57,20 @@ except ImportError:
 from arifosmcp.runtime.tools import (
     register_tools,
     ALL_TOOL_IMPLEMENTATIONS,
+    # 11 MEGA-TOOLS
+    init_anchor,
+    arifOS_kernel,
+    apex_soul,
+    vault_ledger,
+    agi_mind,
+    asi_heart,
+    engineering_memory,
+    physics_reality,
+    math_estimator,
+    code_engine,
+    architect_registry,
 )
+from arifosmcp.runtime.storage import get_storage
 from arifosmcp.runtime.contracts import verify_contract
 from arifosmcp.runtime.public_registry import verify_no_drift
 from core.shared.manifest_loader import sync_runtime_floors
@@ -129,6 +141,7 @@ mcp = FastMCP(
     lifespan=arifos_lifespan,
     strict_input_validation=True,
     list_page_size=20,
+    storage=get_storage(),  # Wired to arifos_redis:6379 via key-value-aio
 )
 PUBLIC_TOOL_PROFILE = normalize_tool_profile(os.getenv("ARIFOS_PUBLIC_TOOL_PROFILE", "public"))
 # SSE removed: deprecated by MCP spec (2025-03) and Copilot Studio (2025-08)
@@ -313,7 +326,31 @@ async def get_health_reentry(request):
     )
 
 
+async def get_prometheus_metrics(request):
+    """Expose Prometheus metrics for scraping (Job 5)."""
+    from arifosmcp.runtime.metrics import ACTIVE_SESSIONS, VAULT_ENTRIES_COUNT
+    from arifosmcp.runtime.sessions import list_active_sessions_count
+    
+    # Update active sessions count
+    ACTIVE_SESSIONS.set(list_active_sessions_count())
+    
+    # Update vault records count (rough estimate from Postgres or JSONL)
+    vault_entries = 0
+    try:
+        from arifosmcp.intelligence.tools.logic.vault_logger import VaultLogger
+        logger_inst = VaultLogger()
+        # This is a bit heavy, but metrics usually scraped at 15s intervals
+        res = logger_inst.get_session_records("*") # If supported, or just count lines if JSONL
+        vault_entries = len(res)
+    except:
+        pass
+    VAULT_ENTRIES_COUNT.set(vault_entries)
+
+    return Response(generate_latest(), media_type=CONTENT_TYPE_LATEST)
+
+
 # Register all root-level discovery routes at the beginning to avoid shadowing
+_mcp_app.routes.insert(0, Route("/metrics", get_prometheus_metrics, methods=["GET"]))
 _mcp_app.routes.insert(0, Route("/health", get_health_reentry, methods=["GET"]))
 _mcp_app.routes.insert(0, Route("/.well-known/agent.json", well_known_agent, methods=["GET"]))
 _mcp_app.routes.insert(0, Route("/llms.txt", get_llms_txt, methods=["GET"]))

@@ -74,7 +74,8 @@ class VaultLogger:
         self._vault_path: Path
 
         # Attempt Postgres connection
-        dsn = (db_config or {}).get("dsn") or os.environ.get("VAULT999_DSN", "")
+        # Prioritize POSTGRES_URL from VPS environment
+        dsn = os.environ.get("POSTGRES_URL") or (db_config or {}).get("dsn") or os.environ.get("VAULT999_DSN", "")
         if dsn:
             self._conn = self._init_postgres(dsn)
 
@@ -196,21 +197,17 @@ class VaultLogger:
 
     def _ensure_schema(self, conn: Any) -> None:
         sql = """
-        CREATE TABLE IF NOT EXISTS vault999 (
+        CREATE TABLE IF NOT EXISTS vault_audit (
             id            SERIAL PRIMARY KEY,
             session_id    TEXT NOT NULL,
-            query         TEXT,
-            response      TEXT,
-            floor_audit   JSONB,
+            stage         TEXT,
             verdict       TEXT,
-            witness_human FLOAT,
-            witness_ai    FLOAT,
-            witness_earth FLOAT,
-            consensus     FLOAT,
-            seal_hash     TEXT UNIQUE,
+            actor_id      TEXT,
+            payload       JSONB,
+            hash          TEXT UNIQUE,
             created_at    TIMESTAMPTZ DEFAULT NOW()
         );
-        CREATE INDEX IF NOT EXISTS vault999_session_idx ON vault999(session_id);
+        CREATE INDEX IF NOT EXISTS vault_audit_session_idx ON vault_audit(session_id);
         """
         with conn.cursor() as cur:
             cur.execute(sql)
@@ -218,11 +215,10 @@ class VaultLogger:
 
     def _write_postgres(self, record: WitnessRecord) -> None:
         sql = """
-        INSERT INTO vault999
-            (session_id, query, response, floor_audit, verdict,
-             witness_human, witness_ai, witness_earth, consensus, seal_hash)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-        ON CONFLICT (seal_hash) DO NOTHING;
+        INSERT INTO vault_audit
+            (session_id, stage, verdict, actor_id, payload, hash)
+        VALUES (%s, %s, %s, %s, %s, %s)
+        ON CONFLICT (hash) DO NOTHING;
         """
         try:
             from psycopg2.extras import Json  # type: ignore[import]
@@ -232,14 +228,10 @@ class VaultLogger:
                     sql,
                     (
                         record.session_id,
-                        record.query,
-                        record.response,
-                        Json(record.floor_audit),
+                        "VAULT_999",  # stage
                         record.verdict,
-                        record.witness_human,
-                        record.witness_ai,
-                        record.witness_earth,
-                        record.consensus_score,
+                        "anonymous",  # default actor_id
+                        Json(asdict(record)),
                         record.seal_hash,
                     ),
                 )

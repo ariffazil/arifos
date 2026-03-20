@@ -9,11 +9,17 @@ DITEMPA BUKAN DIBERI — Forged, Not Given
 
 from __future__ import annotations
 
+from typing import Any, Literal
 from prometheus_client import Counter, Gauge, Histogram
+from arifosmcp.runtime.models import (
+    CanonicalMetrics, 
+    TelemetryVitals, 
+    TelemetryBasis, 
+    TripleWitness
+)
 
 try:
     from opentelemetry import trace
-    from opentelemetry.trace import Status, StatusCode
     OTEL_AVAILABLE = True
 except ImportError:
     OTEL_AVAILABLE = False
@@ -52,7 +58,7 @@ class HelixTracer:
         )
         return span
 
-    def record_constitutional_event(self, span, event_name: str, metrics: dict[str, Any]):
+    def record_constitutional_event(self, span: Any, event_name: str, metrics: dict[str, Any]):
         """Record a thermodynamic state transition event within a span."""
         if not span:
             return
@@ -225,6 +231,18 @@ FLOOR_VIOLATIONS = Counter(
     ["floor", "tool"],
 )
 
+# Active Sessions (H1.1: Production Observability)
+ACTIVE_SESSIONS = Gauge(
+    "arifos_sessions_active",
+    "Number of currently active constitutional sessions",
+)
+
+# Vault Entry Count (SHA-256 Merkle Ledger)
+VAULT_ENTRIES_COUNT = Gauge(
+    "arifos_vault_entries_total",
+    "Total count of sealed entries in VAULT999",
+)
+
 # Machine fault codes (VOID Memanjang elimination — mechanical faults only)
 MACHINE_FAULTS = Counter(
     "arifos_machine_faults_total",
@@ -252,6 +270,25 @@ def record_w3(tool: str, w3_score: float) -> None:
     W3_SCORE.labels(tool=tool).observe(w3_score)
 
 
+def update_prometheus_metrics() -> None:
+    """Refreshes dynamic gauges like active sessions and vault record counts (Job 5)."""
+    try:
+        from arifosmcp.runtime.sessions import list_active_sessions_count
+        ACTIVE_SESSIONS.set(list_active_sessions_count())
+    except:
+        pass
+
+    try:
+        from arifosmcp.intelligence.tools.logic.vault_logger import VaultLogger
+        logger_inst = VaultLogger()
+        # Retrieve all records for a session "*" as a proxy for total records
+        # In Postgres mode, this is more accurate than JSONL if get_session_records is updated
+        res = logger_inst.get_session_records("*")
+        VAULT_ENTRIES_COUNT.set(float(len(res)))
+    except:
+        pass
+
+
 def record_machine_fault(tool: str, fault_code: str) -> None:
     """
     Record a machine-layer fault.
@@ -273,14 +310,6 @@ def record_void_event(tool: str, void_reason: str) -> None:
 # ---------------------------------------------------------------------------
 # SCORE INTEGRITY PROTOCOL (FORGED 2026-03-13)
 # ---------------------------------------------------------------------------
-
-from typing import Literal
-from arifosmcp.runtime.models import (
-    CanonicalMetrics, 
-    TelemetryVitals, 
-    TelemetryBasis, 
-    TripleWitness
-)
 
 def compute_integrity_telemetry(
     # Measurements
@@ -327,11 +356,9 @@ def compute_integrity_telemetry(
     # 4. κᵣ (Maruah Score) - Basis: derived | null
     if sources_cited == 0:
         kappa_r = None
-        kappa_basis = None
     else:
         kappa_r = (my_sources_count / max(sources_cited, 1)) * 0.6 + 0.4 * (1 - dignity_flags * 0.2)
         kappa_r = round(kappa_r, 2)
-        kappa_basis = "derived"
 
     # 5. Ψ_LE (AGI Emergence Pressure) - Basis: heuristic
     psi_val = 0.8 + 0.05 * min(reasoning_depth, 4) + 0.05 * (1 if tri_witness_confirmed else 0) + 0.02 * floor_activations

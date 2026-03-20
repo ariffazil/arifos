@@ -40,6 +40,12 @@ BRAVE_API_KEY = os.getenv("BRAVE_API_KEY", "")
 JINA_API_KEY = os.getenv("JINA_API_KEY", "")
 PPLX_API_KEY = os.getenv("PPLX_API_KEY", "")
 
+try:
+    from ddgs import DDGS
+    DDGS_AVAILABLE = True
+except ImportError:
+    DDGS_AVAILABLE = False
+
 
 class RealityHandler:
     def __init__(self):
@@ -172,18 +178,15 @@ class RealityHandler:
         res = SearchResult(engine="brave", query=query)
 
         if not BRAVE_API_KEY:
-            res.error = "BRAVE_API_KEY not set"
+            if DDGS_AVAILABLE:
+                logger.info("Brave key missing, falling back to DDGS")
+                return await self.search_ddgs(query, top_k)
+            res.error = "BRAVE_API_KEY not set and DDGS not available"
             res.status_code = 401
             return res
 
-        # Brave V1 Fixes (P1):
-        # - count: 1-20
-        # - ui_lang: locale (en-MY)
-        # - search_lang: 2-char (en)
-        # - Headers: Cache-Control: no-cache
-
+        # Brave V1 implementation...
         search_lang = locale.split("-")[0] if "-" in locale else "en"
-
         params = {
             "q": query,
             "count": min(max(1, top_k), 20),
@@ -208,52 +211,53 @@ class RealityHandler:
                     },
                 )
                 res.status_code = response.status_code
-                res.response_diagnostics = {
-                    "headers": {
-                        k: v
-                        for k, v in response.headers.items()
-                        if k.lower() in ["content-type", "x-request-id", "cache-control"]
-                    }
-                }
-
                 if response.status_code == 200:
                     data = response.json()
                     web_results = data.get("web", {}) or {}
                     res.results = web_results.get("results", []) if web_results else []
-
-                    # FALLBACK: If Brave returns empty, try alternative sources
-                    if not res.results and query:
-                        try:
-                            # Try internal search as fallback
-                            from .reality_models import WebResult
-                            import random
-
-                            # Generate placeholder results for testing
-                            res.results = [
-                                WebResult(
-                                    title=f"Result for: {query}",
-                                    url=f"https://search.internal?q={query}",
-                                    description=f"Search completed but no external results. Query: {query}",
-                                )
-                            ]
-                            res.fallback_source = "internal"
-                        except Exception as fallback_err:
-                            pass
-
-                    # Log if still empty
-                    if not res.results:
-                        res.error = (
-                            f"Brave returned 200 but no web results. Keys: {list(data.keys())}"
-                        )
-                elif response.status_code == 422:
-                    # Capture detail for P1 fixing
-                    res.error = f"Brave 422 Unprocessable: {response.text}"
+                    if not res.results and DDGS_AVAILABLE:
+                         logger.info("Brave returned no results, trying DDGS fallback")
+                         return await self.search_ddgs(query, top_k)
+                elif DDGS_AVAILABLE:
+                      logger.warning(f"Brave error {response.status_code}, trying DDGS fallback")
+                      return await self.search_ddgs(query, top_k)
                 else:
                     res.error = f"Brave API Error {response.status_code}: {response.text[:500]}"
         except Exception as e:
+            if DDGS_AVAILABLE:
+                logger.warning(f"Brave exception ({type(e).__name__}), trying DDGS fallback")
+                return await self.search_ddgs(query, top_k)
             res.error = f"{e.__class__.__name__}: {str(e)}"
             res.status_code = 0
 
+        res.latency_ms = (time.time() - start_time) * 1000
+        return res
+
+    async def search_ddgs(self, query: str, top_k: int = 5) -> SearchResult:
+        """Search DuckDuckGo."""
+        start_time = time.time()
+        res = SearchResult(engine="ddgs", query=query)
+        if not DDGS_AVAILABLE:
+            res.error = "ddgs library not installed"
+            return res
+        
+        try:
+            from ddgs import DDGS
+            with DDGS() as ddgs:
+                results = list(ddgs.text(query, max_results=top_k))
+                res.results = [
+                    {
+                        "title": r.get("title", ""),
+                        "url": r.get("href", ""),
+                        "description": r.get("body", "")
+                    }
+                    for r in results
+                ]
+                res.status_code = 200
+        except Exception as e:
+            res.error = f"DDGS error: {str(e)}"
+            res.status_code = 500
+        
         res.latency_ms = (time.time() - start_time) * 1000
         return res
 
