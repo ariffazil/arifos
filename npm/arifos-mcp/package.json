@@ -27,7 +27,8 @@
   "license": "AGPL-3.0-only",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ariffazil/arifosmcp.git"
+    "url": "git+https://github.com/ariffazil/arifosmcp.git",
+    "directory": "npm/arifos-mcp"
   },
   "bugs": {
     "url": "https://github.com/ariffazil/arifosmcp/issues"
@@ -56,5 +57,8 @@
         "ARIFOS_PUBLIC_TOOL_PROFILE": "full"
       }
     }
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
