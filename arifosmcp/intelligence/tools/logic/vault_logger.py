@@ -186,14 +186,10 @@ class VaultLogger:
     # ------------------------------------------------------------------
 
     def _init_postgres(self, dsn: str) -> Any:
-        try:
-            import psycopg2  # type: ignore[import]
-
-            conn = psycopg2.connect(dsn)
-            self._ensure_schema(conn)
-            return conn
-        except Exception:
-            return None  # Graceful fallback to JSONL
+        # psycopg2 is not available — asyncpg is used for async paths.
+        # VaultLogger sync path writes to JSONL; async Postgres writes are handled
+        # directly by core/organs/_4_vault.py seal() via asyncpg.
+        return None  # Graceful fallback to JSONL
 
     def _ensure_schema(self, conn: Any) -> None:
         sql = """

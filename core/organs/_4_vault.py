@@ -302,6 +302,57 @@ async def seal(
     except Exception as _oe:
         logger.warning("OutcomeLedger hook failed (Layer 6 reality feedback degraded): %s", _oe)
 
+    # 7b. Postgres Audit Write-Through (asyncpg, non-blocking)
+    _pg_url = os.environ.get("DATABASE_URL") or os.environ.get("POSTGRES_URL")
+    if _pg_url and seal_mode == "final":
+        try:
+            import asyncpg
+
+            async def _pg_write():
+                conn = await asyncpg.connect(_pg_url)
+                try:
+                    await conn.execute(
+                        """
+                        CREATE TABLE IF NOT EXISTS vault_audit (
+                            id SERIAL PRIMARY KEY,
+                            session_id TEXT NOT NULL,
+                            ledger_id TEXT UNIQUE,
+                            stage TEXT,
+                            verdict TEXT,
+                            actor_id TEXT,
+                            floor_scores JSONB,
+                            payload JSONB,
+                            sha256_hash TEXT,
+                            created_at TIMESTAMPTZ DEFAULT NOW()
+                        );
+                        CREATE INDEX IF NOT EXISTS vault_audit_session_idx ON vault_audit(session_id);
+                        """
+                    )
+                    import json as _json
+                    await conn.execute(
+                        """
+                        INSERT INTO vault_audit
+                            (session_id, ledger_id, stage, verdict, actor_id, floor_scores, payload, sha256_hash, hash)
+                        VALUES ($1, $2, $3, $4, $5, $6::jsonb, $7::jsonb, $8, $8)
+                        ON CONFLICT (ledger_id) DO NOTHING
+                        """,
+                        session_id,
+                        ledger_id,
+                        "999_VAULT",
+                        verdict,
+                        (auth_context or {}).get("actor_id", "anonymous"),
+                        _json.dumps(floors),
+                        _json.dumps({"summary": summary, "approved_by": approved_by, "telemetry": telemetry or {}}),
+                        entry_hash,
+                    )
+                finally:
+                    await conn.close()
+
+            await _pg_write()
+            logger.info("Vault audit row written to Postgres (ledger_id=%s)", ledger_id)
+        except Exception as _pg_exc:
+            logger.warning("Postgres vault audit write failed (non-critical): %s", _pg_exc)
+
     # 8. Construct Output
     return VaultOutput(
         session_id=session_id,

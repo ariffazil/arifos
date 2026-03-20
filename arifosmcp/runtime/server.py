@@ -70,7 +70,6 @@ from arifosmcp.runtime.tools import (
     code_engine,
     architect_registry,
 )
-from arifosmcp.runtime.storage import get_storage
 from arifosmcp.runtime.contracts import verify_contract
 from arifosmcp.runtime.public_registry import verify_no_drift
 from core.shared.manifest_loader import sync_runtime_floors
@@ -141,8 +140,9 @@ mcp = FastMCP(
     lifespan=arifos_lifespan,
     strict_input_validation=True,
     list_page_size=20,
-    storage=get_storage(),  # Wired to arifos_redis:6379 via key-value-aio
 )
+# Note: Redis wiring is done at the vault/session layer, not FastMCP constructor
+# (FastMCP 3.1.1 does not accept 'storage' kwarg)
 PUBLIC_TOOL_PROFILE = normalize_tool_profile(os.getenv("ARIFOS_PUBLIC_TOOL_PROFILE", "public"))
 # SSE removed: deprecated by MCP spec (2025-03) and Copilot Studio (2025-08)
 VALID_TRANSPORT_MODES = {"stdio", "http", "streamable-http"}

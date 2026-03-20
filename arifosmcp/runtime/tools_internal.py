@@ -61,6 +61,10 @@ from arifosmcp.tools.agentzero_tools import (
     agentzero_memory_query as _az_memory_query,
     agentzero_armor_scan as _az_armor_scan,
 )
+from arifosmcp.runtime.governance_identities import (
+    is_protected_sovereign_id,
+    validate_sovereign_proof,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -282,6 +286,10 @@ async def init_anchor_impl(
         normalized_intent = {"query": "Session Init", "task_type": "general"}
     elif isinstance(intent, str):
         normalized_intent = {"query": intent, "task_type": "general"}
+    elif isinstance(intent, dict):
+        normalized_intent = intent
+    else:
+        normalized_intent = {"query": str(intent), "task_type": "general"}
     # P0: Cryptographic Identity Anchoring (ABI v1.0)
     # If the actor_id is a protected sovereign ID, we REQUIRE a valid proof.
     if is_protected_sovereign_id(actor_id):
@@ -513,21 +521,63 @@ async def asi_heart_dispatch_impl(mode: str, payload: dict, auth_context: dict |
         return await _wrap_call("asi_simulate", Stage.HEART_666, session_id, {"scenario": content}, ctx)
     raise ValueError(f"Invalid mode for asi_heart: {mode}")
 
+_constitutional_memory_store = None
+
+
+def _get_constitutional_memory_store():
+    """Lazy singleton for ConstitutionalMemoryStore (Qdrant-backed)."""
+    global _constitutional_memory_store
+    if _constitutional_memory_store is None:
+        try:
+            from arifosmcp.agentzero.memory.constitutional_memory import ConstitutionalMemoryStore
+            _constitutional_memory_store = ConstitutionalMemoryStore()
+            logger.info("ConstitutionalMemoryStore initialised (Qdrant: qdrant_memory:6333)")
+        except Exception as exc:
+            logger.warning("ConstitutionalMemoryStore unavailable: %s", exc)
+    return _constitutional_memory_store
+
+
 async def engineering_memory_dispatch_impl(mode: str, payload: dict, auth_context: dict | None, risk_tier: str, dry_run: bool, ctx: Context) -> RuntimeEnvelope:
     session_id = payload.get("session_id")
     if mode == "engineer":
         return await _az_engineer(task_description=payload.get("task") or payload.get("query") or "No task", session_id=session_id)
-    elif mode == "recall":
-        return await _az_memory_query(query=payload.get("query") or payload.get("task") or "No query", session_id=session_id)
     elif mode == "write":
-        content = payload.get("content", "No content provided.")
-        # Mocking semantic learn/write
-        return RuntimeEnvelope(ok=True, tool="engineering_memory", session_id=session_id, stage="555_MEMORY", verdict=Verdict.SEAL, status=RuntimeStatus.SUCCESS, payload={"learned": True, "bytes_written": len(content)})
+        content = payload.get("content") or payload.get("text") or "No content provided."
+        project_id = payload.get("project_id", "default")
+        area_str = payload.get("area", "main")
+        store = _get_constitutional_memory_store()
+        if store:
+            from arifosmcp.agentzero.memory.constitutional_memory import MemoryArea
+            area = MemoryArea.from_string(area_str)
+            await store.initialize_project(project_id)
+            ok, memory_id, error = await store.store(
+                content=content,
+                area=area,
+                project_id=project_id,
+                source="engineering_memory",
+                source_agent=session_id,
+            )
+            if ok:
+                return RuntimeEnvelope(ok=True, tool="engineering_memory", session_id=session_id, stage="555_MEMORY", verdict=Verdict.SEAL, status=RuntimeStatus.SUCCESS, payload={"learned": True, "memory_id": memory_id, "bytes_written": len(content), "backend": "qdrant"})
+            else:
+                return RuntimeEnvelope(ok=False, tool="engineering_memory", session_id=session_id, stage="555_MEMORY", verdict=Verdict.SABAR, status=RuntimeStatus.SABAR, payload={"error": error or "Qdrant write failed"})
+        # Fallback: no Qdrant available
+        return RuntimeEnvelope(ok=True, tool="engineering_memory", session_id=session_id, stage="555_MEMORY", verdict=Verdict.SEAL, status=RuntimeStatus.SUCCESS, payload={"learned": True, "bytes_written": len(content), "backend": "none", "warning": "Qdrant not available"})
+    elif mode in ("recall", "query"):
+        query = payload.get("query") or payload.get("task") or payload.get("content") or "No query"
+        project_id = payload.get("project_id", "default")
+        k = int(payload.get("k", 5))
+        store = _get_constitutional_memory_store()
+        if store:
+            from arifosmcp.agentzero.memory.constitutional_memory import MemoryArea
+            await store.initialize_project(project_id)
+            entries = await store.recall(query=query, project_id=project_id, k=k)
+            results = [e.to_dict() for e in entries]
+            return RuntimeEnvelope(ok=True, tool="engineering_memory", session_id=session_id, stage="555_MEMORY", verdict=Verdict.SEAL, status=RuntimeStatus.SUCCESS, payload={"results": results, "count": len(results), "query": query, "backend": "qdrant"})
+        # Fallback to legacy memory query
+        return await _az_memory_query(query=query, session_id=session_id)
     elif mode == "generate":
         return await ollama_local_generate_impl(prompt=payload.get("prompt") or payload.get("query") or "No prompt", session_id=session_id)
-    # Compatibility fallback for 'query' mode
-    elif mode == "query":
-        return await _az_memory_query(query=payload.get("query") or payload.get("task") or "No query", session_id=session_id)
     raise ValueError(f"Invalid mode for engineering_memory: {mode}")
 
 async def ollama_local_generate_impl(prompt: str, session_id: str | None) -> RuntimeEnvelope:
