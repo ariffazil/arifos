@@ -264,15 +264,18 @@ async def arifOS_kernel(
     session_id: str | None = None,
     caller_context: CallerContext | None = None,
     ctx: Context | None = None,
+    intent: IntentType = None,
 ) -> RuntimeEnvelope:
     del caller_context
     ctx = ctx or CurrentContext()
     if mode is None:
         mode = "kernel"
-        payload = {"query": query or "", "session_id": session_id}
+        payload = {"query": query or "", "session_id": session_id, "intent": intent}
 
     payload = dict(payload or {})
     payload["session_id"] = _normalize_session_id(payload.get("session_id") or session_id)
+    if intent and not payload.get("intent"):
+        payload["intent"] = intent
 
     if mode == "kernel":
         return await arifos_kernel_impl(
@@ -283,6 +286,7 @@ async def arifOS_kernel(
             allow_execution=bool(payload.get("allow_execution", allow_execution)),
             session_id=payload.get("session_id"),
             ctx=ctx,
+            intent=payload.get("intent"),
         )
     if mode == "status":
         return await get_caller_status_impl(session_id=payload.get("session_id"), ctx=ctx)

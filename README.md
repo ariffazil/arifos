@@ -19,7 +19,7 @@
 ---
 
 [![Status](https://img.shields.io/badge/Status-Alive%20(COHERENT)-00b894.svg?style=flat-square)](https://arifosmcp.arif-fazil.com/health)
-[![Release](https://img.shields.io/badge/Version-2026.03.20--CONSOLIDATION-blue.svg?style=flat-square)](https://github.com/ariffazil/arifosmcp/releases)
+[![Release](https://img.shields.io/badge/Version-2026.03.21--RELIABLE-blue.svg?style=flat-square)](https://github.com/ariffazil/arifosmcp/releases)
 [![Tools](https://img.shields.io/badge/Mega--Tools-11%20(37%20Modes)-success.svg?style=flat-square)](https://arifosmcp.arif-fazil.com/tools)
 [![Protocols](https://img.shields.io/badge/Protocols-MCP%2BA2A%2BWebMCP-orange.svg?style=flat-square)](./docs/protocols/PROTOCOLS_TRINITY.md)
 [![Validation](https://img.shields.io/badge/External%20Validation-HIGH-brightgreen.svg?style=flat-square)](./docs/reports/EXTERNAL_VALIDATION_REPORT.md)
@@ -461,12 +461,15 @@ Every SEALed verdict is stored in a hash-chained ledger:
 
 ## 🏺 14. Historical Logs
 
-### 2026.03.19 — Runtime Hardening SEALED
-- **Fix:** Browserless fetch now works without token and passes payload validation
-- **Fix:** `/tools/*` responses serialize datetime safely over HTTP
-- **Ops:** Increased memory limits for Traefik, AgentZero, and Browserless
+### 2026.03.21 — Runtime Reliability SEALED
+- **Feature**: **Structured Intent Support** — `init_anchor` and `arifOS_kernel` now support complex intent objects with auto-normalization.
+- **Feature**: **State-Aware Auth Continuity** — `auth_context` now persists across tools via session registry, reducing boilerplate for agent orchestrators.
+- **Fix**: **BUG-01 (Enum Mismatch)** — Expanded `ClaimStatus` to include `accepted/rejected/demoted` across all Pydantic layers.
+- **Fix**: **BUG-02 (Schema Compliance)** — Corrected `RuntimeEnvelope` instantiations in `tools_internal.py` to include required `stage` and `tool` fields.
+- **Fix**: **BUG-03 (Vault Persistence)** — Initialized `VAULT999` directory structure to ensure 999-SEAL operations succeed.
+- **Release**: Version bumped to 2026.03.21-RELIABLE
 
-### 2026.03.19 — ANTI-CHAOS Protocol SEALED
+### 2026.03.20 — 11-Tool Consolidation SEALED
 - **Feature**: Retired Implicit Truth Promotion — fallback values can no longer masquerade as canonical truth.
 - **Feature**: Unified Session Truth Surface — tool envelopes explicitly emit `transport_session_id` and `resolved_session_id`.
 - **Feature**: Hardened OpenClaw Preflight — added Redis health checks and service-aware arifOS MCP routing.
@@ -511,7 +514,7 @@ Every SEALed verdict is stored in a hash-chained ledger:
 
 ---
 
-*(End of README. SEALed by arifOS Governance Kernel v2026.03.15-TRINITY.)*
+*(End of README. SEALed by arifOS Governance Kernel v2026.03.21-RELIABLE.)*
 
 ---
 
@@ -653,4 +656,4 @@ Every tool response includes caller state visibility and recovery guidance:
 
 ---
 
-*(Final Verification: This document is grounded in the actual v2026.03.15-TRINITY codebase. SEALed.)*
+*(Final Verification: This document is grounded in the actual v2026.03.21-RELIABLE codebase. SEALed.)*

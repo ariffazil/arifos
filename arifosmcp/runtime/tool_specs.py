@@ -209,6 +209,13 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
             ["kernel", "status"],
             {
                 "query": {"type": "string", "minLength": 1, "maxLength": 40000},
+                "intent": {
+                    "oneOf": [
+                        {"type": "string"},
+                        {"type": "object", "properties": {"query": {"type": "string"}}, "required": ["query"]}
+                    ],
+                    "description": "Structured intent for governed reasoning."
+                },
                 "context": {"type": "string", "maxLength": 100000},
                 "max_steps": {"type": "integer", "minimum": 1, "maximum": 50, "default": 13},
                 "session_id": {"type": "string"},
