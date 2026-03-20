@@ -464,10 +464,18 @@ async def metabolic_loop_router(
     risk_tier: str = "medium",
     caller_context: CallerContext | None = None,
     requested_persona: str | None = None,
+    auth_context: dict[str, Any] | None = None,
     **kwargs: Any,
 ) -> RuntimeEnvelope:
     resolved_caller = _resolve_caller_context(caller_context, requested_persona)
-    payload = {"query": query, "session_id": session_id, "risk_tier": risk_tier, "caller_context": resolved_caller, **kwargs}
+    payload = {
+        "query": query,
+        "session_id": session_id,
+        "risk_tier": risk_tier,
+        "caller_context": resolved_caller,
+        "auth_context": auth_context,
+        **kwargs,
+    }
     return await _wrap_call("arifOS_kernel", Stage.ROUTER_444, session_id, payload, caller_context=resolved_caller)
 
 
@@ -482,6 +490,14 @@ async def check_vital(session_id: str = "global", **kwargs: Any) -> RuntimeEnvel
     except Exception as exc:
         envelope.payload["vital_error"] = str(exc)
     envelope.payload["intelligence_services"] = await _probe_intelligence_services()
+    envelope.philosophy = select_governed_philosophy(
+        "Checking system vitals.",
+        stage=Stage.INIT_000.value,
+        verdict=envelope.verdict.name if hasattr(envelope.verdict, "name") else str(envelope.verdict),
+        g_score=1.0,
+        failed_floors=[],
+        session_id=session_id,
+    )
     return envelope
 
 
@@ -508,7 +524,7 @@ async def init_anchor_state(
     **kwargs: Any,
 ) -> RuntimeEnvelope:
     del human_approval
-    return await init_anchor(
+    envelope = await init_anchor(
         actor_id=declared_name,
         session_id=session_id,
         auth_context=auth_context,
@@ -517,6 +533,8 @@ async def init_anchor_state(
         ctx=ctx,
         **kwargs,
     )
+    envelope.tool = "init_anchor_state"
+    return envelope
 
 
 async def revoke_anchor_state(**kwargs: Any) -> RuntimeEnvelope:

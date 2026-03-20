@@ -48,7 +48,7 @@ def get_pyproject_metadata() -> dict[str, Any]:
 
 def release_version_label() -> str:
     """Return the canonical version string from pyproject.toml."""
-    return str(get_pyproject_metadata().get("version", "2026.03.19"))
+    return str(get_pyproject_metadata().get("version", "2026.03.20-SOVEREIGN11"))
 
 
 def release_version() -> str:

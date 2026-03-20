@@ -146,7 +146,19 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
             ["init", "revoke", "refresh"],
             {
                 "actor_id": {"type": "string", "minLength": 2, "maxLength": 64},
-                "intent": {"type": "string", "minLength": 4, "maxLength": 20000},
+                "intent": {
+                    "oneOf": [
+                        {"type": "string", "minLength": 4, "maxLength": 20000},
+                        {
+                            "type": "object",
+                            "properties": {
+                                "query": {"type": "string", "minLength": 1, "maxLength": 20000},
+                                "task_type": {"type": "string", "maxLength": 64}
+                            },
+                            "required": ["query"]
+                        }
+                    ]
+                },
                 "declared_name": {"type": "string", "maxLength": 64},
                 "session_id": {"type": "string", "minLength": 8, "maxLength": 128},
                 "reason": {"type": "string", "maxLength": 1000}

@@ -23,7 +23,7 @@ from arifosmcp.intelligence.tools.ollama_local import (
 from arifosmcp.intelligence.tools.reality_grounding import open_web_page, reality_check
 from arifosmcp.runtime.contracts import REQUIRES_SESSION
 from core.enforcement.auth_continuity import mint_auth_context, verify_auth_context_cached
-from core.enforcement.governance_engine import wrap_tool_output
+
 from core.organs import agi, apex, asi, init, vault
 from core.organs._4_vault import verify_vault_ledger
 
@@ -599,10 +599,10 @@ async def call_kernel(
 
     if canonical_name == "search_reality":
         res = await reality_check(query=payload.get("query", ""))
-        return wrap_tool_output(canonical_name, res)
+        from core.enforcement.governance_engine import wrap_tool_output; return wrap_tool_output(canonical_name, res)
     if canonical_name == "ingest_evidence":
         res = await open_web_page(url=payload.get("source_url", ""))
-        return wrap_tool_output(canonical_name, res)
+        from core.enforcement.governance_engine import wrap_tool_output; return wrap_tool_output(canonical_name, res)
     if canonical_name == "trace_replay":
         limit = payload.get("limit", 20)
         try:
@@ -651,9 +651,12 @@ async def call_kernel(
                 caller_ctx_obj = None
 
         if canonical_name == "anchor_session":
+            intent_payload = payload.get("intent", {})
+            if isinstance(intent_payload, str):
+                intent_payload = {"query": intent_payload}
             intent = (
-                Intent(**payload.get("intent", {}))
-                if payload.get("intent")
+                Intent(**intent_payload)
+                if intent_payload
                 else Intent(query=query_input or "INIT")
             )
             math = MathDials(**payload.get("math", {})) if payload.get("math") else MathDials()
@@ -870,6 +873,7 @@ async def call_kernel(
         if isinstance(result, dict):
             result["dry_run"] = dry_run
 
+        from core.enforcement.governance_engine import wrap_tool_output
         envelope = wrap_tool_output(canonical_name, result)
 
         if caller_ctx_data and "caller_context" not in envelope:
@@ -928,6 +932,7 @@ async def call_kernel(
 
     except Exception as e:
         logger.error(f"Bridge failure on {tool_name}: {e}", exc_info=True)
+        from core.enforcement.governance_engine import wrap_tool_output
         return wrap_tool_output(
             canonical_name,
             {

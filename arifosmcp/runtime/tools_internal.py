@@ -211,8 +211,19 @@ async def _wrap_call(
 
 # --- GOVERNANCE IMPLEMENTATIONS ---
 
-async def init_anchor_impl(actor_id: str, intent: str | None, session_id: str | None, ctx: Context) -> RuntimeEnvelope:
-    payload = {"actor_id": actor_id, "intent": intent or "Session Init"}
+async def init_anchor_impl(actor_id: str, intent: str | dict | None, session_id: str | None, ctx: Context) -> RuntimeEnvelope:
+    # Normalize intent to object format for bridge compatibility
+    if intent is None:
+        normalized_intent = {"query": "Session Init", "task_type": "general"}
+    elif isinstance(intent, str):
+        normalized_intent = {"query": intent, "task_type": "general"}
+    else:
+        # Already an object, ensure required fields
+        normalized_intent = {
+            "query": intent.get("query", "Session Init"),
+            "task_type": intent.get("task_type", "general")
+        }
+    payload = {"actor_id": actor_id, "intent": normalized_intent}
     envelope = await _wrap_call("init_anchor", Stage.INIT_000, session_id, payload, ctx)
     bind_session_identity(envelope.session_id, actor_id, "operator", {}, [])
     return envelope
@@ -238,7 +249,52 @@ async def arifos_kernel_impl(query: str, risk_tier: str, auth_context: dict | No
     return await _wrap_call("arifOS_kernel", Stage.ROUTER_444, session_id, payload, ctx)
 
 async def get_caller_status_impl(session_id: str | None, ctx: Context) -> RuntimeEnvelope:
-    return await _wrap_call("get_caller_status", Stage.INIT_000, session_id, {}, ctx)
+    session_id = _normalize_session_id(session_id)
+    
+    # Check actual session state for semantic coherence
+    from arifosmcp.runtime.sessions import get_session_identity
+    stored_identity = get_session_identity(session_id)
+    
+    if stored_identity:
+        authority_level = stored_identity.get("authority_level", "anonymous")
+        actor_id = stored_identity.get("actor_id", "anonymous")
+        
+        if authority_level in ("sovereign", "verified", "operator"):
+            # Session is verified - return coherent SEAL/SUCCESS envelope
+            return RuntimeEnvelope(
+                ok=True,
+                tool="get_caller_status",
+                session_id=session_id,
+                stage=Stage.INIT_000.value,
+                verdict=Verdict.SEAL,
+                status=RuntimeStatus.SUCCESS,
+                payload={
+                    "caller_state": "verified",
+                    "actor_id": actor_id,
+                    "authority_level": authority_level,
+                    "message": "Session verified and anchored"
+                }
+            )
+        elif authority_level in ("agent", "user", "declared", "anchored"):
+            # Session is anchored but not fully verified
+            return RuntimeEnvelope(
+                ok=True,
+                tool="get_caller_status",
+                session_id=session_id,
+                stage=Stage.INIT_000.value,
+                verdict=Verdict.SEAL,
+                status=RuntimeStatus.SUCCESS,
+                payload={
+                    "caller_state": "anchored",
+                    "actor_id": actor_id,
+                    "authority_level": authority_level,
+                    "message": "Session anchored, awaiting verification"
+                }
+            )
+    
+    # No stored identity or anonymous - use bridge for ambiguous cases
+    envelope = await _wrap_call("get_caller_status", Stage.INIT_000, session_id, {}, ctx)
+    return envelope
 
 async def apex_soul_dispatch_impl(mode: str, payload: dict, auth_context: dict | None, risk_tier: str, dry_run: bool, ctx: Context) -> RuntimeEnvelope:
     session_id = payload.get("session_id")

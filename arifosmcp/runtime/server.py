@@ -115,7 +115,7 @@ async def arifos_lifespan(server: FastMCP):
 
 mcp = FastMCP(
     "arifOS-APEX-G",
-    version="2026.03.20-CONSOLIDATION",
+    version="2026.03.20-SOVEREIGN11",
     instructions=CONSTITUTIONAL_INSTRUCTIONS,
     website_url="https://arifosmcp.arif-fazil.com",
     lifespan=arifos_lifespan,
@@ -382,7 +382,7 @@ try:
     _webmcp_config = WebMCPConfig(
         site_name="arifOS Constitutional AI",
         site_url="https://arifosmcp.arif-fazil.com",
-        version="2026.03.20-CONSOLIDATION",
+        version="2026.03.20-SOVEREIGN11",
         enable_declarative=True,
         enable_imperative=True,
         require_human_confirmation=True,  # F13 Sovereign

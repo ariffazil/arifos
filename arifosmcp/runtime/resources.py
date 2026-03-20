@@ -136,7 +136,7 @@ def register_resources(mcp: FastMCP) -> None:
                         "example": {
                             "actor_id": "arif",
                             "declared_name": "Muhammad Arif",
-                            "intent": "testing kernel governance flow",
+                            "intent": {"query": "testing kernel governance flow", "task_type": "general"},
                         },
                     },
                     {
@@ -198,7 +198,7 @@ def register_resources(mcp: FastMCP) -> None:
                 "next_step": {
                     "tool": "init_anchor_state",
                     "reason": "Identity required for governed execution",
-                    "example": {"actor_id": "your-name", "declared_name": "Your Name", "intent": "purpose"},
+                    "example": {"actor_id": "your-name", "declared_name": "Your Name", "intent": {"query": "purpose of session", "task_type": "general"}},
                 },
                 "session_ladder": {
                     "anonymous": {"allows": "diagnostics only", "exit": "claim identity"},
