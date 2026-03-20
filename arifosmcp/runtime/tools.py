@@ -25,9 +25,13 @@ from arifosmcp.runtime.models import (
     PersonaId,
 )
 from arifosmcp.runtime.public_registry import (
-    public_tool_names,
-    public_tool_spec_by_name,
-    public_tool_specs,
+    public_tool_names as _registry_tool_names,
+    public_tool_spec_by_name as _registry_tool_spec_by_name,
+    public_tool_specs as _registry_tool_specs,
+)
+from arifosmcp.runtime.tool_specs import (
+    MegaToolName,
+    ToolSpec,
 )
 from arifosmcp.runtime.reality_handlers import handler as reality_handler
 from arifosmcp.runtime.reality_models import BundleInput
@@ -56,9 +60,40 @@ from arifosmcp.runtime.tools_internal import (
 
 logger = logging.getLogger(__name__)
 
-_public_tool_names_fn = public_tool_names
-_public_tool_specs_fn = public_tool_specs
-_public_tool_spec_by_name_fn = public_tool_spec_by_name
+def select_governed_philosophy(
+    query: str,
+    stage: str,
+    verdict: str,
+    g_score: float = 1.0,
+    failed_floors: list[str] = None,
+    session_id: str = "global",
+) -> dict[str, Any]:
+    """Provides a constitutional philosophy snippet for any stage result."""
+    from core.shared.mottos import get_motto_by_stage, get_motto_by_floor
+    
+    del query, session_id # Unused currently
+    
+    motto_text = "DITEMPA, BUKAN DIBERI — Forged, Not Given"
+    motto_obj = get_motto_by_stage(stage)
+    
+    if failed_floors:
+        floor_motto = get_motto_by_floor(failed_floors[0])
+        if floor_motto:
+            motto_text = f"{floor_motto.malay} — {floor_motto.english}"
+    elif motto_obj:
+        motto_text = f"{motto_obj.malay} — {motto_obj.english}"
+        
+    return {
+        "motto": motto_text,
+        "stage": stage,
+        "g_score": g_score,
+        "verdict": verdict,
+        "failed_floors": failed_floors or []
+    }
+
+_public_tool_names_fn = _registry_tool_names
+_public_tool_specs_fn = _registry_tool_specs
+_public_tool_spec_by_name_fn = _registry_tool_spec_by_name
 
 PUBLIC_KERNEL_TOOL_NAME = "arifOS_kernel"
 LEGACY_KERNEL_TOOL_NAME = "metabolic_loop_router"

@@ -184,7 +184,7 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
                 "reason": {"type": "string", "maxLength": 1000},
                 "human_approval": {
                     "type": "boolean",
-                    "default": false,
+                    "default": False,
                     "description": "Whether human has pre-approved this action (F13 Sovereign override)",
                 },
             },
