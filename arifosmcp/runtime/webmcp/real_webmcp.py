@@ -200,7 +200,6 @@ class RealWebMCPGateway:
             "trinity": spec.trinity,
             "floors": list(spec.floors),
             "parameters": spec.input_schema,
-            "readonly": spec.readonly,
         }
 
     def _render_console(self) -> str:
