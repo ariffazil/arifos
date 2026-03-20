@@ -251,7 +251,6 @@ class ClaimStatus(str, Enum):
     CLAIMED = "claimed"
     ANCHORED = "anchored"
     VERIFIED = "verified"
-    ACCEPTED = "accepted"
     REJECTED = "rejected"
     DEMOTED = "demoted"
     REJECTED_PROTECTED_ID = "rejected_protected_id"

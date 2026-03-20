@@ -33,6 +33,22 @@ from .models import ClaimStatus, Verdict
 logger = logging.getLogger(__name__)
 DEFAULT_VAULT_PATH = Path(__file__).parents[2] / "VAULT999" / "vault999.jsonl"
 
+# P0: Ensure VAULT999 directory and file exist on module load
+def _ensure_vault_exists():
+    """Lazy initialization of VAULT999 directory and ledger file."""
+    try:
+        vault_dir = DEFAULT_VAULT_PATH.parent
+        vault_dir.mkdir(parents=True, exist_ok=True)
+        if not DEFAULT_VAULT_PATH.exists():
+            DEFAULT_VAULT_PATH.touch()
+            # Write header/seed entry
+            with open(DEFAULT_VAULT_PATH, 'w') as f:
+                f.write(json.dumps({"type": "seed", "timestamp": datetime.now(timezone.utc).isoformat(), "hash": "0x" + "0"*64}) + "\n")
+    except Exception as e:
+        logger.warning(f"VAULT999 initialization warning: {e}")
+
+_ensure_vault_exists()
+
 TOOL_MAP = {
     "init_anchor": "anchor_session",
     "init_anchor_state": "anchor_session",
@@ -709,7 +725,7 @@ async def call_kernel(
                 "level": auth_level,
                 "auth_state": "verified" if res.verdict != Verdict.VOID else "unverified",
                 "human_approval_persisted": ha_value,
-                "claim_status": ClaimStatus.ACCEPTED.value if res.verdict != Verdict.VOID else ClaimStatus.REJECTED_PROTECTED_ID.value
+                "claim_status": ClaimStatus.ANCHORED.value if res.verdict != Verdict.VOID else ClaimStatus.REJECTED_PROTECTED_ID.value
             }
             result["human_approval_persisted"] = ha_value
             result["abi_version"] = "1.0"

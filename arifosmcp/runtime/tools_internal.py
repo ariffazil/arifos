@@ -312,7 +312,7 @@ async def init_anchor_impl(
         if envelope.authority:
             resolved_id = getattr(envelope.authority, "actor_id", "anonymous")
             # P0: Map to valid ClaimStatus enum values
-            claim_status = ClaimStatus.ACCEPTED.value if resolved_id == claimed_id else ClaimStatus.DEMOTED.value
+            claim_status = ClaimStatus.ANCHORED.value if resolved_id == claimed_id else ClaimStatus.DEMOTED.value
         
         # Persistent state binding
         bind_session_identity(
@@ -504,11 +504,39 @@ async def physics_reality_dispatch_impl(mode: str, payload: dict, auth_context: 
     input_val = payload.get("input", "")
     session_id = payload.get("session_id")
     if mode == "search":
-        return await reality_handler.handle_compass(BundleInput(type="query", value=input_val, mode="search"), {})
+        bundle = await reality_handler.handle_compass(BundleInput(type="query", value=input_val, mode="search"), {})
+        # P0: Wrap EvidenceBundle in RuntimeEnvelope with required tool field
+        return RuntimeEnvelope(
+            ok=bundle.status.verdict == "SEAL",
+            tool="physics_reality",
+            session_id=session_id,
+            stage="111_SENSE",
+            verdict=Verdict.SEAL if bundle.status.verdict == "SEAL" else Verdict.SABAR,
+            status=RuntimeStatus.SUCCESS if bundle.status.verdict == "SEAL" else RuntimeStatus.SABAR,
+            payload={"bundle": bundle.model_dump(), "results_count": len(bundle.results)},
+        )
     elif mode == "ingest":
-        return await reality_handler.handle_compass(BundleInput(type="url", value=input_val, mode="fetch"), {})
+        bundle = await reality_handler.handle_compass(BundleInput(type="url", value=input_val, mode="fetch"), {})
+        return RuntimeEnvelope(
+            ok=bundle.status.verdict == "SEAL",
+            tool="physics_reality",
+            session_id=session_id,
+            stage="111_SENSE",
+            verdict=Verdict.SEAL if bundle.status.verdict == "SEAL" else Verdict.SABAR,
+            status=RuntimeStatus.SUCCESS if bundle.status.verdict == "SEAL" else RuntimeStatus.SABAR,
+            payload={"bundle": bundle.model_dump(), "results_count": len(bundle.results)},
+        )
     elif mode == "compass":
-        return await reality_handler.handle_compass(BundleInput(type="auto", value=input_val), {"session_id": session_id})
+        bundle = await reality_handler.handle_compass(BundleInput(type="auto", value=input_val), {"session_id": session_id})
+        return RuntimeEnvelope(
+            ok=bundle.status.verdict == "SEAL",
+            tool="physics_reality",
+            session_id=session_id,
+            stage="111_SENSE",
+            verdict=Verdict.SEAL if bundle.status.verdict == "SEAL" else Verdict.SABAR,
+            status=RuntimeStatus.SUCCESS if bundle.status.verdict == "SEAL" else RuntimeStatus.SABAR,
+            payload={"bundle": bundle.model_dump(), "results_count": len(bundle.results)},
+        )
     elif mode == "atlas":
         payload_atlas = {"operation": payload.get("operation", "merge")}
         return await _wrap_call("reality_atlas", Stage.REALITY_222, session_id, payload_atlas, ctx)
@@ -518,10 +546,10 @@ async def math_estimator_dispatch_impl(mode: str, payload: dict, auth_context: d
     session_id = payload.get("session_id")
     if mode == "cost":
         res = internal_tools.cost_estimator(action_description=payload.get("action", ""))
-        return RuntimeEnvelope(ok=True, tool="cost_estimator", payload=res, verdict="SEAL")
+        return RuntimeEnvelope(ok=True, tool="math_estimator", stage="444_ROUTER", payload=res, verdict=Verdict.SEAL, status=RuntimeStatus.SUCCESS)
     elif mode == "health":
         res = internal_tools.system_health()
-        return RuntimeEnvelope(ok=True, tool="system_health", payload=res, verdict="SEAL")
+        return RuntimeEnvelope(ok=True, tool="math_estimator", stage="444_ROUTER", payload=res, verdict=Verdict.SEAL, status=RuntimeStatus.SUCCESS)
     elif mode == "vitals":
         return await _wrap_call("check_vital", Stage.INIT_000, session_id, {}, ctx)
     raise ValueError(f"Invalid mode for math_estimator: {mode}")
@@ -531,16 +559,16 @@ async def code_engine_dispatch_impl(mode: str, payload: dict, auth_context: dict
     limit = payload.get("limit", 50)
     if mode == "fs":
         res = internal_tools.fs_inspect(path=payload.get("path", "."))
-        return RuntimeEnvelope(ok=True, tool="fs_inspect", payload=res, verdict="SEAL")
+        return RuntimeEnvelope(ok=True, tool="code_engine", stage="111_SENSE", payload=res, verdict=Verdict.SEAL, status=RuntimeStatus.SUCCESS)
     elif mode == "process":
         res = internal_tools.process_list(limit=limit)
-        return RuntimeEnvelope(ok=True, tool="process_list", payload=res, verdict="SEAL")
+        return RuntimeEnvelope(ok=True, tool="code_engine", stage="111_SENSE", payload=res, verdict=Verdict.SEAL, status=RuntimeStatus.SUCCESS)
     elif mode == "net":
         res = internal_tools.net_status()
-        return RuntimeEnvelope(ok=True, tool="net_status", payload=res, verdict="SEAL")
+        return RuntimeEnvelope(ok=True, tool="code_engine", stage="111_SENSE", payload=res, verdict=Verdict.SEAL, status=RuntimeStatus.SUCCESS)
     elif mode == "tail":
         res = internal_tools.log_tail(lines=limit)
-        return RuntimeEnvelope(ok=True, tool="log_tail", payload=res, verdict="SEAL")
+        return RuntimeEnvelope(ok=True, tool="code_engine", stage="111_SENSE", payload=res, verdict=Verdict.SEAL, status=RuntimeStatus.SUCCESS)
     elif mode == "replay":
         return await _wrap_call("trace_replay", Stage.VAULT_999, session_id or "global", {"limit": limit}, ctx)
     raise ValueError(f"Invalid mode for code_engine: {mode}")
@@ -548,7 +576,15 @@ async def code_engine_dispatch_impl(mode: str, payload: dict, auth_context: dict
 async def architect_registry_dispatch_impl(mode: str, payload: dict, auth_context: dict | None, risk_tier: str, dry_run: bool, ctx: Context) -> RuntimeEnvelope:
     session_id = payload.get("session_id")
     if mode == "register":
-        return {"status": "SUCCESS", "tools": public_tool_names()}
+        return RuntimeEnvelope(
+            ok=True,
+            tool="architect_registry",
+            session_id=session_id,
+            stage="M-4_ARCH",
+            verdict=Verdict.SEAL,
+            status=RuntimeStatus.SUCCESS,
+            payload={"tools": public_tool_names()}
+        )
     elif mode == "list":
         return await arifos_list_resources_impl(session_id=session_id)
     elif mode == "read":
