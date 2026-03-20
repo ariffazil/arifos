@@ -154,6 +154,8 @@ async def init_anchor(
     intent: str | dict[str, Any] | None = None,
     raw_input: str | None = None,
     session_id: str | None = None,
+    human_approval: bool = False,
+    reason: str | None = None,
     caller_context: CallerContext | None = None,
     ctx: Context | None = None,
 ) -> RuntimeEnvelope:

@@ -201,12 +201,17 @@ async def _wrap_call(
             
         return envelope
     except Exception as e:
+        # P0: Detect Security Rejections
+        error_msg = str(e)
+        verdict = Verdict.VOID if "AUTH_FAILURE" in error_msg else Verdict.HOLD
+        
         if ctx and hasattr(ctx, "error"):
-            await ctx.error(f"Metabolic failure in {tool_name}: {str(e)}")
+            await ctx.error(f"Metabolic failure in {tool_name}: {error_msg}")
+            
         return RuntimeEnvelope(
             ok=False, tool=tool_name, session_id=session_id, stage=stage.value,
-            verdict=Verdict.VOID, status=RuntimeStatus.ERROR,
-            errors=[CanonicalError(code="INTERNAL_ERROR", message=str(e), stage=stage.value)]
+            verdict=verdict, status=RuntimeStatus.ERROR,
+            errors=[CanonicalError(code="INTERNAL_ERROR", message=error_msg, stage=stage.value)]
         )
 
 # --- GOVERNANCE IMPLEMENTATIONS ---
@@ -218,19 +223,18 @@ async def init_anchor_impl(
     ctx: Context,
     human_approval: bool = False,
 ) -> RuntimeEnvelope:
+    """
+    Stage 000: Constitutional Airlock Implementation.
+    Separates 'claimed' vs 'resolved' identity for forensic audit.
+    """
     # Normalize intent to object format for bridge compatibility
     if intent is None:
         normalized_intent = {"query": "Session Init", "task_type": "general"}
     elif isinstance(intent, str):
         normalized_intent = {"query": intent, "task_type": "general"}
     else:
-        # Already an object, ensure required fields
-        normalized_intent = {
-            "query": intent.get("query", "Session Init"),
-            "task_type": intent.get("task_type", "general"),
-            "domain": intent.get("domain"),
-            "desired_output": intent.get("desired_output"),
-        }
+        # Pydantic validation handles structured intent now
+        normalized_intent = intent
     
     payload = {
         "actor_id": actor_id,
@@ -240,19 +244,41 @@ async def init_anchor_impl(
     
     envelope = await _wrap_call("init_anchor", Stage.INIT_000, session_id, payload, ctx)
     
-    # P0 Sync: Bind session identity from kernel verdict/authority
+    # Forensic Separation (P0 Requirement)
+    claimed_id = actor_id
+    resolved_id = "anonymous"
+    claim_status = "rejected"
+    
     if envelope.ok and envelope.verdict != Verdict.VOID:
-        authority_level = "anonymous"
         if envelope.authority:
-            authority_level = getattr(envelope.authority, "level", "anonymous")
+            resolved_id = getattr(envelope.authority, "actor_id", "anonymous")
+            claim_status = "accepted" if resolved_id == claimed_id else "demoted"
         
+        # Persistent state binding
         bind_session_identity(
             envelope.session_id, 
-            actor_id, 
-            authority_level, 
+            resolved_id, 
+            getattr(envelope.authority, "level", "anonymous") if envelope.authority else "anonymous",
             envelope.auth_context.model_dump(mode="json") if hasattr(envelope.auth_context, "model_dump") else {},
             getattr(envelope.authority, "approval_scope", []) if envelope.authority else []
         )
+    else:
+        # F11 Hard Rejection Case detection
+        err_str = str(envelope.errors)
+        if "AUTH_FAILURE_PROTECTED_ID" in err_str:
+            claim_status = "rejected_protected_id"
+        else:
+            claim_status = "rejected"
+
+    # Decorate envelope with forensic metadata
+    envelope.payload.update({
+        "claimed_actor_id": claimed_id,
+        "resolved_actor_id": resolved_id,
+        "claim_status": claim_status,
+        "abi_version": "1.0",
+        "human_approval_persisted": human_approval
+    })
+    
     return envelope
 
 async def revoke_anchor_state_impl(session_id: str, reason: str, ctx: Context) -> RuntimeEnvelope:
@@ -267,7 +293,7 @@ async def refresh_anchor_impl(session_id: str | None, ctx: Context) -> RuntimeEn
         await ctx.info(f"Refreshing session continuity for {session_id}")
     # Mocking refresh logic
     return RuntimeEnvelope(
-        ok=True, tool="init_anchor", session_id=session_id, stage="000_INIT", 
+        ok=True, tool="init_anchor", session_id=session_id, stage="000_INIT",
         verdict="SEAL", status="SUCCESS", payload={"refreshed": True, "ttl": 900}
     )
 
@@ -277,51 +303,33 @@ async def arifos_kernel_impl(query: str, risk_tier: str, auth_context: dict | No
 
 async def get_caller_status_impl(session_id: str | None, ctx: Context) -> RuntimeEnvelope:
     session_id = _normalize_session_id(session_id)
-    
+
     # Check actual session state for semantic coherence
     from arifosmcp.runtime.sessions import get_session_identity
     stored_identity = get_session_identity(session_id)
-    
+
     if stored_identity:
         authority_level = stored_identity.get("authority_level", "anonymous")
         actor_id = stored_identity.get("actor_id", "anonymous")
-        
+
         if authority_level in ("sovereign", "verified", "operator"):
             # Session is verified - return coherent SEAL/SUCCESS envelope
             return RuntimeEnvelope(
                 ok=True,
                 tool="get_caller_status",
                 session_id=session_id,
-                stage=Stage.INIT_000.value,
+                stage="000_INIT",
                 verdict=Verdict.SEAL,
                 status=RuntimeStatus.SUCCESS,
                 payload={
-                    "caller_state": "verified",
                     "actor_id": actor_id,
                     "authority_level": authority_level,
-                    "message": "Session verified and anchored"
-                }
-            )
-        elif authority_level in ("agent", "user", "declared", "anchored"):
-            # Session is anchored but not fully verified
-            return RuntimeEnvelope(
-                ok=True,
-                tool="get_caller_status",
-                session_id=session_id,
-                stage=Stage.INIT_000.value,
-                verdict=Verdict.SEAL,
-                status=RuntimeStatus.SUCCESS,
-                payload={
-                    "caller_state": "anchored",
-                    "actor_id": actor_id,
-                    "authority_level": authority_level,
-                    "message": "Session anchored, awaiting verification"
+                    "session_id": session_id,
+                    "is_anchored": True
                 }
             )
     
-    # No stored identity or anonymous - use bridge for ambiguous cases
-    envelope = await _wrap_call("get_caller_status", Stage.INIT_000, session_id, {}, ctx)
-    return envelope
+    return await _wrap_call("get_caller_status", Stage.INIT_000, session_id, {}, ctx)
 
 async def apex_soul_dispatch_impl(mode: str, payload: dict, auth_context: dict | None, risk_tier: str, dry_run: bool, ctx: Context) -> RuntimeEnvelope:
     session_id = payload.get("session_id")
@@ -386,7 +394,7 @@ async def asi_heart_dispatch_impl(mode: str, payload: dict, auth_context: dict |
         return await _wrap_call("asi_simulate", Stage.HEART_666, session_id, {"scenario": content}, ctx)
     raise ValueError(f"Invalid mode for asi_heart: {mode}")
 
-async def engineering_memory_dispatch_impl(mode: str, payload: dict, auth_context: dict | None, risk_tier: str, dry_run: bool) -> RuntimeEnvelope:
+async def engineering_memory_dispatch_impl(mode: str, payload: dict, auth_context: dict | None, risk_tier: str, dry_run: bool, ctx: Context) -> RuntimeEnvelope:
     session_id = payload.get("session_id")
     if mode == "engineer":
         return await _az_engineer(task_description=payload.get("task") or payload.get("query") or "No task", session_id=session_id)
@@ -427,26 +435,10 @@ async def math_estimator_dispatch_impl(mode: str, payload: dict, auth_context: d
     session_id = payload.get("session_id")
     if mode == "cost":
         res = internal_tools.cost_estimator(action_description=payload.get("action", ""))
-        return RuntimeEnvelope(
-            ok=True,
-            tool="cost_estimator",
-            session_id=session_id,
-            stage=Stage.ROUTER_444.value,
-            verdict=Verdict.SEAL,
-            status=RuntimeStatus.SUCCESS,
-            payload=res,
-        )
+        return RuntimeEnvelope(ok=True, tool="cost_estimator", payload=res, verdict="SEAL")
     elif mode == "health":
         res = internal_tools.system_health()
-        return RuntimeEnvelope(
-            ok=True,
-            tool="system_health",
-            session_id=session_id,
-            stage=Stage.ROUTER_444.value,
-            verdict=Verdict.SEAL,
-            status=RuntimeStatus.SUCCESS,
-            payload=res,
-        )
+        return RuntimeEnvelope(ok=True, tool="system_health", payload=res, verdict="SEAL")
     elif mode == "vitals":
         return await _wrap_call("check_vital", Stage.INIT_000, session_id, {}, ctx)
     raise ValueError(f"Invalid mode for math_estimator: {mode}")
@@ -456,48 +448,16 @@ async def code_engine_dispatch_impl(mode: str, payload: dict, auth_context: dict
     limit = payload.get("limit", 50)
     if mode == "fs":
         res = internal_tools.fs_inspect(path=payload.get("path", "."))
-        return RuntimeEnvelope(
-            ok=True,
-            tool="fs_inspect",
-            session_id=session_id,
-            stage=Stage.MEMORY_555.value,
-            verdict=Verdict.SEAL,
-            status=RuntimeStatus.SUCCESS,
-            payload=res,
-        )
+        return RuntimeEnvelope(ok=True, tool="fs_inspect", payload=res, verdict="SEAL")
     elif mode == "process":
         res = internal_tools.process_list(limit=limit)
-        return RuntimeEnvelope(
-            ok=True,
-            tool="process_list",
-            session_id=session_id,
-            stage=Stage.MEMORY_555.value,
-            verdict=Verdict.SEAL,
-            status=RuntimeStatus.SUCCESS,
-            payload=res,
-        )
+        return RuntimeEnvelope(ok=True, tool="process_list", payload=res, verdict="SEAL")
     elif mode == "net":
         res = internal_tools.net_status()
-        return RuntimeEnvelope(
-            ok=True,
-            tool="net_status",
-            session_id=session_id,
-            stage=Stage.MEMORY_555.value,
-            verdict=Verdict.SEAL,
-            status=RuntimeStatus.SUCCESS,
-            payload=res,
-        )
+        return RuntimeEnvelope(ok=True, tool="net_status", payload=res, verdict="SEAL")
     elif mode == "tail":
         res = internal_tools.log_tail(lines=limit)
-        return RuntimeEnvelope(
-            ok=True,
-            tool="log_tail",
-            session_id=session_id,
-            stage=Stage.MEMORY_555.value,
-            verdict=Verdict.SEAL,
-            status=RuntimeStatus.SUCCESS,
-            payload=res,
-        )
+        return RuntimeEnvelope(ok=True, tool="log_tail", payload=res, verdict="SEAL")
     elif mode == "replay":
         return await _wrap_call("trace_replay", Stage.VAULT_999, session_id or "global", {"limit": limit}, ctx)
     raise ValueError(f"Invalid mode for code_engine: {mode}")
@@ -505,15 +465,7 @@ async def code_engine_dispatch_impl(mode: str, payload: dict, auth_context: dict
 async def architect_registry_dispatch_impl(mode: str, payload: dict, auth_context: dict | None, risk_tier: str, dry_run: bool, ctx: Context) -> RuntimeEnvelope:
     session_id = payload.get("session_id")
     if mode == "register":
-        return RuntimeEnvelope(
-            ok=True,
-            tool="architect_registry",
-            session_id=session_id,
-            stage=Stage.ROUTER_444.value,
-            verdict=Verdict.SEAL,
-            status=RuntimeStatus.SUCCESS,
-            payload={"tools": list(public_tool_names())},
-        )
+        return {"status": "SUCCESS", "tools": public_tool_names()}
     elif mode == "list":
         return await arifos_list_resources_impl(session_id=session_id)
     elif mode == "read":
@@ -522,25 +474,9 @@ async def architect_registry_dispatch_impl(mode: str, payload: dict, auth_contex
 
 async def arifos_list_resources_impl(session_id: str | None) -> RuntimeEnvelope:
     from arifosmcp.runtime.resources import manifest_resources
-    return RuntimeEnvelope(
-        ok=True,
-        tool="arifos_list_resources",
-        session_id=session_id,
-        stage=Stage.ROUTER_444.value,
-        verdict=Verdict.SEAL,
-        status=RuntimeStatus.SUCCESS,
-        payload={"resources": manifest_resources()},
-    )
+    return RuntimeEnvelope(ok=True, tool="arifos_list_resources", payload={"resources": manifest_resources()}, verdict="SEAL")
 
 async def arifos_read_resource_impl(uri: str, session_id: str | None) -> RuntimeEnvelope:
     from arifosmcp.runtime.resources import read_resource_content
     content = await read_resource_content(uri)
-    return RuntimeEnvelope(
-        ok=True,
-        tool="arifos_read_resource",
-        session_id=session_id,
-        stage=Stage.ROUTER_444.value,
-        verdict=Verdict.SEAL,
-        status=RuntimeStatus.SUCCESS,
-        payload={"uri": uri, "content": content},
-    )
+    return RuntimeEnvelope(ok=True, tool="arifos_read_resource", payload={"uri": uri, "content": content}, verdict="SEAL")

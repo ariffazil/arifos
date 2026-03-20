@@ -405,11 +405,11 @@ class Intent(BaseModel):
     """G in APEX-G: Human goal and task details."""
 
     query: str = Field(..., min_length=1)
-    task_type: Literal["ask", "analyze", "design", "decide", "audit", "execute", "unknown"] = (
+    task_type: Literal["ask", "analyze", "design", "decide", "audit", "execute", "general", "unknown"] = (
         "unknown"
     )
     domain: str = "general"
-    desired_output: Literal["text", "json", "table", "code", "mixed"] = "text"
+    desired_output: Literal["text", "json", "table", "code", "report", "mixed"] = "text"
     reversibility: Literal["reversible", "mixed", "irreversible", "unknown"] = "unknown"
 
 

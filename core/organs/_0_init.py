@@ -370,7 +370,7 @@ async def init(
             governance=governance,
             floors=floors,
             floors_failed=failed,
-            error_message="F11 invalid actor (blocked)",
+            error_message=f"AUTH_FAILURE_PROTECTED_ID: Actor '{current_actor_id}' requires cryptographic proof.",
             auth_verified=False,
         )
 
