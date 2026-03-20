@@ -810,35 +810,20 @@ def wrap_tool_output(tool: str, payload: dict[str, Any]) -> dict[str, Any]:
 
     # Unified Errors
     errors = []
-    if verdict in ["VOID", "SABAR"]:
-        error_code = str(payload.get("error_code", "")).strip() or "GOVERNANCE_BLOCK"
-        if not str(payload.get("error_code", "")).strip() and (has_critical_fail or has_data_fail):
-            error_code = "CONSTITUTIONAL_VIOLATION"
-        elif not str(payload.get("error_code", "")).strip() and auth_state == "unverified":
-            error_code = "AUTH_FAILURE"
+    if verdict in ["VOID", "SABAR", "HOLD", "HOLD_888"]:
+        # P0: Prioritize kernel-derived error code and message
+        error_code = str(payload.get("error_code") or payload.get("issue") or "").strip()
+        if not error_code:
+            if has_critical_fail or has_data_fail:
+                error_code = "CONSTITUTIONAL_VIOLATION"
+            elif auth_state == "unverified" and verdict == "VOID":
+                error_code = "AUTH_FAILURE"
+            else:
+                error_code = "GOVERNANCE_BLOCK"
 
-        # --- RECOVERY PATHS (Aligned with kimi) ---
-        next_tool = None
-        next_args = {}
-        recoverable = True
-
-        if "F11_AUTHORITY" in failed_laws or auth_state == "unverified":
-            next_tool = "init_anchor"
-            next_args = {"raw_input": "I am arif"}
-        elif "F2_TRUTH" in failed_laws:
-            next_tool = "search_reality"
-            next_args = {"query": "verify " + tool}
-        elif verdict == "SABAR":
-            next_tool = "check_vital"
-            next_args = {}
-        elif verdict == "HOLD":
-            next_tool = "check_vital" # Check if entropy is the issue
-            next_args = {}
-            recoverable = False
-
-        error_data = {
-            "code": error_code,
-            "message": payload.get("error") or f"Verdict {verdict} issued by {stage}",
+        error_msg = payload.get("error") or payload.get("error_message")
+        if not error_msg:
+            error_msg = f"Verdict {verdict} issued by {stage}"
             "stage": stage,
             "recoverable": recoverable,
         }
