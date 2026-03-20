@@ -386,6 +386,12 @@ def _law13_checks(tool: str, payload: dict[str, Any]) -> dict[str, Any]:
             "pass": bool(passed),
             "type": LAW_13_CATALOG[law]["type"],
         }
+        
+        # H1.1: Record Prometheus floor violation if required floor fails
+        if law in required and not passed:
+            from arifosmcp.runtime.metrics import FLOOR_VIOLATIONS
+            FLOOR_VIOLATIONS.labels(floor=law, tool=tool).inc()
+            
     return checks
 
 
