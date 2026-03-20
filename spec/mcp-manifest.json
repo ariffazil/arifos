@@ -2,6 +2,22 @@
   "mcpVersion": "2025-11-25",
   "name": "arifOS-APEX-G",
   "version": "2026.03.20",
+  "description": "Constitutional governance server — 11 canonical MCP tools with F1-F13 floor enforcement, metabolic routing, prompts, and resources.",
+  "vendor": {
+    "name": "Muhammad Arif bin Fazil",
+    "url": "https://arif-fazil.com"
+  },
+  "license": "AGPL-3.0-only",
+  "homepage": "https://github.com/ariffazil/arifosmcp",
+  "repository": "https://github.com/ariffazil/arifosmcp",
+  "capabilities": {
+    "constitutional_floors": 13,
+    "metabolic_routing": true,
+    "vault999": "postgresql+redis+merkle",
+    "vector_memory": "qdrant+bge-m3-1024dim",
+    "prompts": 8,
+    "resources": 6
+  },
   "serverUrl": "https://arifosmcp.arif-fazil.com",
   "tools": [
     {
@@ -35,9 +51,42 @@
                 "maxLength": 64
               },
               "intent": {
-                "type": "string",
-                "minLength": 4,
-                "maxLength": 20000
+                "oneOf": [
+                  {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 20000,
+                    "description": "Legacy string format (auto-normalized to object)"
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "query": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 20000
+                      },
+                      "task_type": {
+                        "type": "string",
+                        "maxLength": 64,
+                        "default": "general"
+                      },
+                      "domain": {
+                        "type": "string",
+                        "maxLength": 64
+                      },
+                      "desired_output": {
+                        "type": "string",
+                        "maxLength": 64
+                      }
+                    },
+                    "required": [
+                      "query"
+                    ],
+                    "description": "Structured intent object (preferred)"
+                  }
+                ],
+                "description": "User intent - accepts string (legacy) or object with query, task_type, domain, desired_output"
               },
               "declared_name": {
                 "type": "string",
@@ -51,6 +100,11 @@
               "reason": {
                 "type": "string",
                 "maxLength": 1000
+              },
+              "human_approval": {
+                "type": "boolean",
+                "default": false,
+                "description": "Whether human has pre-approved this action (F13 Sovereign override)"
               }
             },
             "additionalProperties": false
@@ -222,7 +276,7 @@
     },
     {
       "name": "apex_soul",
-      "description": "888_JUDGE: Final authority for verdicts and defense. Modes: 'judge', 'rules', 'validate', 'hold', 'armor', 'notify'.",
+      "description": "888_JUDGE: Final authority for verdicts and defense. Modes: 'judge', 'rules', 'validate', 'hold', 'armor', 'notify', 'probe' (test floors).",
       "inputSchema": {
         "type": "object",
         "additionalProperties": false,
@@ -240,7 +294,8 @@
               "validate",
               "hold",
               "armor",
-              "notify"
+              "notify",
+              "probe"
             ]
           },
           "payload": {
@@ -259,6 +314,10 @@
               },
               "session_id": {
                 "type": "string"
+              },
+              "target_floor": {
+                "type": "string",
+                "description": "Specific floor to probe (e.g. 'F12')."
               }
             },
             "additionalProperties": false
@@ -1159,5 +1218,1081 @@
       "description": "Prompt for OS-level hygiene and computational execution.",
       "arguments": []
     }
-  ]
+  ],
+  "schema": {
+    "input": {
+      "init_anchor": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "mode",
+          "payload"
+        ],
+        "properties": {
+          "mode": {
+            "type": "string",
+            "description": "Mode selector for init_anchor.",
+            "enum": [
+              "init",
+              "revoke",
+              "refresh"
+            ]
+          },
+          "payload": {
+            "type": "object",
+            "description": "Mode-specific payload.",
+            "required": [],
+            "properties": {
+              "actor_id": {
+                "type": "string",
+                "minLength": 2,
+                "maxLength": 64
+              },
+              "intent": {
+                "oneOf": [
+                  {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 20000,
+                    "description": "Legacy string format (auto-normalized to object)"
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "query": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 20000
+                      },
+                      "task_type": {
+                        "type": "string",
+                        "maxLength": 64,
+                        "default": "general"
+                      },
+                      "domain": {
+                        "type": "string",
+                        "maxLength": 64
+                      },
+                      "desired_output": {
+                        "type": "string",
+                        "maxLength": 64
+                      }
+                    },
+                    "required": [
+                      "query"
+                    ],
+                    "description": "Structured intent object (preferred)"
+                  }
+                ],
+                "description": "User intent - accepts string (legacy) or object with query, task_type, domain, desired_output"
+              },
+              "declared_name": {
+                "type": "string",
+                "maxLength": 64
+              },
+              "session_id": {
+                "type": "string",
+                "minLength": 8,
+                "maxLength": 128
+              },
+              "reason": {
+                "type": "string",
+                "maxLength": 1000
+              },
+              "human_approval": {
+                "type": "boolean",
+                "default": false,
+                "description": "Whether human has pre-approved this action (F13 Sovereign override)"
+              }
+            },
+            "additionalProperties": false
+          },
+          "auth_context": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "Optional auth context for continuity (F11) and sovereignty (F13).",
+            "additionalProperties": true
+          },
+          "caller_context": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "Optional caller metadata.",
+            "additionalProperties": true
+          },
+          "risk_tier": {
+            "type": "string",
+            "description": "Requested risk posture.",
+            "enum": [
+              "low",
+              "medium",
+              "high",
+              "critical"
+            ],
+            "default": "medium"
+          },
+          "dry_run": {
+            "type": "boolean",
+            "description": "If true, compute/plan/validate only.",
+            "default": true
+          },
+          "allow_execution": {
+            "type": "boolean",
+            "description": "If true, execution is permitted IF floors pass.",
+            "default": false
+          },
+          "debug": {
+            "type": "boolean",
+            "description": "Include additional diagnostics.",
+            "default": false
+          },
+          "request_id": {
+            "type": "string",
+            "description": "Client trace ID.",
+            "minLength": 8,
+            "maxLength": 128
+          },
+          "timestamp": {
+            "type": "string",
+            "description": "ISO 8601 timestamp.",
+            "format": "date-time"
+          }
+        }
+      },
+      "arifOS_kernel": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "mode",
+          "payload"
+        ],
+        "properties": {
+          "mode": {
+            "type": "string",
+            "description": "Mode selector for arifOS_kernel.",
+            "enum": [
+              "kernel",
+              "status"
+            ]
+          },
+          "payload": {
+            "type": "object",
+            "description": "Mode-specific payload.",
+            "required": [],
+            "properties": {
+              "query": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 40000
+              },
+              "context": {
+                "type": "string",
+                "maxLength": 100000
+              },
+              "max_steps": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 50,
+                "default": 13
+              },
+              "session_id": {
+                "type": "string"
+              },
+              "detail": {
+                "type": "string",
+                "enum": [
+                  "brief",
+                  "full"
+                ],
+                "default": "full"
+              }
+            },
+            "additionalProperties": false
+          },
+          "auth_context": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "Optional auth context for continuity (F11) and sovereignty (F13).",
+            "additionalProperties": true
+          },
+          "caller_context": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "Optional caller metadata.",
+            "additionalProperties": true
+          },
+          "risk_tier": {
+            "type": "string",
+            "description": "Requested risk posture.",
+            "enum": [
+              "low",
+              "medium",
+              "high",
+              "critical"
+            ],
+            "default": "medium"
+          },
+          "dry_run": {
+            "type": "boolean",
+            "description": "If true, compute/plan/validate only.",
+            "default": true
+          },
+          "allow_execution": {
+            "type": "boolean",
+            "description": "If true, execution is permitted IF floors pass.",
+            "default": false
+          },
+          "debug": {
+            "type": "boolean",
+            "description": "Include additional diagnostics.",
+            "default": false
+          },
+          "request_id": {
+            "type": "string",
+            "description": "Client trace ID.",
+            "minLength": 8,
+            "maxLength": 128
+          },
+          "timestamp": {
+            "type": "string",
+            "description": "ISO 8601 timestamp.",
+            "format": "date-time"
+          }
+        }
+      },
+      "apex_soul": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "mode",
+          "payload"
+        ],
+        "properties": {
+          "mode": {
+            "type": "string",
+            "description": "Mode selector for apex_soul.",
+            "enum": [
+              "judge",
+              "rules",
+              "validate",
+              "hold",
+              "armor",
+              "notify",
+              "probe"
+            ]
+          },
+          "payload": {
+            "type": "object",
+            "description": "Mode-specific payload.",
+            "required": [],
+            "properties": {
+              "candidate": {
+                "type": "string"
+              },
+              "hold_id": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              },
+              "session_id": {
+                "type": "string"
+              },
+              "target_floor": {
+                "type": "string",
+                "description": "Specific floor to probe (e.g. 'F12')."
+              }
+            },
+            "additionalProperties": false
+          },
+          "auth_context": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "Optional auth context for continuity (F11) and sovereignty (F13).",
+            "additionalProperties": true
+          },
+          "caller_context": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "Optional caller metadata.",
+            "additionalProperties": true
+          },
+          "risk_tier": {
+            "type": "string",
+            "description": "Requested risk posture.",
+            "enum": [
+              "low",
+              "medium",
+              "high",
+              "critical"
+            ],
+            "default": "medium"
+          },
+          "dry_run": {
+            "type": "boolean",
+            "description": "If true, compute/plan/validate only.",
+            "default": true
+          },
+          "allow_execution": {
+            "type": "boolean",
+            "description": "If true, execution is permitted IF floors pass.",
+            "default": false
+          },
+          "debug": {
+            "type": "boolean",
+            "description": "Include additional diagnostics.",
+            "default": false
+          },
+          "request_id": {
+            "type": "string",
+            "description": "Client trace ID.",
+            "minLength": 8,
+            "maxLength": 128
+          },
+          "timestamp": {
+            "type": "string",
+            "description": "ISO 8601 timestamp.",
+            "format": "date-time"
+          }
+        }
+      },
+      "vault_ledger": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "mode",
+          "payload"
+        ],
+        "properties": {
+          "mode": {
+            "type": "string",
+            "description": "Mode selector for vault_ledger.",
+            "enum": [
+              "seal",
+              "verify"
+            ]
+          },
+          "payload": {
+            "type": "object",
+            "description": "Mode-specific payload.",
+            "required": [],
+            "properties": {
+              "verdict": {
+                "type": "string"
+              },
+              "evidence": {
+                "type": "string"
+              },
+              "full_scan": {
+                "type": "boolean",
+                "default": true
+              },
+              "session_id": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          },
+          "auth_context": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "Optional auth context for continuity (F11) and sovereignty (F13).",
+            "additionalProperties": true
+          },
+          "caller_context": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "Optional caller metadata.",
+            "additionalProperties": true
+          },
+          "risk_tier": {
+            "type": "string",
+            "description": "Requested risk posture.",
+            "enum": [
+              "low",
+              "medium",
+              "high",
+              "critical"
+            ],
+            "default": "medium"
+          },
+          "dry_run": {
+            "type": "boolean",
+            "description": "If true, compute/plan/validate only.",
+            "default": true
+          },
+          "allow_execution": {
+            "type": "boolean",
+            "description": "If true, execution is permitted IF floors pass.",
+            "default": false
+          },
+          "debug": {
+            "type": "boolean",
+            "description": "Include additional diagnostics.",
+            "default": false
+          },
+          "request_id": {
+            "type": "string",
+            "description": "Client trace ID.",
+            "minLength": 8,
+            "maxLength": 128
+          },
+          "timestamp": {
+            "type": "string",
+            "description": "ISO 8601 timestamp.",
+            "format": "date-time"
+          }
+        }
+      },
+      "agi_mind": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "mode",
+          "payload"
+        ],
+        "properties": {
+          "mode": {
+            "type": "string",
+            "description": "Mode selector for agi_mind.",
+            "enum": [
+              "reason",
+              "reflect",
+              "forge"
+            ]
+          },
+          "payload": {
+            "type": "object",
+            "description": "Mode-specific payload.",
+            "required": [
+              "query"
+            ],
+            "properties": {
+              "query": {
+                "type": "string"
+              },
+              "topic": {
+                "type": "string"
+              },
+              "session_id": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          },
+          "auth_context": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "Optional auth context for continuity (F11) and sovereignty (F13).",
+            "additionalProperties": true
+          },
+          "caller_context": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "Optional caller metadata.",
+            "additionalProperties": true
+          },
+          "risk_tier": {
+            "type": "string",
+            "description": "Requested risk posture.",
+            "enum": [
+              "low",
+              "medium",
+              "high",
+              "critical"
+            ],
+            "default": "medium"
+          },
+          "dry_run": {
+            "type": "boolean",
+            "description": "If true, compute/plan/validate only.",
+            "default": true
+          },
+          "allow_execution": {
+            "type": "boolean",
+            "description": "If true, execution is permitted IF floors pass.",
+            "default": false
+          },
+          "debug": {
+            "type": "boolean",
+            "description": "Include additional diagnostics.",
+            "default": false
+          },
+          "request_id": {
+            "type": "string",
+            "description": "Client trace ID.",
+            "minLength": 8,
+            "maxLength": 128
+          },
+          "timestamp": {
+            "type": "string",
+            "description": "ISO 8601 timestamp.",
+            "format": "date-time"
+          }
+        }
+      },
+      "asi_heart": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "mode",
+          "payload"
+        ],
+        "properties": {
+          "mode": {
+            "type": "string",
+            "description": "Mode selector for asi_heart.",
+            "enum": [
+              "critique",
+              "simulate"
+            ]
+          },
+          "payload": {
+            "type": "object",
+            "description": "Mode-specific payload.",
+            "required": [
+              "content"
+            ],
+            "properties": {
+              "content": {
+                "type": "string"
+              },
+              "session_id": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          },
+          "auth_context": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "Optional auth context for continuity (F11) and sovereignty (F13).",
+            "additionalProperties": true
+          },
+          "caller_context": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "Optional caller metadata.",
+            "additionalProperties": true
+          },
+          "risk_tier": {
+            "type": "string",
+            "description": "Requested risk posture.",
+            "enum": [
+              "low",
+              "medium",
+              "high",
+              "critical"
+            ],
+            "default": "medium"
+          },
+          "dry_run": {
+            "type": "boolean",
+            "description": "If true, compute/plan/validate only.",
+            "default": true
+          },
+          "allow_execution": {
+            "type": "boolean",
+            "description": "If true, execution is permitted IF floors pass.",
+            "default": false
+          },
+          "debug": {
+            "type": "boolean",
+            "description": "Include additional diagnostics.",
+            "default": false
+          },
+          "request_id": {
+            "type": "string",
+            "description": "Client trace ID.",
+            "minLength": 8,
+            "maxLength": 128
+          },
+          "timestamp": {
+            "type": "string",
+            "description": "ISO 8601 timestamp.",
+            "format": "date-time"
+          }
+        }
+      },
+      "engineering_memory": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "mode",
+          "payload"
+        ],
+        "properties": {
+          "mode": {
+            "type": "string",
+            "description": "Mode selector for engineering_memory.",
+            "enum": [
+              "engineer",
+              "query",
+              "recall",
+              "write",
+              "generate"
+            ]
+          },
+          "payload": {
+            "type": "object",
+            "description": "Mode-specific payload.",
+            "required": [],
+            "properties": {
+              "task": {
+                "type": "string"
+              },
+              "query": {
+                "type": "string"
+              },
+              "prompt": {
+                "type": "string"
+              },
+              "content": {
+                "type": "string"
+              },
+              "session_id": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          },
+          "auth_context": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "Optional auth context for continuity (F11) and sovereignty (F13).",
+            "additionalProperties": true
+          },
+          "caller_context": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "Optional caller metadata.",
+            "additionalProperties": true
+          },
+          "risk_tier": {
+            "type": "string",
+            "description": "Requested risk posture.",
+            "enum": [
+              "low",
+              "medium",
+              "high",
+              "critical"
+            ],
+            "default": "medium"
+          },
+          "dry_run": {
+            "type": "boolean",
+            "description": "If true, compute/plan/validate only.",
+            "default": true
+          },
+          "allow_execution": {
+            "type": "boolean",
+            "description": "If true, execution is permitted IF floors pass.",
+            "default": false
+          },
+          "debug": {
+            "type": "boolean",
+            "description": "Include additional diagnostics.",
+            "default": false
+          },
+          "request_id": {
+            "type": "string",
+            "description": "Client trace ID.",
+            "minLength": 8,
+            "maxLength": 128
+          },
+          "timestamp": {
+            "type": "string",
+            "description": "ISO 8601 timestamp.",
+            "format": "date-time"
+          }
+        }
+      },
+      "physics_reality": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "mode",
+          "payload"
+        ],
+        "properties": {
+          "mode": {
+            "type": "string",
+            "description": "Mode selector for physics_reality.",
+            "enum": [
+              "search",
+              "ingest",
+              "compass",
+              "atlas"
+            ]
+          },
+          "payload": {
+            "type": "object",
+            "description": "Mode-specific payload.",
+            "required": [],
+            "properties": {
+              "input": {
+                "type": "string"
+              },
+              "operation": {
+                "type": "string"
+              },
+              "session_id": {
+                "type": "string"
+              },
+              "top_k": {
+                "type": "integer",
+                "default": 5
+              }
+            },
+            "additionalProperties": false
+          },
+          "auth_context": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "Optional auth context for continuity (F11) and sovereignty (F13).",
+            "additionalProperties": true
+          },
+          "caller_context": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "Optional caller metadata.",
+            "additionalProperties": true
+          },
+          "risk_tier": {
+            "type": "string",
+            "description": "Requested risk posture.",
+            "enum": [
+              "low",
+              "medium",
+              "high",
+              "critical"
+            ],
+            "default": "medium"
+          },
+          "dry_run": {
+            "type": "boolean",
+            "description": "If true, compute/plan/validate only.",
+            "default": true
+          },
+          "allow_execution": {
+            "type": "boolean",
+            "description": "If true, execution is permitted IF floors pass.",
+            "default": false
+          },
+          "debug": {
+            "type": "boolean",
+            "description": "Include additional diagnostics.",
+            "default": false
+          },
+          "request_id": {
+            "type": "string",
+            "description": "Client trace ID.",
+            "minLength": 8,
+            "maxLength": 128
+          },
+          "timestamp": {
+            "type": "string",
+            "description": "ISO 8601 timestamp.",
+            "format": "date-time"
+          }
+        }
+      },
+      "math_estimator": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "mode",
+          "payload"
+        ],
+        "properties": {
+          "mode": {
+            "type": "string",
+            "description": "Mode selector for math_estimator.",
+            "enum": [
+              "cost",
+              "health",
+              "vitals"
+            ]
+          },
+          "payload": {
+            "type": "object",
+            "description": "Mode-specific payload.",
+            "required": [],
+            "properties": {
+              "action": {
+                "type": "string"
+              },
+              "session_id": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          },
+          "auth_context": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "Optional auth context for continuity (F11) and sovereignty (F13).",
+            "additionalProperties": true
+          },
+          "caller_context": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "Optional caller metadata.",
+            "additionalProperties": true
+          },
+          "risk_tier": {
+            "type": "string",
+            "description": "Requested risk posture.",
+            "enum": [
+              "low",
+              "medium",
+              "high",
+              "critical"
+            ],
+            "default": "medium"
+          },
+          "dry_run": {
+            "type": "boolean",
+            "description": "If true, compute/plan/validate only.",
+            "default": true
+          },
+          "allow_execution": {
+            "type": "boolean",
+            "description": "If true, execution is permitted IF floors pass.",
+            "default": false
+          },
+          "debug": {
+            "type": "boolean",
+            "description": "Include additional diagnostics.",
+            "default": false
+          },
+          "request_id": {
+            "type": "string",
+            "description": "Client trace ID.",
+            "minLength": 8,
+            "maxLength": 128
+          },
+          "timestamp": {
+            "type": "string",
+            "description": "ISO 8601 timestamp.",
+            "format": "date-time"
+          }
+        }
+      },
+      "code_engine": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "mode",
+          "payload"
+        ],
+        "properties": {
+          "mode": {
+            "type": "string",
+            "description": "Mode selector for code_engine.",
+            "enum": [
+              "fs",
+              "process",
+              "net",
+              "tail",
+              "replay"
+            ]
+          },
+          "payload": {
+            "type": "object",
+            "description": "Mode-specific payload.",
+            "required": [],
+            "properties": {
+              "path": {
+                "type": "string",
+                "default": "."
+              },
+              "limit": {
+                "type": "integer",
+                "default": 50
+              },
+              "session_id": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          },
+          "auth_context": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "Optional auth context for continuity (F11) and sovereignty (F13).",
+            "additionalProperties": true
+          },
+          "caller_context": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "Optional caller metadata.",
+            "additionalProperties": true
+          },
+          "risk_tier": {
+            "type": "string",
+            "description": "Requested risk posture.",
+            "enum": [
+              "low",
+              "medium",
+              "high",
+              "critical"
+            ],
+            "default": "medium"
+          },
+          "dry_run": {
+            "type": "boolean",
+            "description": "If true, compute/plan/validate only.",
+            "default": true
+          },
+          "allow_execution": {
+            "type": "boolean",
+            "description": "If true, execution is permitted IF floors pass.",
+            "default": false
+          },
+          "debug": {
+            "type": "boolean",
+            "description": "Include additional diagnostics.",
+            "default": false
+          },
+          "request_id": {
+            "type": "string",
+            "description": "Client trace ID.",
+            "minLength": 8,
+            "maxLength": 128
+          },
+          "timestamp": {
+            "type": "string",
+            "description": "ISO 8601 timestamp.",
+            "format": "date-time"
+          }
+        }
+      },
+      "architect_registry": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "mode",
+          "payload"
+        ],
+        "properties": {
+          "mode": {
+            "type": "string",
+            "description": "Mode selector for architect_registry.",
+            "enum": [
+              "register",
+              "list",
+              "read"
+            ]
+          },
+          "payload": {
+            "type": "object",
+            "description": "Mode-specific payload.",
+            "required": [],
+            "properties": {
+              "uri": {
+                "type": "string"
+              },
+              "session_id": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          },
+          "auth_context": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "Optional auth context for continuity (F11) and sovereignty (F13).",
+            "additionalProperties": true
+          },
+          "caller_context": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "description": "Optional caller metadata.",
+            "additionalProperties": true
+          },
+          "risk_tier": {
+            "type": "string",
+            "description": "Requested risk posture.",
+            "enum": [
+              "low",
+              "medium",
+              "high",
+              "critical"
+            ],
+            "default": "medium"
+          },
+          "dry_run": {
+            "type": "boolean",
+            "description": "If true, compute/plan/validate only.",
+            "default": true
+          },
+          "allow_execution": {
+            "type": "boolean",
+            "description": "If true, execution is permitted IF floors pass.",
+            "default": false
+          },
+          "debug": {
+            "type": "boolean",
+            "description": "Include additional diagnostics.",
+            "default": false
+          },
+          "request_id": {
+            "type": "string",
+            "description": "Client trace ID.",
+            "minLength": 8,
+            "maxLength": 128
+          },
+          "timestamp": {
+            "type": "string",
+            "description": "ISO 8601 timestamp.",
+            "format": "date-time"
+          }
+        }
+      }
+    }
+  }
 }
