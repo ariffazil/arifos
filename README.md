@@ -137,20 +137,42 @@ In the 1970s, internet packets lacked delivery guarantees. TCP was invented to a
 **arifOS is the TCP layer for the Agent Internet.**
 
 Instead of allowing an Agent to directly execute a tool:
-```
-LLM ----> (Executes) ----> Production Database
+```mermaid
+flowchart LR
+    A[LLM Agent] -->|Direct Call| B[(Production Database)]
+    B -->|Delete Logs| C((Catastrophe))
+    style A fill:#2d3748,color:#fff,stroke:#4a5568
+    style B fill:#e53e3e,color:#fff,stroke:#c53030
+    style C fill:#000,color:#e53e3e,stroke:#e53e3e
 ```
 
 arifOS forces the execution through the Metabolic Loop:
-```
-LLM ----> arifOS Kernel (000_INIT)
-          ---> agi_mind (Reasoning check)
-          ---> asi_heart (Safety/Empathy check)
-          ---> apex_soul (Judgment check)
-          ---> F1-F13 Floor validation
-          ===========> Execution Approved
-          ===========> vault_ledger (Hash logged forever)
-                           ----> Production Database
+```mermaid
+flowchart TD
+    Agent[LLM Agent] -->|Tool Call + Auth| Kernel{000: INIT_ANCHOR}
+    Kernel -->|Gateway Passed| Mind(333: AGI Mind\nLogic & Forge)
+    Mind --> Heart(666: ASI Heart\nEmpathy & Critique)
+    Heart --> Soul(888: APEX Soul\n13-Floor Judgment)
+    
+    Soul -->|F1-F13 Validated| Seal[999: VAULT SEAL]
+    Soul -->|Irreversible Action| Hold((888_HOLD\nHuman Veto))
+    
+    Seal --> Db[(Production Database)]
+    
+    classDef default fill:#1a202c,color:#e2e8f0,stroke:#4a5568;
+    classDef auth fill:#2b6cb0,color:#fff,stroke:#2c5282;
+    classDef logic fill:#6b46c1,color:#fff,stroke:#553c9a;
+    classDef heart fill:#c53030,color:#fff,stroke:#9b2c2c;
+    classDef soul fill:#2f855a,color:#fff,stroke:#276749;
+    classDef hold fill:#d69e2e,color:#1a202c,stroke:#b7791f,stroke-width:2px;
+    classDef db fill:#000,color:#38b2ac,stroke:#38b2ac,stroke-dasharray: 5 5;
+
+    class Kernel auth;
+    class Mind logic;
+    class Heart heart;
+    class Soul soul;
+    class Hold hold;
+    class Seal,Db db;
 ```
 This loop ensures mathematically quantifiable stability. We measure this via Lyapunov stability equations (F5 Peace²), specifically bounding the energy function $V(x) = \frac{1}{2} x^T P x$ such that $\dot{V}(x) < 0$. This mathematically guarantees the system converges on a beneficial state and rapidly dissipates chaotic execution loops rather than spiraling out of control.
 
@@ -322,10 +344,38 @@ arifOS is transport-layer agnostic. It supports the "Agent Internet Protocol Tri
 
 ## 11. Data Storage & Persistence (Vault999)
 
-State and memory in arifOS are decoupled directly into localized, containerized stores managed by `docker-compose`.
+State and memory in arifOS are perfectly decoupled into the **3-Layer "Super Agentic" Memory Architecture**:
+
+```mermaid
+flowchart LR
+    subgraph L1 [L1: Constitutional Layer]
+        S[SPEC.md]
+        A[AGENTS.md]
+        U[USER.md]
+    end
+    
+    subgraph L2 [L2: Session Temporal]
+        D[memory/YYYY-MM-DD.md]
+    end
+    
+    subgraph L3 [L3: Vector Semantic]
+        V[(Qdrant / LanceDB)]
+    end
+
+    Agent((LLM)) -->|1. Reads Identity| L1
+    Agent -->|2. Writes Daily Log| L2
+    
+    L2 -->|3. Extracts Insight| L3
+    L3 -->|4. Context Injection| Agent
+    
+    style L1 fill:#1a202c,color:#e2e8f0,stroke:#4a5568,stroke-dasharray: 5 5
+    style L2 fill:#2a4365,color:#e2e8f0,stroke:#2c5282
+    style L3 fill:#2f855a,color:#e2e8f0,stroke:#276749
+    style V fill:#000,color:#48bb78,stroke:#48bb78
+```
 
 1. **Redis:** Handles high-speed, ephemeral State-Aware Auth Continuity. If the system reboots, the sessions die securely.
-2. **Qdrant:** Vector Database. Used strictly by the `engineering_memory(mode="recall")` tool to store topological maps of previous reasoning chains. 
+2. **L3 Vector Semantic (Qdrant & LanceDB):** Used natively by `engineering_memory(mode="vector_search")` to store topological maps of previous reasoning chains, instantly injecting semantic insights across massive timescales.
 3. **VAULT999 Ledger:** This is the most sacred drive.
    - When an AI completes its task, `apex_soul` issues a verdict.
    - If SEALED, the `vault_ledger` creates a JSON artifact containing the prompt, the agent's work, the telemetry scores, and a SHA-256 hash chaining it to the previously sealed artifact.
