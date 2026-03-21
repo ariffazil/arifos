@@ -152,7 +152,7 @@ LLM ----> arifOS Kernel (000_INIT)
           ===========> vault_ledger (Hash logged forever)
                            ----> Production Database
 ```
-This loop ensures mathematically quantifiable stability. We measure this via Lyapunov stability equations (F5 Peace²), ensuring the system converges on a beneficial state rather than spiraling out of control.
+This loop ensures mathematically quantifiable stability. We measure this via Lyapunov stability equations (F5 Peace²), specifically bounding the energy function $V(x) = \frac{1}{2} x^T P x$ such that $\dot{V}(x) < 0$. This mathematically guarantees the system converges on a beneficial state and rapidly dissipates chaotic execution loops rather than spiraling out of control.
 
 ---
 
@@ -229,6 +229,22 @@ When an Agent initializes:
 To cure API bloat, 42 fragmented tools were consolidated into **11 Mega-Tools**. Each mega-tool contains specific `modes`. 
 
 Here is the exhaustive matrix of how an AI LLM must interact with the system.
+
+### Full 39-Mode Matrix Summary
+| Layer | Mega-Tool | Modes Count | Modes |
+|-------|-----------|-------------|-------|
+| Gov | `init_anchor` | 3 | `init`, `revoke`, `refresh` |
+| Gov | `arifOS_kernel` | 2 | `kernel`, `status` |
+| Gov | `apex_soul` | 7 | `judge`, `rules`, `validate`, `hold`, `armor`, `notify`, `probe` |
+| Gov | `vault_ledger` | 2 | `seal`, `verify` |
+| Int | `agi_mind` | 3 | `reason`, `reflect`, `forge` |
+| Int | `asi_heart` | 2 | `critique`, `simulate` |
+| Int | `engineering_memory` | 5 | `engineer`, `query`, `vector_search`, `write`, `generate` |
+| Mac | `physics_reality` | 4 | `search`, `ingest`, `compass`, `atlas` |
+| Mac | `math_estimator` | 3 | `cost`, `health`, `vitals` |
+| Mac | `code_engine` | 5 | `fs`, `process`, `net`, `tail`, `replay` |
+| Mac | `architect_registry` | 3 | `register`, `list`, `read` |
+| **Total** | **11 Tools** | **39 Modes** | |
 
 ### A. GOVERNANCE LAYER (The Spine)
 *Handles identity, orchestration, and final judgment.*
@@ -314,12 +330,13 @@ State and memory in arifOS are decoupled directly into localized, containerized 
    - When an AI completes its task, `apex_soul` issues a verdict.
    - If SEALED, the `vault_ledger` creates a JSON artifact containing the prompt, the agent's work, the telemetry scores, and a SHA-256 hash chaining it to the previously sealed artifact.
    - This directory guarantees an immutable chain of causality. If an audit is required, `verify_vault_ledger` replays the hashes.
+   - **F1 Amanah Recovery Path:** If a hash collision or ledger corruption is detected during verification, the Kernel triggers `PHOENIX_RECOVERY`. The system immediately halts execution (`888_HOLD`), quarantines the corrupted block, and restores the ledger from the last verified remote consensus state (stored in `git`) before safely resuming operations.
 
 ---
 
 ## 12. Metabolic Telemetry & Scoring
 
-You can visually monitor the health of the agent runtime via the **[Live Dashboard](https://arifosmcp.arif-fazil.com/dashboard)**.
+You can visually monitor the health of the agent runtime via the **[Live Dashboard](/static/vitals.html)** (Local Staging) or **[Production Gateway](https://arifosmcp.arif-fazil.com/webmcp/vitals)** (Once certified).
 
 The Kernel calculates mathematical thresholds in real-time. If you see these scores dipping under threshold in your logs, the system is actively preventing an AI hallucination cluster.
 
