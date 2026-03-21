@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # backup-to-github.sh — arifOS_bot nightly workspace backup
 # Schedule: 00:00 MYT (16:00 UTC) via OpenClaw cron
-# Target: https://github.com/ariffazil/openclaw-workspace
+# Target: git@github.com:ariffazil/openclaw-workspace.git
 
 set -euo pipefail
 
@@ -17,17 +17,11 @@ mkdir -p "${WORKSPACE}/logs"
 
 log "=== arifOS_bot workspace backup starting ==="
 
-# Check GH_TOKEN available
-if [ -z "${GH_TOKEN:-}" ]; then
-  log "ERROR: GH_TOKEN not set — cannot push to GitHub"
-  echo "{\"ts\":\"${TIMESTAMP}\",\"event\":\"backup_failed\",\"reason\":\"no_gh_token\",\"agent\":\"arifOS_bot\"}" >> "${AUDIT_FILE}"
-  exit 1
-fi
-
 cd "${WORKSPACE}"
 
-# Configure git auth via token
-git remote set-url origin "https://${GH_TOKEN}@github.com/ariffazil/openclaw-workspace.git"
+# Configure git auth via SSH deploy key
+export GIT_SSH_COMMAND="ssh -i /root/.ssh/openclaw_backup_ed25519 -o IdentitiesOnly=yes"
+git remote set-url origin "git@github.com:ariffazil/openclaw-workspace.git"
 
 # Stage all changes (exclude .git internals, no secrets)
 git add \
@@ -48,8 +42,5 @@ Co-authored-by: arifOS_bot <arifos_bot@arif-fazil.com>"
   log "Backup pushed to GitHub successfully"
   echo "{\"ts\":\"${TIMESTAMP}\",\"event\":\"backup_success\",\"repo\":\"openclaw-workspace\",\"agent\":\"arifOS_bot\"}" >> "${AUDIT_FILE}"
 fi
-
-# Reset remote URL to HTTPS (non-token) after push for safety
-git remote set-url origin "https://github.com/ariffazil/openclaw-workspace.git"
 
 log "=== Backup complete ==="
