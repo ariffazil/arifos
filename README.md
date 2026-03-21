@@ -6,7 +6,7 @@
 
 ### The Execution Kernel & Model Context Protocol Server
 
-**[THE MIND](https://github.com/ariffazil/arifOS)** &nbsp;·&nbsp; **[THE BODY](https://github.com/ariffazil/arifosmcp)** &nbsp;·&nbsp; **[THE SURFACE](https://github.com/ariffazil/ariffazil)**
+**[THE MIND](https://github.com/ariffazil/arifOS)** &nbsp;·&nbsp; **[THE BODY](https://github.com/ariffazil/arifosmcp)** &nbsp;·&nbsp; **[THE SOUL](https://github.com/ariffazil/ariffazil)**
 
 *Ditempa Bukan Diberi — Forged, Not Given.*
 
@@ -87,7 +87,7 @@ arifOS exists across three distinctly purposed repositories. We call this the Tr
 
 | Repository | Realm | Domain Focus | Purpose |
 |:---:|:---:|:---|:---|
-| **[ariffazil](https://github.com/ariffazil/ariffazil)** | **THE SURFACE** | Human | The professional identity of Muhammad Arif bin Fazil (Geoscientist, Economist, Architect of arifOS). |
+| **[ariffazil](https://github.com/ariffazil/ariffazil)** | **THE SOUL** | Human | The professional identity of Muhammad Arif bin Fazil (Geoscientist, Economist, Architect of arifOS). |
 | **[arifOS](https://github.com/ariffazil/arifOS)** | **THE MIND** | Theory & Law | Philosophical axioms, constitutional canons, and the mathematical definitions of the 13 Floors. No executable code. |
 | **[arifosmcp](https://github.com/ariffazil/arifosmcp)** | **THE BODY** | Execution | **You are here.** The production runtime, the MCP tool server, the network protocols, and the API endpoints. |
 
