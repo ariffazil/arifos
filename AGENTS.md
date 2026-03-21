@@ -165,7 +165,7 @@ exec: arifos search "query"  # Multi-source web search
 exec: arifos audit           # Floor audit (F1-F13)
 exec: arifos memory "query"  # Semantic memory search
 
-# Direct HTTP call for arifOS.kernel (unified pipeline)
+# Direct HTTP call for arifOS_kernel (unified pipeline)
 exec: curl -s -X POST http://arifosmcp_server:8080/mcp \
   -H "Content-Type: application/json" \
   -d '{
@@ -173,7 +173,7 @@ exec: curl -s -X POST http://arifosmcp_server:8080/mcp \
     "id": 1,
     "method": "tools/call",
     "params": {
-      "name": "arifOS.kernel",
+      "name": "arifOS_kernel",
       "arguments": {
         "query": "Your task here",
         "actor_id": "arif",
@@ -222,13 +222,15 @@ exec: curl http://qdrant_memory:6333/collections/arifos_constitutional/points/co
 
 ## 5. arifOS MCP — 7+1 Unified Kernel Tools
 
-The arifOS kernel enforces F1-F13 floors on every verdict. **Architecture:** Unified `arifOS.kernel` runs the full constitutional pipeline internally. Supporting tools handle evidence, memory, and audit.
+The arifOS kernel enforces F1-F13 floors on every verdict. **Architecture:** Unified `arifOS_kernel` runs the full constitutional pipeline internally. Supporting tools handle evidence, memory, and audit.
 
-### Primary Tool: arifOS.kernel
+> **Cross-reference**: For full kernel specification (11-tool M-11 Trinity, auth context, capability map), see `/mnt/arifos/AGENTS.md` (arifOS MCP kernel server spec).
+
+### Primary Tool: arifOS_kernel
 
 | Tool | Description |
 |------|-------------|
-| `arifOS.kernel` | **Unified constitutional intelligence kernel.** Runs the full F1-F13 pipeline internally: anchor → reason → memory/heart → critique → forge → judge → seal. Use this as the primary entrypoint for all non-trivial intelligence tasks. |
+| `arifOS_kernel` | **Unified constitutional intelligence kernel.** Runs the full F1-F13 pipeline internally: anchor → reason → memory/heart → critique → forge → judge → seal. Use this as the primary entrypoint for all non-trivial intelligence tasks. |
 
 **Key parameters:**
 - `query` (required) — The task or question
@@ -256,9 +258,10 @@ The arifOS kernel enforces F1-F13 floors on every verdict. **Architecture:** Uni
 
 | Tool | Description |
 |------|-------------|
-| `metabolic_loop_router` | ⚠️ Legacy alias. Use `arifOS.kernel` instead. |
+| `metabolic_loop_router` | ⚠️ Legacy alias. Use `arifOS_kernel` instead. |
+| `arifOS.kernel` | ⚠️ Legacy alias (dot notation). Use `arifOS_kernel` (underscore) instead. |
 
-### Internal Pipeline Stages (within arifOS.kernel)
+### Internal Pipeline Stages (within arifOS_kernel)
 
 The kernel runs these stages sequentially when processing a query:
 
@@ -273,6 +276,21 @@ The kernel runs these stages sequentially when processing a query:
 | 777 | FORGE | Synthesis and solution generation |
 | 888 | JUDGE | Final constitutional verdict |
 | 999 | VAULT | Seal to persistent ledger |
+
+### Constitutional Floors: F2 vs F7 Clarification
+
+**Apparent tension:** F2 requires near-certainty (τ ≥ 0.99) while F7 requires uncertainty acknowledgment (Ω₀ ∈ [0.03,0.05]).
+
+**Resolution:** These operate in different domains — no conflict.
+
+| Floor | Applies To | Threshold | Purpose |
+|-------|-----------|-----------|---------|
+| **F2 (τ)** | **Output claims** | τ ≥ 0.99 | Factual assertions must be grounded |
+| **F7 (Ω₀)** | **Reasoning process** | Ω₀ ∈ [0.03,0.05] | Epistemic humility in conclusions |
+
+**Example:**
+- ❌ Bad: "X is definitely true" (claim without τ ≥ 0.99 evidence)
+- ✅ Good: "Based on evidence A, B, C, X appears likely (τ=0.95). Ω₀=0.04 acknowledges residual uncertainty."
 
 ---
 
