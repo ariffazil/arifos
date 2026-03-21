@@ -83,7 +83,7 @@ From the Iran war discussion + 7 Nusantara poets:
 This workspace auto-commits and pushes every day at **00:01 Malaysia Time** (16:01 UTC previous day).
 
 ```bash
-# Cron entry (set via openclaw-ops skill)
+# Cron entry (Asia/Kuala_Lumpur timezone)
 0 1 * * * TZ='Asia/Kuala_Lumpur' /root/.openclaw/workspace/scripts/backup-to-github.sh
 ```
 
