@@ -241,7 +241,7 @@ arifOS implements a **hierarchical identity model** with cryptographic session b
 
 ## 🧬 7. The 11-Tool Mega-Surface
 
-The constitutional kernel exposes **11 Mega-Tools** with **37 operation modes**, consolidating the previous 42-tool surface into a cleaner, mode-dispatch architecture. Each mega-tool owns a slice of the 000→999 pipeline, ensuring no capability is orphaned.
+The constitutional kernel exposes **11 Mega-Tools** with **37 operation modes**. 8 deprecated alias tools were removed from the public surface (March 2026) — only the canonical 11 remain. Each mega-tool owns a slice of the 000→999 pipeline, ensuring no capability is orphaned.
 
 ### 7.1 Governance Layer (4 Tools)
 
@@ -392,20 +392,20 @@ The deployment system implements 6 constitutional stages:
 
 The complete autonomous civilization stack (15 containers):
 
-| Service | Purpose | Endpoint |
-|---------|---------|----------|
-| `arifosmcp` | Constitutional kernel | `arifosmcp.arif-fazil.com` |
-| `traefik` | Edge router with auto-SSL | - |
-| `postgres` | VAULT999 ledger | Internal |
-| `redis` | Session persistence | Internal |
-| `qdrant` | Vector memory store | Internal |
-| `ollama` | Local LLM inference | Internal |
-| `openclaw` | Multi-channel gateway | `gateway.arif-fazil.com` |
-| `n8n` | Workflow automation | `n8n.arif-fazil.com` |
-| `code-server` | VS Code in browser | `code.arifosmcp.arif-fazil.com` |
-| `stirling-pdf` | PDF automation | `pdf.arifosmcp.arif-fazil.com` |
-| `grafana` | Observability dashboards | Internal |
-| `prometheus` | Metrics collection | Internal |
+| Container | Purpose | Status | Endpoint |
+|-----------|---------|--------|----------|
+| `arifosmcp_server` | Constitutional kernel | ✅ Live | `arifosmcp.arif-fazil.com` |
+| `traefik_router` | Edge router with auto-SSL | ✅ Live | - |
+| `arifos_postgres` | VAULT999 audit ledger + session | ✅ **Wired** | Internal |
+| `arifos_redis` | Session persistence + cache | ✅ **Wired** | Internal |
+| `qdrant_memory` | Vector memory (engineering_memory) | ✅ **Wired** | Internal |
+| `ollama_engine` | Local LLM inference | ✅ Connected | Internal |
+| `openclaw_gateway` | Multi-channel gateway | ✅ Live | `gateway.arif-fazil.com` |
+| `arifos_prometheus` | Metrics scraper | ✅ Scraping `/metrics` | Internal |
+| `arifos_grafana` | Observability dashboards | ✅ Live | `monitor.arifosmcp.arif-fazil.com` |
+| `headless_browser` | Web automation | ✅ Live | Internal |
+| `agent_zero_reasoner` | Autonomous agent | ✅ Live | Internal |
+| `n8n` | Workflow automation | ✅ Live | `n8n.arif-fazil.com` |
 
 ---
 
@@ -451,15 +451,28 @@ arifOS solves this by making **Human Sovereignty** a mathematical necessity.
 
 ## 🧊 13. VAULT999: The Immutable Ledger
 
-Every SEALed verdict is stored in a hash-chained ledger:
-- **Integrity:** Uses Merkle chaining. If historical data is modified, the hash chain breaks.
-- **Transparency:** Provides a permanent, unalterable audit trail for every reasoning step.
-- **Verification:** Use `verify_vault_ledger` to detect tampering.
-- **Source:** [arifosmcp/VAULT999/](./arifosmcp/VAULT999/)
+Every SEALed verdict is stored in a dual-persistence hash-chained ledger:
+- **Integrity:** SHA-256 Merkle chaining. If any historical entry is modified, the chain breaks.
+- **File backend:** `VAULT999/vault999.jsonl` on Docker volume `arifosmcp_arifosmcp_vault` — survives container restarts.
+- **Postgres backend:** Every `vault_ledger seal` writes a row to `vault_audit` table on `arifos_postgres` — queryable, permanent audit record.
+- **Transparency:** Unalterable audit trail for every reasoning step, accessible via SQL.
+- **Verification:** Use `vault_ledger mode=verify` to detect tampering across the full Merkle chain.
+- **Source:** [core/organs/_4_vault.py](./core/organs/_4_vault.py)
 
 ---
 
 ## 🏺 14. Historical Logs
+
+### 2026.03.20 — Infrastructure SOVEREIGN — All Systems Wired ✅
+- **Feature**: **Qdrant Vector Memory** — `engineering_memory write/recall` now backed by `qdrant_memory:6333`. Persistent vector store across sessions using `ConstitutionalMemoryStore` with F2/F4/F12 constitutional enforcement.
+- **Feature**: **Postgres Audit Write-Through** — Every `vault_ledger seal` writes a structured row to `vault_audit` on `arifos_postgres` via asyncpg. Full SEAL history is now SQL-queryable.
+- **Feature**: **Prometheus Live Metrics** — `/metrics` endpoint exposes `arifos_*` counters (verdicts, floor violations, sessions, vault entries) scraped by `arifos_prometheus`.
+- **Fix**: **Hostname Alignment** — All service hostnames in docker-compose corrected to match actual container names (`arifos_redis`, `qdrant_memory`, `arifos_postgres`, `ollama_engine`).
+- **Fix**: **init_anchor Bug** — `NameError: is_protected_sovereign_id` and `UnboundLocalError: normalized_intent` resolved in `tools_internal.py`.
+- **Fix**: **engineering_memory ctx** — Missing `ctx` parameter added to dispatch function, unblocking 555_MEMORY stage.
+- **Fix**: **Vault Seed Skip** — `vault_ledger verify` no longer fails on seed/bootstrap records in the JSONL chain.
+- **Cleanup**: 8 deprecated tools removed from MCP surface — `init_anchor_state`, `revoke_anchor_state`, `get_caller_status`, `metabolic_loop_router`, `register_tools`, `list_resources`, `read_resource`, `arifos_list_resources`.
+- **Release**: Version 2026.03.21-SOVEREIGN. VPS = GitHub = ALIGNED.
 
 ### 2026.03.21 — Runtime Reliability SEALED
 - **Feature**: **Structured Intent Support** — `init_anchor` and `arifOS_kernel` now support complex intent objects with auto-normalization.
