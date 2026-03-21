@@ -13,8 +13,8 @@
 ---
 
 [![Status](https://img.shields.io/badge/Status-Alive%20(COHERENT)-00b894.svg?style=flat-square)](https://arifosmcp.arif-fazil.com/health)
-[![Release](https://img.shields.io/badge/Version-2026.03.21--RELIABLE-blue.svg?style=flat-square)](https://github.com/ariffazil/arifosmcp/releases)
-[![Tools](https://img.shields.io/badge/Mega--Tools-11%20(37%20Modes)-success.svg?style=flat-square)](https://arifosmcp.arif-fazil.com/tools)
+[![Release](https://img.shields.io/badge/Version-2026.03.20--SOVEREIGN11-blue.svg?style=flat-square)](https://github.com/ariffazil/arifosmcp/releases)
+[![Tools](https://img.shields.io/badge/Mega--Tools-11%20(39%20Modes)-success.svg?style=flat-square)](https://arifosmcp.arif-fazil.com/tools)
 [![Protocols](https://img.shields.io/badge/Protocols-MCP%2BA2A%2BWebMCP-orange.svg?style=flat-square)](./docs/protocols/PROTOCOLS_TRINITY.md)
 [![Validation](https://img.shields.io/badge/External%20Validation-HIGH-brightgreen.svg?style=flat-square)](./docs/reports/EXTERNAL_VALIDATION_REPORT.md)
 [![License](https://img.shields.io/badge/License-AGPL%203.0-lightgrey.svg?style=flat-square)](./LICENSE)
@@ -245,7 +245,7 @@ Here is the exhaustive matrix of how an AI LLM must interact with the system.
 
 3. **`apex_soul`**
    - **Purpose:** Final arbiter of outputs.
-   - **Mode:** `judge` (issue SEAL), `rules` (read constitution), `validate` (test a candidate text), `armor` (scan for F12 injection attacks).
+   - **Mode:** `judge` (issue SEAL), `rules` (read constitution), `validate` (test a candidate text), `hold` (check pending human escalations), `armor` (scan for F12 injection attacks), `notify` (send governance alerts), `probe` (test specific floors).
    
 4. **`vault_ledger`**
    - **Purpose:** Blockchain-like immutable persistence.
@@ -265,7 +265,7 @@ Here is the exhaustive matrix of how an AI LLM must interact with the system.
 
 7. **`engineering_memory`**
    - **Purpose:** Execute approved logic natively.
-   - **Mode:** `engineer` (run safe python/bash routines), `recall` (RAG vector search from past memories).
+   - **Mode:** `engineer` (run safe python/bash routines), `query` (semantic search), `vector_search` (RAG vector search from past memories), `write` (persist data), `generate` (create new artifacts).
 
 ### C. MACHINE LAYER (The Senses & Vitals)
 *Handles world interactions.*
@@ -284,7 +284,7 @@ Here is the exhaustive matrix of how an AI LLM must interact with the system.
 
 11. **`architect_registry`**
     - **Purpose:** Discoverability.
-    - **Mode:** `list` (returns definition of the 10 other tools to the agent dynamically).
+    - **Mode:** `register` (add new tools/resources), `list` (enumerate available tools), `read` (get specific tool/resource details).
 
 **Self-Explaining Recovery Interface:**
 If an agent hallucinates a tool name or a payload, the kernel intercepts the error and returns a `"next_action"` block politely advising the LLM on exactly which tool to call next to recover gracefully.
@@ -370,7 +370,7 @@ make deploy-production
 
 The rapid evolution of the arifOS execution layer in March 2026:
 
-- **v2026.03.21-RELIABLE:** *Current Version.* Fixed Enum mismatches, fully mapped `RuntimeEnvelope` Pydantic models. Initialized physical `VAULT999` folder structure to ensure file closures.
+- **v2026.03.20-SOVEREIGN11:** *Current Version.* Consolidated 11 Mega-Tools with 39 modes. Fixed all enum mismatches across capability_map.py and tool_specs.py. Removed duplicate WebMCP mounting. Updated documentation to reflect true 11-tool surface.
 - **v2026.03.20-CONSOLIDATION:** The 42 fragmented tools were condensed into the modern 11-Tool Mega-Surface architecture. Major system decoupling.
 - **v2026.03.19-ANTICHAOS:** Retired implicit truth fallbacks. Unified Session Truth. Solidified actor/auth scoping across all routes.
 - **v2026.03.17-TRINITY:** Deployed WebMCP+A2A+MCP trinity. Booted the E3E End-to-End Choreography test suite.
@@ -393,5 +393,5 @@ All system actions originating from this codebase hold their provenance in human
 
 ---
 
-*(End of README. SEALed by arifOS Governance Kernel v2026.03.21-RELIABLE.)*
+*(End of README. SEALed by arifOS Governance Kernel v2026.03.20-SOVEREIGN11.)*
 <EOF>
