@@ -78,20 +78,29 @@ From the Iran war discussion + 7 Nusantara poets:
 
 ---
 
-## Daily Rhythm (00:01 MYT)
+## Daily Ritual (00:01 MYT)
 
-This workspace auto-commits and pushes every day at **00:01 Malaysia Time** (16:01 UTC previous day).
+Every day at **00:01 Malaysia Time**, arifOS_bot performs a two-phase ritual:
+
+### Phase 1: Reflection & Hardening
+- Review yesterday's memory file
+- Detect drift: Have any floors weakened? Any preferences changed?
+- Apply Multi-Lens Protocol: Re-examine through 7 lenses
+- Extract generalizable insights
+- Surface carry-forward items
+
+### Phase 2: Backup & Seal
+- Commit all changes to git
+- Push to `github.com/ariffazil/openclaw-workspace`
+- Log to `logs/audit.jsonl`
+- Report: what hardened, what persists
 
 ```bash
-# Cron entry (Asia/Kuala_Lumpur timezone)
-0 1 * * * TZ='Asia/Kuala_Lumpur' /root/.openclaw/workspace/scripts/backup-to-github.sh
+# Cron schedule (Asia/Kuala_Lumpur timezone)
+0 1 * * * TZ='Asia/Kuala_Lumpur'
 ```
 
-**What gets preserved:**
-- Daily memory files (`memory/YYYY-MM-DD.md`)
-- Constitutional document updates
-- Audit logs (`logs/audit.jsonl`)
-- Skill state changes
+**The workspace hardens with age.** Early files are rough. Later files are forged.
 
 ---
 
