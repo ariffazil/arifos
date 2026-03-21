@@ -11,13 +11,13 @@ from typing import Literal
 from .runtime.tool_specs import MEGA_TOOLS, MegaToolName
 
 
-
 # -----------------------------------------------------------------------------
 # MODE ENUMS (STRICT)
 # -----------------------------------------------------------------------------
 class InitAnchorMode(str, Enum):
     init = "init"
     revoke = "revoke"
+    refresh = "refresh"
 
 
 class KernelMode(str, Enum):
@@ -31,6 +31,8 @@ class ApexSoulMode(str, Enum):
     validate = "validate"
     hold = "hold"
     armor = "armor"
+    notify = "notify"
+    probe = "probe"
 
 
 class VaultLedgerMode(str, Enum):
@@ -52,6 +54,8 @@ class AsiHeartMode(str, Enum):
 class EngineeringMemoryMode(str, Enum):
     engineer = "engineer"
     query = "query"
+    recall = "recall"
+    write = "write"
     generate = "generate"
 
 
@@ -161,39 +165,32 @@ CAPABILITY_MAP: dict[str, CapabilityTarget] = {
     "init_anchor": CapabilityTarget("init_anchor", "init", "Canonical init"),
     "arifOS_kernel": CapabilityTarget("arifOS_kernel", "kernel", "Canonical router"),
     "metabolic_loop": CapabilityTarget("arifOS_kernel", "kernel", "Legacy compatibility"),
-
     # ---- AGI (333/555) ----
     "agi_reason": CapabilityTarget("agi_mind", "reason", "Reasoning"),
     "agi_reflect": CapabilityTarget("agi_mind", "reflect", "Reflection"),
     "forge": CapabilityTarget("agi_mind", "forge", "Forge"),
-
     # ---- ASI (666) ----
     "asi_critique": CapabilityTarget("asi_heart", "critique", "Adversarial critique"),
     "asi_simulate": CapabilityTarget("asi_heart", "simulate", "Consequence simulation"),
-
     # ---- Reality / Physics (111/222) ----
     "search_reality": CapabilityTarget("physics_reality", "search", "External search"),
     "ingest_evidence": CapabilityTarget("physics_reality", "ingest", "URL/file -> evidence"),
     "reality_compass": CapabilityTarget("physics_reality", "compass", "Quick grounding"),
     "reality_atlas": CapabilityTarget("physics_reality", "atlas", "Evidence merge"),
-
     # ---- Math / telemetry (444) ----
     "check_vital": CapabilityTarget("math_estimator", "vitals", "Thermo vitals"),
     "system_health": CapabilityTarget("math_estimator", "health", "Host health metrics"),
     "cost_estimator": CapabilityTarget("math_estimator", "cost", "Cost estimator"),
-
     # ---- Code / machine ops (M-3) ----
     "fs_inspect": CapabilityTarget("code_engine", "fs", "Filesystem inspection"),
     "process_list": CapabilityTarget("code_engine", "process", "Process listing"),
     "net_status": CapabilityTarget("code_engine", "net", "Network status"),
     "log_tail": CapabilityTarget("code_engine", "tail", "Log tail"),
     "trace_replay": CapabilityTarget("code_engine", "replay", "Replay traces"),
-
     # ---- Engineering + memory (555/666) ----
     "agentzero_engineer": CapabilityTarget("engineering_memory", "engineer", "Material execution"),
     "agentzero_memory_query": CapabilityTarget("engineering_memory", "query", "Recall memory"),
     "chroma_query": CapabilityTarget("engineering_memory", "query", "Vector query"),
-
     # ---- APEX / governance (888) ----
     "apex_judge": CapabilityTarget("apex_soul", "judge", "Verdict"),
     "audit_rules": CapabilityTarget("apex_soul", "rules", "Inspect floors"),
@@ -203,7 +200,6 @@ CAPABILITY_MAP: dict[str, CapabilityTarget] = {
     "open_apex_dashboard": CapabilityTarget("apex_soul", "rules", "Dashboard"),
     "apex_score_app": CapabilityTarget("apex_soul", "rules", "Score UI"),
     "stage_pipeline_app": CapabilityTarget("apex_soul", "rules", "Pipeline UI"),
-
     # ---- Vault (999) ----
     "vault_seal": CapabilityTarget("vault_ledger", "seal", "Seal ledger"),
     "verify_vault_ledger": CapabilityTarget("vault_ledger", "verify", "Verify ledger"),

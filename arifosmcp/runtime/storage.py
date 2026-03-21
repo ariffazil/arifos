@@ -13,6 +13,28 @@ from typing import Any
 logger = logging.getLogger(__name__)
 
 
+def _env_truthy(name: str) -> bool:
+    value = os.getenv(name, "").strip().lower()
+    return value in {"1", "true", "yes", "on"}
+
+
+def _should_use_redis_storage() -> bool:
+    """Choose Redis only when it is explicitly requested for this process."""
+    backend = os.getenv("ARIFOS_STORAGE_BACKEND", "").strip().lower()
+    if backend:
+        return backend == "redis"
+
+    if _env_truthy("ARIFOS_MINIMAL_STDIO"):
+        logger.info("ARIFOS_MINIMAL_STDIO enabled; using in-memory session state.")
+        return False
+
+    if os.getenv("REDIS_HOST"):
+        return True
+
+    logger.info("REDIS_HOST is unset; using in-memory session state.")
+    return False
+
+
 def build_encrypted_redis_store() -> Any:
     """
     Build a Fernet-encrypted Redis store.
@@ -53,7 +75,6 @@ def build_encrypted_redis_store() -> Any:
 
 def get_storage() -> Any:
     """Return the primary storage backend. None = fall through to file/memory."""
-    backend = os.getenv("ARIFOS_STORAGE_BACKEND", "redis").lower()
-    if backend == "redis":
+    if _should_use_redis_storage():
         return build_encrypted_redis_store()
     return None

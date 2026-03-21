@@ -21,6 +21,7 @@ def main() -> None:
     _bootstrap_environment()
 
     mode = (sys.argv[1] if len(sys.argv) > 1 else os.getenv("AAA_MCP_TRANSPORT", "stdio")).lower()
+    os.environ["AAA_MCP_TRANSPORT"] = mode
     host = os.getenv("HOST", "0.0.0.0")
     port = int(os.getenv("PORT", "8080"))
 
@@ -32,6 +33,9 @@ def main() -> None:
 
         uvicorn.run(app, host=host, port=port, log_level="info")
         return
+
+    # Stdio clients only need the MCP kernel, not the full HTTP/WebMCP/A2A surface.
+    os.environ.setdefault("ARIFOS_MINIMAL_STDIO", "1")
 
     from .server import create_aaa_mcp_server
 

@@ -112,7 +112,7 @@ TOOL_MODES: dict[str, frozenset[str]] = {
     "vault_ledger": frozenset({"seal", "verify"}),
     "agi_mind": frozenset({"reason", "reflect", "forge"}),
     "asi_heart": frozenset({"critique", "simulate"}),
-    "engineering_memory": frozenset({"engineer", "recall", "write", "generate"}),
+    "engineering_memory": frozenset({"engineer", "vector_query", "vector_store", "vector_forget", "generate", "query"}),
     "physics_reality": frozenset({"search", "ingest", "compass", "atlas"}),
     "math_estimator": frozenset({"cost", "health", "vitals"}),
     "code_engine": frozenset({"fs", "process", "net", "tail", "replay"}),

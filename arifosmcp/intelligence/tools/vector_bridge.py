@@ -340,6 +340,53 @@ async def search_vector_memory(
     )
 
 
+async def search_hybrid_memory(
+    query: str,
+    top_k: int = 5,
+    project_id: str = "default",
+    use_cache: bool = True,
+) -> list[dict[str, Any]]:
+    """
+    555_MEMORY: Hybrid vector search (LanceDB hot + Qdrant cold).
+    
+    Constitutional:
+    - F1: Qdrant remains source of truth
+    - F2: 24h freshness verification
+    - F12: Injection guard on query
+    - F13: Large writes trigger audit
+    
+    Args:
+        query: Search query text
+        top_k: Number of results
+        project_id: Tenant isolation
+        use_cache: Prefer LanceDB hot path
+        
+    Returns:
+        List of results with source attribution (lancedb/qdrant)
+    """
+    from arifosmcp.intelligence.tools.hybrid_vector_memory import get_hybrid_memory
+    
+    memory = await get_hybrid_memory()
+    results = await memory.search(
+        query=query,
+        k=top_k,
+        use_cache=use_cache,
+        project_id=project_id,
+    )
+    
+    return [
+        {
+            "id": r.id,
+            "content": r.content,
+            "score": r.score,
+            "timestamp": r.timestamp.isoformat() if r.timestamp else None,
+            "source": r.source,
+            "metadata": r.metadata,
+        }
+        for r in results
+    ]
+
+
 def get_vector_stats() -> dict[str, Any]:
     """Get vector store statistics."""
     client = vector_bridge._get_client()
@@ -366,6 +413,7 @@ __all__ = [
     "VectorSyncResult",
     "auto_sync_bundle",
     "search_vector_memory",
+    "search_hybrid_memory",
     "get_vector_stats",
     "vector_bridge",
 ]

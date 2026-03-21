@@ -8,7 +8,7 @@ Memory Areas (per project):
 - INSTRUMENTS: Custom procedures, scripts
 
 Constitutional Enforcement:
-- F2: Verify recalled memories (truth degradation check)
+- F2: Verify vector query results (truth degradation check)
 - F4: Entropy reduction on storage (compression, structuring)
 - F12: Scan for injection before storage
 - F1: Audit log all memory operations
@@ -175,7 +175,7 @@ class ConstitutionalMemoryStore:
         self.import_tracker: dict[str, dict[str, Any]] = {}
         self.stats = {
             "stores": 0,
-            "recalls": 0,
+            "vector_queries": 0,
             "f2_rejections": 0,
             "f12_blocks": 0,
         }
@@ -284,7 +284,7 @@ class ConstitutionalMemoryStore:
             logger.error(f"[{memory_id}] Qdrant storage failed: {e}")
             return False, None, str(e)
 
-    async def recall(
+    async def vector_query(
         self,
         query: str,
         project_id: str,
@@ -293,8 +293,25 @@ class ConstitutionalMemoryStore:
         threshold: float = 0.5,
         verify_f2: bool = True,
     ) -> list[MemoryEntry]:
-        """Recall memories with F2 verification."""
-        logger.info(f"Recalling from '{project_id}': '{query[:50]}' (k={k})")
+        """
+        555_MEMORY: Vector semantic search with F2 verification.
+        
+        Constitutional Floors:
+        - F2: Verify recalled memories (truth degradation check)
+        - F4: Entropy reduction (structured results)
+        - F12: Injection scan on query vector
+        
+        Args:
+            query: Search query text
+            project_id: Project namespace (tenant isolation)
+            k: Number of results (max 100)
+            areas: Optional MemoryArea filter
+            verify_f2: Run F2 truth verification on results
+        
+        Returns:
+            List of MemoryEntry with constitutional metadata
+        """
+        logger.info(f"vector_query from '{project_id}': '{query[:50]}' (k={k})")
         areas = areas or list(MemoryArea)
         query_vec = _embed(query)
         all_results: list[dict[str, Any]] = []
@@ -344,9 +361,34 @@ class ConstitutionalMemoryStore:
                     await self._flag_degraded(entry)
             entries = verified
 
-        self.stats["recalls"] += 1
-        logger.info(f"Recalled {len(entries)} memories from Qdrant")
+        self.stats["vector_queries"] += 1
+        logger.info(f"vector_query returned {len(entries)} verified memories from Qdrant")
         return entries
+
+    async def recall(
+        self,
+        query: str,
+        project_id: str,
+        areas: list[MemoryArea] | None = None,
+        k: int = 5,
+        threshold: float = 0.5,
+        verify_f2: bool = True,
+    ) -> list[MemoryEntry]:
+        """
+        [DEPRECATED] Use vector_query() instead.
+        
+        Legacy alias maintained for backward compatibility.
+        Logs deprecation warning.
+        """
+        logger.warning("DEPRECATED: recall() called — use vector_query() instead")
+        return await self.vector_query(
+            query=query,
+            project_id=project_id,
+            areas=areas,
+            k=k,
+            threshold=threshold,
+            verify_f2=verify_f2,
+        )
 
     async def import_knowledge(
         self,

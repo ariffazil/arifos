@@ -315,14 +315,16 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
         role="Technical Execution",
         layer="INTELLIGENCE",
         description=(
-            "555_MEMORY: Governed autonomous engineering and recall. "
-            "Modes: 'engineer', 'query', 'recall', 'write', 'generate'."
+            "555_MEMORY: Governed autonomous engineering and vector memory. "
+            "Modes: 'engineer' (execute), 'vector_query' (search), 'vector_store' (save), "
+            "'vector_forget' (delete), 'generate' (create). "
+            "Constitutional: F2 verification on all vector queries."
         ),
         trinity="OMEGA Ω",
         floors=("F11", "F2"),
         input_schema=_build_mega_schema(
             "engineering_memory",
-            ["engineer", "query", "recall", "write", "generate"],
+            ["engineer", "vector_query", "vector_store", "vector_forget", "generate", "query"],
             {
                 "task": {"type": "string"},
                 "query": {"type": "string"},

@@ -146,6 +146,7 @@ mcp = FastMCP(
 PUBLIC_TOOL_PROFILE = normalize_tool_profile(os.getenv("ARIFOS_PUBLIC_TOOL_PROFILE", "public"))
 # SSE removed: deprecated by MCP spec (2025-03) and Copilot Studio (2025-08)
 VALID_TRANSPORT_MODES = {"stdio", "http", "streamable-http"}
+MINIMAL_STDIO = os.getenv("ARIFOS_MINIMAL_STDIO", "").strip().lower() in {"1", "true", "yes"}
 
 # ---------------------------------------------------------------------------
 # Optional API key guard — activated when COPILOT_API_KEY is set in env.
@@ -394,92 +395,67 @@ _developer_dir = os.path.join(os.path.dirname(__file__), "..", "sites", "develop
 if os.path.isdir(_developer_dir):
     _mcp_app.mount("/developer", StaticFiles(directory=_developer_dir, html=True), name="developer")
 
-# ---------------------------------------------------------------------------
-# WebMCP Integration - AI-Governed Web Environment
-# ---------------------------------------------------------------------------
+if not MINIMAL_STDIO:
+    # -----------------------------------------------------------------------
+    # WebMCP Integration - AI-Governed Web Environment
+    # -----------------------------------------------------------------------
 
-_WEBMCP_ENABLED = os.getenv("ARIFOS_WEBMCP_ENABLED", "true").lower() in ("true", "1", "yes")
+    _WEBMCP_ENABLED = os.getenv("ARIFOS_WEBMCP_ENABLED", "true").lower() in ("true", "1", "yes")
 
-if _WEBMCP_ENABLED:
+    if _WEBMCP_ENABLED:
+        try:
+            from .webmcp import WebMCPGateway
+
+            # Create WebMCP gateway mounted at /webmcp
+            _webmcp_gateway = WebMCPGateway(mcp)
+            _webmcp_app = _webmcp_gateway.app
+
+            # WebMCP app already has /webmcp, /api/live, /governance prefixes
+            _mcp_app.mount("/", _webmcp_app, name="webmcp_root")
+
+            print("✅ WebMCP gateway integrated at root", file=sys.stderr)
+
+        except ImportError as e:
+            print(f"⚠️ WebMCP not available: {e}", file=sys.stderr)
+        except Exception as e:
+            print(f"❌ WebMCP integration failed: {e}", file=sys.stderr)
+
+    # Mount REAL WebMCP Gateway (W3C Standard - Feb 2026)
     try:
-        from .webmcp import WebMCPGateway
+        from arifosmcp.runtime.webmcp.real_webmcp import create_real_webmcp, WebMCPConfig
 
-        # Create WebMCP gateway mounted at /webmcp
-        _webmcp_gateway = WebMCPGateway(mcp)
-        _webmcp_app = _webmcp_gateway.app
+        _webmcp_config = WebMCPConfig(
+            site_name="arifOS Constitutional AI",
+            site_url="https://arifosmcp.arif-fazil.com",
+            version="2026.03.20-SOVEREIGN11",
+            enable_declarative=True,
+            enable_imperative=True,
+            require_human_confirmation=True,  # F13 Sovereign
+        )
 
-        # Mount WebMCP routes into main app
-        # WebMCP app already has /webmcp, /api/live, /governance prefixes
-        _mcp_app.mount("/", _webmcp_app, name="webmcp_root")
+        _webmcp_gateway_v2 = create_real_webmcp(mcp, _webmcp_config)
 
-        print("✅ WebMCP gateway integrated at root", file=sys.stderr)
+        # Mount WebMCP at /webmcp
+        _mcp_app.mount("/webmcp", _webmcp_gateway_v2.app, name="webmcp_v2")
+
+        print("✅ Real WebMCP Gateway mounted at /webmcp (W3C Standard)", file=sys.stderr)
 
     except ImportError as e:
-        print(f"⚠️ WebMCP not available: {e}", file=sys.stderr)
-    except Exception as e:
-        print(f"❌ WebMCP integration failed: {e}", file=sys.stderr)
+        print(f"⚠️ Real WebMCP not available: {e}", file=sys.stderr)
 
-
-# Mount REAL WebMCP Gateway (W3C Standard - Feb 2026)
-try:
-    from arifosmcp.runtime.webmcp.real_webmcp import create_real_webmcp, WebMCPConfig
-
-    _webmcp_config = WebMCPConfig(
-        site_name="arifOS Constitutional AI",
-        site_url="https://arifosmcp.arif-fazil.com",
-        version="2026.03.20-SOVEREIGN11",
-        enable_declarative=True,
-        enable_imperative=True,
-        require_human_confirmation=True,  # F13 Sovereign
-    )
-
-    _webmcp_gateway_v2 = create_real_webmcp(mcp, _webmcp_config)
-
-    # Mount WebMCP at /webmcp
-    _mcp_app.mount("/webmcp", _webmcp_gateway_v2.app, name="webmcp_v2")
-
-    print("✅ Real WebMCP Gateway mounted at /webmcp (W3C Standard)", file=sys.stderr)
-
-except ImportError as e:
-    print(f"⚠️ Real WebMCP not available: {e}", file=sys.stderr)
-# Mount REAL A2A Server (Google Protocol - April 2025)
-try:
-    from arifosmcp.runtime.a2a import create_a2a_server
-
-    _a2a_server = create_a2a_server(mcp)
-
-    # Mount A2A at /a2a
-    _mcp_app.mount("/a2a", _a2a_server.app, name="a2a")
-
-    print("✅ Real A2A Server mounted at /a2a (Google Protocol)", file=sys.stderr)
-
-except ImportError as e:
-    print(f"⚠️ A2A not available: {e}", file=sys.stderr)
-
-
-# ---------------------------------------------------------------------------
-# WebMCP Integration - AI-Governed Web Environment
-# ---------------------------------------------------------------------------
-
-_WEBMCP_ENABLED = os.getenv("ARIFOS_WEBMCP_ENABLED", "true").lower() in ("true", "1", "yes")
-
-if _WEBMCP_ENABLED:
+    # Mount REAL A2A Server (Google Protocol - April 2025)
     try:
-        from .webmcp import WebMCPGateway
+        from arifosmcp.runtime.a2a import create_a2a_server
 
-        # Mount the legacy WebMCP gateway last so its root mount does not
-        # swallow more specific protocol routes such as /a2a/*.
-        _webmcp_gateway = WebMCPGateway(mcp)
-        _webmcp_app = _webmcp_gateway.app
-        _mcp_app.mount("/", _webmcp_app, name="webmcp_root")
+        _a2a_server = create_a2a_server(mcp)
 
-        print("✅ WebMCP gateway integrated at root", file=sys.stderr)
+        # Mount A2A at /a2a
+        _mcp_app.mount("/a2a", _a2a_server.app, name="a2a")
+
+        print("✅ Real A2A Server mounted at /a2a (Google Protocol)", file=sys.stderr)
 
     except ImportError as e:
-        print(f"⚠️ WebMCP not available: {e}", file=sys.stderr)
-    except Exception as e:
-        print(f"❌ WebMCP integration failed: {e}", file=sys.stderr)
-
+        print(f"⚠️ A2A not available: {e}", file=sys.stderr)
 
 def create_aaa_mcp_server() -> FastMCP:
     """Return the fully configured arifOS MCP hub."""

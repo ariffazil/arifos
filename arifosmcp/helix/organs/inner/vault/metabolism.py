@@ -7,12 +7,19 @@ Updates the Cooling Ledger with a hash-chain entry.
 Enforces F1 Amanah: only SEAL, HOLD_888, PARTIAL, and SABAR may be committed.
 VOID verdicts indicate constitutional collapse and cannot be sealed.
 
+Includes post-seal hybrid memory sync (LanceDB hot cache refresh).
+
 DITEMPA BUKAN DIBERI — Forged, Not Given
 """
 
 from __future__ import annotations
 
+import asyncio
+import logging
+
 from fastmcp.dependencies import CurrentContext
+
+logger = logging.getLogger(__name__)
 
 from arifosmcp.runtime.exceptions import ConstitutionalViolation, InfrastructureFault
 from arifosmcp.runtime.fault_codes import ConstitutionalFaultCode, MechanicalFaultCode
@@ -96,5 +103,30 @@ async def vault_seal_metabolism(
                 "sealed",
                 {"verdict": verdict, "session_id": active_session},
             )
+        
+        # Post-seal: Trigger hybrid memory sync (daily vectors → LanceDB)
+        # This ensures L3 hot cache is fresh for next session
+        asyncio.create_task(_sync_hybrid_memory_post_seal(active_session))
 
         return envelope
+
+
+async def _sync_hybrid_memory_post_seal(session_id: str):
+    """
+    Post-VAULT999 sync: Update LanceDB hot cache from Qdrant.
+    
+    Called after each seal to ensure vector continuity.
+    F1: Non-blocking; failures logged but don't block seal.
+    """
+    try:
+        import asyncio
+        from arifosmcp.intelligence.tools.hybrid_vector_memory import get_hybrid_memory
+        
+        memory = await get_hybrid_memory()
+        await memory.sync_from_qdrant(days=1)  # Sync last 24h
+        
+        logger.info(f"Post-seal hybrid memory sync complete for {session_id}")
+        
+    except Exception as e:
+        # F1: Log but don't fail — Qdrant remains source of truth
+        logger.warning(f"Post-seal hybrid sync failed (non-critical): {e}")

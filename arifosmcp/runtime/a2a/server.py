@@ -3,17 +3,24 @@ A2A Server Implementation
 =========================
 
 Real A2A protocol server with constitutional governance integration.
+Includes 888_HOLD cross-protocol broadcast via Redis + WebMCP WebSocket.
+
+ΔΩΨ | ARIF — Ditempa Bukan Diberi
 """
 
 from __future__ import annotations
 
 import asyncio
+import hashlib
 import json
+import logging
 import sys
 import uuid
 from datetime import datetime
+from pathlib import Path
 from typing import Any
 
+import aiofiles
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse, StreamingResponse
 
@@ -32,14 +39,18 @@ from .models import (
     TaskStatusUpdate,
 )
 
+# Cross-protocol 888_HOLD bridge
+logger = logging.getLogger(__name__)
+
 
 class A2ATaskManager:
-    """Manages A2A task lifecycle."""
+    """Manages A2A task lifecycle with 888_HOLD cross-protocol broadcast."""
     
     def __init__(self, mcp_server: Any):
         self.mcp = mcp_server
         self.tasks: dict[str, Task] = {}
         self._lock = asyncio.Lock()
+        self._hold_bridge = None
     
     async def create_task(self, request: SubmitTaskRequest) -> Task:
         """Create new task with constitutional initialization."""
@@ -170,11 +181,67 @@ class A2ATaskManager:
                 task.violations = judge_result.get("violations", [])
                 
             elif verdict == "888_HOLD":
+                # ═══════════════════════════════════════════════════════════
+                # 888_HOLD CROSS-PROTOCOL HANDOFF
+                # ═══════════════════════════════════════════════════════════
+                
                 task.state = TaskState.INPUT_REQUIRED
-                task.messages.append(TaskMessage(
-                    role="system",
-                    content="Task requires human ratification (F13 Sovereign). Please approve via arifOS dashboard."
-                ))
+                
+                # Import and initialize cross-protocol bridge
+                try:
+                    from arifosmcp.runtime.cross_protocol_bridge import (
+                        HoldEvent, get_hold_bridge
+                    )
+                    
+                    # Create immutable hold event
+                    hold_event = HoldEvent(
+                        hold_id=f"HOLD-A2A-{task.id}",
+                        source_protocol="a2a",
+                        action_type=task.skill_id or "general_execution",
+                        reason="F13 Sovereign: Human ratification required",
+                        risk_level="high",
+                        floor_violations=["F1", "F13"],
+                        session_id=task.session_id or "unknown",
+                        actor_id=task.client_agent_id,
+                    )
+                    
+                    # Build action payload for F1 hash
+                    action_payload = {
+                        "task_id": task.id,
+                        "client_agent_id": task.client_agent_id,
+                        "skill_id": task.skill_id,
+                        "query": query,
+                        "parameters": task.parameters,
+                    }
+                    
+                    # PUBLISH to Redis → WebMCP WebSocket
+                    bridge = await get_hold_bridge()
+                    pre_hash = await bridge.publish_hold(hold_event, action_payload)
+                    
+                    # Log to VAULT999 with pre-execution hash (F1 AMANAH)
+                    await self._log_hold_to_vault(task, hold_event, pre_hash, action_payload)
+                    
+                    # Update task with hold metadata
+                    task.hold_id = hold_event.hold_id
+                    task.pre_execution_hash = pre_hash
+                    
+                    task.messages.append(TaskMessage(
+                        role="system",
+                        content=(
+                            f"⏸️ 888_HOLD TRIGGERED\n"
+                            f"Hold ID: {hold_event.hold_id}\n"
+                            f"Pre-hash: {pre_hash[:16]}...\n"
+                            f"Review at: https://arifosmcp.arif-fazil.com/hold/{hold_event.hold_id}"
+                        )
+                    ))
+                    
+                except Exception as bridge_error:
+                    logger.error(f"Failed to broadcast 888_HOLD: {bridge_error}")
+                    # Fallback: still create hold but without broadcast
+                    task.messages.append(TaskMessage(
+                        role="system",
+                        content="Task requires human ratification (F13 Sovereign). Please approve via arifOS dashboard."
+                    ))
                 
             elif verdict == "SEAL":
                 # Execute the actual task
@@ -248,6 +315,58 @@ class A2ATaskManager:
                 )
         except Exception as e:
             print(f"[A2A] Callback failed: {e}", file=sys.stderr)
+    
+    async def _log_hold_to_vault(
+        self, 
+        task: Task, 
+        hold_event,
+        pre_hash: str,
+        action_payload: dict,
+    ):
+        """
+        F1 AMANAH: Log pre-execution intent to VAULT999.
+        
+        This ensures reversibility proof exists even if connection drops.
+        """
+        vault_entry = {
+            "timestamp": datetime.utcnow().isoformat(),
+            "action": "888_HOLD_INITIATED",
+            "source_protocol": "a2a",
+            "cross_protocol_handoff": {
+                "from_protocol": "a2a",
+                "to_protocol": "webmcp",
+                "bridge_method": "redis_pubsub",
+            },
+            "f1_amanah": {
+                "pre_execution_hash": pre_hash,
+                "connection_drop_safe": True,
+            },
+            "hold_context": {
+                "hold_id": hold_event.hold_id,
+                "task_id": task.id,
+                "session_id": task.session_id,
+                "client_agent_id": task.client_agent_id,
+                "action_type": task.skill_id or "general_execution",
+                "risk_level": "high",
+                "floor_violations": ["F1", "F13"],
+            },
+            "payload_hash": hashlib.sha256(
+                json.dumps(action_payload, sort_keys=True).encode()
+            ).hexdigest(),
+            "verdict": "888_HOLD",
+            "stage": "A2A_CROSS_PROTOCOL_HANDOFF",
+        }
+        
+        # Write to VAULT999 (async append to JSONL)
+        vault_path = Path("VAULT999/a2a_holds.jsonl")
+        vault_path.parent.mkdir(parents=True, exist_ok=True)
+        
+        try:
+            async with aiofiles.open(vault_path, "a") as f:
+                await f.write(json.dumps(vault_entry) + "\n")
+            logger.info(f"[F1 AMANAH] 888_HOLD logged to VAULT999: {hold_event.hold_id}")
+        except Exception as e:
+            logger.error(f"[F1 AMANAH] Failed to log to VAULT999: {e}")
     
     def get_all_tasks(self) -> list[Task]:
         """Get all tasks (for debugging)."""

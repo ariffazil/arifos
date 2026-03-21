@@ -563,18 +563,84 @@ async def engineering_memory_dispatch_impl(mode: str, payload: dict, auth_contex
                 return RuntimeEnvelope(ok=False, tool="engineering_memory", session_id=session_id, stage="555_MEMORY", verdict=Verdict.SABAR, status=RuntimeStatus.SABAR, payload={"error": error or "Qdrant write failed"})
         # Fallback: no Qdrant available
         return RuntimeEnvelope(ok=True, tool="engineering_memory", session_id=session_id, stage="555_MEMORY", verdict=Verdict.SEAL, status=RuntimeStatus.SUCCESS, payload={"learned": True, "bytes_written": len(content), "backend": "none", "warning": "Qdrant not available"})
-    elif mode in ("recall", "query"):
+    elif mode == "vector_query":
+        query = payload.get("query") or payload.get("task") or payload.get("content") or "No query"
+        project_id = payload.get("project_id", "default")
+        k = int(payload.get("k", 5))
+        use_cache = payload.get("use_cache", True)
+        
+        # HYBRID L3: LanceDB (hot) + Qdrant (cold)
+        try:
+            from arifosmcp.intelligence.tools.hybrid_vector_memory import get_hybrid_memory
+            
+            memory = await get_hybrid_memory()
+            results = await memory.search(
+                query=query,
+                k=k,
+                use_cache=use_cache,
+                project_id=project_id,
+            )
+            
+            # Count sources for telemetry
+            lancedb_count = sum(1 for r in results if r.source == "lancedb")
+            qdrant_count = sum(1 for r in results if r.source == "qdrant")
+            
+            return RuntimeEnvelope(
+                ok=True, 
+                tool="engineering_memory", 
+                session_id=session_id, 
+                stage="555_MEMORY", 
+                verdict=Verdict.SEAL, 
+                status=RuntimeStatus.SUCCESS, 
+                payload={
+                    "results": [
+                        {
+                            "id": r.id,
+                            "content": r.content,
+                            "score": r.score,
+                            "timestamp": r.timestamp.isoformat() if r.timestamp else None,
+                            "source": r.source,
+                            "metadata": r.metadata,
+                        }
+                        for r in results
+                    ],
+                    "count": len(results),
+                    "query": query,
+                    "backend": "hybrid",
+                    "sources": {
+                        "lancedb_hot": lancedb_count,
+                        "qdrant_cold": qdrant_count,
+                    },
+                    " constitutional": {
+                        "f2_freshness_enforced": True,
+                        "f12_injection_scanned": True,
+                    }
+                }
+            )
+        except Exception as e:
+            logger.warning(f"Hybrid memory search failed: {e}. Falling back to Qdrant-only.")
+            
+        # Fallback: Qdrant-only via constitutional memory store
+        store = _get_constitutional_memory_store()
+        if store:
+            from arifosmcp.agentzero.memory.constitutional_memory import MemoryArea
+            await store.initialize_project(project_id)
+            entries = await store.vector_query(query=query, project_id=project_id, k=k)
+            results = [e.to_dict() for e in entries]
+            return RuntimeEnvelope(ok=True, tool="engineering_memory", session_id=session_id, stage="555_MEMORY", verdict=Verdict.SEAL, status=RuntimeStatus.SUCCESS, payload={"results": results, "count": len(results), "query": query, "backend": "qdrant", "note": "hybrid_unavailable"})
+        # Fallback to legacy memory query
+        return await _az_memory_query(query=query, session_id=session_id)
+    elif mode == "query":
+        # Legacy alias — redirects to vector_query
         query = payload.get("query") or payload.get("task") or payload.get("content") or "No query"
         project_id = payload.get("project_id", "default")
         k = int(payload.get("k", 5))
         store = _get_constitutional_memory_store()
         if store:
-            from arifosmcp.agentzero.memory.constitutional_memory import MemoryArea
             await store.initialize_project(project_id)
-            entries = await store.recall(query=query, project_id=project_id, k=k)
+            entries = await store.vector_query(query=query, project_id=project_id, k=k)
             results = [e.to_dict() for e in entries]
-            return RuntimeEnvelope(ok=True, tool="engineering_memory", session_id=session_id, stage="555_MEMORY", verdict=Verdict.SEAL, status=RuntimeStatus.SUCCESS, payload={"results": results, "count": len(results), "query": query, "backend": "qdrant"})
-        # Fallback to legacy memory query
+            return RuntimeEnvelope(ok=True, tool="engineering_memory", session_id=session_id, stage="555_MEMORY", verdict=Verdict.SEAL, status=RuntimeStatus.SUCCESS, payload={"results": results, "count": len(results), "query": query, "backend": "qdrant", "note": "mode='query' is alias for 'vector_query'"})
         return await _az_memory_query(query=query, session_id=session_id)
     elif mode == "generate":
         return await ollama_local_generate_impl(prompt=payload.get("prompt") or payload.get("query") or "No prompt", session_id=session_id)

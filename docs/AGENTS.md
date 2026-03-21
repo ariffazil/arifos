@@ -337,40 +337,27 @@ Key fixtures in `conftest.py`:
 | **arifos** | `arifosmcp.runtime` | Constitutional governance kernel |
 | **aclip-cai** | `arifosmcp.intelligence.cli` | Local ops console for AI agents |
 
-### 26 Canonical Tools
+### 11 Canonical Mega-Tools
 
-| Layer | Tool | Stage | Role | What it does |
-| :--- | :--- | :--- | :--- | :--- |
-| **KERNEL** | **`get_caller_status`** | `000_INIT` | Onboarding Compass | Explains current session state, authority ladder, and next steps |
-| | **`init_anchor`** | `000_INIT` | Constitutional Airlock | Establish governed session and verify identity |
-| | **`init_anchor_state`** | `000_INIT` | Legacy Airlock | Legacy alias for `init_anchor` |
-| | **`revoke_anchor_state`** | `000_INIT` | Kill Switch | Immediately invalidate a governed session |
-| | **`register_tools`** | `000_INIT` | Tool Surface Query | Query available tool surface and verify registration |
-| | **`arifOS_kernel`** | `444_ROUTER` | Stage Conductor | Primary entry point — routes through full metabolic pipeline |
-| | **`forge`** | `000_999` | Full Pipeline | One-shot metabolic trigger for well-defined tasks |
-| **MIND Δ** | **`agi_reason`** | `333_MIND` | Governed Reasoning | First-principles structured reasoning |
-| | **`agi_reflect`** | `333_INTEGRATE` | Metacognitive Integration | Reflect on intelligence state before committing |
-| | **`reality_compass`** | `111_SENSE` | Epistemic Intake | Ground claims in external reality, verify facts |
-| | **`reality_atlas`** | `222_GROUND` | Evidence Map | Merge evidence across multiple sources |
-| | **`search_reality`** | `111_SENSE` | Web Acquisition | Direct web search for grounding facts |
-| | **`ingest_evidence`** | `111_SENSE` | Evidence Normalization | Fetch and normalize artifacts from URLs/files |
-| **HEART Ω** | **`asi_critique`** | `555_ALIGN` | Adversarial Critique | Detect blind spots and hidden assumptions |
-| | **`asi_simulate`** | `555_ALIGN` | Consequence Prediction | Simulate downstream impact before execution |
-| | **`agentzero_engineer`** | `666_EXECUTE` | Material Execution | Perform code/shell/file operations (requires auth) |
-| | **`agentzero_memory_query`** | `444_MEMORY` | Semantic Recall | Recall context from VAULT999 ledger |
-| **SOUL Ψ** | **`apex_judge`** | `777_JUDGE` | Verdict Engine | Render sovereign verdicts: SEAL, VOID, HOLD, SABAR |
-| | **`agentzero_validate`** | `777_JUDGE` | Output Validation | Audit technical and logical correctness |
-| | **`audit_rules`** | `888_FLOOR` | Floor Inspection | Inspect live status of all 13 constitutional floors |
-| | **`agentzero_armor_scan`** | `888_FLOOR` | Injection Guard | Scan for injection attacks (F12 defense) |
-| | **`agentzero_hold_check`** | `888_HOLD` | Hold Monitor | Check pending human escalations |
-| | **`check_vital`** | `888_VITALS` | System Health | Real-time ΔS, Peace², and Gödel Humility metrics |
-| | **`open_apex_dashboard`** | `888_OBSERVE` | Live Observability | Launch browser-based governance dashboard |
-| **VAULT** | **`vault_seal`** | `999_SEAL` | Commit Decision | Write verified verdict to immutable Merkle ledger |
-| | **`verify_vault_ledger`** | `999_ATTEST` | Merkle Integrity | Verify hash-chain integrity and detect tampering |
+All capability is consolidated into **11 Mega-Tools** across three layers. Each mega-tool exposes multiple modes via the `mode` parameter.
 
-> **Total:** 26 canonical tools enforcing all 13 Constitutional Floors (F1-F13) through the Trinity Architecture (ΔΩΨ).
+| Layer | Mega-Tool | Stage | Trinity | Modes | What it does |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **⚖️ GOVERNANCE** | **`init_anchor`** | `000_INIT` | Ψ PSI | `init`, `revoke`, `refresh` | Constitutional Airlock — establish, revoke, or refresh governed session |
+| | **`arifOS_kernel`** | `444_ROUTER` | Δ/Ψ | `kernel`, `status` | Metabolic Conductor — primary entry point for complex queries |
+| | **`apex_soul`** | `888_JUDGE` | Ψ PSI | `judge`, `rules`, `validate`, `hold`, `armor`, `notify`, `probe` | Final Authority — verdicts, defense, floor inspection |
+| | **`vault_ledger`** | `999_VAULT` | Ψ PSI | `seal`, `verify` | Immutable Memory — permanent decision recording |
+| **🧠 INTELLIGENCE** | **`agi_mind`** | `333_MIND` | Δ DELTA | `reason`, `reflect`, `forge` | Logic & Synthesis — core reasoning and hypothesis generation |
+| | **`asi_heart`** | `666_HEART` | Ω OMEGA | `critique`, `simulate` | Ethics & Simulation — safety, empathy, consequence modeling |
+| | **`engineering_memory`** | `555_MEMORY` | Ω OMEGA | `engineer`, `query`, `recall`, `write`, `generate` | Technical Execution — governed autonomous engineering |
+| **⚙️ MACHINE** | **`physics_reality`** | `111_SENSE` | Δ DELTA | `search`, `ingest`, `compass`, `atlas` | Environmental Grounding — Earth-Witness fact acquisition |
+| | **`math_estimator`** | `444_ROUTER` | Δ DELTA | `cost`, `health`, `vitals` | Thermodynamic Vitals — quantitative health metrics |
+| | **`code_engine`** | `M-3_EXEC` | ALL | `fs`, `process`, `net`, `tail`, `replay` | Computational Execution — system-level hygiene |
+| | **`architect_registry`** | `M-4_ARCH` | Δ DELTA | `register`, `list`, `read` | System Definition — tool and resource discovery |
 
-> **Internal Stage Tools** (profile=internal only): `integrate_analyze_reflect`, `reason_mind_synthesis`, `assess_heart_impact`, `critique_thought_audit`, `quantum_eureka_forge`, `apex_judge_verdict`, `seal_vault_commit`.
+> **Total:** 11 Mega-Tools enforcing all 13 Constitutional Floors (F1-F13) through the Trinity Architecture (ΔΩΨ).
+
+> **Legacy Tools:** The previous 26-tool surface has been consolidated into the 11 Mega-Tools above. Legacy names (e.g., `apex_judge`, `vault_seal`, `agi_reason`) are redirected to the appropriate mega-tool modes.
 
 ### 10 Canonical Resources
 

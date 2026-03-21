@@ -9,6 +9,7 @@ import asyncio
 import json
 import logging
 import os
+from datetime import datetime
 from pathlib import Path
 from time import time
 from typing import Any, Optional
@@ -51,6 +52,11 @@ class WebMCPGateway:
     - F11 Command Auth (session validation)
     - F2 Truth (content grounding)
     - Full Trinity governance (ΔΩΨ)
+    
+    Cross-Protocol 888_HOLD:
+    - WebSocket broadcast of A2A/MCP hold events
+    - Real-time dashboard updates
+    - F13 Sovereign resolution endpoint
 
     Usage:
         from arifosmcp.runtime.webmcp import WebMCPGateway
@@ -64,6 +70,11 @@ class WebMCPGateway:
         self.config = config or WebMCPConfig.from_env()
         self.build_info = get_build_info()
         self._cached_tool_manifest: list[dict[str, Any]] | None = None
+        
+        # NEW: Active WebSocket connections for 888_HOLD broadcast
+        self._active_websockets: set[WebSocket] = set()
+        self._hold_bridge_subscribed = False
+        
         self.app = FastAPI(
             title="arifOS WebMCP",
             version=self.build_info["version"],
@@ -661,6 +672,12 @@ class WebMCPGateway:
             """
             await websocket.accept()
             session_id = f"ws-{asyncio.get_event_loop().time():.0f}"
+            
+            # Register connection
+            self._active_websockets.add(websocket)
+            
+            # Subscribe to cross-protocol events
+            await self._subscribe_to_hold_events()
 
             try:
                 while True:
@@ -675,10 +692,7 @@ class WebMCPGateway:
                         },
                     }
                     await websocket.send_json(vitals)
-
-                    # Check for 888_HOLD
-                    # In production: check hold queue
-
+                    
                     await asyncio.sleep(5)
 
             except WebSocketDisconnect:
@@ -686,7 +700,109 @@ class WebMCPGateway:
             except Exception as e:
                 logger.error(f"WebSocket error: {e}")
             finally:
+                self._active_websockets.discard(websocket)
                 await websocket.close()
+        
+        # ═══════════════════════════════════════════════════════════════════════
+        # CROSS-PROTOCOL 888_HOLD ENDPOINTS
+        # ═══════════════════════════════════════════════════════════════════════
+        
+        @self.app.get("/api/live/holds")
+        async def get_pending_holds():
+            """
+            Get all pending 888_HOLD events for dashboard display.
+            
+            Arif (888 Judge) reviews these and issues SEAL or VOID.
+            """
+            try:
+                # Query from hold state manager
+                from arifosmcp.agentzero.escalation.hold_state import HoldStateManager
+                
+                hold_manager = HoldStateManager()
+                pending = hold_manager.get_pending_holds()
+                
+                return {
+                    "verdict": "SEAL",
+                    "count": len(pending),
+                    "holds": [
+                        {
+                            "hold_id": h.hold_id,
+                            "action_type": h.action_type,
+                            "reason": h.reason,
+                            "risk_level": h.risk_level,
+                            "floor_violations": h.floor_violations,
+                            "created_at": h.created_at.isoformat(),
+                            "time_elapsed_seconds": (
+                                datetime.utcnow() - h.created_at
+                            ).total_seconds(),
+                            "action_payload_preview": str(h.action_payload)[:200],
+                        }
+                        for h in pending
+                    ],
+                }
+            except Exception as e:
+                return {"verdict": "VOID", "error": str(e), "holds": []}
+        
+        @self.app.post("/hold/{hold_id}/resolve")
+        async def resolve_hold(hold_id: str, request: Request):
+            """
+            888 JUDGE ENDPOINT: Arif issues SEAL or VOID for a pending hold.
+            
+            This is the F13 Sovereign in action.
+            """
+            # F11: Verify Arif's identity
+            body = await request.json()
+            actor_id = body.get("actor_id", "")
+            
+            if actor_id not in ("ariffazil", "arif", "arif-fazil"):
+                return JSONResponse(
+                    status_code=403,
+                    content={
+                        "verdict": "VOID",
+                        "error": "F13: Only sovereign (ariffazil) can resolve 888_HOLD",
+                    },
+                )
+            
+            decision = body.get("decision")  # "APPROVED" or "DENIED"
+            justification = body.get("justification", "")
+            
+            if decision not in ("APPROVED", "DENIED"):
+                return JSONResponse(
+                    status_code=400,
+                    content={"verdict": "VOID", "error": "Decision must be APPROVED or DENIED"},
+                )
+            
+            try:
+                # Resolve via hold state manager
+                from arifosmcp.agentzero.escalation.hold_state import HoldStateManager
+                
+                hold_manager = HoldStateManager()
+                resolved = await hold_manager.resolve_hold(
+                    hold_id=hold_id,
+                    decision=decision,
+                    responded_by=actor_id,
+                    notes=justification,
+                )
+                
+                # Broadcast resolution to all protocols
+                from arifosmcp.runtime.cross_protocol_bridge import get_hold_bridge
+                bridge = await get_hold_bridge()
+                await bridge.publish_resolution(
+                    hold_id=hold_id,
+                    decision=decision,
+                    decided_by=actor_id,
+                    justification=justification,
+                )
+                
+                return {
+                    "verdict": "SEAL" if decision == "APPROVED" else "VOID",
+                    "hold_id": hold_id,
+                    "decision": decision,
+                    "resolved_at": datetime.utcnow().isoformat(),
+                }
+                
+            except Exception as e:
+                return {"verdict": "VOID", "error": str(e)}
 
     def _tool_manifest(self) -> list[dict[str, Any]]:
         """Expose the live public tool registry in WebMCP-friendly form (cached)."""
@@ -753,6 +869,61 @@ class WebMCPGateway:
   window.dispatchEvent(new CustomEvent("webmcp:ready", { detail: { sdk } }));
 })();
 """
+
+    async def _subscribe_to_hold_events(self):
+        """Subscribe to cross-protocol 888_HOLD events."""
+        if self._hold_bridge_subscribed:
+            return
+            
+        try:
+            from arifosmcp.runtime.cross_protocol_bridge import get_hold_bridge
+            bridge = await get_hold_bridge()
+            await bridge.subscribe(self._on_hold_event)
+            self._hold_bridge_subscribed = True
+            logger.info("WebMCP subscribed to 888_HOLD cross-protocol events")
+        except Exception as e:
+            logger.error(f"Failed to subscribe to hold events: {e}")
+            
+    async def _on_hold_event(self, event):
+        """
+        Callback: Received 888_HOLD from Redis (A2A or MCP).
+        Broadcast to all connected browser clients.
+        """
+        # Fan-out to all WebSocket clients
+        disconnected = set()
+        
+        message = {
+            "type": "888_HOLD",
+            "timestamp": event.timestamp,
+            "payload": {
+                "hold_id": event.hold_id,
+                "source_protocol": event.source_protocol,
+                "action_type": event.action_type,
+                "reason": event.reason,
+                "risk_level": event.risk_level,
+                "floor_violations": event.floor_violations,
+                "actor_id": event.actor_id,
+                "pre_execution_hash": event.pre_execution_hash,
+                "review_url": f"https://arifosmcp.arif-fazil.com/hold/{event.hold_id}",
+            }
+        }
+        
+        for ws in self._active_websockets:
+            try:
+                await ws.send_json(message)
+            except WebSocketDisconnect:
+                disconnected.add(ws)
+            except Exception as e:
+                logger.error(f"WebSocket send failed: {e}")
+                disconnected.add(ws)
+        
+        # Cleanup disconnected clients
+        self._active_websockets -= disconnected
+        
+        logger.info(
+            f"[888_HOLD BROADCAST] {event.hold_id} → "
+            f"{len(self._active_websockets)} browser clients"
+        )
 
 
 def create_webmcp_app(mcp_server: Any) -> FastAPI:
