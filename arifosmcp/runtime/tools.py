@@ -15,6 +15,7 @@ from arifosmcp.runtime.governance_identities import (
     PROTECTED_SOVEREIGN_IDS,
     is_protected_sovereign_id,
     validate_sovereign_proof,
+    canonicalize_identity_claim,
 )
 from arifosmcp.runtime.models import (
     ArifOSError,
@@ -28,6 +29,8 @@ from arifosmcp.runtime.models import (
     UserModelSource,
     Verdict,
     PersonaId,
+    ClaimStatus,
+    AuthorityLevel,
 )
 from arifosmcp.runtime.public_registry import (
     public_tool_names as _registry_tool_names,
@@ -148,6 +151,7 @@ async def init_anchor(
     reason: str | None = None,
     caller_context: CallerContext | None = None,
     ctx: Context | None = None,
+    proof: str | dict[str, Any] | None = None,  # P0: Naming protocol support
     pns_shield: dict[str, Any] | None = None,  # P0: F12 injection defense data from orchestrator
 ) -> RuntimeEnvelope:
     del auth_context, risk_tier, dry_run, caller_context, pns_shield
@@ -164,14 +168,30 @@ async def init_anchor(
     else:
         normalized_intent = {"query": str(intent), "task_type": "general"}
     
+    # P0: Identity Resolution (Naming is Creation)
+    # 1. Start with provided actor_id/declared_name
+    # 2. If weak/generic, try semantic claim from intent or raw_input
+    effective_actor_id = actor_id or declared_name or "anonymous"
+    
+    if effective_actor_id == "anonymous":
+        query_text = normalized_intent.get("query") if isinstance(normalized_intent, dict) else str(normalized_intent)
+        semantic_id = canonicalize_identity_claim(query_text)
+        if semantic_id:
+            effective_actor_id = semantic_id
+        elif raw_input:
+            semantic_id = canonicalize_identity_claim(raw_input)
+            if semantic_id:
+                effective_actor_id = semantic_id
+
     # P0: Build payload with human_approval support
     if mode is None:
         mode = "init"
         payload = {
-            "actor_id": actor_id or declared_name or "anonymous",
+            "actor_id": effective_actor_id,
             "intent": normalized_intent,
             "session_id": session_id,
-            "human_approval": human_approval,  # Use parameter value, not hardcoded False
+            "human_approval": human_approval,
+            "proof": proof,
         }
 
     payload = dict(payload or {})
@@ -195,49 +215,18 @@ async def init_anchor(
         payload["human_approval"] = human_approval
     payload["session_id"] = _normalize_session_id(payload.get("session_id") or session_id)
 
-    # P0: Protected Sovereign ID Check (F11)
-    claimed_actor_id = payload.get("actor_id", "anonymous")
-    # Use payload value if present, otherwise fall back to parameter (for direct calls)
+    # P0: Effective Actor Resolution from Payload
+    final_actor_id = payload.get("actor_id", effective_actor_id)
     effective_human_approval = payload.get("human_approval", human_approval)
     
-    # P0: Check if this is a protected sovereign ID
-    if is_protected_sovereign_id(claimed_actor_id):
-        # P0: Hard-fail without cryptographic proof or human_approval
-        has_proof = validate_sovereign_proof(
-            claimed_actor_id, payload.get("auth_token") or payload.get("proof")
-        )
-        if not effective_human_approval and not has_proof:
-            return RuntimeEnvelope(
-                ok=False,
-                tool="init_anchor",
-                session_id=payload["session_id"],
-                stage=Stage.INIT_000,
-                verdict=Verdict.VOID,
-                status=RuntimeStatus.ERROR,
-                errors=[
-                    CanonicalError(
-                        code="AUTH_PROTECTED_ID_REQUIRED",
-                        message=f"Protected sovereign ID '{claimed_actor_id}' requires cryptographic proof or human_approval flag",
-                        stage=Stage.INIT_000.value,
-                    )
-                ],
-                payload={
-                    "claimed_actor_id": claimed_actor_id,
-                    "resolved_actor_id": "anonymous",
-                    "claim_status": "rejected_protected_id",
-                    "required": ["signed_token", "human_approval"],
-                    "remediation": "Provide valid auth_token signed by sovereign key, or set human_approval: true with explicit acknowledgment",
-                    "note": "human_approval must be set in direct call parameters or payload",
-                },
-            )
-
     if mode == "init":
         return await init_anchor_impl(
-            actor_id=claimed_actor_id,
+            actor_id=final_actor_id,
             intent=payload.get("intent"),
             session_id=payload.get("session_id"),
             human_approval=effective_human_approval,
             ctx=ctx,
+            proof=payload.get("proof") or proof,
         )
     if mode == "revoke":
         return await revoke_anchor_state_impl(
@@ -658,6 +647,7 @@ async def init_anchor_state(
     intent: IntentType = None,
     caller_context: CallerContext | None = None,
     ctx: Context | None = None,
+    proof: str | dict[str, Any] | None = None,
     **kwargs: Any,
 ) -> RuntimeEnvelope:
     envelope = await init_anchor(
@@ -668,6 +658,7 @@ async def init_anchor_state(
         human_approval=human_approval,
         caller_context=caller_context,
         ctx=ctx,
+        proof=proof,
         **kwargs,
     )
     # Decorate envelope with forensic metadata

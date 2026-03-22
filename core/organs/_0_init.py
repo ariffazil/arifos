@@ -31,6 +31,7 @@ from core.shared.types import (
     PhysicsState,
     Verdict,
 )
+from arifosmcp.runtime.governance_identities import canonicalize_identity_claim
 
 # ═════════════════════════════════════════════════════════════════════════════
 # F12: INJECTION GUARD — Prompt Injection Detection
@@ -134,6 +135,8 @@ class AuthorityLevel(Enum):
     AGENT = "agent"
     ANONYMOUS = "anonymous"
     DECLARED = "declared"
+    CLAIMED = "claimed"
+    VERIFIED = "verified"
 
 
 def coerce_authority_level(level: str | None) -> dict[str, Any]:
@@ -154,6 +157,8 @@ def coerce_authority_level(level: str | None) -> dict[str, Any]:
         "bot": "agent",
         "guest": "anonymous",
         "declared": "declared",
+        "claimed": "claimed",
+        "verified": "verified",
     }
     if clean in aliases:
         return {"value": aliases[clean], "coerced": True}
@@ -220,51 +225,46 @@ ACTOR_AUTHORITY: dict[str, AuthorityLevel] = {
 }
 
 
-def infer_identity(query: str) -> str | None:
-    """Infer actor identity from natural language introduction (F11 Soft)."""
-    import re
-
-    patterns = [
-        r"(?:im|i am|this is|name is|call me)\s+([a-zA-Z0-9\-\s]{2,20})",
-        r"saya\s+(?:adalah|ialah)?\s*([a-zA-Z0-9\-\s]{2,20})",  # Malay support
-    ]
-    query_clean = query.strip()
-    for p in patterns:
-        match = re.search(p, query_clean, re.IGNORECASE)
-        if match:
-            # Clean up: no punctuation at end, limit length
-            name = match.group(1).strip().rstrip(".,!?")
-            if name:
-                return name.replace(" ", "-").lower()
-    return None
+# Moved to arifosmcp.runtime.governance_identities.canonicalize_identity_claim
 
 
 PROTECTED_SOVEREIGN_IDS: set[str] = {"arif-fazil", "ariffazil", "arif", "arif-the-apex"}
 
 
 def verify_auth(actor_id: str, auth_token: str | None = None, human_approval: bool = False) -> tuple[bool, AuthorityLevel]:
+    """
+    F11: Command Authority Decision Logic.
+    Splits 'Claim' (recognition) from 'Authority' (power).
+    """
     if not actor_id or actor_id == "anonymous":
         return True, AuthorityLevel.ANONYMOUS
 
     actor_id_clean = actor_id.lower().strip()
     
-    # F11/F13: Protected IDs REQUIRES crypto (token) OR explicit human_approval
-    # P0: human_approval=True is explicit sovereign acknowledgment, bypasses token requirement
-    if actor_id_clean in PROTECTED_SOVEREIGN_IDS and not auth_token and not human_approval:
-        # P0 Rule: Sovereign claim without token or human_approval is REJECTED (F11 Breach)
-        return False, AuthorityLevel.NONE
-    
-    # If human_approval is True for protected ID, treat as DECLARED (not fully verified but allowed)
-    if actor_id_clean in PROTECTED_SOVEREIGN_IDS and human_approval and not auth_token:
-        return True, AuthorityLevel.DECLARED
+    # ── 1. Sovereign Verification Flow ──
+    if actor_id_clean in PROTECTED_SOVEREIGN_IDS:
+        # P0: Proof provided? (Key could be 'IM ARIF' or a token)
+        # Note: auth_token is used as generic proof carrier in this stage
+        # Check against Naming protocol directly if it's a simple string
+        if auth_token and auth_token.upper().strip() == "IM ARIF":
+            return True, AuthorityLevel.SOVEREIGN
+            
+        # P0: Explicit Human Approval allows VERIFIED status (vetted by human)
+        if human_approval:
+            return True, AuthorityLevel.VERIFIED
 
+        # P0: No proof? We still ALLOW the session but with downgraded authority.
+        # Recognition without Power.
+        return True, AuthorityLevel.CLAIMED
+
+    # ── 2. Standard Actor Flow ──
     if actor_id_clean in VALID_ACTORS:
-        if not auth_token:
-            return True, AuthorityLevel.DECLARED
-        return True, ACTOR_AUTHORITY.get(actor_id_clean, AuthorityLevel.USER)
+        if auth_token:
+            return True, ACTOR_AUTHORITY.get(actor_id_clean, AuthorityLevel.USER)
+        return True, AuthorityLevel.CLAIMED
 
-    # GRACEFUL DEGRADATION (F11): If we have a name but no token, it's DECLARED/UNVERIFIED.
-    return True, AuthorityLevel.DECLARED
+    # ── 3. Graceful Recognition ──
+    return True, AuthorityLevel.CLAIMED
 
 
 def requires_sovereign(query: str) -> bool:
@@ -347,8 +347,8 @@ async def init(
         )
 
     # 6. F11: Command Authority (Identity Resolution)
-    # 6a. Identity Inference: If user says "I am Arif", bind it.
-    inferred_id = infer_identity(intent.query)
+    # 6a. Semantic Identity Canonicalization: Detect variant phrases
+    inferred_id = canonicalize_identity_claim(intent.query)
     current_actor_id = governance.actor_id.lower().strip() if governance.actor_id else "anonymous"
 
     if inferred_id and (current_actor_id == "anonymous" or current_actor_id == "guest"):
@@ -380,10 +380,10 @@ async def init(
             auth_verified=False,
         )
 
-    # 6c. Logic: If inferred/declared, we mark it as verified=False but authorized for flow.
-    # Update governance metadata with verified level
+    # 6c. Logic: Determine if identity is fully verified or just claimed.
+    # Update governance metadata with final level
     governance.authority_level = authority.value  # type: ignore
-    auth_verified = authority not in {AuthorityLevel.ANONYMOUS, AuthorityLevel.DECLARED}
+    auth_verified = authority in {AuthorityLevel.SOVEREIGN, AuthorityLevel.VERIFIED, AuthorityLevel.SYSTEM}
 
     # 7. F13: Sovereign Override (High Stakes)
     is_high_stakes = requires_sovereign(intent.query) or intent.reversibility == "irreversible"

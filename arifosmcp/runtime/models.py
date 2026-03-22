@@ -389,6 +389,8 @@ class AuthorityLevel(str, Enum):
     OPERATOR = "operator"
     SOVEREIGN = "sovereign"
     DECLARED = "declared"
+    CLAIMED = "claimed"
+    VERIFIED = "verified"
     APEX = "apex"
 
 

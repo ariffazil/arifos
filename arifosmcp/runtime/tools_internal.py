@@ -32,6 +32,7 @@ from arifosmcp.runtime.models import (
     UserModelField,
     UserModelSource,
     Verdict,
+    AuthorityLevel,
 )
 from arifosmcp.runtime.schemas import IntentType, IntentSpec
 from arifosmcp.runtime.public_registry import (
@@ -64,6 +65,7 @@ from arifosmcp.tools.agentzero_tools import (
 from arifosmcp.runtime.governance_identities import (
     is_protected_sovereign_id,
     validate_sovereign_proof,
+    canonicalize_identity_claim,
 )
 
 logger = logging.getLogger(__name__)
@@ -90,16 +92,22 @@ def _resolve_caller_state(session_id: str, authority: Any) -> tuple[str, list[st
         caller_state = "anonymous"
     elif stored := get_session_identity(session_id):
         authority_level = stored.get("authority_level", "anonymous")
-        if authority_level in ("sovereign", "operator"):
+        if authority_level in ("sovereign", "operator", "verified"):
             caller_state = "verified"
         elif authority_level in ("agent", "user", "declared"):
             caller_state = "anchored"
+        elif authority_level == "claimed":
+            caller_state = "claimed"
+        elif authority_level == "anonymous":
+            caller_state = "anonymous"
         else:
             caller_state = "anchored"
     elif authority and getattr(authority, "claim_status", "anonymous") == "verified":
         caller_state = "verified"
     elif authority and getattr(authority, "claim_status", "anonymous") == "anchored":
         caller_state = "anchored"
+    elif authority and getattr(authority, "claim_status", "anonymous") == "claimed":
+        caller_state = "claimed"
     elif authority and getattr(authority, "actor_id", "anonymous") != "anonymous":
         caller_state = "claimed"
     else:
@@ -120,8 +128,9 @@ def _resolve_caller_state(session_id: str, authority: Any) -> tuple[str, list[st
         "claimed": {
             "allowed": ["init_anchor", "math_estimator", "architect_registry", "apex_soul"],
             "blocked": {
-                "arifOS_kernel": "Complete init_anchor to unlock kernel.",
+                "arifOS_kernel": "Elevate to verified identity for full kernel access.",
                 "engineering_memory": "Requires verified identity.",
+                "vault_ledger": "Requires verified identity.",
             }
         },
         "anchored": {
@@ -275,10 +284,11 @@ async def init_anchor_impl(
     session_id: str | None,
     ctx: Context,
     human_approval: bool = False,
+    proof: str | dict | None = None,
 ) -> RuntimeEnvelope:
     """
     Stage 000: Constitutional Airlock Implementation.
-    Separates 'claimed' vs 'resolved' identity for forensic audit.
+    Refactored for Tiered Identity: Recognition (Claim) vs Power (Proof).
     """
     # Normalize intent to object format for bridge compatibility
     normalized_intent: dict[str, Any]
@@ -290,105 +300,101 @@ async def init_anchor_impl(
         normalized_intent = intent
     else:
         normalized_intent = {"query": str(intent), "task_type": "general"}
+
+    # P0: Identity Resolution (Naming is Creation)
+    resolved_actor_id = actor_id or "anonymous"
+    if resolved_actor_id == "anonymous":
+        query_text = normalized_intent.get("query")
+        semantic_id = canonicalize_identity_claim(query_text)
+        if semantic_id:
+            resolved_actor_id = semantic_id
+
     # P0: Cryptographic Identity Anchoring (ABI v1.0)
-    # If the actor_id is a protected sovereign ID, we REQUIRE a valid proof.
-    if is_protected_sovereign_id(actor_id):
-        # Extract proof from intent or top-level kwargs passed via MCP
-        proof = (normalized_intent.get("auth_token") or 
-                 normalized_intent.get("proof") or 
-                 normalized_intent.get("signature"))
-        
-        if not proof:
-             # Fail-closed on protected IDs without proof
-             return RuntimeEnvelope(
-                 ok=False,
-                 tool="init_anchor",
-                 session_id=session_id,
-                 stage="000_INIT",
-                 verdict=Verdict.VOID,
-                 status=RuntimeStatus.ERROR,
-                 errors=[CanonicalError(
-                     code="AUTH_FAILURE", 
-                     message=f"Protected ID '{actor_id}' requires cryptographic proof.",
-                     stage="000_INIT"
-                 )]
-             )
-             
-        # Validate the proof (calls internal HMAC/RSA/ED25519 logic)
-        if not validate_sovereign_proof(actor_id, proof):
-            return RuntimeEnvelope(
-                 ok=False,
-                 tool="init_anchor",
-                 session_id=session_id,
-                 stage="000_INIT",
-                 verdict=Verdict.VOID,
-                 status=RuntimeStatus.ERROR,
-                 errors=[CanonicalError(
-                     code="AUTH_FAILURE", 
-                     message=f"Invalid cryptographic proof for protected ID '{actor_id}'.",
-                     stage="000_INIT"
-                 )]
-             )
+    is_protected = is_protected_sovereign_id(resolved_actor_id)
+    has_valid_proof = False
+    
+    # Extract proof from intent, top-level kwargs passed via MCP, or direct parameter
+    effective_proof = (proof or
+                normalized_intent.get("auth_token") or 
+                normalized_intent.get("proof") or 
+                normalized_intent.get("signature") or
+                normalized_intent.get("key"))
+    
+    if is_protected:
+        if effective_proof:
+             has_valid_proof = validate_sovereign_proof(resolved_actor_id, effective_proof)
+    
+    # ABI v1.0 Authority Ladder:
+    claim_status = ClaimStatus.ANONYMOUS
+    authority_level = AuthorityLevel.ANONYMOUS
+    
+    if is_protected:
+        if has_valid_proof or human_approval:
+            claim_status = ClaimStatus.VERIFIED
+            authority_level = AuthorityLevel.VERIFIED
+        else:
+            # P0: PATH 1 (Semantic Fix) - Recognition without Power
+            claim_status = ClaimStatus.CLAIMED
+            authority_level = AuthorityLevel.CLAIMED
+    elif resolved_actor_id != "anonymous":
+        claim_status = ClaimStatus.ANCHORED
+        authority_level = AuthorityLevel.DECLARED
 
     # ABI v1.0: Ensure 'query' field is present for downstream organs
     if "query" not in normalized_intent:
         normalized_intent["query"] = str(normalized_intent.get("task") or normalized_intent.get("intent") or "Session Action")
-    elif hasattr(intent, "model_dump"):
-        normalized_intent = intent.model_dump(mode="json")
-    else:
-        normalized_intent = {"query": str(intent), "task_type": "general"}
     
     payload = {
-        "actor_id": actor_id,
+        "actor_id": resolved_actor_id,
         "intent": normalized_intent,
         "human_approval": human_approval,
+        "claim_status": claim_status.value,
+        "authority_level": authority_level.value,
+        "auth_verified": has_valid_proof or human_approval,
     }
     
     envelope = await _wrap_call("init_anchor", Stage.INIT_000, session_id, payload, ctx)
     
     # Forensic Separation (P0 Requirement)
-    claimed_id = actor_id
-    resolved_id = "anonymous"
-    claim_status = ClaimStatus.REJECTED.value
-    
     if envelope.ok and envelope.verdict != Verdict.VOID:
-        if envelope.authority:
-            resolved_id = getattr(envelope.authority, "actor_id", "anonymous")
-            # P0: Map to valid ClaimStatus enum values
-            claim_status = ClaimStatus.ANCHORED.value if resolved_id == claimed_id else ClaimStatus.DEMOTED.value
-
-        
         # Persistent state binding
         bind_session_identity(
             envelope.session_id, 
-            resolved_id, 
-            getattr(envelope.authority, "level", "anonymous") if envelope.authority else "anonymous",
+            resolved_actor_id, 
+            authority_level.value,
             envelope.auth_context.model_dump(mode="json") if hasattr(envelope.auth_context, "model_dump") else {},
-            getattr(envelope.authority, "approval_scope", []) if envelope.authority else []
+            getattr(envelope.authority, "approval_scope", []) if envelope.authority else [],
+            human_approval=human_approval,
+            caller_state=claim_status.value
         )
     else:
         # F11 Hard Rejection Case detection
         err_str = str(envelope.errors)
         if "AUTH_FAILURE_PROTECTED_ID" in err_str or "AUTH_PROTECTED_ID_REQUIRED" in err_str:
-            claim_status = ClaimStatus.REJECTED_PROTECTED_ID.value
+            claim_status = ClaimStatus.REJECTED_PROTECTED_ID
         else:
-            claim_status = ClaimStatus.REJECTED.value
+            claim_status = ClaimStatus.REJECTED
 
     # Decorate envelope with forensic metadata
     envelope.payload.update({
-        "claimed_actor_id": claimed_id,
-        "resolved_actor_id": resolved_id,
-        "claim_status": claim_status,
+        "claimed_actor_id": resolved_actor_id,
+        "resolved_actor_id": resolved_actor_id if claim_status in [ClaimStatus.VERIFIED, ClaimStatus.ANCHORED, ClaimStatus.CLAIMED] else "anonymous",
+        "claim_status": claim_status.value,
         "abi_version": "1.0",
-        "human_approval_persisted": human_approval
+        "human_approval_persisted": human_approval,
+        "auth_verified": has_valid_proof or human_approval,
     })
 
     # P0/F13: Sync human_approval to authority object for downstream gating
-    # If human_approval was explicitly given, mark authority as pre-cleared
     if envelope.authority:
-        # human_required indicates if ADDITIONAL human approval is needed
-        # If human_approval was already given, no additional approval required
-        envelope.authority.human_required = False if human_approval else True
+        envelope.authority.actor_id = resolved_actor_id
+        envelope.authority.level = authority_level
+        envelope.authority.claim_status = claim_status
+        # If it's only CLAIMED, we still require human_approval for sensitive actions
+        envelope.authority.human_required = False if (human_approval or has_valid_proof) else True
+        
+        # P0: Refresh CallerState after authority update
+        envelope.caller_state, envelope.allowed_next_tools, envelope.blocked_tools = _resolve_caller_state(envelope.session_id, envelope.authority)
     
     return envelope
 

@@ -79,3 +79,13 @@ def register_prompts(mcp: FastMCP) -> None:
             f"System hygiene at {path}. Modes: 'fs', 'process', 'net', 'tail', 'replay'. "
             "Default to dry_run=True for safety."
         )
+
+    @mcp.prompt()
+    def agent_skills(role: str = "A-ARCHITECT") -> str:
+        """Prompt for the consolidated agent skills and mandate."""
+        return (
+            f"You are operating in the {role} role within the arifOS ecosystem. "
+            "Your actions are governed by the 13 Constitutional Floors and the "
+            "metabolic stages 000-999. Refer to 'arifos://agents/skills' for your "
+            "atomic competence registry. Motto: DITEMPA BUKAN DIBERI."
+        )

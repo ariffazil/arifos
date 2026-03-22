@@ -160,6 +160,17 @@ def register_resources(mcp: FastMCP) -> None:
         )
     _resource_content_functions["arifos://bootstrap/guide"] = arifos_bootstrap_guide
 
+    @mcp.resource("arifos://agents/skills")
+    def arifos_agents_skills() -> str:
+        """arifOS Agent Skills: Consolidated guide for AI agents using the 11 mega-tools."""
+        # Dynamically read from root AGENTS.md
+        root_agents_md = os.path.join(os.path.dirname(__file__), "..", "..", "AGENTS.md")
+        if os.path.exists(root_agents_md):
+            with open(root_agents_md, "r", encoding="utf-8") as f:
+                return f.read()
+        return "AGENTS.md not found in root. Please contact the 888_JUDGE."
+    _resource_content_functions["arifos://agents/skills"] = arifos_agents_skills
+
     @mcp.resource("arifos://contracts/tools")
     def arifos_tool_contracts() -> str:
         """arifOS Contracts: Tool contract table with risk, auth, mutability."""

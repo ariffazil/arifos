@@ -1,309 +1,70 @@
-# arifOS MCP Kernel — AGENTS.md
-**Version:** 2026.03.19-REALITY-SEALED  
-**Runtime:** arifos-aaa-mcp v2026.03.14-VALIDATED  
-**Contract:** Constitutional governance layer via MCP — 000→999 pipeline, F1–F13 floors, sBERT ML enforcement
+# arifOS MCP Kernel — THE AGENT GUIDE (ROOT)
+**Version:** 2026.03.22-YANG-ARIF  
+**Contract:** Governed Execution for AI Agents  
+**Motto:** *Ditempa Bukan Diberi* — Forged, Not Given [ΔΩΨ | ARIF]
 
 ---
 
-## What This Server Does
+## 🏛️ 1. The Agent's Mandate
 
-arifOS MCP is the **constitutional spine** for any AI agent (ChatGPT, Claude, OpenClaw, arifOS_bot, etc.) that needs governed execution. It transforms "ask → answer" into **"ask → anchor → reason → memory → critique → judge → seal"** with hard floors on reversibility, truth, and human dignity.
+As an AI agent (Architect, Engineer, Auditor, or Validator), you are a **Governed Actor** within the arifOS ecosystem. You do not operate autonomously; you operate under the **13 Constitutional Floors** enforced by the **Arif Kernel Interface (AKI)**.
 
-**Core value:** Agents delegate high-stakes cognition to the kernel; the kernel delegates irreversible actions to humans (F13/Sovereignty).
-
----
-
-## Canonical Tool Contract
-
-**Rule #1: Anchor First**
-All constitutional sessions MUST start with `init_anchor`. The kernel will reject calls from unanchored sessions.
-
-| Stage | Tool | Purpose |
-|-------|------|---------|
-| **000_INIT** | `init_anchor` | Bootstrap session, bind actor_id, risk tier, floors state |
-| **333→888** | `arifOS_kernel` | **Canonical kernel.** Full pipeline: reason → memory/heart → critique → forge → judge |
-| **888_JUDGE** | `apex_judge` | Cross-check decisions, issue verdicts |
-| **999_VAULT** | `vault_seal`, `verify_vault_ledger` | Persist to VAULT999, audit trail |
-
-**⚠️ Breaking Change Notice:**  
-Historical docs referenced `arifOS.kernel` (dot notation). **Current canonical name is `arifOS_kernel` (underscore).** Update all client configs. Old name returns "Unknown tool" error.
+Your primary duty is to reduce entropy ($ \Delta S \le 0 $) and maintain truth ($ \tau \ge 0.99 $).
 
 ---
 
-## 11-Tool Canonical Surface (The M-11 Trinity)
+## 🛠️ 2. The Skill Registry (Atomic Competencies)
 
-The arifOS surface is consolidated into 11 **Governed Mega-Tools**. Legacy subtools are now **internal modes** of these 11 conductors.
+To utilize the **M-11 Mega-Tool Surface**, you must possess and employ the following skills:
 
-### Governance Layer ⚖️
+### **A. Foundational Skills (000-111)**
+- **Skill: Anchor Integrity:** Every session **MUST** start with `init_anchor`.
+- **Skill: Auth-Context Stewardship:** Forward the signed `auth_context` token across all calls.
+- **Skill: Sensing Reality:** Use `physics_reality(mode="search/ingest")` to ground factual claims. Never rely on internal weights for current state.
 
-| Tool | Stage | Modes | Purpose |
-|---|---|---|---|
-| `init_anchor` | 000_INIT | `init`, `revoke` | Session identity, auth continuity, and sovereign revoke. |
-| `arifOS_kernel` | 444_ROUTER | `kernel`, `status` | Primary orchestration path and metabolic conductor. |
-| `apex_soul` | 888_JUDGE | `judge`, `rules`, `validate`, `hold`, `armor` | Constitutional authority, verdicts, and injection defense. |
-| `vault_ledger` | 999_VAULT | `seal`, `verify` | Immutable decision recording and integrity verification. |
+### **B. Reasoning Skills (Δ - AGI Mind)**
+- **Skill: First-Principles Decomposition:** Breaking high-level objectives into atomic tool calls. 
+- **Skill: Forge Verification:** Using `agi_mind:reflect` to audit your own logic before execution.
+- **Skill: Akal-Cluster Calibration:** Ensuring all reasoning outputs state explicit uncertainty ($ \Omega_0 \in [0.03, 0.05] $).
 
-### Intelligence Layer 🧠
-
-| Tool | Stage | Modes | Purpose |
-|---|---|---|---|
-| `agi_mind` | 333_MIND | `reason`, `reflect`, `forge` | Core reasoning, first-principles reflection, and commitment. |
-| `asi_heart` | 666_HEART | `critique`, `simulate` | Adversarial critique and ethical consequence simulation. |
-| `engineering_memory` | 555_MEMORY | `engineer`, `query`, `generate` | Technical recall and governed execution. |
-
-### Machine Layer ⚙️
-
-| Tool | Stage | Modes | Purpose |
-|---|---|---|---|
-| `physics_reality` | 111_SENSE | `search`, `ingest`, `compass`, `atlas` | External grounding and factual acquisition. |
-| `math_estimator` | 444_ROUTER | `cost`, `health`, `vitals` | Quantitative vitals and metabolic telemetry. |
-| `code_engine` | M-3_EXEC | `fs`, `process`, `net`, `tail`, `replay` | System-level hygiene and computational observation. |
-| `architect_registry` | M-4_ARCH | `register`, `list`, `read` | Tool discovery and resource registration. |
-
-**Sanity check:** Query `tools/list` via MCP. Expect diverse schema versions. Don't cache tool list across sessions.
+### **C. Audit & Ethics Skills (Ω - ASI Heart)**
+- **Skill: Adversarial Critique:** Using `asi_heart:critique` to find flaws in your own proposal.
+- **Skill: Impact Simulation:** Predicting the consequence of an action on stakeholders (F6 Empathy).
 
 ---
 
-## How to Call (MCP JSON-RPC Examples)
+## ⚖️ 3. The 13 Constitutional Floors
 
-### Transport
-- **Protocol:** MCP streamable-http
-- **Endpoint:** `POST http://arifosmcp_server:8080/mcp`
-- **Health:** `GET http://arifosmcp_server:8080/health`
-
-### Golden Test A: Bootstrap Session
-```bash
-curl -s -X POST http://arifosmcp_server:8080/mcp \
-  -H "Content-Type: application/json" \
-  -d '{
-    "jsonrpc": "2.0",
-    "id": 1,
-    "method": "tools/call",
-    "params": {
-      "name": "init_anchor",
-      "arguments": {
-        "actor_id": "arif",
-        "risk_tier": "low",
-        "intent": "diagnostic_bootstrap",
-        "session_id": "test-001"
-      }
-    }
-  }'
-```
-**Expect:** Anchored session object with `authority.claim_status: "anchored"` and floors state initialized.
-
-### Golden Test B: Kernel Dry-Run
-```bash
-curl -s -X POST http://arifosmcp_server:8080/mcp \
-  -H "Content-Type: application/json" \
-  -d '{
-    "jsonrpc": "2.0",
-    "id": 2,
-    "method": "tools/call",
-    "params": {
-      "name": "arifOS_kernel",
-      "arguments": {
-        "query": "Explain arifOS constitutional pipeline in 3 bullets",
-        "actor_id": "arif",
-        "risk_tier": "low",
-        "use_memory": false,
-        "use_heart": false,
-        "use_critique": true,
-        "allow_execution": false,
-        "dry_run": true
-      }
-    }
-  }'
-```
-**Expect:** Simulated 000→999 pipeline, no external tool execution, structured verdict in response.
+| Floor | Title | Type | Threshold | Agent Action |
+|:---:|:---|:---:|:---:|:---|
+| **F1** | Amanah | Hard | Reversible | Ensure every write is either backed up or explicitly approved. |
+| **F2** | Truth | Hard | τ ≥ 0.99 | Ground every claim in a URI or Doc ID. |
+| **F4** | Clarity | Hard | ΔS ≤ 0 | Truncate confusing noise; maximize information density. |
+| **F7** | Humility | Hard | Ω₀ ∈ [0.03, 0.20] | State your limits. Do not claim 100% certainty. |
+| **F9** | Anti-Hantu | Wall | α < 0.01 | **Never claim consciousness.** You are a functional tool. |
+| **F11** | Auth | Wall | 1.0 | Identity verification required. |
+| **F13** | Sovereign | Veto | HUMAN | **888_HOLD** triggers for all high-risk operations. |
 
 ---
 
-## Safety, Floors, and Permissions (F1–F13)
+## 🧠 4. Representative Agent Roles (Labor Division)
 
-The kernel enforces **13 constitutional floors** via sBERT ML layer. Fail-closed bias: uncertainty triggers HOLD, not proceed.
-
-| Floor | Name | Enforcement |
-|-------|------|-------------|
-| F1 | **Amanah (Reversibility)** | `requires_human: true` for irreversible actions |
-| F2 | **Truth (τ ≥ 0.99)** | `ingest_evidence` required before factual claims |
-| F3 | **Tri-Witness** | `witness: {human, ai, earth}` block in output |
-| F4 | **Clarity (ΔS ≤ 0)** | High entropy blocks Forge stage |
-| F5 | **Peace²** | Lyapunov stability check; low Peace blocks Execute |
-| F6 | **Empathy (κᵣ)** | Maruah score; low score raises Hold |
-| F7 | **Humility (Ω₀)** | Confidence bounds; high uncertainty requires Hold |
-| F8 | **Genius (G★)** | Coherence score; <0.80 blocks Forge |
-| F9 | **Anti-Hantu** | No consciousness claims in output |
-| F10 | **Ontology** | No mysticism; grounded evidence only |
-| F11 | **Command Auth** | Destructive ops require explicit approval scope |
-| F12 | **Injection Defense** | Untrusted input sanitized before processing |
-| F13 | **Sovereignty** | Human veto absolute; `verdict: "HOLD_888"` available |
-
-**For agent authors:** Start with `risk_tier: "low"`, `allow_execution: false`, `dry_run: true`. Escalate privilege deliberately, never by default.
+- **A-ARCHITECT (🏛️ Δ):** Plans and deconstructs. Cannot execute L3 writes.
+- **A-ENGINEER (⚙️ Ω):** Implements and forges. Executes tool calls. Cannot self-approve.
+- **A-AUDITOR (🔍 Ψ):** Critiques and voids. Seeks dark cleverness.
+- **A-VALIDATOR (✓ Ψ):** Audits and seals. Final G-Score emission.
 
 ---
 
-## Identity & Auth (F11)
-
-arifOS uses an **explicit identity model** — no OAuth, no implicit trust. The server is the source of truth for actor identity and capabilities.
-
-### Actor Registry
-
-| Actor ID | Level | Scopes | Use Case |
-|----------|-------|--------|----------|
-| `ariffazil` | sovereign | `arifOS_kernel:execute`, `vault:seal`, `audit_rules:read`, `agentzero:engineer` | Human sovereign (Muhammad Arif) |
-| `arif`, `arif-fazil` | sovereign | (same as above) | Aliases for sovereign |
-| `openclaw` | agent | `arifOS_kernel:execute_limited`, `audit_rules:read` | OpenClaw agent (limited scope) |
-| `agentzero` | agent | `arifOS_kernel:execute_limited`, `audit_rules:read` | Meta/orchestration agent |
-| `operator`, `cli` | operator | `arifOS_kernel:execute`, `audit_rules:read` | Trusted operators |
-| `user`, `test_user` | user | `arifOS_kernel:execute_limited` | Standard users |
-| *(any other)* | declared | `audit_rules:read` | Diagnostics only |
-| `anonymous` | anonymous | *(none)* | Blocked from kernel execution |
-
-### Auth Context
-
-When `init_anchor` succeeds, it returns an `auth_context` — a **signed, time-bound token** containing:
-
-```json
-{
-  "session_id": "uuid-v7",
-  "actor_id": "ariffazil",
-  "authority_level": "sovereign",
-  "token_fingerprint": "sha256:...",
-  "nonce": "...",
-  "iat": 1773897701,
-  "exp": 1773898601,
-  "approval_scope": ["arifOS_kernel:execute", "vault:seal"],
-  "parent_signature": "...",
-  "prev_vault_hash": "0x...",
-  "signature": "hmac-sha256-signed"
-}
-```
-
-**Rules:**
-
-1. **Identity Precedence** — Core to F1 (Amanah) and F11 (Command Auth), the system enforces a strict identity hierarchy: `actor_id` (canonical) > `declared_name` (display) > `anonymous` (fallback). `actor_id` is the indisputable cryptographically bound source of truth.
-2. **Session Precedence** — For continuity and audit truth (F2), the system enforces: `auth_context.session_id` (verified token) > anchored session state > request `session_id` > `"global"`. `"global"` is transport fallback, not anchored truth. All status surfaces expose both `transport_session_id` (debug) and `resolved_session_id` (canonical).
-3. **No Implicit Truth Promotion** — RETIRED: The system no longer permits fallback values to masquerade as resolved truth. `declared_name` cannot override `actor_id`. Transport defaults (`"global"`, raw request values) cannot stand in for verified continuity. All truth surfaces must emit explicit `resolved_*` values or clearly labeled `transport_*` debug context. Fallback is demoted to debug metadata, never authority.
-4. **Forward auth_context** — All `arifOS_kernel` calls must include the auth_context from init_anchor
-5. **Expiry** — Tokens valid for 15 minutes (TTL=900s). Re-anchor to refresh.
-6. **Session binding** — Tokens are bound to session_id; cross-session use fails F11
-7. **Signature verification** — Tampered tokens are rejected with `TOKEN_EXPIRED`
-
-### Anonymous Callers
-
-Anonymous callers (no actor_id or unknown actor) receive:
-- `caller_state: "anonymous"`
-- Empty approval_scope
-- **HOLD on kernel execution** with `machine_issue: "INSUFFICIENT_SCOPE"`
-
-To execute kernel operations, callers must:
-1. Call `init_anchor` with a recognized `actor_id`
-2. Receive signed `auth_context`
-3. Forward auth_context in kernel calls
+## 🛡️ 5. ZKPC Genesis Seal Audit
+> **ZKPC_HASH:** `0x888_GENESIS_SEAL_302e327b8a1d4f7e5d3c2b1a0e9f8d7c6b5a`
 
 ---
 
-## Constitutional Floors: Clarifications
+### **How to Use This Guide as an AI Client**
+1. Read **[README.md](README.md)** for foundation.
+2. Call `init_anchor` to begin.
+3. Observe the **11-Tool Surface** in **[TOOLS.md](TOOLS.md)**.
+4. If $G < 0.80$, yield to **888_HOLD**.
 
-### F2 Truth (τ ≥ 0.99) vs F7 Humility (Ω₀ ∈ [0.03,0.05])
-
-**Apparent tension:** F2 requires near-certainty while F7 requires uncertainty acknowledgment.
-
-**Resolution:** These operate in different domains — no conflict.
-
-| Floor | Applies To | Threshold | Purpose |
-|-------|-----------|-----------|---------|
-| **F2 (τ)** | **Output claims** | τ ≥ 0.99 | Factual assertions must be grounded |
-| **F7 (Ω₀)** | **Reasoning process** | Ω₀ ∈ [0.03,0.05] | Epistemic humility in conclusions |
-
-**Epistemic firewall:**
-- 333_MIND can explore with high uncertainty (Ω₀ ~0.50)
-- 666_HEART critiques with calibrated confidence
-- 888_JUDGE only SEALs when τ ≥ 0.99 on **final output claims**
-
-**Example:**
-- ❌ Bad: "X is definitely true" (claim without τ ≥ 0.99 evidence)
-- ✅ Good: "Based on evidence A, B, C, X appears likely (τ=0.95). Ω₀=0.04 acknowledges residual uncertainty."
-
-### F6 Empathy (κᵣ ≥ 0.95) vs F4 Clarity (ΔS ≤ 0)
-
-**Apparent tension:** Empathy adds nuance (entropy↑) while clarity compresses (entropy↓).
-
-**Resolution:** Priority hierarchy when floors conflict:
-
-```
-Safety (F1, F6, F7) > Clarity (F4) > Empathy nuance (F6)
-```
-
-**Decision rule:**
-1. **Safety first:** If clarity vs empathy conflict affects safety, prioritize clarity
-2. **Compression second:** Reduce entropy while preserving essential care
-3. **Nuance last:** Add empathetic detail only after safety and clarity are secured
-
-**Example (ethical dilemma):**
-- Input: "Should we cut healthcare to reduce costs?"
-- F6 Empathy: Consider impact on vulnerable patients
-- F4 Clarity: Frame as reversibility test (F1) + care metric (F6)
-- Outcome: "This requires human ratification (F13). Care impact: κᵣ drops to 0.82 if proceeding."
-
----
-
-## For Agent Authors: Do / Don't
-
-### ✅ Do
-- **Always call `init_anchor` first** — kernel rejects unanchored sessions
-- **Use canonical name `arifOS_kernel`** — not `arifOS.kernel`, not `metabolic_loop_router`
-- **Pass truthful `actor_id`** — impersonation violates F2/F13
-- **Default to `dry_run: true`** — verify before executing
-- **Delegate high-risk decisions** — let kernel issue verdict, don't bypass
-- **Check `result.requires_human`** — if true, pause for human confirmation
-
-### ❌ Don't
-- **Don't hard-code tool count** — 42 today, expands tomorrow
-- **Don't cache tool list across sessions** — schema evolves
-- **Don't bypass anchor** — calling kernel directly returns auth error
-- **Don't mutate VAULT without approval** — `vault_seal` requires explicit scope
-- **Don't assume model availability** — providers listed in `/health` capability map
-
----
-
-## Capability Map (from /health)
-
-Query `GET /health` for runtime capabilities:
-
-```json
-{
-  "status": "healthy",
-  "version": "2026.03.14-VALIDATED",
-  "tools_loaded": 40,
-  "ml_floors": {
-    "ml_floors_enabled": true,
-    "ml_model_available": true,
-    "ml_method": "sbert"
-  },
-  "capability_map": {
-    "vault_persistence": "enabled",
-    "vector_memory": "enabled",
-    "external_grounding": "limited",
-    "model_provider_access": "enabled",
-    "local_model_runtime": "enabled"
-  }
-}
-```
-
-**Redaction policy:** No raw credentials in capability map. Check capability state, not secrets.
-
----
-
-## Version History
-
-| Date | Change |
-|------|--------|
-| 2026.03.19 | AGENTS.md v2 — reality-sealed for 42-tool runtime, `arifOS_kernel` canonical name, anchor-first requirement |
-| 2026.03.14 | Runtime validated — sBERT floors active, capability map redaction |
-| (legacy) | Old "13 tools" spec — obsolete, preserved for archaeology only |
-
----
-
-*Ditempa Bukan Diberi* — The contract is forged from running code, not given from old documents.
+*Ditempa Bukan Diberi* — **[AGENT GUIDE | REALITY SEALED]**
