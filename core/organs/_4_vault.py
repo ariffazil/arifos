@@ -201,7 +201,7 @@ async def seal(
                 f"F1 Amanah: Vault continuity broken. "
                 f"Expected {expected_prev_hash[:16]}..., found {prev_hash[:16]}..."
             ),
-            floor_code=ConstitutionalFaultCode.F1_AMANAH,
+            floor_code=ConstitutionalFaultCode.F1_AMANAH_BREACH,
         )
 
     # 1. Generate Immutable IDs
@@ -246,7 +246,7 @@ async def seal(
 
                     raise ConstitutionalViolation(
                         message=f"F1: Vault race condition. Expected {expected_prev_hash[:16]}...",
-                        floor_code=ConstitutionalFaultCode.F1_AMANAH,
+                        floor_code=ConstitutionalFaultCode.F1_AMANAH_BREACH,
                     )
 
                 entry_chain_hash = hashlib.sha256((prev_hash + entry_hash).encode()).hexdigest()

@@ -15,7 +15,6 @@ from arifosmcp.runtime.governance_identities import (
     PROTECTED_SOVEREIGN_IDS,
     is_protected_sovereign_id,
     validate_sovereign_proof,
-    canonicalize_identity_claim,
 )
 from arifosmcp.runtime.models import (
     ArifOSError,
@@ -154,92 +153,36 @@ async def init_anchor(
     proof: str | dict[str, Any] | None = None,  # P0: Naming protocol support
     pns_shield: dict[str, Any] | None = None,  # P0: F12 injection defense data from orchestrator
 ) -> RuntimeEnvelope:
-    del auth_context, risk_tier, dry_run, caller_context, pns_shield
-    ctx = ctx or CurrentContext()
-
-    # P0: Normalize intent (string or structured object)
-    normalized_intent: str | dict[str, Any]
-    if intent is None:
-        normalized_intent = raw_input or {"query": "Session init", "task_type": "general"}
-    elif isinstance(intent, str):
-        normalized_intent = {"query": intent, "task_type": "general"}
-    elif isinstance(intent, dict):
-        normalized_intent = intent  # Structured intent object
-    else:
-        normalized_intent = {"query": str(intent), "task_type": "general"}
+    # P0: Unification Dispatch — The Ignition State of Intelligence
+    # Consolidates: init, state, status, revoke, refresh into ONE tool
+    effective_mode = mode or (payload.get("mode") if payload else "init")
+    effective_intent = intent or raw_input or (payload.get("intent") if payload else None)
+    effective_session = session_id or (payload.get("session_id") if payload else None)
+    effective_human_approval = human_approval or (payload.get("human_approval") if payload else False)
+    effective_proof = proof or (payload.get("proof") if payload else None)
     
-    # P0: Identity Resolution (Naming is Creation)
-    # 1. Start with provided actor_id/declared_name
-    # 2. If weak/generic, try semantic claim from intent or raw_input
-    effective_actor_id = actor_id or declared_name or "anonymous"
+    # Handle legacy tool routing through capability_map
+    if effective_mode == "revoke" or (reason and "revoke" in str(reason).lower()):
+        effective_mode = "revoke"
+        effective_intent = effective_intent or reason or "User requested revocation"
+    elif effective_mode == "status":
+        effective_mode = "status"
+    elif effective_mode == "state":
+        effective_mode = "state"
+    elif effective_mode == "refresh":
+        effective_mode = "refresh"
     
-    if effective_actor_id == "anonymous":
-        query_text = normalized_intent.get("query") if isinstance(normalized_intent, dict) else str(normalized_intent)
-        semantic_id = canonicalize_identity_claim(query_text)
-        if semantic_id:
-            effective_actor_id = semantic_id
-        elif raw_input:
-            semantic_id = canonicalize_identity_claim(raw_input)
-            if semantic_id:
-                effective_actor_id = semantic_id
-
-    # P0: Build payload with human_approval support
-    if mode is None:
-        mode = "init"
-        payload = {
-            "actor_id": effective_actor_id,
-            "intent": normalized_intent,
-            "session_id": session_id,
-            "human_approval": human_approval,
-            "proof": proof,
-        }
-
-    payload = dict(payload or {})
-    
-    # P0: Normalize intent in payload if present (for MCP calls with explicit mode/payload)
-    if "intent" in payload:
-        payload_intent = payload["intent"]
-        if payload_intent is None:
-            payload["intent"] = {"query": "Session init", "task_type": "general"}
-        elif isinstance(payload_intent, str):
-            payload["intent"] = {"query": payload_intent, "task_type": "general"}
-        elif isinstance(payload_intent, dict):
-            pass  # Already structured, keep as-is
-        else:
-            payload["intent"] = {"query": str(payload_intent), "task_type": "general"}
-    else:
-        payload["intent"] = normalized_intent
-    
-    # P0: Ensure human_approval is propagated to payload (for MCP calls with explicit mode)
-    if human_approval and not payload.get("human_approval"):
-        payload["human_approval"] = human_approval
-    payload["session_id"] = _normalize_session_id(payload.get("session_id") or session_id)
-
-    # P0: Effective Actor Resolution from Payload
-    final_actor_id = payload.get("actor_id", effective_actor_id)
-    effective_human_approval = payload.get("human_approval", human_approval)
-    
-    if mode == "init":
-        return await init_anchor_impl(
-            actor_id=final_actor_id,
-            intent=payload.get("intent"),
-            session_id=payload.get("session_id"),
-            human_approval=effective_human_approval,
-            ctx=ctx,
-            proof=payload.get("proof") or proof,
-        )
-    if mode == "revoke":
-        return await revoke_anchor_state_impl(
-            session_id=payload.get("session_id"),
-            reason=payload.get("reason") or "Unspecified",
-            ctx=ctx,
-        )
-    if mode == "refresh":
-        return await refresh_anchor_impl(
-            session_id=payload.get("session_id"),
-            ctx=ctx,
-        )
-    raise ValueError(f"Invalid mode for init_anchor: {mode}")
+    return await init_anchor_impl(
+        actor_id=actor_id or declared_name,
+        intent=effective_intent,
+        session_id=effective_session,
+        human_approval=effective_human_approval,
+        ctx=ctx or CurrentContext(),
+        mode=effective_mode,
+        proof=effective_proof,
+        reason=reason,
+        payload=payload
+    )
 
 
 async def arifOS_kernel(
@@ -639,87 +582,19 @@ async def anchor_session(**kwargs: Any) -> RuntimeEnvelope:
     return await init_anchor(mode="init", payload=kwargs)
 
 
-async def init_anchor_state(
-    declared_name: str = "anonymous",
-    session_id: str | None = None,
-    auth_context: dict[str, Any] | None = None,
-    human_approval: bool = False,
-    intent: IntentType = None,
-    caller_context: CallerContext | None = None,
-    ctx: Context | None = None,
-    proof: str | dict[str, Any] | None = None,
-    **kwargs: Any,
-) -> RuntimeEnvelope:
-    envelope = await init_anchor(
-        actor_id=declared_name,
-        session_id=session_id,
-        auth_context=auth_context,
-        intent=intent,
-        human_approval=human_approval,
-        caller_context=caller_context,
-        ctx=ctx,
-        proof=proof,
-        **kwargs,
-    )
-    # Decorate envelope with forensic metadata
-    envelope.payload.update({
-        "claimed_actor_id": envelope.authority.actor_id if envelope.authority else None,
-        "resolved_actor_id": envelope.authority.actor_id if envelope.authority else None,
-        "claim_status": envelope.caller_state,
-        "abi_version": "1.0",
-        "human_approval_persisted": human_approval
-    })
-
-    # F11/F13: Sync persistence to authority object
-    if envelope.authority:
-        envelope.authority.human_required = not bool(human_approval)
-    
-    envelope.tool = "init_anchor_state"
-    return envelope
+async def init_anchor_state(**kwargs: Any) -> RuntimeEnvelope:
+    """Legacy wrapper for unified init_anchor(mode='state')"""
+    return await init_anchor(mode="state", **kwargs)
 
 
 async def revoke_anchor_state(**kwargs: Any) -> RuntimeEnvelope:
-    return await init_anchor(mode="revoke", payload=kwargs)
+    """Legacy wrapper for unified init_anchor(mode='revoke')"""
+    return await init_anchor(mode="revoke", **kwargs)
 
 
-async def get_caller_status(
-    session_id: str | None = None,
-    ctx: Context | None = None,
-) -> RuntimeEnvelope:
-    envelope = await _wrap_call("get_caller_status", Stage.INIT_000, session_id, {}, ctx)
-    envelope.tool = "get_caller_status"
-    auth_ctx_dict = (
-        envelope.auth_context.model_dump(mode="json")
-        if envelope.auth_context is not None and hasattr(envelope.auth_context, "model_dump")
-        else None
-    )
-    resolved = resolve_runtime_context(
-        incoming_session_id=session_id,
-        auth_context=auth_ctx_dict,
-        actor_id=envelope.authority.actor_id if getattr(envelope, "authority", None) else None,
-        declared_name=None,
-    )
-    envelope.session_id = resolved["resolved_session_id"]
-    envelope.payload.update(
-        {
-            "transport_session_id": resolved["transport_session_id"],
-            "resolved_session_id": resolved["resolved_session_id"],
-            "session_id": resolved["resolved_session_id"],
-            "canonical_actor_id": resolved["canonical_actor_id"],
-            "display_name": resolved["display_name"],
-            "authority_source": resolved["authority_source"],
-            "caller_state": envelope.caller_state,
-            "bootstrap_sequence": [
-                "1. check_vital - System health and vitals (no auth required)",
-                "2. audit_rules - Constitutional floors and tool contracts (no auth required)",
-                "3. init_anchor - Establish identity (creates session anchor)",
-                "4. arifOS_kernel - Primary metabolic loop for governed execution",
-            ],
-            "system_motto": "DITEMPA BUKAN DIBERI — Forged, Not Given",
-        }
-    )
-    envelope.diagnostics_only = envelope.caller_state == "anonymous"
-    return envelope
+async def get_caller_status(**kwargs: Any) -> RuntimeEnvelope:
+    """Legacy wrapper for unified init_anchor(mode='status')"""
+    return await init_anchor(mode="status", **kwargs)
 
 
 async def arifos_kernel(

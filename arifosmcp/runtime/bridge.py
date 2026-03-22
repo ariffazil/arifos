@@ -140,24 +140,20 @@ def _auth_failure_envelope(
         "tool": tool,
         "session_id": session_id,
         "stage": "000_INIT",
-        "verdict": "HOLD",
+        "verdict": "VOID",  # Use VOID to ensure it's not overridden to SEAL
         "status": "ERROR",
         "machine_status": "BLOCKED",
         "machine_issue": machine_issue,
-        "metrics": {
-            "telemetry": {
-                "dS": 0.0,
-                "peace2": 0.0,
-                "G_star": 0.0,
-                "echoDebt": 0.1,
-                "shadow": 1.0,
-                "confidence": 0.0,
-                "psi_le": "0.0 (Estimate Only)",
-                "verdict": "HOLD",
-            }
+        "human_witness": 0.0,
+        "ai_witness": 0.0,
+        "earth_witness": 0.0,
+        "governance": {
+            "score": 0.0,
+            "actor_id": "anonymous",
+            "authority_level": "anonymous",
         },
-        "trace": {"000_INIT": "HOLD"},
         "authority": {
+            "score": 0.0,
             "actor_id": "anonymous",
             "level": "anonymous",
             "human_required": True,
@@ -435,6 +431,10 @@ def _build_constitutional_audit(session_id: str) -> dict[str, Any]:
         "soft_floors": sum(1 for f in floors if f["type"] == "SOFT"),
         "derived_floors": sum(1 for f in floors if f["type"] == "DERIVED"),
         "floors": floors,
+        "tool_contract_table": ["check_vital", "init_anchor", "arifOS_kernel", "agi_mind", "asi_heart"],
+        "discovery_resource": "canon://contracts",
+        "floor_runtime_hooks": ["F1_AMANAH", "F11_AUTHORITY", "F12_INJECTION", "F13_SOVEREIGN"],
+        "guidance": "Run init_anchor to establish a governed session (Bootstrap sequence).",
         "doctrine_to_runtime": [
             {"doctrine": "F2 Truth", "runtime": "search_reality, ingest_evidence"},
             {"doctrine": "F4 Clarity", "runtime": "entropy tracking, office_forge_audit"},
@@ -454,6 +454,7 @@ def _build_vitals_report(session_id: str) -> dict[str, Any]:
     """
     from core.shared.floors import THRESHOLDS
     from core.state.session_manager import session_manager
+    from arifosmcp.runtime.sessions import get_session_identity
 
     # Gather system health
     health_status = "HEALTHY"
@@ -461,8 +462,12 @@ def _build_vitals_report(session_id: str) -> dict[str, Any]:
 
     # Check session
     session_active = False
+    current_state = "anonymous"
     try:
         session_active = session_manager.get_kernel(session_id) is not None
+        identity = get_session_identity(session_id)
+        if identity:
+            current_state = identity.get("caller_state") or identity.get("authority_level") or "claimed"
     except Exception:
         pass
 
@@ -505,6 +510,23 @@ def _build_vitals_report(session_id: str) -> dict[str, Any]:
             "floors_enforced": len(THRESHOLDS),
             "governance_mode": "HARD" if session_active else "STANDBY",
             "audit_trail": "VAULT999",
+        },
+        "bootstrap": {
+            "sequence": [
+                "1. check_vital - System health and vitals (no auth required)",
+                "2. audit_rules - Constitutional floors and tool contracts (no auth required)",
+                "3. init_anchor - Establish identity (creates session anchor)",
+                "4. arifOS_kernel - Primary metabolic loop for governed execution",
+            ],
+            "ladder_resource": "canon://states",
+            "current_state": current_state,
+            "operator_guidance": {
+                "action": "init_anchor",
+                "tool": "init_anchor",
+                "example": "init_anchor(actor_id='arif', intent='Establishing continuity')",
+                "reason": "Run init_anchor to begin session ignition and elevate from anonymous state.",
+            },
+            "states_ladder_info": "Possible states: anonymous, claimed, anchored, verified, scoped, approved",
         },
         "degraded_components": degraded_components if degraded_components else None,
         "message": "arifOS Vitals: All systems nominal.",
@@ -551,7 +573,11 @@ async def call_kernel(
     if tool_name == "metabolic_loop":
         if not auth_ctx:
             # Check if we can auto-anchor this specific call
-            if _can_auto_anchor_declared_identity(payload, claimed_actor_id):
+            can_auto = _can_auto_anchor_declared_identity(payload, claimed_actor_id)
+            req_auth = _requires_explicit_kernel_auth(payload, canonical_name)
+            print(f"DEBUG: metabolic_loop auth check - can_auto={can_auto}, req_auth={req_auth}")
+            
+            if can_auto:
                 auth_ctx = _mint_auto_anchor_auth_context(session_id, claimed_actor_id)
                 payload["auth_context"] = auth_ctx
                 payload.setdefault("identity_resolution", {})
@@ -774,6 +800,9 @@ async def call_kernel(
             }
             result["human_approval_persisted"] = ha_value
             result["abi_version"] = "1.0"
+            result["next_action"] = "Run arifOS_kernel to begin governed reasoning."
+            result["operator_guidance"] = "Session anchored. Ready for metabolic loop."
+            result["ladder_resource"] = "canon://states"
 
             if res.verdict != Verdict.VOID:
                 result["auth_context"] = mint_auth_context(
@@ -794,7 +823,7 @@ async def call_kernel(
                 reason_mode=payload.get("reason_mode", "default"),
                 max_steps=payload.get("max_steps", 7),
                 auth_context=auth_ctx,
-                max_tokens=payload.get("max_tokens"),
+                max_tokens=payload.get("max_tokens", 1000),
             )
             if isinstance(result, dict):
                 result.setdefault("evidence", ["Grounding confirmed via internal AGI analysis."])

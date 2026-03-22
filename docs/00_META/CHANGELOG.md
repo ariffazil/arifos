@@ -5,6 +5,42 @@ All changes follow [T000 versioning](T000_VERSIONING.md): `YYYY.MM.DD-PHASE-STAT
 
 ---
 
+## [2026.3.22-INIT-ANCHOR-UNIFIED] — 2026-03-22 — INIT-ANCHOR-UNIFIED
+
+**T000:** 2026.03.22-INIT-ANCHOR-UNIFIED  
+**Theme:** The Ignition State of Intelligence — ONE tool for ALL constitutional session operations
+
+### Forged
+
+- **Unified `init_anchor` Mega-Tool** — The ONE entry point for Stage 000
+  - Consolidated: `init_anchor`, `init_anchor_state`, `revoke_anchor_state`, `get_caller_status`
+  - 5 modes: `init` | `state` | `status` | `revoke` | `refresh`
+  - Single implementation in `init_anchor_impl` with mode dispatch
+  - Fixed critical `kwargs` bug (line 166 undefined reference)
+
+### Constitutional Enforcement
+
+- **F11 (Command Authority)**: Identity canonicalization via "I'm Arif" semantic detection
+- **F12 (Injection Defense)**: Payload sanitization integrated into unified dispatch
+- **F13 (Sovereign Override)**: `human_approval` flag persistence across all modes
+
+### Legacy Compatibility
+
+- CAPABILITY_MAP routing preserved:
+  - `init_anchor_state` → `init_anchor(mode="state")`
+  - `revoke_anchor_state` → `init_anchor(mode="revoke")`
+  - `get_caller_status` → `init_anchor(mode="status")`
+
+### Artifacts
+
+- `arifosmcp/runtime/tools.py` — Unified dispatch with kwargs fix
+- `arifosmcp/runtime/tools_internal.py` — 5-mode implementation
+- `arifosmcp/runtime/tool_specs.py` — Updated unified description
+- `tests/test_init_unification.py` — NEW comprehensive test suite
+- `INIT_ANCHOR_UNIFICATION_SUMMARY.md` — Architectural documentation
+
+---
+
 ## [2026.3.14-NERVOUS-SYSTEM-9-FORGED] — 2026-03-14 — NERVOUS-SYSTEM-9-FORGED
 
 **T000:** 2026.03.14-NERVOUS-SYSTEM-9-FORGED

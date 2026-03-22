@@ -18,11 +18,11 @@ from __future__ import annotations
 import secrets
 import time
 from datetime import datetime
-from enum import Enum
 from typing import Any
 
 from core.shared.atlas import Phi
 from core.shared.types import (
+    AuthorityLevel,
     CodeState,
     GovernanceMetadata,
     InitOutput,
@@ -31,7 +31,6 @@ from core.shared.types import (
     PhysicsState,
     Verdict,
 )
-from arifosmcp.runtime.governance_identities import canonicalize_identity_claim
 
 # ═════════════════════════════════════════════════════════════════════════════
 # F12: INJECTION GUARD — Prompt Injection Detection
@@ -124,19 +123,7 @@ def scan_injection(query: str) -> InjectionRisk:
 # ═════════════════════════════════════════════════════════════════════════════
 
 
-class AuthorityLevel(Enum):
-    """F11: Levels of command authority."""
-
-    NONE = "none"
-    USER = "user"
-    OPERATOR = "operator"
-    SOVEREIGN = "sovereign"
-    SYSTEM = "system"
-    AGENT = "agent"
-    ANONYMOUS = "anonymous"
-    DECLARED = "declared"
-    CLAIMED = "claimed"
-    VERIFIED = "verified"
+# AuthorityLevel imported from arifosmcp.runtime.models
 
 
 def coerce_authority_level(level: str | None) -> dict[str, Any]:
@@ -259,12 +246,18 @@ def verify_auth(actor_id: str, auth_token: str | None = None, human_approval: bo
 
     # ── 2. Standard Actor Flow ──
     if actor_id_clean in VALID_ACTORS:
-        if auth_token:
-            return True, ACTOR_AUTHORITY.get(actor_id_clean, AuthorityLevel.USER)
-        return True, AuthorityLevel.CLAIMED
+        # Standard actors like 'user', 'cli', 'agent' get USER level by default
+        # Special protected IDs like 'arif' require tokens for elevated status
+        if actor_id_clean in PROTECTED_SOVEREIGN_IDS:
+            if auth_token:
+                return True, AuthorityLevel.SOVEREIGN
+            return True, AuthorityLevel.CLAIMED
 
-    # ── 3. Graceful Recognition ──
+        return True, AuthorityLevel.USER
+
+    # Peaceful Recognition ──
     return True, AuthorityLevel.CLAIMED
+
 
 
 def requires_sovereign(query: str) -> bool:
@@ -290,6 +283,9 @@ async def init(
     """
     Stage 000: CONSTITUTIONAL AIRLOCK (APEX-G compliant)
     """
+    # 0. Lazy Import to break circular dependency
+    from arifosmcp.runtime.governance_identities import canonicalize_identity_claim
+
     # 1. Normalize Inputs
     if isinstance(query, str):
         intent = Intent(query=query)

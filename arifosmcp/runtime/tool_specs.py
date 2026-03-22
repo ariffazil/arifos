@@ -143,14 +143,17 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
         role="Constitutional Airlock",
         layer="GOVERNANCE",
         description=(
-            "000_INIT: Establish, revoke, or refresh a governed session identity. "
-            "Required before all other actions. Modes: 'init' (new session), 'revoke' (kill switch), 'refresh' (continuity refresh)."
+            "🔥 THE IGNITION STATE OF INTELLIGENCE (Unified). "
+            "ONE tool for ALL constitutional session operations. "
+            "Modes: 'init' (establish identity), 'state' (forensic audit), "
+            "'status' (bootstrap diagnostics), 'revoke' (kill session), 'refresh' (rotate token). "
+            "Legacy tools (init_anchor_state, revoke_anchor_state, get_caller_status) route here."
         ),
         trinity="PSI Ψ",
         floors=("F11", "F12", "F13"),
         input_schema=_build_mega_schema(
             "init_anchor",
-            ["init", "revoke", "refresh"],
+            ["init", "revoke", "refresh", "state", "status"],
             {
                 "actor_id": {"type": "string", "minLength": 2, "maxLength": 64},
                 "intent": {
@@ -421,6 +424,11 @@ PUBLIC_RESOURCE_SPECS: tuple[ResourceSpec, ...] = (
         uri="canon://contracts",
         name="Tool Contracts",
         description="Functional and safety contracts for the 11 Mega-Tools.",
+    ),
+    ResourceSpec(
+        uri="canon://states",
+        name="State Ladder",
+        description="Forensic session state progression: anonymous -> claimed -> anchored -> verified -> scoped -> approved.",
     ),
     ResourceSpec(
         uri="arifos://status/vitals",

@@ -278,18 +278,60 @@ async def _wrap_call(
 
 # --- GOVERNANCE IMPLEMENTATIONS ---
 
+async def get_caller_status_impl(session_id: str | None, ctx: Context) -> RuntimeEnvelope:
+    """F11: Diagnostics and bootstrap sequence status."""
+    session_id = _normalize_session_id(session_id)
+    # Unified: Use 'init_anchor' with mode=status
+    envelope = await _wrap_call("init_anchor", Stage.INIT_000, session_id, {"mode": "status"}, ctx)
+    envelope.payload.update(await get_caller_status_payload(session_id, envelope))
+    return envelope
+
 async def init_anchor_impl(
-    actor_id: str,
-    intent: IntentType,
-    session_id: str | None,
-    ctx: Context,
+    actor_id: str | None = None,
+    intent: IntentType | None = None,
+    session_id: str | None = None,
+    ctx: Context | None = None,
+    mode: str = "init",
     human_approval: bool = False,
     proof: str | dict | None = None,
+    **kwargs: Any,
 ) -> RuntimeEnvelope:
     """
-    Stage 000: Constitutional Airlock Implementation.
-    Refactored for Tiered Identity: Recognition (Claim) vs Power (Proof).
+    The Ignition State of Intelligence (Stage 000).
+    Unified dispatcher for init, state, status, revoke, and refresh.
     """
+    ctx = ctx or CurrentContext()
+    if mode == "revoke":
+
+        reason = kwargs.get("reason") or "User requested revocation via unified anchor."
+        if isinstance(intent, str) and intent:
+            reason = intent
+        elif isinstance(intent, dict) and intent.get("reason"):
+            reason = intent["reason"]
+        return await revoke_anchor_state_impl(session_id, reason, ctx)
+
+
+    if mode == "refresh":
+        return await refresh_anchor_impl(session_id, ctx)
+
+    if mode == "status":
+        return await get_caller_status_impl(session_id, ctx)
+
+    if mode == "state":
+        # Forensic State Retrieval: Return current identity without forcing re-initialization
+        from arifosmcp.runtime.sessions import get_session_identity
+        existing = get_session_identity(session_id)
+        if existing:
+            envelope = await _wrap_call("init_anchor", Stage.INIT_000, session_id, {"mode": "state"}, ctx)
+            envelope.payload.update({
+                "claimed_actor_id": existing.get("actor_id"),
+                "resolved_actor_id": existing.get("actor_id"),
+                "claim_status": existing.get("caller_state", "anchored"),
+                "abi_version": "1.0",
+                "authority_level": existing.get("authority_level"),
+                "is_active": True
+            })
+            return envelope
     # Normalize intent to object format for bridge compatibility
     normalized_intent: dict[str, Any]
     if intent is None:
@@ -401,7 +443,7 @@ async def init_anchor_impl(
 async def revoke_anchor_state_impl(session_id: str, reason: str, ctx: Context) -> RuntimeEnvelope:
     from core.enforcement.auth_continuity import revoke_session
     revoke_session(session_id, reason, "sovereign")
-    return RuntimeEnvelope(ok=True, tool="revoke_anchor_state", session_id=session_id, stage="000_INIT", verdict="SEAL", status="SUCCESS", payload={"revoked": True})
+    return RuntimeEnvelope(ok=True, tool="init_anchor", session_id=session_id, stage="000_INIT", verdict=Verdict.SEAL, status=RuntimeStatus.SUCCESS, payload={"revoked": True})
 
 async def refresh_anchor_impl(session_id: str | None, ctx: Context) -> RuntimeEnvelope:
     """F11: Mid-session token rotation and continuity check."""
@@ -434,35 +476,41 @@ async def arifos_kernel_impl(
     }
     return await _wrap_call("arifOS_kernel", Stage.ROUTER_444, session_id, payload, ctx)
 
-async def get_caller_status_impl(session_id: str | None, ctx: Context) -> RuntimeEnvelope:
-    session_id = _normalize_session_id(session_id)
-
-    # Check actual session state for semantic coherence
-    from arifosmcp.runtime.sessions import get_session_identity
-    stored_identity = get_session_identity(session_id)
-
-    if stored_identity:
-        authority_level = stored_identity.get("authority_level", "anonymous")
-        actor_id = stored_identity.get("actor_id", "anonymous")
-
-        if authority_level in ("sovereign", "verified", "operator"):
-            # Session is verified - return coherent SEAL/SUCCESS envelope
-            return RuntimeEnvelope(
-                ok=True,
-                tool="get_caller_status",
-                session_id=session_id,
-                stage="000_INIT",
-                verdict=Verdict.SEAL,
-                status=RuntimeStatus.SUCCESS,
-                payload={
-                    "actor_id": actor_id,
-                    "authority_level": authority_level,
-                    "session_id": session_id,
-                    "is_anchored": True
-                }
-            )
-    
     return await _wrap_call("get_caller_status", Stage.INIT_000, session_id, {}, ctx)
+
+
+async def get_caller_status_payload(session_id: str, envelope: RuntimeEnvelope) -> dict[str, Any]:
+    """Helper to build consistent status payload for unified anchor."""
+    auth_ctx_dict = (
+        envelope.auth_context.model_dump(mode="json")
+        if envelope.auth_context is not None and hasattr(envelope.auth_context, "model_dump")
+        else None
+    )
+    resolved = resolve_runtime_context(
+        incoming_session_id=session_id,
+        auth_context=auth_ctx_dict,
+        actor_id=envelope.authority.actor_id if getattr(envelope, "authority", None) else None,
+        declared_name=None,
+    )
+    return {
+        "transport_session_id": resolved["transport_session_id"],
+        "resolved_session_id": resolved["resolved_session_id"],
+        "session_id": resolved["resolved_session_id"],
+        "canonical_actor_id": resolved["canonical_actor_id"],
+        "display_name": resolved["display_name"],
+        "authority_source": resolved["authority_source"],
+        "caller_state": envelope.caller_state,
+        "identity_status": "locked" if envelope.caller_state in ("verified", "anchored") else "open",
+        "governance_mode": "strict" if envelope.authority.level in (AuthorityLevel.SOVEREIGN, AuthorityLevel.SYSTEM) else "cooperative",
+        "bootstrap_sequence": [
+            "1. check_vital - System health and vitals (no auth required)",
+            "2. audit_rules - Constitutional floors and tool contracts (no auth required)",
+            "3. init_anchor - Establish identity (creates session anchor)",
+            "4. arifOS_kernel - Primary metabolic loop for governed execution",
+        ],
+        "vitals_summary": envelope.metrics.telemetry.model_dump() if hasattr(envelope.metrics.telemetry, "model_dump") else {},
+        "system_motto": "DITEMPA BUKAN DIBERI — Forged, Not Given",
+    }
 
 async def apex_soul_dispatch_impl(mode: str, payload: dict, auth_context: dict | None, risk_tier: str, dry_run: bool, ctx: Context) -> RuntimeEnvelope:
     session_id = payload.get("session_id")

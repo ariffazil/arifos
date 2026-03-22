@@ -709,6 +709,7 @@ def wrap_tool_output(tool: str, payload: dict[str, Any]) -> dict[str, Any]:
     )
 
     tri_witness = _calculate_tri_witness_consensus(tool, payload)
+    
     phi_p = tpcp.get("phiP", 0.0)
     paradox_resolved = phi_p >= 1.0
     omega_ortho = _derive_orthogonality(
@@ -725,9 +726,12 @@ def wrap_tool_output(tool: str, payload: dict[str, Any]) -> dict[str, Any]:
     stage = str(payload.get("stage") or TOOL_STAGE_MAP.get(tool, "000_INIT"))
     stage_num = _parse_stage_num(stage)
 
+    print(f"DEBUG: wrap_tool_output - tool={tool}, stage={stage}, tri_pass={tri_witness.get('pass')}, raw_verdict={raw_verdict}")
+
     # Verdict Logic: Eliminating VOID-memanjang
     verdict = raw_verdict
-    if raw_verdict == "VOID":
+    if raw_verdict in {"VOID", "HOLD", "SABAR"}:
+        # Respect explicitly non-SEAL verdicts from the bridge/organ
         pass
     elif has_critical_fail:
         verdict = "VOID"

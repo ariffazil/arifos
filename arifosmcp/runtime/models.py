@@ -5,8 +5,10 @@ from datetime import datetime, timezone
 from enum import Enum
 from typing import Any
 
+from fastmcp.exceptions import AuthorizationError, FastMCPError, ToolError
 from pydantic import BaseModel, ConfigDict, Field
-from fastmcp.exceptions import FastMCPError, ToolError, AuthorizationError
+
+from core.shared.types import AuthorityLevel, Verdict
 
 
 class DeltaOmegaPsi(BaseModel):
@@ -172,20 +174,6 @@ class AuthContext(BaseModel):
 
     def __getitem__(self, item: str) -> Any:
         return getattr(self, item)
-
-
-class Verdict(str, Enum):
-    SEAL = "SEAL"
-    PROVISIONAL = "PROVISIONAL"
-    PARTIAL = "PARTIAL"
-    SABAR = "SABAR"
-    HOLD = "HOLD"
-    HOLD_888 = "HOLD_888"
-    VOID = "VOID"
-    PAUSED = "PAUSED"
-    ALIVE = "ALIVE"
-    DEGRADED = "DEGRADED"
-
 
 class RuntimeStatus(str, Enum):
     SUCCESS = "SUCCESS"
@@ -378,21 +366,6 @@ class PNSContext(BaseModel):
     def get_signal(self, organ_name: str) -> PNSSignal | None:
         """Helper to retrieve a signal by name."""
         return getattr(self, organ_name.lower(), None)
-
-
-class AuthorityLevel(str, Enum):
-    HUMAN = "human"
-    USER = "user"
-    AGENT = "agent"
-    SYSTEM = "system"
-    ANONYMOUS = "anonymous"
-    OPERATOR = "operator"
-    SOVEREIGN = "sovereign"
-    DECLARED = "declared"
-    CLAIMED = "claimed"
-    VERIFIED = "verified"
-    APEX = "apex"
-
 
 class PersonaRole(str, Enum):
     """AI self-declared operational roles - governed whitelist."""

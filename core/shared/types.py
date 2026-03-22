@@ -191,6 +191,9 @@ class Verdict(str, Enum):
     HOLD = "HOLD"
     HOLD_888 = "HOLD_888"
     VOID = "VOID"
+    PAUSED = "PAUSED"
+    ALIVE = "ALIVE"
+    DEGRADED = "DEGRADED"
 
 
 class RuntimeStatus(str, Enum):
@@ -442,13 +445,30 @@ class CodeState(BaseModel):
     verdict: Literal["SEAL", "PROVISIONAL", "PARTIAL", "SABAR", "HOLD", "VOID", "UNSET"] = "UNSET"
 
 
+class AuthorityLevel(str, Enum):
+    """
+    ABI v1.0 Authority Ladder.
+    """
+
+    HUMAN = "human"
+    USER = "user"
+    AGENT = "agent"
+    SYSTEM = "system"
+    ANONYMOUS = "anonymous"
+    OPERATOR = "operator"
+    SOVEREIGN = "sovereign"
+    DECLARED = "declared"
+    CLAIMED = "claimed"
+    VERIFIED = "verified"
+    APEX = "apex"
+    NONE = "none"  # F11: Default non-authorized state
+
+
 class GovernanceMetadata(BaseModel):
     """G in APEX-G: Identity and stakes."""
 
     actor_id: str = "anonymous"
-    authority_level: Literal[
-        "human", "agent", "system", "anonymous", "operator", "apex", "declared"
-    ] = "anonymous"
+    authority_level: AuthorityLevel = AuthorityLevel.ANONYMOUS
     stakes_class: Literal["A", "B", "C", "UNKNOWN"] = "UNKNOWN"
     tri_witness: dict[str, float] = Field(
         default_factory=lambda: {"human": 0.0, "ai": 0.0, "earth": 0.0}
@@ -928,6 +948,7 @@ __all__ = [
     "RepoEvidence",
     # Enums
     "Verdict",
+    "AuthorityLevel",
     # Thought Structures
     "ThoughtNode",
     "ThoughtChain",
