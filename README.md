@@ -39,6 +39,15 @@
 
 ---
 
+## 🧭 The arifOS Standard
+
+**The arifOS Standard is the foundational constitutional standard of the arifOS ecosystem: a governance kernel that metabolizes intent through truth, clarity, humility, authorization, and sovereign judgment before any AI output or execution is allowed to proceed.**
+
+> **Governed intelligence under sovereign human authority.**  
+> *Forged intelligence, not free-range intelligence.*
+
+---
+
 ## All Live Services
 
 Every URL this system exposes — what it is and what to use it for:
