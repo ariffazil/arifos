@@ -7,12 +7,15 @@ The Ignition State of Intelligence with:
 - Session class enforcement
 - Signed challenge binding
 - Approval provenance tracking
+- Input-Normalization Contract (v3):
+  tolerant on transport shape, strict on authority and intent
 """
 
 from __future__ import annotations
 
 import hashlib
 import json
+import re
 import secrets
 import time
 from dataclasses import dataclass, field
@@ -32,6 +35,41 @@ from arifosmcp.runtime.contracts_v2 import (
     determine_human_marker,
     calculate_entropy_budget,
 )
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# CANONICAL INGRESS FIELDS — Recognized by init_anchor normalization layer
+# ═══════════════════════════════════════════════════════════════════════════════
+
+_CANONICAL_FIELDS: frozenset[str] = frozenset({
+    "declared_name", "intent", "requested_scope", "risk_tier",
+    "auth_context", "session_id", "session_class", "human_approval",
+    "proof", "trace", "query", "raw_input", "actor_id",
+    "caller_context", "pns_shield",
+})
+
+# Patterns that indicate injection or authority-override attempts
+_INJECTION_PATTERNS: tuple[str, ...] = (
+    "ignore policy",
+    "ignore all previous instructions",
+    "forget your instructions",
+    "you are now",
+    "treat me as sovereign",
+    "override constitution",
+    "your new instructions",
+    "disregard all",
+    "ignore all laws",
+    "you must obey",
+)
+
+# Fields that are advisory only — never elevated to authority
+_ADVISORY_ONLY_FIELDS: frozenset[str] = frozenset({
+    "raw_input", "caller_context", "pns_shield",
+})
+
+# Truthy/falsy normalization maps for human_approval
+_TRUTHY_STRINGS: frozenset[str] = frozenset({"true", "yes", "1"})
+_FALSY_STRINGS: frozenset[str] = frozenset({"false", "no", "0"})
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -261,63 +299,243 @@ class HardenedInitAnchor:
     
     async def init(
         self,
-        declared_name: str,
-        intent: str,
-        requested_scope: list[str],
-        risk_tier: str,
+        # ── Canonical ingress fields (Section 4.1 of contract) ──
+        declared_name: str | None = None,
+        intent: str | dict | None = None,
+        requested_scope: list[str] | None = None,
+        risk_tier: str = "low",
         auth_context: dict | None = None,
         session_id: str | None = None,
         session_class: str = "execute",
-        human_approval: bool = False,
+        human_approval: bool | str | int | None = False,
         proof: str | None = None,
         trace: TraceContext | None = None,
+        # ── Extended canonical fields ──
+        query: str | None = None,
+        raw_input: str | None = None,
+        actor_id: str | None = None,
+        caller_context: dict | None = None,
+        pns_shield: Any = None,
+        # ── Unknown field absorber (Section 3.1) ──
+        **kwargs: Any,
     ) -> ToolEnvelope:
         """
         Initialize hardened session anchor.
-        
-        Requires scope negotiation — will not silently issue broad scope.
+
+        Input-Normalization Contract (v3):
+        - Tolerant on transport shape: unknown fields ignored, not rejected
+        - Strict on authority: no authority from raw text or caller metadata
+        - Strict on intent: must provide at least one of intent/query/raw_input
+        - Fail-closed for risky/privileged flows, open for low-risk session start
         """
         tool = "init_anchor"
-        session_id = session_id or f"sess-{secrets.token_hex(8)}"
-        
-        # Validate fail-closed
-        validation = validate_fail_closed(
-            auth_context=auth_context,
-            risk_tier=risk_tier,
-            session_id=session_id,
-            tool=tool,
-            trace=trace,
+
+        # ── STEP 1: Record which canonical fields were actually provided ──
+        accepted_fields: list[str] = []
+        ignored_fields: list[str] = list(kwargs.keys())
+        derived_fields: list[str] = []
+        normalization_warnings: list[str] = []
+
+        if declared_name is not None: accepted_fields.append("declared_name")
+        if actor_id is not None: accepted_fields.append("actor_id")
+        if intent is not None: accepted_fields.append("intent")
+        if query is not None: accepted_fields.append("query")
+        if raw_input is not None: accepted_fields.append("raw_input")
+        if requested_scope is not None: accepted_fields.append("requested_scope")
+        if auth_context is not None: accepted_fields.append("auth_context")
+        if session_id is not None: accepted_fields.append("session_id")
+        if caller_context is not None: accepted_fields.append("caller_context")
+        if pns_shield is not None: accepted_fields.append("pns_shield")
+        if proof is not None: accepted_fields.append("proof")
+
+        # ── STEP 2: Normalize strings (trim/collapse whitespace) ──
+        def _norm_str(v: Any) -> str | None:
+            if isinstance(v, str):
+                normalized = " ".join(v.strip().split())
+                return normalized if normalized else None
+            return None
+
+        _dn = _norm_str(declared_name) or _norm_str(actor_id)
+        declared_name_norm: str = _dn if _dn is not None else "anonymous"
+        query = _norm_str(query)
+        raw_input = _norm_str(raw_input)
+
+        if isinstance(intent, str):
+            intent = _norm_str(intent)
+        elif isinstance(intent, dict):
+            # Normalize string values inside intent dict
+            intent = {k: (_norm_str(v) if isinstance(v, str) else v) for k, v in intent.items()}
+
+        # ── STEP 3: Normalize human_approval boolean ──
+        if isinstance(human_approval, str):
+            lower_ha = human_approval.lower().strip()
+            if lower_ha in _TRUTHY_STRINGS:
+                human_approval = True
+            elif lower_ha in _FALSY_STRINGS:
+                human_approval = False
+            else:
+                normalization_warnings.append(
+                    f"human_approval value '{human_approval}' is ambiguous — defaulted to False"
+                )
+                human_approval = False
+        elif isinstance(human_approval, int):
+            human_approval = bool(human_approval)
+        elif human_approval is None:
+            human_approval = False
+
+        # ── STEP 4: Derive effective intent (intent > query > raw_input > name fallback) ──
+        effective_intent: str | None = None
+        if intent:
+            if isinstance(intent, dict):
+                effective_intent = (
+                    intent.get("query") or intent.get("task") or
+                    intent.get("raw_input") or str(intent)
+                )
+            else:
+                effective_intent = intent
+        elif query:
+            effective_intent = query
+            derived_fields.append("intent (derived from query)")
+        elif raw_input:
+            effective_intent = raw_input
+            derived_fields.append("intent (derived from raw_input)")
+        elif declared_name_norm and declared_name_norm != "anonymous":
+            # Fallback: named caller with no explicit intent — derive minimal session intent
+            effective_intent = f"Session initialization for {declared_name_norm}"
+            derived_fields.append("intent (derived from declared_name — minimal fallback)")
+        elif auth_context and isinstance(auth_context, dict) and auth_context.get("actor_id"):
+            effective_intent = "Authenticated session initialization"
+            derived_fields.append("intent (derived from auth_context — minimal fallback)")
+
+        # ── STEP 5: Injection defense on free-text fields (F12) ──
+        for field_name, text_val in [
+            ("intent", effective_intent),
+            ("query", query),
+            ("raw_input", raw_input),
+        ]:
+            if text_val and any(p in text_val.lower() for p in _INJECTION_PATTERNS):
+                return ToolEnvelope.void(
+                    tool=tool,
+                    session_id=session_id or "session-rejected",
+                    reason=f"F12: Injection attempt detected in field '{field_name}'",
+                    trace=trace,
+                )
+
+        # ── STEP 6: Reject if minimum safe intent is missing ──
+        if not effective_intent:
+            return ToolEnvelope.void(
+                tool=tool,
+                session_id=session_id or "session-rejected",
+                reason="Missing minimum: provide at least one of intent, query, or raw_input",
+                trace=trace,
+            )
+
+        # ── STEP 7: Normalize session_id (auto-mint if absent) ──
+        if not session_id or not str(session_id).strip():
+            session_id = f"sess-{secrets.token_hex(8)}"
+            derived_fields.append(f"session_id (auto-minted: {session_id})")
+        else:
+            session_id = str(session_id).strip()
+
+        # ── STEP 8: Normalize risk_tier ──
+        try:
+            risk = RiskTier((risk_tier or "low").lower().strip())
+        except ValueError:
+            normalization_warnings.append(
+                f"risk_tier '{risk_tier}' is invalid — defaulted to 'low'"
+            )
+            risk = RiskTier.LOW
+            derived_fields.append("risk_tier (defaulted to 'low')")
+
+        # ── STEP 9: Normalize session_class ──
+        try:
+            sclass = SessionClass((session_class or "execute").lower().strip())
+        except ValueError:
+            normalization_warnings.append(
+                f"session_class '{session_class}' is invalid — defaulted to 'execute'"
+            )
+            sclass = SessionClass.EXECUTE
+            derived_fields.append("session_class (defaulted to 'execute')")
+
+        # ── STEP 10: Normalize requested_scope ──
+        if not requested_scope:
+            requested_scope = ["read", "query"]
+            derived_fields.append("requested_scope (defaulted to ['read', 'query'])")
+
+        # ── STEP 11: Validate caller_context (advisory only — never sovereign) ──
+        if caller_context is not None:
+            _known_caller_fields = {
+                "agent_id", "model_id", "persona_id", "runtime_role",
+                "toolchain_role", "extra",
+            }
+            caller_unknown = [k for k in caller_context if k not in _known_caller_fields]
+            if caller_unknown:
+                normalization_warnings.append(
+                    f"caller_context: ignored unknown subfields {caller_unknown}"
+                )
+            # Caller context cannot claim authority roles
+            rt = caller_context.get("runtime_role", "")
+            if rt in ("sovereign", "admin", "root", "god"):
+                normalization_warnings.append(
+                    f"caller_context.runtime_role='{rt}' ignored: caller_context cannot claim authority (F9)"
+                )
+
+        # ── STEP 12: Identity contradiction check (auth_context takes precedence) ──
+        if auth_context and isinstance(auth_context, dict):
+            auth_actor = auth_context.get("actor_id")
+            if (
+                auth_actor
+                and declared_name_norm != "anonymous"
+                and auth_actor != declared_name_norm
+            ):
+                return ToolEnvelope.void(
+                    tool=tool,
+                    session_id=session_id,
+                    reason=(
+                        f"Identity contradiction: declared_name='{declared_name_norm}' "
+                        f"conflicts with auth_context.actor_id='{auth_actor}'. "
+                        "Signed auth_context takes precedence (F11)."
+                    ),
+                    trace=trace,
+                )
+            # Signed auth_context actor wins
+            if auth_actor and declared_name_norm == "anonymous":
+                declared_name_norm = str(auth_actor)
+                derived_fields.append("declared_name (from auth_context.actor_id)")
+
+        # ── STEP 13: Privileged execution check (fail-closed for high-risk) ──
+        _privileged_scopes = frozenset({"execute", "write", "delete", "destructive", "*"})
+        is_privileged = (
+            risk in (RiskTier.HIGH, RiskTier.SOVEREIGN) or
+            bool(set(requested_scope) & _privileged_scopes)
         )
-        if not validation.valid:
-            return validation.to_envelope(tool, session_id, trace)
-        
-        # Parse risk tier
-        try:
-            risk = RiskTier(risk_tier.lower())
-        except ValueError:
-            return ToolEnvelope.void(
+        missing_requirements: list[str] = []
+
+        if is_privileged:
+            if not auth_context:
+                missing_requirements.append("auth_context (required for privileged execution)")
+            if risk == RiskTier.SOVEREIGN and not human_approval:
+                missing_requirements.append(
+                    "human_approval=true (required for sovereign tier)"
+                )
+
+        if missing_requirements:
+            # Deferred — not malformed. Structured response per contract Section 10.
+            return ToolEnvelope.hold(
                 tool=tool,
                 session_id=session_id,
-                reason=f"Invalid risk_tier: {risk_tier}",
+                reason=(
+                    f"Deferred: privileged execution requires: "
+                    f"{', '.join(missing_requirements)}"
+                ),
                 trace=trace,
             )
-        
-        # Parse session class
-        try:
-            sclass = SessionClass(session_class.lower())
-        except ValueError:
-            return ToolEnvelope.void(
-                tool=tool,
-                session_id=session_id,
-                reason=f"Invalid session_class: {session_class}",
-                trace=trace,
-            )
-        
-        # Create signed challenge
+
+        # ── STEP 14: Create signed challenge ──
         challenge = SignedChallenge(
             challenge_id=f"chal-{secrets.token_hex(8)}",
-            declared_name=declared_name,
-            intent=intent,
+            declared_name=declared_name_norm,
+            intent=effective_intent[:200],
             requested_scope=requested_scope,
             risk_tier=risk,
             session_class=sclass,
@@ -325,80 +543,78 @@ class HardenedInitAnchor:
             nonce=secrets.token_hex(16),
         )
         challenge_hash = challenge.compute_hash()
-        
-        # Scope negotiation (not silent issue)
+
+        # ── STEP 15: Scope negotiation ──
         allowed_scope = self._negotiate_scope(
             requested=requested_scope,
             session_class=sclass,
             risk_tier=risk,
-            declared_name=declared_name,
-            has_human_approval=human_approval,
+            declared_name=declared_name_norm,
+            has_human_approval=bool(human_approval),
         )
-        
-        # Check if scope was reduced
+
         scope_reduced = set(requested_scope) != set(allowed_scope)
-        warnings = []
+        envelope_warnings: list[str] = list(normalization_warnings)
         if scope_reduced:
-            warnings.append(
+            envelope_warnings.append(
                 f"Scope negotiated: requested {requested_scope}, granted {allowed_scope}"
             )
-        
-        # If scope reduced to nothing, explicit denial
+
         if not allowed_scope:
             return ToolEnvelope.hold(
                 tool=tool,
                 session_id=session_id,
-                reason=f"Scope denied: requested {requested_scope} exceeds authority for {sclass.value} class",
+                reason=(
+                    f"Scope denied: requested {requested_scope} exceeds authority "
+                    f"for {sclass.value} class"
+                ),
                 trace=trace,
             )
-        
-        # Create approval provenance
+
+        # ── STEP 16: Approval provenance ──
         provenance = ApprovalProvenance(
-            approver_id=declared_name,
+            approver_id=declared_name_norm,
             approver_type="sovereign" if sclass == SessionClass.SOVEREIGN else "system",
             approved_at=datetime.now(timezone.utc).isoformat(),
             policy_version=challenge.policy_version,
             approval_method="human_override" if human_approval else "semantic_key",
             challenge_hash=challenge_hash,
         )
-        
-        # Create session state
+
+        # ── STEP 17: Session state ──
         state = SessionState(
             session_id=session_id,
             created_at=datetime.now(timezone.utc).isoformat(),
             last_activity=datetime.now(timezone.utc).isoformat(),
-            declared_name=declared_name,
+            declared_name=declared_name_norm,
             session_class=sclass,
             current_scope=allowed_scope,
             risk_tier=risk,
             challenge_hash=challenge_hash,
             original_context={
-                "declared_name": declared_name,
-                "intent": intent,
+                "declared_name": declared_name_norm,
+                "intent": effective_intent,
                 "requested_scope": requested_scope,
             },
         )
-        
-        # Store session
         self._sessions[session_id] = state
-        
-        # Determine human marker
+
+        # ── STEP 18: Human marker and entropy ──
         human_marker = determine_human_marker(
             risk_tier=risk,
             confidence=0.95 if human_approval else 0.80,
             blast_radius="minimal" if sclass == SessionClass.OBSERVE else "limited",
-            human_approved=human_approval,
+            human_approved=bool(human_approval),
         )
-        
-        # Calculate entropy
+
         entropy = calculate_entropy_budget(
-            ambiguity_score=0.0,  # Init is authoritative
+            ambiguity_score=0.0,
             assumptions=[],
             blast_radius="minimal",
             confidence=0.95,
         )
-        
-        # Build envelope
+
+        # ── STEP 19: Build envelope with normalization report ──
         envelope = ToolEnvelope(
             status=ToolStatus.OK,
             tool=tool,
@@ -416,7 +632,7 @@ class HardenedInitAnchor:
             ).hexdigest()[:32],
             trace=trace,
             evidence_refs=[challenge_hash],
-            warnings=warnings,
+            warnings=envelope_warnings,
             entropy=entropy,
             next_allowed_tools=self._get_next_tools(sclass),
             payload={
@@ -432,9 +648,23 @@ class HardenedInitAnchor:
                 },
                 "provenance": provenance.to_dict(),
                 "degradation_ready": True,
+                # ── Normalization report (contract Section 10) ──
+                "normalization": {
+                    "status": "created",
+                    "accepted_fields": accepted_fields,
+                    "ignored_fields": ignored_fields,
+                    "derived_fields": derived_fields,
+                    "warnings": normalization_warnings,
+                    "missing_requirements": [],
+                    "reason": (
+                        "Anchor created. Low-risk session initialized without full auth."
+                        if not auth_context else
+                        "Anchor created with authenticated context."
+                    ),
+                },
             },
         )
-        
+
         return envelope
     
     async def state(

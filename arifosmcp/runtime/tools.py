@@ -123,19 +123,30 @@ async def init_anchor(
     declared_name: str | None = None,
     intent: Any | None = None,
     human_approval: bool = False,
-    risk_tier: str = "medium",
+    risk_tier: str = "low",
     dry_run: bool = True,
     allow_execution: bool = False,
     ctx: Any | None = None,
+    # Normalization contract: extended canonical ingress fields
+    raw_input: str | None = None,
+    caller_context: dict[str, Any] | None = None,
+    pns_shield: Any | None = None,
+    proof: str | None = None,
 ) -> RuntimeEnvelope:
-    # P0: Unified ABI Adapter (Hardened)
+    # P0: Unified ABI Adapter (Hardened) — tolerant ingress normalization
     payload = dict(payload or {})
 
     if query: payload.setdefault("query", query)
+    if raw_input: payload.setdefault("raw_input", raw_input)
     if session_id: payload.setdefault("session_id", session_id)
     if actor_id: payload.setdefault("actor_id", actor_id)
+    if declared_name: payload.setdefault("declared_name", declared_name)
     if intent: payload.setdefault("intent", intent)
     if human_approval: payload.setdefault("human_approval", human_approval)
+    if risk_tier: payload.setdefault("risk_tier", risk_tier)
+    if caller_context: payload.setdefault("caller_context", caller_context)
+    if pns_shield: payload.setdefault("pns_shield", pns_shield)
+    if proof: payload.setdefault("proof", proof)
     # Hardened Dispatch
     if "init_anchor" in HARDENED_DISPATCH_MAP:
         if mode is None: mode = "init" if "init_anchor" == "init_anchor" else "init_anchor"
