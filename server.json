@@ -1,0 +1,31 @@
+{
+  "name": "io.github.ariffazil/arifosmcp",
+  "version": "2026.03.22",
+  "displayName": "arifOS — Constitutional AI Governance",
+  "description": "The world's first production-grade Constitutional AI Governance System. 11 Mega-Tools (37 modes), 13 constitutional floors (F1-F13), immutable VAULT999 ledger. Trinity architecture (AGI Mind, ASI Heart, APEX Soul). Governed intelligence: truth-grounded, reversibility-biased, human-in-the-loop by design.",
+  "license": "AGPL-3.0-only",
+  "homepage": "https://arifos.arif-fazil.com",
+  "repository": "https://github.com/ariffazil/arifosmcp",
+  "categories": ["ai-governance", "safety", "constitutional-ai"],
+  "packages": [
+    {
+      "registry_name": "pypi",
+      "name": "arifosmcp",
+      "version": "2026.03.22",
+      "runtime_hint": "python",
+      "environment_variables": [],
+      "command": {
+        "type": "uvx",
+        "args": ["arifosmcp"]
+      }
+    }
+  ],
+  "remotes": [
+    {
+      "transport_type": "streamable-http",
+      "url": "https://arifosmcp.arif-fazil.com/mcp",
+      "description": "arifOS production MCP endpoint — streamable-http, 11 mega-tools, 37 modes",
+      "headers": {}
+    }
+  ]
+}

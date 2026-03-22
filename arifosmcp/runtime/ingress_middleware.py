@@ -8,12 +8,19 @@ Accept messy input at the boundary; governance enforces inside.
 from __future__ import annotations
 
 import logging
+import time
 from typing import Any
 
 from fastmcp.server.middleware.middleware import Middleware, MiddlewareContext, CallNext, ToolResult
 import mcp.types as mt
 
 logger = logging.getLogger(__name__)
+
+try:
+    from arifosmcp.runtime.metrics import REQUESTS_TOTAL, METABOLIC_LOOP_DURATION
+    _METRICS_AVAILABLE = True
+except Exception:
+    _METRICS_AVAILABLE = False
 
 # The 11 mega-tools — enforce ingress tolerance on all of them
 MEGA_TOOLS = {
@@ -139,4 +146,14 @@ class IngressToleranceMiddleware(Middleware):
                     for k in unknown:
                         msg.arguments.pop(k)
 
-        return await call_next(context)
+        # Instrument: track latency and call count per tool
+        t0 = time.monotonic()
+        result = await call_next(context)
+        if _METRICS_AVAILABLE and tool_name in MEGA_TOOLS:
+            elapsed = time.monotonic() - t0
+            try:
+                REQUESTS_TOTAL.labels(method=tool_name, status="ok").inc()
+                METABOLIC_LOOP_DURATION.observe(elapsed)
+            except Exception:
+                pass
+        return result
