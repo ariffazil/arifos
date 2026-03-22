@@ -1,7 +1,14 @@
 [project]
 name = "arifosmcp"
-version = "2026.03.20"
+version = "2026.03.22"
 # T000 Versioning: YYYY.MM.DD — see T000_VERSIONING.md and CHANGELOG.md for full history
+# 2026.03.22 — VPS Forge (v2026.03.22-FORGE)
+#   Repo cleanup: killed 30+ chaos files, removed ghost git remotes, unified two-repo model
+#   arifOS README: 956-line full-depth rewrite (CC0 mind repo)
+#   arifosmcp README: 746-line full-depth rewrite (AGPL-3.0 body repo)
+#   Grafana: anonymous viewer access enabled (public monitoring)
+#   Site: arifosmcp landing page updated to 37 tools, SBERT, 2026.03.22-FORGE
+#   Disk: freed 27.1GB Docker build cache + deleted 580MB redundant /srv/arifOS_gh clone
 # 2026.03.20 — 11-Tool Consolidation (v2026.03.20-CONSOLIDATION)
 #   11-Tool Mega-Surface: Consolidated 42 tools into 11 with 37 operation modes
 #   Circular Import Fix: Resolved recursion in runtime/__init__.py using importlib
