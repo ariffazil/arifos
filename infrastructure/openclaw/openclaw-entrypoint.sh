@@ -16,15 +16,14 @@ if [ ! -f "/root/.openclaw/config.json" ] && [ -f "/configs/openclaw.json" ]; th
     cp /configs/openclaw.json /root/.openclaw/config.json
 fi
 
-# Set default model via ENV if provided
-if [ ! -z "$PRIMARY_MODEL" ]; then
-    echo "🧠 [ARIF-OCL] PRIMARY_MODEL override: $PRIMARY_MODEL"
-    # jq can be used if needed, but for now we rely on the pre-configured arifosmcp/kimi/gemini stack
-fi
-
 # Fix workspace paths
 mkdir -p /root/.openclaw/workspace
 
-# Execute OpenClaw gateway
-echo "🔗 [ARIF-OCL] Gateway active on port ${PORT:-18789}"
-exec node openclaw.mjs gateway --allow-unconfigured "$@"
+# Execute OpenClaw gateway or command
+if [ $# -eq 0 ]; then
+    echo "🔗 [ARIF-OCL] Gateway active on port ${PORT:-18789} (Default)"
+    exec node openclaw.mjs gateway --allow-unconfigured
+else
+    echo "🔗 [ARIF-OCL] Executing command: $@"
+    exec "$@"
+fi

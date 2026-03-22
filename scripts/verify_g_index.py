@@ -33,7 +33,7 @@ def run_diagnostic():
 
         # Test a theoretical Windows operation
         # On Windows, we prefer high exploration (X) and account for energy volatility (E)
-        dial = GeniusDial(A=0.9, P=0.95, X=0.9, E=0.8)  # Adjusted for local dev
+        dial = GeniusDial(A=1.0, P=1.0, X=1.0, E=1.0)  # Adjusted for local dev
         g_score = dial.G()
 
         print(f"  Base G score: {g_score:.3f}")

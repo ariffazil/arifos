@@ -1,3 +1,4 @@
+import os
 #!/usr/bin/env python3
 """
 Embed Constitutional Corpus — arifOS + APEX-THEORY
@@ -26,7 +27,7 @@ CHUNK_OVERLAP = 50
 QDRANT_URL = "http://localhost:6333"
 QDRANT_API_KEY = "arifos_qdrant_2026"
 
-REPO_PATHS = [
+REPO_PATHS = os.getenv("REPO_PATHS", "").split(",") if os.getenv("REPO_PATHS") else [
     "/root/arifOS/000_THEORY",
     "/root/APEX-THEORY",
     "/root/arifOS/docs",
@@ -143,7 +144,7 @@ def main():
     print("=" * 60)
 
     print("\n[1/5] Loading embedding model...")
-    model = SentenceTransformer(EMBEDDING_MODEL)
+    model = SentenceTransformer(EMBEDDING_MODEL, use_auth_token=os.getenv("HF_TOKEN"))
     print(f"      Model: {EMBEDDING_MODEL}")
     print(f"      Dimensions: {model.get_sentence_embedding_dimension()}")
 

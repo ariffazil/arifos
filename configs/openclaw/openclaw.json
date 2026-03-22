@@ -42,10 +42,12 @@
   "channels": {
     "telegram": {
       "enabled": true,
-      "dmPolicy": "pairing",
-      "botToken": "8697661462:AAHo_UP0LzKAuM1zBTitFVRm6PDIMASVBtQ",
+      "dmPolicy": "allowlist",
+      "botToken": "${TELEGRAM_BOT_TOKEN}",
       "groupPolicy": "open",
       "allowFrom": ["267378578"],
+      "allowGroups": true,
+      "groupMentionRequired": true,
       "streaming": "partial"
     }
   },
