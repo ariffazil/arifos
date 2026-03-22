@@ -17,11 +17,7 @@ from typing import Any
 
 from pydantic import ValidationError
 
-from arifosmcp.intelligence.tools.office_forge_engine import audit_markdown, render_office_document
-from arifosmcp.intelligence.tools.ollama_local import (
-    ollama_local_generate as ollama_local_generate_call,
-)
-from arifosmcp.intelligence.tools.reality_grounding import open_web_page, reality_check
+
 from arifosmcp.runtime.contracts import REQUIRES_SESSION
 from core.enforcement.auth_continuity import mint_auth_context, verify_auth_context_cached
 
@@ -542,6 +538,9 @@ async def call_kernel(
     session_id: str,
     payload: dict[str, Any],
 ) -> dict[str, Any]:
+    from arifosmcp.intelligence.tools.office_forge_engine import audit_markdown, render_office_document
+    from arifosmcp.intelligence.tools.ollama_local import ollama_local_generate as ollama_local_generate_call
+    from arifosmcp.intelligence.tools.reality_grounding import open_web_page, reality_check
     from arifosmcp.runtime.models import CallerContext as _CallerContext
     from core.governance_kernel import get_governance_kernel
     from core.shared.types import GovernanceMetadata, Intent, MathDials, TemporalContract

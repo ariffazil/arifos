@@ -237,3 +237,15 @@ def iter_invalid_modes() -> list[str]:
         if tgt.mode not in allowed_modes:
             bad.append(f"{legacy} -> {tgt.mega_tool}:{tgt.mode}")
     return sorted(bad)
+
+CAPABILITY_MAP.update({
+    "arifos_list_resources": CapabilityTarget("engineering_memory", "query", "fallback"),
+    "arifos_read_resource": CapabilityTarget("engineering_memory", "query", "fallback"),
+    "get_caller_status": CapabilityTarget("arifOS_kernel", "status", "fallback"),
+    "init_anchor_state": CapabilityTarget("init_anchor", "init", "fallback"),
+    "list_resources": CapabilityTarget("engineering_memory", "query", "fallback"),
+    "metabolic_loop_router": CapabilityTarget("arifOS_kernel", "kernel", "fallback"),
+    "read_resource": CapabilityTarget("engineering_memory", "query", "fallback"),
+    "register_tools": CapabilityTarget("arifOS_kernel", "kernel", "fallback"),
+    "revoke_anchor_state": CapabilityTarget("init_anchor", "revoke", "fallback"),
+})
