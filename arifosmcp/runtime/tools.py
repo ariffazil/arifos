@@ -126,18 +126,15 @@ async def init_anchor(
     risk_tier: str = "low",
     dry_run: bool = True,
     allow_execution: bool = False,
-    caller_context: dict | None = None,
+    caller_context: dict[str, Any] | None = None,
     auth_context: dict | None = None,
     debug: bool = False,
     request_id: str | None = None,
     timestamp: str | None = None,
     raw_input: str | None = None,
-    ctx: Any | None = None,
-    # Normalization contract: extended canonical ingress fields
-    raw_input: str | None = None,
-    caller_context: dict[str, Any] | None = None,
     pns_shield: Any | None = None,
     proof: str | None = None,
+    ctx: Any | None = None,
 ) -> RuntimeEnvelope:
     # P0: Unified ABI Adapter (Hardened) — tolerant ingress normalization
     payload = dict(payload or {})
