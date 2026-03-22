@@ -22,7 +22,7 @@
   ],
   "remotes": [
     {
-      "transportType": "streamable-http",
+      "type": "streamable-http",
       "url": "https://arifosmcp.arif-fazil.com/mcp"
     }
   ]
