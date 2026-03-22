@@ -74,7 +74,7 @@ def _build_mega_schema(
     """Helper to build the unified request envelope schema for a mega-tool."""
     return {
         "type": "object",
-        "additionalProperties": False,
+        "additionalProperties": True,
         "required": ["mode", "payload"],
         "properties": {
             "mode": {
@@ -87,7 +87,7 @@ def _build_mega_schema(
                 "description": "Mode-specific payload.",
                 "required": required_payload or [],
                 "properties": payload_properties,
-                "additionalProperties": False,
+                "additionalProperties": True,
             },
             "auth_context": {
                 "type": ["object", "null"],
@@ -343,12 +343,12 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
         stage="111_SENSE",
         role="Environmental Grounding",
         layer="MACHINE",
-        description="111_SENSE: Earth-Witness fact acquisition and mapping. Modes: 'search', 'ingest', 'compass', 'atlas'.",
+        description="111_SENSE: Earth-Witness fact acquisition and mapping. Modes: 'search', 'ingest', 'compass', 'atlas', 'time' (temporal intelligence — current UTC+KL datetime, weekday, quarter).",
         trinity="DELTA Δ",
         floors=("F2", "F3"),
         input_schema=_build_mega_schema(
             "physics_reality",
-            ["search", "ingest", "compass", "atlas"],
+            ["search", "ingest", "compass", "atlas", "time"],
             {
                 "input": {"type": "string"},
                 "operation": {"type": "string"},

@@ -670,19 +670,34 @@ WELCOME_HTML = """\
 
     <div class="status-grid">
       <div class="status-card">
-        <h4>Governance Status</h4>
+        <h4>Server Status</h4>
+        <div class="value" id="live-status">Checking...</div>
+        <div class="indicator" style="color:var(--green)"><span class="dot live"></span>Live from /health</div>
+      </div>
+      <div class="status-card">
+        <h4>Version</h4>
+        <div class="value" id="live-version">—</div>
+        <div class="indicator" style="color:var(--green)"><span class="dot live"></span>Running version</div>
+      </div>
+      <div class="status-card">
+        <h4>Surface Area</h4>
+        <div class="value" id="live-tools">—</div>
+        <div class="indicator" style="color:var(--green)"><span class="dot live"></span><span id="sbert-status">ML Floors Active</span></div>
+      </div>
+      <div class="status-card">
+        <h4>Governance</h4>
         <div class="value">13 Floors Active</div>
         <div class="indicator" style="color:var(--green)"><span class="dot live"></span>Real-time enforcement</div>
       </div>
       <div class="status-card">
-        <h4>Surface Area</h4>
-        <div class="value">11 Mega-Tools</div>
-        <div class="indicator" style="color:var(--green)"><span class="dot live"></span>Unified MGI Surface</div>
-      </div>
-      <div class="status-card">
         <h4>Dashboard</h4>
         <div class="value"><a href="/dashboard" style="color:var(--blue)">Open ↗</a></div>
-        <div class="indicator" style="color:var(--orange)"><span class="dot"></span>Some metrics simulated</div>
+        <div class="indicator" style="color:var(--orange)"><span class="dot"></span>Live governance telemetry</div>
+      </div>
+      <div class="status-card">
+        <h4>MCP Endpoint</h4>
+        <div class="value" style="font-size:0.75rem;color:var(--blue)">/mcp</div>
+        <div class="indicator" style="color:var(--green)"><span class="dot live"></span>streamable-http</div>
       </div>
     </div>
 
@@ -771,6 +786,25 @@ Payload: { "jsonrpc": "2.0", "method": "tools/list", "params": {}, "id": 1 }</co
         desc.style.webkitLineClamp = 'unset';
       }
     }
+    // Live health fetch
+    (function() {
+      fetch('/health')
+        .then(r => r.json())
+        .then(d => {
+          var s = d.status || 'healthy';
+          document.getElementById('live-status').textContent = s.toUpperCase();
+          document.getElementById('live-status').style.color = s === 'healthy' ? 'var(--green)' : 'var(--orange)';
+          document.getElementById('live-version').textContent = d.version || '—';
+          document.getElementById('live-tools').textContent = (d.tools_loaded || '—') + ' Tools';
+          if (d.ml_floors && d.ml_floors.ml_floors_enabled) {
+            document.getElementById('sbert-status').textContent = 'SBERT ML Active';
+          }
+        })
+        .catch(function() {
+          document.getElementById('live-status').textContent = 'DEGRADED';
+          document.getElementById('live-status').style.color = 'var(--orange)';
+        });
+    })();
   </script>
 </body>
 </html>
