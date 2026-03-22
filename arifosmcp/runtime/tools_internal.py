@@ -746,6 +746,39 @@ async def physics_reality_dispatch_impl(mode: str, payload: dict, auth_context: 
     elif mode == "atlas":
         payload_atlas = {"operation": payload.get("operation", "merge")}
         return await _wrap_call("reality_atlas", Stage.REALITY_222, session_id, payload_atlas, ctx)
+    elif mode == "time":
+        # Temporal intelligence — current date/time awareness
+        from datetime import datetime, timezone
+        now_utc = datetime.now(timezone.utc)
+        # Malaysia timezone offset +08:00
+        from datetime import timedelta
+        kl_offset = timezone(timedelta(hours=8))
+        now_kl = now_utc.astimezone(kl_offset)
+        return RuntimeEnvelope(
+            ok=True,
+            tool="physics_reality",
+            session_id=session_id,
+            stage="111_SENSE",
+            verdict=Verdict.SEAL,
+            status=RuntimeStatus.SUCCESS,
+            payload={
+                "temporal": {
+                    "utc_iso": now_utc.isoformat(),
+                    "utc_unix": int(now_utc.timestamp()),
+                    "utc_date": now_utc.strftime("%Y-%m-%d"),
+                    "utc_time": now_utc.strftime("%H:%M:%S"),
+                    "kl_iso": now_kl.isoformat(),
+                    "kl_date": now_kl.strftime("%Y-%m-%d"),
+                    "kl_time": now_kl.strftime("%H:%M:%S"),
+                    "kl_timezone": "Asia/Kuala_Lumpur (UTC+08:00)",
+                    "day_of_week": now_utc.strftime("%A"),
+                    "week_of_year": now_utc.isocalendar()[1],
+                    "quarter": (now_utc.month - 1) // 3 + 1,
+                },
+                "sovereignty_epoch": "888",
+                "forge_date": "2026-03-22",
+            },
+        )
     raise ValueError(f"Invalid mode for physics_reality: {mode}")
 
 async def math_estimator_dispatch_impl(mode: str, payload: dict, auth_context: dict | None, risk_tier: str, dry_run: bool, ctx: Context) -> RuntimeEnvelope:
