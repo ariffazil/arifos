@@ -141,11 +141,14 @@ async def init_anchor(
         if mode is None: mode = "init" if "init_anchor" == "init_anchor" else "init_anchor"
         res = await HARDENED_DISPATCH_MAP["init_anchor"](mode=mode, payload=payload)
         # Wrap in envelope if not already (legacy compatibility)
-        if isinstance(res, dict) and "ok" in res:
+        if isinstance(res, dict):
             from arifosmcp.runtime.models import RuntimeEnvelope, RuntimeStatus, Verdict
+            ok = res.get("ok", res.get("status") not in ("HOLD", "ERROR", "VOID", None))
             return RuntimeEnvelope(
-                status=RuntimeStatus.SUCCESS if res.get("ok") else RuntimeStatus.ERROR,
-                verdict=Verdict.SEAL if res.get("ok") else Verdict.VOID,
+                tool=res.get("tool", "unknown"),
+                stage=res.get("stage", "444_ROUTER"),
+                status=RuntimeStatus.SUCCESS if ok else RuntimeStatus.ERROR,
+                verdict=Verdict.SEAL if ok else Verdict.VOID,
                 payload=res
             )
         return res
@@ -204,11 +207,14 @@ async def arifOS_kernel(
         if mode is None: mode = "init" if "arifOS_kernel" == "init_anchor" else "arifOS_kernel"
         res = await HARDENED_DISPATCH_MAP["arifOS_kernel"](mode=mode, payload=payload)
         # Wrap in envelope if not already (legacy compatibility)
-        if isinstance(res, dict) and "ok" in res:
+        if isinstance(res, dict):
             from arifosmcp.runtime.models import RuntimeEnvelope, RuntimeStatus, Verdict
+            ok = res.get("ok", res.get("status") not in ("HOLD", "ERROR", "VOID", None))
             return RuntimeEnvelope(
-                status=RuntimeStatus.SUCCESS if res.get("ok") else RuntimeStatus.ERROR,
-                verdict=Verdict.SEAL if res.get("ok") else Verdict.VOID,
+                tool=res.get("tool", "unknown"),
+                stage=res.get("stage", "444_ROUTER"),
+                status=RuntimeStatus.SUCCESS if ok else RuntimeStatus.ERROR,
+                verdict=Verdict.SEAL if ok else Verdict.VOID,
                 payload=res
             )
         return res
@@ -262,11 +268,14 @@ async def apex_soul(
         if mode is None: mode = "init" if "apex_soul" == "init_anchor" else "apex_soul"
         res = await HARDENED_DISPATCH_MAP["apex_soul"](mode=mode, payload=payload)
         # Wrap in envelope if not already (legacy compatibility)
-        if isinstance(res, dict) and "ok" in res:
+        if isinstance(res, dict):
             from arifosmcp.runtime.models import RuntimeEnvelope, RuntimeStatus, Verdict
+            ok = res.get("ok", res.get("status") not in ("HOLD", "ERROR", "VOID", None))
             return RuntimeEnvelope(
-                status=RuntimeStatus.SUCCESS if res.get("ok") else RuntimeStatus.ERROR,
-                verdict=Verdict.SEAL if res.get("ok") else Verdict.VOID,
+                tool=res.get("tool", "unknown"),
+                stage=res.get("stage", "444_ROUTER"),
+                status=RuntimeStatus.SUCCESS if ok else RuntimeStatus.ERROR,
+                verdict=Verdict.SEAL if ok else Verdict.VOID,
                 payload=res
             )
         return res
@@ -306,11 +315,14 @@ async def vault_ledger(
         if mode is None: mode = "init" if "vault_ledger" == "init_anchor" else "vault_ledger"
         res = await HARDENED_DISPATCH_MAP["vault_ledger"](mode=mode, payload=payload)
         # Wrap in envelope if not already (legacy compatibility)
-        if isinstance(res, dict) and "ok" in res:
+        if isinstance(res, dict):
             from arifosmcp.runtime.models import RuntimeEnvelope, RuntimeStatus, Verdict
+            ok = res.get("ok", res.get("status") not in ("HOLD", "ERROR", "VOID", None))
             return RuntimeEnvelope(
-                status=RuntimeStatus.SUCCESS if res.get("ok") else RuntimeStatus.ERROR,
-                verdict=Verdict.SEAL if res.get("ok") else Verdict.VOID,
+                tool=res.get("tool", "unknown"),
+                stage=res.get("stage", "444_ROUTER"),
+                status=RuntimeStatus.SUCCESS if ok else RuntimeStatus.ERROR,
+                verdict=Verdict.SEAL if ok else Verdict.VOID,
                 payload=res
             )
         return res
@@ -350,11 +362,14 @@ async def agi_mind(
         if mode is None: mode = "init" if "agi_mind" == "init_anchor" else "agi_mind"
         res = await HARDENED_DISPATCH_MAP["agi_mind"](mode=mode, payload=payload)
         # Wrap in envelope if not already (legacy compatibility)
-        if isinstance(res, dict) and "ok" in res:
+        if isinstance(res, dict):
             from arifosmcp.runtime.models import RuntimeEnvelope, RuntimeStatus, Verdict
+            ok = res.get("ok", res.get("status") not in ("HOLD", "ERROR", "VOID", None))
             return RuntimeEnvelope(
-                status=RuntimeStatus.SUCCESS if res.get("ok") else RuntimeStatus.ERROR,
-                verdict=Verdict.SEAL if res.get("ok") else Verdict.VOID,
+                tool=res.get("tool", "unknown"),
+                stage=res.get("stage", "444_ROUTER"),
+                status=RuntimeStatus.SUCCESS if ok else RuntimeStatus.ERROR,
+                verdict=Verdict.SEAL if ok else Verdict.VOID,
                 payload=res
             )
         return res
@@ -394,11 +409,14 @@ async def asi_heart(
         if mode is None: mode = "init" if "asi_heart" == "init_anchor" else "asi_heart"
         res = await HARDENED_DISPATCH_MAP["asi_heart"](mode=mode, payload=payload)
         # Wrap in envelope if not already (legacy compatibility)
-        if isinstance(res, dict) and "ok" in res:
+        if isinstance(res, dict):
             from arifosmcp.runtime.models import RuntimeEnvelope, RuntimeStatus, Verdict
+            ok = res.get("ok", res.get("status") not in ("HOLD", "ERROR", "VOID", None))
             return RuntimeEnvelope(
-                status=RuntimeStatus.SUCCESS if res.get("ok") else RuntimeStatus.ERROR,
-                verdict=Verdict.SEAL if res.get("ok") else Verdict.VOID,
+                tool=res.get("tool", "unknown"),
+                stage=res.get("stage", "444_ROUTER"),
+                status=RuntimeStatus.SUCCESS if ok else RuntimeStatus.ERROR,
+                verdict=Verdict.SEAL if ok else Verdict.VOID,
                 payload=res
             )
         return res
@@ -438,11 +456,14 @@ async def engineering_memory(
         if mode is None: mode = "init" if "engineering_memory" == "init_anchor" else "engineering_memory"
         res = await HARDENED_DISPATCH_MAP["engineering_memory"](mode=mode, payload=payload)
         # Wrap in envelope if not already (legacy compatibility)
-        if isinstance(res, dict) and "ok" in res:
+        if isinstance(res, dict):
             from arifosmcp.runtime.models import RuntimeEnvelope, RuntimeStatus, Verdict
+            ok = res.get("ok", res.get("status") not in ("HOLD", "ERROR", "VOID", None))
             return RuntimeEnvelope(
-                status=RuntimeStatus.SUCCESS if res.get("ok") else RuntimeStatus.ERROR,
-                verdict=Verdict.SEAL if res.get("ok") else Verdict.VOID,
+                tool=res.get("tool", "unknown"),
+                stage=res.get("stage", "444_ROUTER"),
+                status=RuntimeStatus.SUCCESS if ok else RuntimeStatus.ERROR,
+                verdict=Verdict.SEAL if ok else Verdict.VOID,
                 payload=res
             )
         return res
@@ -485,6 +506,8 @@ async def physics_reality(
         if isinstance(res, dict) and "ok" in res:
             from arifosmcp.runtime.models import RuntimeEnvelope, RuntimeStatus, Verdict
             return RuntimeEnvelope(
+                tool=res.get("tool", "physics_reality"),
+                stage=res.get("stage", "111_SENSE"),
                 status=RuntimeStatus.SUCCESS if res.get("ok") else RuntimeStatus.ERROR,
                 verdict=Verdict.SEAL if res.get("ok") else Verdict.VOID,
                 payload=res
@@ -526,11 +549,14 @@ async def math_estimator(
         if mode is None: mode = "init" if "math_estimator" == "init_anchor" else "math_estimator"
         res = await HARDENED_DISPATCH_MAP["math_estimator"](mode=mode, payload=payload)
         # Wrap in envelope if not already (legacy compatibility)
-        if isinstance(res, dict) and "ok" in res:
+        if isinstance(res, dict):
             from arifosmcp.runtime.models import RuntimeEnvelope, RuntimeStatus, Verdict
+            ok = res.get("ok", res.get("status") not in ("HOLD", "ERROR", "VOID", None))
             return RuntimeEnvelope(
-                status=RuntimeStatus.SUCCESS if res.get("ok") else RuntimeStatus.ERROR,
-                verdict=Verdict.SEAL if res.get("ok") else Verdict.VOID,
+                tool=res.get("tool", "unknown"),
+                stage=res.get("stage", "444_ROUTER"),
+                status=RuntimeStatus.SUCCESS if ok else RuntimeStatus.ERROR,
+                verdict=Verdict.SEAL if ok else Verdict.VOID,
                 payload=res
             )
         return res
@@ -570,11 +596,14 @@ async def code_engine(
         if mode is None: mode = "init" if "code_engine" == "init_anchor" else "code_engine"
         res = await HARDENED_DISPATCH_MAP["code_engine"](mode=mode, payload=payload)
         # Wrap in envelope if not already (legacy compatibility)
-        if isinstance(res, dict) and "ok" in res:
+        if isinstance(res, dict):
             from arifosmcp.runtime.models import RuntimeEnvelope, RuntimeStatus, Verdict
+            ok = res.get("ok", res.get("status") not in ("HOLD", "ERROR", "VOID", None))
             return RuntimeEnvelope(
-                status=RuntimeStatus.SUCCESS if res.get("ok") else RuntimeStatus.ERROR,
-                verdict=Verdict.SEAL if res.get("ok") else Verdict.VOID,
+                tool=res.get("tool", "unknown"),
+                stage=res.get("stage", "444_ROUTER"),
+                status=RuntimeStatus.SUCCESS if ok else RuntimeStatus.ERROR,
+                verdict=Verdict.SEAL if ok else Verdict.VOID,
                 payload=res
             )
         return res
@@ -614,11 +643,14 @@ async def architect_registry(
         if mode is None: mode = "init" if "architect_registry" == "init_anchor" else "architect_registry"
         res = await HARDENED_DISPATCH_MAP["architect_registry"](mode=mode, payload=payload)
         # Wrap in envelope if not already (legacy compatibility)
-        if isinstance(res, dict) and "ok" in res:
+        if isinstance(res, dict):
             from arifosmcp.runtime.models import RuntimeEnvelope, RuntimeStatus, Verdict
+            ok = res.get("ok", res.get("status") not in ("HOLD", "ERROR", "VOID", None))
             return RuntimeEnvelope(
-                status=RuntimeStatus.SUCCESS if res.get("ok") else RuntimeStatus.ERROR,
-                verdict=Verdict.SEAL if res.get("ok") else Verdict.VOID,
+                tool=res.get("tool", "unknown"),
+                stage=res.get("stage", "444_ROUTER"),
+                status=RuntimeStatus.SUCCESS if ok else RuntimeStatus.ERROR,
+                verdict=Verdict.SEAL if ok else Verdict.VOID,
                 payload=res
             )
         return res
