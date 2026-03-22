@@ -33,16 +33,41 @@ vault_seal_tool = HardenedVaultSeal()
 
 async def hardened_init_anchor_dispatch(mode: str, payload: dict[str, Any], **kwargs) -> dict[str, Any]:
     if mode == "init":
+        # Extract raw_input from top-level or nested intent/query fields
+        raw_input = (
+            payload.get("raw_input")
+            or payload.get("query")
+            or (payload.get("intent", {}).get("query") if isinstance(payload.get("intent"), dict) else None)
+        )
         envelope = await init_anchor_tool.init(
-            query=payload.get("query") or (payload.get("intent", {}).get("query") if isinstance(payload.get("intent"), dict) else payload.get("intent")),
+            # Identity
             declared_name=payload.get("declared_name") or payload.get("actor_id"),
+            actor_id=payload.get("actor_id"),
+            # Intent sources (normalization contract: intent > query > raw_input)
             intent=payload.get("intent"),
-            human_approval=payload.get("human_approval", False)
+            query=payload.get("query"),
+            raw_input=raw_input,
+            # Auth and approval
+            auth_context=payload.get("auth_context"),
+            human_approval=payload.get("human_approval", False),
+            proof=payload.get("proof"),
+            # Scope and risk
+            requested_scope=payload.get("requested_scope"),
+            risk_tier=payload.get("risk_tier", "low"),
+            session_class=payload.get("session_class", "execute"),
+            # Session
+            session_id=payload.get("session_id"),
+            # Advisory context (never sovereign)
+            caller_context=payload.get("caller_context"),
+            pns_shield=payload.get("pns_shield"),
         )
     elif mode == "state":
         envelope = await init_anchor_tool.state(session_id=payload.get("session_id"))
     elif mode == "revoke":
-        envelope = await init_anchor_tool.revoke(session_id=payload.get("session_id"))
+        envelope = await init_anchor_tool.revoke(
+            session_id=payload.get("session_id") or "unknown",
+            reason=payload.get("reason", "User requested revocation"),
+        )
     else:
         return {"ok": False, "error": f"Invalid mode for init_anchor: {mode}"}
     return envelope.to_dict()

@@ -27,35 +27,52 @@ from arifosmcp.runtime.tools_hardened_v2 import (
 
 class TestFailClosedDefaults:
     """Verify tools fail closed when required fields missing."""
-    
+
     @pytest.mark.asyncio
-    async def test_init_anchor_fails_closed_without_auth(self):
-        """init_anchor should HOLD without auth_context."""
+    async def test_init_anchor_voids_without_any_intent(self):
+        """init_anchor should VOID if no intent/query/raw_input and no name fallback."""
         tool = HardenedInitAnchor()
         result = await tool.init(
-            declared_name="anonymous",
+            declared_name="anonymous",  # no fallback derivation for anonymous
             risk_tier="medium",
             session_id="test-001",
-            auth_context=None,  # Missing!
+            auth_context=None,
+            # No intent, query, or raw_input provided
         )
-        
-        assert result.status == ToolStatus.HOLD
-        assert "auth_context required" in result.warnings[0]
-        assert result.requires_human is True
-    
+        # New behavior: VOID because minimum intent is missing
+        assert result.status == ToolStatus.VOID
+        assert "missing minimum" in result.payload.get("void_reason", "").lower()
+
     @pytest.mark.asyncio
-    async def test_init_anchor_fails_closed_without_session_id(self):
-        """init_anchor should HOLD without session_id."""
+    async def test_init_anchor_defers_privileged_without_auth(self):
+        """init_anchor should HOLD (deferred) for privileged scope without auth."""
+        tool = HardenedInitAnchor()
+        result = await tool.init(
+            declared_name="user",
+            risk_tier="high",
+            session_id="test-001a",
+            auth_context=None,  # Missing for privileged!
+            query="run production deployment",
+        )
+        # New behavior: HOLD because high-risk requires auth_context
+        assert result.status == ToolStatus.HOLD
+        assert result.requires_human is True
+
+    @pytest.mark.asyncio
+    async def test_init_anchor_auto_mints_session_id(self):
+        """init_anchor should auto-mint session_id when absent (tolerant ingress)."""
         tool = HardenedInitAnchor()
         result = await tool.init(
             declared_name="anonymous",
-            risk_tier="medium",
-            session_id=None,  # Missing!
+            risk_tier="low",
+            session_id=None,  # Absent — should be auto-minted
             auth_context={"actor_id": "test"},
         )
-        
-        assert result.status == ToolStatus.HOLD
-        assert "session_id required" in result.warnings[0]
+        # New behavior: OK with auto-minted session, not HOLD
+        assert result.status == ToolStatus.OK
+        assert result.session_id is not None
+        assert result.session_id.startswith("sess-")
+        assert "session_id" in " ".join(result.payload.get("normalization", {}).get("derived_fields", []))
     
     @pytest.mark.asyncio
     async def test_reality_compass_fails_closed(self):
