@@ -17,7 +17,7 @@ import mcp.types as mt
 logger = logging.getLogger(__name__)
 
 try:
-    from arifosmcp.runtime.metrics import REQUESTS_TOTAL, METABOLIC_LOOP_DURATION
+    from arifosmcp.runtime.metrics import REQUESTS_TOTAL, METABOLIC_LOOP_DURATION, SABAR_EVENTS
     _METRICS_AVAILABLE = True
 except Exception:
     _METRICS_AVAILABLE = False
