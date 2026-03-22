@@ -9,3 +9,4 @@
 {"ts":"2026-03-12T13:19:17Z","event":"health_probe","source":"heartbeat","arifos_tools":8,"disk_pct":"44%","ram_avail_mb":12959,"agent":"arifOS_bot"}
 {"ts":"2026-03-13T17:23:41Z","event":"health_probe","agent":"arifOS_bot"}
 {"ts":"2026-03-13T17:24:06Z","event":"governance_refresh","source":"heartbeat","agent":"arifOS_bot"}
+{"ts":"2026-03-21T17:02:12Z","event":"backup_skipped","reason":"no_changes","agent":"arifOS_bot"}
