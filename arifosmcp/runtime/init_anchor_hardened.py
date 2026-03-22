@@ -529,6 +529,20 @@ class HardenedInitAnchor:
                     f"{', '.join(missing_requirements)}"
                 ),
                 trace=trace,
+                missing_requirements=missing_requirements,
+                next_allowed_tools=["init_anchor"],
+                claimed_actor_id=declared_name_norm,
+                suggested_canonical_call={
+                    "tool": "init_anchor",
+                    "mode": "init",
+                    "payload": {
+                        "actor_id": declared_name_norm,
+                        "intent": effective_intent[:100] if effective_intent else "",
+                        "auth_context": "<provide signed auth_context here>",
+                        "risk_tier": risk_tier,
+                    },
+                    "note": "Provide auth_context to unlock privileged or sovereign workflows.",
+                },
             )
 
         # ── STEP 14: Create signed challenge ──
@@ -649,6 +663,17 @@ class HardenedInitAnchor:
                 "provenance": provenance.to_dict(),
                 "degradation_ready": True,
                 # ── Normalization report (contract Section 10) ──
+                "identity": {
+                    "claimed_actor_id": declared_name_norm,
+                    "verified_actor_id": (
+                        auth_context.get("actor_id") if auth_context and isinstance(auth_context, dict) else None
+                    ),
+                    "auth_state": "verified" if auth_context else "claimed_only",
+                    "note": (
+                        "Identity verified via auth_context." if auth_context
+                        else "Claimed identity accepted for low-risk session. Not treated as authority."
+                    ),
+                },
                 "normalization": {
                     "status": "created",
                     "accepted_fields": accepted_fields,
@@ -660,6 +685,14 @@ class HardenedInitAnchor:
                         "Anchor created. Low-risk session initialized without full auth."
                         if not auth_context else
                         "Anchor created with authenticated context."
+                    ),
+                },
+                "continuation": {
+                    "session_id": session_id,
+                    "next_allowed_tools": self._get_next_tools(sclass),
+                    "guidance": (
+                        "Session initialized. Use arifOS_kernel for governed reasoning, "
+                        "or provide auth_context to init_anchor to unlock privileged workflows."
                     ),
                 },
             },

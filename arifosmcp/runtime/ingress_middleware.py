@@ -22,6 +22,72 @@ MEGA_TOOLS = {
     "math_estimator", "code_engine", "architect_registry",
 }
 
+# Mode synonym normalization: obvious variants → canonical mode names
+# Principle: never reject what we can obviously understand
+MODE_SYNONYMS: dict[str, dict[str, str]] = {
+    "agi_mind": {
+        "think": "reason", "analyze": "reason", "analyse": "reason",
+        "ask": "reason", "query": "reason", "recommend": "reason",
+        "ponder": "reason", "evaluate": "reason", "assess": "reason",
+        "reflect_on": "reflect", "mirror": "reflect",
+        "build": "forge", "create": "forge", "generate": "forge",
+    },
+    "asi_heart": {
+        "check": "critique", "review": "critique", "audit": "critique",
+        "test": "critique", "validate": "critique",
+        "model": "simulate", "project": "simulate", "predict": "simulate",
+    },
+    "physics_reality": {
+        "find": "search", "lookup": "search", "look_up": "search",
+        "fetch": "ingest", "load": "ingest", "import": "ingest",
+        "navigate": "compass", "explore": "compass", "map": "atlas",
+        "now": "time", "datetime": "time", "date": "time", "clock": "time",
+    },
+    "arifOS_kernel": {
+        "run": "kernel", "execute": "kernel", "process": "kernel",
+        "think": "kernel", "reason": "kernel",
+        "health": "status", "ping": "status", "check": "status",
+    },
+    "init_anchor": {
+        "start": "init", "begin": "init", "login": "init", "connect": "init",
+        "check": "state", "info": "state", "whoami": "state",
+        "logout": "revoke", "disconnect": "revoke", "end": "revoke",
+        "renew": "refresh", "extend": "refresh", "update": "refresh",
+    },
+    "apex_soul": {
+        "check": "validate", "review": "validate", "audit": "judge",
+        "block": "hold", "pause": "hold", "freeze": "hold",
+        "test": "probe", "ping": "probe",
+    },
+    "vault_ledger": {
+        "save": "seal", "store": "seal", "commit": "seal", "record": "seal",
+        "check": "verify", "validate": "verify", "confirm": "verify",
+    },
+    "engineering_memory": {
+        "build": "engineer", "do": "engineer", "run": "engineer",
+        "search": "vector_query", "find": "vector_query", "recall": "vector_query",
+        "remember": "vector_store", "save": "vector_store", "store": "vector_store",
+        "forget": "vector_forget", "delete": "vector_forget", "remove": "vector_forget",
+        "write": "generate", "draft": "generate", "make": "generate",
+    },
+    "code_engine": {
+        "files": "fs", "list": "fs", "dir": "fs",
+        "ps": "process", "tasks": "process", "jobs": "process",
+        "network": "net", "connections": "net",
+        "logs": "tail", "log": "tail",
+    },
+    "math_estimator": {
+        "price": "cost", "estimate": "cost", "budget": "cost",
+        "status": "health", "check": "health",
+        "metrics": "vitals", "stats": "vitals",
+    },
+    "architect_registry": {
+        "add": "register", "create": "register",
+        "show": "list", "ls": "list", "all": "list",
+        "get": "read", "fetch": "read", "load": "read",
+    },
+}
+
 
 class IngressToleranceMiddleware(Middleware):
     """
@@ -48,6 +114,19 @@ class IngressToleranceMiddleware(Middleware):
         tool_name = msg.name
 
         if tool_name in MEGA_TOOLS and msg.arguments:
+            # 1. Mode synonym normalization: "recommend" → "reason", etc.
+            if "mode" in msg.arguments:
+                synonyms = MODE_SYNONYMS.get(tool_name, {})
+                raw_mode = str(msg.arguments["mode"]).lower().strip()
+                canonical = synonyms.get(raw_mode)
+                if canonical:
+                    logger.debug(
+                        "Ingress: normalizing mode '%s' → '%s' for tool '%s'",
+                        raw_mode, canonical, tool_name,
+                    )
+                    msg.arguments["mode"] = canonical
+
+            # 2. Unknown field absorption: strip fields Pydantic doesn't know about
             known = self._tool_param_sets.get(tool_name)
             if known:
                 unknown = {k for k in msg.arguments if k not in known}
