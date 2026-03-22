@@ -58,6 +58,30 @@ async def hardened_physics_reality_dispatch(mode: str, payload: dict[str, Any], 
             session_id=payload.get("session_id"),
             evidence_bundles=payload.get("evidence_bundles", [])
         )
+    elif mode == "time":
+        from datetime import datetime, timezone, timedelta
+        now_utc = datetime.now(timezone.utc)
+        kl_offset = timezone(timedelta(hours=8))
+        now_kl = now_utc.astimezone(kl_offset)
+        return {
+            "ok": True,
+            "tool": "physics_reality",
+            "stage": "111_SENSE",
+            "temporal": {
+                "utc_iso": now_utc.isoformat(),
+                "utc_unix": int(now_utc.timestamp()),
+                "utc_date": now_utc.strftime("%Y-%m-%d"),
+                "utc_time": now_utc.strftime("%H:%M:%S"),
+                "kl_iso": now_kl.isoformat(),
+                "kl_date": now_kl.strftime("%Y-%m-%d"),
+                "kl_time": now_kl.strftime("%H:%M:%S"),
+                "kl_timezone": "Asia/Kuala_Lumpur (UTC+08:00)",
+                "day_of_week": now_utc.strftime("%A"),
+                "week_of_year": now_utc.isocalendar()[1],
+                "quarter": (now_utc.month - 1) // 3 + 1,
+            },
+            "sovereignty_epoch": "888",
+        }
     else:
         return {"ok": False, "error": f"Invalid mode for physics_reality: {mode}"}
     return envelope.to_dict()
@@ -107,8 +131,8 @@ async def hardened_apex_soul_dispatch(mode: str, payload: dict[str, Any], **kwar
 async def hardened_vault_ledger_dispatch(mode: str, payload: dict[str, Any], **kwargs) -> dict[str, Any]:
     if mode in ("seal", "verify"):
         envelope = await vault_seal_tool.seal(
+            decision={"verdict": payload.get("verdict"), "evidence": payload.get("evidence")},
             session_id=payload.get("session_id"),
-            verdict=payload.get("verdict"),
             seal_class=payload.get("seal_class", "operational")
         )
     else:
