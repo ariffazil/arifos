@@ -258,6 +258,50 @@ class ToolEnvelope:
             payload={"void_reason": reason},
         )
 
+    @classmethod
+    def sabar(
+        cls,
+        tool: str,
+        session_id: str,
+        reason: str,
+        trace: TraceContext | None = None,
+        retry_after_seconds: int = 30,
+        cooling_cause: str | None = None,
+    ) -> "ToolEnvelope":
+        """
+        Factory for SABAR state — non-terminal cooling/retry.
+
+        SABAR means: unstable but not failed. The system needs to cool before
+        retrying. It is NOT HOLD (which waits for human). It is NOT VOID (which
+        rejects permanently). SABAR says: wait, then try again.
+
+        Semantics:
+          - retry_after_seconds: caller should wait this long before retrying
+          - cooling_cause: why the system is cooling (ambiguity, contradiction, load)
+          - requires_human: False — human input not required, just time
+        """
+        payload: dict = {
+            "sabar_reason": reason,
+            "retry_after_seconds": retry_after_seconds,
+            "cooling_cause": cooling_cause or "ambiguity_or_instability",
+            "guidance": (
+                f"System is cooling. Retry after {retry_after_seconds}s. "
+                "No human input required — this is a temporary thermodynamic state."
+            ),
+        }
+        return cls(
+            status=ToolStatus.SABAR,
+            tool=tool,
+            session_id=session_id,
+            risk_tier=RiskTier.MEDIUM,
+            confidence=0.0,
+            human_decision=HumanDecisionMarker.MACHINE_RECOMMENDATION_ONLY,
+            requires_human=False,
+            trace=trace,
+            warnings=[f"SABAR: {reason}"],
+            payload=payload,
+        )
+
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # 2. FAIL-CLOSED DEFAULTS — Validation Functions
