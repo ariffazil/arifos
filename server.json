@@ -9,17 +9,6 @@
     "url": "https://github.com/ariffazil/arifosmcp",
     "source": "github"
   },
-  "packages": [
-    {
-      "registryType": "pypi",
-      "identifier": "arifosmcp",
-      "version": "2026.03.22",
-      "transport": {
-        "type": "streamable-http",
-        "url": "https://arifosmcp.arif-fazil.com/mcp"
-      }
-    }
-  ],
   "remotes": [
     {
       "type": "streamable-http",
