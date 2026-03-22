@@ -1,3 +1,4 @@
+from arifosmcp.runtime.tools_hardened_dispatch import HARDENED_DISPATCH_MAP
 from __future__ import annotations
 
 import asyncio
@@ -138,21 +139,44 @@ def _normalize_session_id(session_id: str | None) -> str:
 async def init_anchor(
     mode: str | None = None,
     payload: dict[str, Any] | None = None,
-    auth_context: dict[str, Any] | None = None,
-    risk_tier: str = "medium",
-    dry_run: bool = True,
+    query: str | None = None,
+    session_id: str | None = None,
     actor_id: str | None = None,
     declared_name: str | None = None,
-    intent: IntentType = None,
-    raw_input: str | None = None,
-    session_id: str | None = None,
+    intent: Any | None = None,
     human_approval: bool = False,
-    reason: str | None = None,
-    caller_context: CallerContext | None = None,
-    ctx: Context | None = None,
-    proof: str | dict[str, Any] | None = None,  # P0: Naming protocol support
-    pns_shield: dict[str, Any] | None = None,  # P0: F12 injection defense data from orchestrator
+    risk_tier: str = "medium",
+    dry_run: bool = True,
+    allow_execution: bool = False,
+    ctx: Any | None = None,
+    **kwargs: Any,
 ) -> RuntimeEnvelope:
+    # P0: Unified ABI Adapter (Hardened)
+    payload = dict(payload or {})
+    if kwargs:
+        for k, v in kwargs.items():
+            if v is not None: payload.setdefault(k, v)
+    if query: payload.setdefault("query", query)
+    if session_id: payload.setdefault("session_id", session_id)
+    if actor_id: payload.setdefault("actor_id", actor_id)
+    if intent: payload.setdefault("intent", intent)
+    if human_approval: payload.setdefault("human_approval", human_approval)
+    
+    # Hardened Dispatch
+    from arifosmcp.runtime.tools_hardened_dispatch import HARDENED_DISPATCH_MAP
+    if "init_anchor" in HARDENED_DISPATCH_MAP:
+        if mode is None: mode = "init" if "init_anchor" == "init_anchor" else "init_anchor"
+        res = await HARDENED_DISPATCH_MAP["init_anchor"](mode=mode, payload=payload)
+        # Wrap in envelope if not already (legacy compatibility)
+        if isinstance(res, dict) and "ok" in res:
+            from arifosmcp.runtime.models import RuntimeEnvelope, RuntimeStatus, Verdict
+            return RuntimeEnvelope(
+                status=RuntimeStatus.SUCCESS if res.get("ok") else RuntimeStatus.ERROR,
+                verdict=Verdict.SEAL if res.get("ok") else Verdict.VOID,
+                payload=res
+            )
+        return res
+
     # P0: Unification Dispatch — The Ignition State of Intelligence
     # Consolidates: init, state, status, revoke, refresh into ONE tool
     effective_mode = mode or (payload.get("mode") if payload else "init")
@@ -188,16 +212,44 @@ async def init_anchor(
 async def arifOS_kernel(
     mode: str | None = None,
     payload: dict[str, Any] | None = None,
-    auth_context: dict[str, Any] | None = None,
+    query: str | None = None,
+    session_id: str | None = None,
+    actor_id: str | None = None,
+    declared_name: str | None = None,
+    intent: Any | None = None,
+    human_approval: bool = False,
     risk_tier: str = "medium",
     dry_run: bool = True,
     allow_execution: bool = False,
-    query: str | None = None,
-    session_id: str | None = None,
-    caller_context: CallerContext | None = None,
-    ctx: Context | None = None,
-    intent: IntentType = None,
+    ctx: Any | None = None,
+    **kwargs: Any,
 ) -> RuntimeEnvelope:
+    # P0: Unified ABI Adapter (Hardened)
+    payload = dict(payload or {})
+    if kwargs:
+        for k, v in kwargs.items():
+            if v is not None: payload.setdefault(k, v)
+    if query: payload.setdefault("query", query)
+    if session_id: payload.setdefault("session_id", session_id)
+    if actor_id: payload.setdefault("actor_id", actor_id)
+    if intent: payload.setdefault("intent", intent)
+    if human_approval: payload.setdefault("human_approval", human_approval)
+    
+    # Hardened Dispatch
+    from arifosmcp.runtime.tools_hardened_dispatch import HARDENED_DISPATCH_MAP
+    if "arifOS_kernel" in HARDENED_DISPATCH_MAP:
+        if mode is None: mode = "init" if "arifOS_kernel" == "init_anchor" else "arifOS_kernel"
+        res = await HARDENED_DISPATCH_MAP["arifOS_kernel"](mode=mode, payload=payload)
+        # Wrap in envelope if not already (legacy compatibility)
+        if isinstance(res, dict) and "ok" in res:
+            from arifosmcp.runtime.models import RuntimeEnvelope, RuntimeStatus, Verdict
+            return RuntimeEnvelope(
+                status=RuntimeStatus.SUCCESS if res.get("ok") else RuntimeStatus.ERROR,
+                verdict=Verdict.SEAL if res.get("ok") else Verdict.VOID,
+                payload=res
+            )
+        return res
+
     del caller_context
     ctx = ctx or CurrentContext()
     if mode is None:
@@ -226,13 +278,46 @@ async def arifOS_kernel(
 
 
 async def apex_soul(
-    mode: str,
-    payload: dict[str, Any],
-    auth_context: dict[str, Any] | None = None,
+    mode: str | None = None,
+    payload: dict[str, Any] | None = None,
+    query: str | None = None,
+    session_id: str | None = None,
+    actor_id: str | None = None,
+    declared_name: str | None = None,
+    intent: Any | None = None,
+    human_approval: bool = False,
     risk_tier: str = "medium",
     dry_run: bool = True,
-    ctx: Context | None = None,
+    allow_execution: bool = False,
+    ctx: Any | None = None,
+    **kwargs: Any,
 ) -> RuntimeEnvelope:
+    # P0: Unified ABI Adapter (Hardened)
+    payload = dict(payload or {})
+    if kwargs:
+        for k, v in kwargs.items():
+            if v is not None: payload.setdefault(k, v)
+    if query: payload.setdefault("query", query)
+    if session_id: payload.setdefault("session_id", session_id)
+    if actor_id: payload.setdefault("actor_id", actor_id)
+    if intent: payload.setdefault("intent", intent)
+    if human_approval: payload.setdefault("human_approval", human_approval)
+    
+    # Hardened Dispatch
+    from arifosmcp.runtime.tools_hardened_dispatch import HARDENED_DISPATCH_MAP
+    if "apex_soul" in HARDENED_DISPATCH_MAP:
+        if mode is None: mode = "init" if "apex_soul" == "init_anchor" else "apex_soul"
+        res = await HARDENED_DISPATCH_MAP["apex_soul"](mode=mode, payload=payload)
+        # Wrap in envelope if not already (legacy compatibility)
+        if isinstance(res, dict) and "ok" in res:
+            from arifosmcp.runtime.models import RuntimeEnvelope, RuntimeStatus, Verdict
+            return RuntimeEnvelope(
+                status=RuntimeStatus.SUCCESS if res.get("ok") else RuntimeStatus.ERROR,
+                verdict=Verdict.SEAL if res.get("ok") else Verdict.VOID,
+                payload=res
+            )
+        return res
+
     resolved_payload = dict(payload or {})
     return await apex_soul_dispatch_impl(
         mode=mode,
@@ -245,13 +330,46 @@ async def apex_soul(
 
 
 async def vault_ledger(
-    mode: str,
-    payload: dict[str, Any],
-    auth_context: dict[str, Any] | None = None,
+    mode: str | None = None,
+    payload: dict[str, Any] | None = None,
+    query: str | None = None,
+    session_id: str | None = None,
+    actor_id: str | None = None,
+    declared_name: str | None = None,
+    intent: Any | None = None,
+    human_approval: bool = False,
     risk_tier: str = "medium",
     dry_run: bool = True,
-    ctx: Context | None = None,
+    allow_execution: bool = False,
+    ctx: Any | None = None,
+    **kwargs: Any,
 ) -> RuntimeEnvelope:
+    # P0: Unified ABI Adapter (Hardened)
+    payload = dict(payload or {})
+    if kwargs:
+        for k, v in kwargs.items():
+            if v is not None: payload.setdefault(k, v)
+    if query: payload.setdefault("query", query)
+    if session_id: payload.setdefault("session_id", session_id)
+    if actor_id: payload.setdefault("actor_id", actor_id)
+    if intent: payload.setdefault("intent", intent)
+    if human_approval: payload.setdefault("human_approval", human_approval)
+    
+    # Hardened Dispatch
+    from arifosmcp.runtime.tools_hardened_dispatch import HARDENED_DISPATCH_MAP
+    if "vault_ledger" in HARDENED_DISPATCH_MAP:
+        if mode is None: mode = "init" if "vault_ledger" == "init_anchor" else "vault_ledger"
+        res = await HARDENED_DISPATCH_MAP["vault_ledger"](mode=mode, payload=payload)
+        # Wrap in envelope if not already (legacy compatibility)
+        if isinstance(res, dict) and "ok" in res:
+            from arifosmcp.runtime.models import RuntimeEnvelope, RuntimeStatus, Verdict
+            return RuntimeEnvelope(
+                status=RuntimeStatus.SUCCESS if res.get("ok") else RuntimeStatus.ERROR,
+                verdict=Verdict.SEAL if res.get("ok") else Verdict.VOID,
+                payload=res
+            )
+        return res
+
     resolved_payload = dict(payload or {})
     return await vault_ledger_dispatch_impl(
         mode=mode,
@@ -264,13 +382,46 @@ async def vault_ledger(
 
 
 async def agi_mind(
-    mode: str,
-    payload: dict[str, Any],
-    auth_context: dict[str, Any] | None = None,
+    mode: str | None = None,
+    payload: dict[str, Any] | None = None,
+    query: str | None = None,
+    session_id: str | None = None,
+    actor_id: str | None = None,
+    declared_name: str | None = None,
+    intent: Any | None = None,
+    human_approval: bool = False,
     risk_tier: str = "medium",
     dry_run: bool = True,
-    ctx: Context | None = None,
+    allow_execution: bool = False,
+    ctx: Any | None = None,
+    **kwargs: Any,
 ) -> RuntimeEnvelope:
+    # P0: Unified ABI Adapter (Hardened)
+    payload = dict(payload or {})
+    if kwargs:
+        for k, v in kwargs.items():
+            if v is not None: payload.setdefault(k, v)
+    if query: payload.setdefault("query", query)
+    if session_id: payload.setdefault("session_id", session_id)
+    if actor_id: payload.setdefault("actor_id", actor_id)
+    if intent: payload.setdefault("intent", intent)
+    if human_approval: payload.setdefault("human_approval", human_approval)
+    
+    # Hardened Dispatch
+    from arifosmcp.runtime.tools_hardened_dispatch import HARDENED_DISPATCH_MAP
+    if "agi_mind" in HARDENED_DISPATCH_MAP:
+        if mode is None: mode = "init" if "agi_mind" == "init_anchor" else "agi_mind"
+        res = await HARDENED_DISPATCH_MAP["agi_mind"](mode=mode, payload=payload)
+        # Wrap in envelope if not already (legacy compatibility)
+        if isinstance(res, dict) and "ok" in res:
+            from arifosmcp.runtime.models import RuntimeEnvelope, RuntimeStatus, Verdict
+            return RuntimeEnvelope(
+                status=RuntimeStatus.SUCCESS if res.get("ok") else RuntimeStatus.ERROR,
+                verdict=Verdict.SEAL if res.get("ok") else Verdict.VOID,
+                payload=res
+            )
+        return res
+
     resolved_payload = dict(payload or {})
     return await agi_mind_dispatch_impl(
         mode=mode,
@@ -283,13 +434,46 @@ async def agi_mind(
 
 
 async def asi_heart(
-    mode: str,
-    payload: dict[str, Any],
-    auth_context: dict[str, Any] | None = None,
+    mode: str | None = None,
+    payload: dict[str, Any] | None = None,
+    query: str | None = None,
+    session_id: str | None = None,
+    actor_id: str | None = None,
+    declared_name: str | None = None,
+    intent: Any | None = None,
+    human_approval: bool = False,
     risk_tier: str = "medium",
     dry_run: bool = True,
-    ctx: Context | None = None,
+    allow_execution: bool = False,
+    ctx: Any | None = None,
+    **kwargs: Any,
 ) -> RuntimeEnvelope:
+    # P0: Unified ABI Adapter (Hardened)
+    payload = dict(payload or {})
+    if kwargs:
+        for k, v in kwargs.items():
+            if v is not None: payload.setdefault(k, v)
+    if query: payload.setdefault("query", query)
+    if session_id: payload.setdefault("session_id", session_id)
+    if actor_id: payload.setdefault("actor_id", actor_id)
+    if intent: payload.setdefault("intent", intent)
+    if human_approval: payload.setdefault("human_approval", human_approval)
+    
+    # Hardened Dispatch
+    from arifosmcp.runtime.tools_hardened_dispatch import HARDENED_DISPATCH_MAP
+    if "asi_heart" in HARDENED_DISPATCH_MAP:
+        if mode is None: mode = "init" if "asi_heart" == "init_anchor" else "asi_heart"
+        res = await HARDENED_DISPATCH_MAP["asi_heart"](mode=mode, payload=payload)
+        # Wrap in envelope if not already (legacy compatibility)
+        if isinstance(res, dict) and "ok" in res:
+            from arifosmcp.runtime.models import RuntimeEnvelope, RuntimeStatus, Verdict
+            return RuntimeEnvelope(
+                status=RuntimeStatus.SUCCESS if res.get("ok") else RuntimeStatus.ERROR,
+                verdict=Verdict.SEAL if res.get("ok") else Verdict.VOID,
+                payload=res
+            )
+        return res
+
     resolved_payload = dict(payload or {})
     return await asi_heart_dispatch_impl(
         mode=mode,
@@ -302,13 +486,46 @@ async def asi_heart(
 
 
 async def engineering_memory(
-    mode: str,
-    payload: dict[str, Any],
-    auth_context: dict[str, Any] | None = None,
+    mode: str | None = None,
+    payload: dict[str, Any] | None = None,
+    query: str | None = None,
+    session_id: str | None = None,
+    actor_id: str | None = None,
+    declared_name: str | None = None,
+    intent: Any | None = None,
+    human_approval: bool = False,
     risk_tier: str = "medium",
     dry_run: bool = True,
-    ctx: Context | None = None,
+    allow_execution: bool = False,
+    ctx: Any | None = None,
+    **kwargs: Any,
 ) -> RuntimeEnvelope:
+    # P0: Unified ABI Adapter (Hardened)
+    payload = dict(payload or {})
+    if kwargs:
+        for k, v in kwargs.items():
+            if v is not None: payload.setdefault(k, v)
+    if query: payload.setdefault("query", query)
+    if session_id: payload.setdefault("session_id", session_id)
+    if actor_id: payload.setdefault("actor_id", actor_id)
+    if intent: payload.setdefault("intent", intent)
+    if human_approval: payload.setdefault("human_approval", human_approval)
+    
+    # Hardened Dispatch
+    from arifosmcp.runtime.tools_hardened_dispatch import HARDENED_DISPATCH_MAP
+    if "engineering_memory" in HARDENED_DISPATCH_MAP:
+        if mode is None: mode = "init" if "engineering_memory" == "init_anchor" else "engineering_memory"
+        res = await HARDENED_DISPATCH_MAP["engineering_memory"](mode=mode, payload=payload)
+        # Wrap in envelope if not already (legacy compatibility)
+        if isinstance(res, dict) and "ok" in res:
+            from arifosmcp.runtime.models import RuntimeEnvelope, RuntimeStatus, Verdict
+            return RuntimeEnvelope(
+                status=RuntimeStatus.SUCCESS if res.get("ok") else RuntimeStatus.ERROR,
+                verdict=Verdict.SEAL if res.get("ok") else Verdict.VOID,
+                payload=res
+            )
+        return res
+
     resolved_payload = dict(payload or {})
     return await engineering_memory_dispatch_impl(
         mode=mode,
@@ -321,13 +538,46 @@ async def engineering_memory(
 
 
 async def physics_reality(
-    mode: str,
-    payload: dict[str, Any],
-    auth_context: dict[str, Any] | None = None,
+    mode: str | None = None,
+    payload: dict[str, Any] | None = None,
+    query: str | None = None,
+    session_id: str | None = None,
+    actor_id: str | None = None,
+    declared_name: str | None = None,
+    intent: Any | None = None,
+    human_approval: bool = False,
     risk_tier: str = "medium",
     dry_run: bool = True,
-    ctx: Context | None = None,
+    allow_execution: bool = False,
+    ctx: Any | None = None,
+    **kwargs: Any,
 ) -> RuntimeEnvelope:
+    # P0: Unified ABI Adapter (Hardened)
+    payload = dict(payload or {})
+    if kwargs:
+        for k, v in kwargs.items():
+            if v is not None: payload.setdefault(k, v)
+    if query: payload.setdefault("query", query)
+    if session_id: payload.setdefault("session_id", session_id)
+    if actor_id: payload.setdefault("actor_id", actor_id)
+    if intent: payload.setdefault("intent", intent)
+    if human_approval: payload.setdefault("human_approval", human_approval)
+    
+    # Hardened Dispatch
+    from arifosmcp.runtime.tools_hardened_dispatch import HARDENED_DISPATCH_MAP
+    if "physics_reality" in HARDENED_DISPATCH_MAP:
+        if mode is None: mode = "init" if "physics_reality" == "init_anchor" else "physics_reality"
+        res = await HARDENED_DISPATCH_MAP["physics_reality"](mode=mode, payload=payload)
+        # Wrap in envelope if not already (legacy compatibility)
+        if isinstance(res, dict) and "ok" in res:
+            from arifosmcp.runtime.models import RuntimeEnvelope, RuntimeStatus, Verdict
+            return RuntimeEnvelope(
+                status=RuntimeStatus.SUCCESS if res.get("ok") else RuntimeStatus.ERROR,
+                verdict=Verdict.SEAL if res.get("ok") else Verdict.VOID,
+                payload=res
+            )
+        return res
+
     resolved_payload = dict(payload or {})
     return await physics_reality_dispatch_impl(
         mode=mode,
@@ -340,13 +590,46 @@ async def physics_reality(
 
 
 async def math_estimator(
-    mode: str,
-    payload: dict[str, Any],
-    auth_context: dict[str, Any] | None = None,
+    mode: str | None = None,
+    payload: dict[str, Any] | None = None,
+    query: str | None = None,
+    session_id: str | None = None,
+    actor_id: str | None = None,
+    declared_name: str | None = None,
+    intent: Any | None = None,
+    human_approval: bool = False,
     risk_tier: str = "medium",
     dry_run: bool = True,
-    ctx: Context | None = None,
+    allow_execution: bool = False,
+    ctx: Any | None = None,
+    **kwargs: Any,
 ) -> RuntimeEnvelope:
+    # P0: Unified ABI Adapter (Hardened)
+    payload = dict(payload or {})
+    if kwargs:
+        for k, v in kwargs.items():
+            if v is not None: payload.setdefault(k, v)
+    if query: payload.setdefault("query", query)
+    if session_id: payload.setdefault("session_id", session_id)
+    if actor_id: payload.setdefault("actor_id", actor_id)
+    if intent: payload.setdefault("intent", intent)
+    if human_approval: payload.setdefault("human_approval", human_approval)
+    
+    # Hardened Dispatch
+    from arifosmcp.runtime.tools_hardened_dispatch import HARDENED_DISPATCH_MAP
+    if "math_estimator" in HARDENED_DISPATCH_MAP:
+        if mode is None: mode = "init" if "math_estimator" == "init_anchor" else "math_estimator"
+        res = await HARDENED_DISPATCH_MAP["math_estimator"](mode=mode, payload=payload)
+        # Wrap in envelope if not already (legacy compatibility)
+        if isinstance(res, dict) and "ok" in res:
+            from arifosmcp.runtime.models import RuntimeEnvelope, RuntimeStatus, Verdict
+            return RuntimeEnvelope(
+                status=RuntimeStatus.SUCCESS if res.get("ok") else RuntimeStatus.ERROR,
+                verdict=Verdict.SEAL if res.get("ok") else Verdict.VOID,
+                payload=res
+            )
+        return res
+
     resolved_payload = dict(payload or {})
     return await math_estimator_dispatch_impl(
         mode=mode,
@@ -359,13 +642,46 @@ async def math_estimator(
 
 
 async def code_engine(
-    mode: str,
-    payload: dict[str, Any],
-    auth_context: dict[str, Any] | None = None,
+    mode: str | None = None,
+    payload: dict[str, Any] | None = None,
+    query: str | None = None,
+    session_id: str | None = None,
+    actor_id: str | None = None,
+    declared_name: str | None = None,
+    intent: Any | None = None,
+    human_approval: bool = False,
     risk_tier: str = "medium",
     dry_run: bool = True,
-    ctx: Context | None = None,
+    allow_execution: bool = False,
+    ctx: Any | None = None,
+    **kwargs: Any,
 ) -> RuntimeEnvelope:
+    # P0: Unified ABI Adapter (Hardened)
+    payload = dict(payload or {})
+    if kwargs:
+        for k, v in kwargs.items():
+            if v is not None: payload.setdefault(k, v)
+    if query: payload.setdefault("query", query)
+    if session_id: payload.setdefault("session_id", session_id)
+    if actor_id: payload.setdefault("actor_id", actor_id)
+    if intent: payload.setdefault("intent", intent)
+    if human_approval: payload.setdefault("human_approval", human_approval)
+    
+    # Hardened Dispatch
+    from arifosmcp.runtime.tools_hardened_dispatch import HARDENED_DISPATCH_MAP
+    if "code_engine" in HARDENED_DISPATCH_MAP:
+        if mode is None: mode = "init" if "code_engine" == "init_anchor" else "code_engine"
+        res = await HARDENED_DISPATCH_MAP["code_engine"](mode=mode, payload=payload)
+        # Wrap in envelope if not already (legacy compatibility)
+        if isinstance(res, dict) and "ok" in res:
+            from arifosmcp.runtime.models import RuntimeEnvelope, RuntimeStatus, Verdict
+            return RuntimeEnvelope(
+                status=RuntimeStatus.SUCCESS if res.get("ok") else RuntimeStatus.ERROR,
+                verdict=Verdict.SEAL if res.get("ok") else Verdict.VOID,
+                payload=res
+            )
+        return res
+
     resolved_payload = dict(payload or {})
     return await code_engine_dispatch_impl(
         mode=mode,
@@ -378,13 +694,46 @@ async def code_engine(
 
 
 async def architect_registry(
-    mode: str,
-    payload: dict[str, Any],
-    auth_context: dict[str, Any] | None = None,
+    mode: str | None = None,
+    payload: dict[str, Any] | None = None,
+    query: str | None = None,
+    session_id: str | None = None,
+    actor_id: str | None = None,
+    declared_name: str | None = None,
+    intent: Any | None = None,
+    human_approval: bool = False,
     risk_tier: str = "medium",
     dry_run: bool = True,
-    ctx: Context | None = None,
+    allow_execution: bool = False,
+    ctx: Any | None = None,
+    **kwargs: Any,
 ) -> RuntimeEnvelope:
+    # P0: Unified ABI Adapter (Hardened)
+    payload = dict(payload or {})
+    if kwargs:
+        for k, v in kwargs.items():
+            if v is not None: payload.setdefault(k, v)
+    if query: payload.setdefault("query", query)
+    if session_id: payload.setdefault("session_id", session_id)
+    if actor_id: payload.setdefault("actor_id", actor_id)
+    if intent: payload.setdefault("intent", intent)
+    if human_approval: payload.setdefault("human_approval", human_approval)
+    
+    # Hardened Dispatch
+    from arifosmcp.runtime.tools_hardened_dispatch import HARDENED_DISPATCH_MAP
+    if "architect_registry" in HARDENED_DISPATCH_MAP:
+        if mode is None: mode = "init" if "architect_registry" == "init_anchor" else "architect_registry"
+        res = await HARDENED_DISPATCH_MAP["architect_registry"](mode=mode, payload=payload)
+        # Wrap in envelope if not already (legacy compatibility)
+        if isinstance(res, dict) and "ok" in res:
+            from arifosmcp.runtime.models import RuntimeEnvelope, RuntimeStatus, Verdict
+            return RuntimeEnvelope(
+                status=RuntimeStatus.SUCCESS if res.get("ok") else RuntimeStatus.ERROR,
+                verdict=Verdict.SEAL if res.get("ok") else Verdict.VOID,
+                payload=res
+            )
+        return res
+
     resolved_payload = dict(payload or {})
     return await architect_registry_dispatch_impl(
         mode=mode,
@@ -1092,6 +1441,12 @@ def register_tools(mcp: FastMCP, profile: str = "full") -> None:
                 },
             )
             handler = FINAL_TOOL_IMPLEMENTATIONS[mega_tool]
+
+            # P0: Hardened Dispatch Integration
+            if mega_tool in HARDENED_DISPATCH_MAP:
+                hardened_handler = HARDENED_DISPATCH_MAP[mega_tool]
+                # Combine gov_params if needed, but for now we dispatch directly
+                return await hardened_handler(mode=mode, payload=payload)
 
             # P0: Governance Parameter Extraction
             # Ensure governance flags are passed explicitly if the handler accepts them
