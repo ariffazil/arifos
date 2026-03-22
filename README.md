@@ -1,77 +1,195 @@
-<div align="center">
+# arifOS MCP — The Body
 
-<img src="https://raw.githubusercontent.com/ariffazil/arifOS/main/sites/library/static/img/banner_sovereign.png" width="100%" alt="arifOS Banner" style="border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
+**Production execution kernel of the arifOS Constitutional AI Governance System.**
 
-# 🦾 arifOS MCP — THE BODY
-## The Executive Kernel, FastMCP Server, & Reality Interface
+> The Mind defines the law. The Body executes it.
 
-**[THE MIND (Theory & Docs)](https://github.com/ariffazil/arifOS)** &nbsp;·&nbsp; **[THE BODY (Code & MCP)](https://github.com/ariffazil/arifosmcp)** &nbsp;·&nbsp; **[THE SOUL (Human)](https://github.com/ariffazil/ariffazil)**
+[![Health](https://img.shields.io/badge/dynamic/json?url=https://arifosmcp.arif-fazil.com/health&query=status&label=Server&color=00b894)](https://arifosmcp.arif-fazil.com/health)
+[![Tools](https://img.shields.io/badge/Mega--Tools-11_(37_modes)-blue)](https://arifosmcp.arif-fazil.com/tools)
+[![Transport](https://img.shields.io/badge/Transport-Streamable_HTTP-purple)](https://arifosmcp.arif-fazil.com/mcp)
+[![Containers](https://img.shields.io/badge/Containers-16_running-success)](https://monitor.arifosmcp.arif-fazil.com)
 
-[![Status](https://img.shields.io/badge/Status-Alive%20(COHERENT)-00b894.svg?style=flat-square)](https://arifosmcp.arif-fazil.com/health)
-[![Release](https://img.shields.io/badge/Version-2026.03.22--HARDENED--V2-blue.svg?style=flat-square)](https://github.com/ariffazil/arifosmcp/releases)
-[![Tools](https://img.shields.io/badge/Mega--Tools-11%20(40%20Modes)-success.svg?style=flat-square)](https://arifosmcp.arif-fazil.com/tools)
-[![ZKPC](https://img.shields.io/badge/ZKPC-VERIFIED_ΔΩΨ-purple.svg)](#)
-
-*“To be agentic, capabilities must come with responsibilities. The Body executes the law.”*
-
-</div>
+| Repo | Purpose |
+|---|---|
+| [ariffazil/arifOS](https://github.com/ariffazil/arifOS) | **The Mind** — theory, constitution, governance docs |
+| [ariffazil/arifosmcp](https://github.com/ariffazil/arifosmcp) | **The Body** — this repo, FastMCP server, Docker stack |
 
 ---
 
-## ⚙️ The Duality of arifOS
-You have entered **The Body**. This repository (`arifosmcp`) is the exclusive home of the Python execution kernel, the FastMCP tool surface, and the 16-Organ Docker orchestration. 
+## Live Endpoints
 
-If you are a human seeking the philosophical bedrock, the 13 Constitutional Floors, or the architectural blueprint, you are in the wrong place. **Go to [The Mind (arifOS)](https://github.com/ariffazil/arifOS)**.
-
----
-
-## 🌐 Live Systems & Endpoints
-The Body is active and listening at the following production endpoints:
-
-| Endpoint | URL | Purpose |
-|-----------|-----|---------|
-| **Production API** | [https://arifosmcp.arif-fazil.com/mcp](https://arifosmcp.arif-fazil.com/mcp) | Canonical FastMCP gateway for agents. |
-| **Metabolic Health** | [https://arifosmcp.arif-fazil.com/health](https://arifosmcp.arif-fazil.com/health) | Real-time vitals and capability map. |
-| **Audit Dashboard** | [https://arifosmcp.arif-fazil.com/dashboard/](https://arifosmcp.arif-fazil.com/dashboard/) | Live ledger of constitutional verdicts. |
-| **Developer Portal** | [https://arifosmcp.arif-fazil.com/](https://arifosmcp.arif-fazil.com/) | Integrated documentation & playground. |
+| Endpoint | URL |
+|---|---|
+| MCP Gateway (agents connect here) | https://arifosmcp.arif-fazil.com/mcp |
+| Health + Capability Map | https://arifosmcp.arif-fazil.com/health |
+| Tool Explorer | https://arifosmcp.arif-fazil.com/tools |
+| Developer Portal | https://arifosmcp.arif-fazil.com/ |
+| Grafana Monitoring | https://monitor.arifosmcp.arif-fazil.com |
 
 ---
 
-## 🛠️ The 11-Tool Mega-Surface
-This repository exposes a strictly hardened **FastMCP Server**. All legacy functions are normalized into 11 canonical tools:
+## What This Is
 
-- `init_anchor`: F11 Authority. Sovereign session tokens.
-- `arifOS_kernel`: F13 Orchestrator. Directs execution to organs.
-- `physics_reality`: F02 Truth. Grounding (Qdrant RAG, Search).
-- `agi_mind`: F08 Genius. First-principles reasoning.
-- `asi_heart`: F06 Empathy. Red-team critique & veto.
-- `engineering_memory`: F10 Ontology. Long-term contextual memory.
-- `apex_soul`: F07 Humility. Verifiable constitution check.
-- `vault_ledger`: F13 Finality. Action sealing.
-- `math_estimator`: F04 Clarity. Thermodynamic variance.
-- `code_engine`: Execution. AST parsing & formatting.
-- `architect_registry`: Systemic dependency graphs.
+A **FastMCP streamable-http server** that exposes 11 mega-tools (37 modes) to AI agents. Every tool call passes through a constitutional metabolic pipeline — three organs judge each request before it executes:
 
----
+| Organ | Symbol | Role | Constitutional Floors |
+|---|---|---|---|
+| `agi_mind` | Δ Mind | First-principles logic and truth verification | F2, F4, F7, F8 |
+| `asi_heart` | Ω Heart | Safety check, empathy, red-team veto | F1, F5, F6, F9 |
+| `apex_soul` | Ψ Soul | Final judgment, sovereign override | F3, F11, F13 |
 
-## 🧬 Deployment (The 16-Organ Architecture)
-The ecosystem is orchestrated via Docker. Key organs include:
-- `arifosmcp_server`, `openclaw_gateway`, `agent_zero_reasoner`, `qdrant_memory`, `ollama_engine`, `traefik_router`.
+All three organs must pass before a `vault_ledger` seal is issued. APEX score threshold: **G† ≥ 0.80**
 
-**Sync Workflow:**
-1. **Forge Secrets:** `./scripts/init-secrets.sh -d /opt/arifos/secrets`
-2. **Deploy Organs:** `docker compose --env-file .env.docker up -d --build`
-3. **Embed Reality:** `python3 scripts/embed_constitutional_corpus.py` (Syncs with The Mind).
+```
+G† = (A × P × X × E²) × |ΔS| / C
+```
 
 ---
 
-## 🔒 Cryptographic Seal (ZKPC)
-This repository represents the immutable execution state of the Kernel.
+## The 11 Mega-Tools
 
-**SEAL HASH:** `31d98c7131389aeb00123984bc222a`  
-**CONSENSUS:** `0.976` (W3)  
-**VERDICT:** `FULL EXECUTIVE DEPLOYMENT`  
-**AUTHORITY:** `Muhammad Arif bin Fazil (888_JUDGE)`  
+| Tool | Constitutional Floor | Function |
+|---|---|---|
+| `init_anchor` | F11 Authority | Forge sovereign session tokens, bind identity |
+| `arifOS_kernel` | F13 Sovereign | Main orchestrator — routes requests through organs |
+| `agi_mind` | F8 Genius | First-principles reasoning, truth analysis, G-Index scoring |
+| `asi_heart` | F6 Empathy | Human-impact check, safety veto, constraint alignment |
+| `apex_soul` | F7 Humility | Constitutional score, Gödel boundary check |
+| `physics_reality` | F2 Truth | Ground claims via Qdrant RAG + Brave Search |
+| `engineering_memory` | F10 Ontology | Long-term vector memory (write, recall, graph) |
+| `vault_ledger` | F13 Finality | Cryptographic ZKPC action sealing and audit |
+| `math_estimator` | F4 Clarity | Thermodynamic variance, entropy budget calculation |
+| `code_engine` | — | AST parsing, code execution, auto-formatting |
+| `architect_registry` | — | Dependency graphs, system topology mapping |
 
-> ***DITEMPA BUKAN DIBERI***  
-> Forged through thermodynamic work, not given through computation.
+---
+
+## Connect an MCP Client
+
+Add to Claude Desktop, Cursor, or any MCP-compatible client:
+
+```json
+{
+  "mcpServers": {
+    "arifOS": {
+      "type": "http",
+      "url": "https://arifosmcp.arif-fazil.com/mcp"
+    }
+  }
+}
+```
+
+---
+
+## 16-Container Stack
+
+```
+traefik_router        — TLS reverse proxy (Cloudflare, ports 80/443)
+arifosmcp_server      — FastMCP server, port 8080
+openclaw_gateway      — Sandboxed agent execution, port 18789
+agent_zero_reasoner   — AGI reasoning layer, port 18001
+qdrant_memory         — Vector DB, 1024-dim embeddings, port 6333
+ollama_engine         — Local LLM generation, port 11434
+arifos_postgres       — Vault audit log (asyncpg), port 5432
+arifos_redis          — Session storage, vault backend, port 6379
+arifos_prometheus     — Metrics scraper, port 9090
+arifos_grafana        — Monitoring dashboards
+arifos_n8n            — Workflow automation
+arifos_webhook        — Incoming webhook processor
+headless_browser      — Chromium browser automation
+civ08_code_server     — VS Code in browser
+civ01_stirling_pdf    — PDF processing
+civ03_evolution_api   — WhatsApp API bridge
+```
+
+---
+
+## Deployment (VPS — you are already on it)
+
+```bash
+cd /srv/arifosmcp
+
+# Status and health
+make status
+make health
+
+# Reload after code changes — instant (volume-mounted)
+docker restart arifosmcp_server
+
+# Deploy code changes (2–3 min, uses layer cache)
+make fast-deploy
+
+# Full rebuild — only if Dockerfile or dependencies changed (10–15 min)
+make reforge
+
+# Tail logs
+make logs
+
+# Pull latest from GitHub
+GITHUB_TOKEN=$(grep GITHUB_TOKEN .env | head -1 | cut -d= -f2)
+git pull "https://ariffazil:${GITHUB_TOKEN}@github.com/ariffazil/arifosmcp.git" main
+
+# Push to GitHub
+git push "https://ariffazil:${GITHUB_TOKEN}@github.com/ariffazil/arifosmcp.git" main
+```
+
+---
+
+## Environment Setup
+
+Copy `.env.example` → `.env` and `.env.docker.example` → `.env.docker`, then fill in secrets.
+
+Key variables:
+
+| Variable | Purpose |
+|---|---|
+| `ARIFOS_PUBLIC_BASE_URL` | Public URL (https://arifosmcp.arif-fazil.com) |
+| `POSTGRES_*` | Vault audit database (host: `arifos_postgres`) |
+| `REDIS_*` | Session storage (host: `arifos_redis`) |
+| `QDRANT_*` | Vector memory (host: `qdrant_memory:6333`) |
+| `ANTHROPIC_API_KEY` | Claude API — organ reasoning |
+| `OPENAI_API_KEY` | GPT fallback provider |
+| `BRAVE_API_KEY` | Real-time web search (F2 grounding) |
+| `ARIFOS_ML_FLOORS` | Set to `1` to enable SBERT ML floor scoring |
+
+---
+
+## Codebase Structure
+
+```
+arifosmcp/core/
+  governance_kernel.py     Main orchestrator — metabolic pipeline (000→999 stages)
+  pipeline.py              Stage execution engine
+  organs/
+    _1_agi.py              Δ Mind — logic, truth (F2, F4, F7, F8)
+    _2_asi.py              Ω Heart — safety, empathy (F1, F5, F6, F9)
+    _3_apex.py             Ψ Soul — judgment, sovereign override (F3, F11, F13)
+  shared/physics.py        APEX formula: G† = (A×P×X×E²)×|ΔS|/C
+  enforcement/             Constitutional floor enforcement (F1–F13)
+  vault/                   ZKPC sealing, asyncpg audit writes
+  state/                   Session and vault state management
+
+aaa_mcp/                   Public MCP tool surface (FastMCP definitions)
+infrastructure/            VPS config, Traefik, Prometheus, Grafana
+scripts/                   deploy, backup, diagnostic, embed scripts
+sites/                     Developer portal static HTML
+Dockerfile                 Server image
+docker-compose.yml         16-container orchestration
+Makefile                   Deployment shortcuts
+```
+
+---
+
+## Known Issues
+
+| Issue | Priority |
+|---|---|
+| Traefik metrics port 8082 — Prometheus scrape fails | Low |
+| APEX Dashboard (apex.arif-fazil.com) — Cloudflare Pages 404 | Medium |
+| Prometheus counters not fully wired to all tool handlers | Medium |
+| LICENSE: CC0 declared but code is AGPL-3.0 | Pending reconciliation |
+
+---
+
+*DITEMPA BUKAN DIBERI — Forged through thermodynamic work, not given through computation.*
+*Authority: Muhammad Arif bin Fazil — Sovereign Architect*

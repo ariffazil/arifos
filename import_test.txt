@@ -1,5 +1,0 @@
-✅ WebMCP gateway integrated at root
-✅ Real WebMCP Gateway mounted at /webmcp (W3C Standard)
-✅ Real A2A Server mounted at /a2a (Google Protocol)
-MODELS OK
-INIT OK
