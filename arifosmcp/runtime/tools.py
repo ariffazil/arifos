@@ -126,6 +126,12 @@ async def init_anchor(
     risk_tier: str = "low",
     dry_run: bool = True,
     allow_execution: bool = False,
+    caller_context: dict | None = None,
+    auth_context: dict | None = None,
+    debug: bool = False,
+    request_id: str | None = None,
+    timestamp: str | None = None,
+    raw_input: str | None = None,
     ctx: Any | None = None,
     # Normalization contract: extended canonical ingress fields
     raw_input: str | None = None,
@@ -135,6 +141,10 @@ async def init_anchor(
 ) -> RuntimeEnvelope:
     # P0: Unified ABI Adapter (Hardened) — tolerant ingress normalization
     payload = dict(payload or {})
+    # Ingress tolerance: normalize extras from imperfect agents/humans
+    if raw_input: payload.setdefault("query", raw_input)
+    if caller_context: payload.setdefault("caller_context", caller_context)
+    if auth_context: payload.setdefault("auth_context", auth_context)
 
     if query: payload.setdefault("query", query)
     if raw_input: payload.setdefault("raw_input", raw_input)
@@ -203,10 +213,20 @@ async def arifOS_kernel(
     risk_tier: str = "medium",
     dry_run: bool = True,
     allow_execution: bool = False,
+    caller_context: dict | None = None,
+    auth_context: dict | None = None,
+    debug: bool = False,
+    request_id: str | None = None,
+    timestamp: str | None = None,
+    raw_input: str | None = None,
     ctx: Any | None = None,
 ) -> RuntimeEnvelope:
     # P0: Unified ABI Adapter (Hardened)
     payload = dict(payload or {})
+    # Ingress tolerance: normalize extras from imperfect agents/humans
+    if raw_input: payload.setdefault("query", raw_input)
+    if caller_context: payload.setdefault("caller_context", caller_context)
+    if auth_context: payload.setdefault("auth_context", auth_context)
 
     if query: payload.setdefault("query", query)
     if session_id: payload.setdefault("session_id", session_id)
@@ -264,10 +284,20 @@ async def apex_soul(
     risk_tier: str = "medium",
     dry_run: bool = True,
     allow_execution: bool = False,
+    caller_context: dict | None = None,
+    auth_context: dict | None = None,
+    debug: bool = False,
+    request_id: str | None = None,
+    timestamp: str | None = None,
+    raw_input: str | None = None,
     ctx: Any | None = None,
 ) -> RuntimeEnvelope:
     # P0: Unified ABI Adapter (Hardened)
     payload = dict(payload or {})
+    # Ingress tolerance: normalize extras from imperfect agents/humans
+    if raw_input: payload.setdefault("query", raw_input)
+    if caller_context: payload.setdefault("caller_context", caller_context)
+    if auth_context: payload.setdefault("auth_context", auth_context)
 
     if query: payload.setdefault("query", query)
     if session_id: payload.setdefault("session_id", session_id)
@@ -311,10 +341,20 @@ async def vault_ledger(
     risk_tier: str = "medium",
     dry_run: bool = True,
     allow_execution: bool = False,
+    caller_context: dict | None = None,
+    auth_context: dict | None = None,
+    debug: bool = False,
+    request_id: str | None = None,
+    timestamp: str | None = None,
+    raw_input: str | None = None,
     ctx: Any | None = None,
 ) -> RuntimeEnvelope:
     # P0: Unified ABI Adapter (Hardened)
     payload = dict(payload or {})
+    # Ingress tolerance: normalize extras from imperfect agents/humans
+    if raw_input: payload.setdefault("query", raw_input)
+    if caller_context: payload.setdefault("caller_context", caller_context)
+    if auth_context: payload.setdefault("auth_context", auth_context)
 
     if query: payload.setdefault("query", query)
     if session_id: payload.setdefault("session_id", session_id)
@@ -358,10 +398,20 @@ async def agi_mind(
     risk_tier: str = "medium",
     dry_run: bool = True,
     allow_execution: bool = False,
+    caller_context: dict | None = None,
+    auth_context: dict | None = None,
+    debug: bool = False,
+    request_id: str | None = None,
+    timestamp: str | None = None,
+    raw_input: str | None = None,
     ctx: Any | None = None,
 ) -> RuntimeEnvelope:
     # P0: Unified ABI Adapter (Hardened)
     payload = dict(payload or {})
+    # Ingress tolerance: normalize extras from imperfect agents/humans
+    if raw_input: payload.setdefault("query", raw_input)
+    if caller_context: payload.setdefault("caller_context", caller_context)
+    if auth_context: payload.setdefault("auth_context", auth_context)
 
     if query: payload.setdefault("query", query)
     if session_id: payload.setdefault("session_id", session_id)
@@ -405,10 +455,20 @@ async def asi_heart(
     risk_tier: str = "medium",
     dry_run: bool = True,
     allow_execution: bool = False,
+    caller_context: dict | None = None,
+    auth_context: dict | None = None,
+    debug: bool = False,
+    request_id: str | None = None,
+    timestamp: str | None = None,
+    raw_input: str | None = None,
     ctx: Any | None = None,
 ) -> RuntimeEnvelope:
     # P0: Unified ABI Adapter (Hardened)
     payload = dict(payload or {})
+    # Ingress tolerance: normalize extras from imperfect agents/humans
+    if raw_input: payload.setdefault("query", raw_input)
+    if caller_context: payload.setdefault("caller_context", caller_context)
+    if auth_context: payload.setdefault("auth_context", auth_context)
 
     if query: payload.setdefault("query", query)
     if session_id: payload.setdefault("session_id", session_id)
@@ -452,10 +512,20 @@ async def engineering_memory(
     risk_tier: str = "medium",
     dry_run: bool = True,
     allow_execution: bool = False,
+    caller_context: dict | None = None,
+    auth_context: dict | None = None,
+    debug: bool = False,
+    request_id: str | None = None,
+    timestamp: str | None = None,
+    raw_input: str | None = None,
     ctx: Any | None = None,
 ) -> RuntimeEnvelope:
     # P0: Unified ABI Adapter (Hardened)
     payload = dict(payload or {})
+    # Ingress tolerance: normalize extras from imperfect agents/humans
+    if raw_input: payload.setdefault("query", raw_input)
+    if caller_context: payload.setdefault("caller_context", caller_context)
+    if auth_context: payload.setdefault("auth_context", auth_context)
 
     if query: payload.setdefault("query", query)
     if session_id: payload.setdefault("session_id", session_id)
@@ -499,10 +569,20 @@ async def physics_reality(
     risk_tier: str = "medium",
     dry_run: bool = True,
     allow_execution: bool = False,
+    caller_context: dict | None = None,
+    auth_context: dict | None = None,
+    debug: bool = False,
+    request_id: str | None = None,
+    timestamp: str | None = None,
+    raw_input: str | None = None,
     ctx: Any | None = None,
 ) -> RuntimeEnvelope:
     # P0: Unified ABI Adapter (Hardened)
     payload = dict(payload or {})
+    # Ingress tolerance: normalize extras from imperfect agents/humans
+    if raw_input: payload.setdefault("query", raw_input)
+    if caller_context: payload.setdefault("caller_context", caller_context)
+    if auth_context: payload.setdefault("auth_context", auth_context)
 
     if query: payload.setdefault("query", query)
     if session_id: payload.setdefault("session_id", session_id)
@@ -545,10 +625,20 @@ async def math_estimator(
     risk_tier: str = "medium",
     dry_run: bool = True,
     allow_execution: bool = False,
+    caller_context: dict | None = None,
+    auth_context: dict | None = None,
+    debug: bool = False,
+    request_id: str | None = None,
+    timestamp: str | None = None,
+    raw_input: str | None = None,
     ctx: Any | None = None,
 ) -> RuntimeEnvelope:
     # P0: Unified ABI Adapter (Hardened)
     payload = dict(payload or {})
+    # Ingress tolerance: normalize extras from imperfect agents/humans
+    if raw_input: payload.setdefault("query", raw_input)
+    if caller_context: payload.setdefault("caller_context", caller_context)
+    if auth_context: payload.setdefault("auth_context", auth_context)
 
     if query: payload.setdefault("query", query)
     if session_id: payload.setdefault("session_id", session_id)
@@ -592,10 +682,20 @@ async def code_engine(
     risk_tier: str = "medium",
     dry_run: bool = True,
     allow_execution: bool = False,
+    caller_context: dict | None = None,
+    auth_context: dict | None = None,
+    debug: bool = False,
+    request_id: str | None = None,
+    timestamp: str | None = None,
+    raw_input: str | None = None,
     ctx: Any | None = None,
 ) -> RuntimeEnvelope:
     # P0: Unified ABI Adapter (Hardened)
     payload = dict(payload or {})
+    # Ingress tolerance: normalize extras from imperfect agents/humans
+    if raw_input: payload.setdefault("query", raw_input)
+    if caller_context: payload.setdefault("caller_context", caller_context)
+    if auth_context: payload.setdefault("auth_context", auth_context)
 
     if query: payload.setdefault("query", query)
     if session_id: payload.setdefault("session_id", session_id)
@@ -639,10 +739,20 @@ async def architect_registry(
     risk_tier: str = "medium",
     dry_run: bool = True,
     allow_execution: bool = False,
+    caller_context: dict | None = None,
+    auth_context: dict | None = None,
+    debug: bool = False,
+    request_id: str | None = None,
+    timestamp: str | None = None,
+    raw_input: str | None = None,
     ctx: Any | None = None,
 ) -> RuntimeEnvelope:
     # P0: Unified ABI Adapter (Hardened)
     payload = dict(payload or {})
+    # Ingress tolerance: normalize extras from imperfect agents/humans
+    if raw_input: payload.setdefault("query", raw_input)
+    if caller_context: payload.setdefault("caller_context", caller_context)
+    if auth_context: payload.setdefault("auth_context", auth_context)
 
     if query: payload.setdefault("query", query)
     if session_id: payload.setdefault("session_id", session_id)
@@ -1172,10 +1282,28 @@ def _build_legacy_payload(mega_tool: str, mode: str, values: dict[str, Any]) -> 
     return payload
 def register_tools(mcp: FastMCP, profile: str = "full") -> None:
     del profile
+    import inspect
+    from fastmcp.tools.function_tool import FunctionTool
+    from arifosmcp.runtime.ingress_middleware import IngressToleranceMiddleware
+
+    ingress = IngressToleranceMiddleware()
     specs = {spec.name: spec for spec in _public_tool_specs_fn()}
     for name, handler in FINAL_TOOL_IMPLEMENTATIONS.items():
         spec = specs.get(name)
-        mcp.tool(name=name, description=spec.description if spec else name)(handler)
+        ft = FunctionTool.from_function(
+            handler,
+            name=name,
+            description=spec.description if spec else name,
+        )
+        # Ingress tolerance: accept imperfect agents and humans
+        # Unknown fields are absorbed at boundary; governance enforces inside
+        ft.parameters["additionalProperties"] = True
+        # Register known params so middleware can strip unknown extras
+        sig = inspect.signature(handler)
+        ingress.register_tool_params(name, set(sig.parameters.keys()))
+        mcp.add_tool(ft)
+
+    mcp.add_middleware(ingress)
     def _make_legacy_shim(alias: str, mega_tool: str, mode: str) -> Callable[..., Any]:
         async def _shim(
             query: str | None = None,

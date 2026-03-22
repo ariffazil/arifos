@@ -61,7 +61,7 @@ async def hardened_init_anchor_dispatch(mode: str, payload: dict[str, Any], **kw
             caller_context=payload.get("caller_context"),
             pns_shield=payload.get("pns_shield"),
         )
-    elif mode == "state":
+    elif mode in ("state", "status", "refresh"):
         envelope = await init_anchor_tool.state(session_id=payload.get("session_id"))
     elif mode == "revoke":
         envelope = await init_anchor_tool.revoke(
