@@ -162,11 +162,25 @@ async def init_anchor(
         if isinstance(res, dict):
             from arifosmcp.runtime.models import RuntimeEnvelope, RuntimeStatus, Verdict
             ok = res.get("ok", res.get("status") not in ("HOLD", "ERROR", "VOID", None))
+            # Extract structured guidance from ToolEnvelope results
+            _next_tools = res.get("next_allowed_tools", [])
+            _payload = res.get("payload", res) if isinstance(res.get("payload"), dict) else res
+            _hold_reason = res.get("warnings", [""])[0] if res.get("warnings") else ""
+            _next_action = None
+            if not ok and _hold_reason:
+                _next_action = {
+                    "reason": _hold_reason,
+                    "missing_requirements": _payload.get("missing_requirements", []) if isinstance(_payload, dict) else [],
+                    "next_allowed_tools": _next_tools,
+                    "suggested_canonical_call": _payload.get("suggested_canonical_call") if isinstance(_payload, dict) else None,
+                }
             return RuntimeEnvelope(
                 tool=res.get("tool", "unknown"),
                 stage=res.get("stage", "444_ROUTER"),
                 status=RuntimeStatus.SUCCESS if ok else RuntimeStatus.ERROR,
                 verdict=Verdict.SEAL if ok else Verdict.VOID,
+                allowed_next_tools=_next_tools,
+                next_action=_next_action,
                 payload=res
             )
         return res
@@ -238,11 +252,25 @@ async def arifOS_kernel(
         if isinstance(res, dict):
             from arifosmcp.runtime.models import RuntimeEnvelope, RuntimeStatus, Verdict
             ok = res.get("ok", res.get("status") not in ("HOLD", "ERROR", "VOID", None))
+            # Extract structured guidance from ToolEnvelope results
+            _next_tools = res.get("next_allowed_tools", [])
+            _payload = res.get("payload", res) if isinstance(res.get("payload"), dict) else res
+            _hold_reason = res.get("warnings", [""])[0] if res.get("warnings") else ""
+            _next_action = None
+            if not ok and _hold_reason:
+                _next_action = {
+                    "reason": _hold_reason,
+                    "missing_requirements": _payload.get("missing_requirements", []) if isinstance(_payload, dict) else [],
+                    "next_allowed_tools": _next_tools,
+                    "suggested_canonical_call": _payload.get("suggested_canonical_call") if isinstance(_payload, dict) else None,
+                }
             return RuntimeEnvelope(
                 tool=res.get("tool", "unknown"),
                 stage=res.get("stage", "444_ROUTER"),
                 status=RuntimeStatus.SUCCESS if ok else RuntimeStatus.ERROR,
                 verdict=Verdict.SEAL if ok else Verdict.VOID,
+                allowed_next_tools=_next_tools,
+                next_action=_next_action,
                 payload=res
             )
         return res
@@ -309,11 +337,25 @@ async def apex_soul(
         if isinstance(res, dict):
             from arifosmcp.runtime.models import RuntimeEnvelope, RuntimeStatus, Verdict
             ok = res.get("ok", res.get("status") not in ("HOLD", "ERROR", "VOID", None))
+            # Extract structured guidance from ToolEnvelope results
+            _next_tools = res.get("next_allowed_tools", [])
+            _payload = res.get("payload", res) if isinstance(res.get("payload"), dict) else res
+            _hold_reason = res.get("warnings", [""])[0] if res.get("warnings") else ""
+            _next_action = None
+            if not ok and _hold_reason:
+                _next_action = {
+                    "reason": _hold_reason,
+                    "missing_requirements": _payload.get("missing_requirements", []) if isinstance(_payload, dict) else [],
+                    "next_allowed_tools": _next_tools,
+                    "suggested_canonical_call": _payload.get("suggested_canonical_call") if isinstance(_payload, dict) else None,
+                }
             return RuntimeEnvelope(
                 tool=res.get("tool", "unknown"),
                 stage=res.get("stage", "444_ROUTER"),
                 status=RuntimeStatus.SUCCESS if ok else RuntimeStatus.ERROR,
                 verdict=Verdict.SEAL if ok else Verdict.VOID,
+                allowed_next_tools=_next_tools,
+                next_action=_next_action,
                 payload=res
             )
         return res
@@ -366,11 +408,25 @@ async def vault_ledger(
         if isinstance(res, dict):
             from arifosmcp.runtime.models import RuntimeEnvelope, RuntimeStatus, Verdict
             ok = res.get("ok", res.get("status") not in ("HOLD", "ERROR", "VOID", None))
+            # Extract structured guidance from ToolEnvelope results
+            _next_tools = res.get("next_allowed_tools", [])
+            _payload = res.get("payload", res) if isinstance(res.get("payload"), dict) else res
+            _hold_reason = res.get("warnings", [""])[0] if res.get("warnings") else ""
+            _next_action = None
+            if not ok and _hold_reason:
+                _next_action = {
+                    "reason": _hold_reason,
+                    "missing_requirements": _payload.get("missing_requirements", []) if isinstance(_payload, dict) else [],
+                    "next_allowed_tools": _next_tools,
+                    "suggested_canonical_call": _payload.get("suggested_canonical_call") if isinstance(_payload, dict) else None,
+                }
             return RuntimeEnvelope(
                 tool=res.get("tool", "unknown"),
                 stage=res.get("stage", "444_ROUTER"),
                 status=RuntimeStatus.SUCCESS if ok else RuntimeStatus.ERROR,
                 verdict=Verdict.SEAL if ok else Verdict.VOID,
+                allowed_next_tools=_next_tools,
+                next_action=_next_action,
                 payload=res
             )
         return res
@@ -423,11 +479,25 @@ async def agi_mind(
         if isinstance(res, dict):
             from arifosmcp.runtime.models import RuntimeEnvelope, RuntimeStatus, Verdict
             ok = res.get("ok", res.get("status") not in ("HOLD", "ERROR", "VOID", None))
+            # Extract structured guidance from ToolEnvelope results
+            _next_tools = res.get("next_allowed_tools", [])
+            _payload = res.get("payload", res) if isinstance(res.get("payload"), dict) else res
+            _hold_reason = res.get("warnings", [""])[0] if res.get("warnings") else ""
+            _next_action = None
+            if not ok and _hold_reason:
+                _next_action = {
+                    "reason": _hold_reason,
+                    "missing_requirements": _payload.get("missing_requirements", []) if isinstance(_payload, dict) else [],
+                    "next_allowed_tools": _next_tools,
+                    "suggested_canonical_call": _payload.get("suggested_canonical_call") if isinstance(_payload, dict) else None,
+                }
             return RuntimeEnvelope(
                 tool=res.get("tool", "unknown"),
                 stage=res.get("stage", "444_ROUTER"),
                 status=RuntimeStatus.SUCCESS if ok else RuntimeStatus.ERROR,
                 verdict=Verdict.SEAL if ok else Verdict.VOID,
+                allowed_next_tools=_next_tools,
+                next_action=_next_action,
                 payload=res
             )
         return res
@@ -480,11 +550,25 @@ async def asi_heart(
         if isinstance(res, dict):
             from arifosmcp.runtime.models import RuntimeEnvelope, RuntimeStatus, Verdict
             ok = res.get("ok", res.get("status") not in ("HOLD", "ERROR", "VOID", None))
+            # Extract structured guidance from ToolEnvelope results
+            _next_tools = res.get("next_allowed_tools", [])
+            _payload = res.get("payload", res) if isinstance(res.get("payload"), dict) else res
+            _hold_reason = res.get("warnings", [""])[0] if res.get("warnings") else ""
+            _next_action = None
+            if not ok and _hold_reason:
+                _next_action = {
+                    "reason": _hold_reason,
+                    "missing_requirements": _payload.get("missing_requirements", []) if isinstance(_payload, dict) else [],
+                    "next_allowed_tools": _next_tools,
+                    "suggested_canonical_call": _payload.get("suggested_canonical_call") if isinstance(_payload, dict) else None,
+                }
             return RuntimeEnvelope(
                 tool=res.get("tool", "unknown"),
                 stage=res.get("stage", "444_ROUTER"),
                 status=RuntimeStatus.SUCCESS if ok else RuntimeStatus.ERROR,
                 verdict=Verdict.SEAL if ok else Verdict.VOID,
+                allowed_next_tools=_next_tools,
+                next_action=_next_action,
                 payload=res
             )
         return res
@@ -537,11 +621,25 @@ async def engineering_memory(
         if isinstance(res, dict):
             from arifosmcp.runtime.models import RuntimeEnvelope, RuntimeStatus, Verdict
             ok = res.get("ok", res.get("status") not in ("HOLD", "ERROR", "VOID", None))
+            # Extract structured guidance from ToolEnvelope results
+            _next_tools = res.get("next_allowed_tools", [])
+            _payload = res.get("payload", res) if isinstance(res.get("payload"), dict) else res
+            _hold_reason = res.get("warnings", [""])[0] if res.get("warnings") else ""
+            _next_action = None
+            if not ok and _hold_reason:
+                _next_action = {
+                    "reason": _hold_reason,
+                    "missing_requirements": _payload.get("missing_requirements", []) if isinstance(_payload, dict) else [],
+                    "next_allowed_tools": _next_tools,
+                    "suggested_canonical_call": _payload.get("suggested_canonical_call") if isinstance(_payload, dict) else None,
+                }
             return RuntimeEnvelope(
                 tool=res.get("tool", "unknown"),
                 stage=res.get("stage", "444_ROUTER"),
                 status=RuntimeStatus.SUCCESS if ok else RuntimeStatus.ERROR,
                 verdict=Verdict.SEAL if ok else Verdict.VOID,
+                allowed_next_tools=_next_tools,
+                next_action=_next_action,
                 payload=res
             )
         return res
@@ -591,13 +689,27 @@ async def physics_reality(
         if mode is None: mode = "init" if "physics_reality" == "init_anchor" else "physics_reality"
         res = await HARDENED_DISPATCH_MAP["physics_reality"](mode=mode, payload=payload)
         # Wrap in envelope if not already (legacy compatibility)
-        if isinstance(res, dict) and "ok" in res:
+        if isinstance(res, dict):
             from arifosmcp.runtime.models import RuntimeEnvelope, RuntimeStatus, Verdict
+            ok = res.get("ok", res.get("status") not in ("HOLD", "ERROR", "VOID", None))
+            _next_tools = res.get("next_allowed_tools", [])
+            _payload = res.get("payload", res) if isinstance(res.get("payload"), dict) else res
+            _hold_reason = res.get("warnings", [""])[0] if res.get("warnings") else ""
+            _next_action = None
+            if not ok and _hold_reason:
+                _next_action = {
+                    "reason": _hold_reason,
+                    "missing_requirements": _payload.get("missing_requirements", []) if isinstance(_payload, dict) else [],
+                    "next_allowed_tools": _next_tools,
+                    "suggested_canonical_call": _payload.get("suggested_canonical_call") if isinstance(_payload, dict) else None,
+                }
             return RuntimeEnvelope(
                 tool=res.get("tool", "physics_reality"),
                 stage=res.get("stage", "111_SENSE"),
-                status=RuntimeStatus.SUCCESS if res.get("ok") else RuntimeStatus.ERROR,
-                verdict=Verdict.SEAL if res.get("ok") else Verdict.VOID,
+                status=RuntimeStatus.SUCCESS if ok else RuntimeStatus.ERROR,
+                verdict=Verdict.SEAL if ok else Verdict.VOID,
+                allowed_next_tools=_next_tools,
+                next_action=_next_action,
                 payload=res
             )
         return res
@@ -650,11 +762,25 @@ async def math_estimator(
         if isinstance(res, dict):
             from arifosmcp.runtime.models import RuntimeEnvelope, RuntimeStatus, Verdict
             ok = res.get("ok", res.get("status") not in ("HOLD", "ERROR", "VOID", None))
+            # Extract structured guidance from ToolEnvelope results
+            _next_tools = res.get("next_allowed_tools", [])
+            _payload = res.get("payload", res) if isinstance(res.get("payload"), dict) else res
+            _hold_reason = res.get("warnings", [""])[0] if res.get("warnings") else ""
+            _next_action = None
+            if not ok and _hold_reason:
+                _next_action = {
+                    "reason": _hold_reason,
+                    "missing_requirements": _payload.get("missing_requirements", []) if isinstance(_payload, dict) else [],
+                    "next_allowed_tools": _next_tools,
+                    "suggested_canonical_call": _payload.get("suggested_canonical_call") if isinstance(_payload, dict) else None,
+                }
             return RuntimeEnvelope(
                 tool=res.get("tool", "unknown"),
                 stage=res.get("stage", "444_ROUTER"),
                 status=RuntimeStatus.SUCCESS if ok else RuntimeStatus.ERROR,
                 verdict=Verdict.SEAL if ok else Verdict.VOID,
+                allowed_next_tools=_next_tools,
+                next_action=_next_action,
                 payload=res
             )
         return res
@@ -707,11 +833,25 @@ async def code_engine(
         if isinstance(res, dict):
             from arifosmcp.runtime.models import RuntimeEnvelope, RuntimeStatus, Verdict
             ok = res.get("ok", res.get("status") not in ("HOLD", "ERROR", "VOID", None))
+            # Extract structured guidance from ToolEnvelope results
+            _next_tools = res.get("next_allowed_tools", [])
+            _payload = res.get("payload", res) if isinstance(res.get("payload"), dict) else res
+            _hold_reason = res.get("warnings", [""])[0] if res.get("warnings") else ""
+            _next_action = None
+            if not ok and _hold_reason:
+                _next_action = {
+                    "reason": _hold_reason,
+                    "missing_requirements": _payload.get("missing_requirements", []) if isinstance(_payload, dict) else [],
+                    "next_allowed_tools": _next_tools,
+                    "suggested_canonical_call": _payload.get("suggested_canonical_call") if isinstance(_payload, dict) else None,
+                }
             return RuntimeEnvelope(
                 tool=res.get("tool", "unknown"),
                 stage=res.get("stage", "444_ROUTER"),
                 status=RuntimeStatus.SUCCESS if ok else RuntimeStatus.ERROR,
                 verdict=Verdict.SEAL if ok else Verdict.VOID,
+                allowed_next_tools=_next_tools,
+                next_action=_next_action,
                 payload=res
             )
         return res
@@ -764,11 +904,25 @@ async def architect_registry(
         if isinstance(res, dict):
             from arifosmcp.runtime.models import RuntimeEnvelope, RuntimeStatus, Verdict
             ok = res.get("ok", res.get("status") not in ("HOLD", "ERROR", "VOID", None))
+            # Extract structured guidance from ToolEnvelope results
+            _next_tools = res.get("next_allowed_tools", [])
+            _payload = res.get("payload", res) if isinstance(res.get("payload"), dict) else res
+            _hold_reason = res.get("warnings", [""])[0] if res.get("warnings") else ""
+            _next_action = None
+            if not ok and _hold_reason:
+                _next_action = {
+                    "reason": _hold_reason,
+                    "missing_requirements": _payload.get("missing_requirements", []) if isinstance(_payload, dict) else [],
+                    "next_allowed_tools": _next_tools,
+                    "suggested_canonical_call": _payload.get("suggested_canonical_call") if isinstance(_payload, dict) else None,
+                }
             return RuntimeEnvelope(
                 tool=res.get("tool", "unknown"),
                 stage=res.get("stage", "444_ROUTER"),
                 status=RuntimeStatus.SUCCESS if ok else RuntimeStatus.ERROR,
                 verdict=Verdict.SEAL if ok else Verdict.VOID,
+                allowed_next_tools=_next_tools,
+                next_action=_next_action,
                 payload=res
             )
         return res

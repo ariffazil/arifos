@@ -197,8 +197,31 @@ class ToolEnvelope:
         session_id: str,
         reason: str,
         trace: TraceContext | None = None,
+        missing_requirements: list[str] | None = None,
+        next_allowed_tools: list[str] | None = None,
+        suggested_canonical_call: dict | None = None,
+        claimed_actor_id: str | None = None,
     ) -> "ToolEnvelope":
-        """Factory for HOLD state — fail-closed default."""
+        """Factory for HOLD state — fail-closed default with structured continuation."""
+        payload: dict = {
+            "hold_reason": reason,
+            "identity": {
+                "claimed_actor_id": claimed_actor_id or "anonymous",
+                "verified_actor_id": None,
+                "auth_state": "unverified",
+                "note": "Claimed identity is not treated as authority until auth_context is provided.",
+            },
+        }
+        if missing_requirements:
+            payload["missing_requirements"] = missing_requirements
+            payload["next_required_inputs"] = missing_requirements
+        if suggested_canonical_call:
+            payload["suggested_canonical_call"] = suggested_canonical_call
+        if next_allowed_tools:
+            payload["guidance"] = (
+                f"To continue: provide {', '.join(missing_requirements or ['required fields'])} "
+                f"and call {next_allowed_tools[0]}."
+            )
         return cls(
             status=ToolStatus.HOLD,
             tool=tool,
@@ -209,7 +232,8 @@ class ToolEnvelope:
             requires_human=True,
             trace=trace,
             warnings=[f"HOLD: {reason}"],
-            payload={"hold_reason": reason},
+            next_allowed_tools=next_allowed_tools or [],
+            payload=payload,
         )
     
     @classmethod
