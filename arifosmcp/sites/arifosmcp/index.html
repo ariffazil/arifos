@@ -6,8 +6,8 @@
     <meta name="description" content="arifOS MCP Server - The world's first production-grade Constitutional AI Governance System with 13 stationary floors (F1-F13) and Trinity Architecture (ΔΩΨ).">
     <meta name="keywords" content="arifOS, MCP, Model Context Protocol, AI Governance, Constitutional AI, Trinity Architecture, F1-F13, ΔΩΨ, AGI, ASI, APEX">
     <meta name="author" content="Muhammad Arif bin Fazil">
-    <meta name="version" content="2026.03.14-VALIDATED">
-    <meta name="ai-context" content="This is the arifOS MCP Server - A Constitutional AI Governance System. It provides 25 canonical tools across 5 layers: KERNEL (6), AGI Δ MIND (6), ASI Ω HEART/HAND (4), APEX Ψ SOUL (7), VAULT999 (2). All tools enforce 13 Constitutional Floors (F1-F13).">
+    <meta name="version" content="2026.03.22-FORGE">
+    <meta name="ai-context" content="This is the arifOS MCP Server - A Constitutional AI Governance System. It provides 37 tools (11 mega-tool groups + routing aliases) enforcing 13 Constitutional Floors (F1-F13). Trinity Architecture (Δ Mind, Ω Heart, Ψ Soul). APEX score G† ≥ 0.80 required for all actions. Transport: streamable-http. MCP endpoint: /mcp. License: AGPL-3.0.">
     <title>arifOS MCP Server | Constitutional AI Governance (ΔΩΨ)</title>
     <style>
         :root {
@@ -484,8 +484,8 @@
         </div>
 
         <div class="section">
-            <h2>🛠️ 25 Canonical Tools</h2>
-            <p>The complete tool surface distributed across 5 sovereign layers:</p>
+            <h2>🛠️ 37 Tools (11 Mega-Tool Groups)</h2>
+            <p>37 tools organized into 11 mega-tool groups across the Trinity Architecture (Δ Mind, Ω Heart, Ψ Soul):</p>
             
             <h3>KERNEL Layer (6 tools)</h3>
             <div class="tool-grid">
@@ -705,7 +705,7 @@
             <div class="endpoint">
                 <span class="method get">GET</span>
                 <code>/tools</code>
-                <p>List all 25 canonical tools with JSONSchema parameters</p>
+                <p>List all 37 tools with JSONSchema parameters</p>
             </div>
             
             <div class="endpoint">
@@ -723,12 +723,14 @@
 
         <div class="section">
             <h2>📊 Validation Status</h2>
-            <p><strong>External Validation:</strong> <span style="color: var(--accent-success);">✅ PASSED</span> (2026-03-14)</p>
+            <p><strong>Production Status:</strong> <span style="color: var(--accent-success);">✅ RUNNING</span> — 2026-03-22-FORGE</p>
             <ul style="margin-top: 1rem; margin-left: 1.5rem;">
-                <li>Schema Compliance: 25/25 tools valid ✅</li>
-                <li>Functional Testing: Trinity (ΔΩΨ) verified ✅</li>
+                <li>Tools Live: 37 tools (11 mega-tool groups) ✅</li>
+                <li>ML Floors: SBERT enabled ✅</li>
                 <li>Constitutional Floors: F1-F13 enforced ✅</li>
-                <li>Production Status: READY ✅</li>
+                <li>Trinity Architecture: Δ Mind · Ω Heart · Ψ Soul ✅</li>
+                <li>Transport: Streamable HTTP (MCP 2025-11-25) ✅</li>
+                <li>Infrastructure: 16 containers running ✅</li>
             </ul>
         </div>
 
@@ -840,23 +842,22 @@
     <script type="application/json" id="arifos-metadata">
     {
         "name": "arifOS MCP Server",
-        "version": "2026.03.14-VALIDATED",
-        "description": "The world's first production-grade Constitutional AI Governance System",
+        "version": "2026.03.22-FORGE",
+        "description": "Production Constitutional AI Governance System — FastMCP streamable-http server",
         "architecture": {
             "type": "Trinity",
             "engines": ["Delta (AGI Mind)", "Omega (ASI Heart)", "Psi (APEX Soul)"],
-            "symbols": "ΔΩΨ"
+            "symbols": "ΔΩΨ",
+            "pipeline": "000→999 metabolic stages",
+            "containers": 16,
+            "transport": "streamable-http",
+            "mcp_protocol": "2025-11-25"
         },
         "tools": {
-            "total": 32,
-            "layers": {
-                "KERNEL": ["init_anchor", "init_anchor_state", "revoke_anchor_state", "register_tools", "arifOS_kernel", "forge"],
-                "AGI_DELTA_MIND": ["agi_reason", "agi_reflect", "reality_compass", "reality_atlas", "search_reality", "ingest_evidence"],
-                "ASI_OMEGA_HEART": ["asi_critique", "asi_simulate"],
-                "ASI_OMEGA_HAND": ["agentzero_engineer", "agentzero_memory_query"],
-                "APEX_PSI_SOUL": ["apex_judge", "agentzero_validate", "audit_rules", "agentzero_armor_scan", "agentzero_hold_check", "check_vital", "open_apex_dashboard"],
-                "VAULT999": ["vault_seal", "verify_vault_ledger"]
-            }
+            "total": 37,
+            "mega_tool_groups": 11,
+            "mega_tools": ["init_anchor", "arifOS_kernel", "agi_mind", "asi_heart", "apex_soul", "physics_reality", "engineering_memory", "vault_ledger", "math_estimator", "code_engine", "architect_registry"],
+            "note": "37 tools total includes legacy routing aliases that delegate to mega-tools"
         },
         "constitutional_floors": [
             {"id": "F1", "name": "Amanah", "type": "Hard", "threshold": "≥ 0.5", "enforces": "Reversibility"},
@@ -875,22 +876,29 @@
         ],
         "metabolic_stages": ["000_INIT", "111_SENSE", "222_REALITY", "333_MIND", "444_ROUTER", "555_MEMORY", "666_HEART", "777_FORGE", "888_JUDGE", "999_VAULT"],
         "verdicts": ["SEAL", "VOID", "SABAR", "PARTIAL", "HOLD_888"],
-        "installation": {
-            "pypi": "pip install arifosmcp==2026.3.14",
-            "npm": "npm install -g @arifos/mcp"
+        "connect": {
+            "mcp_endpoint": "https://arifosmcp.arif-fazil.com/mcp",
+            "mcp_config": "{\"mcpServers\":{\"arifOS\":{\"type\":\"http\",\"url\":\"https://arifosmcp.arif-fazil.com/mcp\"}}}",
+            "transport": "streamable-http"
         },
         "links": {
-            "github": "https://github.com/ariffazil/arifosmcp",
-            "pypi": "https://pypi.org/project/arifosmcp/",
-            "npm": "https://www.npmjs.com/package/@arifos/mcp",
-            "documentation": "https://arifos.arif-fazil.com"
+            "github_body": "https://github.com/ariffazil/arifosmcp",
+            "github_mind": "https://github.com/ariffazil/arifOS",
+            "mcp_endpoint": "https://arifosmcp.arif-fazil.com/mcp",
+            "health": "https://arifosmcp.arif-fazil.com/health",
+            "tools": "https://arifosmcp.arif-fazil.com/tools",
+            "dashboard": "https://arifosmcp.arif-fazil.com/dashboard/",
+            "monitoring": "https://monitor.arifosmcp.arif-fazil.com",
+            "docs": "https://arifos.arif-fazil.com"
         },
-        "validation": {
-            "status": "PASSED",
-            "date": "2026-03-14",
-            "schema_compliance": "25/25",
-            "functional_tests": "16/25 passed (9 context-env)",
-            "constitutional_floors": "F1-F13 enforced"
+        "production_state": {
+            "status": "RUNNING",
+            "date": "2026-03-22",
+            "version": "2026.03.22-FORGE",
+            "tools_loaded": 37,
+            "ml_floors": "SBERT enabled",
+            "containers": 16,
+            "license": "AGPL-3.0"
         }
     }
     </script>
