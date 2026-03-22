@@ -18,6 +18,8 @@ class InitAnchorMode(str, Enum):
     init = "init"
     revoke = "revoke"
     refresh = "refresh"
+    state = "state"
+    status = "status"
 
 
 class KernelMode(str, Enum):
@@ -163,6 +165,9 @@ class CapabilityTarget:
 CAPABILITY_MAP: dict[str, CapabilityTarget] = {
     # ---- Governance / Bootstrap (000_INIT) ----
     "init_anchor": CapabilityTarget("init_anchor", "init", "Canonical init"),
+    "init_anchor_state": CapabilityTarget("init_anchor", "state", "Forensic init state"),
+    "revoke_anchor_state": CapabilityTarget("init_anchor", "revoke", "Revoke anchor"),
+    "get_caller_status": CapabilityTarget("init_anchor", "status", "Bootstrap status"),
     "arifOS_kernel": CapabilityTarget("arifOS_kernel", "kernel", "Canonical router"),
     "metabolic_loop": CapabilityTarget("arifOS_kernel", "kernel", "Legacy compatibility"),
     # ---- AGI (333/555) ----

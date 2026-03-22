@@ -188,7 +188,7 @@ async def agi(
         floors=floors,
         lane=gpv.lane.value,
         delta_s=ds,
-        evidence=["Grounding confirmed via internal AGI analysis."], # Use list for F2 search
+        evidence={"grounding": "Grounding confirmed via internal AGI analysis."},
         grounding=["src:ollama", "lane:FACTUAL"],
         floor_scores=FloorScores(**cognition.floor_scores),
         human_witness=1.0,

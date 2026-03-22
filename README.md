@@ -13,8 +13,8 @@
 ---
 
 [![Status](https://img.shields.io/badge/Status-Alive%20(COHERENT)-00b894.svg?style=flat-square)](https://arifosmcp.arif-fazil.com/health)
-[![Release](https://img.shields.io/badge/Version-2026.03.22--YANG--ARIF-blue.svg?style=flat-square)](https://github.com/ariffazil/arifosmcp/releases)
-[![Tools](https://img.shields.io/badge/Mega--Tools-11%20(42%20Modes)-success.svg?style=flat-square)](https://arifosmcp.arif-fazil.com/tools)
+[![Release](https://img.shields.io/badge/Version-2026.03.22--INIT--UNIFIED-blue.svg?style=flat-square)](https://github.com/ariffazil/arifosmcp/releases)
+[![Tools](https://img.shields.io/badge/Mega--Tools-11%20(40%20Modes)-success.svg?style=flat-square)](https://arifosmcp.arif-fazil.com/tools)
 [![Protocols](https://img.shields.io/badge/Protocols-MCP%2BA2A%2BWebMCP%2BURI-orange.svg?style=flat-square)](./docs/protocols/PROTOCOLS_TRINITY.md)
 [![Validation](https://img.shields.io/badge/External%20Validation-HIGH-brightgreen.svg?style=flat-square)](./docs/reports/EXTERNAL_VALIDATION_REPORT.md)
 [![License](https://img.shields.io/badge/License-AGPL%203.0-lightgrey.svg?style=flat-square)](./LICENSE)
@@ -253,10 +253,10 @@ To cure API bloat, 42 fragmented tools were consolidated into **11 Mega-Tools**.
 
 Here is the exhaustive matrix of how an AI LLM must interact with the system.
 
-### Full 39-Mode Matrix Summary
+### Full 40-Mode Matrix Summary
 | Layer | Mega-Tool | Modes Count | Modes |
 |-------|-----------|-------------|-------|
-| Gov | `init_anchor` | 3 | `init`, `revoke`, `refresh` |
+| Gov | `init_anchor` | 5 | `init`, `state`, `status`, `revoke`, `refresh` |
 | Gov | `arifOS_kernel` | 2 | `kernel`, `status` |
 | Gov | `apex_soul` | 7 | `judge`, `rules`, `validate`, `hold`, `armor`, `notify`, `probe` |
 | Gov | `vault_ledger` | 2 | `seal`, `verify` |
@@ -267,7 +267,7 @@ Here is the exhaustive matrix of how an AI LLM must interact with the system.
 | Mac | `math_estimator` | 3 | `cost`, `health`, `vitals` |
 | Mac | `code_engine` | 5 | `fs`, `process`, `net`, `tail`, `replay` |
 | Mac | `architect_registry` | 3 | `register`, `list`, `read` |
-| **Total** | **11 Tools** | **42 Modes** | |
+| **Total** | **11 Tools** | **40 Modes** | |
 
 ### 9.5. Agentic Guidance & Skills (Transport Layer Wiring)
 A critical upgrade in the `YANG-ARIF` runtime is the wiring of metadata directly to the protocol bridge. Agents can now "Self-Ground" their own mandate without human intervention:
@@ -284,10 +284,16 @@ These are accessible via any standard MCP client (Claude Desktop, Gemini, etc.).
 ### A. GOVERNANCE LAYER (The Spine)
 *Handles identity, orchestration, and final judgment.*
 
-1. **`init_anchor`**
-   - **Purpose:** Gateway authentication.
-   - **Mode:** `init` (bind session), `revoke` (kill session), `refresh` (renew TTL).
+1. **`init_anchor`** — *The Ignition State of Intelligence*
+   - **Purpose:** Gateway authentication & unified session lifecycle.
+   - **Modes:** 
+     - `init` — Establish new governed session (birth)
+     - `state` — Forensic audit of existing session (memory)
+     - `status` — Bootstrap diagnostics & vitals (vitals)
+     - `revoke` — Terminate/kill session (death)
+     - `refresh` — Rotate token & renew TTL (renewal)
    - **Payload Requirement:** `{"actor_id": "STRING"}`
+   - **Note:** Consolidates legacy tools (`init_anchor_state`, `revoke_anchor_state`, `get_caller_status`) into ONE unified tool via CAPABILITY_MAP routing.
    
 2. **`arifOS_kernel`**
    - **Purpose:** The main event loop.
@@ -451,6 +457,7 @@ make deploy-production
 
 The rapid evolution of the arifOS execution layer in March 2026:
 
+- **v2026.03.22-INIT-UNIFIED:** *The Ignition State of Intelligence.* Unified `init_anchor` into ONE tool with 5 modes (`init`, `state`, `status`, `revoke`, `refresh`). Legacy tools route via CAPABILITY_MAP. Fixed critical kwargs bug. Total modes: 40.
 - **v2026.03.22-YANG-ARIF:** *Unified Genesis Sync.* Standardized 11-Tool surface with 42 internal modes. Wired Agent Skills Registry to `arifos://` transport resources. Interlinked with Mind/Pillars at arifOS root.
 - **v2026.03.20-SOVEREIGN11:** Consolidated 11 Mega-Tools with 39 modes. Fixed all enum mismatches across capability_map.py and tool_specs.py.
 - **v2026.03.20-CONSOLIDATION:** The 42 fragmented tools were condensed into the modern 11-Tool Mega-Surface architecture. Major system decoupling.
@@ -475,5 +482,5 @@ All system actions originating from this codebase hold their provenance in human
 
 ---
 
-*(End of README. SEALed by arifOS Governance Kernel v2026.03.22-YANG-ARIF.)*
+*(End of README. SEALed by arifOS Governance Kernel v2026.03.22-INIT-UNIFIED.)*
 <EOF>
