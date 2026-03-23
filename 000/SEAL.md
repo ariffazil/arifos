@@ -29,19 +29,17 @@ This document cryptographically attests to the physical and logical continuity o
 
 ---
 
-## Canonical Core Hashes (SHA-256)
-
 | Organ / File | Hash (SHA-256) | Size (Bytes) |
 | :--- | :--- | :--- |
-| **ROOT/K000_ROOT.md** | `727d67086828f651fe75c6e512f8efccbae200bfd30481bc0317c2189db4ec4a` | 41,250 |
+| **000_CONSTITUTION.md** | `0ae2d9e23fa1e10cb8610729c18ce349a2139c88106135516cdbce145a48eca4` | 24,980 |
+| **000_INIT.md** | `7149fff496470ca928ef5f0189cb0c9ed07c152ce8836e0f5b260b6cc04db135` | 1,224 |
+| **000_MANIFESTO.md** | `d85f8b4b6a2bdb00345bce4cfed9a8ffc0eec5fb58f55d680068efa8562e5d64` | 18,740 |
+| **000_THEORY.md** | `8f5793b31a1647cb44469f0ae0ee1def370ccda8e065e599b550ece4447e60ae` | 28,451 |
+| **ROOT/K000_ROOT.md** | `3c4825ee96dc5a1309df80ba3bcecfdb5d45be7403ac41d115d1a314b2e527e9` | 39,812 |
 | **ROOT/K111_PHYSICS.md** | `0e22f6359c8f7f8a9c840b04f449920c9591c7dce15ca53ce9e8cc59f569e292` | 19,769 |
-| **ROOT/K222_MATH.md** | `b30c0501ca4f3f423e6f7646090f72cc17ef7f3cc64f767eda41c46f50e038ec` | 3,772 |
 | **ROOT/K333_CODE.md** | `fba748dd50bf0bb3c7cbd2a97add62455cee2d8084781b1ed3cfa1800b41d809` | 53,346 |
-| **ROOT/K555_HEART.md** | `ed11b5a3e9040498611a0a002b13a363564e52a4858f65e0a5e435b7431898a4` | 3,532 |
-| **ROOT/K777_APEX.md** | `e86c75556cb471b4079dead2fb7c5e2c9d5c5db913852208732deb2ad636fe55` | 35,770 |
-| **ROOT/K888_FORGE.md** | `74d05aa491af0b92d4d318fc374184096f5fec756069697c0e02aaca73edb34a` | 16,641 |
-| **ROOT/K999_VAULT.md** | `8cd1cce483d91222079d9b16d18dcb13cbc0cf268a7a8009b96303d721253e73` | 27,414 |
-| **FLOORS/K000_LAW.md** | `cd919e30a8268b6dadf9ca1ec68ed8cc3ad1aa5ae6f05b5da2c1b49b4d126b7f` | 19,985 |
+| **ROOT/K777_APEX.md** | `e86c75556cb471b4079dead2fb7c5e2c9d5c5db913852208732deb2ad636fe55` | 33,770 |
+| **FLOORS/K000_LAW.md** | `289b7a9b3b4b7e4fec20758101572e816f8c114ae1e645db8542ed485fd554fd` | 19,985 |
 
 **Total Canonical Size**: 221,979 bytes (216.8 KB)
 
