@@ -1,0 +1,18 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-10-17/server.schema.json",
+  "name": "io.github.ariffazil/arifosmcp",
+  "version": "2026.03.22",
+  "description": "Constitutional AI governance: 11 mega-tools, 13 floors, VAULT999 ledger. Human-in-loop by design.",
+  "title": "arifOS — Constitutional AI Governance",
+  "websiteUrl": "https://arifos.arif-fazil.com",
+  "repository": {
+    "url": "https://github.com/ariffazil/arifosmcp",
+    "source": "github"
+  },
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://arifosmcp.arif-fazil.com/mcp"
+    }
+  ]
+}

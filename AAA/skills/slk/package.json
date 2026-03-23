@@ -1,0 +1,44 @@
+{
+  "name": "slkcli",
+  "version": "0.1.6",
+  "description": "Slack CLI for macOS, so your agents can read and send messages",
+  "type": "module",
+  "license": "MIT",
+  "author": "Rohit Das",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/therohitdas/slkcli.git"
+  },
+  "homepage": "https://github.com/therohitdas/slkcli",
+  "bugs": {
+    "url": "https://github.com/therohitdas/slkcli/issues"
+  },
+  "keywords": [
+    "slack",
+    "slack-cli",
+    "cli",
+    "macos",
+    "slack-api",
+    "slack-bot",
+    "agent",
+    "terminal",
+    "messaging"
+  ],
+  "bin": {
+    "slk": "bin/slk.js"
+  },
+  "files": [
+    "bin/",
+    "src/",
+    "LICENSE",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "dev": "node bin/slk.js"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}
