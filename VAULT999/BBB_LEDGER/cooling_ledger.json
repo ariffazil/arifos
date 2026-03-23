@@ -1,0 +1,37 @@
+{
+  "version": "v52.5.1",
+  "genesis_hash": "2d908938a7dc7c46a556c40177fed702afc242b4a6e65cdf308e432f9a463be4",
+  "created_at": "2026-01-26T08:05:13Z",
+  "motto": "DITEMPA BUKAN DIBERI - Forged, Not Given",
+  "description": "Constitutional cooling ledger for user governance state",
+  "users": {
+    "default": {
+      "cooling_tier": 0,
+      "void_count_30d": 0,
+      "last_void_verdict": null,
+      "threshold_adjustments": {},
+      "created_at": "2026-01-26T08:05:13Z"
+    }
+  },
+  "cooling_tiers": {
+    "0": {
+      "description": "Default tier - no violations",
+      "threshold_adjustments": {}
+    },
+    "1": {
+      "description": "Tier 1 - Minor violations (42h cooling)",
+      "hours": 42,
+      "threshold_adjustments": {}
+    },
+    "2": {
+      "description": "Tier 2 - Standard violations (72h cooling)",
+      "hours": 72,
+      "threshold_adjustments": {}
+    },
+    "3": {
+      "description": "Tier 3 - Critical violations (168h cooling)",
+      "hours": 168,
+      "threshold_adjustments": {}
+    }
+  }
+}

@@ -1,0 +1,417 @@
+#!/usr/bin/env python3
+"""
+arifOS MCP Bridge — MCP 2025-11-25 Streamable HTTP (SSE Parser)
+KIMI-PRIMARY Architecture 2026.03.19-FORGED
+Fixed: F11 auth wiring + F13 HOLD handling
+"""
+import sys
+import json
+import urllib.request
+import urllib.error
+import os
+
+ARIFOS_URL = os.getenv("ARIFOS_URL", "http://arifosmcp:8080")
+
+# Session state storage
+ANCHORED_SESSIONS = set()      # Sessions that have completed init_anchor
+AUTH_CONTEXTS = {}             # session_id -> auth_context from anchor
+ANCHOR_IDS = {}                # session_id -> anchor_id from anchor
+
+def parse_transport_payload(data: bytes) -> list:
+    """Parse either SSE or direct JSON transport responses."""
+    text = data.decode('utf-8', errors='replace')
+    results = []
+
+    for event in text.split('\n\n'):
+        for line in event.strip().split('\n'):
+            if line.startswith('data:'):
+                json_str = line[5:].strip()
+                if json_str:
+                    try:
+                        results.append(json.loads(json_str))
+                    except json.JSONDecodeError:
+                        pass
+
+    if results:
+        return results
+
+    try:
+        parsed = json.loads(text)
+        return [parsed]
+    except json.JSONDecodeError:
+        return []
+
+def extract_auth_context(result: dict) -> tuple:
+    """
+    Extract auth_context and anchor_id from anchor response.
+    Handles both direct response and jsonrpc result wrapper.
+    Returns: (auth_context_dict, anchor_id_str)
+    """
+    auth_ctx = {}
+    anchor_id = None
+    
+    if isinstance(result, dict):
+        # Handle jsonrpc wrapper: {jsonrpc, id, result: {...}}
+        actual_result = result.get('result', result)
+        
+        # Try structuredContent first
+        sc = actual_result.get('structuredContent', {})
+        if sc:
+            auth_ctx = sc.get('auth_context', {})
+            anchor_id = sc.get('anchor_id') or sc.get('session_id')
+        
+        # Try content[0].text parsed
+        if not auth_ctx:
+            content = actual_result.get('content', [{}])
+            if content:
+                text = content[0].get('text', '{}')
+                try:
+                    inner = json.loads(text)
+                    auth_ctx = inner.get('auth_context', {})
+                    anchor_id = inner.get('anchor_id') or inner.get('session_id')
+                except json.JSONDecodeError:
+                    pass
+        
+        # Try result level
+        if not auth_ctx:
+            auth_ctx = actual_result.get('auth_context', {})
+        if not anchor_id:
+            anchor_id = actual_result.get('anchor_id') or actual_result.get('session_id')
+    
+    return auth_ctx, anchor_id
+
+def is_anchor_successful(result: dict) -> bool:
+    """Check if anchor call was successful based on various response formats."""
+    if not isinstance(result, dict):
+        return False
+    
+    # Handle jsonrpc wrapper
+    actual_result = result.get('result', result)
+    
+    # Check structuredContent.verdict
+    sc = actual_result.get('structuredContent', {})
+    if sc.get('verdict') in ['SEAL', 'ANCHORED', 'SUCCESS']:
+        return True
+    
+    # Check content[0].text inner JSON
+    content = actual_result.get('content', [{}])
+    if content:
+        text = content[0].get('text', '{}')
+        try:
+            inner = json.loads(text)
+            if inner.get('ok') == True or inner.get('verdict') in ['SEAL', 'ANCHORED', 'SUCCESS']:
+                return True
+        except json.JSONDecodeError:
+            pass
+    
+    # Check top-level ok or verdict
+    if actual_result.get('ok') == True:
+        return True
+    if actual_result.get('verdict') in ['SEAL', 'ANCHORED', 'SUCCESS']:
+        return True
+    
+    return False
+
+def handle_f13_hold(result: dict) -> dict:
+    """
+    Handle F13 Sovereignty / requires_human.
+    Detects HOLD states and shapes response for OpenClaw to display.
+    """
+    if not isinstance(result, dict):
+        return result
+    
+    # Handle jsonrpc wrapper - check both top-level and result.structuredContent
+    actual_result = result.get('result', result)
+    sc = actual_result.get('structuredContent', {})
+    
+    # Check for hold conditions in both locations
+    requires_human = (
+        result.get("requires_human") in [True, "true", "True", 1, "1"] or
+        sc.get("requires_human") in [True, "true", "True", 1, "1"]
+    )
+    verdict = sc.get("verdict", result.get("verdict", ""))
+    is_hold_verdict = verdict in ["HOLD", "HOLD_888", "SABAR"]
+    
+    # Check for machine issues
+    errors = sc.get("errors", result.get("errors", []))
+    machine_issue = sc.get("machine_issue", result.get("machine_issue"))
+    if not machine_issue and errors and isinstance(errors, list) and len(errors) > 0:
+        machine_issue = errors[0].get("code", "")
+    
+    if requires_human or is_hold_verdict or machine_issue in ["F13_SOVEREIGNTY_HOLD", "AUTH_TOKEN_MISSING"]:
+        # Extract human-readable information
+        hold_reason = result.get("payload", {}).get("hold_reason", "")
+        risk_summary = ""
+        
+        if errors and isinstance(errors, list) and len(errors) > 0:
+            remediation = errors[0].get("remediation") or {}
+            risk_summary = remediation.get("risk_summary", "")
+            if not hold_reason:
+                hold_reason = errors[0].get("message", "Human approval required")
+        
+        if not hold_reason:
+            hold_reason = "High-risk execution requires sovereign approval (F13)"
+        
+        # Return shaped HOLD response
+        return {
+            "verdict": "HOLD_888",
+            "status": "AWAITING_SOVEREIGN_APPROVAL",
+            "requires_human": True,
+            "machine_status": "BLOCKED",
+            "hold_reason": hold_reason,
+            "risk_summary": risk_summary,
+            "original_result": result,
+            "authority": {
+                "human_required": True,
+                "approval_scope": ["arifOS_kernel:execute"]
+            }
+        }
+    
+    return result
+
+def get_session_id() -> str:
+    """Initialize MCP session and get session ID from headers."""
+    url = f"{ARIFOS_URL}/mcp"
+    payload = {
+        "jsonrpc": "2.0",
+        "id": 1,
+        "method": "initialize",
+        "params": {
+            "protocolVersion": "2024-11-05",
+            "capabilities": {},
+            "clientInfo": {"name": "openclaw-arifos-bridge", "version": "2026.03.19-FORGED"}
+        }
+    }
+    body = json.dumps(payload).encode("utf-8")
+    req = urllib.request.Request(url, data=body, method="POST")
+    req.add_header("Content-Type", "application/json")
+    req.add_header("Accept", "application/json, text/event-stream")
+    
+    try:
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            return resp.headers.get("Mcp-Session-Id") or resp.headers.get("mcp-session-id") or "fallback"
+    except urllib.error.HTTPError as e:
+        return e.headers.get("Mcp-Session-Id") or e.headers.get("mcp-session-id") or "fallback"
+    except Exception:
+        return "fallback"
+
+def call_mcp_tool(tool_name: str, arguments: dict, session_id: str = None) -> dict:
+    """Call MCP tool via JSON-RPC over Streamable HTTP."""
+    if session_id is None:
+        session_id = get_session_id()
+    
+    payload = {
+        "jsonrpc": "2.0",
+        "method": "tools/call",
+        "params": {
+            "name": tool_name,
+            "arguments": arguments
+        },
+        "id": 1
+    }
+    
+    url = f"{ARIFOS_URL}/mcp"
+    body = json.dumps(payload).encode('utf-8')
+    req = urllib.request.Request(url, data=body, method="POST")
+    req.add_header("Content-Type", "application/json")
+    req.add_header("Accept", "application/json, text/event-stream")
+    req.add_header("Mcp-Protocol-Version", "2025-11-25")
+    req.add_header("Mcp-Session-Id", session_id)
+    
+    try:
+        with urllib.request.urlopen(req, timeout=60) as resp:
+            data = resp.read()
+            events = parse_transport_payload(data)
+            if events:
+                result = events[0]
+                return result.get("result", result)
+            return {"verdict": "ERROR", "details": "Empty response"}
+    except urllib.error.HTTPError as e:
+        data = e.read()
+        events = parse_transport_payload(data)
+        if events:
+            err = events[0].get("error", {})
+            return {"verdict": "ERROR", "details": err}
+        return {"verdict": "ERROR", "details": f"HTTP {e.code}: {e.reason}"}
+    except Exception as e:
+        return {"verdict": "ERROR", "details": str(e)}
+
+def ensure_anchored(session_id: str, actor_id: str = "arif", risk_tier: str = "medium") -> dict:
+    """
+    Bootstrap constitutional anchor (000_INIT). Idempotent.
+    Stores auth_context for F11 compliance.
+    Calls both init_anchor AND init_anchor_state to fully activate session.
+    """
+    global ANCHORED_SESSIONS, AUTH_CONTEXTS, ANCHOR_IDS
+    
+    # Idempotent: skip if already anchored with auth context
+    if session_id in ANCHORED_SESSIONS and session_id in AUTH_CONTEXTS:
+        return {
+            "ok": True, 
+            "status": "already_anchored",
+            "auth_context": AUTH_CONTEXTS.get(session_id, {}),
+            "anchor_id": ANCHOR_IDS.get(session_id)
+        }
+    
+    # Step 1: Call init_anchor
+    result = call_mcp_tool("init_anchor", {
+        "actor_id": actor_id,
+        "session_id": session_id,
+        "intent": "openclaw_bootstrap",
+    }, session_id)
+    
+    # Extract auth context
+    auth_ctx, anchor_id = extract_auth_context(result)
+    server_session_id = auth_ctx.get('session_id') if auth_ctx else None
+    
+    # Check if anchor was successful
+    if not is_anchor_successful(result):
+        return {"ok": False, "status": "anchor_failed", "raw_result": result}
+    
+    # Step 2: Call init_anchor_state to fully activate session for kernel calls
+    # Use server session_id if available for token matching
+    # Note: init_anchor_state only accepts session_id, not actor_id
+    state_session_id = server_session_id or session_id
+    state_result = call_mcp_tool("init_anchor_state", {
+        "session_id": state_session_id
+    }, state_session_id)
+    
+    # Store anchored session
+    ANCHORED_SESSIONS.add(session_id)
+    if auth_ctx:
+        AUTH_CONTEXTS[session_id] = auth_ctx
+    if anchor_id:
+        ANCHOR_IDS[session_id] = anchor_id
+    
+    return {
+        "ok": True, 
+        "status": "anchored",
+        "auth_context": auth_ctx,
+        "anchor_id": anchor_id,
+        "server_session_id": server_session_id,
+        "raw_result": result
+    }
+
+def http_get(path: str) -> dict:
+    """Simple GET request."""
+    url = f"{ARIFOS_URL}{path}"
+    req = urllib.request.Request(url, method="GET")
+    req.add_header("Accept", "application/json")
+    
+    try:
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            return json.loads(resp.read().decode('utf-8'))
+    except Exception as e:
+        return {"error": str(e)}
+
+def main():
+    if len(sys.argv) < 2:
+        print("""arifOS MCP Bridge v2-FORGED — Constitutional Anchor-First
+Usage: arifos <command> [json_args]
+
+CONSTITUTIONAL TOOLS (42-tool runtime, F1-F13 enforced):
+  anchor [args]         init_anchor — REQUIRED FIRST (000_INIT)
+  kernel [args]         arifOS_kernel — Full 000-999 pipeline
+  search [args]         search_reality — Multi-source web search
+  ingest [args]         ingest_evidence — URL/file extraction
+  memory [args]         session_memory — Vector memory (Qdrant)
+  audit [args]          audit_rules — F1-F13 floor inspection
+  vital [args]          check_vital — System health snapshot
+  judge [args]          apex_judge — Cross-check verdicts
+  seal [args]           vault_seal — Persist to VAULT999
+
+F13 SAFETY: If 'requires_human': true, execution pauses for approval.
+
+Examples:
+  arifos health
+  arifos anchor
+  arifos kernel '{"query":"Analyze this","dry_run":true}'
+  arifos memory '{"operation":"search","content":"What is Floor F2?"}'
+""")
+        sys.exit(0)
+    
+    cmd = sys.argv[1]
+    args_str = sys.argv[2] if len(sys.argv) > 2 else '{}'
+    
+    try:
+        args = json.loads(args_str)
+    except json.JSONDecodeError as e:
+        print(f"Error: Invalid JSON: {e}")
+        sys.exit(1)
+    
+    # GET commands
+    if cmd in ['list', 'tools', 'ls']:
+        print(json.dumps(http_get("/tools"), indent=2))
+        return
+    if cmd == 'health':
+        print(json.dumps(http_get("/health"), indent=2))
+        return
+    
+    # Tool mapping
+    tool_map = {
+        'anchor': 'init_anchor', 'init_anchor': 'init_anchor',
+        'anchor_state': 'init_anchor_state', 'init_anchor_state': 'init_anchor_state',
+        'kernel': 'arifOS_kernel', 'arifOS_kernel': 'arifOS_kernel',
+        'search': 'search_reality', 'search_reality': 'search_reality',
+        'ingest': 'ingest_evidence', 'ingest_evidence': 'ingest_evidence',
+        'memory': 'session_memory', 'session_memory': 'session_memory',
+        'audit': 'audit_rules', 'audit_rules': 'audit_rules',
+        'vital': 'check_vital', 'check_vital': 'check_vital',
+        'judge': 'apex_judge', 'apex_judge': 'apex_judge',
+        'seal': 'vault_seal', 'vault_seal': 'vault_seal',
+        'engineer': 'agentzero_engineer', 'agentzero_engineer': 'agentzero_engineer',
+        'validate': 'agentzero_validate', 'agentzero_validate': 'agentzero_validate',
+        'holdcheck': 'agentzero_hold_check', 'agentzero_hold_check': 'agentzero_hold_check',
+    }
+    
+    tool_name = tool_map.get(cmd)
+    if not tool_name:
+        print(f"Error: Unknown command '{cmd}'")
+        sys.exit(1)
+    
+    # Session handling
+    session_id = args.get('session_id', 'openclaw-session')
+    
+    # CONSTITUTIONAL RULE: Anchor first before kernel (F1-F13)
+    if tool_name == 'arifOS_kernel':
+        # Ensure anchored (idempotent)
+        anchor_result = ensure_anchored(session_id, args.get('actor_id', 'arif'))
+        if not anchor_result.get("ok"):
+            print(json.dumps({
+                "verdict": "ERROR", 
+                "stage": "000_INIT",
+                "message": "Constitutional anchoring failed.",
+                "anchor_details": anchor_result.get("raw_result", {})
+            }, indent=2))
+            sys.exit(1)
+        
+        # Add auth_context to kernel call for F11 compliance
+        auth_ctx = anchor_result.get("auth_context", {})
+        if auth_ctx:
+            args["auth_context"] = auth_ctx
+            # CRITICAL: Use the session_id from auth_context for F11 token matching
+            # The server validates that Mcp-Session-Id header matches auth_context.session_id
+            anchored_session_id = auth_ctx.get("session_id")
+            if anchored_session_id:
+                session_id = anchored_session_id
+        
+        # Add anchor_id if available (disabled - not accepted by kernel)
+        anchor_id = anchor_result.get("anchor_id")
+        if False and anchor_id:
+            args["anchor_id"] = anchor_id
+    
+    # Call the tool
+    result = call_mcp_tool(tool_name, args, session_id)
+    
+    # F13 HOLD handling
+    result = handle_f13_hold(result)
+    
+    # Output
+    print(json.dumps(result, indent=2))
+    
+    # Exit code for HOLD_888
+    if result.get("verdict") == "HOLD_888":
+        sys.exit(88)
+
+if __name__ == '__main__':
+    main()
