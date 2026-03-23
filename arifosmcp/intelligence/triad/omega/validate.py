@@ -3,7 +3,7 @@ arifosmcp.intelligence/triad/omega/validate.py — Stage 555 Empathy
 Full constitutional floor audit.
 """
 
-from core.kernel import kernel
+from arifosmcp.core.kernel import kernel
 
 
 async def validate(session_id: str, action: str, severity: str = "medium") -> dict:

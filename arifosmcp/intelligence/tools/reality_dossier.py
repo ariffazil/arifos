@@ -17,8 +17,8 @@ from typing import Any
 
 from arifosmcp.intelligence.tools.envelope import unified_tool_output
 from arifosmcp.intelligence.tools.reality_grounding import reality_check
-from core.physics.thermodynamics_hardened import get_thermodynamic_budget
-from core.telemetry import get_system_vitals
+from arifosmcp.core.physics.thermodynamics_hardened import get_thermodynamic_budget
+from arifosmcp.core.telemetry import get_system_vitals
 
 logger = logging.getLogger(__name__)
 

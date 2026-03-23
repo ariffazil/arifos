@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-from core.kernel import kernel
+from arifosmcp.core.kernel import kernel
 
 from .._utils import serialize_floor_concerns
 
@@ -21,7 +21,7 @@ if TYPE_CHECKING:
 _SAMPLING_ENABLED = True
 
 try:
-    from core.constitutional_sampling import AlignResult, SamplingConfig, sample_align
+    from arifosmcp.core.constitutional_sampling import AlignResult, SamplingConfig, sample_align
 except ImportError:
     _SAMPLING_ENABLED = False
 

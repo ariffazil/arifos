@@ -16,15 +16,15 @@ from __future__ import annotations
 import logging
 from typing import Any, Literal
 
-from core.shared.atlas import Phi
-from core.shared.types import (
+from arifosmcp.core.shared.atlas import Phi
+from arifosmcp.core.shared.types import (
     AgiOutput,
     EurekaInsight,
     FloorScores,
     ReasonMindAnswer,
     ReasonMindStep,
 )
-from core.shared.verdict_contract import normalize_verdict
+from arifosmcp.core.shared.verdict_contract import normalize_verdict
 
 logger = logging.getLogger(__name__)
 
@@ -80,7 +80,7 @@ async def agi(
     gpv = Phi(query)
 
     # 2. Initialize Physics/Thermodynamics
-    from core.physics.thermodynamics_hardened import (
+    from arifosmcp.core.physics.thermodynamics_hardened import (
         consume_reason_energy,
         record_entropy_io,
         shannon_entropy,
@@ -156,7 +156,7 @@ async def agi(
         ds = -0.2
 
     # 7. Real Intelligence (3E) Judgment
-    from core.judgment import judge_cognition
+    from arifosmcp.core.judgment import judge_cognition
     cognition = judge_cognition(
         query=query,
         evidence_count=len(steps),

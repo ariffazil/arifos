@@ -11,8 +11,8 @@ from __future__ import annotations
 
 import warnings
 
-from core.physics.thermo_budget import ThermoBudget as CanonicalThermoBudget
-from core.physics.thermo_budget import ThermoSnapshot as CanonicalThermoSnapshot
+from arifosmcp.core.physics.thermo_budget import ThermoBudget as CanonicalThermoBudget
+from arifosmcp.core.physics.thermo_budget import ThermoSnapshot as CanonicalThermoSnapshot
 
 # Issue deprecation warning on import
 warnings.warn(

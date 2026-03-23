@@ -13,8 +13,8 @@ import logging
 import time
 from typing import Any
 
-from core.governance_kernel import GovernanceKernel
-from core.shared.types import OutcomeRecord, OutcomeStatus
+from arifosmcp.core.governance_kernel import GovernanceKernel
+from arifosmcp.core.shared.types import OutcomeRecord, OutcomeStatus
 
 logger = logging.getLogger(__name__)
 

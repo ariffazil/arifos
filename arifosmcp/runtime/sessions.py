@@ -9,7 +9,7 @@ DITEMPA BUKAN DIBERI — Forged, Not Given
 
 from typing import Any
 
-from core.shared.types import ActorIdentity
+from arifosmcp.core.shared.types import ActorIdentity
 
 # Global Session Registry (In-memory fallback for stateless bridge)
 _ACTOR_IDENTITIES: dict[str, ActorIdentity] = {}

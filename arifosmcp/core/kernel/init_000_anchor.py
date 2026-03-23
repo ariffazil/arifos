@@ -1,5 +1,5 @@
-from core.organs._0_init import init as organ_init, AuthorityLevel, init_sync
-from core.shared.types import InitOutput
+from arifosmcp.core.organs._0_init import init as organ_init, AuthorityLevel, init_sync
+from arifosmcp.core.shared.types import InitOutput
 
 class AnchorEngine:
     async def ignite(

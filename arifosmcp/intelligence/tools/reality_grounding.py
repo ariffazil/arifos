@@ -63,7 +63,7 @@ except ImportError:
 
 # Routing: migrated to core (v64.1+)
 try:
-    from core.enforcement.routing import route_refuse
+    from arifosmcp.core.enforcement.routing import route_refuse
 except ImportError:
     route_refuse = None
 

@@ -48,9 +48,9 @@ from arifosmcp.runtime.sessions import (
     get_session_identity,
     resolve_runtime_context,
 )
-from core.shared.mottos import MOTTO_000_INIT_HEADER, MOTTO_999_SEAL_HEADER, get_motto_for_stage
-from core.enforcement.auth_continuity import mint_auth_context
-from core.state.session_manager import session_manager
+from arifosmcp.core.shared.mottos import MOTTO_000_INIT_HEADER, MOTTO_999_SEAL_HEADER, get_motto_for_stage
+from arifosmcp.core.enforcement.auth_continuity import mint_auth_context
+from arifosmcp.core.state.session_manager import session_manager
 from arifosmcp.intelligence import tools as internal_tools
 from .bridge import call_kernel
 from .reality_handlers import handler as reality_handler
@@ -441,7 +441,7 @@ async def init_anchor_impl(
     return envelope
 
 async def revoke_anchor_state_impl(session_id: str, reason: str, ctx: Context) -> RuntimeEnvelope:
-    from core.enforcement.auth_continuity import revoke_session
+    from arifosmcp.core.enforcement.auth_continuity import revoke_session
     revoke_session(session_id, reason, "sovereign")
     return RuntimeEnvelope(ok=True, tool="init_anchor", session_id=session_id, stage="000_INIT", verdict=Verdict.SEAL, status=RuntimeStatus.SUCCESS, payload={"revoked": True})
 

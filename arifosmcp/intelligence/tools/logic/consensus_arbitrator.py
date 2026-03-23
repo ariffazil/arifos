@@ -8,7 +8,7 @@ into a single constitutional truth claim (F2, F3).
 import logging
 from typing import Any
 
-from core.shared.physics import geometric_mean, std_dev
+from arifosmcp.core.shared.physics import geometric_mean, std_dev
 
 logger = logging.getLogger(__name__)
 

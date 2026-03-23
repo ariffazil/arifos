@@ -35,8 +35,8 @@ from arifosmcp.runtime.public_registry import (
     public_tool_specs
 )
 from arifosmcp.runtime.resources import apex_tools_html_rows, apex_tools_markdown_table
-from core.shared.floor_audit import get_ml_floor_runtime
-from core.shared.floors import (
+from arifosmcp.core.shared.floor_audit import get_ml_floor_runtime
+from arifosmcp.core.shared.floors import (
     FLOOR_SPEC_KEYS,
     get_floor_comparator,
     get_floor_spec,
@@ -66,7 +66,7 @@ def _representative_floor_score(floor_id: str) -> float:
     """
     Build a visualizer-friendly fallback score from canonical core floor specs.
 
-    This intentionally stays transport-agnostic by deriving from core as source-of-truth.
+    This intentionally stays transport-agnostic by deriving from arifosmcp.core as source-of-truth.
     """
     comparator = get_floor_comparator(floor_id)
     threshold = float(get_floor_threshold(floor_id))
@@ -165,7 +165,7 @@ def _build_governance_status_payload() -> dict[str, Any]:
     verdict: str = "SEAL"
 
     try:
-        from core.governance_kernel import get_governance_kernel
+        from arifosmcp.core.governance_kernel import get_governance_kernel
 
         kernel = get_governance_kernel()
         state = kernel.get_current_state() if hasattr(kernel, "get_current_state") else {}
@@ -196,7 +196,7 @@ def _build_governance_status_payload() -> dict[str, Any]:
     }
 
     try:
-        from core.telemetry import get_system_vitals
+        from arifosmcp.core.telemetry import get_system_vitals
 
         machine_vitals = get_system_vitals()
     except Exception:
@@ -214,7 +214,7 @@ def _build_governance_status_payload() -> dict[str, Any]:
 
     try:
         if float(resolved_floors.get("F8", 0.0)) <= 0.0:
-            from core.enforcement.genius import calculate_genius, coerce_floor_scores
+            from arifosmcp.core.enforcement.genius import calculate_genius, coerce_floor_scores
 
             floor_scores = coerce_floor_scores(
                 {

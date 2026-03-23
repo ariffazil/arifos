@@ -3,7 +3,7 @@ arifosmcp.intelligence/triad/delta/integrate.py — Stage 333 Atlas
 Merge context and map dependencies.
 """
 
-from core.kernel import kernel
+from arifosmcp.core.kernel import kernel
 
 
 async def integrate(session_id: str, context_bundle: dict, knowledge_gap: bool = False) -> dict:

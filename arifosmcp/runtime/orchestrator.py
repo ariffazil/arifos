@@ -571,8 +571,8 @@ async def metabolic_loop(
         }
 
     from arifosmcp.runtime.sessions import _resolve_session_id as _normalize_session_id
-    from core.governance_kernel import route_pipeline
-    from core.organs._0_init import coerce_stakes_class
+    from arifosmcp.core.governance_kernel import route_pipeline
+    from arifosmcp.core.organs._0_init import coerce_stakes_class
 
     # Track if we're approaching timeout
     def _check_timeout() -> bool:
@@ -642,7 +642,7 @@ async def metabolic_loop(
 
         # For dry_run, we inject a mock context if the real one is missing/blocked/unsuccessful
         if dry_run and (not auth_ctx or init_res.verdict != Verdict.SEAL):
-            from core.enforcement.auth_continuity import mint_auth_context
+            from arifosmcp.core.enforcement.auth_continuity import mint_auth_context
 
             auth_ctx = mint_auth_context(
                 session_id=current_session_id,

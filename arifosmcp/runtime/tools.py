@@ -96,14 +96,14 @@ _public_tool_spec_by_name_fn = _registry_tool_spec_by_name
 PUBLIC_KERNEL_TOOL_NAME = "arifOS_kernel"
 LEGACY_KERNEL_TOOL_NAME = "metabolic_loop_router"
 try:
-    from core.telemetry import check_adaptation_status, get_current_hysteresis
+    from arifosmcp.core.telemetry import check_adaptation_status, get_current_hysteresis
 except Exception:  # pragma: no cover
     def check_adaptation_status() -> dict[str, Any]:
         return {"status": "unavailable"}
     def get_current_hysteresis() -> float:
         return 0.0
 try:
-    from core.physics.thermodynamics_hardened import get_thermodynamic_report
+    from arifosmcp.core.physics.thermodynamics_hardened import get_thermodynamic_report
 except Exception:  # pragma: no cover
     def get_thermodynamic_report(session_id: str) -> dict[str, Any]:
         return {"status": "unavailable", "session_id": session_id}

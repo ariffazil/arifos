@@ -3,9 +3,9 @@ arifosmcp.intelligence/triad/psi/seal.py — Stage 999 Vault
 Commit to VAULT999 + Phoenix-72.
 """
 
-from core.kernel import kernel
-from core.organs import seal as core_seal
-from core.shared.physics import (
+from arifosmcp.core.kernel import kernel
+from arifosmcp.core.organs import seal as core_seal
+from arifosmcp.core.shared.physics import (
     ConstitutionalTensor,
     GeniusDial,
     Peace2,

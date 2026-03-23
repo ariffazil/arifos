@@ -2,8 +2,8 @@ import asyncio
 from typing import Any
 
 from arifosmcp.intelligence.tools.envelope import unified_tool_output
-from core.kernel.constitutional_decorator import constitutional_floor
-from core.telemetry import log_telemetry
+from arifosmcp.core.kernel.constitutional_decorator import constitutional_floor
+from arifosmcp.core.telemetry import log_telemetry
 
 # Local compatibility ledger for ACLIP-only execution paths.
 _LOCAL_STAGE_RESULTS: dict[str, dict[str, Any]] = {}
@@ -56,7 +56,7 @@ async def vault_seal(
 
     # Best-effort canonical VAULT write through core organ.
     try:
-        from core.organs._4_vault import vault
+        from arifosmcp.core.organs._4_vault import vault
 
         await vault(
             action="seal",
