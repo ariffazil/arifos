@@ -2,7 +2,7 @@
 arifosmcp/runtime/tools_hardened_dispatch.py — Dispatcher for Hardened Tools
 
 This module acts as the integration layer between the main FastMCP server
-and the hardened tool implementations.
+and the hardened tool implementations, now governed by the Substrate Policy.
 """
 
 from __future__ import annotations
@@ -20,6 +20,7 @@ from arifosmcp.runtime.tools_hardened_v2 import (
     HardenedApexJudge,
     HardenedVaultSeal,
 )
+from arifosmcp.runtime.substrate_policy import get_policy
 
 # Initialize hardened tool instances
 init_anchor_tool = HardenedInitAnchor()
@@ -31,33 +32,41 @@ agentzero_engineer_tool = HardenedAgentZeroEngineer()
 apex_judge_tool = HardenedApexJudge()
 vault_seal_tool = HardenedVaultSeal()
 
+def _apply_policy(envelope_dict: dict[str, Any], tool: str, mode: str) -> dict[str, Any]:
+    """Inject substrate policy metadata into the tool response."""
+    policy = get_policy(tool, mode)
+    if policy:
+        envelope_dict["substrate_class"] = policy.substrate
+        envelope_dict["risk_tier"] = policy.risk
+        envelope_dict["organ_stage"] = policy.organ_stage
+        
+        # Automatic 888_HOLD injection for high-risk substrate classes
+        if policy.risk == "high" and envelope_dict.get("verdict") != "VOID":
+            envelope_dict["verdict"] = "888_HOLD"
+            envelope_dict["note"] = f"Sovereign approval required for {policy.substrate} operation."
+            
+    return envelope_dict
+
 async def hardened_init_anchor_dispatch(mode: str, payload: dict[str, Any], **kwargs) -> dict[str, Any]:
     if mode == "init":
-        # Extract raw_input from top-level or nested intent/query fields
         raw_input = (
             payload.get("raw_input")
             or payload.get("query")
             or (payload.get("intent", {}).get("query") if isinstance(payload.get("intent"), dict) else None)
         )
         envelope = await init_anchor_tool.init(
-            # Identity
             declared_name=payload.get("declared_name") or payload.get("actor_id"),
             actor_id=payload.get("actor_id"),
-            # Intent sources (normalization contract: intent > query > raw_input)
             intent=payload.get("intent"),
             query=payload.get("query"),
             raw_input=raw_input,
-            # Auth and approval
             auth_context=payload.get("auth_context"),
             human_approval=payload.get("human_approval", False),
             proof=payload.get("proof"),
-            # Scope and risk
             requested_scope=payload.get("requested_scope"),
             risk_tier=payload.get("risk_tier", "low"),
             session_class=payload.get("session_class", "execute"),
-            # Session
             session_id=payload.get("session_id"),
-            # Advisory context (never sovereign)
             caller_context=payload.get("caller_context"),
             pns_shield=payload.get("pns_shield"),
         )
@@ -70,7 +79,8 @@ async def hardened_init_anchor_dispatch(mode: str, payload: dict[str, Any], **kw
         )
     else:
         return {"ok": False, "error": f"Invalid mode for init_anchor: {mode}"}
-    return envelope.to_dict()
+    
+    return _apply_policy(envelope.to_dict(), "init_anchor", mode)
 
 async def hardened_physics_reality_dispatch(mode: str, payload: dict[str, Any], **kwargs) -> dict[str, Any]:
     if mode in ("compass", "search", "query"):
@@ -88,28 +98,23 @@ async def hardened_physics_reality_dispatch(mode: str, payload: dict[str, Any], 
         now_utc = datetime.now(timezone.utc)
         kl_offset = timezone(timedelta(hours=8))
         now_kl = now_utc.astimezone(kl_offset)
-        return {
+        res = {
             "ok": True,
             "tool": "physics_reality",
             "stage": "111_SENSE",
             "temporal": {
                 "utc_iso": now_utc.isoformat(),
-                "utc_unix": int(now_utc.timestamp()),
-                "utc_date": now_utc.strftime("%Y-%m-%d"),
-                "utc_time": now_utc.strftime("%H:%M:%S"),
                 "kl_iso": now_kl.isoformat(),
-                "kl_date": now_kl.strftime("%Y-%m-%d"),
-                "kl_time": now_kl.strftime("%H:%M:%S"),
                 "kl_timezone": "Asia/Kuala_Lumpur (UTC+08:00)",
                 "day_of_week": now_utc.strftime("%A"),
-                "week_of_year": now_utc.isocalendar()[1],
-                "quarter": (now_utc.month - 1) // 3 + 1,
             },
             "sovereignty_epoch": "888",
         }
+        return _apply_policy(res, "physics_reality", mode)
     else:
         return {"ok": False, "error": f"Invalid mode for physics_reality: {mode}"}
-    return envelope.to_dict()
+    
+    return _apply_policy(envelope.to_dict(), "physics_reality", mode)
 
 async def hardened_agi_mind_dispatch(mode: str, payload: dict[str, Any], **kwargs) -> dict[str, Any]:
     if mode in ("reason", "reflect", "forge"):
@@ -119,7 +124,8 @@ async def hardened_agi_mind_dispatch(mode: str, payload: dict[str, Any], **kwarg
         )
     else:
         return {"ok": False, "error": f"Invalid mode for agi_mind: {mode}"}
-    return envelope.to_dict()
+    
+    return _apply_policy(envelope.to_dict(), "agi_mind", mode)
 
 async def hardened_asi_heart_dispatch(mode: str, payload: dict[str, Any], **kwargs) -> dict[str, Any]:
     if mode in ("critique", "simulate", "align"):
@@ -129,7 +135,8 @@ async def hardened_asi_heart_dispatch(mode: str, payload: dict[str, Any], **kwar
         )
     else:
         return {"ok": False, "error": f"Invalid mode for asi_heart: {mode}"}
-    return envelope.to_dict()
+    
+    return _apply_policy(envelope.to_dict(), "asi_heart", mode)
 
 async def hardened_engineering_memory_dispatch(mode: str, payload: dict[str, Any], **kwargs) -> dict[str, Any]:
     if mode in ("engineer", "query", "generate"):
@@ -138,9 +145,16 @@ async def hardened_engineering_memory_dispatch(mode: str, payload: dict[str, Any
             action_class=payload.get("action_class", "read"),
             session_id=payload.get("session_id")
         )
+    elif mode in ("vector_query", "vector_store"):
+        envelope = await agentzero_engineer_tool.plan_execution(
+            task=payload.get("query") or payload.get("content"),
+            action_class="read" if "query" in mode else "write",
+            session_id=payload.get("session_id")
+        )
     else:
         return {"ok": False, "error": f"Invalid mode for engineering_memory: {mode}"}
-    return envelope.to_dict()
+    
+    return _apply_policy(envelope.to_dict(), "engineering_memory", mode)
 
 async def hardened_apex_soul_dispatch(mode: str, payload: dict[str, Any], **kwargs) -> dict[str, Any]:
     if mode in ("judge", "validate", "hold", "armor", "rules"):
@@ -151,18 +165,20 @@ async def hardened_apex_soul_dispatch(mode: str, payload: dict[str, Any], **kwar
         )
     else:
         return {"ok": False, "error": f"Invalid mode for apex_soul: {mode}"}
-    return envelope.to_dict()
+    
+    return _apply_policy(envelope.to_dict(), "apex_soul", mode)
 
 async def hardened_vault_ledger_dispatch(mode: str, payload: dict[str, Any], **kwargs) -> dict[str, Any]:
     if mode in ("seal", "verify"):
         envelope = await vault_seal_tool.seal(
-            decision={"verdict": payload.get("verdict"), "evidence": payload.get("evidence")},
+            decision=payload.get("decision") or {"verdict": payload.get("verdict"), "evidence": payload.get("evidence")},
             session_id=payload.get("session_id"),
             seal_class=payload.get("seal_class", "operational")
         )
     else:
         return {"ok": False, "error": f"Invalid mode for vault_ledger: {mode}"}
-    return envelope.to_dict()
+    
+    return _apply_policy(envelope.to_dict(), "vault_ledger", mode)
 
 HARDENED_DISPATCH_MAP = {
     "init_anchor": hardened_init_anchor_dispatch,
