@@ -59,3 +59,11 @@ The Wire exposes exactly 11 "Mega-Tools." Each is an entry point into the Body's
 ---
 
 *The Wire is the servant; the OS is the sovereign.*
+
+---
+
+## 🔒 V. The Wire Lock (Constitutional Boundary)
+
+**AAA Wire SHALL NOT originate policy; it only carries intents and returns artifacts under the rigid constraints of the L2 Mind.** 
+
+The Body is an instrument of service, never an architect of law. Any attempt by the Wire to self-govern or bypass the 13 Floors results in an immediate **VOID** verdict and system halt.

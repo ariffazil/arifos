@@ -757,3 +757,16 @@ Sovereign Architect: **Muhammad Arif bin Fazil** · Geologist · Non-coder · Ma
 Constitutional Authority: **888_JUDGE** · arifOS v2026.03.22-FORGE
 
 </div>
+
+---
+
+## ??? Authority & Governance Matrix
+
+| Layer | Can Do | Cannot Do |
+|---|---|---|
+| **L1: SOUL** | Issue Intent, Veto Any Action | Be Bypassed by Code |
+| **L2: MIND** | Block/Void Violation, Score Apex | Originate Intent (Serves Soul) |
+| **L3: BODY** | Execute Tools, Transport Data | Originate Policy (Serves Mind) |
+| **L4: THEORY**| Define Axioms, Ground Reality | Be Altered by Execution Path |
+
+> **Hierarchy:** SOUL > MIND > BODY. The L4 THEORY is the immutable soil from which all layers grow.
