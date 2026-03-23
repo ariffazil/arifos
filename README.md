@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="https://raw.githubusercontent.com/ariffazil/arifOS/main/banner_v3.png" width="100%" alt="arifOS Sovereign v3" />
+<img src="https://raw.githubusercontent.com/ariffazil/arifOS/main/docs/image/forged_page_1.png" width="100%" alt="arifOS Forge" />
 
 # arifOS — The Intelligence Kernel
 ### Governed Intelligence for a Post-Entropy World · v2026.03.24-UNIFIED
