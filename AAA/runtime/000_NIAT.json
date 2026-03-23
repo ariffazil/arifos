@@ -1,0 +1,18 @@
+{
+  "niat_id": "NIAT_2026.03.24_KERNEL_CORE_8",
+  "version": "1.0.0",
+  "status": "SOVEREIGNLY_SEALED",
+  "mandate": "Bootstrap a governed agent runtime using the Core-8 Production Kernel.",
+  "layers": {
+    "L0": "NIAT / Constitution / BOOT",
+    "L1": "SENSE / Perception / Discovery",
+    "L2": "MIND / Reason / Critique / Simulate",
+    "L3": "CIVILIZATION / Orchestration / Execution",
+    "L4": "JUDGE / Adjudication / VAULT / SEAL"
+  },
+  "kernel": "Holy-9",
+  "motto": "Ditempa Bukan Diberi",
+  "primitives": ["boot", "sense", "reason", "memory", "critique", "simulate", "judge", "execute", "seal/audit"],
+  "authority": "888_JUDGE",
+  "governance_mode": "ENFORCED"
+}
