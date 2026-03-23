@@ -30,7 +30,7 @@ jobs:
     name: F2 Truth - Version + Namespace Alignment
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
 
       - name: Validate version and namespace consistency
         run: |
@@ -63,10 +63,10 @@ jobs:
     name: F3 Consensus - Canonical 5-Organ Contract
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
 
       - name: Setup Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
@@ -101,7 +101,7 @@ jobs:
     name: F10 Ontology - Registry Schema Validation
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
 
       - name: Install mcp-publisher
         run: |
@@ -116,7 +116,7 @@ jobs:
     name: F11 Authority - Entrypoint and Deployment Surface
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
 
       - name: Validate required files and OCI label
         run: |
@@ -132,7 +132,7 @@ jobs:
     name: F12 Defense - Secret Scan
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
       - name: Run gitleaks
         uses: zricethezav/gitleaks-action@v2
         with:

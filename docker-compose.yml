@@ -202,7 +202,7 @@ services:
     container_name: agent_zero_reasoner
     init: true
     environment:
-      - HF_TOKEN=hf_ODMWuOvCodsbywYAEYeNkIGljaUNQcljeKhf_ODMWuOvCodsbywYAEYeNkIGljaUNQcljeK
+      - HF_TOKEN=${HF_TOKEN}
       - OPENCLAW_URL=http://openclaw:18789
       - AGENT_NAME=arifos-agentzero
     volumes:
@@ -277,16 +277,16 @@ services:
       - /opt/arifos/data/openclaw/bin/xurl:/usr/local/bin/xurl:ro
       - /opt/arifos/data/openclaw/bin-wrappers:/host/clis:ro
     environment:
-      - HF_TOKEN=hf_ODMWuOvCodsbywYAEYeNkIGljaUNQcljeKhf_ODMWuOvCodsbywYAEYeNkIGljaUNQcljeK
+      - HF_TOKEN=${HF_TOKEN}
       - OLLAMA_URL=http://ollama:11434
       - REDIS_URL=redis://redis:6379
       - NODE_OPTIONS=--max-old-space-size=1536
-      - OPENCLAW_GATEWAY_TOKEN=openclaw-token-2026-arifos
+      - OPENCLAW_GATEWAY_TOKEN=${OPENCLAW_GATEWAY_TOKEN}
       - PATH=/usr/local/sbin:/usr/local/bin:/root/.local/bin:/root/.npm-global/bin:/host/clis:/host/bin:/usr/sbin:/usr/bin:/sbin:/bin
       - GH_TOKEN=${GITHUB_TOKEN:-}
       - BROWSERLESS_URL=http://headless_browser:3000
       - OLLAMA_API_BASE=http://ollama:11434
-      - TELEGRAM_BOT_TOKEN=8149595687:AAEQkeTkDq8jn8UvO2vUjmsCHJ8Y9Djo6_0
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
     networks:
       - arifos_trinity
     ports:
@@ -345,7 +345,7 @@ services:
       - arifosmcp_vault:/usr/src/app/VAULT999:rw
       - arifosmcp_memory:/usr/src/app/memory:rw
     environment:
-      HF_TOKEN: hf_ODMWuOvCodsbywYAEYeNkIGljaUNQcljeKhf_ODMWuOvCodsbywYAEYeNkIGljaUNQcljeK
+      HF_TOKEN: ${HF_TOKEN}
       PYTHONUNBUFFERED: 1
       PYTHONDONTWRITEBYTECODE: 1
       ARIFOS_WORKDIR: /usr/src/app
