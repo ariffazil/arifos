@@ -1,0 +1,40 @@
+[Unit]
+Description=arifOS Constitutional MCP Server
+Documentation=https://arifos.arif-fazil.com/public-contract
+After=network.target
+
+[Service]
+Type=simple
+User=arifos
+Group=arifos
+WorkingDirectory=/srv/arifosmcp
+
+Environment="PATH=/srv/arifosmcp/.venv/bin:/usr/local/bin:/usr/bin"
+Environment="ARIFOS_GOVERNANCE_SECRET_FILE=/opt/arifos/secrets/governance.secret"
+Environment="ARIFOS_TIMEZONE=Asia/Kuala_Lumpur"
+Environment="ARIFOS_PUBLIC_TOOL_PROFILE=chatgpt"
+Environment="ARIFOS_MCP_PATH=/mcp"
+Environment="AAA_MCP_TRANSPORT=http"
+Environment="HOST=0.0.0.0"
+Environment="PORT=8080"
+
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadOnlyPaths=/opt/arifos/secrets
+ReadWritePaths=/srv/arifosmcp/VAULT999 /srv/arifosmcp/telemetry /srv/arifosmcp/memory
+
+LimitNOFILE=65535
+LimitNPROC=4096
+
+Restart=always
+RestartSec=5
+StartLimitInterval=60
+StartLimitBurst=3
+
+ExecStart=/srv/arifosmcp/.venv/bin/python -m arifosmcp.runtime http
+ExecStartPost=/bin/sh -c 'sleep 5 && curl -fsS http://127.0.0.1:8080/health >/dev/null'
+
+[Install]
+WantedBy=multi-user.target
