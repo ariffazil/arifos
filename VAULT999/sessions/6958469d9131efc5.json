@@ -1,0 +1,113 @@
+{
+  "session_id": "test_1770057018",
+  "timestamp": "2026-02-02T18:30:18.788722+00:00Z",
+  "verdict": "SEAL",
+  "init_result": {},
+  "genius_result": {},
+  "act_result": {},
+  "judge_result": {
+    "verdict_struct": {
+      "stage": "888_JUDGE",
+      "session_id": "test_1770057018",
+      "lane": "SOFT",
+      "verdict": "SEAL",
+      "reason": "SEAL: All Pass",
+      "p_truth": 0.0,
+      "tri_witness": 0.951,
+      "votes": {
+        "mind": 0.9,
+        "heart": 0.8,
+        "earth": 0.95
+      },
+      "violated_floors": [],
+      "cooling": {
+        "tier": "L4_MONTHLY",
+        "hold_hours": 0
+      },
+      "proof_hash": "952ff542ebe051fe96a3d46aadf01b60e35ea2d1ea1754409684cf9a92ea188d",
+      "metrics": {
+        "truth": 0.951,
+        "delta_s": -0.8999999999999999,
+        "peace_squared": 1.0,
+        "kappa_r": 0.951,
+        "omega_0": 0.04,
+        "amanah": true,
+        "tri_witness": 0.951,
+        "rasa": true,
+        "anti_hantu": true,
+        "psi": 1.0
+      },
+      "psi_kernel": {
+        "psi_verdict": "SEAL",
+        "psi_f8_genius": 0.951,
+        "psi_passed": true,
+        "psi_overrode": false
+      },
+      "nine_fold": {
+        "equilibrium_gm": null,
+        "equilibrium_std": 0.6474227760624409
+      },
+      "seal_id": "0848f93c-5c54-4fe4-b467-061873929ef4"
+    },
+    "proof": {
+      "stage": "889_PROOF",
+      "session_id": "test_1770057018",
+      "merkle_root": "d3c1f9ed51134a7f046845f24ad0b14e9e387aad27baca0dba11a40d360a0164",
+      "signature_ed25519": "7f0d537e6f15f1ecb59804321dad20fcbe5b026eeea27e2fb44a99562ab40d39dffdde0f3ff9bada7acae841d3aeb6adf8f6626dbc9f78f249fe3d9af807fb00",
+      "public_key_ed25519": "8db4c4fd27ce1f7f19359ee5cabf571e07743e3b6cf464fa5f98583f0cf48cb9",
+      "leaves": [
+        "54f6b577c81ed0ce19d1cdb6fc44ea5aba3c87e56a947a49b39db109777f418b",
+        "1e6e2c629c423157dc7ab78067ef665356654f34c56021979f29ebaee874698a",
+        "24dacc143a54c3d56756a5b908038a523764592b20245e4c994abe59b6279327",
+        "e86014f19622df993a37e15e405a389d96f5234208b5ecf9d685030b4f6ff758",
+        "06ff4e80f31626451bb9b0b133df2d58ec66d19e53ec931e221d49b906d96b97",
+        "37b0c3d50559d2ef6d0ae38ac6490f6ed130078a41a39fee8b4ebbdcba8c7d2f",
+        "5c4b1181fd140503091fbd867fa585bfb625a4e40e0983ecebbdbf862bdb87d7",
+        "aa0bf1c58f2b4eb996b59042ea8bbc9288d3654c618ca2966bb144f7f68006bf",
+        "27b9e80a5e99bc3cac17ff7c123dc5de3a8a5d7952cac66e137e3fc3f6d90645",
+        "6749a353bd00ad2a3ef3283b1cde5ab3b1e97dc25575cc964a44f4b6aa114b94",
+        "c0cf2124f0459617c637c7843d0c75c56b27cb9264f7be732cd80d83b36abe3d"
+      ]
+    }
+  },
+  "telemetry": {
+    "verdict": "SEAL",
+    "p_truth": 0.0,
+    "TW": 0.951,
+    "dS": -0.8999999999999999,
+    "peace2": 1.0,
+    "kappa_r": 0.951,
+    "omega_0": 0.04,
+    "cooling": {
+      "tier": "L4_MONTHLY",
+      "hold_hours": 0
+    },
+    "proof": {
+      "merkle_root": "d3c1f9ed51134a7f046845f24ad0b14e9e387aad27baca0dba11a40d360a0164",
+      "public_key": "8db4c4fd27ce1f7f19359ee5cabf571e07743e3b6cf464fa5f98583f0cf48cb9"
+    },
+    "eureka": {
+      "eureka_score": 0.5,
+      "novelty": 1.0,
+      "entropy_reduction": 0.5,
+      "ontological_shift": 0.0,
+      "decision_weight": 0.0,
+      "jaccard_sim": 0.0,
+      "verdict": "SABAR",
+      "reasoning": [
+        "High novelty (1.00): Unprecedented query pattern (Jaccard 0.00)",
+        "EUREKA Score 0.50: Cooling period required"
+      ],
+      "fingerprint": "3bb793e25586449aada4d50f1e9cc65a7b3222f1ef22de9d548ceae9c930e8b8",
+      "target_ledger": "cooling"
+    }
+  },
+  "prev_hash": "b6786ca678b07272788112ef2327cbbac5dbe561212de5b4978f47c9ea7bbeb3",
+  "merkle_root": "9219adc114ea6e60065618d5cff63501f461dc2e0c10609e0a7f75384c804f5f",
+  "entry_hash": "6958469d9131efc5d4ca140ba8b911c45cf5ca9bd4cc3ad72a3e56ab302a4167",
+  "sequence": 4,
+  "seal_id": "0848f93c-5c54-4fe4-b467-061873929ef4",
+  "authority": "unknown",
+  "context_summary": "SEAL: SEAL: All Pass",
+  "key_insights": []
+}

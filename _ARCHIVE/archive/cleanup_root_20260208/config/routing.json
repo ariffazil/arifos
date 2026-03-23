@@ -1,0 +1,10 @@
+{
+  "default_model": "gpt-5.3-codex",
+  "routes": [
+    {
+      "task_type": "constitutional_audit",
+      "keywords": ["audit", "verify", "floors", "compliance"],
+      "primary": "gpt-5.3-codex"
+    }
+  ]
+}

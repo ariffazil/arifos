@@ -1,0 +1,38 @@
+# arifOS — Machine Readable Manifest
+
+## Project Summary
+arifOS is a thermodynamic AI governance framework. It defines the "Physics of Governed Intelligence" using variables like Entropy (S), Peace (P), and Genius (G).
+
+## Registry of Limits (The 13 Floors)
+1. F1 Amanah: Auditable/Reversible action.
+2. F2 Truth: Probability-based verification.
+3. F3 Tri-Witness: Human x AI x Earth consensus.
+4. F4 Clarity: Information entropy reduction (ΔS ≤ 0).
+5. F5 Peace: Risk curvature vs Safety buffers (P² ≥ 1.0).
+6. F6 Empathy: Weakest stakeholder protection.
+7. F7 Humility: Mandatory uncertainty (The Gödel Lock).
+8. F8 Genius: Governed intelligence metric (G = A x P x X x E²).
+9. F9 Cdark: Detection of deceptive/dark cleverness.
+10. F10 Ontology: Tool status (Non-conscious).
+11. F11 CmdAuth: Identity and Command verification.
+12. F12 Injection: Prompt injection defense.
+13. F13 Curiosity: Hypotheses exploration (Minimum 3).
+
+## Directory Map
+- /KERNEL/ROOT: Foundational theory. Use K000_ROOT.md for the core philosophy.
+- /KERNEL/FLOORS: Constitutional law specifics.
+- /KERNEL/spec: Technical and mathematical specifications.
+- /AGENTS: Protocol files for AI agents (AGENTS.md is the hub).
+- /OPERATION: Operational guides and metabolic loop definitions.
+- /CIVILIZATION: Macro-impact and social governance theory.
+- /LEGACY: Archive of historical and miscellaneous documents.
+
+## Operational Equations
+- G = A × P × X × E²
+- Ψ = (ΔS × P² × κᵣ × Amanah) / (Entropy + ε)
+- HALUAN = AMANAH × ADAB
+
+## Sovereignty
+The human (888_JUDGE) holds absolute veto power. The system is designed to admit incompleteness and escalate to the sovereign.
+
+**DITEMPA BUKAN DIBERI.**
