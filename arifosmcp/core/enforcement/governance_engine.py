@@ -21,10 +21,10 @@ from arifosmcp.runtime.contracts import (
     LAW_13_CATALOG,
     READ_ONLY_TOOLS,
 )
-from core.shared.guards.injection_guard import scan_for_injection
-from core.shared.guards.ontology_guard import detect_literalism
-from core.shared.mottos import MOTTO_000_INIT_HEADER, MOTTO_999_SEAL_HEADER, get_motto_for_stage
-from core.shared.types import RuntimeStatus
+from arifosmcp.core.shared.guards.injection_guard import scan_for_injection
+from arifosmcp.core.shared.guards.ontology_guard import detect_literalism
+from arifosmcp.core.shared.mottos import MOTTO_000_INIT_HEADER, MOTTO_999_SEAL_HEADER, get_motto_for_stage
+from arifosmcp.core.shared.types import RuntimeStatus
 
 TOOL_LAW_BINDINGS = AAA_TOOL_LAW_BINDINGS
 TOOL_STAGE_MAP = AAA_TOOL_STAGE_MAP
@@ -106,7 +106,7 @@ def _derive_apex_dials(tool: str, payload: dict[str, Any]) -> dict[str, Any]:
     Derive A/P/X/E and governed genius G* for each tool call.
     Grounds dials in real constitutional manifold (F1-F13).
     """
-    from core.enforcement.genius import (
+    from arifosmcp.core.enforcement.genius import (
         calculate_genius,
         coerce_floor_scores,
         get_thermodynamic_budget_window,
@@ -675,7 +675,7 @@ def wrap_tool_output(tool: str, payload: dict[str, Any]) -> dict[str, Any]:
     3. Production vs Debug contract
     4. Canonical ENUM enforcement
     """
-    from core.shared.verdict_contract import normalize_verdict
+    from arifosmcp.core.shared.verdict_contract import normalize_verdict
 
     # 1. Functional Analysis
     checks = _axiom_checks(payload, tool)

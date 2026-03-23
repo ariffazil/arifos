@@ -3,7 +3,7 @@ arifosmcp.intelligence/triad/psi/forge.py — Stage 777 Eureka
 Solution synthesis.
 """
 
-from core.kernel import kernel
+from arifosmcp.core.kernel import kernel
 
 
 async def forge(session_id: str, plan: str) -> dict:

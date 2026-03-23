@@ -8,7 +8,7 @@ from typing import Any
 from fastmcp.exceptions import AuthorizationError, FastMCPError, ToolError
 from pydantic import BaseModel, ConfigDict, Field
 
-from core.shared.types import AuthorityLevel, Verdict
+from arifosmcp.core.shared.types import AuthorityLevel, Verdict
 
 
 class DeltaOmegaPsi(BaseModel):

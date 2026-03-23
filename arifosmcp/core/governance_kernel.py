@@ -17,7 +17,7 @@ from math import isfinite
 from typing import Any
 
 try:
-    from core.physics.thermodynamics_hardened import (
+    from arifosmcp.core.physics.thermodynamics_hardened import (
         ThermodynamicBudget,
         ThermodynamicError,
         get_thermodynamic_budget,
@@ -267,7 +267,7 @@ class GovernanceKernel:
                 return None
         # P3: Check hardened thermodynamic budget
         try:
-            from core.physics.thermodynamics_hardened import (
+            from arifosmcp.core.physics.thermodynamics_hardened import (
                 ThermodynamicExhaustion,
                 get_thermodynamic_budget,
             )
@@ -309,7 +309,7 @@ class GovernanceKernel:
         - Anchors kernel to verified wall-clock.
         """
         # Avoid circular imports but allow temporal contract validation.
-        from core.shared.types import TemporalContract
+        from arifosmcp.core.shared.types import TemporalContract
 
         if not isinstance(contract, TemporalContract):
             return
@@ -559,7 +559,7 @@ class GovernanceKernel:
         Mandatory Rule: if stage < 888 and verdict == VOID: verdict = SABAR
         """
         # Convert to Enum if string
-        from core.shared.types import Verdict
+        from arifosmcp.core.shared.types import Verdict
 
         v = verdict if isinstance(verdict, Verdict) else Verdict(verdict)
 
@@ -623,7 +623,7 @@ class GovernanceKernel:
     def hysteresis_penalty(self) -> float:
         """Accumulated session scars (h)."""
         try:
-            from core.telemetry import get_current_hysteresis
+            from arifosmcp.core.telemetry import get_current_hysteresis
 
             return get_current_hysteresis()
         except ImportError:
@@ -631,7 +631,7 @@ class GovernanceKernel:
 
     def _project_genius_floor_scores(self) -> Any:
         """Project live kernel state into the canonical FloorScores manifold."""
-        from core.enforcement.genius import coerce_floor_scores
+        from arifosmcp.core.enforcement.genius import coerce_floor_scores
 
         return coerce_floor_scores(
             defaults={
@@ -650,7 +650,7 @@ class GovernanceKernel:
 
     def _project_genius_budget_window(self) -> tuple[float, float]:
         """Resolve the thermodynamic budget window for kernel self-measurement."""
-        from core.enforcement.genius import get_thermodynamic_budget_window
+        from arifosmcp.core.enforcement.genius import get_thermodynamic_budget_window
 
         return get_thermodynamic_budget_window(
             self.session_id,
@@ -661,7 +661,7 @@ class GovernanceKernel:
     @property
     def genius_score(self) -> float:
         """Derived G score: G = (A×P×X×E²) × (1-h)"""
-        from core.enforcement.genius import calculate_genius
+        from arifosmcp.core.enforcement.genius import calculate_genius
 
         floors = self._project_genius_floor_scores()
         budget_used, budget_max = self._project_genius_budget_window()
@@ -676,8 +676,8 @@ class GovernanceKernel:
 
     def get_current_state(self) -> dict[str, Any]:
         """Compatibility payload for adapters expecting live governance telemetry."""
-        from core.enforcement.genius import calculate_genius
-        from core.shared.types import Verdict
+        from arifosmcp.core.enforcement.genius import calculate_genius
+        from arifosmcp.core.shared.types import Verdict
 
         if self.governance_state == GovernanceState.VOID:
             verdict = Verdict.VOID.value
@@ -902,7 +902,7 @@ def get_governance_kernel(session_id: str | None = None) -> GovernanceKernel:
 
     if session_id:
         try:
-            from core.state.session_manager import session_manager
+            from arifosmcp.core.state.session_manager import session_manager
 
             session_kernel = session_manager.get_kernel(session_id)
             if session_kernel is not None:

@@ -13,7 +13,7 @@ import os
 from typing import Any
 
 from arifosmcp.intelligence.tools.aclip_base import ok, partial, void
-from core.shared.atlas import normalize_semantic_text
+from arifosmcp.core.shared.atlas import normalize_semantic_text
 
 _DEFAULT_QDRANT_URL = "http://localhost:6333"
 

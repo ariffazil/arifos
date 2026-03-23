@@ -14,7 +14,7 @@ import functools
 from collections.abc import Callable
 from typing import Any
 
-from core.ontology import OntologyRegistry
+from arifosmcp.core.ontology import OntologyRegistry
 from arifosmcp.runtime.models import (
     CallerContext,
     CanonicalAuthority,
@@ -275,7 +275,7 @@ def _finalize_envelope(
         # P1 Strike: Sync with Governance Kernel if possible
         if session_id:
             try:
-                from core.governance_kernel import get_governance_kernel
+                from arifosmcp.core.governance_kernel import get_governance_kernel
                 kernel = get_governance_kernel(session_id)
                 # Sync telemetry components
                 kernel.consume_tool_call()

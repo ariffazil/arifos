@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import warnings
 
-from core.shared.floor_audit import (
+from arifosmcp.core.shared.floor_audit import (
     AuditResult,
     FloorAuditor,
     FloorResult,

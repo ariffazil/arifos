@@ -19,7 +19,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Literal
 
-from core.shared.types import HashChain, SealRecord, VaultOutput, Verdict
+from arifosmcp.core.shared.types import HashChain, SealRecord, VaultOutput, Verdict
 
 logger = logging.getLogger(__name__)
 
@@ -175,7 +175,7 @@ async def seal(
     """
     Stage 999: VAULT SEAL (Immutable Commit - APEX-G compliant)
     """
-    from core.physics.thermodynamics_hardened import (
+    from arifosmcp.core.physics.thermodynamics_hardened import (
         cleanup_thermodynamic_budget,
         consume_tool_energy,
     )
@@ -290,7 +290,7 @@ async def seal(
 
     # 7. EUREKA Layer 6: Register decision in the Reality Feedback Ledger
     try:
-        from core.recovery.rollback_engine import outcome_ledger
+        from arifosmcp.core.recovery.rollback_engine import outcome_ledger
 
         outcome_ledger.record_outcome(
             decision_id=ledger_id,

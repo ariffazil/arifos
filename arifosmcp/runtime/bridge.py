@@ -19,10 +19,10 @@ from pydantic import ValidationError
 
 
 from arifosmcp.runtime.contracts import REQUIRES_SESSION
-from core.enforcement.auth_continuity import mint_auth_context, verify_auth_context_cached
+from arifosmcp.core.enforcement.auth_continuity import mint_auth_context, verify_auth_context_cached
 
-from core.organs import agi, apex, asi, init, vault
-from core.organs._4_vault import verify_vault_ledger
+from arifosmcp.core.organs import agi, apex, asi, init, vault
+from arifosmcp.core.organs._4_vault import verify_vault_ledger
 
 from .models import ClaimStatus, Verdict
 
@@ -275,7 +275,7 @@ def _requires_explicit_kernel_auth(
     payload: dict[str, Any], canonical_tool: str | None = None
 ) -> bool:
     """Decide whether arifOS_kernel must reject missing auth_context."""
-    from core.enforcement.auth_continuity import _env_flag
+    from arifosmcp.core.enforcement.auth_continuity import _env_flag
 
     # F11 Bootstrap Whitelist: These tools can run without prior auth
     # They are the tools that ESTABLISH auth, so they cannot require it
@@ -362,8 +362,8 @@ def _build_constitutional_audit(session_id: str) -> dict[str, Any]:
     Build the constitutional audit report for audit_rules tool.
     Returns the 13 Floors, their thresholds, and current governance state.
     """
-    from core.shared.floors import FLOOR_SPEC_KEYS, THRESHOLDS
-    from core.state.session_manager import session_manager
+    from arifosmcp.core.shared.floors import FLOOR_SPEC_KEYS, THRESHOLDS
+    from arifosmcp.core.state.session_manager import session_manager
 
     # Build floors report using canonical floor specs
     floors = []
@@ -448,8 +448,8 @@ def _build_vitals_report(session_id: str) -> dict[str, Any]:
     Build the system vitals report for check_vital tool.
     Returns health status, thermodynamic budget, and capability map.
     """
-    from core.shared.floors import THRESHOLDS
-    from core.state.session_manager import session_manager
+    from arifosmcp.core.shared.floors import THRESHOLDS
+    from arifosmcp.core.state.session_manager import session_manager
     from arifosmcp.runtime.sessions import get_session_identity
 
     # Gather system health
@@ -484,7 +484,7 @@ def _build_vitals_report(session_id: str) -> dict[str, Any]:
     # Check thermodynamic module
     thermo_status = "active"
     try:
-        from core.physics import thermodynamics_hardened
+        from arifosmcp.core.physics import thermodynamics_hardened
 
         _ = thermodynamics_hardened  # Explicitly use for import check
         thermo_status = "active"
@@ -542,8 +542,8 @@ async def call_kernel(
     from arifosmcp.intelligence.tools.ollama_local import ollama_local_generate as ollama_local_generate_call
     from arifosmcp.intelligence.tools.reality_grounding import open_web_page, reality_check
     from arifosmcp.runtime.models import CallerContext as _CallerContext
-    from core.governance_kernel import get_governance_kernel
-    from core.shared.types import GovernanceMetadata, Intent, MathDials, TemporalContract
+    from arifosmcp.core.governance_kernel import get_governance_kernel
+    from arifosmcp.core.shared.types import GovernanceMetadata, Intent, MathDials, TemporalContract
 
     canonical_name = TOOL_MAP.get(tool_name, tool_name)
     claimed_actor_id = _resolve_claimed_actor_id(payload)
@@ -676,10 +676,10 @@ async def call_kernel(
 
     if canonical_name == "search_reality":
         res = await reality_check(query=payload.get("query", ""))
-        from core.enforcement.governance_engine import wrap_tool_output; return wrap_tool_output(canonical_name, res)
+        from arifosmcp.core.enforcement.governance_engine import wrap_tool_output; return wrap_tool_output(canonical_name, res)
     if canonical_name == "ingest_evidence":
         res = await open_web_page(url=payload.get("source_url", ""))
-        from core.enforcement.governance_engine import wrap_tool_output; return wrap_tool_output(canonical_name, res)
+        from arifosmcp.core.enforcement.governance_engine import wrap_tool_output; return wrap_tool_output(canonical_name, res)
     if canonical_name == "trace_replay":
         limit = payload.get("limit", 20)
         try:
@@ -1052,7 +1052,7 @@ async def call_kernel(
         if isinstance(result, dict):
             result["dry_run"] = dry_run
 
-        from core.enforcement.governance_engine import wrap_tool_output
+        from arifosmcp.core.enforcement.governance_engine import wrap_tool_output
         envelope = wrap_tool_output(canonical_name, result)
 
         if caller_ctx_data and "caller_context" not in envelope:
@@ -1118,7 +1118,7 @@ async def call_kernel(
     except Exception as e:
         logger.error(f"Bridge failure on {tool_name}: {e}", exc_info=True)
         print(f"DEBUG: Bridge failure on {tool_name}: {e}") # Direct visibility for tests
-        from core.enforcement.governance_engine import wrap_tool_output
+        from arifosmcp.core.enforcement.governance_engine import wrap_tool_output
         return wrap_tool_output(
             canonical_name,
             {

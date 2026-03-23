@@ -12,8 +12,8 @@ from dataclasses import asdict, is_dataclass
 from typing import Any
 from uuid import uuid4
 
-from core import organs as core_organs
-from core.shared.physics import (
+from arifosmcp.core import organs as core_organs
+from arifosmcp.core.shared.physics import (
     ConstitutionalTensor,
     GeniusDial,
     Peace2,

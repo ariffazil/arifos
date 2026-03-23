@@ -17,8 +17,8 @@ import logging
 import re as _re
 from typing import Any, Literal
 
-from core.shared.types import ApexOutput, EurekaProposal, JudgmentRationale, NextAction, Verdict
-from core.shared.verdict_contract import normalize_verdict
+from arifosmcp.core.shared.types import ApexOutput, EurekaProposal, JudgmentRationale, NextAction, Verdict
+from arifosmcp.core.shared.verdict_contract import normalize_verdict
 
 logger = logging.getLogger(__name__)
 
@@ -192,7 +192,7 @@ async def forge(
     Transforms intent into Eureka insight, proposes next actions based on
     materiality, and returns an ApexOutput with SEAL verdict.
     """
-    from core.physics.thermodynamics_hardened import consume_tool_energy
+    from arifosmcp.core.physics.thermodynamics_hardened import consume_tool_energy
 
     consume_tool_energy(session_id, n_calls=1)
 
@@ -244,16 +244,16 @@ async def judge(
     Rule: MONOTONE-SAFE. Cannot upgrade a weaker candidate.
     Discipline: APEX Theorem Gate (G† = G* · η)
     """
-    from core.enforcement.genius import (
+    from arifosmcp.core.enforcement.genius import (
         calculate_genius,
         coerce_floor_scores,
         get_thermodynamic_budget_window,
     )
-    from core.physics.thermodynamics_hardened import (
+    from arifosmcp.core.physics.thermodynamics_hardened import (
         check_landauer_before_seal,
         consume_tool_energy,
     )
-    from core.shared.types import Verdict
+    from arifosmcp.core.shared.types import Verdict
 
     consume_tool_energy(session_id, n_calls=1)
 

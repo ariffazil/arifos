@@ -652,7 +652,7 @@ class SealRecord(BaseModel):
 
 
 class InitOutput(BaseOrganOutput):
-    """Output from core_init (APEX-G Session Ignition)."""
+    """Output from arifosmcp.core_init (APEX-G Session Ignition)."""
 
     banner: str = "DITEMPA, BUKAN DIBERI 🔨"
     intent: Intent
@@ -690,7 +690,7 @@ class InitOutput(BaseOrganOutput):
 
 
 class AgiOutput(BaseOrganOutput):
-    """Output from core_agi (Evidence Engine / Reason Mind)."""
+    """Output from arifosmcp.core_agi (Evidence Engine / Reason Mind)."""
 
     stage: Literal["111", "222", "333"] = "333"
     steps: list[ReasonMindStep] = Field(default_factory=list)
@@ -708,7 +708,7 @@ class AgiOutput(BaseOrganOutput):
 
 
 class AsiOutput(BaseOrganOutput):
-    """Output from core_asi (Alignment Engine / Simulate Heart / Critique Thought)."""
+    """Output from arifosmcp.core_asi (Alignment Engine / Simulate Heart / Critique Thought)."""
 
     # simulate_heart output
     assessment: HeartAssessment | None = None
@@ -724,7 +724,7 @@ class AsiOutput(BaseOrganOutput):
 
 
 class ApexOutput(BaseOrganOutput):
-    """Output from core_apex (Verdict Engine / Eureka Forge)."""
+    """Output from arifosmcp.core_apex (Verdict Engine / Eureka Forge)."""
 
     # Stage 777 output
     intent: str | None = None
@@ -755,7 +755,7 @@ class VaultEntry(BaseModel):
 
 
 class VaultOutput(BaseOrganOutput):
-    """Output from core_memory (Memory Engine / Vector Memory / Sealing)."""
+    """Output from arifosmcp.core_memory (Memory Engine / Vector Memory / Sealing)."""
 
     operation: Literal["store", "recall", "search", "forget", "write", "read", "query", "seal"] = (
         "search"

@@ -14,7 +14,7 @@ from typing import Any, Optional
 
 import redis.asyncio as redis
 
-from core.enforcement.auth_continuity import mint_auth_context
+from arifosmcp.core.enforcement.auth_continuity import mint_auth_context
 
 
 @dataclass

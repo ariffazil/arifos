@@ -222,11 +222,11 @@ class LiveMetricsCollector:
     async def get_governance_metrics(self) -> GovernanceMetrics:
         """Collect arifOS governance metrics."""
         try:
-            # Import core modules
-            from core.shared.floors import THRESHOLDS
-            from core.vault.merkle import MerkleTree
-            from core.state.session_manager import session_manager
-            from core.physics.thermodynamics_hardened import get_thermodynamic_report
+            # import arifosmcp.core modules
+            from arifosmcp.core.shared.floors import THRESHOLDS
+            from arifosmcp.core.vault.merkle import MerkleTree
+            from arifosmcp.core.state.session_manager import session_manager
+            from arifosmcp.core.physics.thermodynamics_hardened import get_thermodynamic_report
 
             # Get floor statuses
             floors = {}
