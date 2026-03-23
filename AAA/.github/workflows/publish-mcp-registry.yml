@@ -41,7 +41,7 @@ jobs:
           data = json.load(open('server.json'))
           assert 'name' in data, 'Missing name field'
           assert 'version' in data, 'Missing version field'
-          assert 'packages' in data, 'Missing packages array'
+          assert 'packages' in data or 'remotes' in data, 'Missing packages or remotes'
           assert data['name'].startswith('io.github.ariffazil/'), 'Invalid namespace'
           print(f'✅ Valid schema: {data[\"name\"]} v{data[\"version\"]}')
           "

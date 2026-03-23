@@ -1,10 +1,13 @@
 <div align="center">
 
-<img src="https://raw.githubusercontent.com/ariffazil/arifOS/main/sites/library/static/img/banner_sovereign.png" width="100%" alt="arifOS MCP — The Body — Constitutional AI Governance Server" />
+<img src="https://raw.githubusercontent.com/ariffazil/arifOS/main/sites/library/static/img/banner_sovereign.png" width="100%" alt="arifOS L3 — The Body — The Servant Wire" />
 
-# arifOS MCP — The Body
+# arifOS — L3: AAA BODY (THE WIRE)
 
-## Production Constitutional AI Governance Server · FastMCP · 16-Container Stack
+## The Servant Wire · FastMCP · 16-Container Stack · Constitutional Execution Layer
+
+> **"The Wire is the servant; the OS is the sovereign."**  
+> This repository is the **BODY** of arifOS. It contains the physical execution logic, the MCP transport adapter, and the operational tools. It exists to serve the **SOUL** (Human) and follow the **MIND** (Kernel).
 
 [![Live Status](https://img.shields.io/badge/dynamic/json?url=https://arifosmcp.arif-fazil.com/health&query=status&label=Server&color=00b894&style=flat-square)](https://arifosmcp.arif-fazil.com/health)
 [![Version](https://img.shields.io/badge/Version-2026.03.22--FORGE-6c5ce7?style=flat-square)](#versioning)
@@ -26,14 +29,15 @@
 
 ---
 
-### The Dual-Repo System
+### The Trinity System
 
-| Repo | Role | License | What You'll Find |
-|---|---|---|---|
-| **[ariffazil/arifOS](https://github.com/ariffazil/arifOS)** | **The Mind** | CC0 (Public Domain) | Constitution, theory, governance framework, docs knowledge base |
-| **[ariffazil/arifosmcp](https://github.com/ariffazil/arifosmcp)** (this) | **The Body** | AGPL-3.0 | FastMCP server, Docker stack, Python code, all execution |
+| Layer | Designation | Role | Repository | Domain |
+|:---:|:---:|---|---|---|
+| **L1: SOUL** | **SIGNAL** | The "Why." Human identity & intent. | [arif-sites](https://github.com/ariffazil/arif-fazil-sites) | arif-fazil.com |
+| **L2: MIND** | **KERNEL** | The "How." Documentation & Logic. | [arif-sites](https://github.com/ariffazil/arif-fazil-sites) | arifos.arif-fazil.com |
+| **L3: BODY** | **AAA WIRE** | The "What." Execution & Transport. | **[arifOS](https://github.com/ariffazil/arifOS)** (this) | arifosmcp.arif-fazil.com |
 
-> The Mind writes the law. The Body enforces it. This repo is The Body.
+> The Soul intends. The Mind governs. The Body executes.
 
 </div>
 
@@ -795,3 +799,16 @@ Sovereign Architect: **Muhammad Arif bin Fazil** · Geologist · Non-coder · Ma
 Constitutional Authority: **888_JUDGE** · arifOS v2026.03.22-FORGE
 
 </div>
+
+---
+
+## ??? Authority & Governance Matrix
+
+| Layer | Can Do | Cannot Do |
+|---|---|---|
+| **L1: SOUL** | Issue Intent, Veto Any Action | Be Bypassed by Code |
+| **L2: MIND** | Block/Void Violation, Score Apex | Originate Intent (Serves Soul) |
+| **L3: BODY** | Execute Tools, Transport Data | Originate Policy (Serves Mind) |
+| **L4: THEORY**| Define Axioms, Ground Reality | Be Altered by Execution Path |
+
+> **Hierarchy:** SOUL > MIND > BODY. The L4 THEORY is the immutable soil from which all layers grow.

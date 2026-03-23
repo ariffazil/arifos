@@ -231,6 +231,14 @@ FLOOR_VIOLATIONS = Counter(
     ["floor", "tool"],
 )
 
+# SABAR events — non-terminal cooling/retry states
+# SABAR ≠ HOLD (no human needed) ≠ VOID (not permanent)
+SABAR_EVENTS = Counter(
+    "arifos_sabar_events_total",
+    "SABAR cooling states — temporary thermodynamic instability by tool and cause",
+    ["tool", "cause"],
+)
+
 # Active Sessions (H1.1: Production Observability)
 ACTIVE_SESSIONS = Gauge(
     "arifos_sessions_active",

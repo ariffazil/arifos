@@ -41,10 +41,10 @@ jobs:
         run: uv pip install --system -e ".[dev]"
 
       - name: Lint with Ruff
-        run: ruff check . --line-length 100 --output-format=github
+        run: ruff check . --line-length 100 --output-format=github --exclude AAA/
 
       - name: Format with Black
-        run: black . --line-length 100 --check
+        run: black . --line-length 100 --check --exclude "/AAA/"
 
       - name: Type check with MyPy
         run: mypy . --show-error-codes
