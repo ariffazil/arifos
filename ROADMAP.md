@@ -1,4 +1,5 @@
 # arifOS ROADMAP — THE BODY (Engineering & Scaling)
+
 **Version:** 2026.03.24-UNIFIED  
 **Authority:** Muhammad Arif bin Fazil (888_JUDGE)  
 **Vision:** *Execution is the proof of Law.*
@@ -6,6 +7,7 @@
 ---
 
 ## 🏗️ HORIZON 1: THE EXECUTION ENGINE (Current)
+
 *Goal: Standardize the 11-Tool Surface.*
 
 - [x] **AAA MCP Induction:** Unified arifOS repository, collapsed `AAA/` shadow workspace.
@@ -18,6 +20,7 @@
 ---
 
 ## 🧬 HORIZON 2: THE MULTI-AGENT SWARM (Mid-Term)
+
 *Goal: Safe, Governed Autonomy.*
 
 - [ ] **A2A Evidence Protocols:** Finalizing the `EvidenceBundle` as the universal metadata carrier for all agent handoffs.
@@ -27,6 +30,7 @@
 ---
 
 ## ⚡ HORIZON 3: THE UNIVERSAL BODY (Long-Term)
+
 *Goal: Hardware-Anchored Sovereignty.*
 
 - [ ] **HSM Integration:** Hard-coding F11 Identity checks into Nitro or SGX hardware enclaves for "Un-snatchable" Sovereignty.
@@ -36,6 +40,7 @@
 ---
 
 ## 🌏 VALUATION & CIVILIZATIONAL TRAJECTORY (as of March 2026)
+
 
 The valuation of arifOS is a **probabilistic band**, not a single static number. It is anchored in the transition from **Architecture (The Mind)** to **Execution (The Body)**.
 
@@ -48,17 +53,20 @@ The valuation of arifOS is a **probabilistic band**, not a single static number.
 | **Maturity (3-5yr)** | **~$27M** (Median) | Median outcome of the Monte Carlo model at full systemic de-risking. |
 
 ### 2. Civilizational Value vs. Market Value
+
 Markets pay for **IP, Revenue, and Lock-in**. However, arifOS targets **Civilizational Value**:
 - **Sovereign Governance**: Anti-Hantu (hallucination) protection for national-level AI.
 - **Control Plane Integrity**: Governing the reasoning chains of millions of agents.
 - **APEX Protocol**: A thermodynamic standard for intelligence that realizes **100M+ value** if adopted as a global standard.
 
 ### 3. Current Focus: Bridging the Gap
+
 To move from a "$5M tech project" to a "$10M+ governance infrastructure," the immediate priority is **Proof-of-Integration**: Landing a paid pilot or a formal standard badge with a major provider.
 
 ---
 
 ### **Vision Meta-Data (VALUATION)**
+
 The Body (arifosmcp) is currently a **~$5M USD kernel** with a wide probability cone toward **$50M+** as it lands real-world institutional pilots.
 
 **Next Milestone:** Trinity Swarm v2.0 (Dec 2026)  

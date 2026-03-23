@@ -1,7 +1,7 @@
 {
   "name": "@arifos/mcp",
-  "version": "2026.3.20",
-  "description": "arifOS MCP Server v2026.3.20 — 11 Mega-Tools (37 modes), 13 Constitutional Floors (F1-F13), Protocol Trinity (MCP + A2A + WebMCP), VAULT999 Ledger",
+  "version": "2026.3.24",
+  "description": "arifOS MCP Server v2026.3.24 — Unified AAA Induction, Substrate Controller, 13 Constitutional Floors (F1-F13), Protocol Trinity, VAULT999 Ledger",
   "main": "index.js",
   "bin": {
     "arifos-mcp": "bin/arifos-mcp.js"

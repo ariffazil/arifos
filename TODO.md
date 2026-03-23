@@ -1,4 +1,5 @@
 # arifOS TODO — THE BODY (Execution & Engineering)
+
 **Version:** 2026.03.24-UNIFIED-ARIF  
 **Authority:** Muhammad Arif bin Fazil (888_JUDGE)  
 **Motto:** *Body starts where Stochastic ends.*
@@ -6,6 +7,7 @@
 ---
 
 ## 🏗️ TIER 1: THE EXECUTION SURFACE (Immediate)
+
 *Goal: Solidify the 11 Mega-Tools and the 42 Modes.*
 
 - [x] **AAA MCP Induction:** Unified arifOS repository, collapsed `AAA/` shadow workspace.
@@ -20,6 +22,7 @@
 ---
 
 ## 🧬 TIER 2: MULTI-AGENT ORCHESTRATION (Mid-Term)
+
 *Goal: Move from "Single Agent" to "Trinity Swarm (ΔΩΨ)."*
 
 - [ ] **A2A Evidence Passing:** Implement `EvidenceBundle` as the native inter-agent lingua franca.
@@ -30,6 +33,7 @@
 ---
 
 ## ⚡ TIER 3: HARDWARE-LEVEL INTEGRATION (Long-Term)
+
 *Goal: Establish the Physical Root of Trust.*
 
 - [ ] **Hardware Enclave (HSM):** Implement `F11` (Identity) grounding to a physical Nitro or SGX hardware enclave.
