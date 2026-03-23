@@ -1,0 +1,20 @@
+{
+  "defaultStyle": "github",
+  "maxWidth": 80,
+  "headingStyle": "atx",
+  "listStyle": "consistent",
+  "codeStyle": "fenced",
+  "emphasisStyle": "asterisk",
+  "strongStyle": "asterisk",
+  "linkStyle": "inline",
+  "fixLists": true,
+  "normalizeSpacing": true,
+  "preserveHtml": false,
+  "customRules": [],
+  "linting": {
+    "checkLinks": true,
+    "checkHeadingLevels": true,
+    "checkListConsistency": true,
+    "checkEmphasisBalance": false
+  }
+}
