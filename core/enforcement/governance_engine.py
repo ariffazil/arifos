@@ -726,8 +726,6 @@ def wrap_tool_output(tool: str, payload: dict[str, Any]) -> dict[str, Any]:
     stage = str(payload.get("stage") or TOOL_STAGE_MAP.get(tool, "000_INIT"))
     stage_num = _parse_stage_num(stage)
 
-    print(f"DEBUG: wrap_tool_output - tool={tool}, stage={stage}, tri_pass={tri_witness.get('pass')}, raw_verdict={raw_verdict}")
-
     # Verdict Logic: Eliminating VOID-memanjang
     verdict = raw_verdict
     if raw_verdict in {"VOID", "HOLD", "SABAR"}:

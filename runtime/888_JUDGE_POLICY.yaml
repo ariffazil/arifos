@@ -1,0 +1,39 @@
+# 888_JUDGE_POLICY.yaml — The SOVEREIGN Authority (Adjudication)
+# Role: judge() / apex_judge()
+# Authority: 888_JUDGE
+
+verdict_mapping:
+  SEAL:
+    requirements:
+      - tri_witness >= 0.95
+      - G_index >= 0.80
+      - consensus_fidelity_reached: true
+    action: "ARCHIVE + EXECUTE"
+
+  VOID:
+    requirements:
+      - any_hard_floor == FAIL
+      - deception_detected: true
+    action: "BLOCK + LOG"
+
+  SABAR:
+    requirements:
+      - uncertainty > 0.05
+      - energy < 0.20
+      - SABAR_72: true
+    action: "COOLING (72h)"
+
+  888_HOLD:
+    requirements:
+      - reversibility == LOW
+      - stakes == CRITICAL
+      - human_sovereign_required: true
+    action: "ESCALATE TO HUMAN"
+
+sentinels:
+  - trace_integrity
+  - paradox_detector
+  - drift_monitor
+  - maruah_guardian
+  - silence_witness
+  - shadow_hunter

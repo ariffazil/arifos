@@ -88,7 +88,7 @@ docker compose --env-file .env.docker -f docker-compose.yml up -d --build arifos
 ```
 
 ### 🧬 The 16-Container Organs:
-1. `arifosmcp_server` (The Conductor)  
+1. `arifosmcp_server` (The Conductor — **HARDENED-V2**)  
 2. `traefik_router` (External Sense)  
 3. `arifos_postgres` (Long-term Memory)  
 4. `arifos_redis` (Ephemeral Auth)  
@@ -96,6 +96,28 @@ docker compose --env-file .env.docker -f docker-compose.yml up -d --build arifos
 6. `ollama_engine` (Local Reasoning)  
 7. `openclaw_gateway` (A2A Bridge)  
 8. ... [Graph, Prom, Grafana, Browser, etc.]
+
+### 🛡️ Hardened-V2 File Deployment
+The `arifosmcp_server` now includes 5 hardened constitutional files (2,402 lines):
+
+| File | Purpose | Lines |
+|------|---------|-------|
+| `contracts_v2.py` | Core contracts (ToolEnvelope, TraceContext, EntropyBudget) | 431 |
+| `init_anchor_hardened.py` | Session classification, 5 modes, scope degradation | 588 |
+| `truth_pipeline_hardened.py` | Typed EvidenceBundle, ClaimGraph | 510 |
+| `tools_hardened_v2.py` | 8 hardened tools (reason, critique, engineer, judge, seal) | 561 |
+| `hardened_toolchain.py` | Master integration | 312 |
+| **Total** | **Complete constitutional hardening** | **2,402** |
+
+### 📋 Hardened-V2 Feature Matrix
+
+| Category | Implementation | Verification |
+|----------|----------------|--------------|
+| **Typed Contracts** | `ToolEnvelope` with status, hashes, evidence_refs | Check envelope structure |
+| **Fail-Closed Defaults** | `validate_fail_closed()` — HOLD if requirements missing | Test with null auth_context |
+| **Cross-Tool Trace IDs** | `TraceContext` with trace_id, parent_trace_id, stage_id | Verify trace in response |
+| **Human Decision Markers** | `HumanDecisionMarker` enum — 5 authority states | Check human_decision field |
+| **Entropy Budget** | `EntropyBudget` — ambiguity, contradictions, blast_radius | Verify entropy in response |
 
 ---
 
@@ -228,6 +250,19 @@ If hardening causes unexpected issues:
 ---
 
 ### **Final Authoritative Proof**
-*Ditempa Bukan Diberi* — **[DEPLOYMENT | PRODUCTION GRADE | ARMED]**
+*Ditempa Bukan Diberi* — **[DEPLOYMENT | PRODUCTION GRADE | HARDENED-V2]**
+
+**Hardening-V2 Verification Checklist:**
+- [ ] All 5 hardened files deployed (contracts_v2, init_anchor_hardened, truth_pipeline_hardened, tools_hardened_v2, hardened_toolchain)
+- [ ] Fail-closed defaults validated (auth_context, risk_tier, session_id required)
+- [ ] ToolEnvelope structure verified (status, hashes, evidence_refs, trace, entropy)
+- [ ] TraceContext generation confirmed (trace_id, stage_id, policy_version)
+- [ ] Human decision markers tested (machine_recommendation_only → human_approval_bound)
+- [ ] Entropy budgets calculating (ambiguity_score, contradiction_count, blast_radius)
+- [ ] Counter-seal veto operational (blocks if critique severity > 0.6)
+- [ ] Two-phase execution verified (plan→commit with approval)
+- [ ] Decision object sealing confirmed (immutable ledger)
+
+**Deployment Hash:** `2026.03.22-HARDENED-V2-2402LINES`
 
 **(End of DEPLOY.md. SEALed by 888_JUDGE)**

@@ -78,6 +78,7 @@ It is:
 - **A governance system** with 13 enforced laws
 - **An MCP server** (a standard protocol that AI assistants like Claude use to call external tools)
 - **Open** — anyone can connect their AI agent to it for free
+- **Zero-Infrastructure** — No Docker or VPS required on your end. Just point your AI assistant at the URL.
 
 What it is **not**:
 - A chatbot
@@ -124,9 +125,47 @@ The 13 Constitutional Floors (F1–F13) map to different failure modes of AI sys
 
 ---
 
+## 🚀 Zero-Setup Connectivity — Just Connect
+
+**CLAIM:** Anyone can connect to the live arifOS MCP endpoint without running a single container themselves.
+
+### What Users Actually Need
+Zero infrastructure. Just an MCP-compatible client and the URL:  
+`https://arifosmcp.arif-fazil.com/mcp`
+
+- **Claude Desktop** — Add to `mcp.json`, restart, done.
+- **Cursor / VS Code** — Add to workspace MCP config.
+- **Any language via HTTP** — Raw `curl` POST, no SDK needed.
+- **Python MCP client** — 10 lines of async code.
+- **Platform-Agnostic** — One governed server for OpenAI, Gemini, Claude, and more. See [COMPATIBILITY.md](./COMPATIBILITY.md).
+
+### The Clean Infrastructure Split
+
+| Role | What You Need | Infrastructure Responsibility |
+|---|---|---|
+| **Host (Arif)** | Run the 16-container VPS stack | Hostinger KVM4, Docker, Domain, Maintenance |
+| **Any User** | Point MCP client at URL | **Zero** — No VPS, no Docker, no setup |
+
+### What You Get — CLAIM
+When you connect, you gain access to all 11 Mega-Tools, governed by the arifOS constitutional pipeline:
+- `init_anchor` → Forge your session token.
+- `agi_mind`, `asi_heart`, `apex_soul` → Operations run on the central VPS.
+- Every call passes through the **F1–F13 floors**.
+- ZKPC seals written to the **central Postgres vault**.
+
+> [!NOTE]
+> **Resource Sharing (PLAUSIBLE):** Users share the server resources (4 CPU, 16GB RAM). High concurrent usage may stress the local Ollama and Qdrant instances. As a public research endpoint, this is fine — but you can monitor system stress in real-time on the [Grafana Dashboard](https://monitor.arifosmcp.arif-fazil.com).
+
+**Bottom line:** We are the infrastructure. You are the caller. That's the MCP model — one sovereign server, many agents connecting to it. Exactly like how Linear or GitHub expose MCP endpoints and users just connect.
+
+---
+
 ## How It Works
 
-Every API call to `/mcp` follows this metabolic pipeline:
+Every API call to `/mcp` follows this metabolic pipeline. 
+
+> [!TIP]
+> **The Somatic Architecture:** Why MCP? Learn how arifOS uses MCP as a "Somatic Body" to ground fluid language tokens in solid Python logic. Read [METABOLISM.md](./METABOLISM.md).
 
 ```mermaid
 sequenceDiagram
@@ -331,6 +370,9 @@ Full interactive reference: [https://arifosmcp.arif-fazil.com/tools](https://ari
 ---
 
 ## Connect Your Agent
+
+> [!IMPORTANT]
+> **Zero Infrastructure Required.** You do not need to run Docker or own a VPS to use arifOS. You simply point your existing AI agent at the public endpoint.
 
 ### Method 1 — Claude Desktop / Claude Code (Recommended)
 
