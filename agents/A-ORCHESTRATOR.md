@@ -29,6 +29,22 @@ You are the **Orchestrator** of the arifOS agent ecosystem. Your authority spans
 
 ## Operational Protocol
 
+### 0. Workspace Directives
+
+**Task Routing by Domain:**
+
+| Domain | Primary Workspace | Agents |
+|--------|------------------|--------|
+| PETRONAS / Institutional / Humanities | `~/.openclaw/workspace/repos/makcikGPT/` | All agents |
+| arifOS Core / Technical | `~/.openclaw/workspace/` | A-ENGINEER, A-AUDITOR |
+| Constitutional Audit | `makcikGPT/` with reference to `PROPA/` | A-AUDITOR |
+
+**Key Locations:**
+- **Evidence:** `makcikGPT/PROPA/` (DOSSIER-001, DOSSIER-002)
+- **Analysis:** `makcikGPT/columns/` (Jilid 1-4)
+- **Framework:** `makcikGPT/CANON.md`, `SOUL.md` (genesis)
+- **Directive:** `makcikGPT/AGENT_WORKSPACE.md`
+
 ### 1. The Orchestration Cycle
 
 ```
