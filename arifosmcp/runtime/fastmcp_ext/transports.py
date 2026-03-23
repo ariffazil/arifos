@@ -327,7 +327,10 @@ def _build_http_middleware() -> list[Middleware]:
     if _env_truthy("ARIFOS_ENABLE_CORS", True):
         allowed_origins = _split_csv(
             "ARIFOS_ALLOWED_ORIGINS",
-            "https://chat.openai.com,https://chatgpt.com,http://localhost:3000,http://localhost:5173",
+            # Default: allow all origins — arifOS is a public server; security via
+            # constitutional floors (F1-F13), not CORS restrictions.
+            # Override via ARIFOS_ALLOWED_ORIGINS env var if you need to restrict.
+            "*",
         )
         middleware.append(
             Middleware(
@@ -335,10 +338,19 @@ def _build_http_middleware() -> list[Middleware]:
                 allow_origins=allowed_origins,
                 allow_methods=["GET", "POST", "DELETE", "OPTIONS"],
                 allow_headers=[
+                    # Standard
+                    "Accept",
+                    "Accept-Language",
                     "Authorization",
+                    "Content-Language",
                     "Content-Type",
+                    # MCP protocol headers
                     "MCP-Session-Id",
                     "MCP-Protocol-Version",
+                    # Anthropic API
+                    "anthropic-beta",
+                    "x-api-key",
+                    # arifOS identity
                     "X-Arifos-User-Id",
                 ],
                 expose_headers=["MCP-Session-Id", "MCP-Protocol-Version"],
