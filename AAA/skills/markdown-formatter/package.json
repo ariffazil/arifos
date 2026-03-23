@@ -1,0 +1,23 @@
+{
+  "name": "markdown-formatter",
+  "version": "1.0.0",
+  "description": "Format and beautify markdown documents with configurable styles. Preserve structure, fix formatting, ensure consistency.",
+  "main": "index.js",
+  "scripts": {
+    "test": "node test.js"
+  },
+  "keywords": [
+    "markdown",
+    "formatter",
+    "beautifier",
+    "text",
+    "formatting",
+    "documentation"
+  ],
+  "author": "Vernox",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/vernox/skills"
+  }
+}
