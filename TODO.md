@@ -1,5 +1,5 @@
 # arifOS TODO — THE BODY (Execution & Engineering)
-**Version:** 2026.03.22-YANG-ARIF  
+**Version:** 2026.03.24-UNIFIED-ARIF  
 **Authority:** Muhammad Arif bin Fazil (888_JUDGE)  
 **Motto:** *Body starts where Stochastic ends.*
 
@@ -8,12 +8,14 @@
 ## 🏗️ TIER 1: THE EXECUTION SURFACE (Immediate)
 *Goal: Solidify the 11 Mega-Tools and the 42 Modes.*
 
+- [x] **AAA MCP Induction:** Unified arifOS repository, collapsed `AAA/` shadow workspace.
+- [x] **Substrate Controller:** Implemented auto-risk detection and `888_HOLD` in `tools_hardened_dispatch.py`.
+- [x] **000/ Kernel Induction:** Established the 13 Constitutional Floors as the root governing substrate.
 - [x] **Agent Skills Resource:** Implement `arifos://agents/skills` URI.
 - [x] **Unified DEPLOY:** Consolidated VPS deployment into a single, directive-style `DEPLOY.md`.
 - [ ] **Mode Stability:** Audit all 42 modes in `tools_internal.py` for input schema parity with `contracts.py`.
-- [ ] **Agentic Prompt Cache:** Implement caching for the `agent_skills` prompt to reduce latency on repeated handshakes.
-- [ ] **F11 Identity Trace:** Enable logging for actor-bound session trails across the 16-container stack.
-- [ ] **SABAR/HOLD Logic:** Ensure all tool timeouts trigger an implicit `SABAR` state instead of raw HTTP 504.
+- [ ] **API Rotation:** Revoke legacy OpenCode keys and inject fresh secrets into the VPS runtime.
+- [ ] **Lint Fix (Ruff):** Resolve pre-existing lint failures in the root `arifosmcp/` kernel.
 
 ---
 
