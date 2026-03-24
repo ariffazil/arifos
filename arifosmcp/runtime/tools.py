@@ -1877,10 +1877,71 @@ def register_tools(mcp: FastMCP, profile: str = "full") -> None:
         _shim.__name__ = f"{alias}_shim"
         return _shim
 
-    # P0: DEPRECATED TOOLS REMOVED FROM PUBLIC REGISTRY
-    # Legacy shims remain available for internal routing via CAPABILITY_MAP
-    # but are no longer registered as public MCP tools to clean up the surface.
-    pass
+    # Legacy tools registration - simple wrappers for backward compatibility
+    async def _legacy_init_anchor_state(
+        session_id: str = None,
+        actor_id: str = None,
+        declared_name: str = None,
+        intent: str = None,
+        human_approval: bool = False,
+    ):
+        return await init_anchor(
+            mode="state",
+            session_id=session_id,
+            actor_id=actor_id,
+            declared_name=declared_name,
+            intent=intent,
+            human_approval=human_approval,
+        )
+
+    async def _legacy_get_caller_status(
+        session_id: str = None,
+        actor_id: str = None,
+        declared_name: str = None,
+        intent: str = None,
+        human_approval: bool = False,
+    ):
+        return await init_anchor(
+            mode="status",
+            session_id=session_id,
+            actor_id=actor_id,
+            declared_name=declared_name,
+            intent=intent,
+            human_approval=human_approval,
+        )
+
+    async def _legacy_check_vital(
+        session_id: str = "global",
+        actor_id: str = None,
+        declared_name: str = None,
+        intent: str = None,
+        human_approval: bool = False,
+    ):
+        return await init_anchor(
+            mode="status",
+            session_id=session_id,
+            actor_id=actor_id,
+            declared_name=declared_name,
+            intent=intent,
+            human_approval=human_approval,
+        )
+
+    LEGACY_TOOLS = {
+        "init_anchor_state": _legacy_init_anchor_state,
+        "get_caller_status": _legacy_get_caller_status,
+        "check_vital": _legacy_check_vital,
+    }
+
+    for name, handler in LEGACY_TOOLS.items():
+        ft = FunctionTool.from_function(
+            handler,
+            name=name,
+            description=f"Legacy alias for {name}",
+        )
+        ft.parameters["additionalProperties"] = True
+        sig = inspect.signature(handler)
+        ingress.register_tool_params(name, set(sig.parameters.keys()))
+        mcp.add_tool(ft)
 
 
 class _CallableList(list):
