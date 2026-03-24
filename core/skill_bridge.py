@@ -9,7 +9,7 @@ Connects the 9 Skills to MCP tools with constitutional governance:
 """
 
 from typing import Any, Dict, Optional
-from core.intelligence import compute_w3, calculate_omega_zero
+from core.intelligence import compute_w3
 
 
 class SkillBridge:
@@ -19,6 +19,14 @@ class SkillBridge:
         self.session_id = session_id
         self.dry_run = dry_run
         self.checkpoint = None
+        self.reality_bridge = None
+    
+    def _get_reality_bridge(self):
+        """Lazy import RealityBridge to avoid circular deps."""
+        if self.reality_bridge is None:
+            from arifosmcp.tools.reality_bridge import RealityBridge
+            self.reality_bridge = RealityBridge()
+        return self.reality_bridge
     
     async def execute_skill(
         self,
@@ -33,7 +41,7 @@ class SkillBridge:
         Flow:
         1. F1: Create checkpoint (reversibility)
         2. F7: Dry run check
-        3. SKILL: Execute handler
+        3. SKILL: Execute handler (now wired to Reality Bridge)
         4. F3: Tri-Witness validation
         5. F13: Human override check (if high risk)
         6. VAULT: Seal result
@@ -55,11 +63,19 @@ class SkillBridge:
         if self.dry_run:
             return await self._dry_run(skill_info, action, params)
         
-        # Execute skill handler
+        # Execute skill handler WITH Reality Bridge
+        # Skills now get real execution through reality_bridge param
         skill_execute = skill_info["execute"]
-        result = await skill_execute(action, params, self.session_id, self.dry_run)
+        result = await skill_execute(
+            action, 
+            params, 
+            self.session_id, 
+            self.dry_run,
+            reality_bridge=self._get_reality_bridge(),
+            checkpoint=self.checkpoint
+        )
         
-        # F3: Tri-Witness validation (if not already done by skill)
+        # F3: Tri-Witness validation
         if "w3_score" not in result:
             w3 = self._compute_w3(result, operator)
             result["w3_score"] = w3
@@ -138,4 +154,19 @@ async def execute_skill(
     return await bridge.execute_skill(skill_name, action, params, operator)
 
 
-__all__ = ["SkillBridge", "get_bridge", "execute_skill"]
+# NEW: Direct execution through Reality Bridge
+def execute_reality(
+    tool: str,
+    command: str,
+    params: Dict[str, Any],
+    checkpoint_id: str = None
+) -> Dict[str, Any]:
+    """
+    Direct execution through Reality Bridge.
+    Used by skills to call real system tools.
+    """
+    from arifosmcp.tools.reality_bridge import execute
+    return execute(tool, command, params, checkpoint_id)
+
+
+__all__ = ["SkillBridge", "get_bridge", "execute_skill", "execute_reality"]

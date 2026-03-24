@@ -1,9 +1,10 @@
 """
 deployment skill handler
 F11 authority-gated deployment.
+Wired to Reality Bridge for kubectl/docker deployment.
 """
 
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 
 class DeploymentSkill:
@@ -12,15 +13,29 @@ class DeploymentSkill:
     NAME = "deployment"
     FLOOR = "F11"
     
-    async def execute_deployment(self, environment: str, operator: str, approved: bool = False) -> Dict[str, Any]:
-        """Execute deployment with F11/F13 checks."""
+    async def execute(
+        self, action: str, params: Dict, session_id: str,
+        dry_run: bool = True, reality_bridge: Optional[Any] = None,
+        checkpoint: Optional[str] = None
+    ) -> Dict[str, Any]:
+        handlers = {
+            "execute_deployment": self._execute_deployment,
+            "rollback": self._rollback,
+        }
+        handler = handlers.get(action)
+        if not handler:
+            return {"verdict": "VOID", "reason": f"Unknown action: {action}"}
+        return await handler(params, dry_run, reality_bridge, checkpoint)
+    
+    async def _execute_deployment(self, params: Dict, dry_run: bool,
+                                  reality_bridge: Optional[Any], checkpoint: Optional[str]) -> Dict:
+        environment = params.get("environment", "")
+        operator = params.get("operator", "anonymous")
+        approved = params.get("approved", False)
+        
         # F11: Verify authority
         if not operator or operator == "anonymous":
-            return {
-                "verdict": "VOID",
-                "floor_violated": "F11",
-                "reason": "Anonymous deployment not allowed"
-            }
+            return {"verdict": "VOID", "floor_violated": "F11", "reason": "Anonymous deployment not allowed"}
         
         # F13: Human approval for production
         if environment == "production" and not approved:
@@ -30,23 +45,68 @@ class DeploymentSkill:
                 "required": "aclip vault seal --approve=deploy"
             }
         
-        return {
-            "verdict": "SEAL",
-            "environment": environment,
-            "operator": operator,
-            "rollback_plan": f"kubectl rollout undo deployment/{environment}"
-        }
+        if dry_run:
+            return {
+                "verdict": "SEAL",
+                "mode": "dry_run",
+                "environment": environment,
+                "operator": operator,
+                "checkpoint": checkpoint
+            }
+        
+        # REALITY: Execute deployment
+        if reality_bridge:
+            result = reality_bridge.execute(
+                tool="shell",
+                command=f"kubectl apply -f deployment/{environment}.yaml",
+                params={},
+                checkpoint_id=checkpoint
+            )
+            
+            return {
+                "verdict": "SEAL" if result.get("success") else "VOID",
+                "mode": "real",
+                "environment": environment,
+                "operator": operator,
+                "rollback_plan": f"kubectl rollout undo deployment/{environment}",
+                "checkpoint": checkpoint
+            }
+        
+        return {"verdict": "VOID", "error": "No reality bridge available"}
+    
+    async def _rollback(self, params: Dict, dry_run: bool,
+                        reality_bridge: Optional[Any], checkpoint: Optional[str]) -> Dict:
+        environment = params.get("environment", "")
+        
+        if dry_run:
+            return {"verdict": "SEAL", "mode": "dry_run", "action": "rollback", "checkpoint": checkpoint}
+        
+        if reality_bridge:
+            result = reality_bridge.execute(
+                tool="shell",
+                command=f"kubectl rollout undo deployment/{environment}",
+                params={},
+                checkpoint_id=checkpoint
+            )
+            
+            return {
+                "verdict": "SEAL" if result.get("success") else "VOID",
+                "mode": "real",
+                "action": "rollback",
+                "checkpoint": checkpoint
+            }
+        
+        return {"verdict": "VOID", "error": "No reality bridge available"}
 
 
-async def execute(action: str, params: Dict[str, Any], session_id: str, dry_run: bool = True):
-    """Main entry point."""
+skill = DeploymentSkill()
+
+
+async def execute(action: str, params: Dict, session_id: str,
+                  dry_run: bool = True, reality_bridge: Optional[Any] = None,
+                  checkpoint: Optional[str] = None) -> Dict[str, Any]:
     skill = DeploymentSkill()
-    
-    if action == "execute_deployment":
-        return await skill.execute_deployment(
-            params.get("environment"),
-            params.get("operator"),
-            params.get("approved", False)
-        )
-    
-    return {"verdict": "VOID", "reason": f"Unknown action: {action}"}
+    return await skill.execute(action, params, session_id, dry_run, reality_bridge, checkpoint)
+
+
+metadata = {"name": "deployment", "floor": "F11", "actions": ["execute_deployment", "rollback"], "reversible": True}

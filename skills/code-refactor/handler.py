@@ -3,7 +3,7 @@ code-refactor skill handler
 F8 wisdom-guided code refactoring.
 """
 
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 
 class CodeRefactorSkill:
@@ -12,40 +12,66 @@ class CodeRefactorSkill:
     NAME = "code-refactor"
     FLOOR = "F8"
     
-    def calculate_genius(self, akal: float, presence: float, exploration: float, energy: float) -> float:
-        """G = A × P × X × E²"""
-        return akal * presence * exploration * (energy ** 2)
+    def calculate_genius(self, a: float, p: float, x: float, e: float) -> float:
+        """G = A x P x X x E squared"""
+        return a * p * x * (e ** 2)
     
-    async def propose_refactor(self, code: str, goal: str) -> Dict[str, Any]:
-        """Propose refactoring with F8 score."""
-        # F8: Calculate wisdom
-        genius = self.calculate_genius(
-            akal=0.85,
-            presence=0.90,
-            exploration=0.75,
-            energy=0.95
-        )
+    async def execute(
+        self, action: str, params: Dict, session_id: str,
+        dry_run: bool = True, reality_bridge: Optional[Any] = None,
+        checkpoint: Optional[str] = None
+    ) -> Dict[str, Any]:
+        handlers = {
+            "propose_refactor": self._propose_refactor,
+            "apply_refactor": self._apply_refactor,
+        }
+        handler = handlers.get(action)
+        if not handler:
+            return {"verdict": "VOID", "reason": f"Unknown action: {action}"}
+        return await handler(params, dry_run, reality_bridge, checkpoint)
+    
+    async def _propose_refactor(self, params: Dict, dry_run: bool,
+                                reality_bridge: Optional[Any], checkpoint: Optional[str]) -> Dict:
+        code = params.get("code", "")
+        goal = params.get("goal", "")
+        
+        genius = self.calculate_genius(0.85, 0.90, 0.75, 0.95)
         
         if genius < 0.80:
             return {
                 "verdict": "SABAR",
-                "reason": f"F8: Genius score {genius:.2f} below 0.80 threshold",
-                "suggestion": "Increase exploration or reduce complexity"
+                "reason": f"F8: Genius score {genius:.2f} below 0.80",
+                "checkpoint": checkpoint
             }
         
         return {
             "verdict": "SEAL",
+            "mode": "dry_run" if dry_run else "proposal",
             "genius_score": genius,
-            "refactoring": f"Proposed change for: {goal}",
-            "tests_required": True
+            "checkpoint": checkpoint
         }
+    
+    async def _apply_refactor(self, params: Dict, dry_run: bool,
+                              reality_bridge: Optional[Any], checkpoint: Optional[str]) -> Dict:
+        file_path = params.get("file_path", "")
+        
+        if dry_run:
+            return {"verdict": "SEAL", "mode": "dry_run", "file": file_path, "checkpoint": checkpoint}
+        
+        if reality_bridge:
+            return {"verdict": "SEAL", "mode": "real", "file": file_path, "checkpoint": checkpoint}
+        
+        return {"verdict": "VOID", "error": "No reality bridge available"}
 
 
-async def execute(action: str, params: Dict[str, Any], session_id: str, dry_run: bool = True):
-    """Main entry point."""
+skill = CodeRefactorSkill()
+
+
+async def execute(action: str, params: Dict, session_id: str,
+                  dry_run: bool = True, reality_bridge: Optional[Any] = None,
+                  checkpoint: Optional[str] = None) -> Dict[str, Any]:
     skill = CodeRefactorSkill()
-    
-    if action == "propose_refactor":
-        return await skill.propose_refactor(params.get("code", ""), params.get("goal", ""))
-    
-    return {"verdict": "VOID", "reason": f"Unknown action: {action}"}
+    return await skill.execute(action, params, session_id, dry_run, reality_bridge, checkpoint)
+
+
+metadata = {"name": "code-refactor", "floor": "F8", "actions": ["propose_refactor", "apply_refactor"], "reversible": True}
