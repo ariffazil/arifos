@@ -99,6 +99,8 @@ def cmd_f3_eval(args):
         cmd_args.append("--json")
     if args.enforce:
         cmd_args.append("--enforce")
+    if args.update_manifest:
+        cmd_args.append("--update-manifest")
     return run_tool("arifos_f3_eval.py", cmd_args)
 
 
@@ -328,6 +330,7 @@ Ditempa bukan diberi.
                        default="pre-push", help="Mode")
     eval_p.add_argument("-j", "--json", action="store_true", help="JSON output")
     eval_p.add_argument("-e", "--enforce", action="store_true", help="Exit 2 if below threshold")
+    eval_p.add_argument("-u", "--update-manifest", action="store_true", help="Update arifos.yml with evaluation results")
     eval_p.set_defaults(func=cmd_f3_eval)
     
     # ═══════════════════════════════════════════════════════════════
