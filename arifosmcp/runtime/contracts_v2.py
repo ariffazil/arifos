@@ -120,11 +120,46 @@ class ToolEnvelope:
         }
 
     @classmethod
-    def hold(cls, tool: str, session_id: str, reason: str, trace: TraceContext | None = None) -> ToolEnvelope:
+    def hold(
+        cls,
+        tool: str,
+        session_id: str,
+        reason: str,
+        trace: TraceContext | None = None,
+        **kwargs: Any
+    ) -> ToolEnvelope:
+        payload = {"reason": reason}
+        payload.update(kwargs)
         return cls(
-            status=ToolStatus.HOLD, tool=tool, session_id=session_id, risk_tier=RiskTier.SOVEREIGN,
-            requires_human=True, trace=trace, payload={"reason": reason},
+            status=ToolStatus.HOLD,
+            tool=tool,
+            session_id=session_id,
+            risk_tier=RiskTier.HIGH,
+            requires_human=True,
+            trace=trace,
+            payload=payload,
             human_decision=HumanDecisionMarker.HUMAN_CONFIRMATION_REQUIRED
+        )
+
+    @classmethod
+    def void(
+        cls,
+        tool: str,
+        session_id: str,
+        reason: str,
+        trace: TraceContext | None = None,
+        **kwargs: Any
+    ) -> ToolEnvelope:
+        payload = {"reason": reason}
+        payload.update(kwargs)
+        return cls(
+            status=ToolStatus.VOID,
+            tool=tool,
+            session_id=session_id,
+            risk_tier=RiskTier.LOW,
+            trace=trace,
+            payload=payload,
+            human_decision=HumanDecisionMarker.MACHINE_RECOMMENDATION_ONLY
         )
 
 def validate_fail_closed(auth_context: dict | None, risk_tier: str | None, session_id: str | None, tool: str, trace: TraceContext | None = None) -> bool:

@@ -461,7 +461,7 @@
 
                 <div class="endpoint-card">
                     <div class="endpoint-label">Official MCP Endpoint</div>
-                    <div class="endpoint-url">https://aaa.arif-fazil.com/mcp</div>
+                    <div class="endpoint-url">https://arifosmcp.arif-fazil.com/mcp</div>
                     <div class="status-badge">Healthy</div>
                     <div class="tools-count">
                         <span id="tools-count">—</span> Constitutional Tools Available
@@ -476,16 +476,16 @@
                     <a href="https://arifos.arif-fazil.com" class="btn btn-primary">
                         <span>📦</span> Connect to Claude / Cursor
                     </a>
-                    <a href="/tools" class="btn btn-secondary">
+                    <a href="https://arifosmcp.arif-fazil.com/tools" class="btn btn-secondary">
                         <span>🔧</span> View Tools
                     </a>
-                    <a href="/health" class="btn btn-secondary">
+                    <a href="https://arifosmcp.arif-fazil.com/health" class="btn btn-secondary">
                         <span>✓</span> Health Check
                     </a>
                     <a href="https://apex.arif-fazil.com" class="btn btn-secondary">
                         <span>📖</span> Read the Constitution
                     </a>
-                    <a href="https://github.com/ariffazil/arifosmcp" class="btn btn-secondary">
+                    <a href="https://github.com/ariffazil/arifOS" class="btn btn-secondary">
                         <span>⚙</span> GitHub
                     </a>
                 </div>
@@ -535,7 +535,7 @@
         // Fetch live tools count
         async function updateStatus() {
             try {
-                const response = await fetch('/health');
+                const response = await fetch('https://arifosmcp.arif-fazil.com/health');
                 const data = await response.json();
                 if (data.tools_loaded) {
                     document.getElementById('tools-count').textContent = data.tools_loaded;

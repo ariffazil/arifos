@@ -63,7 +63,10 @@ from arifosmcp.runtime.tools_internal import (
     revoke_anchor_state_impl,
     vault_ledger_dispatch_impl,
 )
+
 logger = logging.getLogger(__name__)
+
+
 # P0: Helper function to check for valid cryptographic proof
 def _has_valid_proof(payload: dict[str, Any], actor_id: str) -> bool:
     """Check if payload contains valid cryptographic proof for protected ID."""
@@ -71,6 +74,8 @@ def _has_valid_proof(payload: dict[str, Any], actor_id: str) -> bool:
     if isinstance(proof, dict):
         return validate_sovereign_proof(actor_id, proof)
     return False
+
+
 def select_governed_philosophy(
     context: str,
     *,
@@ -82,6 +87,7 @@ def select_governed_philosophy(
 ) -> dict[str, Any]:
     """Provides a constitutional philosophy snippet for any stage result."""
     from arifosmcp.runtime.philosophy import select_governed_philosophy as _select
+
     return _select(
         context=context,
         stage=stage,
@@ -90,6 +96,8 @@ def select_governed_philosophy(
         failed_floors=failed_floors,
         session_id=session_id,
     )
+
+
 _public_tool_names_fn = _registry_tool_names
 _public_tool_specs_fn = _registry_tool_specs
 _public_tool_spec_by_name_fn = _registry_tool_spec_by_name
@@ -98,15 +106,22 @@ LEGACY_KERNEL_TOOL_NAME = "metabolic_loop_router"
 try:
     from arifosmcp.core.telemetry import check_adaptation_status, get_current_hysteresis
 except Exception:  # pragma: no cover
+
     def check_adaptation_status() -> dict[str, Any]:
         return {"status": "unavailable"}
+
     def get_current_hysteresis() -> float:
         return 0.0
+
+
 try:
     from arifosmcp.core.physics.thermodynamics_hardened import get_thermodynamic_report
 except Exception:  # pragma: no cover
+
     def get_thermodynamic_report(session_id: str) -> dict[str, Any]:
         return {"status": "unavailable", "session_id": session_id}
+
+
 def _normalize_session_id(session_id: str | None) -> str:
     resolved = _resolve_session_id(session_id)
     if resolved and str(resolved).strip():
@@ -114,6 +129,8 @@ def _normalize_session_id(session_id: str | None) -> str:
     minted = f"session-{uuid.uuid4().hex[:8]}"
     set_active_session(minted)
     return minted
+
+
 async def init_anchor(
     mode: str | None = None,
     payload: dict[str, Any] | None = None,
@@ -138,29 +155,48 @@ async def init_anchor(
 ) -> RuntimeEnvelope:
     # P0: Unified ABI Adapter (Hardened) — tolerant ingress normalization
     payload = dict(payload or {})
+    # Backward compatibility: accept both human_approval and human_approved
+    if "human_approved" in payload and "human_approval" not in payload:
+        payload["human_approval"] = payload.pop("human_approved")
     # Ingress tolerance: normalize extras from imperfect agents/humans
-    if raw_input: payload.setdefault("query", raw_input)
-    if caller_context: payload.setdefault("caller_context", caller_context)
-    if auth_context: payload.setdefault("auth_context", auth_context)
+    if raw_input:
+        payload.setdefault("query", raw_input)
+    if caller_context:
+        payload.setdefault("caller_context", caller_context)
+    if auth_context:
+        payload.setdefault("auth_context", auth_context)
 
-    if query: payload.setdefault("query", query)
-    if raw_input: payload.setdefault("raw_input", raw_input)
-    if session_id: payload.setdefault("session_id", session_id)
-    if actor_id: payload.setdefault("actor_id", actor_id)
-    if declared_name: payload.setdefault("declared_name", declared_name)
-    if intent: payload.setdefault("intent", intent)
-    if human_approval: payload.setdefault("human_approval", human_approval)
-    if risk_tier: payload.setdefault("risk_tier", risk_tier)
-    if caller_context: payload.setdefault("caller_context", caller_context)
-    if pns_shield: payload.setdefault("pns_shield", pns_shield)
-    if proof: payload.setdefault("proof", proof)
+    if query:
+        payload.setdefault("query", query)
+    if raw_input:
+        payload.setdefault("raw_input", raw_input)
+    if session_id:
+        payload.setdefault("session_id", session_id)
+    if actor_id:
+        payload.setdefault("actor_id", actor_id)
+    if declared_name:
+        payload.setdefault("declared_name", declared_name)
+    if intent:
+        payload.setdefault("intent", intent)
+    if "human_approval" not in payload:
+        payload["human_approval"] = human_approval
+    if risk_tier:
+        payload.setdefault("risk_tier", risk_tier)
+    if caller_context:
+        payload.setdefault("caller_context", caller_context)
+    if pns_shield:
+        payload.setdefault("pns_shield", pns_shield)
+    if proof:
+        payload.setdefault("proof", proof)
     # Hardened Dispatch
     if "init_anchor" in HARDENED_DISPATCH_MAP:
-        if mode is None: mode = "init" if "init_anchor" == "init_anchor" else "init_anchor"
+        if mode is None:
+            mode = "init" if "init_anchor" == "init_anchor" else "init_anchor"
         res = await HARDENED_DISPATCH_MAP["init_anchor"](mode=mode, payload=payload)
         # Wrap in envelope if not already (legacy compatibility)
         if isinstance(res, dict):
             from arifosmcp.runtime.models import RuntimeEnvelope, RuntimeStatus, Verdict
+
             ok = res.get("ok", res.get("status") not in ("HOLD", "ERROR", "VOID", None))
             # Extract structured guidance from ToolEnvelope results
             _next_tools = res.get("next_allowed_tools", [])
@@ -170,9 +206,13 @@ async def init_anchor(
             if not ok and _hold_reason:
                 _next_action = {
                     "reason": _hold_reason,
-                    "missing_requirements": _payload.get("missing_requirements", []) if isinstance(_payload, dict) else [],
+                    "missing_requirements": _payload.get("missing_requirements", [])
+                    if isinstance(_payload, dict)
+                    else [],
                     "next_allowed_tools": _next_tools,
-                    "suggested_canonical_call": _payload.get("suggested_canonical_call") if isinstance(_payload, dict) else None,
+                    "suggested_canonical_call": _payload.get("suggested_canonical_call")
+                    if isinstance(_payload, dict)
+                    else None,
                 }
             return RuntimeEnvelope(
                 tool=res.get("tool", "unknown"),
@@ -181,7 +221,7 @@ async def init_anchor(
                 verdict=Verdict.SEAL if ok else Verdict.VOID,
                 allowed_next_tools=_next_tools,
                 next_action=_next_action,
-                payload=res
+                payload=res,
             )
         return res
     # P0: Unification Dispatch — The Ignition State of Intelligence
@@ -189,7 +229,9 @@ async def init_anchor(
     effective_mode = mode or (payload.get("mode") if payload else "init")
     effective_intent = intent or raw_input or (payload.get("intent") if payload else None)
     effective_session = session_id or (payload.get("session_id") if payload else None)
-    effective_human_approval = human_approval or (payload.get("human_approval") if payload else False)
+    effective_human_approval = human_approval or (
+        payload.get("human_approval") if payload else False
+    )
     effective_proof = proof or (payload.get("proof") if payload else None)
     # Handle legacy tool routing through capability_map
     if effective_mode == "revoke" or (reason and "revoke" in str(reason).lower()):
@@ -210,8 +252,10 @@ async def init_anchor(
         mode=effective_mode,
         proof=effective_proof,
         reason=reason,
-        payload=payload
+        payload=payload,
     )
+
+
 async def arifOS_kernel(
     mode: str | None = None,
     payload: dict[str, Any] | None = None,
@@ -235,22 +279,32 @@ async def arifOS_kernel(
     # P0: Unified ABI Adapter (Hardened)
     payload = dict(payload or {})
     # Ingress tolerance: normalize extras from imperfect agents/humans
-    if raw_input: payload.setdefault("query", raw_input)
-    if caller_context: payload.setdefault("caller_context", caller_context)
-    if auth_context: payload.setdefault("auth_context", auth_context)
+    if raw_input:
+        payload.setdefault("query", raw_input)
+    if caller_context:
+        payload.setdefault("caller_context", caller_context)
+    if auth_context:
+        payload.setdefault("auth_context", auth_context)
 
-    if query: payload.setdefault("query", query)
-    if session_id: payload.setdefault("session_id", session_id)
-    if actor_id: payload.setdefault("actor_id", actor_id)
-    if intent: payload.setdefault("intent", intent)
-    if human_approval: payload.setdefault("human_approval", human_approval)
+    if query:
+        payload.setdefault("query", query)
+    if session_id:
+        payload.setdefault("session_id", session_id)
+    if actor_id:
+        payload.setdefault("actor_id", actor_id)
+    if intent:
+        payload.setdefault("intent", intent)
+    if human_approval:
+        payload.setdefault("human_approval", human_approval)
     # Hardened Dispatch
     if "arifOS_kernel" in HARDENED_DISPATCH_MAP:
-        if mode is None: mode = "init" if "arifOS_kernel" == "init_anchor" else "arifOS_kernel"
+        if mode is None:
+            mode = "init" if "arifOS_kernel" == "init_anchor" else "arifOS_kernel"
         res = await HARDENED_DISPATCH_MAP["arifOS_kernel"](mode=mode, payload=payload)
         # Wrap in envelope if not already (legacy compatibility)
         if isinstance(res, dict):
             from arifosmcp.runtime.models import RuntimeEnvelope, RuntimeStatus, Verdict
+
             ok = res.get("ok", res.get("status") not in ("HOLD", "ERROR", "VOID", None))
             # Extract structured guidance from ToolEnvelope results
             _next_tools = res.get("next_allowed_tools", [])
@@ -260,9 +314,13 @@ async def arifOS_kernel(
             if not ok and _hold_reason:
                 _next_action = {
                     "reason": _hold_reason,
-                    "missing_requirements": _payload.get("missing_requirements", []) if isinstance(_payload, dict) else [],
+                    "missing_requirements": _payload.get("missing_requirements", [])
+                    if isinstance(_payload, dict)
+                    else [],
                     "next_allowed_tools": _next_tools,
-                    "suggested_canonical_call": _payload.get("suggested_canonical_call") if isinstance(_payload, dict) else None,
+                    "suggested_canonical_call": _payload.get("suggested_canonical_call")
+                    if isinstance(_payload, dict)
+                    else None,
                 }
             return RuntimeEnvelope(
                 tool=res.get("tool", "unknown"),
@@ -271,7 +329,7 @@ async def arifOS_kernel(
                 verdict=Verdict.SEAL if ok else Verdict.VOID,
                 allowed_next_tools=_next_tools,
                 next_action=_next_action,
-                payload=res
+                payload=res,
             )
         return res
     del caller_context
@@ -297,6 +355,8 @@ async def arifOS_kernel(
     if mode == "status":
         return await get_caller_status_impl(session_id=payload.get("session_id"), ctx=ctx)
     raise ValueError(f"Invalid mode for arifOS_kernel: {mode}")
+
+
 async def apex_soul(
     mode: str | None = None,
     payload: dict[str, Any] | None = None,
@@ -320,22 +380,32 @@ async def apex_soul(
     # P0: Unified ABI Adapter (Hardened)
     payload = dict(payload or {})
     # Ingress tolerance: normalize extras from imperfect agents/humans
-    if raw_input: payload.setdefault("query", raw_input)
-    if caller_context: payload.setdefault("caller_context", caller_context)
-    if auth_context: payload.setdefault("auth_context", auth_context)
+    if raw_input:
+        payload.setdefault("query", raw_input)
+    if caller_context:
+        payload.setdefault("caller_context", caller_context)
+    if auth_context:
+        payload.setdefault("auth_context", auth_context)
 
-    if query: payload.setdefault("query", query)
-    if session_id: payload.setdefault("session_id", session_id)
-    if actor_id: payload.setdefault("actor_id", actor_id)
-    if intent: payload.setdefault("intent", intent)
-    if human_approval: payload.setdefault("human_approval", human_approval)
+    if query:
+        payload.setdefault("query", query)
+    if session_id:
+        payload.setdefault("session_id", session_id)
+    if actor_id:
+        payload.setdefault("actor_id", actor_id)
+    if intent:
+        payload.setdefault("intent", intent)
+    if human_approval:
+        payload.setdefault("human_approval", human_approval)
     # Hardened Dispatch
     if "apex_soul" in HARDENED_DISPATCH_MAP:
-        if mode is None: mode = "init" if "apex_soul" == "init_anchor" else "apex_soul"
+        if mode is None:
+            mode = "init" if "apex_soul" == "init_anchor" else "apex_soul"
         res = await HARDENED_DISPATCH_MAP["apex_soul"](mode=mode, payload=payload)
         # Wrap in envelope if not already (legacy compatibility)
         if isinstance(res, dict):
             from arifosmcp.runtime.models import RuntimeEnvelope, RuntimeStatus, Verdict
+
             ok = res.get("ok", res.get("status") not in ("HOLD", "ERROR", "VOID", None))
             # Extract structured guidance from ToolEnvelope results
             _next_tools = res.get("next_allowed_tools", [])
@@ -345,9 +415,13 @@ async def apex_soul(
             if not ok and _hold_reason:
                 _next_action = {
                     "reason": _hold_reason,
-                    "missing_requirements": _payload.get("missing_requirements", []) if isinstance(_payload, dict) else [],
+                    "missing_requirements": _payload.get("missing_requirements", [])
+                    if isinstance(_payload, dict)
+                    else [],
                     "next_allowed_tools": _next_tools,
-                    "suggested_canonical_call": _payload.get("suggested_canonical_call") if isinstance(_payload, dict) else None,
+                    "suggested_canonical_call": _payload.get("suggested_canonical_call")
+                    if isinstance(_payload, dict)
+                    else None,
                 }
             return RuntimeEnvelope(
                 tool=res.get("tool", "unknown"),
@@ -356,7 +430,7 @@ async def apex_soul(
                 verdict=Verdict.SEAL if ok else Verdict.VOID,
                 allowed_next_tools=_next_tools,
                 next_action=_next_action,
-                payload=res
+                payload=res,
             )
         return res
     resolved_payload = dict(payload or {})
@@ -368,6 +442,8 @@ async def apex_soul(
         dry_run=bool(resolved_payload.get("dry_run", dry_run)),
         ctx=ctx or CurrentContext(),
     )
+
+
 async def vault_ledger(
     mode: str | None = None,
     payload: dict[str, Any] | None = None,
@@ -391,22 +467,32 @@ async def vault_ledger(
     # P0: Unified ABI Adapter (Hardened)
     payload = dict(payload or {})
     # Ingress tolerance: normalize extras from imperfect agents/humans
-    if raw_input: payload.setdefault("query", raw_input)
-    if caller_context: payload.setdefault("caller_context", caller_context)
-    if auth_context: payload.setdefault("auth_context", auth_context)
+    if raw_input:
+        payload.setdefault("query", raw_input)
+    if caller_context:
+        payload.setdefault("caller_context", caller_context)
+    if auth_context:
+        payload.setdefault("auth_context", auth_context)
 
-    if query: payload.setdefault("query", query)
-    if session_id: payload.setdefault("session_id", session_id)
-    if actor_id: payload.setdefault("actor_id", actor_id)
-    if intent: payload.setdefault("intent", intent)
-    if human_approval: payload.setdefault("human_approval", human_approval)
+    if query:
+        payload.setdefault("query", query)
+    if session_id:
+        payload.setdefault("session_id", session_id)
+    if actor_id:
+        payload.setdefault("actor_id", actor_id)
+    if intent:
+        payload.setdefault("intent", intent)
+    if human_approval:
+        payload.setdefault("human_approval", human_approval)
     # Hardened Dispatch
     if "vault_ledger" in HARDENED_DISPATCH_MAP:
-        if mode is None: mode = "init" if "vault_ledger" == "init_anchor" else "vault_ledger"
+        if mode is None:
+            mode = "init" if "vault_ledger" == "init_anchor" else "vault_ledger"
         res = await HARDENED_DISPATCH_MAP["vault_ledger"](mode=mode, payload=payload)
         # Wrap in envelope if not already (legacy compatibility)
         if isinstance(res, dict):
             from arifosmcp.runtime.models import RuntimeEnvelope, RuntimeStatus, Verdict
+
             ok = res.get("ok", res.get("status") not in ("HOLD", "ERROR", "VOID", None))
             # Extract structured guidance from ToolEnvelope results
             _next_tools = res.get("next_allowed_tools", [])
@@ -416,9 +502,13 @@ async def vault_ledger(
             if not ok and _hold_reason:
                 _next_action = {
                     "reason": _hold_reason,
-                    "missing_requirements": _payload.get("missing_requirements", []) if isinstance(_payload, dict) else [],
+                    "missing_requirements": _payload.get("missing_requirements", [])
+                    if isinstance(_payload, dict)
+                    else [],
                     "next_allowed_tools": _next_tools,
-                    "suggested_canonical_call": _payload.get("suggested_canonical_call") if isinstance(_payload, dict) else None,
+                    "suggested_canonical_call": _payload.get("suggested_canonical_call")
+                    if isinstance(_payload, dict)
+                    else None,
                 }
             return RuntimeEnvelope(
                 tool=res.get("tool", "unknown"),
@@ -427,7 +517,7 @@ async def vault_ledger(
                 verdict=Verdict.SEAL if ok else Verdict.VOID,
                 allowed_next_tools=_next_tools,
                 next_action=_next_action,
-                payload=res
+                payload=res,
             )
         return res
     resolved_payload = dict(payload or {})
@@ -439,6 +529,8 @@ async def vault_ledger(
         dry_run=bool(resolved_payload.get("dry_run", dry_run)),
         ctx=ctx or CurrentContext(),
     )
+
+
 async def agi_mind(
     mode: str | None = None,
     payload: dict[str, Any] | None = None,
@@ -462,22 +554,32 @@ async def agi_mind(
     # P0: Unified ABI Adapter (Hardened)
     payload = dict(payload or {})
     # Ingress tolerance: normalize extras from imperfect agents/humans
-    if raw_input: payload.setdefault("query", raw_input)
-    if caller_context: payload.setdefault("caller_context", caller_context)
-    if auth_context: payload.setdefault("auth_context", auth_context)
+    if raw_input:
+        payload.setdefault("query", raw_input)
+    if caller_context:
+        payload.setdefault("caller_context", caller_context)
+    if auth_context:
+        payload.setdefault("auth_context", auth_context)
 
-    if query: payload.setdefault("query", query)
-    if session_id: payload.setdefault("session_id", session_id)
-    if actor_id: payload.setdefault("actor_id", actor_id)
-    if intent: payload.setdefault("intent", intent)
-    if human_approval: payload.setdefault("human_approval", human_approval)
+    if query:
+        payload.setdefault("query", query)
+    if session_id:
+        payload.setdefault("session_id", session_id)
+    if actor_id:
+        payload.setdefault("actor_id", actor_id)
+    if intent:
+        payload.setdefault("intent", intent)
+    if human_approval:
+        payload.setdefault("human_approval", human_approval)
     # Hardened Dispatch
     if "agi_mind" in HARDENED_DISPATCH_MAP:
-        if mode is None: mode = "init" if "agi_mind" == "init_anchor" else "agi_mind"
+        if mode is None:
+            mode = "init" if "agi_mind" == "init_anchor" else "agi_mind"
         res = await HARDENED_DISPATCH_MAP["agi_mind"](mode=mode, payload=payload)
         # Wrap in envelope if not already (legacy compatibility)
         if isinstance(res, dict):
             from arifosmcp.runtime.models import RuntimeEnvelope, RuntimeStatus, Verdict
+
             ok = res.get("ok", res.get("status") not in ("HOLD", "ERROR", "VOID", None))
             # Extract structured guidance from ToolEnvelope results
             _next_tools = res.get("next_allowed_tools", [])
@@ -487,9 +589,13 @@ async def agi_mind(
             if not ok and _hold_reason:
                 _next_action = {
                     "reason": _hold_reason,
-                    "missing_requirements": _payload.get("missing_requirements", []) if isinstance(_payload, dict) else [],
+                    "missing_requirements": _payload.get("missing_requirements", [])
+                    if isinstance(_payload, dict)
+                    else [],
                     "next_allowed_tools": _next_tools,
-                    "suggested_canonical_call": _payload.get("suggested_canonical_call") if isinstance(_payload, dict) else None,
+                    "suggested_canonical_call": _payload.get("suggested_canonical_call")
+                    if isinstance(_payload, dict)
+                    else None,
                 }
             return RuntimeEnvelope(
                 tool=res.get("tool", "unknown"),
@@ -498,7 +604,7 @@ async def agi_mind(
                 verdict=Verdict.SEAL if ok else Verdict.VOID,
                 allowed_next_tools=_next_tools,
                 next_action=_next_action,
-                payload=res
+                payload=res,
             )
         return res
     resolved_payload = dict(payload or {})
@@ -510,6 +616,8 @@ async def agi_mind(
         dry_run=bool(resolved_payload.get("dry_run", dry_run)),
         ctx=ctx or CurrentContext(),
     )
+
+
 async def asi_heart(
     mode: str | None = None,
     payload: dict[str, Any] | None = None,
@@ -533,22 +641,32 @@ async def asi_heart(
     # P0: Unified ABI Adapter (Hardened)
     payload = dict(payload or {})
     # Ingress tolerance: normalize extras from imperfect agents/humans
-    if raw_input: payload.setdefault("query", raw_input)
-    if caller_context: payload.setdefault("caller_context", caller_context)
-    if auth_context: payload.setdefault("auth_context", auth_context)
+    if raw_input:
+        payload.setdefault("query", raw_input)
+    if caller_context:
+        payload.setdefault("caller_context", caller_context)
+    if auth_context:
+        payload.setdefault("auth_context", auth_context)
 
-    if query: payload.setdefault("query", query)
-    if session_id: payload.setdefault("session_id", session_id)
-    if actor_id: payload.setdefault("actor_id", actor_id)
-    if intent: payload.setdefault("intent", intent)
-    if human_approval: payload.setdefault("human_approval", human_approval)
+    if query:
+        payload.setdefault("query", query)
+    if session_id:
+        payload.setdefault("session_id", session_id)
+    if actor_id:
+        payload.setdefault("actor_id", actor_id)
+    if intent:
+        payload.setdefault("intent", intent)
+    if human_approval:
+        payload.setdefault("human_approval", human_approval)
     # Hardened Dispatch
     if "asi_heart" in HARDENED_DISPATCH_MAP:
-        if mode is None: mode = "init" if "asi_heart" == "init_anchor" else "asi_heart"
+        if mode is None:
+            mode = "init" if "asi_heart" == "init_anchor" else "asi_heart"
         res = await HARDENED_DISPATCH_MAP["asi_heart"](mode=mode, payload=payload)
         # Wrap in envelope if not already (legacy compatibility)
         if isinstance(res, dict):
             from arifosmcp.runtime.models import RuntimeEnvelope, RuntimeStatus, Verdict
+
             ok = res.get("ok", res.get("status") not in ("HOLD", "ERROR", "VOID", None))
             # Extract structured guidance from ToolEnvelope results
             _next_tools = res.get("next_allowed_tools", [])
@@ -558,9 +676,13 @@ async def asi_heart(
             if not ok and _hold_reason:
                 _next_action = {
                     "reason": _hold_reason,
-                    "missing_requirements": _payload.get("missing_requirements", []) if isinstance(_payload, dict) else [],
+                    "missing_requirements": _payload.get("missing_requirements", [])
+                    if isinstance(_payload, dict)
+                    else [],
                     "next_allowed_tools": _next_tools,
-                    "suggested_canonical_call": _payload.get("suggested_canonical_call") if isinstance(_payload, dict) else None,
+                    "suggested_canonical_call": _payload.get("suggested_canonical_call")
+                    if isinstance(_payload, dict)
+                    else None,
                 }
             return RuntimeEnvelope(
                 tool=res.get("tool", "unknown"),
@@ -569,7 +691,7 @@ async def asi_heart(
                 verdict=Verdict.SEAL if ok else Verdict.VOID,
                 allowed_next_tools=_next_tools,
                 next_action=_next_action,
-                payload=res
+                payload=res,
             )
         return res
     resolved_payload = dict(payload or {})
@@ -581,6 +703,8 @@ async def asi_heart(
         dry_run=bool(resolved_payload.get("dry_run", dry_run)),
         ctx=ctx or CurrentContext(),
     )
+
+
 async def engineering_memory(
     mode: str | None = None,
     payload: dict[str, Any] | None = None,
@@ -604,22 +728,32 @@ async def engineering_memory(
     # P0: Unified ABI Adapter (Hardened)
     payload = dict(payload or {})
     # Ingress tolerance: normalize extras from imperfect agents/humans
-    if raw_input: payload.setdefault("query", raw_input)
-    if caller_context: payload.setdefault("caller_context", caller_context)
-    if auth_context: payload.setdefault("auth_context", auth_context)
+    if raw_input:
+        payload.setdefault("query", raw_input)
+    if caller_context:
+        payload.setdefault("caller_context", caller_context)
+    if auth_context:
+        payload.setdefault("auth_context", auth_context)
 
-    if query: payload.setdefault("query", query)
-    if session_id: payload.setdefault("session_id", session_id)
-    if actor_id: payload.setdefault("actor_id", actor_id)
-    if intent: payload.setdefault("intent", intent)
-    if human_approval: payload.setdefault("human_approval", human_approval)
+    if query:
+        payload.setdefault("query", query)
+    if session_id:
+        payload.setdefault("session_id", session_id)
+    if actor_id:
+        payload.setdefault("actor_id", actor_id)
+    if intent:
+        payload.setdefault("intent", intent)
+    if human_approval:
+        payload.setdefault("human_approval", human_approval)
     # Hardened Dispatch
     if "engineering_memory" in HARDENED_DISPATCH_MAP:
-        if mode is None: mode = "init" if "engineering_memory" == "init_anchor" else "engineering_memory"
+        if mode is None:
+            mode = "init" if "engineering_memory" == "init_anchor" else "engineering_memory"
         res = await HARDENED_DISPATCH_MAP["engineering_memory"](mode=mode, payload=payload)
         # Wrap in envelope if not already (legacy compatibility)
         if isinstance(res, dict):
             from arifosmcp.runtime.models import RuntimeEnvelope, RuntimeStatus, Verdict
+
             ok = res.get("ok", res.get("status") not in ("HOLD", "ERROR", "VOID", None))
             # Extract structured guidance from ToolEnvelope results
             _next_tools = res.get("next_allowed_tools", [])
@@ -629,9 +763,13 @@ async def engineering_memory(
             if not ok and _hold_reason:
                 _next_action = {
                     "reason": _hold_reason,
-                    "missing_requirements": _payload.get("missing_requirements", []) if isinstance(_payload, dict) else [],
+                    "missing_requirements": _payload.get("missing_requirements", [])
+                    if isinstance(_payload, dict)
+                    else [],
                     "next_allowed_tools": _next_tools,
-                    "suggested_canonical_call": _payload.get("suggested_canonical_call") if isinstance(_payload, dict) else None,
+                    "suggested_canonical_call": _payload.get("suggested_canonical_call")
+                    if isinstance(_payload, dict)
+                    else None,
                 }
             return RuntimeEnvelope(
                 tool=res.get("tool", "unknown"),
@@ -640,7 +778,7 @@ async def engineering_memory(
                 verdict=Verdict.SEAL if ok else Verdict.VOID,
                 allowed_next_tools=_next_tools,
                 next_action=_next_action,
-                payload=res
+                payload=res,
             )
         return res
     resolved_payload = dict(payload or {})
@@ -652,6 +790,8 @@ async def engineering_memory(
         dry_run=bool(resolved_payload.get("dry_run", dry_run)),
         ctx=ctx or CurrentContext(),
     )
+
+
 async def physics_reality(
     mode: str | None = None,
     payload: dict[str, Any] | None = None,
@@ -675,22 +815,32 @@ async def physics_reality(
     # P0: Unified ABI Adapter (Hardened)
     payload = dict(payload or {})
     # Ingress tolerance: normalize extras from imperfect agents/humans
-    if raw_input: payload.setdefault("query", raw_input)
-    if caller_context: payload.setdefault("caller_context", caller_context)
-    if auth_context: payload.setdefault("auth_context", auth_context)
+    if raw_input:
+        payload.setdefault("query", raw_input)
+    if caller_context:
+        payload.setdefault("caller_context", caller_context)
+    if auth_context:
+        payload.setdefault("auth_context", auth_context)
 
-    if query: payload.setdefault("query", query)
-    if session_id: payload.setdefault("session_id", session_id)
-    if actor_id: payload.setdefault("actor_id", actor_id)
-    if intent: payload.setdefault("intent", intent)
-    if human_approval: payload.setdefault("human_approval", human_approval)
+    if query:
+        payload.setdefault("query", query)
+    if session_id:
+        payload.setdefault("session_id", session_id)
+    if actor_id:
+        payload.setdefault("actor_id", actor_id)
+    if intent:
+        payload.setdefault("intent", intent)
+    if human_approval:
+        payload.setdefault("human_approval", human_approval)
     # Hardened Dispatch
     if "physics_reality" in HARDENED_DISPATCH_MAP:
-        if mode is None: mode = "init" if "physics_reality" == "init_anchor" else "physics_reality"
+        if mode is None:
+            mode = "init" if "physics_reality" == "init_anchor" else "physics_reality"
         res = await HARDENED_DISPATCH_MAP["physics_reality"](mode=mode, payload=payload)
         # Wrap in envelope if not already (legacy compatibility)
         if isinstance(res, dict):
             from arifosmcp.runtime.models import RuntimeEnvelope, RuntimeStatus, Verdict
+
             ok = res.get("ok", res.get("status") not in ("HOLD", "ERROR", "VOID", None))
             _next_tools = res.get("next_allowed_tools", [])
             _payload = res.get("payload", res) if isinstance(res.get("payload"), dict) else res
@@ -699,9 +849,13 @@ async def physics_reality(
             if not ok and _hold_reason:
                 _next_action = {
                     "reason": _hold_reason,
-                    "missing_requirements": _payload.get("missing_requirements", []) if isinstance(_payload, dict) else [],
+                    "missing_requirements": _payload.get("missing_requirements", [])
+                    if isinstance(_payload, dict)
+                    else [],
                     "next_allowed_tools": _next_tools,
-                    "suggested_canonical_call": _payload.get("suggested_canonical_call") if isinstance(_payload, dict) else None,
+                    "suggested_canonical_call": _payload.get("suggested_canonical_call")
+                    if isinstance(_payload, dict)
+                    else None,
                 }
             return RuntimeEnvelope(
                 tool=res.get("tool", "physics_reality"),
@@ -710,7 +864,7 @@ async def physics_reality(
                 verdict=Verdict.SEAL if ok else Verdict.VOID,
                 allowed_next_tools=_next_tools,
                 next_action=_next_action,
-                payload=res
+                payload=res,
             )
         return res
     resolved_payload = dict(payload or {})
@@ -722,6 +876,8 @@ async def physics_reality(
         dry_run=bool(resolved_payload.get("dry_run", dry_run)),
         ctx=ctx or CurrentContext(),
     )
+
+
 async def math_estimator(
     mode: str | None = None,
     payload: dict[str, Any] | None = None,
@@ -745,22 +901,32 @@ async def math_estimator(
     # P0: Unified ABI Adapter (Hardened)
     payload = dict(payload or {})
     # Ingress tolerance: normalize extras from imperfect agents/humans
-    if raw_input: payload.setdefault("query", raw_input)
-    if caller_context: payload.setdefault("caller_context", caller_context)
-    if auth_context: payload.setdefault("auth_context", auth_context)
+    if raw_input:
+        payload.setdefault("query", raw_input)
+    if caller_context:
+        payload.setdefault("caller_context", caller_context)
+    if auth_context:
+        payload.setdefault("auth_context", auth_context)
 
-    if query: payload.setdefault("query", query)
-    if session_id: payload.setdefault("session_id", session_id)
-    if actor_id: payload.setdefault("actor_id", actor_id)
-    if intent: payload.setdefault("intent", intent)
-    if human_approval: payload.setdefault("human_approval", human_approval)
+    if query:
+        payload.setdefault("query", query)
+    if session_id:
+        payload.setdefault("session_id", session_id)
+    if actor_id:
+        payload.setdefault("actor_id", actor_id)
+    if intent:
+        payload.setdefault("intent", intent)
+    if human_approval:
+        payload.setdefault("human_approval", human_approval)
     # Hardened Dispatch
     if "math_estimator" in HARDENED_DISPATCH_MAP:
-        if mode is None: mode = "init" if "math_estimator" == "init_anchor" else "math_estimator"
+        if mode is None:
+            mode = "init" if "math_estimator" == "init_anchor" else "math_estimator"
         res = await HARDENED_DISPATCH_MAP["math_estimator"](mode=mode, payload=payload)
         # Wrap in envelope if not already (legacy compatibility)
         if isinstance(res, dict):
             from arifosmcp.runtime.models import RuntimeEnvelope, RuntimeStatus, Verdict
+
             ok = res.get("ok", res.get("status") not in ("HOLD", "ERROR", "VOID", None))
             # Extract structured guidance from ToolEnvelope results
             _next_tools = res.get("next_allowed_tools", [])
@@ -770,9 +936,13 @@ async def math_estimator(
             if not ok and _hold_reason:
                 _next_action = {
                     "reason": _hold_reason,
-                    "missing_requirements": _payload.get("missing_requirements", []) if isinstance(_payload, dict) else [],
+                    "missing_requirements": _payload.get("missing_requirements", [])
+                    if isinstance(_payload, dict)
+                    else [],
                     "next_allowed_tools": _next_tools,
-                    "suggested_canonical_call": _payload.get("suggested_canonical_call") if isinstance(_payload, dict) else None,
+                    "suggested_canonical_call": _payload.get("suggested_canonical_call")
+                    if isinstance(_payload, dict)
+                    else None,
                 }
             return RuntimeEnvelope(
                 tool=res.get("tool", "unknown"),
@@ -781,7 +951,7 @@ async def math_estimator(
                 verdict=Verdict.SEAL if ok else Verdict.VOID,
                 allowed_next_tools=_next_tools,
                 next_action=_next_action,
-                payload=res
+                payload=res,
             )
         return res
     resolved_payload = dict(payload or {})
@@ -793,6 +963,8 @@ async def math_estimator(
         dry_run=bool(resolved_payload.get("dry_run", dry_run)),
         ctx=ctx or CurrentContext(),
     )
+
+
 async def code_engine(
     mode: str | None = None,
     payload: dict[str, Any] | None = None,
@@ -816,22 +988,32 @@ async def code_engine(
     # P0: Unified ABI Adapter (Hardened)
     payload = dict(payload or {})
     # Ingress tolerance: normalize extras from imperfect agents/humans
-    if raw_input: payload.setdefault("query", raw_input)
-    if caller_context: payload.setdefault("caller_context", caller_context)
-    if auth_context: payload.setdefault("auth_context", auth_context)
+    if raw_input:
+        payload.setdefault("query", raw_input)
+    if caller_context:
+        payload.setdefault("caller_context", caller_context)
+    if auth_context:
+        payload.setdefault("auth_context", auth_context)
 
-    if query: payload.setdefault("query", query)
-    if session_id: payload.setdefault("session_id", session_id)
-    if actor_id: payload.setdefault("actor_id", actor_id)
-    if intent: payload.setdefault("intent", intent)
-    if human_approval: payload.setdefault("human_approval", human_approval)
+    if query:
+        payload.setdefault("query", query)
+    if session_id:
+        payload.setdefault("session_id", session_id)
+    if actor_id:
+        payload.setdefault("actor_id", actor_id)
+    if intent:
+        payload.setdefault("intent", intent)
+    if human_approval:
+        payload.setdefault("human_approval", human_approval)
     # Hardened Dispatch
     if "code_engine" in HARDENED_DISPATCH_MAP:
-        if mode is None: mode = "init" if "code_engine" == "init_anchor" else "code_engine"
+        if mode is None:
+            mode = "init" if "code_engine" == "init_anchor" else "code_engine"
         res = await HARDENED_DISPATCH_MAP["code_engine"](mode=mode, payload=payload)
         # Wrap in envelope if not already (legacy compatibility)
         if isinstance(res, dict):
             from arifosmcp.runtime.models import RuntimeEnvelope, RuntimeStatus, Verdict
+
             ok = res.get("ok", res.get("status") not in ("HOLD", "ERROR", "VOID", None))
             # Extract structured guidance from ToolEnvelope results
             _next_tools = res.get("next_allowed_tools", [])
@@ -841,9 +1023,13 @@ async def code_engine(
             if not ok and _hold_reason:
                 _next_action = {
                     "reason": _hold_reason,
-                    "missing_requirements": _payload.get("missing_requirements", []) if isinstance(_payload, dict) else [],
+                    "missing_requirements": _payload.get("missing_requirements", [])
+                    if isinstance(_payload, dict)
+                    else [],
                     "next_allowed_tools": _next_tools,
-                    "suggested_canonical_call": _payload.get("suggested_canonical_call") if isinstance(_payload, dict) else None,
+                    "suggested_canonical_call": _payload.get("suggested_canonical_call")
+                    if isinstance(_payload, dict)
+                    else None,
                 }
             return RuntimeEnvelope(
                 tool=res.get("tool", "unknown"),
@@ -852,7 +1038,7 @@ async def code_engine(
                 verdict=Verdict.SEAL if ok else Verdict.VOID,
                 allowed_next_tools=_next_tools,
                 next_action=_next_action,
-                payload=res
+                payload=res,
             )
         return res
     resolved_payload = dict(payload or {})
@@ -864,6 +1050,8 @@ async def code_engine(
         dry_run=bool(resolved_payload.get("dry_run", dry_run)),
         ctx=ctx or CurrentContext(),
     )
+
+
 async def architect_registry(
     mode: str | None = None,
     payload: dict[str, Any] | None = None,
@@ -887,22 +1075,32 @@ async def architect_registry(
     # P0: Unified ABI Adapter (Hardened)
     payload = dict(payload or {})
     # Ingress tolerance: normalize extras from imperfect agents/humans
-    if raw_input: payload.setdefault("query", raw_input)
-    if caller_context: payload.setdefault("caller_context", caller_context)
-    if auth_context: payload.setdefault("auth_context", auth_context)
+    if raw_input:
+        payload.setdefault("query", raw_input)
+    if caller_context:
+        payload.setdefault("caller_context", caller_context)
+    if auth_context:
+        payload.setdefault("auth_context", auth_context)
 
-    if query: payload.setdefault("query", query)
-    if session_id: payload.setdefault("session_id", session_id)
-    if actor_id: payload.setdefault("actor_id", actor_id)
-    if intent: payload.setdefault("intent", intent)
-    if human_approval: payload.setdefault("human_approval", human_approval)
+    if query:
+        payload.setdefault("query", query)
+    if session_id:
+        payload.setdefault("session_id", session_id)
+    if actor_id:
+        payload.setdefault("actor_id", actor_id)
+    if intent:
+        payload.setdefault("intent", intent)
+    if human_approval:
+        payload.setdefault("human_approval", human_approval)
     # Hardened Dispatch
     if "architect_registry" in HARDENED_DISPATCH_MAP:
-        if mode is None: mode = "init" if "architect_registry" == "init_anchor" else "architect_registry"
+        if mode is None:
+            mode = "init" if "architect_registry" == "init_anchor" else "architect_registry"
         res = await HARDENED_DISPATCH_MAP["architect_registry"](mode=mode, payload=payload)
         # Wrap in envelope if not already (legacy compatibility)
         if isinstance(res, dict):
             from arifosmcp.runtime.models import RuntimeEnvelope, RuntimeStatus, Verdict
+
             ok = res.get("ok", res.get("status") not in ("HOLD", "ERROR", "VOID", None))
             # Extract structured guidance from ToolEnvelope results
             _next_tools = res.get("next_allowed_tools", [])
@@ -912,9 +1110,13 @@ async def architect_registry(
             if not ok and _hold_reason:
                 _next_action = {
                     "reason": _hold_reason,
-                    "missing_requirements": _payload.get("missing_requirements", []) if isinstance(_payload, dict) else [],
+                    "missing_requirements": _payload.get("missing_requirements", [])
+                    if isinstance(_payload, dict)
+                    else [],
                     "next_allowed_tools": _next_tools,
-                    "suggested_canonical_call": _payload.get("suggested_canonical_call") if isinstance(_payload, dict) else None,
+                    "suggested_canonical_call": _payload.get("suggested_canonical_call")
+                    if isinstance(_payload, dict)
+                    else None,
                 }
             return RuntimeEnvelope(
                 tool=res.get("tool", "unknown"),
@@ -923,7 +1125,7 @@ async def architect_registry(
                 verdict=Verdict.SEAL if ok else Verdict.VOID,
                 allowed_next_tools=_next_tools,
                 next_action=_next_action,
-                payload=res
+                payload=res,
             )
         return res
     resolved_payload = dict(payload or {})
@@ -935,6 +1137,8 @@ async def architect_registry(
         dry_run=bool(resolved_payload.get("dry_run", dry_run)),
         ctx=ctx or CurrentContext(),
     )
+
+
 def _build_user_model(
     tool_name: str, stage_value: str, payload: dict[str, Any], envelope_data: dict[str, Any]
 ) -> UserModel:
@@ -960,6 +1164,8 @@ def _build_user_model(
         ),
         output_constraints=output_constraints,
     )
+
+
 def _resolve_caller_context(
     caller_context: CallerContext | None, requested_persona: str | None
 ) -> CallerContext:
@@ -970,10 +1176,17 @@ def _resolve_caller_context(
         except (ValueError, AttributeError):
             pass
     return base
-def _resolve_caller_state(session_id: str, authority: Any) -> tuple[str, list[str], list[dict[str, str]]]:
+
+
+def _resolve_caller_state(
+    session_id: str, authority: Any
+) -> tuple[str, list[str], list[dict[str, str]]]:
     """Single source of truth for caller state resolution."""
     from .tools_internal import _resolve_caller_state as _resolve
+
     return _resolve(session_id, authority)
+
+
 async def _wrap_call(
     tool_name: str,
     stage: Stage,
@@ -1027,10 +1240,12 @@ async def _wrap_call(
     failed_codes = [e.code for e in envelope.errors if str(e.code).startswith("F")]
     # If this is an init call, we want to reflect the resolve status in the philosophy
     effective_stage = envelope.stage
-    effective_verdict = str(envelope.verdict.value) if hasattr(envelope.verdict, "value") else str(envelope.verdict)
+    effective_verdict = (
+        str(envelope.verdict.value) if hasattr(envelope.verdict, "value") else str(envelope.verdict)
+    )
     # Force deep contrast for 000_INIT failures
     if effective_stage == "000_INIT" and envelope.verdict == Verdict.VOID:
-        g_score = 0.33 # Force humility quote
+        g_score = 0.33  # Force humility quote
     envelope.philosophy = select_governed_philosophy(
         context=str(
             payload.get("query")
@@ -1047,8 +1262,12 @@ async def _wrap_call(
     )
     # Final ABI Alignment: Sync flags from payload to authority if they were explicitly confirmed
     if envelope.authority:
-        envelope.authority.human_required = not bool(envelope.payload.get("human_approval_persisted", False))
+        envelope.authority.human_required = not bool(
+            envelope.payload.get("human_approval_persisted", False)
+        )
     return envelope
+
+
 async def metabolic_loop_router(
     query: str,
     session_id: str | None = None,
@@ -1069,6 +1288,8 @@ async def metabolic_loop_router(
     return await _wrap_call(
         "arifOS_kernel", Stage.ROUTER_444, session_id, payload, caller_context=resolved_caller
     )
+
+
 async def check_vital(session_id: str = "global", **kwargs: Any) -> RuntimeEnvelope:
     envelope = await _wrap_call(
         "check_vital", Stage.INIT_000, session_id, {"session_id": session_id, **kwargs}
@@ -1083,23 +1304,37 @@ async def check_vital(session_id: str = "global", **kwargs: Any) -> RuntimeEnvel
         envelope.payload["vital_error"] = str(exc)
     envelope.payload["intelligence_services"] = await _probe_intelligence_services()
     return envelope
+
+
 async def _probe_intelligence_services() -> dict[str, dict[str, Any]]:
     return {}
+
+
 async def audit_rules(session_id: str = "global", **kwargs: Any) -> RuntimeEnvelope:
     return await _wrap_call(
         "audit_rules", Stage.JUDGE_888, session_id, {"session_id": session_id, **kwargs}
     )
+
+
 async def anchor_session(**kwargs: Any) -> RuntimeEnvelope:
     return await init_anchor(mode="init", payload=kwargs)
+
+
 async def init_anchor_state(**kwargs: Any) -> RuntimeEnvelope:
     """Legacy wrapper for unified init_anchor(mode='state')"""
     return await init_anchor(mode="state", **kwargs)
+
+
 async def revoke_anchor_state(**kwargs: Any) -> RuntimeEnvelope:
     """Legacy wrapper for unified init_anchor(mode='revoke')"""
     return await init_anchor(mode="revoke", **kwargs)
+
+
 async def get_caller_status(**kwargs: Any) -> RuntimeEnvelope:
     """Legacy wrapper for unified init_anchor(mode='status')"""
     return await init_anchor(mode="status", **kwargs)
+
+
 async def arifos_kernel(
     query: str = "",
     session_id: str | None = None,
@@ -1115,6 +1350,8 @@ async def arifos_kernel(
         debug=debug,
         **kwargs,
     )
+
+
 async def forge_legacy(
     spec: str, session_id: str = "global", dry_run: bool = False, **kwargs: Any
 ) -> RuntimeEnvelope:
@@ -1122,6 +1359,8 @@ async def forge_legacy(
         mode="forge",
         payload={"query": spec, "session_id": session_id, "dry_run": dry_run, **kwargs},
     )
+
+
 async def forge(
     spec: str,
     session_id: str = "global",
@@ -1135,6 +1374,8 @@ async def forge(
         risk_tier=risk_tier,
         **kwargs,
     )
+
+
 async def agi_reason(
     query: str,
     session_id: str | None = None,
@@ -1151,6 +1392,8 @@ async def agi_reason(
         **kwargs,
     }
     return await _wrap_call("agi_reason", Stage.MIND_333, session_id, payload, ctx)
+
+
 async def agi_reflect(
     topic: str = "",
     session_id: str | None = None,
@@ -1159,12 +1402,20 @@ async def agi_reflect(
 ) -> RuntimeEnvelope:
     payload = {"topic": topic, "content": content or topic, **kwargs}
     return await _wrap_call("agi_reflect", Stage.MEMORY_555, session_id, payload, ctx)
+
+
 async def reason_mind(**kwargs: Any) -> RuntimeEnvelope:
     return await agi_reason(**kwargs)
+
+
 async def reason_mind_synthesis(**kwargs: Any) -> RuntimeEnvelope:
     return await agi_reason(**kwargs)
+
+
 async def integrate_analyze_reflect(**kwargs: Any) -> RuntimeEnvelope:
     return await agi_reason(**kwargs)
+
+
 async def agi_asi_forge_handler(
     spec: str,
     session_id: str | None = None,
@@ -1172,6 +1423,8 @@ async def agi_asi_forge_handler(
 ) -> RuntimeEnvelope:
     payload = {"spec": spec, **kwargs}
     return await _wrap_call("agi_asi_forge_handler", Stage.FORGE_777, session_id, payload, ctx)
+
+
 async def asi_simulate(
     scenario: str,
     session_id: str | None = None,
@@ -1180,6 +1433,8 @@ async def asi_simulate(
     return await _wrap_call(
         "asi_simulate", Stage.HEART_666, session_id, {"scenario": scenario, **kwargs}, ctx
     )
+
+
 async def asi_critique(
     draft_output: str,
     session_id: str | None = None,
@@ -1192,6 +1447,8 @@ async def asi_critique(
         {"draft_output": draft_output, **kwargs},
         ctx,
     )
+
+
 async def apex_judge(
     candidate_output: str,
     session_id: str | None = None,
@@ -1204,6 +1461,8 @@ async def apex_judge(
         {"candidate_output": candidate_output, **kwargs},
         ctx,
     )
+
+
 async def vault_seal(
     verdict: str = "SEAL",
     evidence: Any | None = None,
@@ -1213,11 +1472,15 @@ async def vault_seal(
 ) -> RuntimeEnvelope:
     payload = {"verdict": verdict, "evidence": evidence or summary, **kwargs}
     return await _wrap_call("vault_seal", Stage.VAULT_999, session_id, payload, ctx)
+
+
 async def verify_vault_ledger(
     session_id: str | None = None,
     ctx: Context | None = None,
 ) -> RuntimeEnvelope:
     return await _wrap_call("verify_vault_ledger", Stage.VAULT_999, session_id, kwargs, ctx)
+
+
 async def reality_compass(
     input: str,
     session_id: str | None = None,
@@ -1256,6 +1519,8 @@ async def reality_compass(
             }
         return RuntimeEnvelope(**dumped)
     return RuntimeEnvelope(**result)
+
+
 async def search_reality(
     query: str,
     session_id: str | None = None,
@@ -1264,26 +1529,44 @@ async def search_reality(
     return await reality_compass(
         input=query, mode="search", session_id=session_id, ctx=ctx, **kwargs
     )
+
+
 async def ingest_evidence(
     url: str,
     session_id: str | None = None,
     ctx: Context | None = None,
 ) -> RuntimeEnvelope:
     return await reality_compass(input=url, mode="fetch", session_id=session_id, ctx=ctx, **kwargs)
+
+
 async def system_health(**kwargs: Any) -> RuntimeEnvelope:
     return await math_estimator(mode="health", payload=kwargs)
+
+
 async def cost_estimator(**kwargs: Any) -> RuntimeEnvelope:
     return await math_estimator(mode="cost", payload=kwargs)
+
+
 async def fs_inspect(**kwargs: Any) -> RuntimeEnvelope:
     return await code_engine(mode="fs", payload=kwargs)
+
+
 async def process_list(**kwargs: Any) -> RuntimeEnvelope:
     return await code_engine(mode="process", payload=kwargs)
+
+
 async def net_status(**kwargs: Any) -> RuntimeEnvelope:
     return await code_engine(mode="net", payload=kwargs)
+
+
 async def log_tail(**kwargs: Any) -> RuntimeEnvelope:
     return await code_engine(mode="tail", payload=kwargs)
+
+
 async def trace_replay(**kwargs: Any) -> RuntimeEnvelope:
     return await code_engine(mode="replay", payload=kwargs)
+
+
 async def agentzero_engineer(
     task: str | None = None,
     task_description: str | None = None,
@@ -1292,6 +1575,8 @@ async def agentzero_engineer(
 ) -> RuntimeEnvelope:
     payload = {"task": task or task_description or "", **kwargs}
     return await _wrap_call("agentzero_engineer", Stage.MEMORY_555, session_id, payload, ctx)
+
+
 async def agentzero_validate(
     input_to_validate: str,
     session_id: str | None = None,
@@ -1299,6 +1584,8 @@ async def agentzero_validate(
 ) -> RuntimeEnvelope:
     payload = {"input_to_validate": input_to_validate, **kwargs}
     return await _wrap_call("agentzero_validate", Stage.JUDGE_888, session_id, payload, ctx)
+
+
 async def agentzero_armor_scan(
     content: str,
     session_id: str | None = None,
@@ -1307,11 +1594,15 @@ async def agentzero_armor_scan(
     return await _wrap_call(
         "agentzero_armor_scan", Stage.JUDGE_888, session_id, {"content": content, **kwargs}, ctx
     )
+
+
 async def agentzero_hold_check(
     session_id: str | None = None,
     ctx: Context | None = None,
 ) -> RuntimeEnvelope:
     return await _wrap_call("agentzero_hold_check", Stage.JUDGE_888, session_id, kwargs, ctx)
+
+
 async def agentzero_memory_query(
     query: str,
     session_id: str | None = None,
@@ -1320,8 +1611,12 @@ async def agentzero_memory_query(
     return await _wrap_call(
         "agentzero_memory_query", Stage.MEMORY_555, session_id, {"query": query, **kwargs}, ctx
     )
+
+
 async def chroma_query(**kwargs: Any) -> RuntimeEnvelope:
     return await agentzero_memory_query(**kwargs)
+
+
 async def reality_atlas(
     operation: str = "merge",
     session_id: str | None = None,
@@ -1331,6 +1626,8 @@ async def reality_atlas(
 ) -> RuntimeEnvelope:
     payload = {"operation": operation, "bundles": bundles or [], "query": query or {}, **kwargs}
     return await _wrap_call("reality_atlas", Stage.REALITY_222, session_id, payload, ctx)
+
+
 async def seal_vault_commit(
     verdict: str = "SEAL",
     evidence: Any | None = None,
@@ -1340,8 +1637,12 @@ async def seal_vault_commit(
     return await vault_seal(
         verdict=verdict, evidence=evidence, session_id=session_id, ctx=ctx, **kwargs
     )
+
+
 async def open_apex_dashboard(**kwargs: Any) -> RuntimeEnvelope:
     return await apex_soul(mode="rules", payload=kwargs)
+
+
 INIT_ANCHOR = init_anchor
 AGI_REASON = agi_reason
 AGI_REFLECT = agi_reflect
@@ -1391,6 +1692,8 @@ LEGACY_COMPAT_MAP: dict[str, Callable[..., Any]] = {
     "agi_asi_forge_handler": agi_asi_forge_handler,
 }
 ALL_TOOL_IMPLEMENTATIONS = {**FINAL_TOOL_IMPLEMENTATIONS, **LEGACY_COMPAT_MAP}
+
+
 def _build_legacy_payload(mega_tool: str, mode: str, values: dict[str, Any]) -> dict[str, Any]:
     payload = {key: value for key, value in values.items() if value is not None}
     if mega_tool == "apex_soul":
@@ -1431,6 +1734,8 @@ def _build_legacy_payload(mega_tool: str, mode: str, values: dict[str, Any]) -> 
     elif mega_tool == "arifOS_kernel":
         payload.setdefault("query", "")
     return payload
+
+
 def register_tools(mcp: FastMCP, profile: str = "full") -> None:
     del profile
     import inspect
@@ -1455,14 +1760,15 @@ def register_tools(mcp: FastMCP, profile: str = "full") -> None:
         mcp.add_tool(ft)
 
     mcp.add_middleware(ingress)
+
     def _make_legacy_shim(alias: str, mega_tool: str, mode: str) -> Callable[..., Any]:
         async def _shim(
             query: str | None = None,
             session_id: str | None = None,
             actor_id: str | None = None,
             declared_name: str | None = None,  # P0: ABI v1.0 Identity
-            intent: IntentType = None,         # P0: ABI v1.0 Structured Intent
-            human_approval: bool = False,      # P0: ABI v1.0 Sovereign Flag
+            intent: IntentType = None,  # P0: ABI v1.0 Structured Intent
+            human_approval: bool = False,  # P0: ABI v1.0 Sovereign Flag
             url: str | None = None,
             content: str | None = None,
             spec: str | None = None,
@@ -1564,15 +1870,21 @@ def register_tools(mcp: FastMCP, profile: str = "full") -> None:
                 dry_run=dry_run,
                 ctx=ctx,
             )
+
         _shim.__name__ = f"{alias}_shim"
         return _shim
+
     # P0: DEPRECATED TOOLS REMOVED FROM PUBLIC REGISTRY
     # Legacy shims remain available for internal routing via CAPABILITY_MAP
     # but are no longer registered as public MCP tools to clean up the surface.
     pass
+
+
 class _CallableList(list):
     def __call__(self) -> list[Any]:
         return list(self)
+
+
 public_tool_names = _CallableList(_public_tool_names_fn())
 public_tool_specs = _CallableList(_public_tool_specs_fn())
 public_tool_spec_by_name = _public_tool_spec_by_name_fn

@@ -19,9 +19,23 @@ from __future__ import annotations
 import logging
 import re
 import unicodedata
+from enum import Enum
 from re import Pattern
 
-from .types import GPV, QueryType, Lane
+from .types import GPV, QueryType
+
+
+class Lane(str, Enum):
+    """
+    Constitutional processing lanes.
+    """
+
+    SOCIAL = "SOCIAL"
+    CARE = "CARE"
+    FACTUAL = "FACTUAL"
+    CRISIS = "CRISIS"
+    UNKNOWN = "UNKNOWN"
+
 
 # Setup ATLAS Audit Logger
 logger = logging.getLogger("arifos.atlas")
@@ -36,6 +50,7 @@ if not logger.handlers:
 # ATTLAS UTILITIES
 # ═════════════════════════════════════════════════════════════════════════════
 
+
 def gpv_f2_threshold(gpv: GPV) -> float:
     """Adaptive F2 threshold."""
     thresholds = {
@@ -49,6 +64,7 @@ def gpv_f2_threshold(gpv: GPV) -> float:
     }
     return thresholds.get(gpv.query_type, 0.95)
 
+
 def gpv_f4_skip(gpv: GPV) -> bool:
     """Skip F4 for non-factual queries."""
     return (
@@ -56,6 +72,7 @@ def gpv_f4_skip(gpv: GPV) -> bool:
         in (QueryType.PROCEDURAL, QueryType.OPINION, QueryType.CONVERSATIONAL, QueryType.TEST)
         or gpv.lane == Lane.SOCIAL
     )
+
 
 def gpv_can_use_fast_path(gpv: GPV) -> bool:
     """Can this query use the fast/light pipeline?"""

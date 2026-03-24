@@ -35,11 +35,13 @@ DEFAULT_VAULT_PATH = Path(__file__).parents[2] / "VAULT999" / "vault999.jsonl"
 # Import Redis vault (graceful fallback to file if Redis unavailable)
 try:
     from .vault_redis import get_vault_store
+
     _USE_REDIS_VAULT = True
     logger.info("VAULT999: Redis backend enabled (VPS infrastructure)")
 except ImportError as e:
     logger.warning(f"VAULT999: Redis backend unavailable ({e}), falling back to file")
     _USE_REDIS_VAULT = False
+
 
 # Legacy file-based vault init (fallback)
 def _ensure_vault_exists():
@@ -49,10 +51,20 @@ def _ensure_vault_exists():
         vault_dir.mkdir(parents=True, exist_ok=True)
         if not DEFAULT_VAULT_PATH.exists():
             DEFAULT_VAULT_PATH.touch()
-            with open(DEFAULT_VAULT_PATH, 'w') as f:
-                f.write(json.dumps({"type": "seed", "timestamp": datetime.now(timezone.utc).isoformat(), "hash": "0x" + "0"*64}) + "\n")
+            with open(DEFAULT_VAULT_PATH, "w") as f:
+                f.write(
+                    json.dumps(
+                        {
+                            "type": "seed",
+                            "timestamp": datetime.now(timezone.utc).isoformat(),
+                            "hash": "0x" + "0" * 64,
+                        }
+                    )
+                    + "\n"
+                )
     except Exception as e:
         logger.warning(f"VAULT999 file fallback initialization warning: {e}")
+
 
 if not _USE_REDIS_VAULT:
     _ensure_vault_exists()
@@ -101,19 +113,24 @@ _AUTH_CONTEXT_CONTINUITY_KEYS = (
     "signature",
 )
 
+
 def _resolve_claimed_actor_id(payload: dict[str, Any]) -> str:
     raw_claim = payload.get("claimed_actor_id", payload.get("actor_id", "anonymous"))
     if raw_claim is None:
         return "anonymous"
     claim = str(raw_claim).strip()
-    
+
     # Canonicalize arif-related IDs by removing separators
     claim_lower = claim.lower()
     if claim_lower == "arif":
         return "ariffazil"
-    if "arif" in claim_lower and "arif-the-apex" not in claim_lower and "arif-fazil" not in claim_lower:
+    if (
+        "arif" in claim_lower
+        and "arif-the-apex" not in claim_lower
+        and "arif-fazil" not in claim_lower
+    ):
         return claim_lower.replace(" ", "").replace("-", "")
-    
+
     # Normalize spaces/underscores to hyphens (align with sessions.py and _0_init.py)
     return claim_lower.replace(" ", "-").replace("_", "-") or "anonymous"
 
@@ -198,7 +215,7 @@ def _can_auto_anchor_declared_identity(payload: dict[str, Any], claimed_actor_id
 
     if claimed in {"", "anonymous"}:
         return False
-    
+
     # P0: If human_approval is explicitly True, we can auto-anchor as 'declared'
     # even for protected IDs (it's an explicit bypass for sovereign identity)
     # This MUST be checked FIRST, before protected ID checks
@@ -214,7 +231,7 @@ def _can_auto_anchor_declared_identity(payload: dict[str, Any], claimed_actor_id
 
     if risk_tier not in AUTO_BOOTSTRAP_RISK_TIERS:
         return False
-    
+
     return True
 
 
@@ -253,7 +270,11 @@ def _normalize_auth_context(payload: dict[str, Any], auth_context: Any) -> dict[
             normalized["authority_level"] = identity_claim["authority_level"]
 
     if not normalized.get("actor_id"):
-        fallback_actor_id = payload.get("actor_id") or payload.get("declared_name") or payload.get("claimed_actor_id")
+        fallback_actor_id = (
+            payload.get("actor_id")
+            or payload.get("declared_name")
+            or payload.get("claimed_actor_id")
+        )
         if fallback_actor_id:
             normalized["actor_id"] = str(fallback_actor_id).lower().strip().replace(" ", "-")
             if normalized["actor_id"] == "arif":
@@ -264,10 +285,10 @@ def _normalize_auth_context(payload: dict[str, Any], auth_context: Any) -> dict[
 
 # Bootstrap tools that can run without prior auth_context (Phase 1 initialization)
 BOOTSTRAP_WHITELIST: set[str] = {
-    "anchor_session",        # init_anchor_state → mints auth token
-    "revoke_anchor_state",   # revokes session
-    "check_vital",           # system health check
-    "sense_health",          # check_vital alias
+    "anchor_session",  # init_anchor_state → mints auth token
+    "revoke_anchor_state",  # revokes session
+    "check_vital",  # system health check
+    "sense_health",  # check_vital alias
 }
 
 
@@ -287,7 +308,7 @@ def _requires_explicit_kernel_auth(
         risk_tier = str(payload.get("risk_tier", "medium") or "medium").strip().lower()
         allow_execution = bool(payload.get("allow_execution", False))
         claimed_actor_id = _resolve_claimed_actor_id(payload)
-        
+
         # Protected IDs ALWAYS require verified auth context if they want to execute
         if allow_execution and claimed_actor_id in PROTECTED_AUTO_ANCHOR_IDS:
             return True
@@ -300,12 +321,13 @@ def _requires_explicit_kernel_auth(
     risk_tier = str(payload.get("risk_tier", "medium") or "medium").strip().lower()
     dry_run = bool(payload.get("dry_run", False))
     allow_execution = bool(payload.get("allow_execution", False))
-    
+
     if dry_run and risk_tier == "low" and not allow_execution:
         return False
 
     # In hardened mode, everything requires explicit auth (except whitelisted bootstrap tools)
     return True
+
 
 def _trace_replay_envelope(
     session_id: str,
@@ -354,7 +376,7 @@ def _trace_replay_envelope(
         },
         "errors": errors,
         "meta": {"schema_version": "1.0.0", "debug": False, "dry_run": dry_run},
-        }
+    }
 
 
 def _build_constitutional_audit(session_id: str) -> dict[str, Any]:
@@ -427,7 +449,13 @@ def _build_constitutional_audit(session_id: str) -> dict[str, Any]:
         "soft_floors": sum(1 for f in floors if f["type"] == "SOFT"),
         "derived_floors": sum(1 for f in floors if f["type"] == "DERIVED"),
         "floors": floors,
-        "tool_contract_table": ["check_vital", "init_anchor", "arifOS_kernel", "agi_mind", "asi_heart"],
+        "tool_contract_table": [
+            "check_vital",
+            "init_anchor",
+            "arifOS_kernel",
+            "agi_mind",
+            "asi_heart",
+        ],
         "discovery_resource": "canon://contracts",
         "floor_runtime_hooks": ["F1_AMANAH", "F11_AUTHORITY", "F12_INJECTION", "F13_SOVEREIGN"],
         "guidance": "Run init_anchor to establish a governed session (Bootstrap sequence).",
@@ -463,7 +491,9 @@ def _build_vitals_report(session_id: str) -> dict[str, Any]:
         session_active = session_manager.get_kernel(session_id) is not None
         identity = get_session_identity(session_id)
         if identity:
-            current_state = identity.get("caller_state") or identity.get("authority_level") or "claimed"
+            current_state = (
+                identity.get("caller_state") or identity.get("authority_level") or "claimed"
+            )
     except Exception:
         pass
 
@@ -478,7 +508,17 @@ def _build_vitals_report(session_id: str) -> dict[str, Any]:
         "local_model_runtime": {"enabled": True, "status": "configured"},
         "auto_deploy": {"enabled": True, "status": "governed_continuous_delivery"},
         "credential_classes": ["bearer", "sig_v2"],
-        "providers": ["ollama", "qdrant", "openai", "anthropic", "google", "openrouter", "brave", "jina", "perplexity"],
+        "providers": [
+            "ollama",
+            "qdrant",
+            "openai",
+            "anthropic",
+            "google",
+            "openrouter",
+            "brave",
+            "jina",
+            "perplexity",
+        ],
     }
 
     # Check thermodynamic module
@@ -538,8 +578,13 @@ async def call_kernel(
     session_id: str,
     payload: dict[str, Any],
 ) -> dict[str, Any]:
-    from arifosmcp.intelligence.tools.office_forge_engine import audit_markdown, render_office_document
-    from arifosmcp.intelligence.tools.ollama_local import ollama_local_generate as ollama_local_generate_call
+    from arifosmcp.intelligence.tools.office_forge_engine import (
+        audit_markdown,
+        render_office_document,
+    )
+    from arifosmcp.intelligence.tools.ollama_local import (
+        ollama_local_generate as ollama_local_generate_call,
+    )
     from arifosmcp.intelligence.tools.reality_grounding import open_web_page, reality_check
     from arifosmcp.runtime.models import CallerContext as _CallerContext
     from arifosmcp.core.governance_kernel import get_governance_kernel
@@ -554,9 +599,9 @@ async def call_kernel(
     dry_run = bool(payload.get("dry_run", False))
 
     from arifosmcp.runtime.sessions import get_session_identity
-    
+
     auth_ctx = _normalize_auth_context(payload, payload.get("auth_context"))
-    
+
     # F11: Resolve from session registry if missing in payload
     if auth_ctx is None and session_id:
         stored = get_session_identity(session_id)
@@ -566,7 +611,7 @@ async def call_kernel(
             if stored.get("human_approval") and "human_approval" not in (auth_ctx or {}):
                 auth_ctx = dict(auth_ctx or {})
                 auth_ctx["human_approval"] = True
-    
+
     if auth_ctx is not None:
         payload["auth_context"] = auth_ctx
     if tool_name == "metabolic_loop":
@@ -575,7 +620,7 @@ async def call_kernel(
             can_auto = _can_auto_anchor_declared_identity(payload, claimed_actor_id)
             req_auth = _requires_explicit_kernel_auth(payload, canonical_name)
             print(f"DEBUG: metabolic_loop auth check - can_auto={can_auto}, req_auth={req_auth}")
-            
+
             if can_auto:
                 auth_ctx = _mint_auto_anchor_auth_context(session_id, claimed_actor_id)
                 payload["auth_context"] = auth_ctx
@@ -607,12 +652,12 @@ async def call_kernel(
                     machine_issue="TOKEN_EXPIRED",
                     dry_run=dry_run,
                 )
-            
+
             # F11: Authority and Scope Validation
             # After token verification, check if actor has required scope for kernel execution
             authority_level = auth_ctx.get("authority_level", "anonymous")
             approval_scope = auth_ctx.get("approval_scope", [])
-            
+
             # Anonymous actors cannot execute kernel
             if authority_level == "anonymous":
                 return _auth_failure_envelope(
@@ -626,14 +671,14 @@ async def call_kernel(
                     machine_issue="AUTH_FAILURE",
                     dry_run=dry_run,
                 )
-            
+
             # Check if actor has required scope for kernel execution
             required_scope = "arifOS_kernel:execute"
             required_scope_limited = "arifOS_kernel:execute_limited"
-            
+
             has_full_scope = required_scope in approval_scope or "*" in approval_scope
             has_limited_scope = required_scope_limited in approval_scope or "*" in approval_scope
-            
+
             if not (has_full_scope or has_limited_scope):
                 return _auth_failure_envelope(
                     tool=canonical_name,
@@ -676,10 +721,14 @@ async def call_kernel(
 
     if canonical_name == "search_reality":
         res = await reality_check(query=payload.get("query", ""))
-        from arifosmcp.core.enforcement.governance_engine import wrap_tool_output; return wrap_tool_output(canonical_name, res)
+        from arifosmcp.core.enforcement.governance_engine import wrap_tool_output
+
+        return wrap_tool_output(canonical_name, res)
     if canonical_name == "ingest_evidence":
         res = await open_web_page(url=payload.get("source_url", ""))
-        from arifosmcp.core.enforcement.governance_engine import wrap_tool_output; return wrap_tool_output(canonical_name, res)
+        from arifosmcp.core.enforcement.governance_engine import wrap_tool_output
+
+        return wrap_tool_output(canonical_name, res)
     if canonical_name == "trace_replay":
         limit = payload.get("limit", 20)
         try:
@@ -692,31 +741,36 @@ async def call_kernel(
             try:
                 vault_store = get_vault_store()
                 replay_entries = await vault_store.get_session_entries(session_id)
-                
+
                 if not replay_entries:
                     return _trace_replay_envelope(session_id, "NO_DATA", [], dry_run=dry_run)
-                
+
                 integrity_ok, integrity_reason = await vault_store.verify_chain()
                 if not integrity_ok:
-                    return _trace_replay_envelope(session_id, "TAMPERED", [], error=integrity_reason, dry_run=dry_run)
-                
+                    return _trace_replay_envelope(
+                        session_id, "TAMPERED", [], error=integrity_reason, dry_run=dry_run
+                    )
+
                 return _trace_replay_envelope(
-                    session_id, "SUCCESS", 
-                    replay_entries[-max_entries:], 
+                    session_id,
+                    "SUCCESS",
+                    replay_entries[-max_entries:],
                     dry_run=dry_run,
-                    backend="redis"
+                    backend="redis",
                 )
             except Exception as exc:
                 logger.error(f"Redis trace_replay failed: {exc}")
                 # Fall through to file fallback
-        
+
         # File fallback
         if not DEFAULT_VAULT_PATH.exists():
             return _trace_replay_envelope(session_id, "NO_DATA", [], dry_run=dry_run)
 
         integrity_ok, integrity_reason = verify_vault_ledger(DEFAULT_VAULT_PATH)
         if not integrity_ok:
-            return _trace_replay_envelope(session_id, "TAMPERED", [], error=integrity_reason, dry_run=dry_run)
+            return _trace_replay_envelope(
+                session_id, "TAMPERED", [], error=integrity_reason, dry_run=dry_run
+            )
 
         replay_entries: list[dict[str, Any]] = []
         try:
@@ -731,7 +785,9 @@ async def call_kernel(
         except Exception as exc:
             return _trace_replay_envelope(session_id, "ERROR", [], error=str(exc), dry_run=dry_run)
 
-        return _trace_replay_envelope(session_id, "SUCCESS", replay_entries[-max_entries:], dry_run=dry_run)
+        return _trace_replay_envelope(
+            session_id, "SUCCESS", replay_entries[-max_entries:], dry_run=dry_run
+        )
 
     try:
         query_input = payload.get("query", "")
@@ -752,11 +808,11 @@ async def call_kernel(
                 caller_ctx_obj = None
 
         if canonical_name == "anchor_session":
-            ha_value = bool(payload.get("human_approval", False))
+            ha_value = bool(payload.get("human_approval", payload.get("human_approved", False)))
             intent_raw = payload.get("intent")
             if intent_raw is None:
                 intent_raw = payload.get("query", "INIT")
-            
+
             # Support both string and structured intent
             if isinstance(intent_raw, str):
                 intent = Intent(query=intent_raw)
@@ -781,21 +837,22 @@ async def call_kernel(
                 human_approval=ha_value,
             )
             result = res.model_dump(mode="json")
-            
+
             # F11/F13: Persist human approval into the governance output
             auth_level = res.governance.authority_level
             if ha_value or _can_auto_anchor_declared_identity(payload, actor_id):
                 if auth_level == "anonymous":
                     auth_level = "declared"
-            
+
             # Always ensure authority block is present for wrap_tool_output to pick up
             result["authority"] = {
                 "actor_id": res.governance.actor_id,
                 "level": auth_level,
                 "auth_state": "verified" if res.verdict != Verdict.VOID else "unverified",
                 "human_approval_persisted": ha_value,
-                "claim_status": ClaimStatus.ANCHORED.value if res.verdict != Verdict.VOID else ClaimStatus.REJECTED_PROTECTED_ID.value
-
+                "claim_status": ClaimStatus.ANCHORED.value
+                if res.verdict != Verdict.VOID
+                else ClaimStatus.REJECTED_PROTECTED_ID.value,
             }
             result["human_approval_persisted"] = ha_value
             result["abi_version"] = "1.0"
@@ -886,25 +943,27 @@ async def call_kernel(
 
         elif canonical_name == "agentzero_engineer":
             from arifosmcp.tools.agentzero_tools import agentzero_engineer
+
             result = await agentzero_engineer(
-                task=payload.get("task") or query_input,
-                session_id=session_id
+                task=payload.get("task") or query_input, session_id=session_id
             )
 
         elif canonical_name == "agentzero_validate":
             from arifosmcp.tools.agentzero_tools import agentzero_validate
+
             result = await agentzero_validate(
                 input_to_validate=payload.get("input_to_validate") or query_input,
-                session_id=session_id
+                session_id=session_id,
             )
 
         elif canonical_name == "reality_atlas":
             from arifosmcp.runtime.tools_internal import reality_atlas
+
             result = await reality_atlas(
                 operation=payload.get("operation", "merge"),
                 session_id=session_id,
                 bundles=payload.get("bundles"),
-                query=payload.get("query")
+                query=payload.get("query"),
             )
 
         elif canonical_name == "verify_vault_ledger":
@@ -996,7 +1055,7 @@ async def call_kernel(
                 effective_level = (
                     auth_ctx.get("authority_level", "declared") if auth_ctx else "declared"
                 )
-                
+
                 # Update authority level in the result as well
                 if "authority" in result:
                     result["authority"]["level"] = effective_level
@@ -1005,9 +1064,9 @@ async def call_kernel(
                     result["authority"] = {
                         "actor_id": effective_actor,
                         "level": effective_level,
-                        "auth_state": "verified"
+                        "auth_state": "verified",
                     }
-                
+
                 result["auth_context"] = mint_auth_context(
                     session_id=session_id,
                     actor_id=effective_actor,
@@ -1053,6 +1112,7 @@ async def call_kernel(
             result["dry_run"] = dry_run
 
         from arifosmcp.core.enforcement.governance_engine import wrap_tool_output
+
         envelope = wrap_tool_output(canonical_name, result)
 
         if caller_ctx_data and "caller_context" not in envelope:
@@ -1071,7 +1131,7 @@ async def call_kernel(
             )
             if "math" in auth_ctx:
                 envelope["auth_context"]["math"] = auth_ctx["math"]
-            
+
             # Sync authority block
             envelope["authority"] = {
                 "actor_id": auth_ctx.get("actor_id", "anonymous"),
@@ -1081,7 +1141,7 @@ async def call_kernel(
         elif canonical_name == "anchor_session":
             if "auth_context" in result:
                 envelope["auth_context"] = result["auth_context"]
-            
+
             # Sync authority block from result if present (populated above)
             if "authority" in result:
                 envelope["authority"] = result["authority"]
@@ -1090,7 +1150,7 @@ async def call_kernel(
                 envelope["authority"] = {
                     "actor_id": result["governance"].get("actor_id", claimed_actor_id),
                     "level": result["governance"].get("authority_level", "anonymous"),
-                    "auth_state": "unverified"
+                    "auth_state": "unverified",
                 }
 
         if "meta" in envelope and isinstance(envelope["meta"], dict):
@@ -1103,7 +1163,7 @@ async def call_kernel(
             vitals["requested_max_tokens"] = budget_meta.get("requested_max_tokens", 1000)
             vitals["budget_tier"] = budget_meta.get("budget_tier", "medium")
             vitals["overflow_policy"] = budget_meta.get("overflow_policy", "truncate")
-            
+
             # Record actual usage if reported by organ in result
             if isinstance(result, dict):
                 if "actual_output_tokens" in result:
@@ -1117,8 +1177,9 @@ async def call_kernel(
 
     except Exception as e:
         logger.error(f"Bridge failure on {tool_name}: {e}", exc_info=True)
-        print(f"DEBUG: Bridge failure on {tool_name}: {e}") # Direct visibility for tests
+        print(f"DEBUG: Bridge failure on {tool_name}: {e}")  # Direct visibility for tests
         from arifosmcp.core.enforcement.governance_engine import wrap_tool_output
+
         return wrap_tool_output(
             canonical_name,
             {
