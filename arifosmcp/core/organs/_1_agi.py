@@ -109,6 +109,13 @@ async def agi(
     search_prompt = f"Analyze the intent and constraints: {query}. List core facts."
     search_env = await ollama_local_generate(prompt=search_prompt, max_tokens=b111)
     search_text = search_env.payload.get("response", "")
+    
+    # P2 Hardening: F12 Re-Scan on Phase 111 Output before 222 injection
+    from arifosmcp.runtime.webmcp.security import WebInjectionGuard
+    f12_score, f12_threats = WebInjectionGuard()._scan_text(search_text)
+    if f12_score > 0.85:
+        search_text = "[F12_SHIELD_ACTIVATED: Phase 111 output contained adversarial/injection patterns and was excised.]"
+        
     usage_111 = search_env.payload.get("usage", {}).get("completion_tokens", len(search_text)//4)
     phase_usage["111_search"] = usage_111
     actual_total += usage_111

@@ -48,15 +48,17 @@ async def ollama_local_generate(
             response.raise_for_status()
             body = response.json()
     except Exception as e:
-        # PPH-99: Fail-closed with VOID if Ollama is unreachable
+        # P0 hardening: Fail CLOSED. No fabricated response — empty string forces
+        # _1_agi.py to detect ok=False and surface SABAR rather than synthesise
+        # from error text. Caller must check ok before using response.
         return {
             "ok": False,
             "verdict": "VOID",
-            "status": "MOCK_INTELLIGENCE",
-            "model": f"{payload['model']} (FAILED)",
-            "response": f"Ollama connection failed: {prompt[:50]}... Reason: {str(e)}",
-            "error": "Ollama connection failed",
-            "done": True,
+            "status": "OLLAMA_UNREACHABLE",
+            "model": payload["model"],
+            "response": "",
+            "error": f"Ollama unreachable: {type(e).__name__}",
+            "done": False,
         }
 
     return {

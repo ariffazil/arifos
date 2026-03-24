@@ -63,7 +63,10 @@ class HardenedApexJudge:
         
         # Calculate dynamic entropy and g-score for this decision
         entropy = calculate_entropy_budget(0.1, 0.95, len(proposal), 300)
-        g_score = 0.85 # Placeholder - in live it would be computed from context
+        
+        # P4 Hardening: Wire dynamic g_score
+        from arifosmcp.core.shared.physics import genius_score
+        g_score = genius_score(A=entropy.confidence, P=0.9, X=0.8, E=0.9 if entropy.is_stable else 0.5)
 
         # TRIGGER PARADOX ENGINE
         philosophy = get_philosophical_contrast(g_score, risk_tier)
