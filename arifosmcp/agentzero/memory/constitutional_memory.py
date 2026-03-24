@@ -63,6 +63,7 @@ class MemoryEntry:
     content_hash: str
 
     # Constitutional metadata
+    f1_pseudo_embedding: bool = False
     f2_verified: bool = False
     f2_confidence: float = 0.0
     f4_entropy_delta: float = 0.0
@@ -86,6 +87,7 @@ class MemoryEntry:
             "area": self.area.name,
             "project_id": self.project_id,
             "content_hash": self.content_hash,
+            "f1_pseudo_embedding": self.f1_pseudo_embedding,
             "f2_verified": self.f2_verified,
             "f2_confidence": self.f2_confidence,
             "f4_entropy_delta": self.f4_entropy_delta,
@@ -106,6 +108,7 @@ class MemoryEntry:
             area=MemoryArea.from_string(data["area"]),
             project_id=data["project_id"],
             content_hash=data["content_hash"],
+            f1_pseudo_embedding=data.get("f1_pseudo_embedding", False),
             f2_verified=data.get("f2_verified", False),
             f2_confidence=data.get("f2_confidence", 0.0),
             f4_entropy_delta=data.get("f4_entropy_delta", 0.0),
@@ -133,18 +136,25 @@ def _build_qdrant_client():
     return QdrantClient(host="qdrant_memory", port=6333)
 
 
-def _embed(text: str) -> list[float]:
-    """Generate embedding using the shared BGE-M3 model."""
+def _embed_with_status(text: str) -> tuple[list[float], bool]:
+    """Generate embedding with success status flag."""
     try:
         from arifosmcp.intelligence.embeddings import embed
-        return embed(text)
-    except Exception:
+        return embed(text), False
+    except Exception as e:
         # Fallback: deterministic hash-based pseudo-embedding
+        logger.warning(f"F1_GUARD: Pseudo-embedding fallback activated - semantic meaning LOST! (Error: {e})")
         digest = hashlib.sha256(text.encode()).digest()
         vec = [(b / 127.5) - 1.0 for b in digest]
         while len(vec) < VECTOR_DIM:
             vec.extend(vec)
-        return vec[:VECTOR_DIM]
+        return vec[:VECTOR_DIM], True
+
+
+def _embed(text: str) -> list[float]:
+    """Legacy wrapper for _embed_with_status."""
+    vec, _ = _embed_with_status(text)
+    return vec
 
 
 class ConstitutionalMemoryStore:
@@ -250,7 +260,7 @@ class ConstitutionalMemoryStore:
             logger.warning(f"[{memory_id}] F4: Entropy increase {entropy_delta:.3f}")
             content = self._structure_content(content)
 
-        embedding = _embed(content)
+        embedding, is_pseudo = _embed_with_status(content)
 
         entry = MemoryEntry(
             id=memory_id,
@@ -258,6 +268,7 @@ class ConstitutionalMemoryStore:
             area=area,
             project_id=project_id,
             content_hash=hashlib.sha256(content.encode()).hexdigest(),
+            f1_pseudo_embedding=is_pseudo,
             f4_entropy_delta=entropy_delta,
             f12_clean=f12_clean,
             f12_score=f12_score,

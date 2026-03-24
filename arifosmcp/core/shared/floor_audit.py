@@ -422,6 +422,16 @@ class FloorAuditor:
             return FloorResult(
                 "F1", False, 0.0, "Irreversible operation without documented rollback/backup path"
             )
+
+        # F1_GUARD: Semantic integrity check
+        if isinstance(context, dict) and context.get("is_pseudo"):
+            return FloorResult(
+                "F1",
+                False,
+                0.50,
+                "F1_GUARD: Pseudo-embedding (SHA-256) detected. Semantic integrity and intent-alignment not guaranteed.",
+            )
+
         return FloorResult("F1", True, 0.98)
 
     # ------------------------------------------------------------------

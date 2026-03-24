@@ -11,7 +11,10 @@ DITEMPA, BUKAN DIBERI.
 from __future__ import annotations
 
 import hashlib
+import logging
 from typing import Any, TypedDict
+
+logger = logging.getLogger(__name__)
 
 
 class Quote(TypedDict):
@@ -29,6 +32,7 @@ class PhilosophySelection(TypedDict):
     label: str
     label_source: str
     semantic_backend: str
+    is_pseudo: bool  # F1: True if semantic search used SHA-256 fallback
     available_categories: dict[str, list[str]]
     # Organ-specific wisdom blocks
     agi: dict[str, Any] | None
@@ -601,7 +605,8 @@ def get_semantic_wisdom(
 
     try:
         result = retrieve_wisdom(context, category=category, n_results=1)
-    except Exception:
+    except Exception as e:
+        logger.warning(f"F1_GUARD: Semantic wisdom retrieval failed: {e}")
         return None, "error"
 
     if not isinstance(result, dict):
@@ -628,6 +633,10 @@ def get_semantic_wisdom(
     except (TypeError, ValueError):
         score = None
 
+    is_pseudo = result.get("is_pseudo", False)
+    if is_pseudo:
+        logger.warning(f"F1_GUARD: Semantic wisdom retrieval based on pseudo-embedding (SHA-256) for category {category}")
+
     return (
         {
             "quote_id": quote_id,
@@ -636,6 +645,7 @@ def get_semantic_wisdom(
             "category": quote_category,
             "source": "semantic_99",
             "score": round(score, 4) if score is not None else None,
+            "is_pseudo": is_pseudo,
         },
         "available",
     )
@@ -713,7 +723,19 @@ def select_governed_philosophy(
     # AGI (Mind): Stages 000-444
     # ASI (Heart): Stages 555-666
     # APEX (Soul): Stages 777-999
-    
+
+    # Use semantic quote as primary if available and not forced to legacy
+    is_semantic = False
+    if not force_33 and semantic_quote and semantic_backend == "available":
+        primary_quote = semantic_quote
+        is_semantic = True
+        logger.info(f"Using SEMANTIC wisdom selection for stage {stage} (category: {label})")
+
+    # Check for pseudo-embedding trigger in the semantic backend
+    is_pseudo = False
+    if is_semantic and semantic_quote:
+        is_pseudo = semantic_quote.get("is_pseudo", False)
+
     agi_block: dict[str, Any] | None = None
     asi_block: dict[str, Any] | None = None
     apex_block: dict[str, Any] | None = None
@@ -736,6 +758,7 @@ def select_governed_philosophy(
         "label": label,
         "label_source": label_source,
         "semantic_backend": semantic_backend,
+        "is_pseudo": is_pseudo,
         "available_categories": {
             "deterministic_33": ["wisdom", "power", "paradox", "void", "seal"],
             "local_99": list(LOCAL_99_LABELS),
