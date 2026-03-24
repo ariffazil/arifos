@@ -130,7 +130,25 @@ async def hardened_agi_mind_dispatch(mode: str, payload: dict[str, Any], **kwarg
     else:
         return {"ok": False, "error": f"Invalid mode for agi_mind: {mode}"}
     
-    return _apply_policy(envelope.to_dict(), "agi_mind", mode, payload)
+    envelope_dict = _apply_policy(envelope.to_dict(), "agi_mind", mode, payload)
+    
+    # P1: Register every agi_mind output in OutcomeLedger so it's traceable
+    # and can be resolved later with vault_ledger(mode="resolve").
+    try:
+        import secrets as _sec
+        from arifosmcp.core.recovery.rollback_engine import outcome_ledger
+        _did = f"AGI-{_sec.token_hex(6).upper()}"
+        outcome_ledger.record_outcome(
+            decision_id=_did,
+            session_id=payload.get("session_id") or envelope_dict.get("session_id") or "anonymous",
+            verdict_issued=envelope_dict.get("verdict", "SEAL"),
+            expected_outcome=f"agi_mind.{mode}: {str(payload.get('query', ''))[:80]}",
+        )
+        envelope_dict["outcome_id"] = _did  # surface so caller can resolve later
+    except Exception as _p1_err:
+        envelope_dict["outcome_id"] = None
+
+    return envelope_dict
 
 async def hardened_asi_heart_dispatch(mode: str, payload: dict[str, Any], **kwargs) -> dict[str, Any]:
     if mode in ("critique", "simulate"):
