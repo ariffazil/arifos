@@ -31,6 +31,7 @@ class VectorEntry:
     claim_type: str = "statement"
     confidence: float = 1.0
     created_at: float = field(default_factory=time.time)
+    is_pseudo: bool = False
 
 
 @dataclass
@@ -88,9 +89,10 @@ class QdrantVectorBridge:
 
         return False
 
-    async def embed_text(self, text: str) -> list[float] | None:
+    async def embed_text(self, text: str) -> tuple[list[float] | None, bool]:
+        """Embed text using Ollama, fallback to SHA-256 pseudo if failed."""
         if not text or len(text.strip()) < 3:
-            return None
+            return None, False
 
         client = await self._get_client()
 
@@ -105,16 +107,17 @@ class QdrantVectorBridge:
                 data = response.json()
                 embedding = data.get("embedding")
                 if embedding and len(embedding) == self.embedding_dimension:
-                    return embedding
+                    return embedding, False
                 elif embedding:
                     return embedding[: self.embedding_dimension] + [0.0] * max(
                         0, self.embedding_dimension - len(embedding)
-                    )
+                    ), False
         except Exception as e:
-            logger.warning(f"Embedding failed, using fallback: {e}")
-            return self._fallback_embedding(text)
+            logger.warning(f"F1_GUARD: Semantic embedding failed, using pseudo-fallback: {e}")
+            return self._fallback_embedding(text), True
 
-        return None
+        logger.warning("F1_GUARD: Semantic embedding returned no data, using pseudo-fallback")
+        return self._fallback_embedding(text), True
 
     def _fallback_embedding(self, text: str) -> list[float]:
         text_hash = hashlib.sha256(text.encode()).hexdigest()
@@ -138,7 +141,7 @@ class QdrantVectorBridge:
         points = []
         for entry in entries:
             if entry.embedding is None:
-                entry.embedding = await self.embed_text(entry.text)
+                entry.embedding, entry.is_pseudo = await self.embed_text(entry.text)
 
             if entry.embedding is None:
                 continue
@@ -154,6 +157,7 @@ class QdrantVectorBridge:
                     "claim_type": entry.claim_type,
                     "confidence": entry.confidence,
                     "created_at": entry.created_at,
+                    "is_pseudo": entry.is_pseudo,
                     "metadata": entry.metadata,
                 },
             }
@@ -313,8 +317,11 @@ async def vector_memory_search(
     top_k: int = 5,
     session_id: str | None = None,
 ) -> list[dict[str, Any]]:
-    embedding = await qdrant_bridge.embed_text(query)
+    embedding, is_pseudo = await qdrant_bridge.embed_text(query)
     if embedding is None:
         return []
+
+    if is_pseudo:
+        logger.warning("F1_GUARD: Query vector is pseudo-hash. Results will be structurally valid but semantically meaningless.")
 
     return await qdrant_bridge.search_similar(embedding, top_k=top_k, session_filter=session_id)
