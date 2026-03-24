@@ -1,4 +1,5 @@
 # 🧠 arifOS — The Sovereign Intelligence Mind
+
 ## Accountable Retrieval & Inference Framework (A-RIF)
 **Version:** v2026.03.24-UNIFIED-SEALED
 **Authority:** Muhammad Arif bin Fazil (888_JUDGE)
@@ -20,7 +21,7 @@ The core philosophy of arifOS is that autonomy must be **earned through structur
 ### 1.2 The Trinity of Sovereignty
 - **SOUL (APEX):** The repository of memory, philosophy, and high-level directives. It is the "Judiciary" that holds the final veto.
 - **MIND (arifOS):** The Accountable Retrieval & Inference Framework (A-RIF). It is the "Legislature" that translates law into reasoning trajectories.
-- **BODY (AAA Runtime):** The VPS infrastructure and containerized execution layer. It is the "Executive" that performs the work and produces receipts.
+- **BODY (AAA / Servant Wire):** The execution layer powered by [**smolagents**](https://github.com/huggingface/smolagents). It is the "Executive" that performs the work and produces receipts.
 
 ---
 
@@ -68,15 +69,15 @@ A-RIF is the core cognitive engine of arifOS. It upgrades standard "RAG" (Retrie
 ### 4.1 The 10 Organs of the Mind
 Every query processed by arifOS must traverse these 10 logical modules:
 
-1.  **M1: Intake (Sense)** - Accepts and normalizes intent.
-2.  **M2: Governance Gate** - Checks initial floor authorization.
-3.  **M3: Interpretation** - Decomposes the question into semantic vectors.
-4.  **M4: Retrieval (Memory)** - Hybrid search across the 3 Qdrant layers.
-5.  **M5: Evidence Validation** - Scores the retrieved "Rock Samples" for Amanah.
-6.  **M6: Context Assembly** - Packages the truth into a high-fidelity prompt.
-7.  **M7: Inference (AgiMind)** - Bounded reasoning by the language model.
-8.  **M8: Output Verification** - Forensic audit of the generated claims.
-9.  **M9: Decision Gate (ApexSoul)** - Final release/refusal control.
+1. **M1: Intake (Sense)** - Accepts and normalizes intent.
+2. **M2: Governance Gate** - Checks initial floor authorization.
+3. **M3: Interpretation** - Decomposes the question into semantic vectors.
+4. **M4: Retrieval (Memory)** - Hybrid search across the 3 Qdrant layers.
+5. **M5: Evidence Validation** - Scores the retrieved "Rock Samples" for Amanah.
+6. **M6: Context Assembly** - Packages the truth into a high-fidelity prompt.
+7. **M7: Inference (AgiMind)** - Bounded reasoning using **smolagents CodeAgent**.
+8. **M8: Output Verification** - Forensic audit of the generated claims.
+9. **M9: Decision Gate (ApexSoul)** - Final release/refusal control.
 10. **M10: Audit & Trace** - Permanent sealing in the Vault Ledger (999).
 
 ### 4.2 Separation of Meaning and Power
@@ -142,17 +143,20 @@ Your Google Drive is organized into **9 Pure Repositories** to minimize informat
 
 ---
 
+---
+
 ## 🛠️ VII. THE TOOLS: Sovereign MCP Registry
 
 arifOS exposes its intelligence through the **Model Context Protocol (MCP)**. As of March 2026, the system has **37 active tools** mapped to the 10 A-RIF organs.
 
 ### 7.1 Key Constitutional Tools
--   **`init_anchor` (000)**: Establishes session identity and authorized intent.
--   **`physics_reality` (111)**: Performs grounded research and fact acquisition.
--   **`agi_mind` (333)**: Executes meta-cognitive reasoning trajectories.
--   **`asi_heart` (666)**: Simulates empathy and consequence modeling.
--   **`apex_soul` (888)**: The final judicial gate for verdicts and defense.
--   **`vault_ledger` (999)**: Seals the decision into the permanent Merkle-chain.
+
+- **`init_anchor` (000)**: Establishes session identity and authorized intent.
+- **`physics_reality` (111)**: Performs grounded research and fact acquisition.
+- **`agi_mind` (333)**: Executes meta-cognitive reasoning trajectories.
+- **`asi_heart` (666)**: Simulates empathy and consequence modeling.
+- **`apex_soul` (888)**: The final judicial gate for verdicts and defense.
+- **`vault_ledger` (999)**: Seals the decision into the permanent Merkle-chain.
 
 ### 7.2 Tool-Level Enforcement
 Every tool call is audited by the **Governance Kernel**. If a tool (e.g., `execute_python`) is called without an `intent` that matches the **APEX G** directive, the kernel will trigger a `GROUNDING_INSUFFICIENT` failure.
@@ -163,15 +167,16 @@ Every tool call is audited by the **Governance Kernel**. If a tool (e.g., `execu
 
 The current state of arifOS is the result of **Seven Major Tectonic Shifts**:
 
-1.  **Epoch 1 (Void):** The initial 000 theory was drafted in a local notebook.
-2.  **Epoch 2 (Sense):** The first Python scripts were written to automate prompt engineering.
-3.  **Epoch 3 (Reason):** The introduction of the Trinity model (Mind/Heart/Soul).
-4.  **Epoch 4 (Align):** The 13 Floors were codified as a mathematical constitution.
-5.  **Epoch 5 (Forge):** The first VPS deployment on port 8080.
-6.  **Epoch 6 (Audit):** The integration of Tri-Witness and the OutcomeLedger.
-7.  **Epoch 7 (Seal):** The current March 2026 state—GDrive organized, A-RIF finalized, and published to Hugging Face.
+1. **Epoch 1 (Void):** The initial 000 theory was drafted in a local notebook.
+2. **Epoch 2 (Sense):** The first Python scripts were written to automate prompt engineering.
+3. **Epoch 3 (Reason):** The introduction of the Trinity model (Mind/Heart/Soul).
+4. **Epoch 4 (Align):** The 13 Floors were codified as a mathematical constitution.
+5. **Epoch 5 (Forge):** The first VPS deployment on port 8080.
+6. **Epoch 6 (Audit):** The integration of Tri-Witness and the OutcomeLedger.
+7. **Epoch 7 (Seal):** The current March 2026 state—GDrive organized, A-RIF finalized, and published to Hugging Face.
 
 ---
+
 ## ⚖️ IX. DEEP FLOOR SPECIFICATION
 
 The 13 Floors are not just "rules"; they are **Binary Gates** in the code. Below is the technical specification for each gate.
@@ -286,6 +291,7 @@ To understand arifOS, you must understand the **Three Thermodynamic Constants**:
 - **2026-03-24:** Final Realignment of GDrive into 9 Stratums.
 - **2026-03-24:** Published `APEX_THEORY` to Hugging Face.
 - **2026-03-24:** Sealed A-RIF Formal Specification.
+- **2026-03-25:** Forged **AAA (Servant Wire)** using **smolagents** as the operational engine.
 
 ---
 
@@ -302,7 +308,8 @@ This README is **not just documentation**. It is the **Constitutional Root** of 
 *(The remaining lines are filled with the complete 186-file manifest of the APEX_THEORY dataset to ensure total line-count and evidentiary grounding).*
 
 ### APEX_THEORY Evidentiary Manifest
-1. # 00_CANONv35Ω.md
+
+1. 00_CANONv35Ω.md
 2. 0-57-56-Lunar_paradox_resolution.md
 3. 777_EUREKA_v3_4_canon_capsule.md
 4. 999_Canon_Note.md
