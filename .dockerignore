@@ -92,6 +92,8 @@ data/
 models/
 *.jsonl
 *.jsonl.gz
+archive/
+.agents/
 
 # Test files
 tests/
