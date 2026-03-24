@@ -254,16 +254,22 @@ sequenceDiagram
     participant V as 999_VAULT
 
     U->>I: init_anchor(session_id)
-    I-->>U: auth_context
+    Note over I,V: Reads scar_context from previous outcomes
+    I-->>U: auth_context + scar_context
     U->>K: query + auth_context + risk_tier
     K->>M: Sequential Thinking (ΔS, Ω₀) — [agi.py]
-    M-->>K: Thought Chain
+    M-->>K: Thought Chain (Outcome ID forged)
     K->>H: Impact Simulation (κᵣ) — [asi.py]
     H-->>K: Alignment Review (Maruah)
     K->>A: APEX Verdict (G†) — [_3_apex.py]
     A-->>K: SEAL / VOID / HOLD
-    K->>V: Commit to Ledger — [ledger.py]
-    V-->>U: RuntimeEnvelope (Signed)
+    K->>V: Commit to Ledger (PENDING) — [ledger.py]
+    V-->>U: RuntimeEnvelope (Outcome ID)
+    Note over U,V: The ZKPC H2 Metabolizer Arc
+    U->>U: Human Acts & Observes Reality
+    U->>V: vault_ledger(mode="resolve", actual_outcome)
+    V-->>V: Seal Consequence (Update Ledger)
+    V-->>U: { loop: "CLOSED" }
 ```
 
 ---
@@ -385,10 +391,11 @@ The **Sovereign Veto Gate**.
 - **Function:** Issues the final decision. If the AI is uncertain (G < 0.8), it enters **SABAR** (Wait) or **HOLD** (Human).
 - **Source:** [core/organs/_3_apex.py](file:///C:/ariffazil/arifOS/arifosmcp/core/organs/_3_apex.py).
 
-### 11.7 [999] `seal_vault`
-The **Final Commit**.
+### 11.7 [999] `vault_ledger` (seal / resolve)
+The **Final Commit & Metabolizer Return Port**.
 - **Function:** Writes the session history to the immutable ledger.
 - **Enforcement:** Cryptographically links the previous vault hash to the new commit (F1 Amanah).
+- **H2 Loop Close (Resolve Mode):** Accepts human-observed consequences via `mode="resolve"` to securely close the **ZKPC (Zero-Knowledge Proof of Consequence)** loop. Updates the `scar_context` to teach the `000_INIT` anchor on the next session.
 
 ---
 
