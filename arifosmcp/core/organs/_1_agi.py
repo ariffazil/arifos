@@ -105,32 +105,52 @@ async def agi(
     phase_usage = {}
     actual_total = 0
 
+    from arifosmcp.core.organs._0_init import scan_injection as _f12
+
+    def _f12_scrub(text: str, phase: str) -> str:
+        """F12: scan Ollama output before injecting into next phase prompt."""
+        if _f12(text) >= 0.7:
+            logger.warning("[%s] F12 injection pattern in %s output — excised", session_id, phase)
+            return f"[F12_EXCISED:{phase}]"
+        return text
+
     # --- PHASE 111: SEARCH/UNDERSTAND ---
     search_prompt = f"Analyze the intent and constraints: {query}. List core facts."
     search_env = await ollama_local_generate(prompt=search_prompt, max_tokens=b111)
-    search_text = search_env.payload.get("response", "")
-    
-    # P2 Hardening: F12 Re-Scan on Phase 111 Output before 222 injection
-    from arifosmcp.runtime.webmcp.security import WebInjectionGuard
-    f12_score, f12_threats = WebInjectionGuard()._scan_text(search_text)
-    if f12_score > 0.85:
-        search_text = "[F12_SHIELD_ACTIVATED: Phase 111 output contained adversarial/injection patterns and was excised.]"
-        
+    if not search_env.ok:
+        return {"session_id": session_id, "verdict": "SABAR", "stage": "111",
+                "error": "OLLAMA_UNREACHABLE_PHASE_111",
+                "answer": {"summary": "", "confidence": 0.0, "verdict": "needs_evidence"},
+                "steps": [], "floors": floors, "delta_s": 0.0}
+    search_text = _f12_scrub(search_env.payload.get("response", ""), "111")
     usage_111 = search_env.payload.get("usage", {}).get("completion_tokens", len(search_text)//4)
     phase_usage["111_search"] = usage_111
     actual_total += usage_111
-    
+
     # --- PHASE 222: ANALYZE/COMPARE ---
     analyze_prompt = f"Given facts: {search_text}. Compare implications and test assumptions."
     analyze_env = await ollama_local_generate(prompt=analyze_prompt, max_tokens=b222)
-    analyze_text = analyze_env.payload.get("response", "")
+    if not analyze_env.ok:
+        return {"session_id": session_id, "verdict": "SABAR", "stage": "222",
+                "error": "OLLAMA_UNREACHABLE_PHASE_222",
+                "answer": {"summary": search_text[:200], "confidence": 0.3, "verdict": "needs_evidence"},
+                "steps": [ReasonMindStep(id=1, phase="111_search", thought=search_text[:200])],
+                "floors": floors, "delta_s": 0.0}
+    analyze_text = _f12_scrub(analyze_env.payload.get("response", ""), "222")
     usage_222 = analyze_env.payload.get("usage", {}).get("completion_tokens", len(analyze_text)//4)
     phase_usage["222_analyze"] = usage_222
     actual_total += usage_222
-    
+
     # --- PHASE 333: SYNTHESIZE ---
     synthesis_prompt = f"Synthesize final conclusion for: {query}. Based on: {analyze_text}."
     synthesis_env = await ollama_local_generate(prompt=synthesis_prompt, max_tokens=b333)
+    if not synthesis_env.ok:
+        return {"session_id": session_id, "verdict": "SABAR", "stage": "333",
+                "error": "OLLAMA_UNREACHABLE_PHASE_333",
+                "answer": {"summary": analyze_text[:200], "confidence": 0.5, "verdict": "needs_evidence"},
+                "steps": [ReasonMindStep(id=1, phase="111_search", thought=search_text[:200]),
+                           ReasonMindStep(id=2, phase="222_analyze", thought=analyze_text[:200])],
+                "floors": floors, "delta_s": 0.0}
     synthesis_text = synthesis_env.payload.get("response", "")
     usage_333 = synthesis_env.payload.get("usage", {}).get("completion_tokens", len(synthesis_text)//4)
     phase_usage["333_synthesis"] = usage_333
