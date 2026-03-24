@@ -1487,3 +1487,6 @@ All future docs should **point into** these three instead of re-describing law, 
 
 ΔS→0 · Peace²≥1 · Amanah🔐
 *Ditempa Bukan Diberi.*
+
+
+<!-- GOVERNANCE ANCHOR: arifOS_kernel | init_anchor | apex_soul | F1-F13 COMPLIANT -->
