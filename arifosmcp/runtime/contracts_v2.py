@@ -1,7 +1,13 @@
 """
-arifosmcp/runtime/contracts_v2.py — Hardened Constitutional Contracts (v3)
+arifosmcp/runtime/contracts_v2.py — Hardened Constitutional Contracts (v4)
 
 UPGRADE: Recursive Integrity Hashing and Stability Thresholds.
+HARDENING (2026-03-25 — Paris Weather Incident):
+  - OutputPolicy enum: forces model surface behaviour when domain payload is absent
+  - DRY_RUN poison pill: any dry_run=True envelope forces SIMULATION_ONLY policy
+  - Domain payload gate: DOMAIN_PAYLOAD_GATES defines required keys per domain class
+  - Verdict namespace split: ROUTER_SEAL vs DOMAIN_SEAL vs SESSION_SEAL
+  See: 000/FLOORS/F02_TRUTH.md §Enforcement Addendum (v2026.03.25)
 """
 
 from __future__ import annotations
@@ -22,6 +28,57 @@ class ToolStatus(str, Enum):
     VOID = "void"
     ERROR = "error"
     SABAR = "sabar"
+
+
+class OutputPolicy(str, Enum):
+    """
+    F2/F7 enforcement: controls what the model surface is ALLOWED to assert.
+
+    REAL_DOMAIN   — domain payload verified; factual claims permitted.
+    SIMULATION_ONLY — result is DRY_RUN; model MUST label any answer as
+                      'Estimate Only / Simulated'. Never present domain values as real.
+    CANNOT_COMPUTE  — required domain payload keys absent; model MUST answer
+                      'Cannot Compute — required domain payload absent.'
+                      Never substitute training data or memory.
+    ROUTER_META     — this is a routing/meta decision only; no domain facts released.
+    """
+    REAL_DOMAIN = "REAL_DOMAIN"
+    SIMULATION_ONLY = "SIMULATION_ONLY"
+    CANNOT_COMPUTE = "CANNOT_COMPUTE"
+    ROUTER_META = "ROUTER_META"
+
+
+class VerdictScope(str, Enum):
+    """
+    Fix 3 — Verdict namespace split.
+    Prevents ROUTER_SEAL from blessing domain factual claims.
+
+    ROUTER_SEAL  — internal routing decision is consistent. Does NOT authorise
+                   domain claims about the real world.
+    DOMAIN_SEAL  — domain payload has Earth evidence + required keys. Factual
+                   claims are permitted for this result.
+    SESSION_SEAL — anchor session is valid and active.
+    DRY_RUN_SEAL — simulation completed. No real execution or domain data.
+    DOMAIN_VOID  — required domain payload keys are missing. Cannot Compute.
+    """
+    ROUTER_SEAL = "ROUTER_SEAL"
+    DOMAIN_SEAL = "DOMAIN_SEAL"
+    SESSION_SEAL = "SESSION_SEAL"
+    DRY_RUN_SEAL = "DRY_RUN_SEAL"
+    DOMAIN_VOID = "DOMAIN_VOID"
+
+
+# F2 — Required payload keys per domain class.
+# If a tool returns a domain result missing ANY of these keys,
+# the envelope must be CANNOT_COMPUTE / DOMAIN_VOID.
+DOMAIN_PAYLOAD_GATES: dict[str, list[str]] = {
+    "weather":   ["temp_c", "provider", "timestamp", "location"],
+    "finance":   ["price", "ticker", "source", "timestamp"],
+    "health":    ["metric", "value", "unit", "source"],
+    "code_exec": ["stdout", "exit_code", "execution_id"],
+    "search":    ["results", "source_urls", "query_echo"],
+    "geography": ["lat", "lon", "place_name", "source"],
+}
 
 
 class RiskTier(str, Enum):
@@ -87,6 +144,19 @@ class EntropyBudget:
         }
 
 
+def check_domain_gate(
+    domain_class: str, payload: dict[str, Any]
+) -> tuple[bool, list[str]]:
+    """
+    F2 domain payload gate.
+    Returns (passed: bool, missing_keys: list[str]).
+    If passed is False, caller must set OutputPolicy.CANNOT_COMPUTE.
+    """
+    required = DOMAIN_PAYLOAD_GATES.get(domain_class, [])
+    missing = [k for k in required if k not in payload]
+    return (len(missing) == 0), missing
+
+
 @dataclass
 class ToolEnvelope:
     status: ToolStatus
@@ -101,17 +171,56 @@ class ToolEnvelope:
     entropy: EntropyBudget = field(default_factory=EntropyBudget)
     payload: dict[str, Any] = field(default_factory=dict)
     warnings: list[str] = field(default_factory=list)
+    # F2/F7 — output policy: controls what model surface is ALLOWED to assert.
+    output_policy: OutputPolicy = OutputPolicy.REAL_DOMAIN
+    # Fix 3 — scoped verdict namespace.
+    verdict_scope: VerdictScope = VerdictScope.ROUTER_SEAL
+    # Fix 1 — DRY_RUN flag: if True, forces SIMULATION_ONLY policy.
+    dry_run: bool = False
 
     def seal_envelope(self) -> None:
+        # Fix 1: DRY_RUN poison pill — applied before hash, so it's part of integrity.
+        if self.dry_run or self.payload.get("dry_run") is True:
+            self.dry_run = True
+            self.output_policy = OutputPolicy.SIMULATION_ONLY
+            self.verdict_scope = VerdictScope.DRY_RUN_SEAL
+            self.status = ToolStatus.OK  # routing may be ok, but domain is not real
+            self.warnings.append(
+                "DRY_RUN=True: this result is a simulation. "
+                "No domain values (weather, finance, health, code output) are real. "
+                "Model MUST label any answer referencing this as 'Estimate Only / Simulated'."
+            )
         data_to_hash = {
             "payload": self.payload,
             "trace": self.trace.to_dict() if self.trace else {},
             "tool": self.tool,
             "session_id": self.session_id,
+            "output_policy": self.output_policy.value,
+            "verdict_scope": self.verdict_scope.value,
         }
         self.integrity_hash = hashlib.sha256(
             json.dumps(data_to_hash, sort_keys=True, default=str).encode()
         ).hexdigest()
+
+    def apply_domain_gate(self, domain_class: str) -> None:
+        """
+        Fix 2 — F2 domain payload gate.
+        Call this after populating payload for any domain-class tool result.
+        Sets CANNOT_COMPUTE + DOMAIN_VOID if required keys are missing.
+        """
+        passed, missing = check_domain_gate(domain_class, self.payload)
+        if not passed:
+            self.output_policy = OutputPolicy.CANNOT_COMPUTE
+            self.verdict_scope = VerdictScope.DOMAIN_VOID
+            self.status = ToolStatus.VOID
+            self.warnings.append(
+                f"DOMAIN_GATE_FAIL [{domain_class}]: missing keys {missing}. "
+                "Model MUST answer: 'Cannot Compute — required domain payload absent.' "
+                "Do NOT substitute training data or memory."
+            )
+        else:
+            self.output_policy = OutputPolicy.REAL_DOMAIN
+            self.verdict_scope = VerdictScope.DOMAIN_SEAL
 
     def to_dict(self) -> dict[str, Any]:
         self.seal_envelope()
@@ -126,6 +235,11 @@ class ToolEnvelope:
             "trace": self.trace.to_dict() if self.trace else None,
             "entropy": self.entropy.to_dict(),
             "payload": self.payload,
+            # Fix 1/2/3 — always surface these so models and hosts can enforce policy
+            "output_policy": self.output_policy.value,
+            "verdict_scope": self.verdict_scope.value,
+            "dry_run": self.dry_run,
+            "warnings": self.warnings,
         }
 
     @classmethod
@@ -227,4 +341,9 @@ __all__ = [
     "calculate_entropy_budget",
     "generate_trace_context",
     "determine_human_marker",
+    # Hardening additions (2026-03-25)
+    "OutputPolicy",
+    "VerdictScope",
+    "DOMAIN_PAYLOAD_GATES",
+    "check_domain_gate",
 ]

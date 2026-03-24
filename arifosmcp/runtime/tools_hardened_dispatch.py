@@ -10,7 +10,10 @@ import asyncio
 import json
 from typing import Any, Callable
 
-from arifosmcp.runtime.contracts_v2 import ToolEnvelope, ToolStatus, RiskTier
+from arifosmcp.runtime.contracts_v2 import (
+    ToolEnvelope, ToolStatus, RiskTier,
+    OutputPolicy, VerdictScope,  # Fix 1/2/3 hardening
+)
 from arifosmcp.runtime.init_anchor_hardened import HardenedInitAnchor
 from arifosmcp.runtime.truth_pipeline_hardened import HardenedRealityCompass, HardenedRealityAtlas
 from arifosmcp.runtime.tools_hardened_v2 import (
@@ -82,6 +85,9 @@ def _apply_policy(
 async def hardened_init_anchor_dispatch(
     mode: str, payload: dict[str, Any], **kwargs
 ) -> dict[str, Any]:
+    # Fix 4 — import anchor hold registry for void propagation
+    from arifosmcp.agentzero.escalation.hold_state import anchor_hold_registry
+
     if mode == "init":
         human_approval_val = payload.get("human_approval", payload.get("human_approved", False))
         if "human_approved" in payload and "human_approval" not in payload:
@@ -112,6 +118,42 @@ async def hardened_init_anchor_dispatch(
         return {"ok": False, "error": f"Invalid mode for init_anchor: {mode}"}
 
     envelope_dict = _apply_policy(envelope.to_dict(), "init_anchor", mode, payload)
+
+    # Fix 4 — Anchor void propagation (F1/F11/F12).
+    # If init_anchor returns void/session-rejected, register a global 888_HOLD.
+    # All anchor-dependent tools must check anchor_hold_registry.is_held() before executing.
+    raw_status = envelope_dict.get("status") or envelope_dict.get("payload", {}).get("status")
+    raw_session = envelope_dict.get("session_id", "")
+    if mode == "init" and (
+        raw_status in ("void", "VOID")
+        or str(raw_session).startswith("session-rejected")
+    ):
+        void_reason = (
+            envelope_dict.get("payload", {}).get("reason")
+            or envelope_dict.get("error")
+            or "init_anchor returned void; session not established."
+        )
+        anchor_key = payload.get("actor_id") or payload.get("session_id") or "unknown"
+        anchor_hold_registry.set_global_hold(
+            session_key=anchor_key,
+            reason=void_reason,
+            blocked_tools="ALL_ANCHOR_DEPENDENT",
+            release_condition="Re-run init_anchor with valid intent+query+raw_input+actor_id",
+        )
+        envelope_dict["output_policy"] = OutputPolicy.CANNOT_COMPUTE.value
+        envelope_dict["verdict_scope"] = VerdictScope.DOMAIN_VOID.value
+        envelope_dict.setdefault("warnings", []).append(
+            "888_HOLD activated: anchor is void. "
+            "All anchor-dependent tools are blocked until valid init_anchor succeeds. "
+            "Model MUST NOT proceed to any anchor-dependent tool. "
+            "Surface to user: '888_HOLD — anchor void. Re-init required.'"
+        )
+    elif mode == "init" and raw_status not in ("void", "VOID", None):
+        # Successful init — clear any prior hold for this actor
+        anchor_key = payload.get("actor_id") or payload.get("session_id") or "unknown"
+        anchor_hold_registry.clear_hold(anchor_key)
+        # Mark SESSION_SEAL — anchor is valid
+        envelope_dict["verdict_scope"] = VerdictScope.SESSION_SEAL.value
 
     # EUREKA Layer 6 — Feedback Loop: inject scar_context from previous sessions
     # This closes the 999→000 loop: past outcomes inform the current anchor.
@@ -149,7 +191,33 @@ async def hardened_physics_reality_dispatch(
     else:
         return {"ok": False, "error": f"Invalid mode for physics_reality: {mode}"}
 
-    return _apply_policy(envelope.to_dict(), "physics_reality", mode, payload)
+    result = _apply_policy(envelope.to_dict(), "physics_reality", mode, payload)
+
+    # Fix 2 — Domain payload gate (F2): if the query is a known domain class,
+    # verify required keys are present. Missing keys → CANNOT_COMPUTE.
+    # Detect domain class from query intent or explicit domain_class param.
+    domain_class = payload.get("domain_class")  # caller may declare explicitly
+    if not domain_class:
+        query_str = str(payload.get("query") or payload.get("input") or "").lower()
+        if any(w in query_str for w in ("weather", "temperature", "forecast", "rain", "humid")):
+            domain_class = "weather"
+        elif any(w in query_str for w in ("price", "stock", "finance", "ticker", "market")):
+            domain_class = "finance"
+    if domain_class:
+        from arifosmcp.runtime.contracts_v2 import check_domain_gate
+        passed, missing = check_domain_gate(domain_class, result.get("payload", result))
+        if not passed:
+            result["output_policy"] = OutputPolicy.CANNOT_COMPUTE.value
+            result["verdict_scope"] = VerdictScope.DOMAIN_VOID.value
+            result["domain_gate_failed"] = True
+            result["domain_gate_missing_keys"] = missing
+            result.setdefault("warnings", []).append(
+                f"DOMAIN_GATE_FAIL [{domain_class}]: missing keys {missing}. "
+                "Model MUST answer: 'Cannot Compute — required domain payload absent.' "
+                "Do NOT substitute training data or memory for missing keys."
+            )
+
+    return result
 
 
 async def hardened_agi_mind_dispatch(
@@ -335,8 +403,16 @@ async def hardened_arifos_kernel_dispatch(
         dry_run=dry_run,
     )
 
-    # Return as ToolEnvelope-compatible dict
-    return _apply_policy(result, "arifOS_kernel", mode, payload)
+    # Fix 3 — Mark kernel output as ROUTER_META; it does NOT authorise domain claims.
+    # ROUTER_SEAL means routing is internally consistent — NOT that any domain fact is verified.
+    kernel_result = _apply_policy(result, "arifOS_kernel", mode, payload)
+    kernel_result["output_policy"] = OutputPolicy.ROUTER_META.value
+    kernel_result["verdict_scope"] = VerdictScope.ROUTER_SEAL.value
+    kernel_result.setdefault("warnings", []).append(
+        "ROUTER_META: arifOS_kernel result is a routing decision. "
+        "ROUTER_SEAL != DOMAIN_SEAL. No domain factual claims are authorised by this result."
+    )
+    return kernel_result
 
 
 HARDENED_DISPATCH_MAP = {
