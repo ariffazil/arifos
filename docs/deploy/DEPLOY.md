@@ -31,10 +31,10 @@ python scripts/deploy.py --environment production --dry-run
 
 ## Deployment Environments
 
-| Environment | URL | Auto-Deploy | Approval Required |
-|-------------|-----|-------------|-------------------|
-| **Staging** | `https://staging.arif-fazil.com` | On push to `main` | No |
-| **Production** | `https://arifosmcp.arif-fazil.com` | Manual only | Yes |
+| Environment   | URL                                | Auto-Deploy       | Approval Required |
+|---------------|------------------------------------|-------------------|-------------------|
+| **Staging**   | `https://staging.arif-fazil.com`   | On push to `main` | No                |
+| **Production**| `https://arifosmcp.arif-fazil.com` | Manual only       | Yes               |
 
 ---
 
@@ -54,16 +54,17 @@ Before deploying to **production**, ensure:
 
 The deployment system runs 6 constitutional stages:
 
-```
+```text
 🔷 Stage 1/6: Validating prerequisites
     └─ F11: Verify identity and authorization
     └─ Check SSH connectivity
     └─ Verify git state (clean for production)
-
+```
 🔷 Stage 2/6: Running test suite
     └─ Unit tests (tests/00_unit/)
     └─ Integration tests (tests/01_integration/)
     └─ Constitutional tests (tests/03_constitutional/) ← F1-F13
+    └─ Trinity Alignment Audit (333/ reasoning check)
 
 🔷 Stage 3/6: Creating rollback backup
     └─ F1 (Amanah): Save current state for reversibility
@@ -82,7 +83,6 @@ The deployment system runs 6 constitutional stages:
 🔷 Stage 6/6: Deployment complete
     └─ Save deployment manifest
     └─ Report success
-```
 
 ---
 
@@ -185,13 +185,13 @@ chmod 600 ~/.ssh/arifos_deploy
 
 The deployment system enforces arifOS principles:
 
-| Floor | Deployment Enforcement |
-|-------|----------------------|
-| **F1** (Amanah) | Automatic rollback on failure |
-| **F2** (Truth) | Honest status reporting, no hiding failures |
-| **F4** (Clarity) | Clear stage progression and logging |
+| Floor                  | Deployment Enforcement                          |
+|------------------------|-------------------------------------------------|
+| **F1** (Amanah)        | Automatic rollback on failure                   |
+| **F2** (Truth)         | Honest status reporting, no hiding failures     |
+| **F4** (Clarity)       | Clear stage progression and logging             |
 | **F11** (Command Auth) | SSH key verification, approved environments only |
-| **F13** (Sovereign) | Manual approval for production |
+| **F13** (Sovereign)    | Manual approval for production                  |
 
 ---
 
@@ -287,8 +287,8 @@ docker-compose exec postgres pg_restore ...
 
 ## Support
 
-- **Issues**: https://github.com/ariffazil/arifosmcp/issues
-- **Documentation**: https://arifos.arif-fazil.com
+- **Issues**: <https://github.com/ariffazil/arifosmcp/issues>
+- **Documentation**: <https://arifos.arif-fazil.com>
 - **Constitutional Questions**: See CONSTITUTION.md
 
 ---
