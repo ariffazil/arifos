@@ -277,43 +277,57 @@ class StageContract(BaseModel):
 CANONICAL_STAGE_CONTRACTS: dict[Stage, StageContract] = {
     Stage.INIT_000: StageContract(
         stage=Stage.INIT_000,
-        allowed_tools=["check_vital", "audit_rules", "init_anchor", "init_anchor_state", "get_caller_status", "register_tools"],
+        allowed_tools=["init_anchor"],
         mandatory_floors=["F11"],
         valid_verdicts=[Verdict.ALIVE, Verdict.PROVISIONAL, Verdict.HOLD, Verdict.SEAL],
         exit_criteria="Anchored identity (session_id != 'global')."
     ),
+    Stage.SENSE_111: StageContract(
+        stage=Stage.SENSE_111,
+        allowed_tools=["physics_reality", "math_estimator"],
+        mandatory_floors=["F2", "F4"],
+        valid_verdicts=[Verdict.PROVISIONAL, Verdict.SABAR],
+        exit_criteria="Environmental data ingested."
+    ),
+    Stage.REALITY_222: StageContract(
+        stage=Stage.REALITY_222,
+        allowed_tools=["physics_reality", "engineering_memory"],
+        mandatory_floors=["F2", "F10"],
+        valid_verdicts=[Verdict.PROVISIONAL, Verdict.SABAR, Verdict.HOLD],
+        exit_criteria="Truth-grounded state established."
+    ),
     Stage.ROUTER_444: StageContract(
         stage=Stage.ROUTER_444,
-        allowed_tools=["arifOS_kernel", "metabolic_loop_router"],
+        allowed_tools=["arifOS_kernel"],
         mandatory_floors=["F11", "F12"],
         valid_verdicts=[Verdict.PROVISIONAL, Verdict.HOLD, Verdict.VOID, Verdict.SEAL],
         exit_criteria="Directed reasoning path."
     ),
     Stage.MIND_333: StageContract(
         stage=Stage.MIND_333,
-        allowed_tools=["agi_reason", "reason_mind_synthesis", "search_reality", "reality_compass", "ingest_evidence"],
-        mandatory_floors=["F2", "F4", "F7"],
+        allowed_tools=["agi_mind", "physics_reality", "engineering_memory"],
+        mandatory_floors=["F2", "F4", "F7", "F8"],
         valid_verdicts=[Verdict.PROVISIONAL, Verdict.SABAR, Verdict.HOLD, Verdict.SEAL],
         exit_criteria="Grounded hypotheses with G★ > 0.70."
     ),
     Stage.HEART_666: StageContract(
         stage=Stage.HEART_666,
-        allowed_tools=["asi_simulate", "assess_heart_impact", "asi_critique", "critique_thought_audit"],
+        allowed_tools=["asi_heart"],
         mandatory_floors=["F5", "F6", "F9"],
         valid_verdicts=[Verdict.PROVISIONAL, Verdict.HOLD, Verdict.VOID, Verdict.SEAL],
         exit_criteria="Non-destructive consequence prediction (Peace² >= 1.0)."
     ),
     Stage.JUDGE_888: StageContract(
         stage=Stage.JUDGE_888,
-        allowed_tools=["apex_judge", "apex_judge_verdict", "agentzero_validate", "agentzero_hold_check"],
-        mandatory_floors=["F3", "F13"],
+        allowed_tools=["apex_soul"],
+        mandatory_floors=["F3", "F12", "F13"],
         valid_verdicts=[Verdict.SEAL, Verdict.HOLD, Verdict.VOID],
         exit_criteria="Human or Consensus ratification."
     ),
     Stage.VAULT_999: StageContract(
         stage=Stage.VAULT_999,
-        allowed_tools=["vault_seal", "seal_vault_commit", "verify_vault_ledger"],
-        mandatory_floors=["F1"],
+        allowed_tools=["vault_ledger"],
+        mandatory_floors=["F1", "F13"],
         valid_verdicts=[Verdict.SEAL],
         exit_criteria="Immutable Merkle chain commit."
     ),
@@ -636,6 +650,7 @@ class RuntimeEnvelope(BaseModel):
     requires_human: bool = False
     recoverable: bool = True
     next_action: dict[str, Any] | None = None  # Anti-chaos: exact next step
+    sabar_step: str | None = None  # SABAR protocol: exact cooling / de-escalation step
     state_transition: str | None = None
     
     # Anti-chaos: caller state visibility (Phase 1)
