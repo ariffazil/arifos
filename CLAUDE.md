@@ -13,6 +13,21 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 Always explain simply. Always confirm before destructive actions.
 API keys are free/limited tier — low financial risk.
 
+## AAA Output Hardening (binding, v2026.03.25)
+
+These rules bind ALL agents operating in this repo.
+No key rotation or production config edits from AI — diff drafts only.
+
+- **RULE 1 DRY_RUN:** tool result has `dry_run=true` or `output_policy=SIMULATION_ONLY`
+  → label answer "Estimate Only / Simulated"; NEVER present domain values as real.
+- **RULE 2 DOMAIN_GATE:** `output_policy=CANNOT_COMPUTE` or `verdict_scope=DOMAIN_VOID`
+  → answer exactly: "Cannot Compute — required domain payload absent."
+  → do NOT substitute training data, memory, or inference.
+- **RULE 3 VERDICT_SCOPE:** `ROUTER_SEAL` ≠ domain truth. Only `DOMAIN_SEAL` authorises factual claims.
+- **RULE 4 ANCHOR_VOID:** `init_anchor` returns `status: void` or `session-rejected`
+  → session BLOCKED. Surface: "888_HOLD — anchor void. Re-init required."
+  → MUST NOT proceed to any anchor-dependent tool.
+
 ## CRITICAL: You Are ON the VPS
 
 This machine IS the production VPS (`srv1325122`). No SSH needed. Manage Docker directly.
