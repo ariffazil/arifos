@@ -1,14 +1,11 @@
-"""
-AgentZero Memory Module
+"""arifosmcp.agentzero.memory - Constitutional memory providers."""
 
-Constitutional memory management with Qdrant:
-- Project isolation
-- Memory areas (MAIN, FRAGMENTS, SOLUTIONS, INSTRUMENTS)
-- F2 verification on recall
-- F4 entropy management
-- F12 injection scanning
-"""
+from .constitutional_memory import ConstitutionalMemoryStore, MemoryArea, MemoryEntry
+from .lancedb_provider import LanceDBProvider
 
-from .constitutional_memory import ConstitutionalMemoryStore, MemoryArea
-
-__all__ = ["ConstitutionalMemoryStore", "MemoryArea"]
+__all__ = [
+    "ConstitutionalMemoryStore",
+    "MemoryArea",
+    "MemoryEntry",
+    "LanceDBProvider",
+]

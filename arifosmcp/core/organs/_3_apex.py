@@ -17,7 +17,14 @@ import logging
 import re as _re
 from typing import Any, Literal
 
-from arifosmcp.core.shared.types import ApexOutput, EurekaProposal, JudgmentRationale, NextAction, Verdict
+from arifosmcp.core.shared.types import (
+    ApexOutput,
+    EurekaProposal,
+    JudgmentRationale,
+    NextAction,
+    PsiSeal,
+    Verdict,
+)
 from arifosmcp.core.shared.verdict_contract import normalize_verdict
 
 logger = logging.getLogger(__name__)
@@ -360,12 +367,28 @@ async def judge(
     if floor_scores.f2_truth < 0.99:
         floors_status["F2"] = "fail"
 
-    # 10. Construct Output
+    # 10. Assemble PsiSeal (Soul Manifest)
+    psi_seal = PsiSeal(
+        session_id=session_id,
+        verdict=candidate,
+        g_dagger=g_score,
+        omega_infinity=rationale.omega_0,
+        tri_witness=rationale.tri_witness,
+        floor_scores=floor_scores.model_dump() if hasattr(floor_scores, 'model_dump') else floor_scores,
+        metadata={
+            "coherence_contradictions": len(contradictions),
+            "landauer_compliant": candidate == Verdict.SEAL,
+            "human_witness": dials["E"]
+        }
+    )
+
+    # 11. Construct Output
     out = ApexOutput(
         session_id=session_id,
         verdict=candidate,
         final_verdict=candidate,
         reasoning=rationale,
+        psi_seal=psi_seal,
         floors=floors_status,
         metrics={
             "G": g_score,

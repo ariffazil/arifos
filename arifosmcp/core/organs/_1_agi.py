@@ -18,9 +18,12 @@ from typing import Any, Literal
 
 from arifosmcp.core.shared.atlas import Phi
 from arifosmcp.core.shared.types import (
+    AgiMetrics,
     AgiOutput,
+    DeltaBundle,
     EurekaInsight,
     FloorScores,
+    GPV,
     ReasonMindAnswer,
     ReasonMindStep,
 )
@@ -196,6 +199,23 @@ async def agi(
         expected_ms=1000.0,
     )
 
+    # 8. Assemble DeltaBundle (Mind Manifest)
+    delta_bundle = DeltaBundle(
+        n_io=1 if gpv.tau > 0.5 else 0, # F3 grounding flag
+        gpv=gpv,
+        h_in=h_in,
+        h_out=h_out,
+        delta_s=ds,
+        scars=0, # Initial stage
+        entropy=h_out,
+        floor_scores=cognition.floor_scores,
+        metadata={
+            "actual_total_tokens": actual_total,
+            "phase_usage": phase_usage,
+            "ollama_grounding": True
+        }
+    )
+
     answer = ReasonMindAnswer(
         summary=summary,
         confidence=cognition.truth_score,
@@ -212,8 +232,9 @@ async def agi(
         steps=steps,
         eureka=eureka,
         answer=answer,
+        delta_bundle=delta_bundle,
         floors=floors,
-        lane=gpv.lane.value,
+        lane=gpv.lane,
         delta_s=ds,
         evidence={"grounding": "Grounding confirmed via internal AGI analysis."},
         grounding=["src:ollama", "lane:FACTUAL"],
