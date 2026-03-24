@@ -557,10 +557,11 @@ async def get_caller_status_payload(session_id: str, envelope: RuntimeEnvelope) 
         actor_id=envelope.authority.actor_id if getattr(envelope, "authority", None) else None,
         declared_name=None,
     )
+    # F2 Truth: Use unified session_id from resolve_runtime_context
     return {
-        "transport_session_id": resolved["transport_session_id"],
-        "resolved_session_id": resolved["resolved_session_id"],
-        "session_id": resolved["resolved_session_id"],
+        "session_id": resolved["session_id"],  # ← Canonical unified truth
+        "resolved_session_id": resolved["resolved_session_id"],  # ← Same value, explicit
+        "transport_session_id": resolved["transport_session_id"],  # ← Debug only
         "canonical_actor_id": resolved["canonical_actor_id"],
         "display_name": resolved["display_name"],
         "authority_source": resolved["authority_source"],
