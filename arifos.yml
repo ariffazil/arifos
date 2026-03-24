@@ -1,8 +1,8 @@
 arifos_version: "2026.03.24"
 
 worktree:
-  id: "arifos-main-canonical"
-  branch: "main"
+  id: "arifos-recovery-seal"
+  branch: "feature/constitutional-recovery-seal"
   parent: "origin/main"
   created_at: "2026-03-24T07:54:28Z"
   path: "C:/ariffazil/arifOS"
