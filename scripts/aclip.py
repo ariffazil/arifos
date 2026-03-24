@@ -29,11 +29,10 @@ Exit codes:
 import argparse
 import subprocess
 import sys
-import os
 from pathlib import Path
 
 # Constants
-ARIFOS_ROOT = Path("/mnt/arifOS")
+ARIFOS_ROOT = Path(__file__).parent.parent
 TOOLCHAIN = ARIFOS_ROOT / "scripts" / "constitutional-gitops"
 TEMPLATES = ARIFOS_ROOT / "templates"
 VERSION = "2026.03.24"
@@ -45,7 +44,13 @@ def run_tool(script_name: str, args: list) -> int:
     if not script_path.exists():
         print(f"❌ Error: {script_name} not found")
         return 1
-    result = subprocess.run([str(script_path)] + args)
+    
+    # On Windows, we must explicitly call python for .py files
+    cmd = [str(script_path)] + args
+    if script_path.suffix == ".py":
+        cmd = [sys.executable] + cmd
+        
+    result = subprocess.run(cmd)
     return result.returncode
 
 
