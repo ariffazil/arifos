@@ -1,8 +1,8 @@
 {
   "mcpVersion": "2025-11-25",
   "name": "arifOS-APEX-G",
-  "version": "2026.03.20",
-  "description": "Constitutional governance server — 11 canonical MCP tools with F1-F13 floor enforcement, metabolic routing, prompts, and resources.",
+  "version": "2026.03.24",
+  "description": "Constitutional governance server \u2014 11 canonical MCP tools with F1-F13 floor enforcement, metabolic routing, prompts, and resources.",
   "vendor": {
     "name": "Muhammad Arif bin Fazil",
     "url": "https://arif-fazil.com"
@@ -16,16 +16,16 @@
     "vault999": "postgresql+redis+merkle",
     "vector_memory": "qdrant+bge-m3-1024dim",
     "prompts": 8,
-    "resources": 6
+    "resources": 7
   },
   "serverUrl": "https://arifosmcp.arif-fazil.com",
   "tools": [
     {
       "name": "init_anchor",
-      "description": "000_INIT: Establish, revoke, or refresh a governed session identity. Required before all other actions. Modes: 'init' (new session), 'revoke' (kill switch), 'refresh' (continuity refresh).",
+      "description": "\ud83d\udd25 THE IGNITION STATE OF INTELLIGENCE (Unified). ONE tool for ALL constitutional session operations. Modes: 'init' (establish identity), 'state' (forensic audit), 'status' (bootstrap diagnostics), 'revoke' (kill session), 'refresh' (rotate token). Legacy tools (init_anchor_state, revoke_anchor_state, get_caller_status) route here.",
       "inputSchema": {
         "type": "object",
-        "additionalProperties": false,
+        "additionalProperties": true,
         "required": [
           "mode",
           "payload"
@@ -37,7 +37,9 @@
             "enum": [
               "init",
               "revoke",
-              "refresh"
+              "refresh",
+              "state",
+              "status"
             ]
           },
           "payload": {
@@ -56,7 +58,7 @@
                     "type": "string",
                     "minLength": 1,
                     "maxLength": 20000,
-                    "description": "Legacy string format (auto-normalized to object)"
+                    "description": "Legacy string format (auto-normalized to structured object)"
                   },
                   {
                     "type": "object",
@@ -69,6 +71,15 @@
                       "task_type": {
                         "type": "string",
                         "maxLength": 64,
+                        "enum": [
+                          "general",
+                          "ask",
+                          "audit",
+                          "design",
+                          "decide",
+                          "analyze",
+                          "execute"
+                        ],
                         "default": "general"
                       },
                       "domain": {
@@ -77,16 +88,34 @@
                       },
                       "desired_output": {
                         "type": "string",
-                        "maxLength": 64
+                        "maxLength": 64,
+                        "enum": [
+                          "text",
+                          "json",
+                          "table",
+                          "code",
+                          "report",
+                          "decision",
+                          "mixed"
+                        ]
+                      },
+                      "reversibility": {
+                        "type": "string",
+                        "enum": [
+                          "reversible",
+                          "irreversible",
+                          "auditable"
+                        ],
+                        "default": "auditable"
                       }
                     },
                     "required": [
                       "query"
                     ],
-                    "description": "Structured intent object (preferred)"
+                    "description": "Structured intent object with query, task_type, domain, desired_output, reversibility"
                   }
                 ],
-                "description": "User intent - accepts string (legacy) or object with query, task_type, domain, desired_output"
+                "description": "User intent - accepts string (legacy) or structured object (preferred for governance)"
               },
               "declared_name": {
                 "type": "string",
@@ -107,7 +136,7 @@
                 "description": "Whether human has pre-approved this action (F13 Sovereign override)"
               }
             },
-            "additionalProperties": false
+            "additionalProperties": true
           },
           "auth_context": {
             "type": [
@@ -170,7 +199,7 @@
       "description": "444_ROUTER: Primary metabolic conductor. Processes complex queries through the 000-999 pipe. Modes: 'kernel' (reasoning), 'status' (vitals).",
       "inputSchema": {
         "type": "object",
-        "additionalProperties": false,
+        "additionalProperties": true,
         "required": [
           "mode",
           "payload"
@@ -194,6 +223,25 @@
                 "minLength": 1,
                 "maxLength": 40000
               },
+              "intent": {
+                "oneOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "query": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "query"
+                    ]
+                  }
+                ],
+                "description": "Structured intent for governed reasoning."
+              },
               "context": {
                 "type": "string",
                 "maxLength": 100000
@@ -216,7 +264,7 @@
                 "default": "full"
               }
             },
-            "additionalProperties": false
+            "additionalProperties": true
           },
           "auth_context": {
             "type": [
@@ -279,7 +327,7 @@
       "description": "888_JUDGE: Final authority for verdicts and defense. Modes: 'judge', 'rules', 'validate', 'hold', 'armor', 'notify', 'probe' (test floors).",
       "inputSchema": {
         "type": "object",
-        "additionalProperties": false,
+        "additionalProperties": true,
         "required": [
           "mode",
           "payload"
@@ -320,7 +368,7 @@
                 "description": "Specific floor to probe (e.g. 'F12')."
               }
             },
-            "additionalProperties": false
+            "additionalProperties": true
           },
           "auth_context": {
             "type": [
@@ -383,7 +431,7 @@
       "description": "999_VAULT: Permanent decision recording and integrity. Modes: 'seal', 'verify'.",
       "inputSchema": {
         "type": "object",
-        "additionalProperties": false,
+        "additionalProperties": true,
         "required": [
           "mode",
           "payload"
@@ -416,7 +464,7 @@
                 "type": "string"
               }
             },
-            "additionalProperties": false
+            "additionalProperties": true
           },
           "auth_context": {
             "type": [
@@ -479,7 +527,7 @@
       "description": "333_MIND: Core reasoning and synthesis engine. Modes: 'reason', 'reflect', 'forge'.",
       "inputSchema": {
         "type": "object",
-        "additionalProperties": false,
+        "additionalProperties": true,
         "required": [
           "mode",
           "payload"
@@ -511,7 +559,7 @@
                 "type": "string"
               }
             },
-            "additionalProperties": false
+            "additionalProperties": true
           },
           "auth_context": {
             "type": [
@@ -574,7 +622,7 @@
       "description": "666_HEART: Safety, empathy, and consequence modeling. Modes: 'critique', 'simulate'.",
       "inputSchema": {
         "type": "object",
-        "additionalProperties": false,
+        "additionalProperties": true,
         "required": [
           "mode",
           "payload"
@@ -602,7 +650,7 @@
                 "type": "string"
               }
             },
-            "additionalProperties": false
+            "additionalProperties": true
           },
           "auth_context": {
             "type": [
@@ -662,10 +710,10 @@
     },
     {
       "name": "engineering_memory",
-      "description": "555_MEMORY: Governed autonomous engineering and recall. Modes: 'engineer', 'query', 'recall', 'write', 'generate'.",
+      "description": "555_MEMORY: Governed autonomous engineering and vector memory. Modes: 'engineer' (execute), 'vector_query' (search), 'vector_store' (save), 'vector_forget' (delete), 'generate' (create). Constitutional: F10/F2 verification on all vector queries.",
       "inputSchema": {
         "type": "object",
-        "additionalProperties": false,
+        "additionalProperties": true,
         "required": [
           "mode",
           "payload"
@@ -676,10 +724,11 @@
             "description": "Mode selector for engineering_memory.",
             "enum": [
               "engineer",
-              "query",
-              "recall",
-              "write",
-              "generate"
+              "vector_query",
+              "vector_store",
+              "vector_forget",
+              "generate",
+              "query"
             ]
           },
           "payload": {
@@ -703,7 +752,7 @@
                 "type": "string"
               }
             },
-            "additionalProperties": false
+            "additionalProperties": true
           },
           "auth_context": {
             "type": [
@@ -763,10 +812,10 @@
     },
     {
       "name": "physics_reality",
-      "description": "111_SENSE: Earth-Witness fact acquisition and mapping. Modes: 'search', 'ingest', 'compass', 'atlas'.",
+      "description": "111_SENSE: Earth-Witness fact acquisition and mapping. Modes: 'search', 'ingest', 'compass', 'atlas', 'time' (temporal intelligence \u2014 current UTC+KL datetime, weekday, quarter).",
       "inputSchema": {
         "type": "object",
-        "additionalProperties": false,
+        "additionalProperties": true,
         "required": [
           "mode",
           "payload"
@@ -779,7 +828,8 @@
               "search",
               "ingest",
               "compass",
-              "atlas"
+              "atlas",
+              "time"
             ]
           },
           "payload": {
@@ -801,7 +851,7 @@
                 "default": 5
               }
             },
-            "additionalProperties": false
+            "additionalProperties": true
           },
           "auth_context": {
             "type": [
@@ -864,7 +914,7 @@
       "description": "Quantitative health and metabolic estimation. Modes: 'cost', 'health', 'vitals'.",
       "inputSchema": {
         "type": "object",
-        "additionalProperties": false,
+        "additionalProperties": true,
         "required": [
           "mode",
           "payload"
@@ -891,7 +941,7 @@
                 "type": "string"
               }
             },
-            "additionalProperties": false
+            "additionalProperties": true
           },
           "auth_context": {
             "type": [
@@ -954,7 +1004,7 @@
       "description": "System-level hygiene and observation. Modes: 'fs', 'process', 'net', 'tail', 'replay'.",
       "inputSchema": {
         "type": "object",
-        "additionalProperties": false,
+        "additionalProperties": true,
         "required": [
           "mode",
           "payload"
@@ -988,7 +1038,7 @@
                 "type": "string"
               }
             },
-            "additionalProperties": false
+            "additionalProperties": true
           },
           "auth_context": {
             "type": [
@@ -1051,7 +1101,7 @@
       "description": "Tool and resource discovery. Modes: 'register', 'list', 'read'.",
       "inputSchema": {
         "type": "object",
-        "additionalProperties": false,
+        "additionalProperties": true,
         "required": [
           "mode",
           "payload"
@@ -1078,7 +1128,7 @@
                 "type": "string"
               }
             },
-            "additionalProperties": false
+            "additionalProperties": true
           },
           "auth_context": {
             "type": [
@@ -1157,6 +1207,12 @@
       "mimeType": "application/json"
     },
     {
+      "uri": "canon://states",
+      "name": "State Ladder",
+      "description": "Forensic session state progression: anonymous -> claimed -> anchored -> verified -> scoped -> approved.",
+      "mimeType": "application/json"
+    },
+    {
       "uri": "arifos://status/vitals",
       "name": "System Vitals",
       "description": "Real-time thermodynamic and metabolic health of the kernel.",
@@ -1223,7 +1279,7 @@
     "input": {
       "init_anchor": {
         "type": "object",
-        "additionalProperties": false,
+        "additionalProperties": true,
         "required": [
           "mode",
           "payload"
@@ -1235,7 +1291,9 @@
             "enum": [
               "init",
               "revoke",
-              "refresh"
+              "refresh",
+              "state",
+              "status"
             ]
           },
           "payload": {
@@ -1254,7 +1312,7 @@
                     "type": "string",
                     "minLength": 1,
                     "maxLength": 20000,
-                    "description": "Legacy string format (auto-normalized to object)"
+                    "description": "Legacy string format (auto-normalized to structured object)"
                   },
                   {
                     "type": "object",
@@ -1267,6 +1325,15 @@
                       "task_type": {
                         "type": "string",
                         "maxLength": 64,
+                        "enum": [
+                          "general",
+                          "ask",
+                          "audit",
+                          "design",
+                          "decide",
+                          "analyze",
+                          "execute"
+                        ],
                         "default": "general"
                       },
                       "domain": {
@@ -1275,16 +1342,34 @@
                       },
                       "desired_output": {
                         "type": "string",
-                        "maxLength": 64
+                        "maxLength": 64,
+                        "enum": [
+                          "text",
+                          "json",
+                          "table",
+                          "code",
+                          "report",
+                          "decision",
+                          "mixed"
+                        ]
+                      },
+                      "reversibility": {
+                        "type": "string",
+                        "enum": [
+                          "reversible",
+                          "irreversible",
+                          "auditable"
+                        ],
+                        "default": "auditable"
                       }
                     },
                     "required": [
                       "query"
                     ],
-                    "description": "Structured intent object (preferred)"
+                    "description": "Structured intent object with query, task_type, domain, desired_output, reversibility"
                   }
                 ],
-                "description": "User intent - accepts string (legacy) or object with query, task_type, domain, desired_output"
+                "description": "User intent - accepts string (legacy) or structured object (preferred for governance)"
               },
               "declared_name": {
                 "type": "string",
@@ -1305,7 +1390,7 @@
                 "description": "Whether human has pre-approved this action (F13 Sovereign override)"
               }
             },
-            "additionalProperties": false
+            "additionalProperties": true
           },
           "auth_context": {
             "type": [
@@ -1364,7 +1449,7 @@
       },
       "arifOS_kernel": {
         "type": "object",
-        "additionalProperties": false,
+        "additionalProperties": true,
         "required": [
           "mode",
           "payload"
@@ -1388,6 +1473,25 @@
                 "minLength": 1,
                 "maxLength": 40000
               },
+              "intent": {
+                "oneOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "query": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "query"
+                    ]
+                  }
+                ],
+                "description": "Structured intent for governed reasoning."
+              },
               "context": {
                 "type": "string",
                 "maxLength": 100000
@@ -1410,7 +1514,7 @@
                 "default": "full"
               }
             },
-            "additionalProperties": false
+            "additionalProperties": true
           },
           "auth_context": {
             "type": [
@@ -1469,7 +1573,7 @@
       },
       "apex_soul": {
         "type": "object",
-        "additionalProperties": false,
+        "additionalProperties": true,
         "required": [
           "mode",
           "payload"
@@ -1510,7 +1614,7 @@
                 "description": "Specific floor to probe (e.g. 'F12')."
               }
             },
-            "additionalProperties": false
+            "additionalProperties": true
           },
           "auth_context": {
             "type": [
@@ -1569,7 +1673,7 @@
       },
       "vault_ledger": {
         "type": "object",
-        "additionalProperties": false,
+        "additionalProperties": true,
         "required": [
           "mode",
           "payload"
@@ -1602,7 +1706,7 @@
                 "type": "string"
               }
             },
-            "additionalProperties": false
+            "additionalProperties": true
           },
           "auth_context": {
             "type": [
@@ -1661,7 +1765,7 @@
       },
       "agi_mind": {
         "type": "object",
-        "additionalProperties": false,
+        "additionalProperties": true,
         "required": [
           "mode",
           "payload"
@@ -1693,7 +1797,7 @@
                 "type": "string"
               }
             },
-            "additionalProperties": false
+            "additionalProperties": true
           },
           "auth_context": {
             "type": [
@@ -1752,7 +1856,7 @@
       },
       "asi_heart": {
         "type": "object",
-        "additionalProperties": false,
+        "additionalProperties": true,
         "required": [
           "mode",
           "payload"
@@ -1780,7 +1884,7 @@
                 "type": "string"
               }
             },
-            "additionalProperties": false
+            "additionalProperties": true
           },
           "auth_context": {
             "type": [
@@ -1839,7 +1943,7 @@
       },
       "engineering_memory": {
         "type": "object",
-        "additionalProperties": false,
+        "additionalProperties": true,
         "required": [
           "mode",
           "payload"
@@ -1850,10 +1954,11 @@
             "description": "Mode selector for engineering_memory.",
             "enum": [
               "engineer",
-              "query",
-              "recall",
-              "write",
-              "generate"
+              "vector_query",
+              "vector_store",
+              "vector_forget",
+              "generate",
+              "query"
             ]
           },
           "payload": {
@@ -1877,7 +1982,7 @@
                 "type": "string"
               }
             },
-            "additionalProperties": false
+            "additionalProperties": true
           },
           "auth_context": {
             "type": [
@@ -1936,7 +2041,7 @@
       },
       "physics_reality": {
         "type": "object",
-        "additionalProperties": false,
+        "additionalProperties": true,
         "required": [
           "mode",
           "payload"
@@ -1949,7 +2054,8 @@
               "search",
               "ingest",
               "compass",
-              "atlas"
+              "atlas",
+              "time"
             ]
           },
           "payload": {
@@ -1971,7 +2077,7 @@
                 "default": 5
               }
             },
-            "additionalProperties": false
+            "additionalProperties": true
           },
           "auth_context": {
             "type": [
@@ -2030,7 +2136,7 @@
       },
       "math_estimator": {
         "type": "object",
-        "additionalProperties": false,
+        "additionalProperties": true,
         "required": [
           "mode",
           "payload"
@@ -2057,7 +2163,7 @@
                 "type": "string"
               }
             },
-            "additionalProperties": false
+            "additionalProperties": true
           },
           "auth_context": {
             "type": [
@@ -2116,7 +2222,7 @@
       },
       "code_engine": {
         "type": "object",
-        "additionalProperties": false,
+        "additionalProperties": true,
         "required": [
           "mode",
           "payload"
@@ -2150,7 +2256,7 @@
                 "type": "string"
               }
             },
-            "additionalProperties": false
+            "additionalProperties": true
           },
           "auth_context": {
             "type": [
@@ -2209,7 +2315,7 @@
       },
       "architect_registry": {
         "type": "object",
-        "additionalProperties": false,
+        "additionalProperties": true,
         "required": [
           "mode",
           "payload"
@@ -2236,7 +2342,7 @@
                 "type": "string"
               }
             },
-            "additionalProperties": false
+            "additionalProperties": true
           },
           "auth_context": {
             "type": [

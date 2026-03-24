@@ -44,7 +44,7 @@ class GlobalPanicMiddleware(BaseHTTPMiddleware):
 # ---------------------------------------------------------------------------
 
 mcp = FastMCP(
-    "arifOS-AAA-Sovereign",
+    "arifOS Sovereign Intelligence Kernel",
     version="2026.03.24-HARDENED",
     website_url="https://aaa.arif-fazil.com",
 )

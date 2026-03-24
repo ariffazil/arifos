@@ -321,10 +321,10 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
             "555_MEMORY: Governed autonomous engineering and vector memory. "
             "Modes: 'engineer' (execute), 'vector_query' (search), 'vector_store' (save), "
             "'vector_forget' (delete), 'generate' (create). "
-            "Constitutional: F2 verification on all vector queries."
+            "Constitutional: F10/F2 verification on all vector queries."
         ),
         trinity="OMEGA Ω",
-        floors=("F11", "F2"),
+        floors=("F10", "F11", "F2"),
         input_schema=_build_mega_schema(
             "engineering_memory",
             ["engineer", "vector_query", "vector_store", "vector_forget", "generate", "query"],
@@ -382,7 +382,7 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
             "System-level hygiene and observation. Modes: 'fs', 'process', 'net', 'tail', 'replay'."
         ),
         trinity="ALL",
-        floors=(),
+        floors=("F1",),
         input_schema=_build_mega_schema(
             "code_engine",
             ["fs", "process", "net", "tail", "replay"],
@@ -400,7 +400,7 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
         layer="MACHINE",
         description="Tool and resource discovery. Modes: 'register', 'list', 'read'.",
         trinity="DELTA Δ",
-        floors=(),
+        floors=("F10",),
         input_schema=_build_mega_schema(
             "architect_registry",
             ["register", "list", "read"],

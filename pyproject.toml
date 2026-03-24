@@ -1,6 +1,6 @@
 [project]
-name = "arifosmcp"
-version = "2026.03.24"
+name = "arifos"
+version = "2026.03.24-GOLD"
 # T000 Versioning: YYYY.MM.DD — see T000_VERSIONING.md and CHANGELOG.md for full history
 # 2026.03.24 — AAA MCP Induction (v2026.03.24-UNIFIED)
 #   Repo unification: collapsed AAA/ shadow mirror into root arifOS/ repo
@@ -216,10 +216,10 @@ all = [
 
 [project.urls]
 Homepage      = "https://arifos.arif-fazil.com"
-Documentation = "https://github.com/ariffazil/arifosmcp"
-Repository    = "https://github.com/ariffazil/arifosmcp"
-Issues        = "https://github.com/ariffazil/arifosmcp/issues"
-Trinity       = "https://github.com/ariffazil/arifosmcp/blob/main/KERNEL/TRINITY_ARCHITECTURE.md"
+Documentation = "https://github.com/ariffazil/arifOS"
+Repository    = "https://github.com/ariffazil/arifOS"
+Issues        = "https://github.com/ariffazil/arifOS/issues"
+Trinity       = "https://github.com/ariffazil/arifOS/blob/main/KERNEL/TRINITY_ARCHITECTURE.md"
 PyPI          = "https://pypi.org/project/arifosmcp/"
 
 [project.scripts]
