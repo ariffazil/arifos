@@ -618,14 +618,13 @@ class HardenedInitAnchor:
             risk_tier=risk,
             confidence=0.95 if human_approval else 0.80,
             blast_radius="minimal" if sclass == SessionClass.OBSERVE else "limited",
-            human_approved=bool(human_approval),
         )
 
         entropy = calculate_entropy_budget(
             ambiguity_score=0.0,
-            assumptions=[],
-            blast_radius="minimal",
             confidence=0.95,
+            input_len=0,
+            output_len=0,
         )
 
         # ── STEP 19: Build envelope with normalization report ──
@@ -640,15 +639,8 @@ class HardenedInitAnchor:
                 HumanDecisionMarker.HUMAN_CONFIRMATION_REQUIRED,
                 HumanDecisionMarker.HUMAN_APPROVAL_BOUND,
             ),
-            inputs_hash=challenge_hash,
-            outputs_hash=hashlib.sha256(
-                json.dumps(allowed_scope, sort_keys=True).encode()
-            ).hexdigest()[:32],
             trace=trace,
-            evidence_refs=[challenge_hash],
-            warnings=envelope_warnings,
             entropy=entropy,
-            next_allowed_tools=self._get_next_tools(sclass),
             payload={
                 "challenge": {
                     "challenge_id": challenge.challenge_id,

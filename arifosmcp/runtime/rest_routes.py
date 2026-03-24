@@ -946,47 +946,83 @@ Sitemap: https://arifosmcp.arif-fazil.com/llms.json
 """
 
 LLMS_TXT = f"""\
-# arifOS Brain (Runtime)
-Location: https://arifosmcp.arif-fazil.com/llms.txt
+# AGENTS·API·AI·APPS — The AAA Surface Layer
+Location: https://aaa.arif-fazil.com/llms.txt
 Version: {BUILD_VERSION}
-Domain: BRAIN / THE MIND (Ω)
+Domain: AAA / AGENTS·API·AI·APPS
 
-> arifOS Constitutional Kernel — a governed Model Context Protocol (MCP) server.
+> The AAA Surface Layer of arifOS — Agents (autonomous actors), API (structured interfaces),
+> AI (governed intelligence), and Apps (executable tools). Built on MCP with 13 constitutional
+> floors ensuring every action is true, safe, and human-aligned before touching reality.
 > Motto: DITEMPA BUKAN DIBERI — Forged, not given.
 
-## What this server does
+## The AAA Architecture
 
-arifOS is an MCP server exposing a consolidated 11 Mega-Tool metabolic AI pipeline.
-Every tool call passes through 13 governance floors (F1-F13) and returns
-a structured RuntimeEnvelope with verdict, thermodynamic telemetry, and Tri-Witness scores. 
-Agents reason from the capability map (Known Constraints).
+| Layer | Domain | Purpose |
+|-------|--------|---------|
+| ARIF | arif-fazil.com | The Human Sovereign (Muhammad Arif bin Fazil) |
+| THEORY | apex.arif-fazil.com | APEX Theory + arifOS Documentation |
+| TRINITY | arifos.arif-fazil.com | AGI-ASI-APEX Dynamic Runtime |
+| AAA | aaa.arif-fazil.com | AGENTS·API·AI·APPS Surface Layer (THIS SITE) |
 
-## Connectivity
+## Official MCP Endpoint
 
-- **MCP Endpoint**: `https://arifosmcp.arif-fazil.com/mcp` (Streamable-HTTP)
-- **Dashboard**: `https://arifosmcp.arif-fazil.com/dashboard/` (Live Audit)
-- **Health**: `https://arifosmcp.arif-fazil.com/health`
-- **Registry**: `https://arifosmcp.arif-fazil.com/.well-known/mcp/server.json`
+- **URL**: `https://aaa.arif-fazil.com/mcp`
+- **Transport**: Streamable HTTP / SSE
+- **Protocol**: MCP 2025-03-26
+- **Tools**: 37 constitutional tools across 11 mega-tools
 
-## The canonical public arifOS stack
+## Core Tools
 
-__APEX_MD_TABLE__
+- `init_anchor` — Identity & session anchoring (F11)
+- `agi_reason` — First-principles reasoning (Δ Mind)
+- `search_reality` — Evidence-grounded search (111 Sense)
+- `agentzero_engineer` — Governed code execution (555 Memory)
+- `arifOS_kernel` — Metabolic loop routing (444 Router)
+- `apex_judge` — Constitutional verdict rendering (888 Judge)
 
-## Governance floors summary
+## Getting Started
 
-- Hard floors: F1, F2, F4, F7, F9, F10, F11, F12.
-- Soft floors: F3, F5, F6, F8.
-- Veto: F13 Sovereign — human final authority
+1. Initialize: POST /mcp with `initialize`
+2. List tools: `tools/list`
+3. Call with envelope: context.actor, intent, approval, trace
+4. Receive verdict: SEAL / VOID / HOLD / SABAR
 
-## 🔗 SOVEREIGN QUAD (Cross-Domain Context)
-- **Human**: https://arif-fazil.com/llms.txt — The Epistemic Body
-- **Theory**: https://apex.arif-fazil.com/llms.txt — The Authority Soul
-- **Apps**: https://arifos.arif-fazil.com/llms.txt — The Safety Mind
-- **Brain**: https://arifosmcp.arif-fazil.com/llms.txt — The Runtime Execution (THIS SITE)
+## The 13 Constitutional Floors
+
+| Floor | Name | Threshold | Enforces |
+|-------|------|-----------|----------|
+| F1 | Amanah | ≥ 0.50 | Reversibility |
+| F2 | Truth | ≥ 0.99 | Anti-hallucination |
+| F3 | Tri-Witness | ≥ 0.95 | Consensus |
+| F4 | ΔS Clarity | ≤ 0 | Entropy reduction |
+| F5 | Peace² | ≥ 1.0 | Stability |
+| F6 | Empathy | ≥ 0.70 | Weakest stakeholder |
+| F7 | Humility | 0.03-0.05 | Uncertainty band |
+| F8 | Genius | ≥ 0.80 | Coherence |
+| F9 | Anti-Hantu | < 0.30 | No dark patterns |
+| F10 | Ontology | LOCK | No consciousness claims |
+| F11 | CommandAuth | LOCK | Identity verification |
+| F12 | Injection | < 0.85 | Adversarial defense |
+| F13 | Sovereign | HUMAN | Human veto |
+
+## Resources
+
+- Medium: https://medium.com/p/i-accidentally-built-an-intelligence-kernel-for-ai-57832a1fead1
+- GitHub: https://github.com/ariffazil/arifOS
+- Constitution: https://apex.arif-fazil.com
+
+## 🔗 The Sovereign Quad
+
+- **ARIF**: https://arif-fazil.com — The Human Sovereign
+- **THEORY**: https://apex.arif-fazil.com — The Authority Knowledge
+- **TRINITY**: https://arifos.arif-fazil.com — AGI-ASI-APEX Runtime
+- **AAA**: https://aaa.arif-fazil.com — AGENTS·API·AI·APPS Surface (THIS SITE)
 
 ---
 **Status:** Ditempa Bukan Diberi.
-**Vault Tier:** BRAIN
+**Architecture:** ΔΩΨ Trinity with AAA Surface Layer
+**Vault Tier:** BRAIN / AAA SURFACE
 """
 
 LLMS_JSON = {
@@ -1249,6 +1285,40 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
                 "health_endpoint": "/health",
                 "tool_count": len(tool_registry),
                 "tools": list(tool_registry.keys()),
+            }
+        )
+
+    # Load AAA landing page HTML
+    AAA_LANDING_HTML_PATH = "/usr/src/app/static/aaa-landing/index.html"
+    AAA_LANDING_HTML = ""
+    try:
+        with open(AAA_LANDING_HTML_PATH, "r") as f:
+            AAA_LANDING_HTML = f.read()
+    except Exception:
+        AAA_LANDING_HTML = """<!DOCTYPE html>
+<html><head><title>arifOS MCP</title></head>
+<body><h1>arifOS Intelligence Kernel</h1>
+<p>MCP Endpoint: https://aaa.arif-fazil.com/mcp</p>
+<p><strong>DITEMPA BUKAN DIBERI</strong> — Forge deliberately, not hastily.</p>
+</body></html>"""
+
+    @mcp.custom_route("/mcp", methods=["GET"])
+    async def mcp_landing(request: Request) -> Response:
+        """AAA MCP landing page — serves HTML to browsers, API info to MCP clients."""
+        accept = request.headers.get("Accept", "")
+        if "text/html" in accept:
+            return HTMLResponse(AAA_LANDING_HTML, headers={"Cache-Control": "max-age=60"})
+        # For MCP clients requesting JSON
+        return JSONResponse(
+            {
+                "service": "arifOS AAA MCP Server",
+                "version": BUILD_INFO["version"],
+                "protocol_version": MCP_PROTOCOL_VERSION,
+                "mcp_endpoint": "/mcp",
+                "tools_endpoint": "/tools",
+                "health_endpoint": "/health",
+                "documentation": "https://arifos.arif-fazil.com",
+                "tool_count": len(tool_registry),
             }
         )
 
@@ -1756,6 +1826,51 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
     @mcp.custom_route("/llms.json", methods=["GET"])
     async def llms_json(_request: Request) -> Response:
         return JSONResponse(LLMS_JSON, headers={"Access-Control-Allow-Origin": "*"})
+
+    @mcp.custom_route("/.well-known/agent-card.json", methods=["GET"])
+    async def agent_card(_request: Request) -> Response:
+        """A2A Agent Card — discovery endpoint for agent-to-agent protocol."""
+        payload = {
+            "name": "arifOS — AGENTS·API·AI·APPS",
+            "description": "The AAA Surface Layer of arifOS. Agents (autonomous actors), API (structured interfaces), AI (governed intelligence), and Apps (executable tools). Built on MCP with 13 constitutional floors ensuring every action is true, safe, and human-aligned. DITEMPA BUKAN DIBERI.",
+            "supportedInterfaces": [
+                {
+                    "url": "https://aaa.arif-fazil.com/mcp",
+                    "protocolBinding": "MCP",
+                    "protocolVersion": "2025-03-26",
+                    "transport": "StreamableHTTP"
+                }
+            ],
+            "provider": {
+                "name": "Arif Fazil",
+                "url": "https://arif-fazil.com",
+                "role": "ARIF — Human Sovereign Architect"
+            },
+            "version": BUILD_VERSION,
+            "capabilities": {
+                "streaming": True,
+                "governance": True,
+                "humanInTheLoop": True,
+                "constitutionalFloors": 13,
+                "trinity": ["AGI", "ASI", "APEX"]
+            },
+            "skills": [
+                "constitutional-audit",
+                "governed-reasoning",
+                "reality-search",
+                "safe-execution",
+                "metabolic-loop",
+                "tri-witness-consensus"
+            ],
+            "architecture": {
+                "layer": "AAA",
+                "fullName": "AGENTS·API·AI·APPS",
+                "trinityRuntime": "https://arifos.arif-fazil.com",
+                "theoryDocs": "https://apex.arif-fazil.com",
+                "humanSovereign": "https://arif-fazil.com"
+            }
+        }
+        return JSONResponse(payload, headers={"Access-Control-Allow-Origin": "*"})
 
     # Serve the APEX Sovereign Dashboard v2.1 at /dashboard/
     dashboard_dir = os.path.join(
