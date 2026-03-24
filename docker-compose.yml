@@ -338,6 +338,8 @@ services:
       - /sys:/host/sys:ro
       - /root/arifOS/arifosmcp:/usr/src/app/arifosmcp:ro
       - /root/arifOS/core:/usr/src/app/core:ro
+      - /root/arifOS/000:/usr/src/app/000:ro
+      - /root/arifOS/333:/usr/src/app/333:ro
       - /root/arifOS/spec:/usr/src/app/spec:ro
       - /opt/arifos/secrets:/opt/arifos/secrets:ro
       - arifosmcp_telemetry:/usr/src/app/telemetry:rw
