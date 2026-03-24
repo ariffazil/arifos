@@ -289,8 +289,59 @@ async def hardened_architect_registry_dispatch(
     return _apply_policy(res, "architect_registry", mode, payload)
 
 
+async def hardened_arifos_kernel_dispatch(
+    mode: str, payload: dict[str, Any], **kwargs
+) -> dict[str, Any]:
+    """Hardened dispatch for arifOS_kernel - preserves session continuity and authority."""
+    # P0: Session continuity check - must preserve anchored session_id
+    session_id = payload.get("session_id")
+    if not session_id:
+        return {
+            "ok": False,
+            "error": "arifOS_kernel requires session_id. Run init_anchor first.",
+            "status": "HOLD",
+            "next_action": {
+                "tool": "init_anchor",
+                "reason": "Session anchor required for kernel execution",
+            },
+        }
+
+    # P0: Authority verification - check if session is anchored
+    from arifosmcp.runtime.sessions import get_session_identity
+
+    identity = get_session_identity(session_id)
+    if not identity:
+        return {
+            "ok": False,
+            "error": f"Session {session_id} not anchored. Run init_anchor first.",
+            "status": "HOLD",
+            "next_action": {
+                "tool": "init_anchor",
+                "reason": "Session identity not bound",
+            },
+        }
+
+    # Route to metabolic loop with preserved context
+    query = payload.get("query") or payload.get("task") or "No query provided"
+    risk_tier = payload.get("risk_tier", "medium")
+    dry_run = payload.get("dry_run", True)
+
+    # Use orchestrator directly to maintain session continuity
+    from arifosmcp.runtime.orchestrator import metabolic_loop
+
+    result = await metabolic_loop(
+        query=query,
+        session_id=session_id,  # CRITICAL: Preserve original session
+        dry_run=dry_run,
+    )
+
+    # Return as ToolEnvelope-compatible dict
+    return _apply_policy(result, "arifOS_kernel", mode, payload)
+
+
 HARDENED_DISPATCH_MAP = {
     "init_anchor": hardened_init_anchor_dispatch,
+    "arifOS_kernel": hardened_arifos_kernel_dispatch,
     "physics_reality": hardened_physics_reality_dispatch,
     "agi_mind": hardened_agi_mind_dispatch,
     "asi_heart": hardened_asi_heart_dispatch,
