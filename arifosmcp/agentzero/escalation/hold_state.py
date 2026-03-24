@@ -429,3 +429,88 @@ async def escalate_for_irreversible_action(
         pathway=EscalationPathway.OFFER_HANDOVER,
         floor_violations=["F1"]
     )
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# FIX 4 — ANCHOR VOID PROPAGATION (2026-03-25, F1/F11/F12)
+# If init_anchor returns status: "void", ALL anchor-dependent tools must be
+# blocked with 888_HOLD until a valid anchor is re-established.
+# This prevents models from routing around anchor failure by ignoring
+# payload details.
+# ═══════════════════════════════════════════════════════════════════════════════
+
+from typing import ClassVar
+
+
+class GlobalAnchorHoldRegistry:
+    """
+    Session-scoped HOLD registry for anchor void propagation.
+
+    When init_anchor returns status "void" or session_id "session-rejected",
+    call set_global_hold(session_key, reason). All subsequent anchor-dependent
+    tool calls must call is_held(session_key) before executing.
+
+    Release with clear_hold(session_key) only when a valid init_anchor succeeds.
+    """
+
+    _registry: ClassVar[dict[str, dict[str, Any]]] = {}
+
+    @classmethod
+    def set_global_hold(
+        cls,
+        session_key: str,
+        reason: str,
+        blocked_tools: str = "ALL_ANCHOR_DEPENDENT",
+        release_condition: str = "valid init_anchor with intent+query+raw_input",
+    ) -> None:
+        """Register a global HOLD for a session due to anchor void."""
+        cls._registry[session_key] = {
+            "code": "888_HOLD",
+            "reason": reason,
+            "blocked_tools": blocked_tools,
+            "release_condition": release_condition,
+            "created_at": datetime.utcnow().isoformat(),
+        }
+        logger.warning(
+            f"[ANCHOR_VOID] 888_HOLD set for session '{session_key}': {reason}"
+        )
+
+    @classmethod
+    def is_held(cls, session_key: str) -> dict[str, Any] | None:
+        """
+        Check if session is globally held.
+        Returns hold record if held, None if clear.
+        """
+        return cls._registry.get(session_key)
+
+    @classmethod
+    def clear_hold(cls, session_key: str) -> bool:
+        """Clear hold after successful re-anchor. Returns True if a hold was cleared."""
+        if session_key in cls._registry:
+            del cls._registry[session_key]
+            logger.info(f"[ANCHOR_VOID] 888_HOLD cleared for session '{session_key}'")
+            return True
+        return False
+
+    @classmethod
+    def build_hold_response(cls, session_key: str) -> dict[str, Any]:
+        """Build a standard 888_HOLD response for anchor-blocked tool calls."""
+        record = cls._registry.get(session_key, {})
+        return {
+            "ok": False,
+            "status": "888_HOLD",
+            "verdict": "HOLD",
+            "output_policy": "CANNOT_COMPUTE",
+            "reason": f"ANCHOR_VOID: {record.get('reason', 'Anchor session is void.')}",
+            "release_condition": record.get("release_condition", "Re-run init_anchor with valid intent+query+raw_input."),
+            "blocked_tools": record.get("blocked_tools", "ALL_ANCHOR_DEPENDENT"),
+            "next_action": {
+                "tool": "init_anchor",
+                "mode": "init",
+                "required_fields": ["intent", "query", "raw_input", "actor_id"],
+            },
+        }
+
+
+# Module-level singleton
+anchor_hold_registry = GlobalAnchorHoldRegistry()
