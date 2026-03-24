@@ -52,6 +52,20 @@ Every action in arifOS flows through the 11-stage constitutional pipeline to ens
 
 ---
 
+## 🔗 MCP Source of Truth
+
+The **arifOS MCP contract** is defined in the audit document:
+
+- 📄 **Source of Truth**: [`/srv/syncthing/inbox/chatgptaudit.md`](file:///srv/syncthing/inbox/chatgptaudit.md)
+
+This document contains the complete contract requirements for:
+- Tool schemas and response formats
+- `human_approval` field handling
+- Legacy tool aliases
+- Constitutional floor enforcement
+
+---
+
 ## 🚀 Deployment
 
 For production-ready deployment on a VPS, refer to the [**Deployment Guide**](file:///c:/ariffazil/arifOS/docs/deploy/DEPLOY.md).
