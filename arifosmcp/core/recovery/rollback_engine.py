@@ -9,12 +9,16 @@ Provides:
 """
 
 import copy
+import json
 import logging
 import time
+from pathlib import Path
 from typing import Any
 
 from arifosmcp.core.governance_kernel import GovernanceKernel
 from arifosmcp.core.shared.types import OutcomeRecord, OutcomeStatus
+
+_DEFAULT_OUTCOMES_PATH = Path(__file__).parents[2] / "VAULT999" / "outcomes.jsonl"
 
 logger = logging.getLogger(__name__)
 
@@ -102,9 +106,74 @@ class OutcomeLedger:
         metrics = ledger.reconcile()
     """
 
-    def __init__(self) -> None:
+    def __init__(self, persist_path: Path = _DEFAULT_OUTCOMES_PATH) -> None:
         self._records: list[OutcomeRecord] = []
         self._trust_scores: dict[str, float] = {}  # actor_id → trust [0.0, 1.0]
+        self._persist_path = persist_path
+
+    # ------------------------------------------------------------------
+    # Persistence (EUREKA Layer 6 — Cross-Session Feedback)
+    # ------------------------------------------------------------------
+
+    def _save_record(self, record: OutcomeRecord) -> None:
+        """Append a single OutcomeRecord to the durable outcomes ledger."""
+        try:
+            self._persist_path.parent.mkdir(parents=True, exist_ok=True)
+            with open(self._persist_path, "a", encoding="utf-8") as fh:
+                fh.write(record.model_dump_json() + "\n")
+        except Exception as e:
+            logger.warning("OutcomeLedger: failed to persist record %s: %s", record.decision_id, e)
+
+    def load_recent(self, n: int = 10) -> list[OutcomeRecord]:
+        """Read the last *n* OutcomeRecords from disk (newest-last order)."""
+        if not self._persist_path.exists():
+            return []
+        try:
+            lines = self._persist_path.read_text(encoding="utf-8").splitlines()
+            recent: list[OutcomeRecord] = []
+            for line in reversed(lines):
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    recent.append(OutcomeRecord(**json.loads(line)))
+                except Exception:
+                    continue
+                if len(recent) >= n:
+                    break
+            return list(reversed(recent))
+        except Exception as e:
+            logger.warning("OutcomeLedger: failed to load recent records: %s", e)
+            return []
+
+    def build_scar_context(self, n: int = 10) -> dict[str, Any]:
+        """
+        Summarise the last *n* persisted outcomes into a scar_context dict
+        suitable for injection into the 000_ANCHOR InitOutput.
+
+        Keys:
+            total        — number of records examined
+            harm_count   — how many caused observed harm
+            pending      — how many are still PENDING (no real consequence observed)
+            false_seals  — SEAL decisions that later showed harm
+            last_id      — decision_id of the most recent record
+        """
+        records = self.load_recent(n)
+        if not records:
+            return {"total": 0, "harm_count": 0, "pending": 0, "false_seals": 0, "last_id": None}
+
+        harm_count = sum(1 for r in records if r.harm_detected)
+        pending = sum(1 for r in records if r.outcome_status == OutcomeStatus.PENDING)
+        false_seals = sum(
+            1 for r in records if r.verdict_issued == "SEAL" and r.harm_detected
+        )
+        return {
+            "total": len(records),
+            "harm_count": harm_count,
+            "pending": pending,
+            "false_seals": false_seals,
+            "last_id": records[-1].decision_id,
+        }
 
     # ------------------------------------------------------------------
     # Recording
@@ -156,6 +225,7 @@ class OutcomeLedger:
             floor_attribution=floor_attribution or {},
         )
         self._records.append(record)
+        self._save_record(record)
         logger.debug("OutcomeLedger: recorded decision %s → %s", decision_id, verdict_issued)
         return record
 
@@ -186,6 +256,7 @@ class OutcomeLedger:
                     if harm_detected
                     else OutcomeStatus.SUCCESS
                 )
+                self._save_record(r)
                 logger.info(
                     "OutcomeLedger: resolved %s → %s (harm=%s)",
                     decision_id,
