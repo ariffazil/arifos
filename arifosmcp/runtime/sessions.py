@@ -135,12 +135,17 @@ def resolve_runtime_context(
     # Display name is presentation-only
     display_name = declared_name or actor_id or "anonymous"
 
+    # F2 Truth: Single canonical session_id — unified truth across all surfaces
+    unified_session_id = resolved_session_id
+
     return {
-        "transport_session_id": transport_session_id,
-        "resolved_session_id": resolved_session_id,
+        "session_id": unified_session_id,           # ← Canonical single truth (NEW)
+        "resolved_session_id": unified_session_id,  # ← Same value, explicit redundancy
+        "transport_session_id": transport_session_id,  # ← Debug/audit only
         "canonical_actor_id": canonical_actor_id,
         "display_name": display_name,
         "authority_source": authority_source,
+        "_invariant": "session_id == resolved_session_id",  # ← Enforced
     }
 
 
