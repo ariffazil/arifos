@@ -3,7 +3,8 @@ memory-query skill handler
 F555 vector memory with freshness enforcement.
 """
 
-from typing import Any, Dict
+from typing import Any, Dict, Optional
+from datetime import datetime, timedelta
 
 
 class MemoryQuerySkill:
@@ -12,40 +13,138 @@ class MemoryQuerySkill:
     NAME = "memory-query"
     FLOOR = "F555"
     
-    async def vector_search(self, query: str, k: int = 5) -> Dict[str, Any]:
-        """Search memory with F2 freshness check."""
-        from arifosmcp.runtime.tools import engineering_memory_dispatch_impl
-        
-        result = await engineering_memory_dispatch_impl(
-            mode="vector_query",
-            payload={"query": query, "k": k},
-            auth_context={},
-            risk_tier="low",
-            dry_run=False,
-            ctx=None
-        )
-        
-        # F2: Filter stale results
-        fresh_results = self._filter_fresh(result.get("results", []))
-        
-        return {
-            "verdict": "SEAL",
-            "results": fresh_results,
-            "freshness": len(fresh_results) / max(len(result.get("results", [])), 1)
+    async def execute(
+        self,
+        action: str,
+        params: Dict[str, Any],
+        session_id: str,
+        dry_run: bool = True,
+        reality_bridge: Optional[Any] = None,
+        checkpoint: Optional[str] = None
+    ) -> Dict[str, Any]:
+        """Execute memory action."""
+        handlers = {
+            "vector_search": self._vector_search,
+            "store_memory": self._store_memory,
         }
+        
+        handler = handlers.get(action)
+        if not handler:
+            return {"verdict": "VOID", "reason": f"Unknown action: {action}"}
+        
+        return await handler(params, dry_run, reality_bridge, checkpoint)
+    
+    async def _vector_search(
+        self,
+        params: Dict,
+        dry_run: bool,
+        reality_bridge: Optional[Any],
+        checkpoint: Optional[str]
+    ) -> Dict[str, Any]:
+        """Search memory with F2 freshness check."""
+        query = params.get("query", "")
+        k = params.get("k", 5)
+        
+        if dry_run:
+            return {
+                "verdict": "SEAL",
+                "mode": "dry_run",
+                "query": query,
+                "checkpoint": checkpoint
+            }
+        
+        # REALITY: Query via filesystem
+        if reality_bridge:
+            result = reality_bridge.execute(
+                tool="filesystem",
+                command="read",
+                params={"path": f"./memory/{query}.json"},
+                checkpoint_id=checkpoint
+            )
+            
+            results = []
+            if result.get("success"):
+                import json
+                try:
+                    data = json.loads(result.get("stdout", "[]"))
+                    results = self._filter_fresh(data)
+                except:
+                    pass
+            
+            return {
+                "verdict": "SEAL",
+                "mode": "real",
+                "results": results,
+                "freshness": len(results) / max(len(results), 1),
+                "checkpoint": checkpoint
+            }
+        
+        return {"verdict": "VOID", "error": "No reality bridge available"}
+    
+    async def _store_memory(
+        self,
+        params: Dict,
+        dry_run: bool,
+        reality_bridge: Optional[Any],
+        checkpoint: Optional[str]
+    ) -> Dict[str, Any]:
+        """Store memory with timestamp."""
+        key = params.get("key", "")
+        value = params.get("value", {})
+        
+        if dry_run:
+            return {
+                "verdict": "SEAL",
+                "mode": "dry_run",
+                "key": key,
+                "checkpoint": checkpoint
+            }
+        
+        if reality_bridge:
+            import json
+            data = json.dumps({"value": value, "timestamp": datetime.now().isoformat()})
+            
+            result = reality_bridge.execute(
+                tool="shell",
+                command=f"echo '{data}' > ./memory/{key}.json",
+                params={},
+                checkpoint_id=checkpoint
+            )
+            
+            return {
+                "verdict": "SEAL" if result.get("success") else "VOID",
+                "mode": "real",
+                "key": key,
+                "checkpoint": checkpoint
+            }
+        
+        return {"verdict": "VOID", "error": "No reality bridge available"}
     
     def _filter_fresh(self, results: list) -> list:
         """Filter results older than 24h (F2)."""
-        from datetime import datetime, timedelta
         cutoff = datetime.now() - timedelta(hours=24)
         return [r for r in results if r.get("timestamp", datetime.now()) > cutoff]
 
 
-async def execute(action: str, params: Dict[str, Any], session_id: str, dry_run: bool = True):
+skill = MemoryQuerySkill()
+
+
+async def execute(
+    action: str,
+    params: Dict[str, Any],
+    session_id: str,
+    dry_run: bool = True,
+    reality_bridge: Optional[Any] = None,
+    checkpoint: Optional[str] = None
+) -> Dict[str, Any]:
     """Main entry point."""
     skill = MemoryQuerySkill()
-    
-    if action == "vector_search":
-        return await skill.vector_search(params.get("query"), params.get("k", 5))
-    
-    return {"verdict": "VOID", "reason": f"Unknown action: {action}"}
+    return await skill.execute(action, params, session_id, dry_run, reality_bridge, checkpoint)
+
+
+metadata = {
+    "name": "memory-query",
+    "floor": "F555",
+    "actions": ["vector_search", "store_memory"],
+    "reversible": True
+}

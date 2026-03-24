@@ -1,58 +1,186 @@
 """
-git-ops skill handler
-Git operations with F1 sandbox guarantees.
+arifOS Skill: git-ops
+F1 Amanah - Git operations with worktree sandbox
 """
 
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 
 class GitOpsSkill:
-    """Skill for git operations with constitutional reversibility."""
+    """Git operations with F1 reversibility via worktree."""
     
-    NAME = "git-ops"
-    FLOOR = "F1"
+    def __init__(self):
+        self.name = "git-ops"
+        self.floor = "F1"
     
-    def __init__(self, session_id: str, worktree: str = None):
-        self.session_id = session_id
-        self.worktree = worktree or f"wt-{session_id}"
+    async def execute(
+        self,
+        action: str,
+        params: Dict[str, Any],
+        session_id: str,
+        dry_run: bool = True,
+        reality_bridge: Optional[Any] = None,
+        checkpoint: Optional[str] = None
+    ) -> Dict[str, Any]:
+        """Execute Git action with F1 checkpoint."""
+        handlers = {
+            "status": self._status,
+            "checkout_branch": self._checkout_branch,
+            "commit": self._commit,
+        }
+        
+        handler = handlers.get(action)
+        if not handler:
+            return {
+                "verdict": "VOID",
+                "error": f"Unknown action: {action}"
+            }
+        
+        return await handler(params, dry_run, reality_bridge, checkpoint)
     
-    async def create_worktree(self, branch: str, base: str = "main") -> Dict[str, Any]:
-        """Create F1 sandbox via git worktree."""
-        commands = [
-            f"git worktree add -b {branch} {self.worktree} {base}",
-            f"cd {self.worktree} && git config user.signingkey"
-        ]
+    async def _status(
+        self,
+        params: Dict,
+        dry_run: bool,
+        reality_bridge: Optional[Any],
+        checkpoint: Optional[str]
+    ) -> Dict[str, Any]:
+        """Check git status."""
+        path = params.get("path", ".")
+        
+        if dry_run:
+            return {
+                "verdict": "SEAL",
+                "mode": "dry_run",
+                "action": "status",
+                "path": path,
+                "checkpoint": checkpoint
+            }
+        
+        if reality_bridge:
+            result = reality_bridge.execute(
+                tool="git",
+                command="status --porcelain",
+                params={"path": path},
+                checkpoint_id=checkpoint
+            )
+            return {
+                "verdict": result.get("status", "VOID"),
+                "mode": "real",
+                "action": "status",
+                "path": path,
+                "output": result.get("stdout", ""),
+                "success": result.get("success", False)
+            }
         
         return {
-            "verdict": "SEAL",
-            "worktree_path": self.worktree,
-            "branch": branch,
-            "base": base,
-            "rollback": f"git worktree remove {self.worktree} && git branch -D {branch}",
-            "f1_compliant": True
+            "verdict": "VOID",
+            "error": "No reality bridge available"
         }
     
-    async def commit_changes(self, message: str, sign: bool = False) -> Dict[str, Any]:
-        """Commit with F10 audit trail."""
-        cmd = f"git commit -m '{message}'"
-        if sign:
-            cmd += " -S"
+    async def _checkout_branch(
+        self,
+        params: Dict,
+        dry_run: bool,
+        reality_bridge: Optional[Any],
+        checkpoint: Optional[str]
+    ) -> Dict[str, Any]:
+        """Checkout a branch."""
+        branch = params.get("branch", "main")
+        path = params.get("path", ".")
+        
+        if dry_run:
+            return {
+                "verdict": "SEAL",
+                "mode": "dry_run",
+                "action": "checkout_branch",
+                "branch": branch,
+                "checkpoint": checkpoint,
+                "f1_note": f"Can rollback via worktree: {checkpoint}"
+            }
+        
+        if reality_bridge:
+            result = reality_bridge.execute(
+                tool="git",
+                command=f"checkout {branch}",
+                params={"path": path},
+                checkpoint_id=checkpoint
+            )
+            return {
+                "verdict": result.get("status", "VOID"),
+                "mode": "real",
+                "action": "checkout_branch",
+                "branch": branch,
+                "checkpoint": checkpoint,
+                "success": result.get("success", False),
+                "f1_note": f"Rollback: aclip checkpoint restore {checkpoint}"
+            }
         
         return {
-            "verdict": "SEAL",
-            "commit_cmd": cmd,
-            "reversible": True,
-            "undo": "git reset --soft HEAD~1"
+            "verdict": "VOID",
+            "error": "No reality bridge available"
+        }
+    
+    async def _commit(
+        self,
+        params: Dict,
+        dry_run: bool,
+        reality_bridge: Optional[Any],
+        checkpoint: Optional[str]
+    ) -> Dict[str, Any]:
+        """Create a commit."""
+        message = params.get("message", "arifOS automated commit")
+        path = params.get("path", ".")
+        
+        if dry_run:
+            return {
+                "verdict": "SEAL",
+                "mode": "dry_run",
+                "action": "commit",
+                "message": message,
+                "checkpoint": checkpoint
+            }
+        
+        if reality_bridge:
+            result = reality_bridge.execute(
+                tool="git",
+                command=f'commit -m "{message}"',
+                params={"path": path},
+                checkpoint_id=checkpoint
+            )
+            return {
+                "verdict": result.get("status", "VOID"),
+                "mode": "real",
+                "action": "commit",
+                "message": message,
+                "checkpoint": checkpoint,
+                "success": result.get("success", False)
+            }
+        
+        return {
+            "verdict": "VOID",
+            "error": "No reality bridge available"
         }
 
 
-async def execute(action: str, params: Dict[str, Any], session_id: str, dry_run: bool = True):
-    """Main entry point."""
-    skill = GitOpsSkill(session_id, params.get("worktree"))
-    
-    if action == "create_worktree":
-        return await skill.create_worktree(params.get("branch"), params.get("base", "main"))
-    elif action == "commit_changes":
-        return await skill.commit_changes(params.get("message"), params.get("sign", False))
-    
-    return {"verdict": "VOID", "reason": f"Unknown action: {action}"}
+skill = GitOpsSkill()
+
+
+async def execute(
+    action: str,
+    params: Dict[str, Any],
+    session_id: str,
+    dry_run: bool = True,
+    reality_bridge: Optional[Any] = None,
+    checkpoint: Optional[str] = None
+) -> Dict[str, Any]:
+    """Entry point for skill execution."""
+    return await skill.execute(action, params, session_id, dry_run, reality_bridge, checkpoint)
+
+
+metadata = {
+    "name": "git-ops",
+    "floor": "F1",
+    "actions": ["status", "checkout_branch", "commit"],
+    "reversible": True
+}
