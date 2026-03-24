@@ -1,7 +1,8 @@
 # 🧠 arifOS — The Sovereign Intelligence Mind
 
 ## Accountable Retrieval & Inference Framework (A-RIF)
-**Version:** v2026.03.24-UNIFIED-SEALED
+
+**Version:** v2026.03.25-SOVEREIGN-UNIFIED
 **Authority:** Muhammad Arif bin Fazil (888_JUDGE)
 **Motto:** *DITEMPA BUKAN DIBERI — Forged, Not Given*
 
@@ -66,19 +67,21 @@ $$G = A \times P \times X \times E^2$$
 
 A-RIF is the core cognitive engine of arifOS. It upgrades standard "RAG" (Retrieval-Augmented Generation) from a simple vibe-based system into a **Governed Intelligence Pipeline**.
 
-### 4.1 The 10 Organs of the Mind
-Every query processed by arifOS must traverse these 10 logical modules:
+### 4.1 The 12 Organs of the Mind
+Every query processed by arifOS must traverse these logical modules:
 
-1. **M1: Intake (Sense)** - Accepts and normalizes intent.
-2. **M2: Governance Gate** - Checks initial floor authorization.
-3. **M3: Interpretation** - Decomposes the question into semantic vectors.
-4. **M4: Retrieval (Memory)** - Hybrid search across the 3 Qdrant layers.
-5. **M5: Evidence Validation** - Scores the retrieved "Rock Samples" for Amanah.
-6. **M6: Context Assembly** - Packages the truth into a high-fidelity prompt.
-7. **M7: Inference (AgiMind)** - Bounded reasoning using **smolagents CodeAgent**.
-8. **M8: Output Verification** - Forensic audit of the generated claims.
-9. **M9: Decision Gate (ApexSoul)** - Final release/refusal control.
+1.  **M1: Intake (Sense)** - Accepts and normalizes intent.
+2.  **M2: Governance Gate** - Checks initial floor authorization.
+3.  **M3: Interpretation** - Decomposes the question into semantic vectors.
+4.  **M4: Retrieval (Memory)** - Hybrid search across the 3 Qdrant layers.
+5.  **M5: Evidence Validation** - Scores the retrieved "Rock Samples" for Amanah.
+6.  **M6: Context Assembly** - Packages the truth into a high-fidelity prompt.
+7.  **M7: Inference (AgiMind)** - Bounded reasoning using **smolagents CodeAgent**.
+8.  **M8: Output Verification** - Forensic audit of the generated claims.
+9.  **M9: Decision Gate (ApexSoul)** - Final release/refusal control.
 10. **M10: Audit & Trace** - Permanent sealing in the Vault Ledger (999).
+11. **M11: Tabular Sensory Layer** - Real-time analysis of the Cooling Ledger and CSV/XLS data.
+12. **M12: Document Sensory Layer** - Deep context extraction from Policies and PDF archives.
 
 ### 4.2 Separation of Meaning and Power
 In A-RIF, **Retrieval** (finding information) is strictly separated from **Judgment** (deciding what to do). 
@@ -168,7 +171,7 @@ Every tool call is audited by the **Governance Kernel**. If a tool (e.g., `execu
 The current state of arifOS is the result of **Seven Major Tectonic Shifts**:
 
 1. **Epoch 1 (Void):** The initial 000 theory was drafted in a local notebook.
-2. **Epoch 2 (Sense):** The first Python scripts were written to automate prompt engineering.
+2. **Epoch 2 (Sense)::** The first Python scripts were written to automate prompt engineering.
 3. **Epoch 3 (Reason):** The introduction of the Trinity model (Mind/Heart/Soul).
 4. **Epoch 4 (Align):** The 13 Floors were codified as a mathematical constitution.
 5. **Epoch 5 (Forge):** The first VPS deployment on port 8080.
@@ -291,7 +294,7 @@ To understand arifOS, you must understand the **Three Thermodynamic Constants**:
 - **2026-03-24:** Final Realignment of GDrive into 9 Stratums.
 - **2026-03-24:** Published `APEX_THEORY` to Hugging Face.
 - **2026-03-24:** Sealed A-RIF Formal Specification.
-- **2026-03-25:** Forged **AAA (Servant Wire)** using **smolagents** as the operational engine.
+- **2026-03-25:** Forged **AAA (Servant Wire)** using **smolagents** and local Ollama as the sovereign Mind.
 
 ---
 

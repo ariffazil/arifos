@@ -1,6 +1,4 @@
-import os
 import json
-import sys
 
 # --- A-RIF: CENTRAL ORCHESTRATOR ---
 
@@ -10,7 +8,9 @@ from M2_governance import M2GovernanceGate
 from M3_interpretation import M3Interpretation
 from M4_M5_retrieval_validation import M4M5RetrievalValidation
 from M6_M7_inference_engine import M6M7InferenceEngine
-from M8_M9_M10_decider_audit import M8M9M10DeciderAudit
+from M8_M9_M10_decider_audit import ARIFDeciderAudit
+from M11_table_qa import M11TableQA
+from M12_doc_qa import M12DocQA
 
 class ARIFOrchestrator:
     """
@@ -24,9 +24,12 @@ class ARIFOrchestrator:
         self.m3 = M3Interpretation()
         self.m4m5 = M4M5RetrievalValidation()
         self.m6m7 = M6M7InferenceEngine()
-        self.m8m9m10 = M8M9M10DeciderAudit()
+        self.m8m9m10 = ARIFDeciderAudit()
 
-    def process_sovereign_intent(self, raw_input: str) -> dict:
+        self.m11 = M11TableQA()
+        self.m12 = M12DocQA()
+        
+    def process_sovereign_intent(self, raw_input: str, sensory_context: dict = None) -> dict:
         """
         Executes the full A-RIF pipeline for a given input.
         """

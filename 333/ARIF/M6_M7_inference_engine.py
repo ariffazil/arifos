@@ -1,6 +1,6 @@
 import os
 import json
-from smolagents import InferenceClientModel
+from model_factory import get_arif_model
 
 # --- A-RIF M6/M7: ASSEMBLY & INFERENCE ENGINE ---
 
@@ -11,7 +11,7 @@ class M6M7InferenceEngine:
     """
     
     def __init__(self):
-        self.model = InferenceClientModel()
+        self.model = get_arif_model()
         # Inference prompt based on APEX_THEORY rules
         self.inference_prompt = """
         You are the A-RIF M7 Inference Engine.

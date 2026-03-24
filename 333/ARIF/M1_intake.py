@@ -1,6 +1,6 @@
 import os
 import json
-from smolagents import CodeAgent, InferenceClientModel, tool
+from model_factory import get_arif_model
 
 # --- A-RIF M1: INTAKE MODULE (INTENT NORMALIZATION) ---
 
@@ -11,7 +11,7 @@ class M1Intake:
     """
     
     def __init__(self):
-        self.model = InferenceClientModel()
+        self.model = get_arif_model()
         # Initialize the normalization prompt based on APEX_THEORY axioms
         self.normalization_prompt = """
         You are the A-RIF M1 Normalizer.
