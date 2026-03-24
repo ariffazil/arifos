@@ -100,7 +100,11 @@ class ArifosF3Eval:
                     val = val.strip().strip('"').strip("'")
                     
                     if current_section and current_section in data:
-                        data[current_section][key] = val
+                        if ':' in val: # Handle nested line like 'key: val'
+                             v_key, v_val = val.split(':', 1)
+                             data[current_section][v_key.strip()] = v_val.strip().strip('"').strip("'")
+                        else:
+                             data[current_section][key] = val
                     else:
                         data[key] = val
         
@@ -328,12 +332,21 @@ class ArifosF3Eval:
     
     # Helper methods
     def _check_code_patterns(self, patterns: List[str]) -> bool:
-        """Search for patterns in code"""
+        """Search for patterns in code (portable)"""
         try:
             for pattern in patterns:
+                # Try git grep first as it's more portable and respects .gitignore
+                result = subprocess.run(
+                    ["git", "grep", "-E", pattern, "--", "*.py", "*.js"],
+                    cwd=self.worktree, capture_output=True, text=True, encoding="utf-8"
+                )
+                if result.returncode == 0 and result.stdout:
+                    return True
+                
+                # Fallback to grep -r if git grep fails
                 result = subprocess.run(
                     ["grep", "-r", "-E", pattern, "--include=*.py", "--include=*.js"],
-                    cwd=self.worktree, capture_output=True, text=True
+                    cwd=self.worktree, capture_output=True, text=True, encoding="utf-8"
                 )
                 if result.returncode == 0 and result.stdout:
                     return True
@@ -342,11 +355,18 @@ class ArifosF3Eval:
             return False
     
     def _grep_lines(self, pattern: str) -> List[str]:
-        """Grep and return lines"""
+        """Grep and return lines (portable)"""
         try:
             result = subprocess.run(
+                ["git", "grep", "-E", pattern, "--", "*.py", "*.md"],
+                cwd=self.worktree, capture_output=True, text=True, encoding="utf-8"
+            )
+            if result.returncode == 0 and result.stdout:
+                return result.stdout.strip().split('\n')
+                
+            result = subprocess.run(
                 ["grep", "-r", "-E", pattern, "--include=*.py", "--include=*.md"],
-                cwd=self.worktree, capture_output=True, text=True
+                cwd=self.worktree, capture_output=True, text=True, encoding="utf-8"
             )
             return result.stdout.strip().split('\n') if result.stdout else []
         except:
@@ -357,7 +377,7 @@ class ArifosF3Eval:
         try:
             result = subprocess.run(
                 ["git", "log", "--oneline", "-5"],
-                cwd=self.worktree, capture_output=True, text=True
+                cwd=self.worktree, capture_output=True, text=True, encoding="utf-8"
             )
             commits = result.stdout.lower()
             return any(p in commits for p in ["feat:", "fix:", "docs:", "refactor:", "test:"])
@@ -369,7 +389,7 @@ class ArifosF3Eval:
         try:
             result = subprocess.run(
                 ["git", "status", "--porcelain"],
-                cwd=self.worktree, capture_output=True, text=True
+                cwd=self.worktree, capture_output=True, text=True, encoding="utf-8"
             )
             return len(result.stdout.strip()) == 0
         except:
@@ -380,7 +400,7 @@ class ArifosF3Eval:
         try:
             result = subprocess.run(
                 ["git", "status", "--short"],
-                cwd=self.worktree, capture_output=True, text=True
+                cwd=self.worktree, capture_output=True, text=True, encoding="utf-8"
             )
             return len([l for l in result.stdout.split('\n') if l.strip()])
         except:
@@ -406,7 +426,7 @@ class ArifosF3Eval:
         try:
             result = subprocess.run(
                 ["git", "branch", "--show-current"],
-                cwd=self.worktree, capture_output=True, text=True
+                cwd=self.worktree, capture_output=True, text=True, encoding="utf-8"
             )
             return result.stdout.strip() if result.returncode == 0 else None
         except:
@@ -417,7 +437,7 @@ class ArifosF3Eval:
         try:
             result = subprocess.run(
                 ["git", "log", f"--since={days} days ago", "--oneline"],
-                cwd=self.worktree, capture_output=True, text=True
+                cwd=self.worktree, capture_output=True, text=True, encoding="utf-8"
             )
             return len(result.stdout.strip()) > 0
         except:
