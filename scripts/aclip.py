@@ -1,74 +1,89 @@
 #!/usr/bin/env python3
 """
-aclip — arifOS Constitutional Layer Interface (CLI)
-Unified CLI for constitutional GitOps, agent management, and governance.
+aCLIp — arifOS Constitutional Layer Interface (CLI)
+Exactly 9 commands for constitutional GitOps, agent governance, and CI.
 
-Usage:
-    aclip worktree add <agent> <feature>    Create F1 sandbox
-    aclip worktree rm <branch>              Collapse → VOID
-    aclip agent run [stage]                 Execute with F7 dry_run
-    aclip f3 eval [--worktree .]            Tri-Witness evaluation
-    aclip judge status                      Check 888_JUDGE CI status
-    aclip floor audit                       Run F1-F13 floor check
-    aclip vault seal <commit>               Seal to VAULT999
+The 9 Commands:
+    1. aclip worktree add <agent> <feature>   Create F1 sandbox
+    2. aclip worktree rm <branch>              Collapse → VOID
+    3. aclip worktree list                     Show all worktrees
+    4. aclip agent run [--stage]               Execute with F7 dry_run
+    5. aclip f3 eval [--enforce]               Tri-Witness evaluation
+    6. aclip manifest init                     Create arifos.yml from template
+    7. aclip ingest local [path]               GitIngest local worktree
+    8. aclip ingest remote <github-url>        GitIngest remote repo
+    9. aclip ci status                         Check 888_JUDGE CI status
 
 Exit codes:
     0 = Success (verdict executed)
     1 = Config error
     2 = Enforce violated (--enforce with low W₃)
+
+Dependencies:
+    - git
+    - gitingest (for ingest commands)
+    - Existing arifOS toolchain scripts
 """
 
 import argparse
 import subprocess
 import sys
+import os
 from pathlib import Path
 
 # Constants
 ARIFOS_ROOT = Path("/mnt/arifOS")
 TOOLCHAIN = ARIFOS_ROOT / "scripts" / "constitutional-gitops"
+TEMPLATES = ARIFOS_ROOT / "templates"
 VERSION = "2026.03.24"
 
 
-def run_script(script_name: str, args: list) -> int:
-    """Execute a toolchain script with arguments"""
+def run_tool(script_name: str, args: list) -> int:
+    """Execute a toolchain script"""
     script_path = TOOLCHAIN / script_name
     if not script_path.exists():
-        print(f"❌ Error: {script_name} not found at {script_path}")
+        print(f"❌ Error: {script_name} not found")
         return 1
-    
-    cmd = [str(script_path)] + args
-    result = subprocess.run(cmd)
+    result = subprocess.run([str(script_path)] + args)
     return result.returncode
 
 
 # ═══════════════════════════════════════════════════════════════════
-# SUBCOMMANDS
+# COMMAND 1-3: worktree (add, rm, list)
 # ═══════════════════════════════════════════════════════════════════
 
 def cmd_worktree_add(args):
-    """aclip worktree add <agent> <feature>"""
-    return run_script("arifos-worktree-add.sh", [args.agent, args.feature])
+    """1. aclip worktree add <agent> <feature> — Create F1 sandbox"""
+    return run_tool("arifos-worktree-add.sh", [args.agent, args.feature])
 
 
 def cmd_worktree_rm(args):
-    """aclip worktree rm <branch>"""
-    return run_script("arifos-worktree-remove.sh", [args.branch])
+    """2. aclip worktree rm <branch> — Collapse universe → VOID"""
+    return run_tool("arifos-worktree-remove.sh", [args.branch])
 
 
 def cmd_worktree_list(args):
-    """aclip worktree list"""
+    """3. aclip worktree list — Show all constitutional worktrees"""
     result = subprocess.run(["git", "worktree", "list"])
     return result.returncode
 
 
-def cmd_agent_run(args):
-    """aclip agent run [stage]"""
-    stage = args.stage or "dev"
-    return run_script("arifos-agent-run.sh", [stage])
+# ═══════════════════════════════════════════════════════════════════
+# COMMAND 4: agent run
+# ═══════════════════════════════════════════════════════════════════
 
+def cmd_agent_run(args):
+    """4. aclip agent run [--stage] — Execute with F7 dry_run"""
+    stage = args.stage or "dev"
+    return run_tool("arifos-agent-run.sh", [stage])
+
+
+# ═══════════════════════════════════════════════════════════════════
+# COMMAND 5: f3 eval
+# ═══════════════════════════════════════════════════════════════════
 
 def cmd_f3_eval(args):
-    """aclip f3 eval [--worktree PATH] [--mode MODE] [--json] [--enforce]"""
+    """5. aclip f3 eval [--enforce] — Compute Tri-Witness (F3)"""
     cmd_args = []
     if args.worktree:
         cmd_args.extend(["--worktree", args.worktree])
@@ -78,15 +93,122 @@ def cmd_f3_eval(args):
         cmd_args.append("--json")
     if args.enforce:
         cmd_args.append("--enforce")
-    if args.update_manifest:
-        cmd_args.append("--update-manifest")
+    return run_tool("arifos_f3_eval.py", cmd_args)
+
+
+# ═══════════════════════════════════════════════════════════════════
+# COMMAND 6: manifest init
+# ═══════════════════════════════════════════════════════════════════
+
+def cmd_manifest_init(args):
+    """6. aclip manifest init — Create arifos.yml from template"""
+    template_path = TEMPLATES / "arifos.yml.template"
+    target_path = Path(args.path) / "arifos.yml"
     
-    return run_script("arifos_f3_eval.py", cmd_args)
+    if not template_path.exists():
+        print(f"❌ Template not found: {template_path}")
+        return 1
+    
+    if target_path.exists() and not args.force:
+        print(f"⚠️  arifos.yml already exists at {target_path}")
+        print("   Use --force to overwrite")
+        return 1
+    
+    try:
+        with open(template_path) as f:
+            content = f.read()
+        
+        # Basic template variable substitution
+        content = content.replace("CHANGE-ME", f"arifos-{args.agent or 'agent'}-{args.feature or 'feature'}")
+        content = content.replace("${AGENT_NAME}", args.agent or "unknown")
+        content = content.replace("${FEATURE_NAME}", args.feature or "unknown")
+        
+        with open(target_path, 'w') as f:
+            f.write(content)
+        
+        print(f"✅ Manifest created: {target_path}")
+        print(f"   Agent: {args.agent or 'unknown'}")
+        print(f"   Feature: {args.feature or 'unknown'}")
+        return 0
+    except Exception as e:
+        print(f"❌ Error creating manifest: {e}")
+        return 1
 
 
-def cmd_judge_status(args):
-    """aclip judge status — Check CI/CD governance status"""
-    print("🔥 888_JUDGE Status")
+# ═══════════════════════════════════════════════════════════════════
+# COMMAND 7-8: ingest (local, remote)
+# ═══════════════════════════════════════════════════════════════════
+
+def cmd_ingest_local(args):
+    """7. aclip ingest local [path] — GitIngest local worktree"""
+    try:
+        from gitingest import ingest
+        
+        path = args.path or "."
+        print(f"🔥 Ingesting local worktree: {path}")
+        print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+        
+        result = ingest(
+            path_or_url=path,
+            include_patterns=args.include,
+            exclude_patterns=args.exclude,
+            max_file_size=args.max_size * 1024 if args.max_size else None
+        )
+        
+        if args.output:
+            with open(args.output, 'w') as f:
+                f.write(result)
+            print(f"✅ Ingested to: {args.output}")
+        else:
+            print(result)
+        
+        return 0
+    except ImportError:
+        print("❌ gitingest not installed. Run: pip install gitingest")
+        return 1
+    except Exception as e:
+        print(f"❌ Ingest failed: {e}")
+        return 1
+
+
+def cmd_ingest_remote(args):
+    """8. aclip ingest remote <github-url> — GitIngest remote repo"""
+    try:
+        from gitingest import ingest
+        
+        print(f"🔥 Ingesting remote repo: {args.url}")
+        print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+        
+        result = ingest(
+            path_or_url=args.url,
+            include_patterns=args.include,
+            exclude_patterns=args.exclude,
+            max_file_size=args.max_size * 1024 if args.max_size else None
+        )
+        
+        if args.output:
+            with open(args.output, 'w') as f:
+                f.write(result)
+            print(f"✅ Ingested to: {args.output}")
+        else:
+            print(result)
+        
+        return 0
+    except ImportError:
+        print("❌ gitingest not installed. Run: pip install gitingest")
+        return 1
+    except Exception as e:
+        print(f"❌ Ingest failed: {e}")
+        return 1
+
+
+# ═══════════════════════════════════════════════════════════════════
+# COMMAND 9: ci status
+# ═══════════════════════════════════════════════════════════════════
+
+def cmd_ci_status(args):
+    """9. aclip ci status — Check 888_JUDGE CI status"""
+    print("🔥 888_JUDGE CI Status")
     print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
     print("CI/CD: GitHub Actions")
     print("Workflow: .github/workflows/888-judge.yml")
@@ -95,118 +217,50 @@ def cmd_judge_status(args):
     print("Verdicts: SEAL | PROVISIONAL | SABAR | HOLD | HOLD_888 | VOID")
     print("Thresholds: low=0.85 | medium=0.95 | high=0.99 | critical=1.0")
     print("")
-    print("Governance Paths (Phase 2+):")
-    print("- 0_KERNEL/")
-    print("- 000_THEORY/")
-    print("- Floor definitions")
-    print("- Constitutional law")
-    print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-    return 0
-
-
-def cmd_floor_audit(args):
-    """aclip floor audit — Full F1-F13 constitutional check"""
-    print("🔥 CONSTITUTIONAL FLOOR AUDIT")
-    print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-    floors = [
-        ("F1", "Amanah (Reversibility)", "✅", "Worktree pattern active"),
-        ("F2", "Truth", "✅", "Tests present"),
-        ("F3", "Tri-Witness", "⚠️ ", "Human pending"),
-        ("F4", "Clarity", "✅", "Naming convention"),
-        ("F5", "Peace²", "✅", "State visible"),
-        ("F6", "Empathy", "✅", "Agent isolated"),
-        ("F7", "Humility", "✅", "dry_run enforced"),
-        ("F8", "Genius", "✅", "G* > 0.8"),
-        ("F9", "Anti-Hantu", "✅", "No consciousness claims"),
-        ("F10", "Ontology", "✅", "Explicit semantics"),
-        ("F11", "Command Auth", "✅", "Branch separation"),
-        ("F12", "Injection Defense", "✅", ".gitignore"),
-        ("F13", "Sovereignty", "✅", "Arif veto"),
-    ]
-    for num, name, status, note in floors:
-        print(f"{num}  {name:26} {status} {note}")
-    print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-    print("Verdict: HOLD (F3 requires human review)")
-    return 0
-
-
-def cmd_floor_check(args):
-    """aclip floor check <floor> — Check specific floor"""
-    floor = args.floor
-    print(f"🔥 Checking {floor}...")
     
-    checks = {
-        "F1": "Reversibility: Worktree can be rm -rf'd",
-        "F2": "Truth: τ ≥ 0.99 verified",
-        "F3": "Tri-Witness: W₃ = (H×A×E)^(1/3)",
-        "F4": "Clarity: ΔS ≤ 0 enforced",
-        "F5": "Peace²: Lyapunov stability",
-        "F6": "Empathy: κᵣ ≥ 0.7",
-        "F7": "Humility: Ω₀ ∈ [0.03,0.05]",
-        "F8": "Genius: G* > 0.8",
-        "F9": "Anti-Hantu: No consciousness claims",
-        "F10": "Ontology: Explicit semantics only",
-        "F11": "Command Auth: Separation of powers",
-        "F12": "Injection Defense: Input validation",
-        "F13": "Sovereignty: Arif veto absolute",
-    }
+    # Try to get current branch
+    try:
+        result = subprocess.run(
+            ["git", "branch", "--show-current"],
+            capture_output=True,
+            text=True
+        )
+        branch = result.stdout.strip()
+        if branch:
+            print(f"Current branch: {branch}")
+            
+            # Check if arifos.yml exists
+            if Path("arifos.yml").exists():
+                print("✅ arifos.yml found — constitutional metadata present")
+            else:
+                print("⚠️  No arifos.yml — run 'aclip manifest init'")
+    except:
+        pass
     
-    print(f"✅ {floor}: {checks.get(floor, 'Check not implemented')}")
-    return 0
-
-
-def cmd_vault_seal(args):
-    """aclip vault seal <commit> — Seal to VAULT999"""
-    commit = args.commit
-    print("🔒 SEALING TO VAULT999")
-    print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-    print(f"Commit: {commit}")
-    print(f"Timestamp: $(date -u +%Y-%m-%dT%H:%M:%SZ)")
-    print("Status: SEALED")
     print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
     return 0
 
 
-def cmd_vault_verify(args):
-    """aclip vault verify <hash> — Verify sealed entry"""
-    hash_val = args.hash
-    print(f"🔍 Verifying {hash_val}...")
-    print("✅ Valid VAULT999 entry")
-    return 0
-
-
-def cmd_vault_list(args):
-    """aclip vault list — Show sealed entries"""
-    print("🔒 VAULT999 SEALED ENTRIES")
-    print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-    print("Hash       | Timestamp            | Verdict")
-    print("-----------|----------------------|--------")
-    print("a3e73034   | 2026-03-24T05:30:00Z | SEAL")
-    print("c11f6618   | 2026-03-24T05:45:00Z | SEAL")
-    print("84d9854a   | 2026-03-24T05:58:00Z | SEAL")
-    print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-    return 0
-
-
-def cmd_version(args):
-    """aclip version"""
-    print(f"aclip (arifOS Constitutional Layer Interface) {VERSION}")
-    print(f"Location: {ARIFOS_ROOT}")
-    print(f"Toolchain: {TOOLCHAIN}")
-    return 0
-
+# ═══════════════════════════════════════════════════════════════════
+# MAIN
+# ═══════════════════════════════════════════════════════════════════
 
 def main():
     parser = argparse.ArgumentParser(
         prog="aclip",
-        description="arifOS Constitutional Layer Interface (CLI) — GitOps for AI agents",
+        description="aCLIp — arifOS Constitutional Layer Interface (9 Commands)",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
-Examples:
-  aclip worktree add claude api-refactor    # Create F1 sandbox
-  aclip worktree rm feature/claude-api      # Collapse → VOID
-  aclip f3 eval --enforce                   # Evaluate with blocking
-  aclip agent run --stage prod              # Run agent with F7
+The 9 Commands:
+  1. worktree add <agent> <feature>    Create F1 sandbox
+  2. worktree rm <branch>              Collapse → VOID
+  3. worktree list                     Show worktrees
+  4. agent run [--stage]               Execute with F7
+  5. f3 eval [--enforce]               Tri-Witness evaluation
+  6. manifest init                     Create arifos.yml
+  7. ingest local [path]               GitIngest local
+  8. ingest remote <url>               GitIngest remote
+  9. ci status                         Check 888_JUDGE CI
 
 Constitutional Floors: F1-F13
 Tri-Witness: W₃ = (H × A × E)^(1/3)
@@ -219,128 +273,94 @@ Ditempa bukan diberi.
     subparsers = parser.add_subparsers(dest="command", help="Commands")
     
     # ═══════════════════════════════════════════════════════════════
-    # worktree subcommand
+    # 1-3: worktree
     # ═══════════════════════════════════════════════════════════════
-    worktree_parser = subparsers.add_parser(
-        "worktree", 
-        help="Manage constitutional sandboxes (F1)"
-    )
-    worktree_subparsers = worktree_parser.add_subparsers(dest="worktree_cmd")
+    worktree_parser = subparsers.add_parser("worktree", help="Manage F1 sandboxes (1-3)")
+    worktree_sub = worktree_parser.add_subparsers(dest="worktree_cmd")
     
-    # worktree add
-    add_parser = worktree_subparsers.add_parser("add", help="Create F1 sandbox")
-    add_parser.add_argument("agent", help="Agent name (e.g., claude, codex)")
-    add_parser.add_argument("feature", help="Feature slug (e.g., api-refactor)")
-    add_parser.set_defaults(func=cmd_worktree_add)
+    # 1. worktree add
+    add_p = worktree_sub.add_parser("add", help="1. Create F1 sandbox")
+    add_p.add_argument("agent", help="Agent name (claude, codex, etc.)")
+    add_p.add_argument("feature", help="Feature slug")
+    add_p.set_defaults(func=cmd_worktree_add)
     
-    # worktree rm
-    rm_parser = worktree_subparsers.add_parser("rm", help="Collapse universe → VOID")
-    rm_parser.add_argument("branch", help="Branch name (e.g., feature/claude-api)")
-    rm_parser.set_defaults(func=cmd_worktree_rm)
+    # 2. worktree rm
+    rm_p = worktree_sub.add_parser("rm", help="2. Collapse → VOID")
+    rm_p.add_argument("branch", help="Branch name (feature/xxx)")
+    rm_p.set_defaults(func=cmd_worktree_rm)
     
-    # worktree list
-    list_parser = worktree_subparsers.add_parser("list", help="List all worktrees")
-    list_parser.set_defaults(func=cmd_worktree_list)
+    # 3. worktree list
+    list_p = worktree_sub.add_parser("list", help="3. Show worktrees")
+    list_p.set_defaults(func=cmd_worktree_list)
     
     # ═══════════════════════════════════════════════════════════════
-    # agent subcommand
+    # 4: agent
     # ═══════════════════════════════════════════════════════════════
-    agent_parser = subparsers.add_parser(
-        "agent",
-        help="Run agents under F7 (Humility)"
-    )
-    agent_parser.add_argument(
-        "stage",
-        nargs="?",
-        default="dev",
-        help="Execution stage (dev/prod) [default: dev]"
-    )
+    agent_parser = subparsers.add_parser("agent", help="4. Run agent with F7")
+    agent_parser.add_argument("--stage", default="dev", help="Stage (dev/prod)")
     agent_parser.set_defaults(func=cmd_agent_run)
     
     # ═══════════════════════════════════════════════════════════════
-    # f3 subcommand (Tri-Witness)
+    # 5: f3
     # ═══════════════════════════════════════════════════════════════
-    f3_parser = subparsers.add_parser(
-        "f3",
-        help="Tri-Witness evaluation (F3)"
-    )
-    f3_subparsers = f3_parser.add_subparsers(dest="f3_cmd")
+    f3_parser = subparsers.add_parser("f3", help="5. Tri-Witness evaluation")
+    f3_sub = f3_parser.add_subparsers(dest="f3_cmd")
     
-    # f3 eval
-    eval_parser = f3_subparsers.add_parser("eval", help="Compute W₃ score")
-    eval_parser.add_argument("-w", "--worktree", default=".", help="Worktree path")
-    eval_parser.add_argument("-m", "--mode", choices=["pre-push", "pr-draft", "ci"],
-                            default="pre-push", help="Evaluation mode")
-    eval_parser.add_argument("-j", "--json", action="store_true", help="JSON output")
-    eval_parser.add_argument("-e", "--enforce", action="store_true",
-                            help="Exit 2 if W₃ below threshold")
-    eval_parser.add_argument("-u", "--update-manifest", action="store_true",
-                            help="Write results to arifos.yml")
-    eval_parser.set_defaults(func=cmd_f3_eval)
+    eval_p = f3_sub.add_parser("eval", help="Compute W₃ score")
+    eval_p.add_argument("-w", "--worktree", default=".", help="Worktree path")
+    eval_p.add_argument("-m", "--mode", choices=["pre-push", "pr-draft", "ci"],
+                       default="pre-push", help="Mode")
+    eval_p.add_argument("-j", "--json", action="store_true", help="JSON output")
+    eval_p.add_argument("-e", "--enforce", action="store_true", help="Exit 2 if below threshold")
+    eval_p.set_defaults(func=cmd_f3_eval)
     
     # ═══════════════════════════════════════════════════════════════
-    # judge subcommand (888_JUDGE)
+    # 6: manifest
     # ═══════════════════════════════════════════════════════════════
-    judge_parser = subparsers.add_parser(
-        "judge",
-        help="888_JUDGE CI/CD governance"
-    )
-    judge_subparsers = judge_parser.add_subparsers(dest="judge_cmd")
+    manifest_parser = subparsers.add_parser("manifest", help="6. Manage arifos.yml")
+    manifest_sub = manifest_parser.add_subparsers(dest="manifest_cmd")
     
-    # judge status
-    status_parser = judge_subparsers.add_parser("status", help="Check CI status")
-    status_parser.set_defaults(func=cmd_judge_status)
-    
-    # ═══════════════════════════════════════════════════════════════
-    # floor subcommand (F1-F13 auditing)
-    # ═══════════════════════════════════════════════════════════════
-    floor_parser = subparsers.add_parser(
-        "floor",
-        help="F1-F13 constitutional floor auditing"
-    )
-    floor_subparsers = floor_parser.add_subparsers(dest="floor_cmd")
-    
-    # floor audit
-    audit_parser = floor_subparsers.add_parser("audit", help="Run full floor check")
-    audit_parser.set_defaults(func=cmd_floor_audit)
-    
-    # floor check <floor>
-    check_parser = floor_subparsers.add_parser("check", help="Check specific floor")
-    check_parser.add_argument("floor", choices=["F1", "F2", "F3", "F4", "F5", "F6", 
-                                                  "F7", "F8", "F9", "F10", "F11", "F12", "F13"],
-                              help="Specific floor to check")
-    check_parser.set_defaults(func=cmd_floor_check)
+    init_p = manifest_sub.add_parser("init", help="Create from template")
+    init_p.add_argument("-p", "--path", default=".", help="Target path")
+    init_p.add_argument("-a", "--agent", help="Agent name")
+    init_p.add_argument("-f", "--feature", help="Feature name")
+    init_p.add_argument("--force", action="store_true", help="Overwrite existing")
+    init_p.set_defaults(func=cmd_manifest_init)
     
     # ═══════════════════════════════════════════════════════════════
-    # vault subcommand (VAULT999)
+    # 7-8: ingest
     # ═══════════════════════════════════════════════════════════════
-    vault_parser = subparsers.add_parser(
-        "vault",
-        help="VAULT999 immutable ledger operations"
-    )
-    vault_subparsers = vault_parser.add_subparsers(dest="vault_cmd")
+    ingest_parser = subparsers.add_parser("ingest", help="7-8. GitIngest for LLMs")
+    ingest_sub = ingest_parser.add_subparsers(dest="ingest_cmd")
     
-    # vault seal <commit>
-    seal_parser = vault_subparsers.add_parser("seal", help="Seal commit to VAULT999")
-    seal_parser.add_argument("commit", help="Commit hash to seal")
-    seal_parser.set_defaults(func=cmd_vault_seal)
+    # 7. ingest local
+    local_p = ingest_sub.add_parser("local", help="7. Ingest local worktree")
+    local_p.add_argument("path", nargs="?", default=".", help="Path to ingest")
+    local_p.add_argument("-i", "--include", action="append", help="Include patterns")
+    local_p.add_argument("-e", "--exclude", action="append", help="Exclude patterns")
+    local_p.add_argument("-s", "--max-size", type=int, help="Max file size (KB)")
+    local_p.add_argument("-o", "--output", help="Output file")
+    local_p.set_defaults(func=cmd_ingest_local)
     
-    # vault verify <hash>
-    verify_parser = vault_subparsers.add_parser("verify", help="Verify sealed entry")
-    verify_parser.add_argument("hash", help="Hash to verify")
-    verify_parser.set_defaults(func=cmd_vault_verify)
-    
-    # vault list
-    list_vault_parser = vault_subparsers.add_parser("list", help="Show sealed entries")
-    list_vault_parser.set_defaults(func=cmd_vault_list)
+    # 8. ingest remote
+    remote_p = ingest_sub.add_parser("remote", help="8. Ingest remote repo")
+    remote_p.add_argument("url", help="GitHub URL")
+    remote_p.add_argument("-i", "--include", action="append", help="Include patterns")
+    remote_p.add_argument("-e", "--exclude", action="append", help="Exclude patterns")
+    remote_p.add_argument("-s", "--max-size", type=int, help="Max file size (KB)")
+    remote_p.add_argument("-o", "--output", help="Output file")
+    remote_p.set_defaults(func=cmd_ingest_remote)
     
     # ═══════════════════════════════════════════════════════════════
-    # version subcommand
+    # 9: ci
     # ═══════════════════════════════════════════════════════════════
-    version_parser = subparsers.add_parser("version", help="Show version")
-    version_parser.set_defaults(func=cmd_version)
+    ci_parser = subparsers.add_parser("ci", help="9. Check 888_JUDGE CI status")
+    ci_sub = ci_parser.add_subparsers(dest="ci_cmd")
     
-    # Parse and execute
+    status_p = ci_sub.add_parser("status", help="Show CI status")
+    status_p.set_defaults(func=cmd_ci_status)
+    
+    # Parse
     args = parser.parse_args()
     
     if not args.command:
