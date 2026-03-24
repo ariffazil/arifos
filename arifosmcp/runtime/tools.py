@@ -140,6 +140,7 @@ async def init_anchor(
     declared_name: str | None = None,
     intent: Any | None = None,
     human_approval: bool = False,
+    human_approved: bool | None = None,
     risk_tier: str = "low",
     dry_run: bool = True,
     allow_execution: bool = False,
@@ -156,6 +157,8 @@ async def init_anchor(
     # P0: Unified ABI Adapter (Hardened) — tolerant ingress normalization
     payload = dict(payload or {})
     # Backward compatibility: accept both human_approval and human_approved
+    if human_approved is not None and human_approval is False:
+        human_approval = human_approved
     if "human_approved" in payload and "human_approval" not in payload:
         payload["human_approval"] = payload.pop("human_approved")
     # Ingress tolerance: normalize extras from imperfect agents/humans
