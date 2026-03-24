@@ -7,6 +7,7 @@ Single source of truth for session → identity binding.
 DITEMPA BUKAN DIBERI — Forged, Not Given
 """
 
+import uuid
 from typing import Any
 
 from arifosmcp.core.shared.types import ActorIdentity
@@ -84,8 +85,9 @@ def list_active_sessions_count() -> int:
 
 # ── Session Truth Resolution ──────────────────────────────────────────────
 # F2 Truth: Single canonical resolution of session + identity continuity.
-# Session Precedence: auth_context.session_id (verified) > anchored session 
+# Session Precedence: auth_context.session_id (verified) > anchored session
 # state > request session_id > "global"
+
 
 def resolve_runtime_context(
     incoming_session_id: str | None,
@@ -95,7 +97,7 @@ def resolve_runtime_context(
 ) -> dict[str, Any]:
     """
     Canonical resolution of session and identity truth.
-    
+
     Returns unified context with explicit separation of:
     - transport_session_id: raw incoming value (for debugging)
     - resolved_session_id: canonical continuity-verified truth
@@ -105,14 +107,14 @@ def resolve_runtime_context(
     """
     # Identity precedence: actor_id > declared_name > anonymous
     canonical_actor_id = _resolve_canonical_actor(actor_id, declared_name)
-    
+
     # Transport session: raw incoming value, may be "global"
     transport_session_id = incoming_session_id or "global"
-    
+
     # Session resolution with precedence
     resolved_session_id: str = transport_session_id
     authority_source: str = "fallback"
-    
+
     # 1. auth_context.session_id (verified token)
     if auth_context and auth_context.get("session_id"):
         resolved_session_id = auth_context["session_id"]
@@ -129,10 +131,10 @@ def resolve_runtime_context(
                 resolved_session_id = sid
                 authority_source = "session"
                 break
-    
+
     # Display name is presentation-only
     display_name = declared_name or actor_id or "anonymous"
-    
+
     return {
         "transport_session_id": transport_session_id,
         "resolved_session_id": resolved_session_id,
@@ -150,26 +152,40 @@ def _resolve_canonical_actor(actor_id: str | None, declared_name: str | None) ->
     # Normalize inputs
     aid = (actor_id or "").strip().lower().replace("_", "-")
     dname = (declared_name or "").strip().lower().replace("_", "-")
-    
+
     # Sovereign actor aliases
     sovereign_aliases = {
-        "arif", 
-        "arif-fazil", 
-        "arif_fazil", 
-        "ariffazil", 
+        "arif",
+        "arif-fazil",
+        "arif_fazil",
+        "ariffazil",
         "muhammad-arif",
     }
-    
+
     # Precedence: actor_id first
     if aid and aid != "anonymous":
         if aid in sovereign_aliases or aid.replace("-", "") == "ariffazil":
             return "ariffazil"
         return aid
-    
+
     # Fallback: declared_name (normalized)
     if dname and dname != "anonymous":
         if dname in sovereign_aliases or dname.replace("-", "") == "ariffazil":
             return "ariffazil"
         return dname
-    
+
     return "anonymous"
+
+
+def _normalize_session_id(session_id: str | None) -> str:
+    """Normalize session ID - create new if not provided.
+
+    This is the single source of truth for session ID normalization.
+    Moved from tools.py to avoid circular imports.
+    """
+    resolved = _resolve_session_id(session_id)
+    if resolved and str(resolved).strip():
+        return str(resolved).strip()
+    minted = f"session-{uuid.uuid4().hex[:8]}"
+    set_active_session(minted)
+    return minted

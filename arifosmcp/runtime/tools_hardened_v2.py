@@ -42,6 +42,51 @@ def get_philosophical_contrast(g_score: float, risk: str) -> Dict[str, str]:
     return {"label": "wisdom", "quote": QUOTES["wisdom"]}
 
 # -----------------------------------------------------------------------------
+# ARIFOS KERNEL — Primary Router
+# -----------------------------------------------------------------------------
+
+class HardenedArifOSKernel:
+    async def route(
+        self,
+        query: str,
+        auth_context: dict | None = None,
+        risk_tier: str = "medium",
+        session_id: str | None = None,
+        trace: TraceContext | None = None,
+    ) -> ToolEnvelope:
+        tool = "arifOS_kernel"
+        session_id = session_id or "anonymous"
+        entropy = calculate_entropy_budget(0.5, 0.9, len(query), 100)
+        return ToolEnvelope(
+            status=ToolStatus.OK, tool=tool, session_id=session_id,
+            risk_tier=RiskTier(risk_tier.lower() if risk_tier else "medium"),
+            confidence=entropy.confidence, trace=trace, entropy=entropy,
+            payload={"routed": True, "target": "metabolic_loop"}
+        )
+
+# -----------------------------------------------------------------------------
+# MATH ESTIMATOR — Vitals & Costs
+# -----------------------------------------------------------------------------
+
+class HardenedMathEstimator:
+    async def estimate(
+        self,
+        mode: str = "health",
+        auth_context: dict | None = None,
+        risk_tier: str = "low",
+        session_id: str | None = None,
+        trace: TraceContext | None = None,
+    ) -> ToolEnvelope:
+        tool = "math_estimator"
+        session_id = session_id or "anonymous"
+        return ToolEnvelope(
+            status=ToolStatus.OK, tool=tool, session_id=session_id,
+            risk_tier=RiskTier(risk_tier.lower() if risk_tier else "low"),
+            confidence=1.0, trace=trace,
+            payload={"vitals": "stable", "mode": mode}
+        )
+
+# -----------------------------------------------------------------------------
 # APEX JUDGE — Machine-Verifiable Verdicts
 # -----------------------------------------------------------------------------
 
@@ -87,9 +132,6 @@ class HardenedApexJudge:
             },
         )
 
-# ... (Rest of classes like HardenedAGIReason remain unchanged)
-# I will include them in the final write_file to maintain file integrity
-# ...
 # -----------------------------------------------------------------------------
 # AGI REASON — Constrained Multi-Lane Reasoning
 # -----------------------------------------------------------------------------
@@ -133,7 +175,7 @@ class HardenedASICritique:
         session_id: str | None = None,
         trace: TraceContext | None = None,
     ) -> ToolEnvelope:
-        tool = "asi_critique"
+        tool = "asi_heart"
         session_id = session_id or "anonymous"
         entropy = calculate_entropy_budget(0.4, 0.6, len(candidate), 200)
         return ToolEnvelope(
@@ -157,7 +199,7 @@ class HardenedAgentZeroEngineer:
         session_id: str | None = None,
         trace: TraceContext | None = None,
     ) -> ToolEnvelope:
-        tool = "agentzero_engineer"
+        tool = "engineering_memory"
         session_id = session_id or "anonymous"
         risk = RiskTier(risk_tier.lower() if risk_tier else "medium")
         return ToolEnvelope(
@@ -186,4 +228,12 @@ class HardenedVaultSeal:
             confidence=1.0, trace=trace, payload={"sealed": True, "hash": secrets.token_hex(8)}
         )
 
-__all__ = ["HardenedAGIReason", "HardenedASICritique", "HardenedAgentZeroEngineer", "HardenedApexJudge", "HardenedVaultSeal"]
+__all__ = [
+    "HardenedArifOSKernel",
+    "HardenedMathEstimator",
+    "HardenedAGIReason",
+    "HardenedASICritique",
+    "HardenedAgentZeroEngineer",
+    "HardenedApexJudge",
+    "HardenedVaultSeal"
+]

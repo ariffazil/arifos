@@ -41,6 +41,7 @@ from arifosmcp.runtime.tool_specs import (
 from arifosmcp.runtime.reality_handlers import handler as reality_handler
 from arifosmcp.runtime.reality_models import BundleInput
 from arifosmcp.runtime.sessions import (
+    _normalize_session_id,
     _resolve_session_id,
     get_session_identity,
     resolve_runtime_context,
@@ -120,15 +121,6 @@ except Exception:  # pragma: no cover
 
     def get_thermodynamic_report(session_id: str) -> dict[str, Any]:
         return {"status": "unavailable", "session_id": session_id}
-
-
-def _normalize_session_id(session_id: str | None) -> str:
-    resolved = _resolve_session_id(session_id)
-    if resolved and str(resolved).strip():
-        return str(resolved).strip()
-    minted = f"session-{uuid.uuid4().hex[:8]}"
-    set_active_session(minted)
-    return minted
 
 
 async def init_anchor(
