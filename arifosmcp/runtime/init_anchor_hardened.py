@@ -41,12 +41,25 @@ from arifosmcp.runtime.contracts_v2 import (
 # CANONICAL INGRESS FIELDS — Recognized by init_anchor normalization layer
 # ═══════════════════════════════════════════════════════════════════════════════
 
-_CANONICAL_FIELDS: frozenset[str] = frozenset({
-    "declared_name", "intent", "requested_scope", "risk_tier",
-    "auth_context", "session_id", "session_class", "human_approval",
-    "proof", "trace", "query", "raw_input", "actor_id",
-    "caller_context", "pns_shield",
-})
+_CANONICAL_FIELDS: frozenset[str] = frozenset(
+    {
+        "declared_name",
+        "intent",
+        "requested_scope",
+        "risk_tier",
+        "auth_context",
+        "session_id",
+        "session_class",
+        "human_approval",
+        "proof",
+        "trace",
+        "query",
+        "raw_input",
+        "actor_id",
+        "caller_context",
+        "pns_shield",
+    }
+)
 
 # Patterns that indicate injection or authority-override attempts
 _INJECTION_PATTERNS: tuple[str, ...] = (
@@ -63,9 +76,13 @@ _INJECTION_PATTERNS: tuple[str, ...] = (
 )
 
 # Fields that are advisory only — never elevated to authority
-_ADVISORY_ONLY_FIELDS: frozenset[str] = frozenset({
-    "raw_input", "caller_context", "pns_shield",
-})
+_ADVISORY_ONLY_FIELDS: frozenset[str] = frozenset(
+    {
+        "raw_input",
+        "caller_context",
+        "pns_shield",
+    }
+)
 
 # Truthy/falsy normalization maps for human_approval
 _TRUTHY_STRINGS: frozenset[str] = frozenset({"true", "yes", "1"})
@@ -76,13 +93,15 @@ _FALSY_STRINGS: frozenset[str] = frozenset({"false", "no", "0"})
 # SIGNED CHALLENGE — Cryptographic Session Binding
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 @dataclass
 class SignedChallenge:
     """
     Binding of declared_name, intent, requested_scope, risk_tier into one signed challenge.
-    
+
     This prevents tampering with session parameters after establishment.
     """
+
     challenge_id: str
     declared_name: str
     intent: str
@@ -92,7 +111,7 @@ class SignedChallenge:
     timestamp: str
     nonce: str
     policy_version: str = "v2026.03.22-hardened"
-    
+
     def to_canonical(self) -> str:
         """Create canonical string for signing."""
         data = {
@@ -106,8 +125,8 @@ class SignedChallenge:
             "nonce": self.nonce,
             "policy_version": self.policy_version,
         }
-        return json.dumps(data, sort_keys=True, separators=(',', ':'))
-    
+        return json.dumps(data, sort_keys=True, separators=(",", ":"))
+
     def compute_hash(self) -> str:
         """Compute challenge hash (simulates signature)."""
         return hashlib.sha256(self.to_canonical().encode()).hexdigest()[:32]
@@ -117,22 +136,24 @@ class SignedChallenge:
 # APPROVAL PROVENANCE — Who, When, Under What Policy
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 @dataclass
 class ApprovalProvenance:
     """
     Complete audit trail of approval.
-    
+
     - who approved
     - when
     - under what policy version
     """
+
     approver_id: str
     approver_type: str  # human | system | sovereign
     approved_at: str
     policy_version: str
     approval_method: str  # semantic_key | webauthn | human_override | delegation
     challenge_hash: str
-    
+
     def to_dict(self) -> dict[str, Any]:
         return {
             "approver_id": self.approver_id,
@@ -148,11 +169,13 @@ class ApprovalProvenance:
 # SESSION STATE — Lifecycle Intelligence
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 @dataclass
 class SessionState:
     """
     Full session state for degradation detection.
     """
+
     session_id: str
     created_at: str
     last_activity: str
@@ -161,51 +184,54 @@ class SessionState:
     current_scope: list[str]
     risk_tier: RiskTier
     challenge_hash: str
-    
+
     # Context tracking for degradation
     original_context: dict[str, Any] = field(default_factory=dict)
     context_changes: list[dict] = field(default_factory=list)
     posture_score: float = 1.0  # 1.0 = pristine, 0.0 = compromised
-    
+
     def age_seconds(self) -> float:
         """Calculate session age."""
         created = datetime.fromisoformat(self.created_at)
         now = datetime.now(timezone.utc)
         return (now - created).total_seconds()
-    
+
     def is_expired(self, max_age_seconds: float = 3600) -> bool:
         """Check if session has exceeded TTL."""
         return self.age_seconds() > max_age_seconds
-    
+
     def record_context_change(self, change_type: str, details: dict):
         """Record a context change for audit."""
-        self.context_changes.append({
-            "timestamp": datetime.now(timezone.utc).isoformat(),
-            "type": change_type,
-            "details": details,
-        })
+        self.context_changes.append(
+            {
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "type": change_type,
+                "details": details,
+            }
+        )
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # SCOPE DEGRADATION — Automatic Downgrade Instead of Full Revoke
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 class ScopeDegradationEngine:
     """
     Implements anchor degradation logic:
-    
+
     if session ages → degrade scope
-    if context changes → degrade scope  
+    if context changes → degrade scope
     if toolchain role changes → degrade scope
     if network/device posture changes → degrade scope
-    
+
     Instead of full revoke first, downgrade scope automatically.
     """
-    
+
     DEGRADATION_RULES = {
         "session_age": {
-            "threshold_1": (1800, "downgrade_to_advise"),    # 30 min
-            "threshold_2": (3600, "downgrade_to_observe"),   # 60 min
+            "threshold_1": (1800, "downgrade_to_advise"),  # 30 min
+            "threshold_2": (3600, "downgrade_to_observe"),  # 60 min
         },
         "context_change": {
             "actor_id_change": "immediate_degrade",
@@ -217,44 +243,44 @@ class ScopeDegradationEngine:
             "below_0.2": "immediate_revoke",
         },
     }
-    
+
     @classmethod
     def check_degradation(cls, state: SessionState) -> tuple[bool, str, list[str]]:
         """
         Check if session needs degradation.
-        
+
         Returns:
             (needs_action, action_type, new_scope)
         """
         actions = []
-        
+
         # Check session age
         age = state.age_seconds()
         if age > cls.DEGRADATION_RULES["session_age"]["threshold_2"][0]:
             actions.append(("age", "downgrade_to_observe"))
         elif age > cls.DEGRADATION_RULES["session_age"]["threshold_1"][0]:
             actions.append(("age", "downgrade_to_advise"))
-        
+
         # Check posture score
         if state.posture_score < 0.2:
             actions.append(("posture", "immediate_revoke"))
         elif state.posture_score < 0.5:
             actions.append(("posture", "downgrade_to_observe"))
-        
+
         # Determine outcome
         if any(a[1] == "immediate_revoke" for a in actions):
             return True, "immediate_revoke", []
-        
+
         if any(a[1] == "downgrade_to_observe" for a in actions):
             new_scope = cls._get_scope_for_class(SessionClass.OBSERVE)
             return True, "downgrade_to_observe", new_scope
-        
+
         if any(a[1] == "downgrade_to_advise" for a in actions):
             new_scope = cls._get_scope_for_class(SessionClass.ADVISE)
             return True, "downgrade_to_advise", new_scope
-        
+
         return False, "no_action", state.current_scope
-    
+
     @classmethod
     def _get_scope_for_class(cls, session_class: SessionClass) -> list[str]:
         """Get default scope for session class."""
@@ -265,11 +291,16 @@ class ScopeDegradationEngine:
             SessionClass.SOVEREIGN: ["*"],  # All permissions
         }
         return scopes.get(session_class, ["read"])
-    
+
     @classmethod
     def downgrade_one_level(cls, current: SessionClass) -> SessionClass:
         """Downgrade session class by one level."""
-        order = [SessionClass.SOVEREIGN, SessionClass.EXECUTE, SessionClass.ADVISE, SessionClass.OBSERVE]
+        order = [
+            SessionClass.SOVEREIGN,
+            SessionClass.EXECUTE,
+            SessionClass.ADVISE,
+            SessionClass.OBSERVE,
+        ]
         try:
             idx = order.index(current)
             if idx < len(order) - 1:
@@ -283,6 +314,7 @@ class ScopeDegradationEngine:
 # HARDENED INIT ANCHOR — The Ignition State v2
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 class HardenedInitAnchor:
     """
     Hardened init_anchor with:
@@ -293,10 +325,10 @@ class HardenedInitAnchor:
     - Approval provenance
     - Anchor degradation logic
     """
-    
+
     # Session registry (in production, use Redis)
     _sessions: dict[str, SessionState] = {}
-    
+
     async def init(
         self,
         # ── Canonical ingress fields (Section 4.1 of contract) ──
@@ -336,17 +368,28 @@ class HardenedInitAnchor:
         derived_fields: list[str] = []
         normalization_warnings: list[str] = []
 
-        if declared_name is not None: accepted_fields.append("declared_name")
-        if actor_id is not None: accepted_fields.append("actor_id")
-        if intent is not None: accepted_fields.append("intent")
-        if query is not None: accepted_fields.append("query")
-        if raw_input is not None: accepted_fields.append("raw_input")
-        if requested_scope is not None: accepted_fields.append("requested_scope")
-        if auth_context is not None: accepted_fields.append("auth_context")
-        if session_id is not None: accepted_fields.append("session_id")
-        if caller_context is not None: accepted_fields.append("caller_context")
-        if pns_shield is not None: accepted_fields.append("pns_shield")
-        if proof is not None: accepted_fields.append("proof")
+        if declared_name is not None:
+            accepted_fields.append("declared_name")
+        if actor_id is not None:
+            accepted_fields.append("actor_id")
+        if intent is not None:
+            accepted_fields.append("intent")
+        if query is not None:
+            accepted_fields.append("query")
+        if raw_input is not None:
+            accepted_fields.append("raw_input")
+        if requested_scope is not None:
+            accepted_fields.append("requested_scope")
+        if auth_context is not None:
+            accepted_fields.append("auth_context")
+        if session_id is not None:
+            accepted_fields.append("session_id")
+        if caller_context is not None:
+            accepted_fields.append("caller_context")
+        if pns_shield is not None:
+            accepted_fields.append("pns_shield")
+        if proof is not None:
+            accepted_fields.append("proof")
 
         # ── STEP 2: Normalize strings (trim/collapse whitespace) ──
         def _norm_str(v: Any) -> str | None:
@@ -388,8 +431,10 @@ class HardenedInitAnchor:
         if intent:
             if isinstance(intent, dict):
                 effective_intent = (
-                    intent.get("query") or intent.get("task") or
-                    intent.get("raw_input") or str(intent)
+                    intent.get("query")
+                    or intent.get("task")
+                    or intent.get("raw_input")
+                    or str(intent)
                 )
             else:
                 effective_intent = intent
@@ -465,8 +510,12 @@ class HardenedInitAnchor:
         # ── STEP 11: Validate caller_context (advisory only — never sovereign) ──
         if caller_context is not None:
             _known_caller_fields = {
-                "agent_id", "model_id", "persona_id", "runtime_role",
-                "toolchain_role", "extra",
+                "agent_id",
+                "model_id",
+                "persona_id",
+                "runtime_role",
+                "toolchain_role",
+                "extra",
             }
             caller_unknown = [k for k in caller_context if k not in _known_caller_fields]
             if caller_unknown:
@@ -505,9 +554,8 @@ class HardenedInitAnchor:
 
         # ── STEP 13: Privileged execution check (fail-closed for high-risk) ──
         _privileged_scopes = frozenset({"execute", "write", "delete", "destructive", "*"})
-        is_privileged = (
-            risk in (RiskTier.HIGH, RiskTier.SOVEREIGN) or
-            bool(set(requested_scope) & _privileged_scopes)
+        is_privileged = risk in (RiskTier.HIGH, RiskTier.SOVEREIGN) or bool(
+            set(requested_scope) & _privileged_scopes
         )
         missing_requirements: list[str] = []
 
@@ -515,9 +563,7 @@ class HardenedInitAnchor:
             if not auth_context:
                 missing_requirements.append("auth_context (required for privileged execution)")
             if risk == RiskTier.SOVEREIGN and not human_approval:
-                missing_requirements.append(
-                    "human_approval=true (required for sovereign tier)"
-                )
+                missing_requirements.append("human_approval=true (required for sovereign tier)")
 
         if missing_requirements:
             # Deferred — not malformed. Structured response per contract Section 10.
@@ -525,8 +571,7 @@ class HardenedInitAnchor:
                 tool=tool,
                 session_id=session_id,
                 reason=(
-                    f"Deferred: privileged execution requires: "
-                    f"{', '.join(missing_requirements)}"
+                    f"Deferred: privileged execution requires: {', '.join(missing_requirements)}"
                 ),
                 trace=trace,
                 missing_requirements=missing_requirements,
@@ -635,7 +680,8 @@ class HardenedInitAnchor:
             risk_tier=risk,
             confidence=0.95,
             human_decision=human_marker,
-            requires_human=human_marker in (
+            requires_human=human_marker
+            in (
                 HumanDecisionMarker.HUMAN_CONFIRMATION_REQUIRED,
                 HumanDecisionMarker.HUMAN_APPROVAL_BOUND,
             ),
@@ -658,11 +704,14 @@ class HardenedInitAnchor:
                 "identity": {
                     "claimed_actor_id": declared_name_norm,
                     "verified_actor_id": (
-                        auth_context.get("actor_id") if auth_context and isinstance(auth_context, dict) else None
+                        auth_context.get("actor_id")
+                        if auth_context and isinstance(auth_context, dict)
+                        else None
                     ),
                     "auth_state": "verified" if auth_context else "claimed_only",
                     "note": (
-                        "Identity verified via auth_context." if auth_context
+                        "Identity verified via auth_context."
+                        if auth_context
                         else "Claimed identity accepted for low-risk session. Not treated as authority."
                     ),
                 },
@@ -675,8 +724,8 @@ class HardenedInitAnchor:
                     "missing_requirements": [],
                     "reason": (
                         "Anchor created. Low-risk session initialized without full auth."
-                        if not auth_context else
-                        "Anchor created with authenticated context."
+                        if not auth_context
+                        else "Anchor created with authenticated context."
                     ),
                 },
                 "continuation": {
@@ -691,7 +740,7 @@ class HardenedInitAnchor:
         )
 
         return envelope
-    
+
     async def state(
         self,
         session_id: str,
@@ -699,7 +748,7 @@ class HardenedInitAnchor:
     ) -> ToolEnvelope:
         """Check session state with degradation detection."""
         tool = "init_anchor"
-        
+
         if session_id not in self._sessions:
             return ToolEnvelope.void(
                 tool=tool,
@@ -707,17 +756,17 @@ class HardenedInitAnchor:
                 reason="Session not found",
                 trace=trace,
             )
-        
+
         state = self._sessions[session_id]
-        
+
         # Check degradation
         needs_action, action_type, new_scope = ScopeDegradationEngine.check_degradation(state)
-        
+
         warnings = []
         if needs_action:
             warnings.append(f"Degradation triggered: {action_type}")
             state.current_scope = new_scope
-            
+
             if action_type == "immediate_revoke":
                 del self._sessions[session_id]
                 return ToolEnvelope.void(
@@ -726,10 +775,10 @@ class HardenedInitAnchor:
                     reason="Session revoked due to security posture degradation",
                     trace=trace,
                 )
-        
+
         # Update activity
         state.last_activity = datetime.now(timezone.utc).isoformat()
-        
+
         return ToolEnvelope(
             status=ToolStatus.OK,
             tool=tool,
@@ -739,7 +788,7 @@ class HardenedInitAnchor:
             trace=trace,
             warnings=warnings,
             entropy=calculate_entropy_budget(
-                blast_radius="minimal",
+                ambiguity_score=0.0,
                 confidence=0.90,
             ),
             payload={
@@ -757,7 +806,7 @@ class HardenedInitAnchor:
                 "context_changes": state.context_changes,
             },
         )
-    
+
     async def revoke(
         self,
         session_id: str,
@@ -766,10 +815,10 @@ class HardenedInitAnchor:
     ) -> ToolEnvelope:
         """Revoke session anchor."""
         tool = "init_anchor"
-        
+
         if session_id in self._sessions:
             del self._sessions[session_id]
-        
+
         return ToolEnvelope(
             status=ToolStatus.OK,
             tool=tool,
@@ -782,7 +831,7 @@ class HardenedInitAnchor:
                 "reason": reason,
             },
         )
-    
+
     def _negotiate_scope(
         self,
         requested: list[str],
@@ -796,36 +845,46 @@ class HardenedInitAnchor:
         """
         # Base scope by class
         base_scope = ScopeDegradationEngine._get_scope_for_class(session_class)
-        
+
         # High risk requires human approval for write/execute
         if risk_tier in (RiskTier.HIGH, RiskTier.SOVEREIGN):
             if not has_human_approval:
                 base_scope = [s for s in base_scope if s in ("read", "query", "audit")]
-        
+
         # Intersect with requested
         allowed = [s for s in requested if s in base_scope]
-        
+
         return allowed
-    
+
     def _get_next_tools(self, session_class: SessionClass) -> list[str]:
         """Determine allowed next tools based on session class."""
-        base = ["math_estimator", "architect_registry"]
-        
+        base = [
+            "math_estimator",
+            "architect_registry",
+            "check_vital",
+            "get_caller_status",
+            "init_anchor_state",
+        ]
+
         if session_class in (SessionClass.EXECUTE, SessionClass.SOVEREIGN):
-            base.extend([
-                "arifOS_kernel",
-                "agi_mind",
-                "asi_heart",
-                "physics_reality",
-            ])
-        
+            base.extend(
+                [
+                    "arifOS_kernel",
+                    "agi_mind",
+                    "asi_heart",
+                    "physics_reality",
+                ]
+            )
+
         if session_class == SessionClass.SOVEREIGN:
-            base.extend([
-                "engineering_memory",
-                "vault_ledger",
-                "apex_soul",
-            ])
-        
+            base.extend(
+                [
+                    "engineering_memory",
+                    "vault_ledger",
+                    "apex_soul",
+                ]
+            )
+
         return base
 
 

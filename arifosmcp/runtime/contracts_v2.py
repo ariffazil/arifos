@@ -15,6 +15,7 @@ from datetime import datetime, timezone
 from enum import Enum
 from typing import Any, Literal
 
+
 class ToolStatus(str, Enum):
     OK = "ok"
     HOLD = "hold"
@@ -22,11 +23,13 @@ class ToolStatus(str, Enum):
     ERROR = "error"
     SABAR = "sabar"
 
+
 class RiskTier(str, Enum):
     LOW = "low"
     MEDIUM = "medium"
     HIGH = "high"
     SOVEREIGN = "sovereign"
+
 
 class HumanDecisionMarker(str, Enum):
     MACHINE_RECOMMENDATION_ONLY = "machine_recommendation_only"
@@ -34,11 +37,13 @@ class HumanDecisionMarker(str, Enum):
     HUMAN_APPROVAL_BOUND = "human_approval_bound"
     SEALED = "sealed"
 
+
 class SessionClass(str, Enum):
     OBSERVE = "observe"
     ADVISE = "advise"
     EXECUTE = "execute"
     SOVEREIGN = "sovereign"
+
 
 @dataclass(frozen=True)
 class TraceContext:
@@ -59,6 +64,7 @@ class TraceContext:
             "timestamp": self.timestamp,
         }
 
+
 @dataclass
 class EntropyBudget:
     ambiguity_score: float = 0.0
@@ -67,7 +73,8 @@ class EntropyBudget:
     confidence: float = 0.0
 
     def is_stable(self) -> bool:
-        if self.ambiguity_score > 0.9: return False
+        if self.ambiguity_score > 0.9:
+            return False
         return self.delta_s <= 0 and self.confidence >= 0.80
 
     def to_dict(self) -> dict[str, Any]:
@@ -78,6 +85,7 @@ class EntropyBudget:
             "confidence": round(self.confidence, 4),
             "is_stable": self.is_stable(),
         }
+
 
 @dataclass
 class ToolEnvelope:
@@ -92,13 +100,14 @@ class ToolEnvelope:
     trace: TraceContext | None = None
     entropy: EntropyBudget = field(default_factory=EntropyBudget)
     payload: dict[str, Any] = field(default_factory=dict)
+    warnings: list[str] = field(default_factory=list)
 
     def seal_envelope(self) -> None:
         data_to_hash = {
             "payload": self.payload,
             "trace": self.trace.to_dict() if self.trace else {},
             "tool": self.tool,
-            "session_id": self.session_id
+            "session_id": self.session_id,
         }
         self.integrity_hash = hashlib.sha256(
             json.dumps(data_to_hash, sort_keys=True, default=str).encode()
@@ -126,7 +135,7 @@ class ToolEnvelope:
         session_id: str,
         reason: str,
         trace: TraceContext | None = None,
-        **kwargs: Any
+        **kwargs: Any,
     ) -> ToolEnvelope:
         payload = {"reason": reason}
         payload.update(kwargs)
@@ -138,7 +147,7 @@ class ToolEnvelope:
             requires_human=True,
             trace=trace,
             payload=payload,
-            human_decision=HumanDecisionMarker.HUMAN_CONFIRMATION_REQUIRED
+            human_decision=HumanDecisionMarker.HUMAN_CONFIRMATION_REQUIRED,
         )
 
     @classmethod
@@ -148,7 +157,7 @@ class ToolEnvelope:
         session_id: str,
         reason: str,
         trace: TraceContext | None = None,
-        **kwargs: Any
+        **kwargs: Any,
     ) -> ToolEnvelope:
         payload = {"reason": reason}
         payload.update(kwargs)
@@ -159,27 +168,63 @@ class ToolEnvelope:
             risk_tier=RiskTier.LOW,
             trace=trace,
             payload=payload,
-            human_decision=HumanDecisionMarker.MACHINE_RECOMMENDATION_ONLY
+            human_decision=HumanDecisionMarker.MACHINE_RECOMMENDATION_ONLY,
         )
 
-def validate_fail_closed(auth_context: dict | None, risk_tier: str | None, session_id: str | None, tool: str, trace: TraceContext | None = None) -> bool:
+
+def validate_fail_closed(
+    auth_context: dict | None,
+    risk_tier: str | None,
+    session_id: str | None,
+    tool: str,
+    trace: TraceContext | None = None,
+) -> bool:
     return bool(auth_context and risk_tier and session_id)
 
-def calculate_entropy_budget(ambiguity_score: float, confidence: float, input_len: int = 0, output_len: int = 0) -> EntropyBudget:
-    return EntropyBudget(ambiguity_score=ambiguity_score, delta_s=output_len - input_len, confidence=confidence)
 
-def generate_trace_context(stage_id: str, session_id: str, policy_version: str = "v2026.03.24-hardened", parent_trace_id: str | None = None) -> TraceContext:
-    return TraceContext(trace_id=f"trace-{secrets.token_hex(16)}", parent_trace_id=parent_trace_id, stage_id=stage_id, policy_version=policy_version, session_id=session_id)
+def calculate_entropy_budget(
+    ambiguity_score: float, confidence: float, input_len: int = 0, output_len: int = 0
+) -> EntropyBudget:
+    return EntropyBudget(
+        ambiguity_score=ambiguity_score, delta_s=output_len - input_len, confidence=confidence
+    )
 
-def determine_human_marker(risk_tier: RiskTier, confidence: float, blast_radius: str = "minimal") -> HumanDecisionMarker:
+
+def generate_trace_context(
+    stage_id: str,
+    session_id: str,
+    policy_version: str = "v2026.03.24-hardened",
+    parent_trace_id: str | None = None,
+) -> TraceContext:
+    return TraceContext(
+        trace_id=f"trace-{secrets.token_hex(16)}",
+        parent_trace_id=parent_trace_id,
+        stage_id=stage_id,
+        policy_version=policy_version,
+        session_id=session_id,
+    )
+
+
+def determine_human_marker(
+    risk_tier: RiskTier, confidence: float, blast_radius: str = "minimal"
+) -> HumanDecisionMarker:
     if risk_tier == RiskTier.SOVEREIGN or blast_radius in ("significant", "catastrophic"):
         return HumanDecisionMarker.HUMAN_APPROVAL_BOUND
     if risk_tier == RiskTier.HIGH or confidence < 0.80:
         return HumanDecisionMarker.HUMAN_CONFIRMATION_REQUIRED
     return HumanDecisionMarker.MACHINE_RECOMMENDATION_ONLY
 
+
 __all__ = [
-    "ToolStatus", "RiskTier", "HumanDecisionMarker", "SessionClass", "TraceContext", 
-    "EntropyBudget", "ToolEnvelope", "validate_fail_closed", "calculate_entropy_budget",
-    "generate_trace_context", "determine_human_marker"
+    "ToolStatus",
+    "RiskTier",
+    "HumanDecisionMarker",
+    "SessionClass",
+    "TraceContext",
+    "EntropyBudget",
+    "ToolEnvelope",
+    "validate_fail_closed",
+    "calculate_entropy_budget",
+    "generate_trace_context",
+    "determine_human_marker",
 ]
