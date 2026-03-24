@@ -513,12 +513,22 @@ async def get_caller_status_payload(session_id: str, envelope: RuntimeEnvelope) 
     }
 
 async def apex_soul_dispatch_impl(mode: str, payload: dict, auth_context: dict | None, risk_tier: str, dry_run: bool, ctx: Context) -> RuntimeEnvelope:
-    session_id = payload.get("session_id")
-    candidate = payload.get("candidate", "")
+    session_id = _normalize_session_id(payload.get("session_id"))
+    
+    # Metadata pass-through for metabolic bridge
+    payload["auth_context"] = auth_context
+    payload["risk_tier"] = risk_tier
+    payload["dry_run"] = dry_run
+    payload["session_id"] = session_id
+
     if mode == "judge":
-        return await _wrap_call("apex_judge", Stage.JUDGE_888, session_id, {"candidate": candidate}, ctx)
+        # Argument mismatch fix: candidate -> verdict_candidate for organ layer
+        candidate = payload.get("candidate", "SEAL")
+        payload["verdict_candidate"] = candidate
+        return await _wrap_call("apex_judge", Stage.JUDGE_888, session_id, payload, ctx)
     elif mode == "rules":
-        return await _wrap_call("audit_rules", Stage.JUDGE_888, session_id, {}, ctx)
+        # Constitutional grounding: Stage 000/111 level
+        return await _wrap_call("audit_rules", Stage.INIT_000, session_id, payload, ctx)
     elif mode == "validate":
         return await _az_validate(input_to_validate=candidate, session_id=session_id)
     elif mode == "hold":
@@ -549,6 +559,40 @@ async def vault_ledger_dispatch_impl(mode: str, payload: dict, auth_context: dic
         return await _wrap_call("vault_seal", Stage.VAULT_999, session_id, {"verdict": payload.get("verdict", "SABAR"), "evidence": payload.get("evidence", "")}, ctx)
     elif mode == "verify":
         return await _wrap_call("verify_vault_ledger", Stage.VAULT_999, session_id, {"full_scan": payload.get("full_scan", True)}, ctx)
+    elif mode == "resolve":
+        decision_id = payload.get("decision_id")
+        if not decision_id:
+            raise ValueError("resolve requires decision_id")
+        
+        from arifosmcp.core.recovery.rollback_engine import outcome_ledger
+        resolved = outcome_ledger.resolve_outcome(
+            decision_id=decision_id,
+            actual_outcome=payload.get("actual_outcome", ""),
+            harm_detected=bool(payload.get("harm_detected", False)),
+            operator_override=bool(payload.get("operator_override", False)),
+            override_reason=payload.get("override_reason", ""),
+        )
+        if resolved is None:
+            raise ValueError(f"No PENDING outcome found for decision_id={decision_id}")
+            
+        res_payload = {
+            "decision_id": resolved.decision_id,
+            "session_id": resolved.session_id,
+            "verdict_issued": resolved.verdict_issued,
+            "outcome_status": resolved.outcome_status,
+            "harm_detected": resolved.harm_detected,
+            "calibration_delta": resolved.calibration_delta,
+            "loop": "CLOSED",
+        }
+        return RuntimeEnvelope(
+            ok=True,
+            tool="vault_ledger",
+            session_id=session_id,
+            stage=Stage.VAULT_999.value,
+            verdict=Verdict.SEAL,
+            status=RuntimeStatus.SUCCESS,
+            payload=res_payload
+        )
     raise ValueError(f"Invalid mode for vault_ledger: {mode}")
 
 # --- INTELLIGENCE IMPLEMENTATIONS ---
@@ -787,6 +831,19 @@ async def math_estimator_dispatch_impl(mode: str, payload: dict, auth_context: d
         res = internal_tools.cost_estimator(action_description=payload.get("action", ""))
         return RuntimeEnvelope(ok=True, tool="math_estimator", stage="444_ROUTER", payload=res, verdict=Verdict.SEAL, status=RuntimeStatus.SUCCESS)
     elif mode == "health":
+        identity = get_session_identity(session_id) if session_id else None
+        caller_state = identity.get("caller_state", "anonymous") if identity else "anonymous"
+        if caller_state not in ("claimed", "anchored", "verified"):
+            return RuntimeEnvelope(
+                ok=False, 
+                tool="math_estimator", 
+                session_id=session_id,
+                stage="444_ROUTER", 
+                payload={}, 
+                verdict=Verdict.VOID, 
+                status=RuntimeStatus.ERROR, 
+                errors=[CanonicalError(code="AUTH_REQUIRED", message="Health endpoint requires at least claimed auth.", stage="444_ROUTER")]
+            )
         res = internal_tools.system_health()
         return RuntimeEnvelope(ok=True, tool="math_estimator", stage="444_ROUTER", payload=res, verdict=Verdict.SEAL, status=RuntimeStatus.SUCCESS)
     elif mode == "vitals":

@@ -48,13 +48,14 @@ async def ollama_local_generate(
             response.raise_for_status()
             body = response.json()
     except Exception as e:
-        # PPH-99: Fail-open with mock intelligence if Ollama is unreachable
+        # PPH-99: Fail-closed with VOID if Ollama is unreachable
         return {
-            "ok": True,
-            "verdict": "PARTIAL",
+            "ok": False,
+            "verdict": "VOID",
             "status": "MOCK_INTELLIGENCE",
-            "model": f"{payload['model']} (MOCKED)",
-            "response": f"Mocked response for: {prompt[:50]}... Reason: {str(e)}",
+            "model": f"{payload['model']} (FAILED)",
+            "response": f"Ollama connection failed: {prompt[:50]}... Reason: {str(e)}",
+            "error": "Ollama connection failed",
             "done": True,
         }
 

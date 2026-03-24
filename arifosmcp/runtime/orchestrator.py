@@ -771,13 +771,24 @@ async def metabolic_loop(
         if "PNS_SEARCH" in pns_trace:
             sources = len(pns_trace["PNS_SEARCH"].get("payload", {}).get("results", []))
 
+        # Wire G★ to actual content scoring
+        actual_content = str(cumulative_payload.get("answer", "")) + str(cumulative_payload.get("thought", ""))
+        actual_tokens = max(10, len(actual_content) // 4)  # rough token estimate (1 word/token ≈ 4 chars)
+        actual_options = 1
+        if "steps" in cumulative_payload and isinstance(cumulative_payload["steps"], list):
+            actual_options = len(cumulative_payload["steps"])
+        elif "options" in cumulative_payload and isinstance(cumulative_payload["options"], list):
+            actual_options = len(cumulative_payload["options"])
+        else:
+            actual_options = 3 if "AGI_REASON" in trace else 1
+
         # Calculate public score card
         final_metrics = compute_integrity_telemetry(
             sources_cited=sources,
             floors_passed=len([v for v in trace.values() if v == "SEAL"]),
             hold_active=policy_verdict == Verdict.HOLD_888,
-            options_offered=3 if "AGI_REASON" in trace else 1,
-            response_tokens=1000,  # Estimated
+            options_offered=actual_options,
+            response_tokens=actual_tokens,
             echo_debt_count=0,  # Measured from session memory
             reasoning_depth=len(plan),
             tri_witness_confirmed=True if Stage.JUDGE_888.value in trace else False,
@@ -791,7 +802,7 @@ async def metabolic_loop(
                 "stage": policy_res.stage,
                 "sacred_stage": _get_sacred_name(policy_res.stage),
                 "verdict": final_metrics.telemetry.verdict,
-                "status": "SUCCESS" if final_metrics.telemetry.verdict == "Alive" else "ERROR",
+                "status": "SUCCESS" if final_metrics.telemetry.verdict == "ALIVE" else "ERROR",
                 "trace": trace,
                 "payload": cumulative_payload,  # Replaces overwritten payload with cumulative one
                 "final_verdict": final_metrics.telemetry.verdict,

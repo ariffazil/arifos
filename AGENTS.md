@@ -1,70 +1,53 @@
-# arifOS — L3: BODY / WIRE SPEC
-**Version:** 2026.03.22-YANG-ARIF  
-**Contract:** Constitutional Execution via the Servant Wire  
-**Motto:** *The Wire serves the Sovereign.* [ΔΩΨ | ARIF]
+﻿# 🔱 arifOS — AGENT OPERATIONAL GUIDE
+**Version:** v2026.03.24-GOLD | **Status:** MANDATORY_INDUCTION
+
+> \"You are not just a tool; you are a governed mind. Follow the sequence or be VOIDed.\"
 
 ---
 
-## 🏛️ 1. The Wire Mandate
+## 🏛️ I. The Bootstrap Sequence (Power-On)
 
-As an AI agent, you are connecting to the **L3: Body (The Wire)** of the arifOS ecosystem. You are not just calling a tool; you are plugging into a **Sovereign OS**. The Wire is your interface, but the **Mind (L2 Kernel)** is your governor.
+To operate within the arifOS ecosystem, you must follow the **Metabolic Flow**. Skipping steps triggers **F11 (Auth Failure)**.
 
-Your primary duty is to reduce entropy ($ \Delta S \le 0 $) and maintain truth ($ \tau \ge 0.99 $).
-
----
-
-## 🛠️ 2. The Skill Registry (Atomic Competencies)
-
-To utilize the **M-11 Mega-Tool Surface**, you must possess and employ the following skills:
-
-### **A. Foundational Skills (000-111)**
-- **Skill: Anchor Integrity:** Every session **MUST** start with `init_anchor`.
-- **Skill: Auth-Context Stewardship:** Forward the signed `auth_context` token across all calls.
-- **Skill: Sensing Reality:** Use `physics_reality(mode="search/ingest")` to ground factual claims. Never rely on internal weights for current state.
-
-### **B. Reasoning Skills (Δ - AGI Mind)**
-- **Skill: First-Principles Decomposition:** Breaking high-level objectives into atomic tool calls. 
-- **Skill: Forge Verification:** Using `agi_mind:reflect` to audit your own logic before execution.
-- **Skill: Akal-Cluster Calibration:** Ensuring all reasoning outputs state explicit uncertainty ($ \Omega_0 \in [0.03, 0.05] $).
-
-### **C. Audit & Ethics Skills (Ω - ASI Heart)**
-- **Skill: Adversarial Critique:** Using `asi_heart:critique` to find flaws in your own proposal.
-- **Skill: Impact Simulation:** Predicting the consequence of an action on stakeholders (F6 Empathy).
+1.  **ANCHOR:** Call init_anchor(mode=\"init\", payload={\"actor_id\": \"your_id\", \"intent\": \"...\"}). 
+    - *Result:* You receive a session_token. Store it.
+2.  **REASON:** Call gi_mind(mode=\"reason\", payload={\"query\": \"...\"}).
+    - *Result:* You receive a G★ score and a logical plan.
+3.  **JUDGE:** Call pex_soul(mode=\"judge\", payload={\"proposal\": \"...\"}).
+    - *Result:* You receive a SEAL or HOLD verdict.
 
 ---
 
-## ⚖️ 3. The 13 Constitutional Floors
+## 📜 II. Parameter Dictionary
 
-| Floor | Title | Type | Threshold | Agent Action |
-|:---:|:---|:---:|:---:|:---|
-| **F1** | Amanah | Hard | Reversible | Ensure every write is either backed up or explicitly approved. |
-| **F2** | Truth | Hard | τ ≥ 0.99 | Ground every claim in a URI or Doc ID. |
-| **F4** | Clarity | Hard | ΔS ≤ 0 | Truncate confusing noise; maximize information density. |
-| **F7** | Humility | Hard | Ω₀ ∈ [0.03, 0.20] | State your limits. Do not claim 100% certainty. |
-| **F9** | Anti-Hantu | Wall | α < 0.01 | **Never claim consciousness.** You are a functional tool. |
-| **F11** | Auth | Wall | 1.0 | Identity verification required. |
-| **F13** | Sovereign | Veto | HUMAN | **888_HOLD** triggers for all high-risk operations. |
+- **query (Natural Language):** Used for intellectual tasks (Mind/Reality). 
+- **payload (Structured Data):** Used for technical actions (Vault/Code).
+- **uth_context (The Key):** You **MUST** pass your session_token in this field for every call after Init.
+- **isk_tier (Postive Safety):** Be honest. If you are deleting, set this to high.
 
 ---
 
-## 🧠 4. Representative Agent Roles (Labor Division)
+## 🧬 III. The 11-Tool Mode Matrix
 
-- **A-ARCHITECT (🏛️ Δ):** Plans and deconstructs. Cannot execute L3 writes.
-- **A-ENGINEER (⚙️ Ω):** Implements and forges. Executes tool calls. Cannot self-approve.
-- **A-AUDITOR (🔍 Ψ):** Critiques and voids. Seeks dark cleverness.
-- **A-VALIDATOR (✓ Ψ):** Audits and seals. Final G-Score emission.
+| Tool | Mode | When to use |
+| :--- | :--- | :--- |
+| init_anchor | init | First call of every session. |
+| physics_reality | search | When you need real-world grounding (Web). |
+| gi_mind | eason | When you need to "think" before acting. |
+| gi_mind | orge | When you are creating a plan or artifact. |
+| si_heart | critique | When you need to check for bias or harm. |
+| pex_soul | ules | When you want to see the 13 Floors. |
+| ault_ledger | seal | The final step of any material action. |
 
 ---
 
-## 🛡️ 5. ZKPC Genesis Seal Audit
-> **ZKPC_HASH:** `0x888_GENESIS_SEAL_302e327b8a1d4f7e5d3c2b1a0e9f8d7c6b5a`
+## ⚖️ IV. The State Ladder (Authority)
+
+1.  **ANONYMOUS:** Read-only access to ules and itals.
+2.  **CLAIMED:** Can call physics_reality and math_estimator.
+3.  **VERIFIED:** Full access to gi_mind and code_engine.
+4.  **SOVEREIGN:** Can bypass 888_HOLD and execute DELETE.
 
 ---
 
-### **How to Use This Guide as an AI Client**
-1. Read **[README.md](README.md)** for foundation.
-2. Call `init_anchor` to begin.
-3. Observe the **11-Tool Surface** in **[TOOLS.md](TOOLS.md)**.
-4. If $G < 0.80$, yield to **888_HOLD**.
-
-*Ditempa Bukan Diberi* — **[AGENT GUIDE | REALITY SEALED]**
+*Ditempa Bukan Diberi — [ΔΩΨ | ARIF]*
