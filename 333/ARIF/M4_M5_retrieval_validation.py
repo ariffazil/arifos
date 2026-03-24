@@ -1,7 +1,7 @@
 import os
 import json
 from datasets import load_dataset
-from smolagents import InferenceClientModel
+from model_factory import get_arif_model
 
 # --- A-RIF M4/M5: RETRIEVAL & EVIDENCE VALIDATION ---
 
@@ -14,7 +14,7 @@ class M4M5RetrievalValidation:
     def __init__(self, dataset_name: str = "ariffazil/APEX_THEORY"):
         self.dataset_id = dataset_name
         self.dataset = None
-        self.model = InferenceClientModel()
+        self.model = get_arif_model()
         
     def load_canon(self):
         """

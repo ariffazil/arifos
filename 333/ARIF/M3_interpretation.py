@@ -1,6 +1,6 @@
 import os
 import json
-from smolagents import CodeAgent, InferenceClientModel, tool
+from model_factory import get_arif_model
 
 # --- A-RIF M3: QUERY INTERPRETATION ---
 
@@ -11,7 +11,7 @@ class M3Interpretation:
     """
     
     def __init__(self):
-        self.model = InferenceClientModel()
+        self.model = get_arif_model()
         # Interpretation prompt using the ARIF context
         self.interpretation_prompt = """
         You are the A-RIF M3 Interpreter.
