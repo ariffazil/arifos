@@ -345,7 +345,7 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
         layer="MACHINE",
         description="111_SENSE: Earth-Witness fact acquisition and mapping. Modes: 'search', 'ingest', 'compass', 'atlas', 'time' (temporal intelligence — current UTC+KL datetime, weekday, quarter).",
         trinity="DELTA Δ",
-        floors=("F2", "F3"),
+        floors=("F2", "F3", "F10"),
         input_schema=_build_mega_schema(
             "physics_reality",
             ["search", "ingest", "compass", "atlas", "time"],
