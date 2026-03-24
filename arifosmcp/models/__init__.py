@@ -1,51 +1,19 @@
-"""
-arifosmcp.models - Pydantic models for the Canon-13 Regime.
+"""arifosmcp.models - Constitutional data models."""
 
-This module contains all data models used across the arifOS MCP architecture,
-including MGI envelopes, 3E cycle structures, and verdict enumerations.
-"""
+# Core verdict models
+from .verdicts import Verdicts, VerdictState
 
-from .mgi import (
-    MachineLayer,
-    GovernanceLayer,
-    IntelligenceLayer,
-    MGIEnvelope,
-    MGIBaseResponse,
-)
+# Cycle3E metabolic model
+from .cycle3e import Cycle3E, MetabolicPhase
 
-from .cycle3e import (
-    ExplorationPhase,
-    EntropyPhase,
-    EurekaPhase,
-    Cycle3E,
-    EvidenceBundle,
-    SourceAttribution,
-)
-
-from .verdicts import (
-    VerdictState,
-    FloorState,
-    SealType,
-    ThermodynamicBudget,
-)
+# MGI (Multi-Model Governance Interface)
+from .mgi import MGI, GovernanceInterface
 
 __all__ = [
-    # MGI Envelope
-    "MachineLayer",
-    "GovernanceLayer",
-    "IntelligenceLayer",
-    "MGIEnvelope",
-    "MGIBaseResponse",
-    # 3E Cycle
-    "ExplorationPhase",
-    "EntropyPhase",
-    "EurekaPhase",
-    "Cycle3E",
-    "EvidenceBundle",
-    "SourceAttribution",
-    # Verdicts
+    "Verdicts",
     "VerdictState",
-    "FloorState",
-    "SealType",
-    "ThermodynamicBudget",
+    "Cycle3E",
+    "MetabolicPhase",
+    "MGI",
+    "GovernanceInterface",
 ]

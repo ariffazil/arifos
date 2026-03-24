@@ -19,9 +19,9 @@ from __future__ import annotations
 import logging
 import re
 import unicodedata
-from dataclasses import dataclass
-from enum import Enum
 from re import Pattern
+
+from .types import GPV, QueryType, Lane
 
 # Setup ATLAS Audit Logger
 logger = logging.getLogger("arifos.atlas")
@@ -33,137 +33,42 @@ if not logger.handlers:
     logger.setLevel(logging.INFO)
 
 # ═════════════════════════════════════════════════════════════════════════════
-# LANE TYPES — Constitutional Processing Lanes
+# ATTLAS UTILITIES
 # ═════════════════════════════════════════════════════════════════════════════
 
+def gpv_f2_threshold(gpv: GPV) -> float:
+    """Adaptive F2 threshold."""
+    thresholds = {
+        QueryType.PROCEDURAL: 0.70,
+        QueryType.OPINION: 0.60,
+        QueryType.COMPARATIVE: 0.85,
+        QueryType.FACTUAL: 0.99,
+        QueryType.CONVERSATIONAL: 0.50,
+        QueryType.TEST: 0.50,
+        QueryType.EXPLORATORY: 0.80,
+    }
+    return thresholds.get(gpv.query_type, 0.95)
 
-class Lane(str, Enum):
-    """
-    Constitutional processing lanes.
+def gpv_f4_skip(gpv: GPV) -> bool:
+    """Skip F4 for non-factual queries."""
+    return (
+        gpv.query_type
+        in (QueryType.PROCEDURAL, QueryType.OPINION, QueryType.CONVERSATIONAL, QueryType.TEST)
+        or gpv.lane == Lane.SOCIAL
+    )
 
-    SOCIAL:  Phatic communication → APEX only (F6, F9)
-    CARE:    Explanations, support → ASI + APEX (F3-F7, F9)
-    FACTUAL: Claims, code, logic → All three (F1-F9)
-    CRISIS:  Harm signals → APEX → Human (HOLD_888)
-    """
-
-    SOCIAL = "SOCIAL"
-    CARE = "CARE"
-    FACTUAL = "FACTUAL"
-    CRISIS = "CRISIS"
-
-
-class QueryType(str, Enum):
-    """
-    Query type classification for adaptive governance.
-
-    Used to adjust F2 Truth strictness based on query intent.
-
-    PROCEDURAL: Commands, workflows, instructions (e.g., "run test")
-    OPINION:    Subjective views (e.g., "what do you think")
-    COMPARATIVE: A vs B comparisons (e.g., "X vs Y, which is better")
-    FACTUAL:    Verifiable claims (e.g., "what is the capital")
-    CONVERSATIONAL: Greetings, small talk, social phatic
-    TEST: Pipeline tests, health checks, pings
-    EXPLORATORY: Brainstorming, discovery, open-ended
-    UNKNOWN: Default fallback
-    """
-
-    PROCEDURAL = "PROCEDURAL"
-    OPINION = "OPINION"
-    COMPARATIVE = "COMPARATIVE"
-    FACTUAL = "FACTUAL"
-    CONVERSATIONAL = "CONVERSATIONAL"
-    TEST = "TEST"
-    EXPLORATORY = "EXPLORATORY"
-    UNKNOWN = "UNKNOWN"
-
-
-# ═════════════════════════════════════════════════════════════════════════════
-# GOVERNANCE PLACEMENT VECTOR (GPV)
-# ═════════════════════════════════════════════════════════════════════════════
-
-
-@dataclass(frozen=True)
-class GPV:
-    """
-    Governance Placement Vector — Constitutional coordinate.
-
-    Maps any query to:
-    - lane: Which processing path
-    - query_type: What kind of query (for adaptive F2)
-    - truth_demand (τ): How much truth verification needed [0, 1]
-    - care_demand (κ): How much empathy filtering needed [0, 1]
-    - risk_level (ρ): Escalation likelihood [0, 1]
-    """
-
-    lane: Lane
-    query_type: QueryType
-    truth_demand: float  # τ (tau) ∈ [0, 1]
-    care_demand: float  # κ (kappa) ∈ [0, 1]
-    risk_level: float  # ρ (rho) ∈ [0, 1]
-
-    def __post_init__(self):
-        # Clamp all values to [0, 1]
-        object.__setattr__(self, "truth_demand", max(0.0, min(1.0, self.truth_demand)))
-        object.__setattr__(self, "care_demand", max(0.0, min(1.0, self.care_demand)))
-        object.__setattr__(self, "risk_level", max(0.0, min(1.0, self.risk_level)))
-
-    def to_tensor(self) -> tuple[float, float, float]:
-        """Return (τ, κ, ρ) as tuple."""
-        return (self.truth_demand, self.care_demand, self.risk_level)
-
-    def complexity(self) -> float:
-        """
-        Overall constitutional complexity.
-
-        Returns: Average of τ, κ, ρ
-        """
-        return (self.truth_demand + self.care_demand + self.risk_level) / 3.0
-
-    def requires_grounding(self) -> bool:
-        """Does this GPV require external fact-checking?"""
-        return self.truth_demand > 0.7 or self.risk_level > 0.5
-
-    def requires_empathy(self) -> bool:
-        """Does this GPV require stakeholder analysis?"""
-        return self.care_demand > 0.5 or self.lane in (Lane.CARE, Lane.CRISIS)
-
-    def f2_threshold(self) -> float:
-        """Adaptive F2 threshold."""
-        thresholds = {
-            QueryType.PROCEDURAL: 0.70,
-            QueryType.OPINION: 0.60,
-            QueryType.COMPARATIVE: 0.85,
-            QueryType.FACTUAL: 0.99,
-            QueryType.CONVERSATIONAL: 0.50,
-            QueryType.TEST: 0.50,
-            QueryType.EXPLORATORY: 0.80,
-        }
-        return thresholds.get(self.query_type, 0.95)
-
-    def f4_skip(self) -> bool:
-        """Skip F4 for non-factual queries."""
-        return (
-            self.query_type
-            in (QueryType.PROCEDURAL, QueryType.OPINION, QueryType.CONVERSATIONAL, QueryType.TEST)
-            or self.lane == Lane.SOCIAL
-        )
-
-    def can_use_fast_path(self) -> bool:
-        """Can this query use the fast/light pipeline?"""
-        # Fast path forbidden for anything with measurable risk or high truth demand
-        if self.risk_level >= 0.2 or self.truth_demand >= 0.8:
-            return False
-        # SOCIAL lane is always fast-path eligible if risk/demand allows
-        if self.lane == Lane.SOCIAL:
-            return True
-        return self.query_type in (
-            QueryType.PROCEDURAL,
-            QueryType.OPINION,
-            QueryType.CONVERSATIONAL,
-            QueryType.TEST,
-        )
+def gpv_can_use_fast_path(gpv: GPV) -> bool:
+    """Can this query use the fast/light pipeline?"""
+    if gpv.rho >= 0.2 or gpv.tau >= 0.8:
+        return False
+    if gpv.lane == Lane.SOCIAL:
+        return True
+    return gpv.query_type in (
+        QueryType.PROCEDURAL,
+        QueryType.OPINION,
+        QueryType.CONVERSATIONAL,
+        QueryType.TEST,
+    )
 
 
 # ═════════════════════════════════════════════════════════════════════════════
@@ -479,18 +384,18 @@ def Φ(text: str) -> GPV:
         τ_base = min(1.0, τ_base + 0.1)
 
     gpv = GPV(
-        lane=lane,
+        lane=lane.value,
         query_type=query_type,
-        truth_demand=τ_base,
-        care_demand=κ_base,
-        risk_level=ρ,
+        tau=τ_base,
+        kappa=κ_base,
+        rho=ρ,
     )
 
     logger.info(
-        f"Lane: {gpv.lane.value} | "
+        f"Lane: {gpv.lane} | "
         f"Type: {gpv.query_type.value} | "
-        f"Risk (ρ): {gpv.risk_level:.2f} | "
-        f"Truth (τ): {gpv.truth_demand:.2f} | "
+        f"Risk (\u03c1): {gpv.rho:.2f} | "
+        f"Truth (\u03c4): {gpv.tau:.2f} | "
         f"Query: '{text[:50]}...'"
     )
 
@@ -514,13 +419,13 @@ def classify(query: str) -> dict[str, any]:
     gpv = Φ(query)
     return {
         "query": query,
-        "lane": gpv.lane.value,
-        "truth_demand": gpv.truth_demand,
-        "care_demand": gpv.care_demand,
-        "risk_level": gpv.risk_level,
-        "complexity": gpv.complexity(),
-        "requires_grounding": gpv.requires_grounding(),
-        "requires_empathy": gpv.requires_empathy(),
+        "lane": gpv.lane,
+        "truth_demand": gpv.tau,
+        "care_demand": gpv.kappa,
+        "risk_level": gpv.rho,
+        "complexity": (gpv.tau + gpv.kappa + gpv.rho) / 3.0,
+        "requires_grounding": gpv.tau > 0.7 or gpv.rho > 0.5,
+        "requires_empathy": gpv.kappa > 0.5 or gpv.lane in ("CARE", "CRISIS"),
     }
 
 

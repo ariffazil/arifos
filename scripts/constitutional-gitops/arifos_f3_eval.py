@@ -162,7 +162,13 @@ class ArifosF3Eval:
     
     def _compute_human_witness(self) -> float:
         """👤 Human Witness: Review status"""
+        # Priority 1: Check for PsiSeal in governance (Soul Witness)
         governance = self.manifest.get("governance", {})
+        psi_seal = governance.get("psi_seal", {})
+        if psi_seal:
+            return float(psi_seal.get("tri_witness", {}).get("human", 0.0))
+
+        # Priority 2: Check for legacy tri_witness
         tri_witness = governance.get("tri_witness", {})
         status = tri_witness.get("human", "pending")
         
@@ -181,9 +187,19 @@ class ArifosF3Eval:
     
     def evaluate(self) -> VerdictResult:
         """Run F3 Tri-Witness evaluation"""
-        ai = self._compute_ai_witness()
-        earth = self._compute_earth_witness()
-        human = self._compute_human_witness()
+        # If we have a PsiSeal, the work is already evaluated by the APEX organ.
+        governance = self.manifest.get("governance", {})
+        psi_seal = governance.get("psi_seal", {})
+        
+        if psi_seal:
+            tri_witness = psi_seal.get("tri_witness", {})
+            ai = float(tri_witness.get("ai", 0.0))
+            earth = float(tri_witness.get("earth", 0.0))
+            human = float(tri_witness.get("human", 0.0))
+        else:
+            ai = self._compute_ai_witness()
+            earth = self._compute_earth_witness()
+            human = self._compute_human_witness()
         
         scores = WitnessScores(ai=ai, earth=earth, human=human)
         w3 = round(scores.geometric_mean(), 3)
@@ -296,6 +312,14 @@ class ArifosF3Eval:
             data["governance"]["tri_witness"]["earth"] = result.scores.earth
             data["governance"]["tri_witness"]["human"] = result.scores.human
             data["governance"]["verdict"] = result.verdict
+            data["governance"]["w3"] = result.w3
+            
+            # Record the evaluation session
+            data["governance"]["last_eval"] = {
+                "timestamp": self.manifest.get("governance", {}).get("last_eval", {}).get("timestamp", 0) + 1,
+                "w3": result.w3,
+                "threshold": result.threshold
+            }
             
             with open(path, 'w') as f:
                 yaml.dump(data, f, default_flow_style=False)
