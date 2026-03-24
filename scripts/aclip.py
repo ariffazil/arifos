@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 aCLIp — arifOS Constitutional Layer Interface (CLI)
-Exactly 9 commands for constitutional GitOps, agent governance, and CI.
+Exactly 9 commands for constitutional GitOps, agent governance, and code analysis.
 
 The 9 Commands:
     1. aclip worktree add <agent> <feature>   Create F1 sandbox
@@ -9,20 +9,21 @@ The 9 Commands:
     3. aclip worktree list                     Show all worktrees
     4. aclip agent run [--stage]               Execute with F7 dry_run
     5. aclip f3 eval [--enforce]               Tri-Witness evaluation
-    6. aclip manifest init                     Create arifos.yml from template
-    7. aclip ingest local [path]               GitIngest local worktree
-    8. aclip ingest remote <github-url>        GitIngest remote repo
-    9. aclip ci status                         Check 888_JUDGE CI status
+    6. aclip graph build [--output]            CodeGraph dependency analysis
+    7. aclip graph view [--worktree]           View code structure summary
+    8. aclip ingest local [path]               GitIngest local worktree
+    9. aclip ingest remote <github-url>        GitIngest remote repo
+
+Tools Integrated:
+    - Git worktrees (F1 sandboxes)
+    - CodeGraph (dependency analysis)
+    - GitIngest (LLM context generation)
+    - arifOS F3 evaluation (Tri-Witness)
 
 Exit codes:
     0 = Success (verdict executed)
     1 = Config error
     2 = Enforce violated (--enforce with low W₃)
-
-Dependencies:
-    - git
-    - gitingest (for ingest commands)
-    - Existing arifOS toolchain scripts
 """
 
 import argparse
@@ -97,50 +98,98 @@ def cmd_f3_eval(args):
 
 
 # ═══════════════════════════════════════════════════════════════════
-# COMMAND 6: manifest init
+# COMMAND 6-7: graph (CodeGraph integration)
 # ═══════════════════════════════════════════════════════════════════
 
-def cmd_manifest_init(args):
-    """6. aclip manifest init — Create arifos.yml from template"""
-    template_path = TEMPLATES / "arifos.yml.template"
-    target_path = Path(args.path) / "arifos.yml"
-    
-    if not template_path.exists():
-        print(f"❌ Template not found: {template_path}")
-        return 1
-    
-    if target_path.exists() and not args.force:
-        print(f"⚠️  arifos.yml already exists at {target_path}")
-        print("   Use --force to overwrite")
-        return 1
-    
+def cmd_graph_build(args):
+    """6. aclip graph build [--output] — CodeGraph dependency analysis"""
     try:
-        with open(template_path) as f:
-            content = f.read()
+        from codegraph import CodeGraph
         
-        # Basic template variable substitution
-        content = content.replace("CHANGE-ME", f"arifos-{args.agent or 'agent'}-{args.feature or 'feature'}")
-        content = content.replace("${AGENT_NAME}", args.agent or "unknown")
-        content = content.replace("${FEATURE_NAME}", args.feature or "unknown")
+        path = args.path or "."
+        output = args.output or "codegraph.json"
         
-        with open(target_path, 'w') as f:
-            f.write(content)
+        print(f"🔥 Building CodeGraph for: {path}")
+        print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
         
-        print(f"✅ Manifest created: {target_path}")
-        print(f"   Agent: {args.agent or 'unknown'}")
-        print(f"   Feature: {args.feature or 'unknown'}")
+        # Initialize CodeGraph
+        cg = CodeGraph(root_path=path)
+        
+        # Build graph
+        cg.build()
+        
+        # Export to JSON
+        cg.export(output)
+        
+        print(f"✅ CodeGraph built: {output}")
+        print(f"   Modules: {len(cg.modules)}")
+        print(f"   Dependencies: {len(cg.edges)}")
+        return 0
+    except ImportError:
+        print("❌ codegraph not installed. Run: pip install codegraph")
+        print("   Or: pip install git+https://github.com/xnuinside/codegraph.git")
+        return 1
+    except Exception as e:
+        print(f"❌ CodeGraph build failed: {e}")
+        return 1
+
+
+def cmd_graph_view(args):
+    """7. aclip graph view [--worktree] — View code structure summary"""
+    try:
+        import json
+        
+        path = args.worktree or "."
+        graph_file = Path(path) / "codegraph.json"
+        
+        if not graph_file.exists():
+            print(f"⚠️  No codegraph.json found at {path}")
+            print("   Run: aclip graph build [--output codegraph.json]")
+            return 1
+        
+        with open(graph_file) as f:
+            graph = json.load(f)
+        
+        print("🔥 CODEGRAPH STRUCTURE SUMMARY")
+        print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+        
+        # Show modules
+        modules = graph.get("modules", [])
+        print(f"\n📦 Modules ({len(modules)}):")
+        for mod in modules[:10]:  # Show first 10
+            print(f"   • {mod.get('name', 'unknown')}")
+        if len(modules) > 10:
+            print(f"   ... and {len(modules) - 10} more")
+        
+        # Show dependencies
+        deps = graph.get("dependencies", [])
+        print(f"\n🔗 Dependencies ({len(deps)}):")
+        
+        # Find hot spots (high fan-in)
+        fan_in = {}
+        for dep in deps:
+            target = dep.get("target", "")
+            fan_in[target] = fan_in.get(target, 0) + 1
+        
+        hot_spots = sorted(fan_in.items(), key=lambda x: x[1], reverse=True)[:5]
+        if hot_spots:
+            print("   Hot spots (high fan-in):")
+            for mod, count in hot_spots:
+                print(f"      {mod}: {count} references")
+        
+        print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
         return 0
     except Exception as e:
-        print(f"❌ Error creating manifest: {e}")
+        print(f"❌ Graph view failed: {e}")
         return 1
 
 
 # ═══════════════════════════════════════════════════════════════════
-# COMMAND 7-8: ingest (local, remote)
+# COMMAND 8-9: ingest (GitIngest)
 # ═══════════════════════════════════════════════════════════════════
 
 def cmd_ingest_local(args):
-    """7. aclip ingest local [path] — GitIngest local worktree"""
+    """8. aclip ingest local [path] — GitIngest local worktree"""
     try:
         from gitingest import ingest
         
@@ -172,7 +221,7 @@ def cmd_ingest_local(args):
 
 
 def cmd_ingest_remote(args):
-    """8. aclip ingest remote <github-url> — GitIngest remote repo"""
+    """9. aclip ingest remote <github-url> — GitIngest remote repo"""
     try:
         from gitingest import ingest
         
@@ -203,45 +252,6 @@ def cmd_ingest_remote(args):
 
 
 # ═══════════════════════════════════════════════════════════════════
-# COMMAND 9: ci status
-# ═══════════════════════════════════════════════════════════════════
-
-def cmd_ci_status(args):
-    """9. aclip ci status — Check 888_JUDGE CI status"""
-    print("🔥 888_JUDGE CI Status")
-    print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-    print("CI/CD: GitHub Actions")
-    print("Workflow: .github/workflows/888-judge.yml")
-    print("Status: Active on all PRs to main")
-    print("")
-    print("Verdicts: SEAL | PROVISIONAL | SABAR | HOLD | HOLD_888 | VOID")
-    print("Thresholds: low=0.85 | medium=0.95 | high=0.99 | critical=1.0")
-    print("")
-    
-    # Try to get current branch
-    try:
-        result = subprocess.run(
-            ["git", "branch", "--show-current"],
-            capture_output=True,
-            text=True
-        )
-        branch = result.stdout.strip()
-        if branch:
-            print(f"Current branch: {branch}")
-            
-            # Check if arifos.yml exists
-            if Path("arifos.yml").exists():
-                print("✅ arifos.yml found — constitutional metadata present")
-            else:
-                print("⚠️  No arifos.yml — run 'aclip manifest init'")
-    except:
-        pass
-    
-    print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-    return 0
-
-
-# ═══════════════════════════════════════════════════════════════════
 # MAIN
 # ═══════════════════════════════════════════════════════════════════
 
@@ -252,16 +262,17 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 The 9 Commands:
-  1. worktree add <agent> <feature>    Create F1 sandbox
+  1. worktree add <agent> <feature>    Create F1 sandbox (Git worktree)
   2. worktree rm <branch>              Collapse → VOID
   3. worktree list                     Show worktrees
   4. agent run [--stage]               Execute with F7
   5. f3 eval [--enforce]               Tri-Witness evaluation
-  6. manifest init                     Create arifos.yml
-  7. ingest local [path]               GitIngest local
-  8. ingest remote <url>               GitIngest remote
-  9. ci status                         Check 888_JUDGE CI
+  6. graph build [--output]            CodeGraph dependency analysis
+  7. graph view [--worktree]           View code structure
+  8. ingest local [path]               GitIngest local
+  9. ingest remote <url>               GitIngest remote
 
+Tools: Git worktrees + CodeGraph + GitIngest + arifOS F3
 Constitutional Floors: F1-F13
 Tri-Witness: W₃ = (H × A × E)^(1/3)
 Exit codes: 0=success, 1=config-error, 2=enforce-violated
@@ -275,7 +286,7 @@ Ditempa bukan diberi.
     # ═══════════════════════════════════════════════════════════════
     # 1-3: worktree
     # ═══════════════════════════════════════════════════════════════
-    worktree_parser = subparsers.add_parser("worktree", help="Manage F1 sandboxes (1-3)")
+    worktree_parser = subparsers.add_parser("worktree", help="1-3. Manage F1 sandboxes")
     worktree_sub = worktree_parser.add_subparsers(dest="worktree_cmd")
     
     # 1. worktree add
@@ -315,26 +326,30 @@ Ditempa bukan diberi.
     eval_p.set_defaults(func=cmd_f3_eval)
     
     # ═══════════════════════════════════════════════════════════════
-    # 6: manifest
+    # 6-7: graph (CodeGraph)
     # ═══════════════════════════════════════════════════════════════
-    manifest_parser = subparsers.add_parser("manifest", help="6. Manage arifos.yml")
-    manifest_sub = manifest_parser.add_subparsers(dest="manifest_cmd")
+    graph_parser = subparsers.add_parser("graph", help="6-7. CodeGraph analysis")
+    graph_sub = graph_parser.add_subparsers(dest="graph_cmd")
     
-    init_p = manifest_sub.add_parser("init", help="Create from template")
-    init_p.add_argument("-p", "--path", default=".", help="Target path")
-    init_p.add_argument("-a", "--agent", help="Agent name")
-    init_p.add_argument("-f", "--feature", help="Feature name")
-    init_p.add_argument("--force", action="store_true", help="Overwrite existing")
-    init_p.set_defaults(func=cmd_manifest_init)
+    # 6. graph build
+    build_p = graph_sub.add_parser("build", help="6. Build dependency graph")
+    build_p.add_argument("path", nargs="?", default=".", help="Path to analyze")
+    build_p.add_argument("-o", "--output", default="codegraph.json", help="Output file")
+    build_p.set_defaults(func=cmd_graph_build)
+    
+    # 7. graph view
+    view_p = graph_sub.add_parser("view", help="7. View code structure")
+    view_p.add_argument("-w", "--worktree", default=".", help="Worktree path")
+    view_p.set_defaults(func=cmd_graph_view)
     
     # ═══════════════════════════════════════════════════════════════
-    # 7-8: ingest
+    # 8-9: ingest (GitIngest)
     # ═══════════════════════════════════════════════════════════════
-    ingest_parser = subparsers.add_parser("ingest", help="7-8. GitIngest for LLMs")
+    ingest_parser = subparsers.add_parser("ingest", help="8-9. GitIngest for LLMs")
     ingest_sub = ingest_parser.add_subparsers(dest="ingest_cmd")
     
-    # 7. ingest local
-    local_p = ingest_sub.add_parser("local", help="7. Ingest local worktree")
+    # 8. ingest local
+    local_p = ingest_sub.add_parser("local", help="8. Ingest local worktree")
     local_p.add_argument("path", nargs="?", default=".", help="Path to ingest")
     local_p.add_argument("-i", "--include", action="append", help="Include patterns")
     local_p.add_argument("-e", "--exclude", action="append", help="Exclude patterns")
@@ -342,23 +357,14 @@ Ditempa bukan diberi.
     local_p.add_argument("-o", "--output", help="Output file")
     local_p.set_defaults(func=cmd_ingest_local)
     
-    # 8. ingest remote
-    remote_p = ingest_sub.add_parser("remote", help="8. Ingest remote repo")
+    # 9. ingest remote
+    remote_p = ingest_sub.add_parser("remote", help="9. Ingest remote repo")
     remote_p.add_argument("url", help="GitHub URL")
     remote_p.add_argument("-i", "--include", action="append", help="Include patterns")
     remote_p.add_argument("-e", "--exclude", action="append", help="Exclude patterns")
     remote_p.add_argument("-s", "--max-size", type=int, help="Max file size (KB)")
     remote_p.add_argument("-o", "--output", help="Output file")
     remote_p.set_defaults(func=cmd_ingest_remote)
-    
-    # ═══════════════════════════════════════════════════════════════
-    # 9: ci
-    # ═══════════════════════════════════════════════════════════════
-    ci_parser = subparsers.add_parser("ci", help="9. Check 888_JUDGE CI status")
-    ci_sub = ci_parser.add_subparsers(dest="ci_cmd")
-    
-    status_p = ci_sub.add_parser("status", help="Show CI status")
-    status_p.set_defaults(func=cmd_ci_status)
     
     # Parse
     args = parser.parse_args()
