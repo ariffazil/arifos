@@ -1,0 +1,77 @@
+name: Push AAA Memory Hardening to HuggingFace
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Type SEAL to confirm push'
+        required: true
+        default: ''
+
+jobs:
+  push-to-huggingface:
+    name: SEAL — Push to ariffazil/AAA Dataset
+    runs-on: ubuntu-latest
+    if: github.event.inputs.confirm == 'SEAL'
+    
+    steps:
+      - name: Checkout arifOS
+        uses: actions/checkout@v4
+        
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          
+      - name: Install huggingface_hub
+        run: pip install huggingface_hub
+        
+      - name: Verify HF_TOKEN
+        run: |
+          python3 -c "
+          from huggingface_hub import HfApi
+          api = HfApi(token='${{ secrets.HF_TOKEN }}')
+          user = api.whoami()
+          print(f'Authenticated as: {user[\"name\"]}')
+          "
+          
+      - name: Push AAA Memory Hardening Files
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          python3 << 'PYEOF'
+          import os
+          import base64
+          from huggingface_hub import HfApi, CommitOperationAdd
+          
+          api = HfApi(token=os.environ['HF_TOKEN'])
+          
+          REPO_ID = "ariffazil/AAA"
+          COMMIT_MESSAGE = "SEAL(A-RIF): Quantum Memory Hardening | Constitutional RAG Spec | Sentinel Queries | Memory Governance | H1-H9 Contracts | DITEMPA BUKAN DIBERI"
+          
+          # Files to upload from AAA-hf-staging/ folder in this repo
+          staging_dir = "AAA-hf-staging"
+          
+          operations = []
+          for root, dirs, files in os.walk(staging_dir):
+              for fname in files:
+                  local_path = os.path.join(root, fname)
+                  hf_path = os.path.relpath(local_path, staging_dir)
+                  with open(local_path, 'rb') as f:
+                      content = f.read()
+                  operations.append(CommitOperationAdd(
+                      path_in_repo=hf_path,
+                      path_or_fileobj=content
+                  ))
+                  print(f"  + {hf_path}")
+          
+          print(f"\nPushing {len(operations)} files to {REPO_ID}...")
+          
+          result = api.create_commit(
+              repo_id=REPO_ID,
+              repo_type="dataset",
+              operations=operations,
+              commit_message=COMMIT_MESSAGE,
+          )
+          print(f"\n✅ SUCCESS: {result.commit_url}")
+          PYEOF
