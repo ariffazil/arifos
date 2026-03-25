@@ -218,6 +218,8 @@ async def seal(
         "approval_reference": approval_reference,
         "telemetry": telemetry or {},
         "timestamp": timestamp.isoformat(),
+        # A-RIF Constitutional RAG: AAA dataset provenance binding
+        "aaa_revision": os.getenv("AAA_DATASET_REVISION", "unknown"),
     }
 
     entry_hash = compute_vault_seal_hash(entry_data)
