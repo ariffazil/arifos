@@ -96,7 +96,7 @@ jobs:
           python-version: "3.12"
 
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        run: pip install -e ".[dev]" 2>/dev/null || pip install -e . 2>/dev/null || pip install fastmcp uvicorn fastapi pydantic httpx redis pytest ruff
 
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master

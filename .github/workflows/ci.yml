@@ -26,10 +26,6 @@ env:
   ARIFOS_ALLOW_LEGACY_SPEC: "1"
   AAA_MCP_OUTPUT_MODE: "debug"
 
-defaults:
-  run:
-    working-directory: AAA
-
 jobs:
   # ─── Stage 1: Syntax + Compile ───────────────────────────────────
   compile-check:
@@ -43,7 +39,7 @@ jobs:
         with:
           python-version: "3.12"
           cache: pip
-          cache-dependency-path: AAA/pyproject.toml
+          cache-dependency-path: pyproject.toml
 
       - name: Install package
         run: |
@@ -95,7 +91,7 @@ jobs:
         with:
           python-version: "3.12"
           cache: pip
-          cache-dependency-path: AAA/pyproject.toml
+          cache-dependency-path: pyproject.toml
 
       - name: Install dependencies
         run: |
