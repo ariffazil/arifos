@@ -451,6 +451,8 @@ jobs:
         uses: zricethezav/gitleaks-action@v2
         with:
           args: detect --source . -v
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
       # Dependency Vulnerabilities
       - name: Dependency Audit
