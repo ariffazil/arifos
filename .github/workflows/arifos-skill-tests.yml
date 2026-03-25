@@ -1,11 +1,11 @@
 name: arifOS Skill Tests
 
+# DISABLED: This workflow references legacy code (skills module, core.execution_validator,
+# core.intelligence, core.runtime_bridge) that no longer exists in the current codebase.
+# Re-enable once the skill tests are rewritten for the current arifosmcp architecture.
+# See: https://github.com/ariffazil/arifOS/pull/287
 on:
-  push:
-    branches: [ main, develop ]
-  pull_request:
-    branches: [ main ]
-  workflow_dispatch:
+  workflow_dispatch:  # Manual only until tests are rewritten
 
 jobs:
   constitutional-tests:
