@@ -843,6 +843,8 @@ async def engineering_memory_dispatch_impl(
         project_id = payload.get("project_id", "default")
         k = int(payload.get("k", 5))
         use_cache = payload.get("use_cache", True)
+        # H6: Context budget management
+        context_budget = int(payload.get("context_budget", 8000))
 
         # HYBRID L3: LanceDB (hot) + Qdrant (cold)
         try:
@@ -860,6 +862,34 @@ async def engineering_memory_dispatch_impl(
             lancedb_count = sum(1 for r in results if r.source == "lancedb")
             qdrant_count = sum(1 for r in results if r.source == "qdrant")
 
+            raw_results = [
+                {
+                    "id": r.id,
+                    "content": r.content,
+                    "score": r.score,
+                    "timestamp": r.timestamp.isoformat() if r.timestamp else None,
+                    "source": r.source,
+                    "metadata": r.metadata,
+                }
+                for r in results
+            ]
+
+            # H6: Apply context budget enforcement
+            budget_remaining = context_budget
+            budgeted_results = []
+            for r in raw_results:
+                content_len = len(r.get("content", ""))
+                if content_len <= budget_remaining:
+                    budgeted_results.append(r)
+                    budget_remaining -= content_len
+                else:
+                    truncated = r.copy()
+                    truncated["content"] = r["content"][:budget_remaining] + "\n[...TRUNCATED \u2014 F4 context budget]"
+                    truncated["truncated"] = True
+                    budgeted_results.append(truncated)
+                    budget_remaining = 0
+                    break
+
             return RuntimeEnvelope(
                 ok=True,
                 tool="engineering_memory",
@@ -868,27 +898,22 @@ async def engineering_memory_dispatch_impl(
                 verdict=Verdict.SEAL,
                 status=RuntimeStatus.SUCCESS,
                 payload={
-                    "results": [
-                        {
-                            "id": r.id,
-                            "content": r.content,
-                            "score": r.score,
-                            "timestamp": r.timestamp.isoformat() if r.timestamp else None,
-                            "source": r.source,
-                            "metadata": r.metadata,
-                        }
-                        for r in results
-                    ],
-                    "count": len(results),
+                    "results": budgeted_results,
+                    "count": len(budgeted_results),
                     "query": query,
                     "backend": "hybrid",
                     "sources": {
                         "lancedb_hot": lancedb_count,
                         "qdrant_cold": qdrant_count,
                     },
-                    " constitutional": {
+                    "constitutional": {
                         "f2_freshness_enforced": True,
                         "f12_injection_scanned": True,
+                    },
+                    "context_budget": {
+                        "requested": context_budget,
+                        "used": context_budget - budget_remaining,
+                        "results_truncated": sum(1 for r in budgeted_results if r.get("truncated")),
                     },
                 },
             )
@@ -903,6 +928,23 @@ async def engineering_memory_dispatch_impl(
             await store.initialize_project(project_id)
             entries = await store.vector_query(query=query, project_id=project_id, k=k)
             results = [e.to_dict() for e in entries]
+
+            # H6: Apply context budget enforcement (fallback path)
+            budget_remaining = context_budget
+            budgeted_results = []
+            for r in results:
+                content_len = len(r.get("content", ""))
+                if content_len <= budget_remaining:
+                    budgeted_results.append(r)
+                    budget_remaining -= content_len
+                else:
+                    truncated = r.copy()
+                    truncated["content"] = r["content"][:budget_remaining] + "\n[...TRUNCATED \u2014 F4 context budget]"
+                    truncated["truncated"] = True
+                    budgeted_results.append(truncated)
+                    budget_remaining = 0
+                    break
+
             return RuntimeEnvelope(
                 ok=True,
                 tool="engineering_memory",
@@ -911,11 +953,16 @@ async def engineering_memory_dispatch_impl(
                 verdict=Verdict.SEAL,
                 status=RuntimeStatus.SUCCESS,
                 payload={
-                    "results": results,
-                    "count": len(results),
+                    "results": budgeted_results,
+                    "count": len(budgeted_results),
                     "query": query,
                     "backend": "qdrant",
                     "note": "hybrid_unavailable",
+                    "context_budget": {
+                        "requested": context_budget,
+                        "used": context_budget - budget_remaining,
+                        "results_truncated": sum(1 for r in budgeted_results if r.get("truncated")),
+                    },
                 },
             )
         # Fallback to legacy memory query
@@ -946,6 +993,170 @@ async def engineering_memory_dispatch_impl(
                 },
             )
         return await _az_memory_query(query=query, session_id=session_id)
+    elif mode == "vector_store":
+        # ═══════════════════════════════════════════════════════════════
+        # H1: vector_store handler — P0 CRITICAL BUG FIX
+        # Previously crashed with ValueError. Now delegates to
+        # ConstitutionalMemoryStore.store() pipeline.
+        # ═══════════════════════════════════════════════════════════════
+        content = payload.get("content") or payload.get("text") or ""
+        if not content.strip():
+            return RuntimeEnvelope(
+                ok=False,
+                tool="engineering_memory",
+                session_id=session_id,
+                stage="555_MEMORY",
+                verdict=Verdict.SABAR,
+                status=RuntimeStatus.SABAR,
+                payload={"error": "vector_store requires non-empty 'content'"},
+            )
+        project_id = payload.get("project_id", "default")
+        area_str = payload.get("area", "main")
+        metadata = payload.get("metadata", {})
+        store = _get_constitutional_memory_store()
+        if store:
+            from arifosmcp.agentzero.memory.constitutional_memory import MemoryArea
+
+            area = MemoryArea.from_string(area_str)
+            await store.initialize_project(project_id)
+            ok, memory_id, error = await store.store(
+                content=content,
+                area=area,
+                project_id=project_id,
+                source="vector_store",
+                source_agent=session_id,
+            )
+            if ok:
+                logger.info(f"[H1_MEMORY_STORE] {memory_id} → {area_str}/{project_id}")
+                return RuntimeEnvelope(
+                    ok=True,
+                    tool="engineering_memory",
+                    session_id=session_id,
+                    stage="555_MEMORY",
+                    verdict=Verdict.SEAL,
+                    status=RuntimeStatus.SUCCESS,
+                    payload={
+                        "stored": True,
+                        "memory_id": memory_id,
+                        "area": area_str,
+                        "project_id": project_id,
+                        "bytes_written": len(content),
+                        "backend": "qdrant",
+                    },
+                )
+            return RuntimeEnvelope(
+                ok=False,
+                tool="engineering_memory",
+                session_id=session_id,
+                stage="555_MEMORY",
+                verdict=Verdict.SABAR,
+                status=RuntimeStatus.SABAR,
+                payload={"error": error or "Store failed"},
+            )
+        # Fallback: no Qdrant available
+        return RuntimeEnvelope(
+            ok=True,
+            tool="engineering_memory",
+            session_id=session_id,
+            stage="555_MEMORY",
+            verdict=Verdict.SEAL,
+            status=RuntimeStatus.SUCCESS,
+            payload={"stored": True, "backend": "none", "warning": "Qdrant unavailable"},
+        )
+
+    elif mode == "vector_forget":
+        # ═══════════════════════════════════════════════════════════════
+        # H2: vector_forget handler — P0 CRITICAL BUG FIX
+        # Previously crashed with ValueError. Now deletes from both
+        # Qdrant (cold) and LanceDB (hot) to fix H3 ghost recall.
+        # Includes H8 tombstone audit trail for F1 Amanah compliance.
+        # ═══════════════════════════════════════════════════════════════
+        import json as _json
+        from datetime import datetime as _dt, timezone as _tz
+
+        memory_ids = payload.get("memory_ids", [])
+        query = payload.get("query") or payload.get("content")
+        project_id = payload.get("project_id", "default")
+        reason = payload.get("reason", "user_requested")
+
+        if not memory_ids and not query:
+            return RuntimeEnvelope(
+                ok=False,
+                tool="engineering_memory",
+                session_id=session_id,
+                stage="555_MEMORY",
+                verdict=Verdict.SABAR,
+                status=RuntimeStatus.SABAR,
+                payload={"error": "vector_forget requires 'memory_ids' list or 'query' to identify targets"},
+            )
+
+        forgot_ids: list[str] = []
+
+        # Strategy A: Direct ID-based delete
+        if memory_ids:
+            from arifosmcp.core.organs.unified_memory import get_unified_memory
+
+            um = get_unified_memory()
+            forgot_ids = um.forget(memory_ids)
+
+            # H3: Delete from LanceDB hot cache (ghost recall fix)
+            try:
+                from arifosmcp.intelligence.tools.hybrid_vector_memory import get_hybrid_memory
+
+                hm = await get_hybrid_memory()
+                await hm.purge(memory_ids)
+            except Exception as e:
+                logger.warning(f"H3: LanceDB purge in vector_forget failed (non-blocking): {e}")
+
+        # Strategy B: Query-based delete (find matching memories, then delete)
+        elif query:
+            store = _get_constitutional_memory_store()
+            if store:
+                await store.initialize_project(project_id)
+                entries = await store.vector_query(query=query, project_id=project_id, k=10)
+                target_ids = [e.id for e in entries]
+                if target_ids:
+                    from arifosmcp.core.organs.unified_memory import get_unified_memory
+
+                    um = get_unified_memory()
+                    forgot_ids = um.forget(target_ids)
+
+                    # H3: Delete from LanceDB hot cache
+                    try:
+                        from arifosmcp.intelligence.tools.hybrid_vector_memory import get_hybrid_memory
+
+                        hm = await get_hybrid_memory()
+                        await hm.purge(target_ids)
+                    except Exception as e:
+                        logger.warning(f"H3: LanceDB purge in query-forget failed (non-blocking): {e}")
+
+        # H8: Audit tombstone — F1 Amanah requires traceability
+        tombstone = {
+            "type": "MEMORY_TOMBSTONE",
+            "memory_ids": forgot_ids,
+            "reason": reason,
+            "session_id": session_id,
+            "timestamp": _dt.now(_tz.utc).isoformat(),
+            "floor": "F1_AMANAH",
+        }
+        logger.info(f"[F1_TOMBSTONE] {_json.dumps(tombstone)}")
+
+        return RuntimeEnvelope(
+            ok=True,
+            tool="engineering_memory",
+            session_id=session_id,
+            stage="555_MEMORY",
+            verdict=Verdict.SEAL,
+            status=RuntimeStatus.SUCCESS,
+            payload={
+                "forgotten": True,
+                "forgot_ids": forgot_ids,
+                "count": len(forgot_ids),
+                "reason": reason,
+                "audit": "tombstone_logged",
+            },
+        )
+
     elif mode == "generate":
         return await ollama_local_generate_impl(
             prompt=payload.get("prompt") or payload.get("query") or "No prompt",

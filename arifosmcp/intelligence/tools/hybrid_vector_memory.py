@@ -473,6 +473,25 @@ class HybridVectorMemory:
             
         return False
     
+    async def purge(self, memory_ids: list[str]) -> int:
+        """H3: Delete vectors from LanceDB hot cache by ID. Returns count purged.
+
+        Non-blocking, non-fatal — logs warning on failure.
+        This fixes the ghost recall bug where deleted Qdrant vectors
+        persist in the LanceDB cache and are returned on subsequent queries.
+        """
+        if not self._table or not self._initialized or not memory_ids:
+            return 0
+        try:
+            # LanceDB filter syntax for ID-based delete
+            id_filter = " OR ".join([f"id = '{mid}'" for mid in memory_ids])
+            await asyncio.to_thread(self._table.delete, id_filter)
+            logger.info(f"H3: LanceDB purged {len(memory_ids)} vectors (ghost recall fix)")
+            return len(memory_ids)
+        except Exception as e:
+            logger.warning(f"H3: LanceDB purge failed (non-blocking): {e}")
+            return 0
+
     def get_stats(self) -> dict[str, Any]:
         """Return current memory statistics."""
         return {
