@@ -16,10 +16,6 @@ on:
 permissions:
   contents: read
 
-defaults:
-  run:
-    working-directory: AAA
-
 jobs:
   seal-check:
     name: AAA Seal Integrity
@@ -33,7 +29,7 @@ jobs:
         with:
           python-version: "3.12"
           cache: pip
-          cache-dependency-path: AAA/pyproject.toml
+          cache-dependency-path: pyproject.toml
 
       - name: Install minimal deps
         run: |

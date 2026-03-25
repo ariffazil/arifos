@@ -43,7 +43,7 @@ jobs:
         id: run_tests
         run: |
           # Run all test blocks with JSON output
-          python test_all_tools_live.py --ci
+          python scripts/test_all_tools_live.py --ci
         env:
           AAA_MCP_OUTPUT_MODE: debug
           ARIFOS_PHYSICS_DISABLED: 0
@@ -137,7 +137,7 @@ jobs:
 
       - name: 🧪 Run Edge Case Tests Only
         run: |
-          python test_all_tools_live.py --block edge_cases --ci
+          python scripts/test_all_tools_live.py --block edge_cases --ci
         env:
           AAA_MCP_OUTPUT_MODE: debug
           ARIFOS_PHYSICS_DISABLED: 1
@@ -178,7 +178,7 @@ jobs:
           # Run governance tests 3 times and average latency
           for i in {1..3}; do
             echo "Run $i/3"
-            python test_all_tools_live.py --block governance --ci
+            python scripts/test_all_tools_live.py --block governance --ci
           done
         env:
           AAA_MCP_OUTPUT_MODE: debug
