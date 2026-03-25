@@ -1,4 +1,63 @@
-﻿## [2026.03.24-UNIFIED] - The AAA Induction
+﻿## [2026.03.25-QUANTUM-MEMORY] - Quantum Memory Hardening + A-RIF Constitutional RAG
+
+### 🧠 QUANTUM MEMORY HARDENING (H1-H9)
+
+**9-point constitutional hardening of the arifOS vector memory subsystem. Closes all P0/P1/P2 memory gaps.**
+
+#### P0 Critical Bug Fixes
+- **H1 `vector_store` handler** — Mode was declared but crashed with ValueError. Now fully implemented with content validation, area routing, and backend telemetry. (`tools_internal.py`)
+- **H2 `vector_forget` handler** — Same crash. Now implements dual-strategy delete (ID-based + query-based) with H8 tombstone audit. (`tools_internal.py`)
+- **H3 Ghost Recall Fix** — LanceDB retained vectors after Qdrant delete. Added `purge()` method for dual-backend sync. (`hybrid_vector_memory.py`)
+
+#### P1 Search Quality
+- **H4 Pseudo-Embedding Quarantine** — Filters `f1_pseudo_embedding=True` results from ranking pipeline. (`constitutional_memory.py`)
+- **H5 Epistemic F2 Verification** — Replaced age-only heuristic with multi-signal scoring: age decay (30%), access frequency (20%), source credibility (30%), embedding quality (20%). Threshold: 0.55. (`constitutional_memory.py`)
+- **H6 Context Budget** — Added `context_budget` parameter (default 8K chars) with `[...TRUNCATED — F4 context budget]` marker. (`tools_internal.py`)
+
+#### P2 Memory Hygiene
+- **H7 TTL / Lifecycle** — Added `ttl_days` and `lifecycle_state` fields to MemoryEntry. Added `enforce_lifecycle()` method. (`constitutional_memory.py`)
+- **H8 Forget Audit Trail** — `[F1_TOMBSTONE]` JSON logging with type, memory_ids, reason, session_id, timestamp, floor. (In H2 handler)
+- **H9 Composite Ranking** — `_composite_rank()` with weights: cosine=0.45, recency=0.20, access=0.10, source=0.15, area=0.10. (`constitutional_memory.py`)
+
+### 🔥 A-RIF CONSTITUTIONAL RAG
+- **New file: `arifosmcp/intelligence/constitutional_rag.py`** — ConstitutionalRAGLoader class. Loads 186 canons from `ariffazil/AAA` (theory/canons.jsonl) at runtime. Dual strategy: datasets library or HTTP fallback. Singleton pattern.
+- **Vault999 Provenance** — Added `aaa_revision` field to every sealed entry. (`_4_vault.py`)
+
+### 📊 AAA HuggingFace Dataset (ariffazil/AAA)
+11 new files added to the AAA dataset:
+- `memory/README.md`, `memory/constitutional_rag_spec.md`, `memory/sentinel_queries.jsonl`
+- `memory/memory_hardening_schema.json`, `memory/vector_store_contract.md`, `memory/vector_forget_contract.md`
+- `schemas/MemoryEntry.json`, `schemas/MemoryTombstone.json`
+- `governance/memory_governance.md`
+- `eval/memory_regression.py` (619-line regression test suite)
+- Updated `README.md` dataset card
+
+### 🔧 CI Infrastructure Fix
+- Fixed `ci.yml` — removed phantom `working-directory: AAA`
+- Fixed `live_tests.yml` — corrected `test_all_tools_live.py` path to `scripts/`
+- Fixed `constitutional_alignment.yaml` — `requirements.txt` → `pip install -e .`, added GITHUB_TOKEN to gitleaks
+- Fixed `mcp-conformance.yml` — updated dead import paths
+- Fixed `forge2-ci-cd.yml` — `requirements.txt` → `pip install -e .`
+- Fixed `aaa-seal-check.yml` — removed phantom AAA working directory
+- Disabled `arifos-skill-tests.yml` — references legacy dead code
+- Fixed `ci-unified.yml` — added GITHUB_TOKEN to gitleaks
+
+### Files Changed
+| File | Change |
+|------|--------|
+| `arifosmcp/runtime/tools_internal.py` | H1, H2, H6 handlers |
+| `arifosmcp/agentzero/memory/constitutional_memory.py` | H4, H5, H7, H8, H9 |
+| `arifosmcp/intelligence/tools/hybrid_vector_memory.py` | H3 purge() |
+| `arifosmcp/intelligence/constitutional_rag.py` | NEW — A-RIF RAG loader |
+| `arifosmcp/core/organs/_4_vault.py` | Vault999 provenance |
+
+### Constraint
+- **Zero new tools added.** All 11 mega-tools preserved. Existing handlers refactored only.
+
+### Verdict
+**SEAL — DITEMPA BUKAN DIBERI**
+
+## [2026.03.24-UNIFIED] - The AAA Induction
 
 ### 🔥 MAJOR ARCHITECTURAL UNIFICATION
 **This release collapses the mirror universe and elevates the Wire to AAA Status.**

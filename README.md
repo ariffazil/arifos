@@ -2,7 +2,7 @@
 
 ## Accountable Retrieval & Inference Framework (A-RIF)
 
-**Version:** v2026.03.25-SOVEREIGN-UNIFIED
+**Version:** v2026.03.25-QUANTUM-MEMORY-SEAL
 **Authority:** Muhammad Arif bin Fazil (888_JUDGE)
 **Motto:** *DITEMPA BUKAN DIBERI — Forged, Not Given*
 
@@ -143,6 +143,33 @@ Your Google Drive is organized into **9 Pure Repositories** to minimize informat
 - **`OTHERS`**: The Social. Human-to-human communications.
 - **`TEMP`**: The Transition. Drafts and temporary captures.
 - **`NSFW`**: The Segregated. Isolated content.
+
+### 6.3 Quantum Memory Hardening (H1-H9)
+
+As of March 2026, arifOS memory underwent a **9-point constitutional hardening** to close critical gaps and achieve governed recall:
+
+| Hardening | Floor | Capability |
+| :--- | :---: | :--- |
+| **H1** vector_store | F1 | Full store handler with content validation, area routing, backend telemetry |
+| **H2** vector_forget | F1 | Dual-strategy delete (ID + query-based) with tombstone audit |
+| **H3** Ghost Recall Fix | F1 | Dual-backend purge — LanceDB + Qdrant sync |
+| **H4** Pseudo-Embedding Quarantine | F2 | Filters `f1_pseudo_embedding` vectors from ranking pipeline |
+| **H5** Epistemic F2 Verification | F2 | Multi-signal scoring: age decay (30%) + access frequency (20%) + source credibility (30%) + embedding quality (20%) |
+| **H6** Context Budget | F4 | Default 8K chars with `[...TRUNCATED — F4 context budget]` marker |
+| **H7** TTL / Lifecycle | F1 | `ttl_days` and `lifecycle_state` fields on MemoryEntry + `enforce_lifecycle()` |
+| **H8** Forget Audit Trail | F1 | `[F1_TOMBSTONE]` JSON logging: type, memory_ids, reason, session, timestamp, floor |
+| **H9** Composite Ranking | F8 | `_composite_rank()`: cosine=0.45, recency=0.20, access=0.10, source=0.15, area=0.10 |
+
+### 6.4 A-RIF Constitutional RAG
+
+The memory layer is grounded in the **AAA Dataset** ([ariffazil/AAA](https://huggingface.co/datasets/ariffazil/AAA)) via the **ConstitutionalRAGLoader**:
+
+- **Runtime loading** of 186 constitutional canons from HuggingFace at startup
+- **Dual strategy**: `datasets` library (preferred) or HTTP fallback
+- **Vault999 provenance**: Every sealed entry carries `aaa_revision` binding
+- **Sentinel regression**: 25 queries across all H1-H9 contracts
+
+Zero new tools added. All 11 mega-tools preserved. Existing handlers refactored only.
 
 ---
 
@@ -295,6 +322,10 @@ To understand arifOS, you must understand the **Three Thermodynamic Constants**:
 - **2026-03-24:** Published `APEX_THEORY` to Hugging Face.
 - **2026-03-24:** Sealed A-RIF Formal Specification.
 - **2026-03-25:** Forged **AAA (Servant Wire)** using **smolagents** and local Ollama as the sovereign Mind.
+- **2026-03-25:** Quantum Memory Hardening (H1-H9) — 9-point constitutional hardening of vector memory subsystem.
+- **2026-03-25:** A-RIF Constitutional RAG — runtime loading of AAA canons from HuggingFace into constitutional memory.
+- **2026-03-25:** AAA HuggingFace Dataset updated — 11 memory governance files (schemas, contracts, sentinel tests, regression suite).
+- **2026-03-25:** CI Infrastructure Audit — 8 workflow files patched, pre-existing failures identified and fixed.
 
 ---
 

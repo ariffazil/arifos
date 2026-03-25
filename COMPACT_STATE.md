@@ -155,13 +155,36 @@ SKILLS (9) -> Skill Bridge -> Reality Bridge -> System Tools
 
 ---
 
+## Memory Capabilities (Quantum Memory Hardening)
+
+**Status:** H1-H9 SEALED (2026-03-25)
+
+| Hardening | Status |
+|-----------|--------|
+| H1 vector_store | ✅ SEALED |
+| H2 vector_forget | ✅ SEALED |
+| H3 Ghost Recall Fix | ✅ SEALED |
+| H4 Pseudo-Embedding Quarantine | ✅ SEALED |
+| H5 Epistemic F2 Verification | ✅ SEALED |
+| H6 Context Budget (8K) | ✅ SEALED |
+| H7 TTL / Lifecycle | ✅ SEALED |
+| H8 Forget Audit Trail | ✅ SEALED |
+| H9 Composite Ranking | ✅ SEALED |
+
+A-RIF Constitutional RAG: 186 canons loaded from `ariffazil/AAA` at runtime.
+
+---
+
 ## Next Steps
 
 1. ✅ Wire remaining 7 skills (DONE)
 2. ✅ Enhance Execution Validator (DONE)
-3. 🔄 Add SSH tool adapter for remote execution
-4. 🔄 Add HTTP API adapter for cloud services
-5. 🔄 Deploy CI/CD pipeline to GitHub
+3. ✅ Quantum Memory Hardening H1-H9 (DONE)
+4. ✅ A-RIF Constitutional RAG (DONE)
+5. ✅ CI Infrastructure Audit (DONE)
+6. 🔄 Add SSH tool adapter for remote execution
+7. 🔄 Add HTTP API adapter for cloud services
+8. 🔄 Deploy CI/CD pipeline to GitHub
 
 ---
 
