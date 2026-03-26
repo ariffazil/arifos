@@ -36,7 +36,7 @@ This seal marks the completion of the **Quantum Memory Hardening** for arifOS:
 - **GitHub PR:** https://github.com/ariffazil/arifOS/pull/286
 - **HF Commit:** https://huggingface.co/datasets/ariffazil/AAA/commit/9d056eb85496025cf673c77d1f8b685a3a8bb7fd
 - **CI Fix PR:** https://github.com/ariffazil/arifOS/pull/287
-- **Additions:** ~700 lines across 5 documentation files (seal-time estimate)
+- **Additions:** ~700 lines across 5 documentation files (estimated at time of sealing)
 - **Constraint:** Zero new tools added; 11 mega-tools surface preserved.
 
 ---
