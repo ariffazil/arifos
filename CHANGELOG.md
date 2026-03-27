@@ -1,4 +1,4 @@
-﻿## [2026.03.25-QUANTUM-MEMORY] - Quantum Memory Hardening + A-RIF Constitutional RAG
+## [2026.03.25-QUANTUM-MEMORY] - Quantum Memory Hardening + A-RIF Constitutional RAG
 
 ### 🧠 QUANTUM MEMORY HARDENING (H1-H9)
 
@@ -91,7 +91,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [2026.03.22-HARDENED-V2] - Constitutional Hardening
 
-### ðŸ›¡ï¸ MAJOR SECURITY UPGRADE: Global Hardening v2
+### 🛡️ MAJOR SECURITY UPGRADE: Global Hardening v2
 
 **All 11 arifOS MCP tools now implement fail-closed defaults, typed contracts, audit trails, and entropy budgets.**
 
@@ -109,11 +109,11 @@ This transforms arifOS from an AI framework into a **governed constitutional sys
 | **reality_compass** | Plain search | **Typed evidence bundles** |
 | **agi_reason** | Single narrative | **4-lane reasoning** + decision forks |
 | **asi_critique** | Basic review | **5-axis critique** + **counter-seal veto** |
-| **agentzero_engineer** | Direct execution | **Planâ†’commit** two-phase + rollback |
+| **agentzero_engineer** | Direct execution | **Plan→commit** two-phase + rollback |
 | **apex_judge** | Prose verdicts | **Machine-verifiable conditions** |
 | **vault_seal** | Text + blob | **Decision object** with supersedence |
 
-### ðŸ”’ 5 Hardening Categories
+### 🔒 5 Hardening Categories
 
 #### 1. Typed Contracts (ToolEnvelope)
 - Standardized envelope for ALL 11 tools
@@ -122,10 +122,10 @@ This transforms arifOS from an AI framework into a **governed constitutional sys
 - Routing (next_allowed_tools)
 
 #### 2. Fail-Closed Defaults
-- Missing `auth_context` â†’ HOLD
-- Missing `risk_tier` â†’ HOLD  
-- Missing `session_id` â†’ HOLD
-- Missing evidence on truth claims â†’ VOID
+- Missing `auth_context` → HOLD
+- Missing `risk_tier` → HOLD  
+- Missing `session_id` → HOLD
+- Missing evidence on truth claims → VOID
 
 #### 3. Cross-Tool Trace IDs
 - `trace_id`: Root transaction identifier
@@ -147,7 +147,7 @@ This transforms arifOS from an AI framework into a **governed constitutional sys
 - `blast_radius_estimate`: Impact scope
 - `delta_s`: Thermodynamic entropy change
 
-### ðŸ—ï¸ New Hardened Tool Implementations
+### 🏗️ New Hardened Tool Implementations
 
 | File | Description |
 |------|-------------|
@@ -160,7 +160,7 @@ This transforms arifOS from an AI framework into a **governed constitutional sys
 | `docs/HARDENING_V2_GUIDE.md` | Comprehensive deployment guide |
 | `HARDENING_V2_SUMMARY.md` | Executive summary |
 
-### ðŸ§ª Tool-Specific Upgrades
+### 🧪 Tool-Specific Upgrades
 
 #### init_anchor (000)
 - Session classes: PROBE, QUERY, EXECUTE, DESTRUCTIVE
@@ -190,7 +190,7 @@ This transforms arifOS from an AI framework into a **governed constitutional sys
 
 #### agentzero_engineer (888A)
 - Action classes: read, write, modify, execute, network, destructive
-- Two-phase: plan â†’ commit
+- Two-phase: plan → commit
 - Pre-execution diff preview
 - Rollback artifact attachment
 
@@ -206,17 +206,17 @@ This transforms arifOS from an AI framework into a **governed constitutional sys
 - Supersession links (decision chaining)
 - Hash-complete ledger
 
-### ðŸ“Š Validation Results
+### 📊 Validation Results
 
 #### Syntax Validation
 ```
 python test_hardened_standalone.py
-âœ… contracts_v2.py â€” 431 lines, syntax OK
-âœ… init_anchor_hardened.py â€” 588 lines, syntax OK
-âœ… truth_pipeline_hardened.py â€” 510 lines, syntax OK
-âœ… tools_hardened_v2.py â€” 561 lines, syntax OK
-âœ… hardened_toolchain.py â€” 312 lines, syntax OK
-ðŸ“Š Total: 2,402 lines of hardened code
+✅ contracts_v2.py — 431 lines, syntax OK
+✅ init_anchor_hardened.py — 588 lines, syntax OK
+✅ truth_pipeline_hardened.py — 510 lines, syntax OK
+✅ tools_hardened_v2.py — 561 lines, syntax OK
+✅ hardened_toolchain.py — 312 lines, syntax OK
+📊 Total: 2,402 lines of hardened code
 ```
 
 #### Test Results
@@ -228,13 +228,13 @@ pytest tests/test_hardened_toolchain.py -v
 - 10 failures due to test signature mismatches (non-critical)
 - Fail-closed, envelope structure, counter-seal validated
 
-### ðŸš€ Deployment Status
-- **Code Status:** âœ… Complete â€” All 11 tools hardened
-- **Validation:** âœ… Syntax validated, 2,402 lines verified
-- **Documentation:** âœ… 4 comprehensive guides created
-- **Integration:** âš ï¸ Pending resolution of pre-existing runtime import issue
+### 🚀 Deployment Status
+- **Code Status:** ✅ Complete — All 11 tools hardened
+- **Validation:** ✅ Syntax validated, 2,402 lines verified
+- **Documentation:** ✅ 4 comprehensive guides created
+- **Integration:** ⚠️ Pending resolution of pre-existing runtime import issue
 
-### ðŸ” Security Model
+### 🔐 Security Model
 > "When in doubt, hold. When certain, seal."
 
 All tools default to **HOLD** unless:
@@ -243,29 +243,29 @@ All tools default to **HOLD** unless:
 - No counter-seal triggers
 - Human decision marker allows proceed
 
-### ðŸ“š Documentation
+### 📚 Documentation
 - Complete deployment guide: `docs/HARDENING_V2_GUIDE.md`
 - Executive summary: `HARDENING_V2_SUMMARY.md`
 - Contract reference: `arifosmcp/runtime/contracts_v2.py`
 
 ## [2026.03.20] - SOVEREIGN11
 
-### ðŸŽ¯ MAJOR CONTRAST CHANGE: Complete Alignment & Truth Sealing
-**This release represents the definitive alignment of all system surfacesâ€”code, documentation, and configuration now reflect a single source of truth.**
+### 🎯 MAJOR CONTRAST CHANGE: Complete Alignment & Truth Sealing
+**This release represents the definitive alignment of all system surfaces—code, documentation, and configuration now reflect a single source of truth.**
 
 #### Contrast: Before vs After
 | Aspect | Before (CONSOLIDATION) | After (SOVEREIGN11) |
 |--------|------------------------|---------------------|
-| **Tool Count Claim** | 42 tools â†’ 11 tools (37 modes) | **11 tools (39 modes)** â€” All modes verified |
-| **apex_soul modes** | 6 modes (missing `probe`, `notify`) | **7 modes** â€” Full F12/F13 defense coverage |
-| **engineering_memory modes** | 4 modes (missing `query`, `write`) | **5 modes** â€” Complete memory surface |
-| **architect_registry modes** | 1 mode (`list` only) | **3 modes** â€” Full CRUD surface |
+| **Tool Count Claim** | 42 tools → 11 tools (37 modes) | **11 tools (39 modes)** — All modes verified |
+| **apex_soul modes** | 6 modes (missing `probe`, `notify`) | **7 modes** — Full F12/F13 defense coverage |
+| **engineering_memory modes** | 4 modes (missing `query`, `write`) | **5 modes** — Complete memory surface |
+| **architect_registry modes** | 1 mode (`list` only) | **3 modes** — Full CRUD surface |
 | **Documentation** | AGENTS.md claimed 26 legacy tools | **11 Mega-Tools** with exhaustive mode matrix |
-| **Version Badge** | 2026.03.21-RELIABLE | **2026.03.20-SOVEREIGN11** â€” Matches server.py |
-| **WebMCP** | Mounted 2x (duplicate root mounts) | **Single mount** â€” Clean routing |
-| **mcp_tools.yaml** | 9 legacy tools (outdated) | **11 Mega-Tools** â€” Synced with implementation |
+| **Version Badge** | 2026.03.21-RELIABLE | **2026.03.20-SOVEREIGN11** — Matches server.py |
+| **WebMCP** | Mounted 2x (duplicate root mounts) | **Single mount** — Clean routing |
+| **mcp_tools.yaml** | 9 legacy tools (outdated) | **11 Mega-Tools** — Synced with implementation |
 
-### ðŸ”§ Alignment Fixes
+### 🔧 Alignment Fixes
 
 #### Mode Enum Synchronization
 - **`InitAnchorMode`**: Added `refresh` (was missing)
@@ -279,10 +279,10 @@ All tools default to **HOLD** unless:
   - `AGENTS.md` (agent guidance)
 
 #### Documentation Truth Sealing
-- **AGENTS.md**: Rewrote tool table â€” removed false 26-tool claim, documented actual 11 Mega-Tools
+- **AGENTS.md**: Rewrote tool table — removed false 26-tool claim, documented actual 11 Mega-Tools
 - **README.md**: 
   - Fixed version badge (2026.03.20-SOVEREIGN11)
-  - Updated mode counts (37 â†’ 39)
+  - Updated mode counts (37 → 39)
   - Added missing modes to tool descriptions
   - Fixed architect_registry (was incomplete)
   - Fixed engineering_memory (was incomplete)
@@ -293,24 +293,24 @@ All tools default to **HOLD** unless:
   - Was mounting WebMCP gateway twice at root `/`
   - Could cause routing conflicts and double initialization
 
-### ðŸ›ï¸ Architectural Verification
+### 🏛️ Architectural Verification
 - **Contract Verification**: All 11 tools pass `verify_contract()`
 - **Registry Drift Check**: 11/11 tools matched, 0 missing, 0 extra
 - **Mode Alignment**: All 39 modes verified across all surfaces
 - **No orphaned capabilities**: All legacy tools redirect to 11-tool modes
 
-### ðŸ“š Documentation
-- **Trinity Matrix Rename**: `THE SURFACE` â†’ `THE SOUL` (docs/AGENTS.md)
+### 📚 Documentation
+- **Trinity Matrix Rename**: `THE SURFACE` → `THE SOUL` (docs/AGENTS.md)
 - **Comprehensive README Rewrite**: Full Trinity matrix, LLM formatting, 14-section structure
 - **Geologist Identity**: README now emphasizes petroleum engineering background
 - **Contrast Analysis**: Added explicit before/after tables
 
-### ðŸ› Bug Fixes
+### 🐛 Bug Fixes
 - **F10 Ontology Leak**: Fixed in `engineering_memory` modes
 - **Enum Mismatches**: All 11 tool mode enums now consistent
-- **Schema Alignment**: `tool_specs.py` â†” `capability_map.py` â†” `mcp_tools.yaml`
+- **Schema Alignment**: `tool_specs.py` ↔ `capability_map.py` ↔ `mcp_tools.yaml`
 
-### ðŸ” Governance Improvements
+### 🔐 Governance Improvements
 - **11-Tool Mega-Surface**: Definitive execution surface
   - Governance Layer: 4 tools (16 modes)
   - Intelligence Layer: 3 tools (10 modes)
@@ -318,60 +318,60 @@ All tools default to **HOLD** unless:
 - **F1-F13 Mapping**: Explicit floor coverage per tool
 - **Mode-Based Dispatch**: Legacy compatibility via `mode` parameter
 
-### ðŸ“œ Key Commits in This Release
+### 📜 Key Commits in This Release
 - `71d22521d` - docs: Fix F10 Ontology leak in engineering_memory modes
 - `385c34637` - docs: Rename THE SURFACE to THE SOUL across Trinity Matrix
 - `525225d4b` - docs: Rewrite comprehensive README with Trinity matrix
-- `4214cf2e7` - README: HARDENED â€” geologist identity + contrast analysis
+- `4214cf2e7` - README: HARDENED — geologist identity + contrast analysis
 - `cd327a891` - forge: Wire Qdrant memory, Postgres audit
 - `99d0029ff` - fix: VPS infrastructure wiring
 - `2e3510add` - feat: Implement arifOS Metabolic Loop Orchestrator
-- `0ff5c023b` - release: v2026.03.21-RELIABLE â€” Fixed Enum mismatch
+- `0ff5c023b` - release: v2026.03.21-RELIABLE — Fixed Enum mismatch
 - `2e98d95b6` - Forge: Smoke Test Remediation - Fix BUG-01/02/03
 - `8b2f4fce6` - Forge: Sacred Chain Alignment - Final 000-999 hardening
 - `2820f592c` - Forge: ABI Stability & Nervous System Unity
 - `f305be498` - Forge: Final ABI Hardening - Structured intent alignment
-- `4e1db8074` - fix: P0 CRITICAL FIXES â€” F11 Identity Hardening
+- `4e1db8074` - fix: P0 CRITICAL FIXES — F11 Identity Hardening
 - `8590e6ea5` - fix: COMPREHENSIVE CONTRACT DRIFT RESOLUTION
-- `6162124fa` - release: v2026.03.20-CONSOLIDATION â€” 11-Tool surface
+- `6162124fa` - release: v2026.03.20-CONSOLIDATION — 11-Tool surface
 
 ---
 
 ## [2026.03.20] - CONSOLIDATION
 
-### ðŸ”§ 11-Tool Mega-Surface Consolidation
+### 🔧 11-Tool Mega-Surface Consolidation
 **BREAKING CHANGE**: The 42-tool surface has been consolidated into 11 constitutional mega-tools with mode-based dispatch.
 
 - **Governance Layer (4 tools)**
-  - `init_anchor` â€” Session establishment with modes: `init`, `revoke`, `refresh`
-  - `arifOS_kernel` â€” Metabolic orchestration with modes: `kernel`, `status`
-  - `apex_soul` â€” Constitutional judgment with modes: `judge`, `rules`, `validate`, `hold`, `armor`, `notify`, `probe`
-  - `vault_ledger` â€” Immutable persistence with modes: `seal`, `verify`
+  - `init_anchor` — Session establishment with modes: `init`, `revoke`, `refresh`
+  - `arifOS_kernel` — Metabolic orchestration with modes: `kernel`, `status`
+  - `apex_soul` — Constitutional judgment with modes: `judge`, `rules`, `validate`, `hold`, `armor`, `notify`, `probe`
+  - `vault_ledger` — Immutable persistence with modes: `seal`, `verify`
 
 - **Intelligence Layer (3 tools)**
-  - `agi_mind` â€” First-principles reasoning with modes: `reason`, `reflect`, `forge`
-  - `asi_heart` â€” Safety & empathy with modes: `critique`, `simulate`
-  - `engineering_memory` â€” Technical execution with modes: `engineer`, `query`, `recall`, `write`, `generate`
+  - `agi_mind` — First-principles reasoning with modes: `reason`, `reflect`, `forge`
+  - `asi_heart` — Safety & empathy with modes: `critique`, `simulate`
+  - `engineering_memory` — Technical execution with modes: `engineer`, `query`, `recall`, `write`, `generate`
 
 - **Machine Layer (4 tools)**
-  - `physics_reality` â€” World grounding with modes: `search`, `ingest`, `compass`, `atlas`
-  - `math_estimator` â€” Quantitative analysis with modes: `cost`, `health`, `vitals`
-  - `code_engine` â€” System introspection with modes: `fs`, `process`, `net`, `tail`, `replay`
-  - `architect_registry` â€” Resource discovery with modes: `register`, `list`, `read`
+  - `physics_reality` — World grounding with modes: `search`, `ingest`, `compass`, `atlas`
+  - `math_estimator` — Quantitative analysis with modes: `cost`, `health`, `vitals`
+  - `code_engine` — System introspection with modes: `fs`, `process`, `net`, `tail`, `replay`
+  - `architect_registry` — Resource discovery with modes: `register`, `list`, `read`
 
 **Impact**: 39 modes across 11 tools provide the same functional surface as 42 individual tools, with cleaner constitutional governance and reduced cognitive load for agent callers.
 
-### ðŸ› Bug Fixes
+### 🐛 Bug Fixes
 - **Circular Import Resolution**: Fixed infinite recursion in `arifosmcp/runtime/__init__.py` that blocked server startup
   - Changed `from . import tools_internal` to `importlib.import_module()` pattern
   - All 11 tools now load without ImportError
 
-### ðŸ“š Documentation
+### 📚 Documentation
 - **DEPLOY_CHECKLIST.md**: Comprehensive VPS deployment guide
 - **FINAL_SEAL.md**: Pre-deployment verification checklist
 - **AUDIT_REPORT_11_MEGA_TOOLS.md**: Architecture audit of tool consolidation
 
-### ðŸ›ï¸ Architectural Improvements
+### 🏛️ Architectural Improvements
 - **F1-F13 Coverage**: All 13 constitutional floors explicitly mapped to 11-tool surface
 - **Mode Dispatch**: Legacy tool functions accessible via `mode` parameter (no orphaned capabilities)
 - **Tool Registry**: Updated `public_registry.py` with 11-tool contracts and mode specifications
@@ -387,7 +387,7 @@ All tools default to **HOLD** unless:
 - **Hardened Preflight**: Enhanced `openclaw-preflight.sh` with Redis health checks and service-aware arifOS MCP routing.
 
 ### Changed
-- **Truth Retirement**: Retired "Implicit Fallback Authority" â€” raw transport values can no longer masquerade as resolved truth.
+- **Truth Retirement**: Retired "Implicit Fallback Authority" — raw transport values can no longer masquerade as resolved truth.
 - **`global` Demotion**: The `global` session ID is now explicitly labeled as a `fallback` transport value, not anchored truth.
 - **`AuthorityLevel` Alignment**: Pydantic validation now strictly enforces the 9 canonical authority levels.
 
@@ -397,7 +397,7 @@ All tools default to **HOLD** unless:
 
 ## [2026.03.17] - ANTICHAOS
 
-### ðŸ” Security & Identity (F11/F13)
+### 🔐 Security & Identity (F11/F13)
 - **Identity & Auth System**: Implemented complete F11/F13 constitutional identity layer
   - Actor registry with authority levels: `anonymous`, `declared`, `user`, `operator`, `agent`, `sovereign`
   - Signed auth_context with HMAC-SHA256 cryptographic verification
@@ -410,7 +410,7 @@ All tools default to **HOLD** unless:
   - `user` (user/test_user): Limited execution
   - `anonymous`: Blocked from kernel execution (diagnostics only)
 
-### ðŸš€ Features
+### 🚀 Features
 - **A2A Protocol**: Added `/a2a/execute` endpoint for Trinity Probe integration (Google A2A standard)
 - **OpenClaw Integration**: Hardened configuration for production deployment
   - LAN binding with token auth
@@ -419,7 +419,7 @@ All tools default to **HOLD** unless:
 - **Static Sites**: Fixed routing and links for static file serving
 - **Canonical Output Schema**: Unified envelope format across all 42 tools
 
-### ðŸ”§ Technical
+### 🔧 Technical
 - **Auth Context**: Properly minted auth_context with all required fields:
   - `session_id`, `actor_id`, `authority_level`
   - `token_fingerprint`, `nonce`, `iat`, `exp`
@@ -428,14 +428,14 @@ All tools default to **HOLD** unless:
 - **Tool Registry**: Fixed canonical naming (`arifOS_kernel` not `arifOS.kernel`)
 - **VAULT999**: Synchronized ledger and integrity verification
 
-### ðŸ› Bug Fixes
+### 🐛 Bug Fixes
 - Fixed Verdict shadowing issues across modules
 - Resolved Browserless 401 authentication errors
 - Fixed MCP connection stability
 - Restored provider breadth after probe concurrency issues
 - Telegram bot config changed to pairing mode with user ID allowlist
 
-### ðŸ“š Documentation
+### 📚 Documentation
 - **AGENTS.md v2**: Complete rewrite with 11-tool mega-surface documentation
   - Identity & Auth section with actor registry
   - F1-F13 floor enforcement details
@@ -443,7 +443,7 @@ All tools default to **HOLD** unless:
 - **SPEC.md**: Constitutional kernel specification
 - **CLAUDE.md**: Agent instructions for Claude Code integration
 
-### ðŸ§ª Testing
+### 🧪 Testing
 - E2E benchmarks updated
 - `get_caller_status` tests added
 - VAULT999 ledger integrity tests
@@ -471,14 +471,14 @@ All tools default to **HOLD** unless:
 ## [2026.03.08] - UNIFICATION
 
 ### Foundation
-- **Constitutional Kernel**: 9-stage pipeline (000_INIT â†’ 999_VAULT)
+- **Constitutional Kernel**: 9-stage pipeline (000_INIT → 999_VAULT)
 - **F1-F13 Floors**: Hard constraints on reversibility, truth, sovereignty
 - **APEX Theory**: Governance framework for agent judgment
 - **AgentZero**: Meta-agent orchestration layer
 
 ### Runtime
 - **MCP 2025-11-25**: Streamable HTTP transport
-- **Tool Unification**: Consolidated 26 â†’ 42 canonical tools
+- **Tool Unification**: Consolidated 26 → 42 canonical tools
 - **Phase 1 Alignment**: SPEC.md canonical output schema
 
 ## [2026.03.01] - IGNITION
@@ -502,12 +502,12 @@ All tools default to **HOLD** unless:
 
 ## Categories
 
-- ðŸ” **Security**: Authentication, authorization, encryption
-- ðŸš€ **Features**: New capabilities and integrations
-- ðŸ”§ **Technical**: Architecture, performance, refactoring
-- ðŸ› **Bug Fixes**: Error corrections
-- ðŸ“š **Documentation**: Guides, specs, examples
-- ðŸ§ª **Testing**: Test suites, benchmarks
+- 🔐 **Security**: Authentication, authorization, encryption
+- 🚀 **Features**: New capabilities and integrations
+- 🔧 **Technical**: Architecture, performance, refactoring
+- 🐛 **Bug Fixes**: Error corrections
+- 📚 **Documentation**: Guides, specs, examples
+- 🧪 **Testing**: Test suites, benchmarks
 
 ---
 
@@ -525,7 +525,7 @@ All tools default to **HOLD** unless:
 | **2026.03.20 CONSOLIDATION** | **11 Mega-Tools** | Mode dispatch | Token lifecycle | 11-tool audit |
 | **2026.03.20 SOVEREIGN11** | **11 Mega-Tools (39 modes)** | **Aligned surfaces** | **Verified auth** | **Truth-sealed** |
 
-### Key Contrast: 42 Tools â†’ 11 Mega-Tools
+### Key Contrast: 42 Tools → 11 Mega-Tools
 
 **Before (Fragmented):**
 ```
@@ -533,7 +533,7 @@ search_reality(mode="search")
 ingest_evidence(url)
 reality_compass(query)
 reality_atlas(bundles)
-â†“
+↓
 4 separate tools, 4 different signatures, 4 cognitive loads
 ```
 
@@ -543,12 +543,12 @@ physics_reality(mode="search", input=...)
 physics_reality(mode="ingest", input=url)
 physics_reality(mode="compass", input=query)
 physics_reality(mode="atlas", bundles=...)
-â†“
+↓
 1 mega-tool, 4 modes, unified interface, single cognitive load
 ```
 
 **Benefits:**
-- Reduced API surface complexity by 74% (42 â†’ 11)
+- Reduced API surface complexity by 74% (42 → 11)
 - Unified error handling and recovery
 - Simpler constitutional governance (map 11 tools, not 42)
 - Mode-based dispatch preserves all functionality
@@ -568,5 +568,5 @@ All 11 Mega-Tools follow the same interface:
 
 ---
 
-*DITEMPA BUKAN DIBERI â€” Forged, Not Given*
+*DITEMPA BUKAN DIBERI — Forged, Not Given*
 
