@@ -6,25 +6,26 @@ FIX: code_engine and architect_registry floor induction.
 """
 
 from __future__ import annotations
-import asyncio
-import json
-from typing import Any, Callable
 
+import json
+from datetime import datetime, timezone
+from typing import Any
+
+from arifosmcp.core.shared.physics import delta_S, genius_score, humility_band
 from arifosmcp.runtime.contracts_v2 import (
-    ToolEnvelope, ToolStatus, RiskTier,
-    OutputPolicy, VerdictScope,  # Fix 1/2/3 hardening
+    OutputPolicy,
+    VerdictScope,  # Fix 1/2/3 hardening
 )
 from arifosmcp.runtime.init_anchor_hardened import HardenedInitAnchor
-from arifosmcp.runtime.truth_pipeline_hardened import HardenedRealityCompass, HardenedRealityAtlas
+from arifosmcp.runtime.substrate_policy import get_policy
 from arifosmcp.runtime.tools_hardened_v2 import (
     HardenedAGIReason,
-    HardenedASICritique,
     HardenedAgentZeroEngineer,
+    HardenedASICritique,
     HardenedApexJudge,
     HardenedVaultSeal,
 )
-from arifosmcp.runtime.substrate_policy import get_policy
-from arifosmcp.core.shared.physics import delta_S, genius_score, humility_band
+from arifosmcp.runtime.truth_pipeline_hardened import HardenedRealityAtlas, HardenedRealityCompass
 
 # Initialize hardened tool instances
 init_anchor_tool = HardenedInitAnchor()
@@ -200,8 +201,6 @@ async def hardened_physics_reality_dispatch(
             session_id=payload.get("session_id"),
         )
     elif mode == "time":
-        from datetime import datetime, timezone
-
         res = {"ok": True, "utc": datetime.now(timezone.utc).isoformat()}
         return _apply_policy(res, "physics_reality", mode, payload)
     else:
@@ -326,7 +325,7 @@ async def hardened_vault_ledger_dispatch(
     if mode == "resolve":
         # H2 — Metabolizer return port.
         # Human or agent closes the consequence loop by resolving a PENDING outcome.
-        # payload: { decision_id, actual_outcome, harm_detected, operator_override, override_reason }
+        # payload: { decision_id, actual_outcome, harm_detected, operator_override, ... }
         decision_id = payload.get("decision_id")
         if not decision_id:
             return {"ok": False, "error": "resolve requires decision_id"}
@@ -361,8 +360,20 @@ async def hardened_vault_ledger_dispatch(
 async def hardened_code_engine_dispatch(
     mode: str, payload: dict[str, Any], **kwargs
 ) -> dict[str, Any]:
-    # Placeholder for code engine - assigning generic response for floor visibility
-    res = {"ok": True, "action": f"Executed {mode}", "result": "Sandboxed"}
+    """Hardened dispatch for shell commands through ShellForge."""
+    from arifosmcp.runtime.shell_forge import forge
+    
+    command = payload.get("command") or payload.get("code")
+    if not command:
+        return {"ok": False, "error": "No command/code provided for code_engine"}
+        
+    res = forge.execute(
+        command=command,
+        cwd=payload.get("cwd"),
+        dry_run=payload.get("dry_run", True),
+        session_id=payload.get("session_id", "anonymous")
+    )
+    
     return _apply_policy(res, "code_engine", mode, payload)
 
 
