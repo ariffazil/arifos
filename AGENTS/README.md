@@ -19,13 +19,18 @@
 | `forensic-replay.yaml` | Operational replay system (Blindspot #6) |
 | `system-prompts.yaml` | Constitutional system prompts for all 4 agents |
 | `skills.yaml` | Reusable skill definitions (I/O schemas) |
+| `universal-agent-baseline.yaml` | Vendor-neutral baseline for every model on the VPS |
 | `accountability-matrix.yaml` | RACI accountability + KPIs |
 | `AGENTS.md` | 4 agent specs (ARCHITECT, ENGINEER, AUDITOR, VALIDATOR) |
 | `control-plane-diagram.mmd` | Architecture diagram (Mermaid) |
 | `example-usage.py` | Runnable demonstration |
 | `README.md` | This file |
 
-**Total: 13 files — complete constitutional control plane.**
+**Total: 14 files — complete constitutional control plane.**
+
+In addition, the VPS-wide shared skill baseline for all agent vendors is:
+- `/srv/arifosmcp/skills/agent-foundation/SKILL.md`
+- `/srv/arifosmcp/AGENTS/universal-agent-baseline.yaml`
 
 ---
 
@@ -199,7 +204,7 @@ AGENTS/
 ├── A-AUDITOR.md                 # Judgment authority spec
 └── A-VALIDATOR.md               # Final verification spec
 
-10 files total.
+11 files total.
 ```
 
 ---
