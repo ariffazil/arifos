@@ -221,6 +221,34 @@ class GovernanceKernel(GovernanceTransitions):
         )
         return res["genius_score"]
 
+    def apply_temporal_grounding(self, context: dict[str, Any]) -> None:
+        """
+        Hardens the kernel by aligning metrics with the temporal baseline.
+        Resolves the 'no attribute' error in downstream estimators.
+        """
+        now = time.time()
+        dt = now - self.last_transition_at
+        
+        # 1. Update Metabolic Flux
+        if dt > 0:
+            self.metabolic_flux = self.tokens_consumed / dt
+        
+        # 2. Update Temporal Jitter based on latency
+        latency = context.get("latency_ms", self.last_verified_latency_ms or 0.0)
+        if self.last_verified_latency_ms:
+            self.temporal_jitter = abs(latency - self.last_verified_latency_ms)
+        
+        # 3. Anchoring reinforcement
+        if dt > 3600:  # 1 hour stale
+            self.entropic_drift += 0.05
+            logger.warning(f"Kernel [{self.session_id}] session anchor drift detected. Enforcing re-verification.")
+        
+        self.last_transition_at = now
+        self.last_verified_at = datetime.now()
+        self.last_verified_latency_ms = latency
+        
+        logger.info(f"Temporal grounding applied: flux={self.metabolic_flux:.2f}, jitter={self.temporal_jitter:.2f}")
+
     def get_current_state(self) -> dict[str, Any]:
         from arifosmcp.core.enforcement.genius import calculate_genius
         from arifosmcp.core.shared.types import Verdict
