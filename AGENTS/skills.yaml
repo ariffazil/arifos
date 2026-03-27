@@ -1,11 +1,11 @@
-﻿# arifOS Agent Skills Registry
+# arifOS Agent Skills Registry
 # Reusable Skill Definitions with I/O Schemas
 # Version: 2026.03.27-UNIVERSAL
 # Authority: 888_JUDGE
 
-# ═══════════════════════════════════════════════════════════════════════════════
+# ═══════════════════════════════════════════════════════
 # SKILL DEFINITION SCHEMA
-# ═══════════════════════════════════════════════════════════════════════════════
+# ═══════════════════════════════════════════════════════
 # Each skill has:
 # - name: Unique identifier
 # - description: What it does
@@ -16,15 +16,15 @@
 # - postconditions: What becomes true after execution
 # - errors: How failures are handled
 # - constitutional: Floor checks applied
-# ═══════════════════════════════════════════════════════════════════════════════
+# ═══════════════════════════════════════════════════════
 
 constitutional_version: "2026.03.27-UNIVERSAL"
 registry_id: "arifos-skills-registry"
 authority: "888_JUDGE"
 
-# ═══════════════════════════════════════════════════════════════════════════════
+# ═══════════════════════════════════════════════════════
 # CORE SKILLS — All Agents
-# ═══════════════════════════════════════════════════════════════════════════════
+# ═══════════════════════════════════════════════════════
 
 skills:
   universal_agent_baseline:
@@ -97,6 +97,37 @@ skills:
       floors_checked: ["F11", "F12", "F13"]
       F11_CommandAuth: "Primary enforcement skill for F11."
 
+  # ─────────────────────────────────────────────────────────────────────────────
+  # SKILL: Architect Explainer (P0 - Forged)
+  # ─────────────────────────────────────────────────────────────────────────────
+  architect_explainer:
+    name: "Architect Explainer"
+    description: "Translate complex technical data into plain-language Decisions, Risks, and Next Actions for the Sovereign Architect."
+    agents: ["A-ARCHITECT", "A-ENGINEER", "A-AUDITOR", "A-VALIDATOR", "EXTERNAL_AGENTS"]
+    capability_class: "EXPLAIN"
+    
+    input:
+      schema:
+        technical_data:
+          type: "string"
+          description: "A block of code, logs, diff, or other technical information."
+        context:
+          type: "string"
+          description: "The context of the data, e.g., 'A container is failing to start.'"
+          
+    output:
+      schema:
+        explanation:
+          type: "object"
+          properties:
+            title: {type: "string"}
+            decision: {type: "string"}
+            risk: {type: "string"}
+            next_action: {type: "string"}
+            
+    constitutional:
+      floors_checked: ["F4"]
+      F4_Clarity: "This skill is the primary enforcement mechanism for F4, ensuring all complex data is clarified before being presented to the Sovereign."
 
   # ─────────────────────────────────────────────────────────────────────────────
   # SKILL: Read Codebase
@@ -573,9 +604,9 @@ skills:
       F2_Truth: "All claims must cite search results"
       F7_Humility: "Acknowledge if search returns no quality results"
 
-# ═══════════════════════════════════════════════════════════════════════════════
+# ═══════════════════════════════════════════════════════
 # SKILL INVENTORY SUMMARY
-# ═══════════════════════════════════════════════════════════════════════════════
+# ═══════════════════════════════════════════════════════
 
 inventory:
   by_agent:
