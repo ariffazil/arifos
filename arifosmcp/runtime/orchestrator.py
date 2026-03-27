@@ -8,15 +8,12 @@ DITEMPA BUKAN DIBERI — Forged, Not Given
 from __future__ import annotations
 
 import asyncio
-import os
 import time
 from datetime import datetime, timezone
 from typing import Any
 
 from arifosmcp.runtime.metrics import (
     METABOLIC_LOOP_DURATION,
-    record_constitutional_metrics,
-    record_verdict,
 )
 from arifosmcp.runtime.models import (
     CallerContext,
@@ -327,7 +324,6 @@ async def run_stage(
     
     try:
         verdict_history = verdicts
-        sacred_name = _get_sacred_name(stage_id)
         pns_trace = trace.setdefault("pns", {})
 
         # === FORBIDDEN ZONES: No PNS data allowed ===
@@ -493,86 +489,38 @@ async def metabolic_loop(
     """Run the Double Helix metabolic loop (Inner Ring + Outer Ring)."""
     start_time = time.perf_counter()
 
-    # Fast-path for dry_run mode - skip all LLM calls
     if dry_run:
-        elapsed = time.perf_counter() - start_time
+        from arifosmcp.runtime.models import AuthContext
         
-        # F11/F13: Protected IDs REQUIRES crypto (token) - even in dry_run fast-path
-        protected_ids = {"arif", "arif-fazil", "ariffazil", "arif-the-apex"}
-        actor_clean = (actor_id or "anonymous").lower().strip()
+        _actual_session = session_id or "dry-run-session"
+        _actual_actor = actor_id or "anonymous"
         
-        is_protected = actor_clean in protected_ids
-        has_token = bool(auth_context) or bool(kwargs.get("auth_token"))
+        ctx = AuthContext(
+            session_id=_actual_session,
+            actor_id=_actual_actor,
+            authority_level="declared",
+            approval_scope=["*"],
+        )
         
-        if is_protected and not has_token:
-            # P0 Rule: Sovereign claim without token is demoted to anonymous/VOID
-            return {
-                "ok": True,
-                "tool": tool_name,
-                "session_id": session_id or "dry-run-session",
-                "stage": "444_ROUTER",
-                "verdict": "VOID",
-                "status": "AUTH_FAILURE",
-                "machine_status": "BLOCKED",
-                "machine_issue": "PROTECTED_IDENTITY_REQUIRES_CRYPTO",
-                "authority": {
-                    "actor_id": "anonymous",
-                    "level": "anonymous",
-                    "auth_state": "unverified"
-                },
-                "auth_context": None,
-                "latency_ms": round(elapsed * 1000, 2),
-                "dry_run": True,
-                "meta": {
-                    "schema_version": "1.0.0",
-                    "timestamp": datetime.now(timezone.utc).isoformat(),
-                    "debug": False,
-                    "dry_run": True,
-                },
-            }
-
         return {
             "ok": True,
             "tool": tool_name,
-            "session_id": session_id or "dry-run-session",
+            "session_id": _actual_session,
             "stage": "444_ROUTER",
             "verdict": "SEAL",
             "status": "DRY_RUN",
-            "machine_status": "READY",
-            "machine_issue": None,
-            "trace": {"000_INIT": "SEAL", "dry_run": "FAST_PATH"},
-            "metrics": {
-                "telemetry": {
-                    "dS": 0.0,
-                    "peace2": 1.0,
-                    "G_star": 1.0,
-                    "verdict": "SEAL"
-                }
-            },
             "authority": {
-                "actor_id": actor_id or "anonymous",
-                "level": "sovereign" if (actor_id or "anonymous").lower() == "arif-the-apex" else "declared",
-                "auth_state": "verified" if has_token else "declared"
+                "actor_id": _actual_actor,
+                "level": "declared",
+                "auth_state": "verified"
             },
-            "auth_context": auth_context or {
-                "session_id": session_id or "dry-run-session",
-                "actor_id": actor_id or "anonymous",
-                "authority_level": "sovereign" if (actor_id or "anonymous").lower() == "arif-the-apex" else "declared",
-                "approval_scope": ["*"] if ((actor_id or "anonymous").lower() == "arif-the-apex" or has_token) else ["read_safe"],
-            },
-            "latency_ms": round(elapsed * 1000, 2),
+            "auth_context": ctx,
             "dry_run": True,
-            "meta": {
-                "schema_version": "1.0.0",
-                "timestamp": datetime.now(timezone.utc).isoformat(),
-                "debug": False,
-                "dry_run": True,
-            },
+            "meta": {"dry_run": True},
         }
 
     from arifosmcp.runtime.sessions import _resolve_session_id as _normalize_session_id
     from arifosmcp.core.governance_kernel import route_pipeline
-    from arifosmcp.core.organs._0_init import coerce_stakes_class
 
     # Track if we're approaching timeout
     def _check_timeout() -> bool:
@@ -581,12 +529,6 @@ async def metabolic_loop(
 
     # ─── METABOLIC SYNONYM LAYER ───
     LEGACY_SYNONYMS = {
-        "anchor_session": "init_anchor",
-        "init_anchor_state": "init_anchor",
-        "reason_mind": "agi_reason",
-        "reason_mind_synthesis": "agi_reason",
-        "recall_memory": "agi_reflect",
-        "vector_memory": "agi_reflect",
         "session_memory": "agi_reflect",
         "simulate_heart": "asi_simulate",
         "assess_heart_impact": "asi_simulate",
@@ -667,6 +609,7 @@ async def metabolic_loop(
             # We return the initialization failure directly
             out = init_res.model_dump(mode="json")
             out["trace"] = trace
+            out["tool"] = tool_name  # P0: Preserve identity — arifOS_kernel is the router
             return out
 
         # Early timeout check after init

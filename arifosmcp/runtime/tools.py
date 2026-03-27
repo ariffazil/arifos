@@ -145,6 +145,11 @@ async def init_anchor(
     pns_shield: Any | None = None,
     proof: str | None = None,
     ctx: Any | None = None,
+    reason: str | None = None,
+    use_memory: bool = True,
+    use_heart: bool = True,
+    use_critique: bool = True,
+    context: Any | None = None,
 ) -> RuntimeEnvelope:
     # P0: Unified ABI Adapter (Hardened) — tolerant ingress normalization
     payload = dict(payload or {})
@@ -177,12 +182,23 @@ async def init_anchor(
         payload["human_approval"] = human_approval
     if risk_tier:
         payload.setdefault("risk_tier", risk_tier)
-    if caller_context:
-        payload.setdefault("caller_context", caller_context)
+    if raw_input:
+        payload.setdefault("raw_input", raw_input)
     if pns_shield:
         payload.setdefault("pns_shield", pns_shield)
     if proof:
         payload.setdefault("proof", proof)
+    if reason:
+        payload.setdefault("reason", reason)
+    
+    # Handle explicit test flags
+    payload.setdefault("use_memory", use_memory)
+    payload.setdefault("use_heart", use_heart)
+    payload.setdefault("use_critique", use_critique)
+    
+    if context:
+        payload.setdefault("context", context)
+
     # Hardened Dispatch
     if "init_anchor" in HARDENED_DISPATCH_MAP:
         if mode is None:
@@ -252,27 +268,67 @@ async def init_anchor(
 
 
 async def arifOS_kernel(
-    mode: str | None = None,
-    payload: dict[str, Any] | None = None,
     query: str | None = None,
+    payload: dict[str, Any] | None = None,
     session_id: str | None = None,
     actor_id: str | None = None,
     declared_name: str | None = None,
-    intent: Any | None = None,
+    intent: str | None = None,  # Optional: "reason", "safety", "memory", "code", "reality"
     human_approval: bool = False,
     risk_tier: str = "medium",
     dry_run: bool = True,
     allow_execution: bool = False,
     caller_context: dict | None = None,
     auth_context: dict | None = None,
-    debug: bool = False,
+    debug: bool = False,  # When True, includes full routing trace
     request_id: str | None = None,
     timestamp: str | None = None,
     raw_input: str | None = None,
     ctx: Any | None = None,
+    use_memory: bool = True,
+    use_heart: bool = True,
 ) -> RuntimeEnvelope:
+    """
+    UNIFIED KERNEL INTERFACE (Consolidated)
+    
+    arifOS_kernel is the single entry point for ALL thinking, execution,
+    memory, and safety operations. It internally routes to:
+    - agi_mind (reasoning)
+    - asi_heart (safety critique)
+    - engineering_memory (vector memory)
+    - code_engine (execution)
+    - physics_reality (grounding)
+    
+    No external mode selection needed — intent is detected from query
+    or can be explicitly specified via 'intent' parameter.
+    
+    Args:
+        query: Natural language query (e.g., "Analyze this code")
+        intent: Optional explicit override ("reason", "safety", "memory", "code", "reality")
+        session_id: Session identifier (from init_anchor)
+        risk_tier: "low", "medium", "high", "critical"
+        dry_run: If True, simulation only (no execution)
+        allow_execution: If True with dry_run=False, allows code execution
+        debug: If True, returns full routing trace for transparency
+        use_memory: If True, stores outcome to vector memory
+        use_heart: If True, applies safety critique for high-risk operations
+        
+    Returns:
+        RuntimeEnvelope with unified response format
+        
+    Examples:
+        # Reasoning (auto-detected)
+        await arifOS_kernel("Analyze the trade-offs of microservices")
+        
+        # Safety critique (explicit)
+        await arifOS_kernel("Review this code for security issues", intent="safety")
+        
+        # With debug trace
+        await arifOS_kernel("Explain quantum computing", debug=True)
+    """
     # P0: Unified ABI Adapter (Hardened)
     payload = dict(payload or {})
+    
     # Ingress tolerance: normalize extras from imperfect agents/humans
     if raw_input:
         payload.setdefault("query", raw_input)
@@ -280,76 +336,33 @@ async def arifOS_kernel(
         payload.setdefault("caller_context", caller_context)
     if auth_context:
         payload.setdefault("auth_context", auth_context)
-
     if query:
         payload.setdefault("query", query)
     if session_id:
         payload.setdefault("session_id", session_id)
     if actor_id:
         payload.setdefault("actor_id", actor_id)
-    if intent:
-        payload.setdefault("intent", intent)
-    if human_approval:
-        payload.setdefault("human_approval", human_approval)
-    # Hardened Dispatch
-    if "arifOS_kernel" in HARDENED_DISPATCH_MAP:
-        if mode is None:
-            mode = "init" if "arifOS_kernel" == "init_anchor" else "arifOS_kernel"
-        res = await HARDENED_DISPATCH_MAP["arifOS_kernel"](mode=mode, payload=payload)
-        # Wrap in envelope if not already (legacy compatibility)
-        if isinstance(res, dict):
-            from arifosmcp.runtime.models import RuntimeEnvelope, RuntimeStatus, Verdict
-
-            ok = res.get("ok", res.get("status") not in ("HOLD", "ERROR", "VOID", None))
-            # Extract structured guidance from ToolEnvelope results
-            _next_tools = res.get("next_allowed_tools", [])
-            _payload = res.get("payload", res) if isinstance(res.get("payload"), dict) else res
-            _hold_reason = res.get("warnings", [""])[0] if res.get("warnings") else ""
-            _next_action = None
-            if not ok and _hold_reason:
-                _next_action = {
-                    "reason": _hold_reason,
-                    "missing_requirements": _payload.get("missing_requirements", [])
-                    if isinstance(_payload, dict)
-                    else [],
-                    "next_allowed_tools": _next_tools,
-                    "suggested_canonical_call": _payload.get("suggested_canonical_call")
-                    if isinstance(_payload, dict)
-                    else None,
-                }
-            return RuntimeEnvelope(
-                tool=res.get("tool", "unknown"),
-                stage=res.get("stage", "444_ROUTER"),
-                status=RuntimeStatus.SUCCESS if ok else RuntimeStatus.ERROR,
-                verdict=Verdict.SEAL if ok else Verdict.VOID,
-                allowed_next_tools=_next_tools,
-                next_action=_next_action,
-                payload=res,
-            )
-        return res
-    del caller_context
-    ctx = ctx or CurrentContext()
-    if mode is None:
-        mode = "kernel"
-        payload = {"query": query or "", "session_id": session_id, "intent": intent}
-    payload = dict(payload or {})
-    payload["session_id"] = _normalize_session_id(payload.get("session_id") or session_id)
-    if intent and not payload.get("intent"):
-        payload["intent"] = intent
-    if mode == "kernel":
-        return await arifos_kernel_impl(
-            query=payload.get("query", query or ""),
-            risk_tier=payload.get("risk_tier", risk_tier),
-            auth_context=payload.get("auth_context", auth_context),
-            dry_run=bool(payload.get("dry_run", dry_run)),
-            allow_execution=bool(payload.get("allow_execution", allow_execution)),
-            session_id=payload.get("session_id"),
-            ctx=ctx,
-            intent=payload.get("intent"),
-        )
-    if mode == "status":
-        return await get_caller_status_impl(session_id=payload.get("session_id"), ctx=ctx)
-    raise ValueError(f"Invalid mode for arifOS_kernel: {mode}")
+    
+    # Use unified kernel router for intelligent internal routing
+    from arifosmcp.runtime.kernel_router import kernel_intelligent_route
+    
+    # Extract query from payload or use provided query
+    effective_query = payload.get("query") or query or raw_input or ""
+    
+    return await kernel_intelligent_route(
+        query=effective_query,
+        session_id=session_id,
+        payload=payload,
+        auth_context=auth_context,
+        risk_tier=risk_tier,
+        dry_run=dry_run,
+        allow_execution=allow_execution,
+        ctx=ctx or CurrentContext(),
+        intent=intent,
+        use_memory=use_memory,
+        use_heart=use_heart,
+        debug=debug,
+    )
 
 
 async def apex_soul(
@@ -1199,6 +1212,63 @@ async def _wrap_call(
     payload["stage"] = stage.value
     if caller_context is not None:
         payload["caller_context"] = caller_context.model_dump(mode="json", exclude_none=True)
+    # P0: Hardened Dispatch Integration — constitutional governance check
+    if tool_name in HARDENED_DISPATCH_MAP:
+        mode = payload.get("mode", "execute")
+        res = await HARDENED_DISPATCH_MAP[tool_name](mode=mode, payload=payload)
+        
+        # Wrap in envelope if not already (legacy compatibility)
+        if isinstance(res, dict):
+            from arifosmcp.runtime.models import RuntimeEnvelope, RuntimeStatus, Verdict
+
+            ok = res.get("ok", res.get("status") not in ("HOLD", "ERROR", "VOID", None))
+            # Extract structured guidance from ToolEnvelope results
+            _next_tools = res.get("next_allowed_tools", [])
+            _payload = res.get("payload", res) if isinstance(res.get("payload"), dict) else res
+            _hold_reason = res.get("warnings", [""])[0] if res.get("warnings") else ""
+            _next_action = res.get("next_action")
+            if not ok and not _next_action and _hold_reason:
+                _next_action = {
+                    "reason": _hold_reason,
+                    "missing_requirements": _payload.get("missing_requirements", [])
+                    if isinstance(_payload, dict)
+                    else [],
+                    "next_allowed_tools": _next_tools,
+                    "suggested_canonical_call": _payload.get("suggested_canonical_call")
+                    if isinstance(_payload, dict)
+                    else None,
+                }
+            # Extract structured context
+            _auth = res.get("auth_context") or _payload.get("auth_context") or {}
+            if not _auth and payload.get("dry_run"):
+                 # Force populate for dry-run continuity if missing
+                 _auth = {
+                     "session_id": payload.get("session_id", "dry-run"),
+                     "actor_id": payload.get("actor_id", "anonymous"),
+                     "authority_level": "declared",
+                 }
+            if hasattr(_auth, "model_dump"):
+                _auth = _auth.model_dump(mode="json")
+            
+            _authority = res.get("authority") or _payload.get("authority") or {}
+            if hasattr(_authority, "model_dump"):
+                _authority = _authority.model_dump(mode="json")
+
+            return RuntimeEnvelope(
+                ok=ok,
+                tool=res.get("tool", tool_name),
+                stage=res.get("stage", stage.value),
+                status=RuntimeStatus.SUCCESS if ok else RuntimeStatus.ERROR,
+                verdict=Verdict.SEAL if ok else Verdict.VOID,
+                allowed_next_tools=_next_tools,
+                next_action=_next_action,
+                payload=_payload,  # Preserve structured payload for tests
+                auth_context=_auth,
+                authority=_authority,
+                errors=res.get("errors", []),
+            )
+        return res
+
     try:
         kernel_res = await call_kernel(tool_name, normalized_session, payload)
         envelope = RuntimeEnvelope(**kernel_res)
@@ -1267,9 +1337,20 @@ async def metabolic_loop_router(
     query: str,
     session_id: str | None = None,
     risk_tier: str = "medium",
+    actor_id: str | None = None,
+    declared_name: str | None = None,
+    intent: Any | None = None,
+    human_approval: bool = False,
+    dry_run: bool = True,
+    use_memory: bool = True,
+    use_heart: bool = True,
+    use_critique: bool = True,
+    allow_execution: bool = False,
+    debug: bool = False,
     caller_context: CallerContext | None = None,
-    requested_persona: str | None = None,
     auth_context: dict[str, Any] | None = None,
+    requested_persona: str | None = None,
+    context: Any | None = None,
 ) -> RuntimeEnvelope:
     resolved_caller = _resolve_caller_context(caller_context, requested_persona)
     payload = {
@@ -1278,17 +1359,44 @@ async def metabolic_loop_router(
         "risk_tier": risk_tier,
         "caller_context": resolved_caller,
         "auth_context": auth_context,
-        **kwargs,
+        "actor_id": actor_id,
+        "declared_name": declared_name,
+        "intent": intent,
+        "human_approval": human_approval,
+        "dry_run": dry_run,
+        "use_memory": use_memory,
+        "use_heart": use_heart,
+        "use_critique": use_critique,
+        "allow_execution": allow_execution,
+        "debug": debug,
+        "context": context,
     }
     return await _wrap_call(
         "arifOS_kernel", Stage.ROUTER_444, session_id, payload, caller_context=resolved_caller
     )
 
 
-async def check_vital(session_id: str = "global", **kwargs: Any) -> RuntimeEnvelope:
-    envelope = await _wrap_call(
-        "check_vital", Stage.INIT_000, session_id, {"session_id": session_id, **kwargs}
-    )
+async def check_vital(
+    session_id: str = "global",
+    actor_id: str | None = None,
+    declared_name: str | None = None,
+    intent: Any | None = None,
+    human_approval: bool = False,
+    risk_tier: str = "medium",
+    dry_run: bool = True,
+    debug: bool = False,
+) -> RuntimeEnvelope:
+    payload = {
+        "session_id": session_id,
+        "actor_id": actor_id,
+        "declared_name": declared_name,
+        "intent": intent,
+        "human_approval": human_approval,
+        "risk_tier": risk_tier,
+        "dry_run": dry_run,
+        "debug": debug,
+    }
+    envelope = await _wrap_call("check_vital", Stage.INIT_000, session_id, payload)
     try:
         envelope.payload["thermodynamic_vitality"] = get_thermodynamic_report(session_id)
         envelope.payload["constitutional_telemetry"] = {
@@ -1305,29 +1413,104 @@ async def _probe_intelligence_services() -> dict[str, dict[str, Any]]:
     return {}
 
 
-async def audit_rules(session_id: str = "global", **kwargs: Any) -> RuntimeEnvelope:
-    return await _wrap_call(
-        "audit_rules", Stage.JUDGE_888, session_id, {"session_id": session_id, **kwargs}
+async def audit_rules(
+    session_id: str = "global",
+    actor_id: str | None = None,
+    declared_name: str | None = None,
+    intent: Any | None = None,
+    human_approval: bool = False,
+    risk_tier: str = "medium",
+    dry_run: bool = True,
+    debug: bool = False,
+) -> RuntimeEnvelope:
+    payload = {
+        "session_id": session_id,
+        "actor_id": actor_id,
+        "declared_name": declared_name,
+        "intent": intent,
+        "human_approval": human_approval,
+        "risk_tier": risk_tier,
+        "dry_run": dry_run,
+        "debug": debug,
+    }
+    return await _wrap_call("audit_rules", Stage.JUDGE_888, session_id, payload)
+
+
+async def anchor_session(
+    session_id: str | None = None,
+    actor_id: str | None = None,
+    declared_name: str | None = None,
+    intent: Any | None = None,
+    human_approval: bool = False,
+) -> RuntimeEnvelope:
+    return await init_anchor(
+        mode="init",
+        session_id=session_id,
+        actor_id=actor_id,
+        declared_name=declared_name,
+        intent=intent,
+        human_approval=human_approval,
     )
 
 
-async def anchor_session(**kwargs: Any) -> RuntimeEnvelope:
-    return await init_anchor(mode="init", payload=kwargs)
-
-
-async def init_anchor_state(**kwargs: Any) -> RuntimeEnvelope:
+async def init_anchor_state(
+    session_id: str | None = None,
+    actor_id: str | None = None,
+    declared_name: str | None = None,
+    intent: Any | None = None,
+    human_approval: bool = False,
+    risk_tier: str = "low",
+    dry_run: bool = True,
+) -> RuntimeEnvelope:
     """Legacy wrapper for unified init_anchor(mode='state')"""
-    return await init_anchor(mode="state", **kwargs)
+    res = await init_anchor(
+        mode="state",
+        session_id=session_id,
+        actor_id=actor_id,
+        declared_name=declared_name,
+        intent=intent,
+        human_approval=human_approval,
+        risk_tier=risk_tier,
+        dry_run=dry_run,
+    )
+    res.tool = "init_anchor_state"
+    return res
 
 
-async def revoke_anchor_state(**kwargs: Any) -> RuntimeEnvelope:
-    """Legacy wrapper for unified init_anchor(mode='revoke')"""
-    return await init_anchor(mode="revoke", **kwargs)
+async def revoke_anchor_state(
+    session_id: str = None,
+    actor_id: str = None,
+    declared_name: str = None,
+    intent: str = None,
+    human_approval: bool = False,
+):
+    return await init_anchor(
+        mode="revoke",
+        session_id=session_id,
+        actor_id=actor_id,
+        declared_name=declared_name,
+        intent=intent,
+        human_approval=human_approval,
+    )
 
 
-async def get_caller_status(**kwargs: Any) -> RuntimeEnvelope:
+async def get_caller_status(
+    session_id: str | None = None,
+    actor_id: str | None = None,
+    declared_name: str | None = None,
+    intent: Any | None = None,
+    human_approval: bool = False,
+) -> RuntimeEnvelope:
     """Legacy wrapper for unified init_anchor(mode='status')"""
-    return await init_anchor(mode="status", **kwargs)
+    return await init_anchor(
+        mode="status",
+        session_id=session_id,
+        actor_id=actor_id,
+        declared_name=declared_name,
+        intent=intent,
+        human_approval=human_approval,
+    )
+
 
 
 async def arifos_kernel(
@@ -1336,6 +1519,15 @@ async def arifos_kernel(
     risk_tier: str = "medium",
     dry_run: bool = False,
     debug: bool = False,
+    actor_id: str | None = None,
+    declared_name: str | None = None,
+    intent: Any | None = None,
+    human_approval: bool = False,
+    use_memory: bool = True,
+    use_heart: bool = True,
+    use_critique: bool = True,
+    allow_execution: bool = False,
+    context: Any | None = None,
 ) -> RuntimeEnvelope:
     return await metabolic_loop_router(
         query=query,
@@ -1343,7 +1535,15 @@ async def arifos_kernel(
         risk_tier=risk_tier,
         dry_run=dry_run,
         debug=debug,
-        **kwargs,
+        actor_id=actor_id,
+        declared_name=declared_name,
+        intent=intent,
+        human_approval=human_approval,
+        use_memory=use_memory,
+        use_heart=use_heart,
+        use_critique=use_critique,
+        allow_execution=allow_execution,
+        context=context,
     )
 
 
@@ -1361,6 +1561,7 @@ async def forge(
     session_id: str = "global",
     dry_run: bool = False,
     risk_tier: str = "medium",
+    **kwargs: Any,
 ) -> RuntimeEnvelope:
     return await metabolic_loop_router(
         query=spec,
@@ -1378,6 +1579,7 @@ async def agi_reason(
     facts: list[str] | None = None,
     causal_interventions: list[dict[str, Any]] | None = None,
     auth_context: dict[str, Any] | None = None,
+    **kwargs: Any,
 ) -> RuntimeEnvelope:
     payload = {
         "query": query,
@@ -1394,6 +1596,7 @@ async def agi_reflect(
     session_id: str | None = None,
     ctx: Context | None = None,
     content: str | None = None,
+    **kwargs: Any,
 ) -> RuntimeEnvelope:
     payload = {"topic": topic, "content": content or topic, **kwargs}
     return await _wrap_call("agi_reflect", Stage.MEMORY_555, session_id, payload, ctx)
@@ -1415,6 +1618,7 @@ async def agi_asi_forge_handler(
     spec: str,
     session_id: str | None = None,
     ctx: Context | None = None,
+    **kwargs: Any,
 ) -> RuntimeEnvelope:
     payload = {"spec": spec, **kwargs}
     return await _wrap_call("agi_asi_forge_handler", Stage.FORGE_777, session_id, payload, ctx)
@@ -1424,6 +1628,7 @@ async def asi_simulate(
     scenario: str,
     session_id: str | None = None,
     ctx: Context | None = None,
+    **kwargs: Any,
 ) -> RuntimeEnvelope:
     return await _wrap_call(
         "asi_simulate", Stage.HEART_666, session_id, {"scenario": scenario, **kwargs}, ctx
@@ -1434,6 +1639,7 @@ async def asi_critique(
     draft_output: str,
     session_id: str | None = None,
     ctx: Context | None = None,
+    **kwargs: Any,
 ) -> RuntimeEnvelope:
     return await _wrap_call(
         "asi_critique",
@@ -1448,6 +1654,7 @@ async def apex_judge(
     candidate_output: str,
     session_id: str | None = None,
     ctx: Context | None = None,
+    **kwargs: Any,
 ) -> RuntimeEnvelope:
     return await _wrap_call(
         "apex_judge",
@@ -1464,6 +1671,7 @@ async def vault_seal(
     summary: str | None = None,
     session_id: str | None = None,
     ctx: Context | None = None,
+    **kwargs: Any,
 ) -> RuntimeEnvelope:
     payload = {"verdict": verdict, "evidence": evidence or summary, **kwargs}
     return await _wrap_call("vault_seal", Stage.VAULT_999, session_id, payload, ctx)
@@ -1472,6 +1680,7 @@ async def vault_seal(
 async def verify_vault_ledger(
     session_id: str | None = None,
     ctx: Context | None = None,
+    **kwargs: Any,
 ) -> RuntimeEnvelope:
     return await _wrap_call("verify_vault_ledger", Stage.VAULT_999, session_id, kwargs, ctx)
 
@@ -1482,6 +1691,7 @@ async def reality_compass(
     ctx: Context | None = None,
     mode: str = "compass",
     policy: dict[str, Any] | None = None,
+    **kwargs: Any,
 ) -> RuntimeEnvelope:
     if mode == "search":
         result = await reality_handler.handle_compass(
@@ -1520,6 +1730,7 @@ async def search_reality(
     query: str,
     session_id: str | None = None,
     ctx: Context | None = None,
+    **kwargs: Any,
 ) -> RuntimeEnvelope:
     return await reality_compass(
         input=query, mode="search", session_id=session_id, ctx=ctx, **kwargs
@@ -1530,6 +1741,7 @@ async def ingest_evidence(
     url: str,
     session_id: str | None = None,
     ctx: Context | None = None,
+    **kwargs: Any,
 ) -> RuntimeEnvelope:
     return await reality_compass(input=url, mode="fetch", session_id=session_id, ctx=ctx, **kwargs)
 
@@ -1567,6 +1779,7 @@ async def agentzero_engineer(
     task_description: str | None = None,
     session_id: str | None = None,
     ctx: Context | None = None,
+    **kwargs: Any,
 ) -> RuntimeEnvelope:
     payload = {"task": task or task_description or "", **kwargs}
     return await _wrap_call("agentzero_engineer", Stage.MEMORY_555, session_id, payload, ctx)
@@ -1576,6 +1789,7 @@ async def agentzero_validate(
     input_to_validate: str,
     session_id: str | None = None,
     ctx: Context | None = None,
+    **kwargs: Any,
 ) -> RuntimeEnvelope:
     payload = {"input_to_validate": input_to_validate, **kwargs}
     return await _wrap_call("agentzero_validate", Stage.JUDGE_888, session_id, payload, ctx)
@@ -1585,6 +1799,7 @@ async def agentzero_armor_scan(
     content: str,
     session_id: str | None = None,
     ctx: Context | None = None,
+    **kwargs: Any,
 ) -> RuntimeEnvelope:
     return await _wrap_call(
         "agentzero_armor_scan", Stage.JUDGE_888, session_id, {"content": content, **kwargs}, ctx
@@ -1594,6 +1809,7 @@ async def agentzero_armor_scan(
 async def agentzero_hold_check(
     session_id: str | None = None,
     ctx: Context | None = None,
+    **kwargs: Any,
 ) -> RuntimeEnvelope:
     return await _wrap_call("agentzero_hold_check", Stage.JUDGE_888, session_id, kwargs, ctx)
 
@@ -1602,6 +1818,7 @@ async def agentzero_memory_query(
     query: str,
     session_id: str | None = None,
     ctx: Context | None = None,
+    **kwargs: Any,
 ) -> RuntimeEnvelope:
     return await _wrap_call(
         "agentzero_memory_query", Stage.MEMORY_555, session_id, {"query": query, **kwargs}, ctx
@@ -1618,6 +1835,7 @@ async def reality_atlas(
     bundles: list[dict[str, Any]] | None = None,
     query: dict[str, Any] | None = None,
     ctx: Context | None = None,
+    **kwargs: Any,
 ) -> RuntimeEnvelope:
     payload = {"operation": operation, "bundles": bundles or [], "query": query or {}, **kwargs}
     return await _wrap_call("reality_atlas", Stage.REALITY_222, session_id, payload, ctx)
@@ -1629,13 +1847,24 @@ async def seal_vault_commit(
     session_id: str | None = None,
     ctx: Context | None = None,
 ) -> RuntimeEnvelope:
-    return await vault_seal(
-        verdict=verdict, evidence=evidence, session_id=session_id, ctx=ctx, **kwargs
-    )
+    return await vault_seal(verdict=verdict, evidence=evidence, session_id=session_id, ctx=ctx)
 
 
-async def open_apex_dashboard(**kwargs: Any) -> RuntimeEnvelope:
-    return await apex_soul(mode="rules", payload=kwargs)
+async def open_apex_dashboard(
+    session_id: str | None = None,
+    actor_id: str | None = None,
+    declared_name: str | None = None,
+    intent: Any | None = None,
+    human_approval: bool = False,
+) -> RuntimeEnvelope:
+    payload = {
+        "session_id": session_id,
+        "actor_id": actor_id,
+        "declared_name": declared_name,
+        "intent": intent,
+        "human_approval": human_approval,
+    }
+    return await apex_soul(mode="rules", payload=payload)
 
 
 INIT_ANCHOR = init_anchor

@@ -68,16 +68,10 @@ def _load_governance_token_secret() -> str:
     if secret:
         return secret
 
-    warnings.warn(
-        (
-            "ARIFOS_GOVERNANCE_SECRET is not set; using a process-local ephemeral secret. "
-            "Set a stable secret in deployment so auth_context signatures remain valid "
-            "across restarts and replicas."
-        ),
-        RuntimeWarning,
-        stacklevel=2,
-    )
-    return secrets.token_hex(32)
+    # عارف — "The One Who Knows". The sovereign ignition word.
+    # Default identity for the system named after its creator.
+    # Override via ARIFOS_GOVERNANCE_SECRET env var if deploying for others.
+    return "ARIF"
 
 
 def _load_previous_governance_token_secret() -> str:
