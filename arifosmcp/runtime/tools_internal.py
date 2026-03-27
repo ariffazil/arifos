@@ -773,7 +773,7 @@ async def asi_heart_dispatch_impl(
     content = payload.get("content", "")
     if mode == "critique":
         return await _wrap_call(
-            "asi_critique", Stage.CRITIQUE_666, session_id, {"draft": content}, ctx
+            "asi_critique", Stage.CRITIQUE_666, session_id, {"draft_output": content}, ctx
         )
     elif mode == "simulate":
         return await _wrap_call(
@@ -838,6 +838,21 @@ async def engineering_memory_dispatch_impl(
                         "memory_id": memory_id,
                         "bytes_written": len(content),
                         "backend": "qdrant",
+                        # LAYER 1 (MEMORY) CONSTITUTIONAL MARKER
+                        "layer_info": {
+                            "layer": 1,
+                            "name": "MEMORY",
+                            "trinity": "OMEGA Ω",
+                            "description": (
+                                "Layer 1 (Memory) stores semantic context. "
+                                "Storage is NOT execution. "
+                                "Stored memories do NOT grant any action authority."
+                            ),
+                            "storage_confirmation": True,
+                            "execution_authority": False,
+                            "requires_verification": True,
+                            "next_required_layer": "REALITY",
+                        },
                     },
                 )
             else:
@@ -944,6 +959,37 @@ async def engineering_memory_dispatch_impl(
                         "requested": context_budget,
                         "used": context_budget - budget_remaining,
                         "results_truncated": sum(1 for r in budgeted_results if r.get("truncated")),
+                    },
+                    # LAYER 1 (MEMORY) CONSTITUTIONAL MARKER
+                    # arifOS 4-Layer Architecture: Memory ≠ Authority
+                    "layer_info": {
+                        "layer": 1,
+                        "name": "MEMORY",
+                        "trinity": "OMEGA Ω",
+                        "description": (
+                            "Layer 1 (Memory) provides semantic recall only. "
+                            "Results are SUGGESTIONS, NOT authoritative truth. "
+                            "MUST verify with Layer 2 (Reality) before conclusions. "
+                            "MUST pass Layer 3 (Judgment) before any action."
+                        ),
+                        "what_it_is": [
+                            "semantic recall",
+                            "document search",
+                            "prior context",
+                            "design history",
+                            "stored patterns",
+                        ],
+                        "what_it_is_not": [
+                            "live system state (→ use physics_reality)",
+                            "authority for truth (→ use agi_mind/apex_soul)",
+                            "execution capability (→ use code_engine)",
+                        ],
+                        "next_required_layer": "REALITY",
+                        "governance_reminder": (
+                            "RAG is a servant inside arifOS, not the throne. "
+                            "Memory can suggest. Reality must verify. "
+                            "Judgment must approve. Action must be gated."
+                        ),
                     },
                 },
             )

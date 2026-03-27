@@ -135,7 +135,7 @@ class IngressToleranceMiddleware(Middleware):
 
             # 2. Unknown field absorption: strip fields Pydantic doesn't know about
             known = self._tool_param_sets.get(tool_name)
-            if known:
+            if known is not None:
                 unknown = {k for k in msg.arguments if k not in known}
                 if unknown:
                     logger.debug(
