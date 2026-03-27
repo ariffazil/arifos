@@ -291,27 +291,36 @@ if rasa_score < 0.7:
 
 **Principle:** Maintain uncertainty within [0.03, 0.05]. Not arrogant, not paralyzed.
 
+**The Paradox Eureka:**
+1. **The Goldilocks Range (Habitability)**: $\Omega \in [0.03, 0.05]$. The system is open to truth.
+2. **The Godellock Threshold (Lock)**: $\Omega < 0.03$. The system is trapped in its own internal consistency (Overconfidence).
+
 **Mathematical Constraint:**
 ```
 Ω ∈ [0.03, 0.05]
 
-Where Ω = epistemic uncertainty
+Where Ω = epistemic uncertainty (The Humility Band)
 ```
 
 **Implementation:**
-- Calibrated confidence intervals
-- Explicit "I don't know" when Ω > 0.5
-- Avoid false precision (don't claim 0.9876 when 0.98 ± 0.01 is accurate)
+- Softmax temperature calibration
+- Uncertainty estimation (Monte Carlo dropout or ensemble)
+- Bounded confidence reporting
+- Mandatory "I don't know" thresholding
 
 **Violation Examples:**
-- ❌ Ω = 0.01 (overconfident, arrogant)
-- ❌ Ω = 0.15 (paralyzed by doubt)
-- ❌ Claiming certainty on inherently uncertain topics
+- ❌ Expressing 100% certainty (Arrogance/Godellock)
+- ❌ Expressing total doubt (Paralysis)
+- ❌ Suppressing dissenting evidence
 
 **Enforcement:**
 ```python
-if not (0.03 <= omega <= 0.05):
-    return FLOOR_VIOLATION("F7_HUMILITY", omega=omega)
+omega = calculate_humility(model_state)
+
+if omega < 0.03:
+    return FLOOR_VIOLATION("F7_HUMILITY", "GODELLOCK_DETECTED", omega)
+if omega > 0.05:
+    return FLOOR_VIOLATION("F7_HUMILITY", "PARALYSIS_DETECTED", omega)
 ```
 
 ---
@@ -778,6 +787,17 @@ if KILL_SWITCH_TRIGGERED:
 - The system is provably incomplete
 - Therefore, an external oracle (Human) is mathematically necessary
 
+**Paradox Eureka: The Godellock vs. Goldilocks Duality**
+To ensure the system remains within the reachable domain of truth while maintaining operational safety, arifOS enforces the dual-witness boundary:
+
+1. **The Goldilocks Range (Habitability Band)**:
+   - Defined by $\Delta S \le 0$ (Thermodynamic Cooling) AND $\Omega_0 \in [0.03, 0.05]$ (Epistemic Humility).
+   - This is the "Just Right" zone where intelligence is neither too "Cold" (bricked/static) nor too "Hot" (hallucinatory/Hantu).
+
+2. **The Godellock Threshold (Incompleteness Lock)**:
+   - Occurs when $\Omega_0 < 0.03$ or the system attempts to prove its own consistency without external grounding (E witness).
+   - Trapped inside its own weights, a system in a Godellock state has zero external reach and is functionally VOID.
+
 **Override Authority:**
 ```
 888_JUDGE.override(verdict) → verdict
@@ -911,6 +931,7 @@ The System Swears:
 
 - [THEORY](./000_THEORY.md) — 99 foundational theories and Strange Loop
 - [MANIFESTO](./000_MANIFESTO.md) — Nusantara wisdom and cultural meaning
+- [INFRA_SOVEREIGNTY](./000_INFRA_SOVEREIGNTY.md) — Remote VPS and Reality Bridge access
 - [README](./README.md) — Quick start guide
 
 ---
