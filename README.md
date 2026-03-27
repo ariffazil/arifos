@@ -2,7 +2,7 @@
 
 > **DITEMPA BUKAN DIBERI — Forged, Not Given**
 
-[![Version](https://img.shields.io/badge/version-2026.3.25-blue?style=flat-square)](./CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-2026.03.25-blue?style=flat-square)](./CHANGELOG.md)
 [![License](https://img.shields.io/badge/theory-CC0%201.0-green?style=flat-square)](./LICENSE)
 [![Runtime](https://img.shields.io/badge/runtime-AGPL--3.0-orange?style=flat-square)](./LICENSING.md)
 [![MCP](https://img.shields.io/badge/MCP-2025--11--25-purple?style=flat-square)](https://arifosmcp.arif-fazil.com/mcp)
@@ -398,7 +398,7 @@ The memory subsystem was **9-point hardened** in March 2026 to close critical ve
 | H5 Epistemic F2 Verification | F2 | Multi-signal score: age decay (30%) + access freq (20%) + source credibility (30%) + embed quality (20%) |
 | H6 Context Budget | F4 | 8K char default with `[...TRUNCATED — F4 context budget]` marker |
 | H7 TTL / Lifecycle | F1 | `ttl_days` + `lifecycle_state` fields on MemoryEntry + `enforce_lifecycle()` |
-| H8 Forget Audit Trail | F1 | `[F1_TOMBSTONE]` JSON logging: ids, reason, session, timestamp, floor |
+| H8 Forget Audit Trail | F1 | `[F1_TOMBSTONE]` JSON logging: ids, reason, session_id, timestamp, floor |
 | H9 Composite Ranking | F8 | `_composite_rank()`: cosine=0.45, recency=0.20, access=0.10, source=0.15, area=0.10 |
 
 ### Sensory Intelligence (`arifosmcp/intelligence/`)
@@ -526,7 +526,25 @@ arifosmcp is **MCP 2025-11-25 compliant** and works with any MCP-compatible clie
 
 ## XIII. Developer Quick-Start
 
-### Install
+> **Python ≥ 3.12 required.**
+
+### Install from PyPI
+
+```bash
+pip install arifosmcp
+```
+
+PyPI: https://pypi.org/project/arifosmcp/
+
+### Live MCP Endpoint
+
+```
+https://arifosmcp.arif-fazil.com/mcp
+```
+
+Authentication: Authentik SSO at `auth.arif-fazil.com`
+
+### Install for Development
 
 ```bash
 # Install development dependencies
@@ -618,6 +636,7 @@ pytest tests/ -v       # Full suite (asyncio_mode=auto, no @pytest.mark.asyncio 
 | 2026-03-25 | A-RIF Constitutional RAG — 186 canons loaded from HuggingFace |
 | 2026-03-25 | CI infrastructure audit — 8 workflow files patched |
 | 2026-03-25 | 11-tool surface locked, EXPECTED_TOOL_COUNT=11 assertion added |
+| 2026-03-26 | Merged Quantum Memory Hardening SEAL (PR #288) into main |
 
 ---
 
@@ -673,5 +692,5 @@ Full model: [`LICENSING.md`](./LICENSING.md)
 **DITEMPA BUKAN DIBERI — Forged, Not Given.**
 
 *Author: Muhammad Arif bin Fazil*  
-*Sealed: 2026-03-26 | Version: 2026.3.25*  
+*Sealed: 2026-03-26 | Version: 2026.03.25*  
 *Tri-Witness: Theory ✓ · Law ✓ · Intent ✓*
