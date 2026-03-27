@@ -206,8 +206,6 @@ async def init_anchor(
         res = await HARDENED_DISPATCH_MAP["init_anchor"](mode=mode, payload=payload)
         # Wrap in envelope if not already (legacy compatibility)
         if isinstance(res, dict):
-            from arifosmcp.runtime.models import RuntimeEnvelope, RuntimeStatus, Verdict
-
             ok = res.get("ok", res.get("status") not in ("HOLD", "ERROR", "VOID", None))
             # Extract structured guidance from ToolEnvelope results
             _next_tools = res.get("next_allowed_tools", [])
@@ -412,8 +410,6 @@ async def apex_soul(
         res = await HARDENED_DISPATCH_MAP["apex_soul"](mode=mode, payload=payload)
         # Wrap in envelope if not already (legacy compatibility)
         if isinstance(res, dict):
-            from arifosmcp.runtime.models import RuntimeEnvelope, RuntimeStatus, Verdict
-
             ok = res.get("ok", res.get("status") not in ("HOLD", "ERROR", "VOID", None))
             # Extract structured guidance from ToolEnvelope results
             _next_tools = res.get("next_allowed_tools", [])
@@ -499,8 +495,6 @@ async def vault_ledger(
         res = await HARDENED_DISPATCH_MAP["vault_ledger"](mode=mode, payload=payload)
         # Wrap in envelope if not already (legacy compatibility)
         if isinstance(res, dict):
-            from arifosmcp.runtime.models import RuntimeEnvelope, RuntimeStatus, Verdict
-
             ok = res.get("ok", res.get("status") not in ("HOLD", "ERROR", "VOID", None))
             # Extract structured guidance from ToolEnvelope results
             _next_tools = res.get("next_allowed_tools", [])
@@ -586,8 +580,6 @@ async def agi_mind(
         res = await HARDENED_DISPATCH_MAP["agi_mind"](mode=mode, payload=payload)
         # Wrap in envelope if not already (legacy compatibility)
         if isinstance(res, dict):
-            from arifosmcp.runtime.models import RuntimeEnvelope, RuntimeStatus, Verdict
-
             ok = res.get("ok", res.get("status") not in ("HOLD", "ERROR", "VOID", None))
             # Extract structured guidance from ToolEnvelope results
             _next_tools = res.get("next_allowed_tools", [])
@@ -673,8 +665,6 @@ async def asi_heart(
         res = await HARDENED_DISPATCH_MAP["asi_heart"](mode=mode, payload=payload)
         # Wrap in envelope if not already (legacy compatibility)
         if isinstance(res, dict):
-            from arifosmcp.runtime.models import RuntimeEnvelope, RuntimeStatus, Verdict
-
             ok = res.get("ok", res.get("status") not in ("HOLD", "ERROR", "VOID", None))
             # Extract structured guidance from ToolEnvelope results
             _next_tools = res.get("next_allowed_tools", [])
@@ -760,8 +750,6 @@ async def engineering_memory(
         res = await HARDENED_DISPATCH_MAP["engineering_memory"](mode=mode, payload=payload)
         # Wrap in envelope if not already (legacy compatibility)
         if isinstance(res, dict):
-            from arifosmcp.runtime.models import RuntimeEnvelope, RuntimeStatus, Verdict
-
             ok = res.get("ok", res.get("status") not in ("HOLD", "ERROR", "VOID", None))
             # Extract structured guidance from ToolEnvelope results
             _next_tools = res.get("next_allowed_tools", [])
@@ -847,8 +835,6 @@ async def physics_reality(
         res = await HARDENED_DISPATCH_MAP["physics_reality"](mode=mode, payload=payload)
         # Wrap in envelope if not already (legacy compatibility)
         if isinstance(res, dict):
-            from arifosmcp.runtime.models import RuntimeEnvelope, RuntimeStatus, Verdict
-
             ok = res.get("ok", res.get("status") not in ("HOLD", "ERROR", "VOID", None))
             _next_tools = res.get("next_allowed_tools", [])
             _payload = res.get("payload", res) if isinstance(res.get("payload"), dict) else res
@@ -933,8 +919,6 @@ async def math_estimator(
         res = await HARDENED_DISPATCH_MAP["math_estimator"](mode=mode, payload=payload)
         # Wrap in envelope if not already (legacy compatibility)
         if isinstance(res, dict):
-            from arifosmcp.runtime.models import RuntimeEnvelope, RuntimeStatus, Verdict
-
             ok = res.get("ok", res.get("status") not in ("HOLD", "ERROR", "VOID", None))
             # Extract structured guidance from ToolEnvelope results
             _next_tools = res.get("next_allowed_tools", [])
@@ -1020,8 +1004,6 @@ async def code_engine(
         res = await HARDENED_DISPATCH_MAP["code_engine"](mode=mode, payload=payload)
         # Wrap in envelope if not already (legacy compatibility)
         if isinstance(res, dict):
-            from arifosmcp.runtime.models import RuntimeEnvelope, RuntimeStatus, Verdict
-
             ok = res.get("ok", res.get("status") not in ("HOLD", "ERROR", "VOID", None))
             # Extract structured guidance from ToolEnvelope results
             _next_tools = res.get("next_allowed_tools", [])
@@ -1107,8 +1089,6 @@ async def architect_registry(
         res = await HARDENED_DISPATCH_MAP["architect_registry"](mode=mode, payload=payload)
         # Wrap in envelope if not already (legacy compatibility)
         if isinstance(res, dict):
-            from arifosmcp.runtime.models import RuntimeEnvelope, RuntimeStatus, Verdict
-
             ok = res.get("ok", res.get("status") not in ("HOLD", "ERROR", "VOID", None))
             # Extract structured guidance from ToolEnvelope results
             _next_tools = res.get("next_allowed_tools", [])
@@ -1219,8 +1199,6 @@ async def _wrap_call(
         
         # Wrap in envelope if not already (legacy compatibility)
         if isinstance(res, dict):
-            from arifosmcp.runtime.models import RuntimeEnvelope, RuntimeStatus, Verdict
-
             ok = res.get("ok", res.get("status") not in ("HOLD", "ERROR", "VOID", None))
             # Extract structured guidance from ToolEnvelope results
             _next_tools = res.get("next_allowed_tools", [])
