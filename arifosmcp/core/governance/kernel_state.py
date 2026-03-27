@@ -12,6 +12,7 @@ from .transitions import GovernanceTransitions
 
 logger = logging.getLogger(__name__)
 
+
 @dataclass
 class GovernanceKernel(GovernanceTransitions):
     """Unified kernel state object (Psi)."""
@@ -179,12 +180,14 @@ class GovernanceKernel(GovernanceTransitions):
     def hysteresis_penalty(self) -> float:
         try:
             from arifosmcp.core.telemetry import get_current_hysteresis
+
             return get_current_hysteresis()
         except ImportError:
             return 0.0
 
     def _project_genius_floor_scores(self) -> Any:
         from arifosmcp.core.enforcement.genius import coerce_floor_scores
+
         return coerce_floor_scores(
             defaults={
                 "f1_amanah": round(self.reversibility_score, 4),
@@ -196,12 +199,15 @@ class GovernanceKernel(GovernanceTransitions):
                 "f7_humility": round(0.04 - (self.safety_omega / 10.0), 4),
                 "f8_genius": 0.8,
                 "f11_command_auth": self.authority_level != AuthorityLevel.ANALYSIS,
-                "f13_sovereign": 1.0 if (self.human_approval_status == "approved" or self.decision_owner == "arif") else 0.7,
+                "f13_sovereign": 1.0
+                if (self.human_approval_status == "approved" or self.decision_owner == "arif")
+                else 0.7,
             }
         )
 
     def _project_genius_budget_window(self) -> tuple[float, float]:
         from arifosmcp.core.enforcement.genius import get_thermodynamic_budget_window
+
         return get_thermodynamic_budget_window(
             self.session_id,
             fallback_used=1.0 - self.current_energy,
@@ -211,6 +217,7 @@ class GovernanceKernel(GovernanceTransitions):
     @property
     def genius_score(self) -> float:
         from arifosmcp.core.enforcement.genius import calculate_genius
+
         floors = self._project_genius_floor_scores()
         budget_used, budget_max = self._project_genius_budget_window()
         res = calculate_genius(
@@ -228,26 +235,30 @@ class GovernanceKernel(GovernanceTransitions):
         """
         now = time.time()
         dt = now - self.last_transition_at
-        
+
         # 1. Update Metabolic Flux
         if dt > 0:
             self.metabolic_flux = self.tokens_consumed / dt
-        
+
         # 2. Update Temporal Jitter based on latency
-        latency = context.get("latency_ms", self.last_verified_latency_ms or 0.0)
+        latency = getattr(context, "request_latency_ms", self.last_verified_latency_ms or 0.0)
         if self.last_verified_latency_ms:
             self.temporal_jitter = abs(latency - self.last_verified_latency_ms)
-        
+
         # 3. Anchoring reinforcement
         if dt > 3600:  # 1 hour stale
             self.entropic_drift += 0.05
-            logger.warning(f"Kernel [{self.session_id}] session anchor drift detected. Enforcing re-verification.")
-        
+            logger.warning(
+                f"Kernel [{self.session_id}] session anchor drift detected. Enforcing re-verification."
+            )
+
         self.last_transition_at = now
         self.last_verified_at = datetime.now()
         self.last_verified_latency_ms = latency
-        
-        logger.info(f"Temporal grounding applied: flux={self.metabolic_flux:.2f}, jitter={self.temporal_jitter:.2f}")
+
+        logger.info(
+            f"Temporal grounding applied: flux={self.metabolic_flux:.2f}, jitter={self.temporal_jitter:.2f}"
+        )
 
     def get_current_state(self) -> dict[str, Any]:
         from arifosmcp.core.enforcement.genius import calculate_genius
@@ -264,19 +275,15 @@ class GovernanceKernel(GovernanceTransitions):
 
         floors = self._project_genius_floor_scores()
         budget_used, budget_max = self._project_genius_budget_window()
-        
+
         telemetry_payload = {
             "entropy": {"uncertainty_score": self.safety_omega},
             "exploration": {"hypotheses": [1] * max(1, self.reason_cycles)},
-            "eureka": {"detected": self.governance_state == GovernanceState.ACTIVE}
+            "eureka": {"detected": self.governance_state == GovernanceState.ACTIVE},
         }
-        
+
         genius_res = calculate_genius(
-            floors, 
-            self.hysteresis_penalty, 
-            budget_used, 
-            budget_max, 
-            telemetry=telemetry_payload
+            floors, self.hysteresis_penalty, budget_used, budget_max, telemetry=telemetry_payload
         )
         dials = genius_res["dials"]
         stability_t = self.temporal_stability
@@ -289,9 +296,12 @@ class GovernanceKernel(GovernanceTransitions):
             "hysteresis": self.hysteresis_penalty,
             "genius": genius_res["genius_score"],
             "floors": {
-                "F1": floors.f1_amanah, "F2": floors.f2_truth,
-                "F3": floors.f3_earth_witness, "F4": floors.f4_clarity,
-                "F7": floors.f7_humility, "F8": genius_res["genius_score"],
+                "F1": floors.f1_amanah,
+                "F2": floors.f2_truth,
+                "F3": floors.f3_earth_witness,
+                "F4": floors.f4_clarity,
+                "F7": floors.f7_humility,
+                "F8": genius_res["genius_score"],
                 "F11": 1.0 if floors.f11_command_auth else 0.0,
                 "F13": floors.f13_sovereign,
             },

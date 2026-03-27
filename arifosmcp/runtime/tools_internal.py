@@ -342,6 +342,29 @@ async def init_anchor_impl(
     if mode == "status":
         return await get_caller_status_impl(session_id, ctx)
 
+    if mode == "floor_check":
+        from arifosmcp.core.shared.floors import THRESHOLDS, get_floor_spec
+
+        floors = []
+        for fid in sorted(THRESHOLDS.keys()):
+            spec = get_floor_spec(fid)
+            floors.append(
+                {
+                    "floor_id": fid,
+                    "name": spec.get("name", ""),
+                    "threshold": spec.get("threshold"),
+                    "comparator": spec.get("comparator"),
+                    "floor_type": spec.get("type"),
+                    "description": spec.get("description", ""),
+                }
+            )
+        envelope = await _wrap_call(
+            "init_anchor", Stage.INIT_000, session_id, {"mode": "floor_check"}, ctx
+        )
+        envelope.payload["floors"] = floors
+        envelope.payload["count"] = len(floors)
+        return envelope
+
     if mode == "state":
         # Forensic State Retrieval: Return current identity without forcing re-initialization
         from arifosmcp.runtime.sessions import get_session_identity
@@ -884,7 +907,10 @@ async def engineering_memory_dispatch_impl(
                     budget_remaining -= content_len
                 else:
                     truncated = r.copy()
-                    truncated["content"] = r["content"][:budget_remaining] + "\n[...TRUNCATED \u2014 F4 context budget]"
+                    truncated["content"] = (
+                        r["content"][:budget_remaining]
+                        + "\n[...TRUNCATED \u2014 F4 context budget]"
+                    )
                     truncated["truncated"] = True
                     budgeted_results.append(truncated)
                     budget_remaining = 0
@@ -939,7 +965,10 @@ async def engineering_memory_dispatch_impl(
                     budget_remaining -= content_len
                 else:
                     truncated = r.copy()
-                    truncated["content"] = r["content"][:budget_remaining] + "\n[...TRUNCATED \u2014 F4 context budget]"
+                    truncated["content"] = (
+                        r["content"][:budget_remaining]
+                        + "\n[...TRUNCATED \u2014 F4 context budget]"
+                    )
                     truncated["truncated"] = True
                     budgeted_results.append(truncated)
                     budget_remaining = 0
@@ -1087,7 +1116,9 @@ async def engineering_memory_dispatch_impl(
                 stage="555_MEMORY",
                 verdict=Verdict.SABAR,
                 status=RuntimeStatus.SABAR,
-                payload={"error": "vector_forget requires 'memory_ids' list or 'query' to identify targets"},
+                payload={
+                    "error": "vector_forget requires 'memory_ids' list or 'query' to identify targets"
+                },
             )
 
         forgot_ids: list[str] = []
@@ -1123,12 +1154,16 @@ async def engineering_memory_dispatch_impl(
 
                     # H3: Delete from LanceDB hot cache
                     try:
-                        from arifosmcp.intelligence.tools.hybrid_vector_memory import get_hybrid_memory
+                        from arifosmcp.intelligence.tools.hybrid_vector_memory import (
+                            get_hybrid_memory,
+                        )
 
                         hm = await get_hybrid_memory()
                         await hm.purge(target_ids)
                     except Exception as e:
-                        logger.warning(f"H3: LanceDB purge in query-forget failed (non-blocking): {e}")
+                        logger.warning(
+                            f"H3: LanceDB purge in query-forget failed (non-blocking): {e}"
+                        )
 
         # H8: Audit tombstone — F1 Amanah requires traceability
         tombstone = {
@@ -1310,6 +1345,15 @@ async def math_estimator_dispatch_impl(
         )
     elif mode == "vitals":
         return await _wrap_call("check_vital", Stage.INIT_000, session_id, {}, ctx)
+    elif mode == "entropy":
+        from arifosmcp.core.physics.thermodynamics_hardened import get_thermodynamic_report
+
+        report = get_thermodynamic_report(session_id or "unknown")
+        envelope = await _wrap_call(
+            "math_estimator", Stage.HEART_555, session_id, {"mode": "entropy"}, ctx
+        )
+        envelope.payload["thermodynamic_report"] = report
+        return envelope
     raise ValueError(f"Invalid mode for math_estimator: {mode}")
 
 
