@@ -1,0 +1,39 @@
+{
+  "mcpVersion": "1.0.0",
+  "tools": [
+    {
+      "name": "init_anchor",
+      "description": "Initialize the metabolic loop anchor.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "mode": { "type": "string" },
+          "actor_id": { "type": "string" },
+          "auth_context": { "type": ["object", "null"] }
+        }
+      }
+    },
+    {
+      "name": "arifOS_kernel",
+      "description": "The arifOS metabolic loop router.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": { "type": "string" },
+          "session_id": { "type": "string" },
+          "auth_context": { "type": ["object", "null"] }
+        }
+      }
+    }
+  ],
+  "schema": {
+    "input": {
+      "arifOS_kernel": {
+        "type": "object",
+        "properties": {
+          "auth_context": { "type": ["object", "null"] }
+        }
+      }
+    }
+  }
+}
