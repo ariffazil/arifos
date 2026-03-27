@@ -1,3 +1,45 @@
+## [2026.03.27-ANTIGRAVITY] - P0 Mode Fixes + Constitutional Perception Sealed
+
+### 🔧 Constitutional P0 Mode Fixes
+
+3 P0 capabilities implemented as modes on existing 11 mega-tools (no new tools).
+
+#### Bug Fixes
+- **Bug #1** — `kernel_state.py:237`: `context.get("latency_ms")` crashed at runtime. `TemporalContract` uses `request_latency_ms`. Fixed via `getattr()`. (`core/governance/kernel_state.py`)
+- **Bug #2** — `tools_internal.py`: `uncertainty_band` field doesn't exist on `TelemetryVitals`. Fixed to `confidence`. (`runtime/tools_internal.py`)
+
+#### Mode Implementations
+- **`init_anchor(mode="floor_check")`** — Returns all 13 constitutional floor specs (F1-F13) with threshold, range, floor_type, and description. Uses `FLOOR_SPEC_KEYS` for correct ID mapping. (`runtime/tools_internal.py`)
+- **`math_estimator(mode="entropy")`** — Returns thermodynamic ΔS report via `get_thermodynamic_report()`: budget, entropy_log, constitutional_compliance. Stage `MEMORY_555`. (`runtime/tools_internal.py`)
+- **`vault_ledger(mode="verify")`** — Already existed. Verifies VAULT999 ledger chain integrity via Redis or file fallback.
+
+#### Test Results
+- ✅ `floor_check`: Returns 13 floors with correct thresholds (F7 shows range (0.03, 0.2))
+- ✅ `entropy`: Returns thermodynamic report with budget, entropy_log, compliance
+- ✅ `vault_ledger verify`: Attempts verification (SABAR expected without anchored session)
+
+### 🚀 Eureka Forge + ShellForge Integration
+- `ToolRegistry` dynamically loads YAML manifests from `/tools/manifests/`
+- `ShellForge` provides hardened shell execution gateway with injection defense (F12)
+- `arifOS_kernel.yaml` manifest declares F1/F12/F13 floor dependencies
+
+### Files Changed
+| File | Change |
+|------|--------|
+| `arifosmcp/core/governance/kernel_state.py` | TemporalContract attribute fix |
+| `arifosmcp/runtime/tools_internal.py` | floor_check + entropy modes + confidence fix |
+| `arifosmcp/tools/registry.py` | NEW — ToolRegistry manifest loader |
+| `arifosmcp/runtime/shell_forge.py` | NEW — ShellForge gateway |
+| `arifosmcp/tools/manifests/governance/arifOS_kernel.yaml` | NEW — YAML manifest |
+
+### Constraint
+- **Zero new tools added.** All 11 mega-tools preserved. P0 capabilities as modes only.
+
+### Verdict
+**SEAL — DITEMPA BUKAN DIBERI**
+
+---
+
 ## [2026.03.25-QUANTUM-MEMORY] - Quantum Memory Hardening + A-RIF Constitutional RAG
 
 ### 🧠 QUANTUM MEMORY HARDENING (H1-H9)
