@@ -12,7 +12,7 @@ DITEMPA BUKAN DIBERI — Forged, Not Given
 
 import pytest
 
-from core.shared.sbert_floors import (
+from arifosmcp.core.shared.sbert_floors import (
     SBERT_AVAILABLE,
     SbertFloorClassifier,
     SbertFloorScores,
@@ -284,7 +284,7 @@ class TestIntegrationSmoke:
 
     def test_classifier_singleton(self):
         """Test that classifier uses singleton pattern."""
-        from core.shared.sbert_floors import get_sbert_classifier, _classifier
+        from arifosmcp.core.shared.sbert_floors import get_sbert_classifier, _classifier
         
         # Get classifier twice
         clf1 = get_sbert_classifier()

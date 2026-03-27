@@ -9,7 +9,7 @@ import os
 import pytest
 from unittest.mock import patch
 
-from core.security.tokens import (
+from arifosmcp.core.security.tokens import (
     TokenResult,
     ValidationResult,
     mint_governance_token,
@@ -306,7 +306,7 @@ class TestOpenModeConfiguration:
             with patch.dict(os.environ, {"ARIFOS_OPEN_MODE": value}):
                 # Need to reimport to pick up new env var
                 import importlib
-                from core.security import tokens
+                from arifosmcp.core.security import tokens
 
                 importlib.reload(tokens)
                 assert tokens.OPEN_MODE is True
@@ -315,7 +315,7 @@ class TestOpenModeConfiguration:
         for value in ["false", "FALSE", "0", "no", "", "off"]:
             with patch.dict(os.environ, {"ARIFOS_OPEN_MODE": value}):
                 import importlib
-                from core.security import tokens
+                from arifosmcp.core.security import tokens
 
                 importlib.reload(tokens)
                 assert tokens.OPEN_MODE is False

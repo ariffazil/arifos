@@ -9,7 +9,7 @@ import pytest
 import time
 import asyncio
 from arifosmcp.runtime.tools import init_anchor, arifos_kernel, get_caller_status
-from core.enforcement.auth_continuity import mint_auth_context
+from arifosmcp.core.enforcement.auth_continuity import mint_auth_context
 from arifosmcp.runtime.models import Verdict
 from arifosmcp.runtime.sessions import get_session_identity, clear_session_identity, set_active_session
 

@@ -1,6 +1,6 @@
 import pytest
 
-from core.shared.physics import (
+from arifosmcp.core.shared.physics import (
     ConstitutionalTensor,
     GeniusDial,
     Peace2,

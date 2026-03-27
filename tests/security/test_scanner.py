@@ -6,7 +6,7 @@ DITEMPA BUKAN DIBERI — Forged, Not Given
 """
 
 import pytest
-from core.security.scanner import (
+from arifosmcp.core.security.scanner import (
     ScanResult,
     scan_for_injection,
     scan_dict,

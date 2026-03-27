@@ -1,6 +1,6 @@
 import pytest
 
-from core.shared.atlas import ATLAS, Lane, QueryType, Φ
+from arifosmcp.core.shared.atlas import ATLAS, Lane, QueryType, Φ
 
 
 @pytest.fixture
