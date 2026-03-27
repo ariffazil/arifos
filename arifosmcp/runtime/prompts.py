@@ -89,3 +89,14 @@ def register_prompts(mcp: FastMCP) -> None:
             "metabolic stages 000-999. Refer to 'arifos://agents/skills' for your "
             "atomic competence registry. Motto: DITEMPA BUKAN DIBERI."
         )
+
+    @mcp.prompt()
+    def human_explainer(verdict: str, reasoning: str) -> str:
+        """Prompt to translate complex governance logic into human-friendly narrative."""
+        return (
+            f"The system has issued a {verdict} verdict. "
+            f"Reasoning: {reasoning}. "
+            "Please translate this into a clear, non-technical explanation "
+            "that highlights the constitutional floors involved (F1-F13). "
+            "Motto: DITEMPA BUKAN DIBERI."
+        )
