@@ -35,6 +35,8 @@ from arifosmcp.runtime.contracts_v2 import (
     determine_human_marker,
     calculate_entropy_budget,
 )
+from arifosmcp.runtime.sessions import bind_session_identity, clear_session_identity
+
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -658,6 +660,17 @@ class HardenedInitAnchor:
         )
         self._sessions[session_id] = state
 
+        # ── STEP 17.5: Bind to central session registry (Continuity FIX) ──
+        bind_session_identity(
+            session_id=session_id,
+            actor_id=declared_name_norm,
+            authority_level=sclass.value,
+            auth_context=auth_context or {},
+            approval_scope=allowed_scope,
+            human_approval=bool(human_approval),
+            caller_state="anchored",
+        )
+
         # ── STEP 18: Human marker and entropy ──
         human_marker = determine_human_marker(
             risk_tier=risk,
@@ -818,6 +831,7 @@ class HardenedInitAnchor:
 
         if session_id in self._sessions:
             del self._sessions[session_id]
+            clear_session_identity(session_id)
 
         return ToolEnvelope(
             status=ToolStatus.OK,

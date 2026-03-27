@@ -160,3 +160,30 @@ class GovernanceTransitions:
             "human_denied",
             human_status="denied",
         )
+
+    def apply_temporal_grounding(self, contract: Any) -> None:
+        """
+        P0: Enforce temporal contracts on kernel decisions.
+        Anchors kernel to verified wall-clock and wall-latency.
+        """
+        from arifosmcp.core.shared.types import TemporalContract
+
+        if not isinstance(contract, TemporalContract):
+            return
+
+        self.last_verified_at = contract.observed_at
+        self.last_verified_latency_ms = contract.request_latency_ms
+
+        if self.authority_level == AuthorityLevel.REQUIRES_HUMAN:
+            # Landauer Hardening
+            t_min = 1500.0
+            if contract.request_latency_ms < t_min:
+                reason = f"temporal_insufficiency: latency {contract.request_latency_ms}ms < {t_min}ms"
+                self._set_state(GovernanceState.CONDITIONAL, AuthorityLevel.SUGGESTION, reason)
+
+        if contract.valid_until:
+            now = datetime.now(contract.valid_until.tzinfo) if contract.valid_until.tzinfo else datetime.now()
+            if now > contract.valid_until:
+                self._set_state(GovernanceState.VOID, AuthorityLevel.UNSAFE_TO_AUTOMATE, "authority_expired")
+
+        self._evaluate_governance()

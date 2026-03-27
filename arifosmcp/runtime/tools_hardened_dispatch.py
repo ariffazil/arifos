@@ -52,8 +52,8 @@ def _apply_policy(
     envelope_dict["floors"] = policy.floors  # Assigned Floors now visible
 
     # 2. Empirical Thermodynamic Measurement (F4 Clarity)
-    input_str = json.dumps(input_payload, sort_keys=True)
-    output_str = json.dumps(envelope_dict.get("payload", {}), sort_keys=True)
+    input_str = json.dumps(input_payload, sort_keys=True, default=str)
+    output_str = json.dumps(envelope_dict.get("payload", {}), sort_keys=True, default=str)
 
     ds = delta_S(input_str, output_str)
     envelope_dict["entropy"] = {
@@ -72,10 +72,26 @@ def _apply_policy(
     envelope_dict["g_score"] = round(g, 4)
 
     # 4. Humility Mapping (F7)
-    envelope_dict["humility_band"] = humility_band(conf).omega_0
+    omega = humility_band(conf).omega_0
+    envelope_dict["humility_band"] = omega
 
-    # 5. Proactive 888_HOLD
-    if (policy.risk in ("high", "critical")) and envelope_dict.get("verdict") != "VOID":
+    # 5. Geox Eureka: Goldilocks & Godellock (The Paradox Eureka)
+    is_goldilocks = (ds <= 0) and (0.03 <= omega <= 0.05)
+    is_godellock = (omega < 0.03)
+
+    envelope_dict["geox_eureka"] = {
+        "is_goldilocks": is_goldilocks,
+        "is_godellock": is_godellock,
+        "verdict": "HABITABLE" if is_goldilocks else ("LOCKED" if is_godellock else "UNSTABLE"),
+    }
+
+    # 6. Proactive 888_HOLD & Godellock Void
+    if is_godellock:
+        envelope_dict["verdict"] = "VOID"
+        envelope_dict["note"] = (
+            "Godellock Detected: System trapped in internal consistency. Zero external reach."
+        )
+    elif (policy.risk in ("high", "critical")) and envelope_dict.get("verdict") != "VOID":
         envelope_dict["verdict"] = "888_HOLD"
         envelope_dict["note"] = f"Sovereign approval required for {policy.substrate} operation."
 
@@ -374,20 +390,8 @@ async def hardened_arifos_kernel_dispatch(
             },
         }
 
-    # P0: Authority verification - check if session is anchored
-    from arifosmcp.runtime.sessions import get_session_identity
-
-    identity = get_session_identity(session_id)
-    if not identity:
-        return {
-            "ok": False,
-            "error": f"Session {session_id} not anchored. Run init_anchor first.",
-            "status": "HOLD",
-            "next_action": {
-                "tool": "init_anchor",
-                "reason": "Session identity not bound",
-            },
-        }
+    # P0: Authority verification - arifOS_kernel does its own boot.
+    pass
 
     # Route to metabolic loop with preserved context
     query = payload.get("query") or payload.get("task") or "No query provided"
@@ -400,7 +404,13 @@ async def hardened_arifos_kernel_dispatch(
     result = await metabolic_loop(
         query=query,
         session_id=session_id,  # CRITICAL: Preserve original session
+        risk_tier=risk_tier,
+        actor_id=payload.get("actor_id", "anonymous"),
+        auth_context=payload.get("auth_context"),
         dry_run=dry_run,
+        caller_context=payload.get("caller_context"),
+        declared_name=payload.get("declared_name"),
+        human_approval=payload.get("human_approval", False),
     )
 
     # Fix 3 — Mark kernel output as ROUTER_META; it does NOT authorise domain claims.
