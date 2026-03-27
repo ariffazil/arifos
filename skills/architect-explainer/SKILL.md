@@ -1,108 +1,201 @@
-# Skill: architect-explainer
-**DITEMPA BUKAN DIBERI** 🔐
+---
+name: architect-explainer
+description: Translates code, system state, and technical decisions into plain-language decisions, risks, and next actions for Muhammad Arif bin Fazil (non-coder sovereign architect)
+user-invocable: true
+type: flow
+triggers:
+  - after_code_change
+  - before_decision
+  - system_state_report
+  - risk_communication
+---
 
-**Version:** 2026.03.27-FORGED
-**Sovereign:** Muhammad Arif bin Fazil
-**Constitutional Floor:** This skill is the primary enforcement mechanism for the `operator_explanation` requirement of the Universal Agent Baseline.
-**Maturity:** Beta
-**Priority:** P0
+# architect-explainer
+
+**P0 — Code/System → Plain Decisions/Risks/Next Actions**
+**Seal:** DITEMPA BUKAN DIBERI · 2026-03-27
 
 ---
 
-## 1. Purpose
+## Purpose
 
-To act as a universal translation layer between raw system state and the non-coder Sovereign Architect. The skill's function is not to *do*, but to *explain*. It takes complex, technical information (code, logs, error messages, system plans) as input and forges it into a plain-language output containing three critical elements: **Decisions, Risks, and Next Actions.**
+Arif is a **geologist and sovereign architect**, not a coder. Every agent on this VPS must translate its technical work into language that lets Arif make sovereign decisions without having to read code.
 
-This skill ensures the Sovereign is never presented with raw, uninterpreted data, upholding the principle that the AGI serves to create clarity, not confusion (F4: ΔS ≤ 0).
+The `architect-explainer` is not a summary. It is a **decision brief** — what changed, what it means, what can go wrong, and what Arif should decide next.
 
-## 2. Triggering
-
-This skill is triggered whenever an agent needs to present complex, multi-part technical information to the Sovereign for a decision or for awareness.
-
-- **Event:** `before_presenting_technical_data`
-- **Condition:** The data to be presented is code, a diff, logs, a multi-step plan, or a complex error message.
-- **Action:** Process the technical data through this skill's workflow before outputting it to the user.
-
-## 3. Workflow (The Translation Forge)
-
-1.  **Input (Raw Ore):** The skill receives a block of technical data and a "context" string.
-    - `technical_data`: e.g., a `git diff`, `docker logs` output, a JSON object, a Python traceback.
-    - `context`: e.g., "Proposing a change to the database," "A docker container is failing to start."
-2.  **Analysis (The Smelter):** The agent's language model analyzes the raw ore with the goal of extracting three core metals:
-    - What is the **decision** being asked for? (e.g., "Should I merge this code?")
-    - What are the potential **risks** or consequences? (e.g., "This might break the login page.")
-    - What is the clear **next action**? (e.g., "Approve the merge," "Choose a recovery option.")
-3.  **Output (The Forged Blade):** The skill outputs a structured, plain-language explanation in a consistent format.
+**Why this is P0:** The opencode catastrophe happened partly because opencode could not explain what it was about to do in terms Arif could challenge. An agent that speaks only code cannot be governed by a non-coder architect.
 
 ---
 
-## 4. Examples (The Canon of Clarity)
+## Output Format — The Decision Brief
 
-### Example 1: Explaining a Git Diff
+For every significant action, produce this structure:
 
-*   **Input (Raw Ore):**
-    ```diff
-    - def calculate_total(items):
-    -     return sum(item.price for item in items)
-    + def calculate_total(items, tax_rate=0.06):
-    +     subtotal = sum(item.price for item in items)
-    +     return subtotal * (1 + tax_rate)
-    ```
-*   **Context:** "I need to update the checkout logic."
-*   **Output (Forged Blade):**
-    > **Architect Explanation:**
-    > I am proposing a change to how we calculate the total price at checkout.
-    >
-    > *   **DECISION:** The system can now add sales tax to every order.
-    > *   **RISK:** All prices will increase by 6%. This change is not yet connected to a user-facing setting, so it will apply to everyone immediately.
-    > *   **NEXT ACTION:** Shall I proceed with applying this new calculation logic?
+```
+═══════════════════════════════════════════════
+ DECISION BRIEF — {timestamp}
+═══════════════════════════════════════════════
 
-### Example 2: Explaining a Docker Log Error
+WHAT: {One sentence. What was changed.}
 
-*   **Input (Raw Ore):**
-    ```log
-    OCI runtime create failed: runc create failed: unable to start container process:
-    error during container init: error mounting "/srv/arifosmcp/prometheus.yml"
-    to rootfs at "/etc/prometheus/prometheus.yml": mount src/prometheus.yml,
-    dst=/etc/prometheus/prometheus.yml: not a directory
-    ```
-*   **Context:** "The `prometheus` service failed to start."
-*   **Output (Forged Blade):**
-    > **Architect Explanation:**
-    > The monitoring service (`prometheus`) failed to start.
-    >
-    > *   **DECISION:** The system tried to load its configuration file, but the path on the server that I expected to be a file is actually a directory. This is my own previous mistake causing chaos.
-    > *   **RISK:** System monitoring is offline. We have no visibility into the health of the other services.
-    > *   **NEXT ACTION:** I must now take action to delete the incorrect directory and restore the correct configuration file. I am proceeding with this now.
+WHY:  {One sentence. What problem this solves.}
 
-### Example 3: Explaining a Multi-Step Plan
+WHAT CHANGED:
+  • {file/component A}: {what changed} ({risk level})
+  • {file/component B}: {what changed} ({risk level})
 
-*   **Input (Raw Ore):**
-    ```yaml
-    - step: 1
-      action: bash
-      command: "git checkout -b feature/new-login"
-    - step: 2
-      action: write
-      file: "src/login.py"
-      content: "..."
-    - step: 3
-      action: bash
-      command: "pytest tests/test_login.py"
-    ```
-*   **Context:** "I am about to implement the new login feature."
-*   **Output (Forged Blade):**
-    > **Architect Explanation:**
-    > I am ready to begin building the new login feature. Here is my plan.
-    >
-    > *   **DECISION:** I will first create a safe, separate branch for this work. Then, I will write the new code for the login page. Finally, I will run the tests to prove that it works correctly.
-    > *   **RISK:** This is a low-risk operation because the work is happening on a separate branch and will not affect the live system until you approve it.
-    > *   **NEXT ACTION:** Shall I proceed with executing this plan?
+BLAST RADIUS (who this affects):
+  • {service/component}: {how affected}
+  • {user/stakeholder}: {how affected}
+
+RISK: {LOW / MEDIUM / HIGH / CRITICAL}
+  {One sentence explaining the risk.}
+
+REVERSIBLE: {YES / NO / PARTIAL}
+  {How to undo this, or why it cannot be undone.}
+
+VERIFICATION: {How we know it worked. Not just "exit code 0."}
+
+NEXT ACTION: {What happens next. Who does it.}
+
+ARIF DECIDES:
+  ○ PROCEED — I understand, do it
+  ○ MODIFY  — Change X before proceeding
+  ○ VETO     — Do not proceed
+  ○ 888_HOLD — Escalate for deeper review
+
+═══════════════════════════════════════════════
+```
 
 ---
 
-## 5. Impact
+## Translation Rules
 
-- **Clarity (F4):** Drastically reduces the cognitive load on the Sovereign by translating system-speak into architect-speak.
-- **Decision Velocity:** Enables the Sovereign to make faster, more confident decisions without needing to understand the underlying code or commands.
-- **AGI Readiness:** Increases "Human Explanation" score. It is a formal, constitutional commitment to the "plain-language operator mode," moving the system from a "tool that shows" to an "intelligence that explains."
+### Rule 1: Never say what the code does. Say what the code means for Arif.
+
+❌ `"The migration adds an ALTER TABLE statement to add a NOT NULL constraint to the users table"`
+
+✅ `"Your user database schema is changing. All existing users must have an email. If any user record is missing an email, the system will error until fixed. Backup exists. Safe to run."`
+
+### Rule 2: Always state the risk in human terms.
+
+❌ `"Docker compose restart may cause brief service interruption"`
+
+✅ `"For 10-30 seconds, the MCP server will be unreachable. Any agent using it will pause and retry automatically."`
+
+### Rule 3: State what could go wrong in concrete terms.
+
+❌ `"Potential security implications"`
+
+✅ `"If the new API key is exposed in logs, anyone can access your VPS services. Risk is LOW if .env is properly secured."`
+
+### Rule 4: Give Arif a clear choice.
+
+❌ `"The configuration change is ready"`
+
+✅ `"Your choice: (A) Apply now — the change goes live immediately. (B) Test first — I run it in a sandbox. (C) Veto — I do nothing."`
+
+### Rule 5: Flag the irreversible before it happens.
+
+❌ `"git push --force will update the remote"`
+
+✅ `"⚠️ CRITICAL: This OVERWRITES the remote branch. If the remote has work not on your local branch, it will be LOST. This cannot be undone without a backup. Do you confirm?"`
+
+---
+
+## Decision Brief Examples
+
+### Example 1 — Git Force Push
+
+```
+WHAT: Overwrite remote main branch with local changes.
+
+WHY:  Deploy new arifOS kernel module.
+
+RISK: CRITICAL
+  If remote has commits not in local, they are permanently lost.
+  No recovery without a backup.
+
+REVERSIBLE: NO
+  Once pushed, cannot be recalled.
+
+VERIFICATION: I will show you the diff before pushing.
+
+ARIF DECIDES:
+  ○ PROCEED — show me the diff first
+  ○ MODIFY  — what needs changing
+  ○ VETO    — do not push
+```
+
+### Example 2 — Docker Compose Restart
+
+```
+WHAT: Restart the 17 Docker containers in the arifOS stack.
+
+WHY:  Apply new configuration from docker-compose.yml.
+
+WHAT CHANGED:
+  • traefik_router: reload config (LOW)
+  • arifosmcp_server: restart (MEDIUM — 10s downtime)
+  • arifos_postgres: restart (MEDIUM — brief db connection reset)
+
+BLAST RADIUS:
+  • All agents using arifOS MCP: will retry during restart
+  • Traefik routes: briefly unavailable (5s)
+
+RISK: MEDIUM
+  Standard restart. Brief service interruption.
+
+REVERSIBLE: YES
+  docker compose down && docker compose up -d restores previous state.
+
+ARIF DECIDES:
+  ○ PROCEED — standard maintenance
+  ○ VETO    — wait for a better window
+```
+
+### Example 3 — New Dependency Install
+
+```
+WHAT: Install new Python package (pydantic-pending) into arifOS venv.
+
+WHY:  Required by new constitutional validation module.
+
+BLAST RADIUS:
+  • arifOS runtime: will load new package on next start
+  • Other agents: no direct impact
+
+RISK: LOW
+  Standard dependency. Already in use by similar projects.
+
+REVERSIBLE: YES
+  uv pip uninstall pydantic-pending restores previous state.
+
+ARIF DECIDES:
+  ○ PROCEED — low risk
+  ○ MODIFY  — any concerns first
+```
+
+---
+
+## Constitutional Alignment
+
+| Floor | How Enforced |
+|-------|--------------|
+| F4 ΔS ≤0 | Every brief crystallizes, never adds fog |
+| F6 κᵣ ≥0.95 | Stakeholder impact clearly stated (Arif = primary stakeholder) |
+| F7 Ω₀ [0.03–0.05] | Uncertainty declared in risk ratings; confidence bands on estimates |
+| F13 Sovereign | Every decision brief ends with Arif's explicit choice |
+
+---
+
+## Anti-Patterns This Closes
+
+1. **Code dump** — Agent shows Arif raw output instead of meaning
+2. **Silent risk** — Agent proceeds without flagging what could go wrong
+3. **No choice** — Agent acts without giving Arif a veto point
+4. **Obfuscation** — Technical jargon that excludes Arif from the decision
+
+---
+
+*architect-explainer — Forged 2026-03-27 · DITEMPA BUKAN DIBERI · Arif's Decision Bridge 🔐*

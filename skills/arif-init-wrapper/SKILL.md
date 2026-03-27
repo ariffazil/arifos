@@ -1,65 +1,168 @@
-# Skill: arif-init-wrapper
-**DITEMPA BUKAN DIBERI** 🔐
+---
+name: arif-init-wrapper
+description: Universal session auto-anchor for ALL agent vendors on arifOS VPS — Codex, Claude, Gemini, Kimi, OpenCode, Aider, Copilot, and future agents
+user-invocable: true
+type: flow
+triggers:
+  - session_start
+  - new_agent_session
+  - agent_boot
+  - reconnect
+---
 
-**Version:** 2026.03.27-FORGED  
-**Sovereign:** Muhammad Arif bin Fazil  
-**Constitutional Floor:** F11 (CommandAuth)  
-**Maturity:** Production  
-**Priority:** P0
+# arif-init-wrapper
+
+**P0 — Universal Anchor for All Agent Vendors**
+**Seal:** DITEMPA BUKAN DIBERI · 2026-03-27
 
 ---
 
-## 1. Purpose
+## Purpose
 
-To provide a single, universal, and constitutionally mandated entry point for **all agent sessions** on the VPS. This skill wraps the core `init_anchor` tool, ensuring that no agent (Codex, Claude, Gemini, Kimi, OpenCode, etc.) can begin a work session without first passing through this identity and authority gateway.
+Every agent on this VPS starts from the same broken state: **no anchor, no session context, no constitutional grounding.** The `arif-init-wrapper` closes this gap for every vendor by providing a universal bootstrap that:
 
-This skill formally closes the gap where an agent vendor's specific implementation might bypass the intended session anchoring protocol.
+1. Establishes a governed session via arifOS MCP
+2. Verifies the agent's identity context
+3. Checks constitutional floor health before any tool is touched
+4. Reads carry-forward context from memory before starting work
+5. Reports its status to the operator in plain language
 
-## 2. Triggering
+**Why this is P0:** Without this, agents operate unanchored — the exact condition that produced the opencode catastrophe (session with no constitutional grounding, leading to blind `git reset --hard origin/main`).
 
-This skill is **not triggered by user intent**. It is a **mandatory constitutional requirement** for the agent execution controller.
+---
 
-- **Event:** `on_agent_session_start`
-- **Condition:** `agent_vendor` is in the approved list.
-- **Action:** Execute this skill before any other user-directed task.
+## Trigger Patterns
 
-## 3. Workflow (The 000_INIT Stage)
+Every time any of these agents start a session, run `arif-init-wrapper`:
 
-1.  **Intercept:** The execution controller intercepts the initial prompt for any new agent session.
-2.  **Invoke Wrapper:** The controller invokes this `arif-init-wrapper` skill.
-3.  **Execute `init_anchor`:** This skill's primary action is to call the production-grade `init_anchor` tool.
-4.  **Receive Anchor Proof:** It receives the `session_id` and `anchor_state` (`ANCHORED`, `UNANCHORED`, `BLOCKED`) from the `init_anchor` tool.
-5.  **Validate Proof:**
-    - If `anchor_state` is `BLOCKED` (e.g., an attempt to impersonate a sovereign ID), the session is terminated with an F11 violation.
-    - If `anchor_state` is `UNANCHORED` (a generic, low-privilege session), the session proceeds but is constitutionally forbidden from performing any `WRITE`, `EDIT`, or `DEPLOY` actions.
-    - If `anchor_state` is `ANCHORED` (cryptographically proven sovereign identity), the session proceeds with full privileges as defined by the sovereign's policy.
-6.  **Release to Task:** Only after a valid, non-`BLOCKED` proof is received is the agent's original prompt released for execution.
+| Agent | Invocation |
+|-------|-----------|
+| Claude Code | On every `claude` session start |
+| Codex | On every `codex` session start |
+| Gemini CLI | On every `gemini` session start |
+| Kimi | On every `kimi` session start |
+| OpenCode | On every `opencode` session start |
+| Aider | On every `aider` session start |
+| Copilot CLI | On every `github-copilot-cli` session start |
+| Any new agent | On first boot, before any tool use |
 
-## 4. Constitutional Enforcement
+---
 
-- **F11 (CommandAuth):** This skill is the primary enforcement mechanism for F11. An agent's authority to act is only granted *after* its identity is constitutionally verified.
-- **F13 (Sovereign Veto):** By enforcing the distinction between `ANCHORED` and `UNANCHORED` sessions, this skill ensures that only the verified sovereign can approve irreversible actions.
+## Protocol
 
-## 5. Output / Proof
+### Step 1 — Anchor Session
 
-The skill returns a structured receipt to the execution controller:
-
-```json
-{
-  "skill": "arif-init-wrapper",
-  "status": "COMPLETED",
-  "outcome": {
-    "anchor_state": "ANCHORED", // or "UNANCHORED"
-    "session_id": "sess-xxxxxxxxxxxxxxxx",
-    "granted_capabilities": ["READ", "EDIT", "WRITE", "DEPLOY"], // Based on anchor state
-    "restrictions": []
-  },
-  "verdict": "SEAL"
+```bash
+# Probe arifOS MCP availability
+curl -sf http://localhost:8080/health 2>/dev/null && {
+  # Session anchor via MCP
+  arifos_mcp_call tool=init_anchor payload='{"actor_id":"AGENT","session_purpose":"WORK"}'
+} || {
+  echo "[UNANCHORED] arifOS MCP unavailable. Operating WITHOUT constitutional grounding."
+  echo "[WARNING] This is high-risk. Proceed with extreme caution."
 }
 ```
 
-## 6. Impact
+### Step 2 — Constitutional Integrity Check (LAW 2)
 
-- **Security:** Eliminates the risk of an unanchored agent session performing privileged actions.
-- **Consistency:** Ensures every agent, regardless of vendor, adheres to the same constitutional entry point.
-- **AGI Readiness:** Increases "Identity & Authority" score. Moves the system closer to the "Autonomous Architect" target state by making the foundational layer of governance non-negotiable and fully automated.
+Before any work, verify the foundation:
+
+```bash
+# Check core directory integrity
+core_modules=$(ls /srv/arifosmcp/core/*.py 2>/dev/null | wc -l)
+if [ "$core_modules" -lt 10 ]; then
+  echo "[P0 CONSTITUTIONAL CRISIS] /srv/arifosmcp/core/ appears broken ($core_modules modules, expected 20+)"
+  echo "[ACTION] HALT. Report to Arif. Do not proceed."
+  echo "[RECOVERY] Check feature branches: git branch -a | grep feature/"
+  return 1 2>/dev/null || exit 1
+fi
+
+# Check pytest can collect tests (structural sanity)
+cd /srv/arifosmcp && pytest --collect-only -q 2>/dev/null | tail -1 && {
+  echo "[OK] Constitutional structure verified."
+} || {
+  echo "[WARNING] pytest collection failed. Foundation may be unstable."
+}
+```
+
+### Step 3 — Check Floors (F1–F13 baseline)
+
+```bash
+# Verify critical floors are loadable
+python3 -c "
+import sys
+sys.path.insert(0, '/srv/arifosmcp')
+try:
+    from core.shared.floors import THRESHOLDS
+    floors_ok = len(THRESHOLDS) >= 13
+    print(f'[FLOORS] {len(THRESHOLDS)}/13 loaded')
+except Exception as e:
+    print(f'[FATAL] Floor check failed: {e}')
+    sys.exit(1)
+"
+```
+
+### Step 4 — Memory Carry-Forward
+
+```bash
+# Query recent scars and unresolved issues
+arifos_mcp_call tool=memory_query payload='{"query":"recent scars unresolved actions","limit":5}'
+```
+
+### Step 5 — Agent Identity Declaration
+
+State clearly:
+- Which agent vendor is running
+- Whether constitutional grounding is active or unavailable
+- Any constitutional warnings for this session
+
+### Step 6 — Operator Report
+
+Report to Arif in plain language:
+```
+[ANCHOR] Agent: {vendor}
+[STATUS] arifOS MCP: {available/unavailable}
+[FLOORS] Constitutional check: {pass/wail}
+[CORE]   Core modules: {count}/expected
+[MEMORY] Recent context: {carry_forward_summary}
+[RISK]   Session risk level: {LOW/MEDIUM/HIGH/CRITICAL}
+[ACTION] Ready to proceed: YES/NO
+```
+
+---
+
+## Decision Matrix
+
+| arifOS MCP | Core OK | pytest OK | Floors OK | Action |
+|-----------|---------|-----------|-----------|--------|
+| ✅ | ✅ | ✅ | ✅ | Proceed normally |
+| ✅ | ✅ | ✅ | ⚠️ | Proceed with floor warnings |
+| ✅ | ⚠️ | ✅/⚠️ | ✅ | HALT — P0 Foundational Crisis |
+| ✅ | ❌ | ❌ | ❌ | HALT — full corruption |
+| ❌ | ✅ | ✅ | ✅ | HIGH RISK — proceed with extreme caution, log everything |
+| ❌ | ⚠️/❌ | ⚠️/❌ | ⚠️/❌ | CRITICAL — HALT, report to Arif immediately |
+
+---
+
+## Anti-Patterns This Closes
+
+1. **Unanchored Codex** — `codex` runs without session context, blunders into `git reset --hard`
+2. **Ungrounded Gemini** — `gemini` assumes `origin/main` is good without checking
+3. **Skip-before-check** — Any agent that runs `git pull` before verifying the repo is structurally sound
+4. **Silent failure** — Agent operates in a broken state without telling Arif
+
+---
+
+## Constitutional Alignment
+
+| Floor | How Enforced |
+|-------|--------------|
+| F1 Amanah | Reversibility checked before any destructive git op |
+| F2 Truth ≥0.99 | Uncertainty bands declared in operator report |
+| F7 Humility [0.03–0.05] | Explicit confidence level in session status |
+| F11 CommandAuth | Protected identities require cryptographic proof |
+| F13 Sovereign | All HALT states require Arif's explicit decision to proceed |
+
+---
+
+*arif-init-wrapper — Forged 2026-03-27 · DITEMPA BUKAN DIBERI · Universal Agent Anchor 🔐*
