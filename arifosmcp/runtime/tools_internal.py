@@ -343,19 +343,23 @@ async def init_anchor_impl(
         return await get_caller_status_impl(session_id, ctx)
 
     if mode == "floor_check":
-        from arifosmcp.core.shared.floors import THRESHOLDS, get_floor_spec
+        from arifosmcp.core.shared.floors import THRESHOLDS, FLOOR_SPEC_KEYS, get_floor_spec
 
         floors = []
-        for fid in sorted(THRESHOLDS.keys()):
-            spec = get_floor_spec(fid)
+        for short_id in sorted(FLOOR_SPEC_KEYS.keys()):
+            spec = get_floor_spec(short_id)
+            key = FLOOR_SPEC_KEYS[short_id]
+            threshold = spec.get("threshold")
+            range_val = spec.get("range")
             floors.append(
                 {
-                    "floor_id": fid,
-                    "name": spec.get("name", ""),
-                    "threshold": spec.get("threshold"),
-                    "comparator": spec.get("comparator"),
+                    "floor_id": short_id,
+                    "key": key,
+                    "name": key.replace(f"{short_id}_", ""),
+                    "threshold": threshold,
+                    "range": range_val,
                     "floor_type": spec.get("type"),
-                    "description": spec.get("description", ""),
+                    "description": spec.get("desc", ""),
                 }
             )
         envelope = await _wrap_call(
@@ -1350,7 +1354,7 @@ async def math_estimator_dispatch_impl(
 
         report = get_thermodynamic_report(session_id or "unknown")
         envelope = await _wrap_call(
-            "math_estimator", Stage.HEART_555, session_id, {"mode": "entropy"}, ctx
+            "math_estimator", Stage.MEMORY_555, session_id, {"mode": "entropy"}, ctx
         )
         envelope.payload["thermodynamic_report"] = report
         return envelope
