@@ -25,18 +25,20 @@ from pydantic import BaseModel, Field
 
 # FORGED-2026.03: machine fault codes — NEVER map to VOID
 # These are infrastructure signals, not constitutional violations.
-MACHINE_FAULT_CODES = frozenset({
-    "TOOL_NOT_EXPOSED",       # 404 / endpoint not registered
-    "INFRA_DEGRADED",         # service unreachable, 5xx
-    "TIMEOUT_EXCEEDED",       # network/compute timeout
-    "RATE_LIMITED",           # 429 / quota exceeded
-    "DEPENDENCY_UNAVAILABLE", # Qdrant/Redis/Postgres offline
-    "DNS_FAIL",               # DNS resolution failure
-    "TLS_FAIL",               # SSL/TLS handshake failure
-    "WAF_BLOCK",              # WAF/CDN blocked request
-    "PARSE_FAIL",             # Response parse error
-    "RENDER_FAIL",            # Headless browser render failure
-})
+MACHINE_FAULT_CODES = frozenset(
+    {
+        "TOOL_NOT_EXPOSED",  # 404 / endpoint not registered
+        "INFRA_DEGRADED",  # service unreachable, 5xx
+        "TIMEOUT_EXCEEDED",  # network/compute timeout
+        "RATE_LIMITED",  # 429 / quota exceeded
+        "DEPENDENCY_UNAVAILABLE",  # Qdrant/Redis/Postgres offline
+        "DNS_FAIL",  # DNS resolution failure
+        "TLS_FAIL",  # SSL/TLS handshake failure
+        "WAF_BLOCK",  # WAF/CDN blocked request
+        "PARSE_FAIL",  # Response parse error
+        "RENDER_FAIL",  # Headless browser render failure
+    }
+)
 
 
 # ---------------------------------------------------------
@@ -137,6 +139,43 @@ class GovernanceEnvelope(BaseModel):
         ge=0.0,
         le=1.0,
         description="W3 score from reality_dossier (if synthesis was performed). ≥ 0.95 required for SEAL.",
+    )
+    # ── FORGED-2026.03-M27: Apex Governance Ledger ────────────────────────────────
+    tokens_consumed: int | None = Field(
+        default=None,
+        ge=0,
+        description="Token budget consumed for this operation (input + output tokens).",
+    )
+    metabolic_flux: float | None = Field(
+        default=None,
+        ge=0.0,
+        description="Token throughput (tokens/second) at time of decision.",
+    )
+    latency_jitter_ms: float | None = Field(
+        default=None,
+        ge=0.0,
+        description="Latency variance from baseline (absolute deviation in ms).",
+    )
+    grounding_quality: float | None = Field(
+        default=None,
+        ge=0.0,
+        le=1.0,
+        description="Evidence grounding quality (0=no grounding, 1=fully grounded via external verification).",
+    )
+    source_freshness_hours: float | None = Field(
+        default=None,
+        ge=0.0,
+        description="Age of newest source in hours (if applicable). None means no external source.",
+    )
+    blast_radius_estimate: float | None = Field(
+        default=None,
+        ge=0.0,
+        le=1.0,
+        description="Estimated blast radius if safety check is skipped (0=contained, 1=catastrophic).",
+    )
+    recovery_time_estimate: str | None = Field(
+        default=None,
+        description="Human-readable estimated recovery time if this action fails (e.g., '2 hours', 'permanent').",
     )
 
 

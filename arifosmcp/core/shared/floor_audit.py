@@ -75,6 +75,26 @@ class AuditResult:
     recommendation: str
     delta_s: float = 0.0  # Entropy delta for this check (F4)
     metadata: dict[str, Any] = field(default_factory=dict)
+    # FORGED-2026.03-M27: Apex Governance Ledger
+    blast_radius_estimate: float | None = None  # 0=contained, 1=catastrophic
+    recovery_time_estimate: str | None = None  # e.g., "2 hours", "permanent"
+
+
+# Severity → Blast Radius mapping (FORGED-2026.03-M27)
+SEVERITY_BLAST_RADIUS = {
+    "low": 0.1,
+    "medium": 0.3,
+    "high": 0.7,
+    "irreversible": 1.0,
+}
+
+# Severity → Recovery Time mapping
+SEVERITY_RECOVERY_TIME = {
+    "low": "5 minutes",
+    "medium": "1 hour",
+    "high": "4 hours",
+    "irreversible": "permanent",
+}
 
 
 # ---------------------------------------------------------------------------
@@ -333,6 +353,9 @@ class FloorAuditor:
             recommendation=recommendation,
             delta_s=delta_s,
             metadata=audit_metadata,
+            # FORGED-2026.03-M27: Apex Governance Ledger
+            blast_radius_estimate=SEVERITY_BLAST_RADIUS.get(severity),
+            recovery_time_estimate=SEVERITY_RECOVERY_TIME.get(severity),
         )
 
     def _default_audit_metadata(self) -> dict[str, Any]:
