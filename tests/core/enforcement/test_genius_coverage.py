@@ -1,7 +1,7 @@
 
 from __future__ import annotations
 import pytest
-from core.enforcement.genius import (
+from arifosmcp.core.enforcement.genius import (
     APEXDials,
     audit_result_to_floor_scores,
     calculate_genius,
@@ -9,8 +9,8 @@ from core.enforcement.genius import (
     floors_to_dials,
     geometric_mean
 )
-from core.shared.floor_audit import AuditResult, FloorResult
-from core.shared.types import FloorScores, Verdict
+from arifosmcp.core.shared.floor_audit import AuditResult, FloorResult
+from arifosmcp.core.shared.types import FloorScores, Verdict
 
 def test_geometric_mean():
     assert geometric_mean([0.9, 0.9, 0.9]) == pytest.approx(0.9)

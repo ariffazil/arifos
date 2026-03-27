@@ -11,10 +11,17 @@ from arifosmcp.runtime.tools import (
     audit_rules,
     check_vital,
     init_anchor_state,
+    reason_mind_synthesis,
+)
+
+from arifosmcp.runtime.tools import (
+    audit_rules,
+    check_vital,
+    init_anchor_state,
     metabolic_loop_router,
     reason_mind_synthesis,
 )
-from core.governance_kernel import clear_governance_kernel, get_governance_kernel, route_pipeline
+from arifosmcp.core.governance_kernel import clear_governance_kernel, get_governance_kernel, route_pipeline
 
 
 def test_route_pipeline_uses_canonical_heart_stage():
@@ -81,7 +88,7 @@ def test_public_runtime_exports_init_anchor_state():
 
 @pytest.mark.asyncio
 async def test_low_risk_declared_identity_auto_anchors_continuity(monkeypatch):
-    from core.physics.thermodynamics_hardened import init_thermodynamic_budget
+    from arifosmcp.core.physics.thermodynamics_hardened import init_thermodynamic_budget
 
     monkeypatch.delenv("ARIFOS_GOVERNANCE_OPEN_MODE", raising=False)
     session_id = "test-low-risk-auto-anchor"
@@ -190,7 +197,7 @@ async def test_high_risk_kernel_call_still_requires_explicit_auth_context():
 @pytest.mark.asyncio
 async def test_explicit_human_approval_bootstraps_kernel_without_crypto(monkeypatch):
     """human_approval is set via init_anchor_state, then the session is used in metabolic_loop_router."""
-    from core.physics.thermodynamics_hardened import init_thermodynamic_budget
+    from arifosmcp.core.physics.thermodynamics_hardened import init_thermodynamic_budget
 
     monkeypatch.delenv("ARIFOS_GOVERNANCE_OPEN_MODE", raising=False)
     session_id = "human-approval-kernel"
@@ -350,8 +357,8 @@ def test_governed_philosophy_exposes_available_categories():
 
 def test_thermodynamic_reporter_is_callable_from_runtime_tools():
     """get_thermodynamic_report works via thermodynamics_hardened; ThermodynamicViolation from thermodynamics."""
-    from core.physics.thermodynamics import ThermodynamicViolation
-    from core.physics.thermodynamics_hardened import (
+    from arifosmcp.core.physics.thermodynamics import ThermodynamicViolation
+    from arifosmcp.core.physics.thermodynamics_hardened import (
         get_thermodynamic_report,
         init_thermodynamic_budget,
     )

@@ -1,7 +1,7 @@
 from __future__ import annotations
 import pytest
 import time
-from core.governance_kernel import (
+from arifosmcp.core.governance_kernel import (
     GovernanceKernel, 
     GovernanceState, 
     AuthorityLevel, 
@@ -14,7 +14,7 @@ from core.governance_kernel import (
     get_governance_kernel,
     clear_governance_kernel
 )
-from core.shared.types import Verdict
+from arifosmcp.core.shared.types import Verdict
 
 @pytest.fixture
 def kernel():

@@ -15,11 +15,11 @@ from __future__ import annotations
 
 import pytest
 
-from core.physics.thermodynamic_enforcement import (
+from arifosmcp.core.physics.thermodynamic_enforcement import (
     ThermodynamicProsecutor,
     explain_thermodynamic_duality,
 )
-from core.physics.thermodynamics_hardened import LandauerError
+from arifosmcp.core.physics.thermodynamics_hardened import LandauerError
 
 
 class TestThermodynamicProsecutorRole:

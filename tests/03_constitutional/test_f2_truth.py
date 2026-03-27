@@ -10,8 +10,8 @@ from __future__ import annotations
 
 import pytest
 
-from core.judgment import judge_cognition
-from core.shared.floors import F2_Truth
+from arifosmcp.core.judgment import judge_cognition
+from arifosmcp.core.shared.floors import F2_Truth
 
 
 class TestF2TruthFloor:

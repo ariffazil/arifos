@@ -13,7 +13,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from core.kernel.engine_adapters import (
+from arifosmcp.core.kernel.engine_adapters import (
     AGIEngine,
     ASIEngine,
     InitEngine,

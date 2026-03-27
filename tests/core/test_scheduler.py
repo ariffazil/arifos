@@ -1,14 +1,14 @@
 import asyncio
 import pytest
-from core.scheduler.manager import ConstitutionalScheduler
-from core.shared.physics import (
+from arifosmcp.core.scheduler.manager import ConstitutionalScheduler
+from arifosmcp.core.shared.physics import (
     PeaceSquared,
     ConstitutionalTensor,
     GeniusDial,
     UncertaintyBand,
     TrinityTensor,
 )
-from core.state.session_manager import session_manager
+from arifosmcp.core.state.session_manager import session_manager
 
 
 @pytest.fixture

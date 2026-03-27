@@ -4,7 +4,7 @@ import pytest
 
 from arifosmcp.runtime.models import RuntimeEnvelope
 from arifosmcp.runtime.tools import init_anchor_state, metabolic_loop_router
-from core.physics.thermodynamics_hardened import init_thermodynamic_budget
+from arifosmcp.core.physics.thermodynamics_hardened import init_thermodynamic_budget
 
 
 @pytest.mark.asyncio
