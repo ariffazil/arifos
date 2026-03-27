@@ -30,8 +30,10 @@ required_skill_families:
     outcome: "changes are proven with tests, health, logs, or direct checks"
   - name: recovery
     outcome: "rollback path known before risky execution"
+    law: "/srv/arifosmcp/AGENTS/laws/LAW_OF_SYSTEMIC_NAMING.md"
   - name: operator_explanation
     outcome: "plain-language explanation for Arif"
+
 
 minimum_sequence:
   - anchor
@@ -65,7 +67,13 @@ canonical_references:
   root_policy: "/root/AGENTS.md"
   baseline_skill: "/srv/arifosmcp/skills/agent-foundation/SKILL.md"
   control_plane: "/srv/arifosmcp/AGENTS/README.md"
-  induction_skill: "/srv/arifosmcp/AGENTS/SKILL.md"
+    induction_skill: "/srv/arifosmcp/AGENTS/SKILL.md"
+
+p0_crisis_laws:
+  - name: "LAW_OF_SYSTEMIC_NAMING"
+    path: "/srv/arifosmcp/AGENTS/laws/LAW_OF_SYSTEMIC_NAMING.md"
+    mandate: "Any attempt to rename a core system component must trigger the P0 Constitutional Crisis Protocol."
+
 
 operator_mode:
   audience: "Arif, non-coder sovereign architect"
