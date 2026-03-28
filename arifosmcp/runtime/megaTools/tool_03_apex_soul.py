@@ -11,7 +11,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from arifosmcp.runtime.models import RuntimeEnvelope, RuntimeStatus, Verdict
+from arifosmcp.runtime.models import RuntimeEnvelope, derive_runtime_outcome
 from arifosmcp.runtime.tools_hardened_dispatch import HARDENED_DISPATCH_MAP
 from fastmcp.dependencies import CurrentContext
 
@@ -45,7 +45,7 @@ async def apex_soul(
     if "apex_soul" in HARDENED_DISPATCH_MAP:
         res = await HARDENED_DISPATCH_MAP["apex_soul"](mode=mode, payload=resolved_payload)
         if isinstance(res, dict):
-            ok = res.get("ok", True)
+            ok, effective_status, effective_verdict = derive_runtime_outcome(res)
             _payload = res.get("payload", res) if isinstance(res.get("payload"), dict) else res
             
             # ─── V2 FLATTENING ───
@@ -67,20 +67,11 @@ async def apex_soul(
                 _final_payload.update({k: v for k, v in _payload.items() if v is not None})
                 _payload = _final_payload
 
-            # Ensure verdict is a valid Verdict Enum member
-            verdict_val = res.get("verdict", "SEAL" if ok else "VOID")
-            if isinstance(verdict_val, str):
-                try:
-                    effective_verdict = Verdict(verdict_val)
-                except ValueError:
-                    effective_verdict = Verdict.SEAL if ok else Verdict.VOID
-            else:
-                effective_verdict = verdict_val or (Verdict.SEAL if ok else Verdict.VOID)
-
             return RuntimeEnvelope(
+                ok=ok,
                 tool=res.get("tool", "apex_soul"),
                 stage=res.get("organ_stage") or res.get("stage") or "888_JUDGE",
-                status=RuntimeStatus.SUCCESS if ok else RuntimeStatus.ERROR,
+                status=effective_status,
                 verdict=effective_verdict,
                 payload=_payload,
                 session_id=res.get("session_id"),

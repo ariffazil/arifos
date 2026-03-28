@@ -206,6 +206,7 @@ async def init_anchor(
                 )
 
             return RuntimeEnvelope(
+                ok=ok,
                 tool=res.get("tool", "init_anchor"),
                 stage=res.get("organ_stage") or res.get("stage") or "000_INIT",
                 status=RuntimeStatus.SUCCESS if ok else RuntimeStatus.ERROR,
@@ -224,6 +225,7 @@ async def init_anchor(
         mode = "init"
     
     return RuntimeEnvelope(
+        ok=False,
         tool="init_anchor",
         stage="000_INIT",
         status=RuntimeStatus.ERROR,

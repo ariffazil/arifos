@@ -712,5 +712,102 @@ class RuntimeEnvelope(BaseModel):
         return getattr(self, item)
 
 
+def _coerce_runtime_status(value: Any) -> RuntimeStatus | None:
+    if value is None:
+        return None
+    if isinstance(value, RuntimeStatus):
+        return value
+    if isinstance(value, str):
+        normalized = value.strip().upper()
+        try:
+            return RuntimeStatus(normalized)
+        except ValueError:
+            return None
+    return None
+
+
+def _coerce_verdict(value: Any) -> Verdict | None:
+    if value is None:
+        return None
+    if isinstance(value, Verdict):
+        return value
+    if isinstance(value, str):
+        normalized = value.strip().upper()
+        if normalized == "888_HOLD":
+            normalized = Verdict.HOLD_888.value
+        try:
+            return Verdict(normalized)
+        except ValueError:
+            return None
+    return None
+
+
+def derive_runtime_outcome(
+    result: dict[str, Any],
+    *,
+    default_ok: bool = True,
+) -> tuple[bool, RuntimeStatus, Verdict]:
+    nested_payload = result.get("payload") if isinstance(result.get("payload"), dict) else None
+
+    status_candidates = [
+        _coerce_runtime_status(result.get("status")),
+        _coerce_runtime_status(nested_payload.get("status")) if nested_payload else None,
+    ]
+    verdict_candidates = [
+        _coerce_verdict(result.get("verdict")),
+        _coerce_verdict(nested_payload.get("verdict")) if nested_payload else None,
+    ]
+
+    errors_present = False
+    for container in (result, nested_payload):
+        if not isinstance(container, dict):
+            continue
+        if container.get("errors") or container.get("error"):
+            errors_present = True
+            break
+
+    explicit_ok = result.get("ok")
+    if not isinstance(explicit_ok, bool) and nested_payload is not None:
+        payload_ok = nested_payload.get("ok")
+        explicit_ok = payload_ok if isinstance(payload_ok, bool) else None
+    elif not isinstance(explicit_ok, bool):
+        explicit_ok = None
+
+    effective_status = next((status for status in status_candidates if status is not None), None)
+    effective_verdict = next((verdict for verdict in verdict_candidates if verdict is not None), None)
+
+    blocking_statuses = {RuntimeStatus.ERROR, RuntimeStatus.TIMEOUT, RuntimeStatus.SABAR}
+    blocking_verdicts = {Verdict.VOID, Verdict.HOLD, Verdict.HOLD_888, Verdict.SABAR}
+
+    if effective_status in blocking_statuses or effective_verdict in blocking_verdicts or errors_present:
+        ok = False
+    elif explicit_ok is not None:
+        ok = explicit_ok
+    elif effective_status in {RuntimeStatus.SUCCESS, RuntimeStatus.DRY_RUN}:
+        ok = True
+    else:
+        ok = default_ok
+
+    if effective_status is None:
+        if effective_verdict == Verdict.SABAR:
+            effective_status = RuntimeStatus.SABAR
+        elif not ok or errors_present:
+            effective_status = RuntimeStatus.ERROR
+        else:
+            effective_status = RuntimeStatus.SUCCESS
+    elif effective_status == RuntimeStatus.SUCCESS and not ok:
+        effective_status = RuntimeStatus.SABAR if effective_verdict == Verdict.SABAR else RuntimeStatus.ERROR
+
+    if effective_verdict is None:
+        if effective_status == RuntimeStatus.SABAR:
+            effective_verdict = Verdict.SABAR
+        else:
+            effective_verdict = Verdict.SEAL if ok else Verdict.VOID
+    elif effective_verdict == Verdict.SEAL and not ok:
+        effective_verdict = Verdict.SABAR if effective_status == RuntimeStatus.SABAR else Verdict.VOID
+
+    return ok, effective_status, effective_verdict
+
+
 # Rebuild models after all forward references are resolved
 RuntimeEnvelope.model_rebuild()

@@ -12,7 +12,7 @@ from __future__ import annotations
 from typing import Any
 from fastmcp.dependencies import CurrentContext
 
-from arifosmcp.runtime.models import RuntimeEnvelope, RuntimeStatus, Verdict
+from arifosmcp.runtime.models import RuntimeEnvelope, derive_runtime_outcome
 from arifosmcp.runtime.tools_internal import math_estimator_dispatch_impl
 from arifosmcp.runtime.tools_hardened_dispatch import HARDENED_DISPATCH_MAP
 
@@ -60,7 +60,7 @@ async def math_estimator(
             mode = "cost"
         res = await HARDENED_DISPATCH_MAP["math_estimator"](mode=mode, payload=payload)
         if isinstance(res, dict):
-            ok = res.get("ok", res.get("status") not in ("HOLD", "ERROR", "VOID", None))
+            ok, effective_status, effective_verdict = derive_runtime_outcome(res)
             _next_tools = res.get("next_allowed_tools", [])
             _payload = res.get("payload", res) if isinstance(res.get("payload"), dict) else res
             _hold_reason = res.get("warnings", [""])[0] if res.get("warnings") else ""
@@ -77,10 +77,11 @@ async def math_estimator(
                     else None,
                 }
             return RuntimeEnvelope(
+                ok=ok,
                 tool=res.get("tool", "unknown"),
                 stage=res.get("stage", "444_ROUTER"),
-                status=RuntimeStatus.SUCCESS if ok else RuntimeStatus.ERROR,
-                verdict=Verdict.SEAL if ok else Verdict.VOID,
+                status=effective_status,
+                verdict=effective_verdict,
                 allowed_next_tools=_next_tools,
                 next_action=_next_action,
                 payload=res,
