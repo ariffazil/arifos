@@ -46,6 +46,7 @@ from arifosmcp.core.shared.floors import (
 from .build_info import get_build_info
 from .capability_map import build_runtime_capability_map
 from .contracts import AAA_TOOL_ALIASES, AAA_TOOL_STAGE_MAP, TRINITY_BY_TOOL
+from .fastmcp_version import IS_FASTMCP_3, HAS_CUSTOM_ROUTE, HAS_ROUTE
 
 BUILD_INFO = get_build_info()
 BUILD_VERSION = BUILD_INFO["version"]
@@ -1268,8 +1269,15 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
         mcp: The FastMCP server instance.
         tool_registry: Mapping of canonical tool names to async callables.
     """
+    # FastMCP 2.x/3.x compatibility: use custom_route if available, else route
+    if HAS_CUSTOM_ROUTE:
+        route = mcp.custom_route
+    elif HAS_ROUTE:
+        route = mcp.route
+    else:
+        raise RuntimeError("FastMCP instance has no custom_route or route method")
 
-    @mcp.custom_route("/", methods=["GET"])
+    @route("/", methods=["GET"])
     async def root(request: Request) -> Response:
         accept = request.headers.get("Accept", "")
         if "text/html" in accept:
@@ -1302,7 +1310,7 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
 <p><strong>DITEMPA BUKAN DIBERI</strong> — Forge deliberately, not hastily.</p>
 </body></html>"""
 
-    @mcp.custom_route("/mcp", methods=["GET"])
+    @route("/mcp", methods=["GET"])
     async def mcp_landing(request: Request) -> Response:
         """AAA MCP landing page — serves HTML to browsers, API info to MCP clients."""
         accept = request.headers.get("Accept", "")
@@ -1322,17 +1330,17 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
             }
         )
 
-    @mcp.custom_route("/docs", methods=["GET"])
+    @route("/docs", methods=["GET"])
     async def docs(request: Request) -> Response:
         """Documentation page — human and AI readable."""
         return HTMLResponse(DOCS_HTML, headers={"Cache-Control": "max-age=3600"})
 
-    @mcp.custom_route("/docs/", methods=["GET"])
+    @route("/docs/", methods=["GET"])
     async def docs_trailing(request: Request) -> Response:
         """Documentation page (trailing slash)."""
         return HTMLResponse(DOCS_HTML, headers={"Cache-Control": "max-age=3600"})
 
-    @mcp.custom_route("/health", methods=["GET"])
+    @route("/health", methods=["GET"])
     async def health(request: Request) -> Response:
         return JSONResponse(
             {
@@ -1348,7 +1356,7 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
             headers={"Access-Control-Allow-Origin": "*"},
         )
 
-    @mcp.custom_route("/metrics", methods=["GET"])
+    @route("/metrics", methods=["GET"])
     async def metrics_endpoint(request: Request) -> Response:
         """Prometheus metrics — scraped by arifos_prometheus every 30s."""
         from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
@@ -1356,11 +1364,11 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
 
         return _Resp(generate_latest(), media_type=CONTENT_TYPE_LATEST)
 
-    @mcp.custom_route("/version", methods=["GET"])
+    @route("/version", methods=["GET"])
     async def version(request: Request) -> Response:
         return JSONResponse(BUILD_INFO)
 
-    @mcp.custom_route("/tools", methods=["GET"])
+    @route("/tools", methods=["GET"])
     async def list_tools(request: Request) -> Response:
         if err := _auth_error_response(request):
             return err
@@ -1381,16 +1389,16 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
                 )
         return JSONResponse({"tools": tool_list, "count": len(tool_list)})
 
-    @mcp.custom_route("/tools/", methods=["GET"])
+    @route("/tools/", methods=["GET"])
     async def list_tools_slash(request: Request) -> Response:
         return await list_tools(request)
 
-    @mcp.custom_route("/openapi.json", methods=["GET"])
+    @route("/openapi.json", methods=["GET"])
     async def openapi_json(request: Request) -> Response:
         schema = _openapi_schema(_public_base_url(request))
         return JSONResponse(schema)
 
-    @mcp.custom_route("/tools/{tool_name:path}", methods=["POST"])
+    @route("/tools/{tool_name:path}", methods=["POST"])
     async def call_tool_rest(request: Request) -> Response:
         """REST-style tool calling for ChatGPT and other HTTP clients."""
         if err := _auth_error_response(request):
@@ -1466,7 +1474,7 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
             }
         )
 
-    @mcp.custom_route("/.well-known/mcp/server.json", methods=["GET"])
+    @route("/.well-known/mcp/server.json", methods=["GET"])
     async def well_known(request: Request) -> Response:
         payload = build_server_json(_public_base_url(request))
         payload.setdefault("protocolVersion", MCP_PROTOCOL_VERSION)
@@ -1481,7 +1489,7 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
         )
         return JSONResponse(payload)
 
-    @mcp.custom_route("/.well-known/oauth-authorization-server", methods=["GET"])
+    @route("/.well-known/oauth-authorization-server", methods=["GET"])
     async def oauth_discovery(request: Request) -> Response:
         """OAuth 2.1 Authorization Server Metadata (RFC 8414)."""
         base = _public_base_url(request)
@@ -1496,7 +1504,7 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
             "scopes_supported": ["openid", "profile", "mcp:full", "mcp:read_only"]
         })
 
-    @mcp.custom_route("/.well-known/jwks.json", methods=["GET"])
+    @route("/.well-known/jwks.json", methods=["GET"])
     async def jwks_discovery(request: Request) -> Response:
         """JSON Web Key Set (JWKS) for cryptographic verification."""
         return JSONResponse({
@@ -1512,7 +1520,7 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
             ]
         })
 
-    @mcp.custom_route("/api/auth/authorize", methods=["GET"])
+    @route("/api/auth/authorize", methods=["GET"])
     async def oauth_authorize(request: Request) -> Response:
         """Mock OAuth 2.1 Authorize endpoint."""
         return HTMLResponse(f"""
@@ -1526,7 +1534,7 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
             </body></html>
         """)
 
-    @mcp.custom_route("/api/auth/token", methods=["POST"])
+    @route("/api/auth/token", methods=["POST"])
     async def oauth_token(request: Request) -> Response:
         """Mock OAuth 2.1 Token endpoint."""
         return JSONResponse({
@@ -1536,7 +1544,7 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
             "scope": "mcp:full"
         })
 
-    @mcp.custom_route("/.well-known/agent.json", methods=["GET"])
+    @route("/.well-known/agent.json", methods=["GET"])
     async def agent_well_known(request: Request) -> Response:
         base_url = _public_base_url(request)
         payload = {
@@ -1566,18 +1574,18 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
         }
         return JSONResponse(payload)
 
-    @mcp.custom_route("/discovery", methods=["GET"])
+    @route("/discovery", methods=["GET"])
     async def discovery_alias(request: Request) -> Response:
         payload = build_server_json(_public_base_url(request))
         payload.setdefault("protocolVersion", MCP_PROTOCOL_VERSION)
         payload.setdefault("supportedProtocolVersions", MCP_SUPPORTED_PROTOCOL_VERSIONS)
         return JSONResponse(payload)
 
-    @mcp.custom_route("/ready", methods=["GET"])
+    @route("/ready", methods=["GET"])
     async def readiness_alias(request: Request) -> Response:
         return await health(request)
 
-    @mcp.custom_route("/.well-known/mcp/internal-server.json", methods=["GET"])
+    @route("/.well-known/mcp/internal-server.json", methods=["GET"])
     async def internal_well_known(request: Request) -> Response:
         profile = os.getenv("ARIFOS_PUBLIC_TOOL_PROFILE", "public").strip().lower() or "public"
         if profile in {"public", "chatgpt", "agnostic_public"}:
@@ -1599,7 +1607,7 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
         )
         return JSONResponse(payload)
 
-    @mcp.custom_route("/api/governance-status", methods=["GET"])
+    @route("/api/governance-status", methods=["GET"])
     async def governance_status(request: Request) -> Response:
         """Return current governance telemetry for the Constitutional Visualizer."""
         try:
@@ -1615,7 +1623,7 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
                 status_code=500,
             )
 
-    @mcp.custom_route("/status", methods=["GET"])
+    @route("/status", methods=["GET"])
     async def status_page(request: Request) -> Response:
         """Zero-JS ops truth page for constrained renderers and humans."""
         payload = _build_governance_status_payload()
@@ -1629,7 +1637,7 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
 
         return HTMLResponse(_render_status_html(payload), headers=_cache_headers())
 
-    @mcp.custom_route("/api/governance-history", methods=["GET"])
+    @route("/api/governance-history", methods=["GET"])
     async def governance_history(request: Request) -> Response:
         """Return recent VAULT999 session history for the Constitutional Visualizer."""
         try:
@@ -1681,7 +1689,7 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
     # CHECKPOINT REST COMPATIBILITY — OpenAPI / action-style integration
     # ═══════════════════════════════════════════════════════
 
-    @mcp.custom_route("/checkpoint", methods=["POST"])
+    @route("/checkpoint", methods=["POST"])
     async def checkpoint_endpoint(request: Request) -> Response:
         """
         REST/OpenAPI compatibility entry point for constitutional validation.
@@ -1800,7 +1808,7 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
                 {"error": str(exc), "verdict": "HOLD", "issue": "RUNTIME_FAILURE"}, status_code=500
             )
 
-    @mcp.custom_route("/openapi.yaml", methods=["GET"])
+    @route("/openapi.yaml", methods=["GET"])
     async def openapi_schema(request: Request) -> Response:
         """Serve OpenAPI schema for the REST compatibility surface."""
         schema_path = os.path.join(
@@ -1815,19 +1823,19 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
             return Response(content, media_type="application/yaml")
         return JSONResponse({"error": "Schema not found"}, status_code=404)
 
-    @mcp.custom_route("/robots.txt", methods=["GET"])
+    @route("/robots.txt", methods=["GET"])
     async def robots_txt(_request: Request) -> Response:
         return Response(ROBOTS_TXT, media_type="text/plain")
 
-    @mcp.custom_route("/llms.txt", methods=["GET"])
+    @route("/llms.txt", methods=["GET"])
     async def llms_txt(_request: Request) -> Response:
         return Response(LLMS_TXT, media_type="text/plain")
 
-    @mcp.custom_route("/llms.json", methods=["GET"])
+    @route("/llms.json", methods=["GET"])
     async def llms_json(_request: Request) -> Response:
         return JSONResponse(LLMS_JSON, headers={"Access-Control-Allow-Origin": "*"})
 
-    @mcp.custom_route("/.well-known/agent-card.json", methods=["GET"])
+    @route("/.well-known/agent-card.json", methods=["GET"])
     async def agent_card(_request: Request) -> Response:
         """A2A Agent Card — discovery endpoint for agent-to-agent protocol."""
         payload = {
