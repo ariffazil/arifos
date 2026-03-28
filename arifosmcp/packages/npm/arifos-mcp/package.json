@@ -1,7 +1,7 @@
 {
   "name": "@arifos/mcp",
-  "version": "2026.3.20",
-  "description": "arifOS MCP Client v2026.3.20 — TypeScript adapter for 11 Mega-Tools (37 modes), 13 Constitutional Floors (F1-F13), Protocol Trinity (MCP + A2A + WebMCP)",
+  "version": "2026.03.28",
+  "description": "arifOS MCP Client v2026.03.28 — TypeScript adapter for 11 Mega-Tools, 13 Constitutional Floors (F1-F13), Protocol Trinity (MCP + A2A + WebMCP). G=(A×P×X×E²)×(1−h)≥0.80",
   "keywords": [
     "mcp",
     "arifos",
@@ -12,14 +12,14 @@
   "homepage": "https://arifos.arif-fazil.com",
   "repository": {
     "type": "git",
-    "url": "https://github.com/ariffazil/arifosmcp.git",
+    "url": "https://github.com/ariffazil/arifOS.git",
     "directory": "arifosmcp/packages/npm/arifos-mcp"
   },
   "bugs": {
-    "url": "https://github.com/ariffazil/arifosmcp/issues"
+    "url": "https://github.com/ariffazil/arifOS/issues"
   },
   "license": "AGPL-3.0-only",
-  "author": "Muhammad Arif bin Fazil <arifos@arif-fazil.com>",
+  "author": "Muhammad Arif bin Fazil <arifbfazil@gmail.com>",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
@@ -75,5 +75,6 @@
     "access": "public",
     "tag": "latest"
   },
-  "_updated": "2026.03.12"
+  "_forged": "2026.03.28"
 }
+
