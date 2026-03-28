@@ -337,6 +337,10 @@ services:
       - /proc:/host/proc:ro
       - /sys:/host/sys:ro
       - /srv/arifosmcp/arifosmcp:/usr/src/app/arifosmcp:ro
+      - /srv/arifosmcp/server.py:/usr/src/app/server.py:ro
+      - /srv/arifosmcp/stdio_server.py:/usr/src/app/stdio_server.py:ro
+      - /srv/arifosmcp/fastmcp.json:/usr/src/app/fastmcp.json:ro
+      - /srv/arifosmcp/mcp.json:/usr/src/app/mcp.json:ro
       - /srv/arifosmcp/core:/usr/src/app/core:ro
       - /srv/arifosmcp/000:/usr/src/app/000:ro
       - /srv/arifosmcp/333:/usr/src/app/333:ro

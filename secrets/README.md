@@ -9,6 +9,13 @@ No live secret file should ever be committed here.
 /opt/arifos/secrets/governance.secret
 ```
 
+## Horizon API Key
+
+```bash
+# Prefect Horizon / FastMCP deployment key
+export HORIZON_API_KEY_FILE=/opt/arifos/secrets/horizon_api_key.secret
+```
+
 ## Use
 
 ```bash

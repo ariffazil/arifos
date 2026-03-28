@@ -82,3 +82,7 @@ eigent/
 # SQLite databases
 *.db
 
+
+# arifOS secret files
+*.secret
+secrets/*.secret
