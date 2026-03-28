@@ -4,6 +4,10 @@ arifosmcp/runtime/ingress_middleware.py
 Ingress tolerance middleware.
 "Masuk longgar, dalam tetap governed."
 Accept messy input at the boundary; governance enforces inside.
+
+FastMCP 2.x/3.x Compatibility: Middleware API differs between versions.
+- 3.x: Uses Middleware base class with on_call_tool hook
+- 2.x: Middleware not available — this module provides a no-op fallback
 """
 from __future__ import annotations
 
@@ -11,8 +15,7 @@ import logging
 import time
 from typing import Any
 
-from fastmcp.server.middleware.middleware import Middleware, MiddlewareContext, CallNext, ToolResult
-import mcp.types as mt
+from arifosmcp.runtime.fastmcp_version import IS_FASTMCP_3
 
 logger = logging.getLogger(__name__)
 
@@ -95,65 +98,109 @@ MODE_SYNONYMS: dict[str, dict[str, str]] = {
     },
 }
 
+# ═══════════════════════════════════════════════════════════════════════════════
+# FastMCP 3.x Middleware (Full functionality)
+# ═══════════════════════════════════════════════════════════════════════════════
 
-class IngressToleranceMiddleware(Middleware):
-    """
-    Strip unknown fields from tool arguments before they reach Pydantic.
+if IS_FASTMCP_3:
+    try:
+        from fastmcp.server.middleware.middleware import Middleware, MiddlewareContext, CallNext, ToolResult
+        import mcp.types as mt
+        
+        class IngressToleranceMiddleware(Middleware):
+            """
+            Strip unknown fields from tool arguments before they reach Pydantic.
 
-    Doctrine:
-      - entry: adaptive (accept any field)
-      - core: governed (strict after normalization)
-      - output: strong
-    """
+            Doctrine:
+              - entry: adaptive (accept any field)
+              - core: governed (strict after normalization)
+              - output: strong
+            """
 
-    def __init__(self, tool_param_sets: dict[str, set[str]] | None = None) -> None:
-        self._tool_param_sets: dict[str, set[str]] = tool_param_sets or {}
+            def __init__(self, tool_param_sets: dict[str, set[str]] | None = None) -> None:
+                self._tool_param_sets: dict[str, set[str]] = tool_param_sets or {}
 
-    def register_tool_params(self, tool_name: str, param_names: set[str]) -> None:
-        self._tool_param_sets[tool_name] = param_names
+            def register_tool_params(self, tool_name: str, param_names: set[str]) -> None:
+                self._tool_param_sets[tool_name] = param_names
 
-    async def on_call_tool(
-        self,
-        context: MiddlewareContext[mt.CallToolRequestParams],
-        call_next: CallNext[mt.CallToolRequestParams, ToolResult],
-    ) -> ToolResult:
-        msg = context.message
-        tool_name = msg.name
+            async def on_call_tool(
+                self,
+                context: MiddlewareContext[mt.CallToolRequestParams],
+                call_next: CallNext[mt.CallToolRequestParams, ToolResult],
+            ) -> ToolResult:
+                msg = context.message
+                tool_name = msg.name
 
-        if tool_name in MEGA_TOOLS and msg.arguments:
-            # 1. Mode synonym normalization: "recommend" → "reason", etc.
-            if "mode" in msg.arguments:
-                synonyms = MODE_SYNONYMS.get(tool_name, {})
-                raw_mode = str(msg.arguments["mode"]).lower().strip()
-                canonical = synonyms.get(raw_mode)
-                if canonical:
-                    logger.debug(
-                        "Ingress: normalizing mode '%s' → '%s' for tool '%s'",
-                        raw_mode, canonical, tool_name,
-                    )
-                    msg.arguments["mode"] = canonical
+                if tool_name in MEGA_TOOLS and msg.arguments:
+                    # 1. Mode synonym normalization: "recommend" → "reason", etc.
+                    if "mode" in msg.arguments:
+                        synonyms = MODE_SYNONYMS.get(tool_name, {})
+                        raw_mode = str(msg.arguments["mode"]).lower().strip()
+                        canonical = synonyms.get(raw_mode)
+                        if canonical:
+                            logger.debug(
+                                "Ingress: normalizing mode '%s' → '%s' for tool '%s'",
+                                raw_mode, canonical, tool_name,
+                            )
+                            msg.arguments["mode"] = canonical
 
-            # 2. Unknown field absorption: strip fields Pydantic doesn't know about
-            known = self._tool_param_sets.get(tool_name)
-            if known is not None:
-                unknown = {k for k in msg.arguments if k not in known}
-                if unknown:
-                    logger.debug(
-                        "Ingress tolerance: absorbing unknown fields %s for tool '%s'",
-                        unknown, tool_name,
-                    )
-                    # Mutate in place — context is transient per request
-                    for k in unknown:
-                        msg.arguments.pop(k)
+                    # 2. Unknown field absorption: strip fields Pydantic doesn't know about
+                    known = self._tool_param_sets.get(tool_name)
+                    if known is not None:
+                        unknown = {k for k in msg.arguments if k not in known}
+                        if unknown:
+                            logger.debug(
+                                "Ingress tolerance: absorbing unknown fields %s for tool '%s'",
+                                unknown, tool_name,
+                            )
+                            # Mutate in place — context is transient per request
+                            for k in unknown:
+                                msg.arguments.pop(k)
 
-        # Instrument: track latency and call count per tool
-        t0 = time.monotonic()
-        result = await call_next(context)
-        if _METRICS_AVAILABLE and tool_name in MEGA_TOOLS:
-            elapsed = time.monotonic() - t0
-            try:
-                REQUESTS_TOTAL.labels(method=tool_name, status="ok").inc()
-                METABOLIC_LOOP_DURATION.observe(elapsed)
-            except Exception:
-                pass
-        return result
+                # Instrument: track latency and call count per tool
+                t0 = time.monotonic()
+                result = await call_next(context)
+                if _METRICS_AVAILABLE and tool_name in MEGA_TOOLS:
+                    elapsed = time.monotonic() - t0
+                    try:
+                        REQUESTS_TOTAL.labels(method=tool_name, status="ok").inc()
+                        METABOLIC_LOOP_DURATION.observe(elapsed)
+                    except Exception:
+                        pass
+                return result
+                
+    except ImportError as e:
+        logger.warning(f"[COMPAT] Could not import FastMCP 3.x middleware: {e}")
+        # Fall through to no-op fallback
+        IS_FASTMCP_3 = False
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# FastMCP 2.x Fallback (No-op — middleware not available)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+if not IS_FASTMCP_3:
+    class IngressToleranceMiddleware:
+        """
+        No-op fallback for FastMCP 2.x (middleware API not available).
+        
+        FastMCP 2.x doesn't have the Middleware base class, so we provide
+        a compatible no-op that won't break the server but also won't provide
+        ingress tolerance features.
+        """
+        
+        def __init__(self, tool_param_sets: dict[str, set[str]] | None = None) -> None:
+            self._tool_param_sets: dict[str, set[str]] = tool_param_sets or {}
+
+        def register_tool_params(self, tool_name: str, param_names: set[str]) -> None:
+            """Store param names (no-op in 2.x)."""
+            self._tool_param_sets[tool_name] = param_names
+
+        async def on_call_tool(self, *args, **kwargs) -> Any:
+            """Pass through — no middleware in 2.x."""
+            # In 2.x, we can't hook into the call chain, so this is never called
+            # It's here for API compatibility
+            pass
+
+
+# Export
+__all__ = ["IngressToleranceMiddleware", "MODE_SYNONYMS", "MEGA_TOOLS"]

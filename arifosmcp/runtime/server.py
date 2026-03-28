@@ -13,11 +13,13 @@ import sys
 import traceback
 from contextlib import asynccontextmanager
 
+import fastmcp
 from fastmcp import FastMCP
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import JSONResponse, FileResponse
 from starlette.middleware.cors import CORSMiddleware
 
+from arifosmcp.runtime.fastmcp_version import IS_FASTMCP_3, IS_FASTMCP_2
 from arifosmcp.runtime.tools import register_tools, ALL_TOOL_IMPLEMENTATIONS
 from arifosmcp.runtime.rest_routes import register_rest_routes
 
@@ -57,7 +59,19 @@ register_tools(mcp)
 register_rest_routes(mcp, ALL_TOOL_IMPLEMENTATIONS)
 
 # THEN create the app with all routes included
-app = mcp.http_app(stateless_http=True)
+# FastMCP 2.x/3.x compatibility
+if IS_FASTMCP_3:
+    app = mcp.http_app(stateless_http=True)
+elif IS_FASTMCP_2:
+    # 2.x uses streamable_http_app() or direct mounting
+    try:
+        app = mcp.streamable_http_app()
+    except AttributeError:
+        # Fallback: get underlying ASGI app
+        app = mcp._mcp_server.app
+else:
+    raise RuntimeError(f"Unsupported FastMCP version: {fastmcp.__version__}")
+
 app.add_middleware(GlobalPanicMiddleware)
 
 # Strict CORS: Only allow Sovereign Domains
