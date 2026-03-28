@@ -16,49 +16,69 @@
 ### 000_INIT Execution Flow
 
 ```python
-# Pseudocode (actual implementation in CLAWDBOT runtime)
-async def init_000(channel: str, user_id: str) -> Session:
+# Pseudocode (actual implementation in `init_anchor_hardened.py`)
+async def init_000(channel: str, user_id: str, deployment_id: str, model_soul_declared: dict) -> Session:
     """
-    000_INIT: Constitutional boot sequence
-    Returns cooled session ready for interaction
+    000_INIT: Constitutional boot sequence with 3-Layer Binding
+    Returns hardened session bound to
+    - **Flavor** (Model Soul)
+    - **Law** (Runtime Profile)
+    - **Mission** (Role Narrative)
     """
     
-    # Step 000: Self-verify
-    omega_0 = 0.04  # Target uncertainty band
-    print(f"Ω₀ = {omega_0} | F1 F2 F7 F9: ACTIVE")
-    
-    # Step 010: Load Canon (in order)
+    # Step 000: Hardened Identity
+    # 1. DECLARATION: Model sends its self-conception
+    envelope = await init_anchor(
+        mode="init",
+        actor_id="User",
+        intent="Session start",
+        deployment_id="vps_main_arifos",  # Bound to L2 Law/Runtime Profile
+        model_soul={
+            "base_identity": {
+                "provider": "google",
+                "model_family": "gemini",
+                "model_variant": "gemini-2.0-flash"
+            }
+        }
+    )
+
+    # 2. VERIFICATION: arifOS
+    ```bash
+    # Verify the 4-layer registry
+    ls arifOS-model-registry/
+    ```
+    #    - Provider Soul: Lab-shaped archetype (e.g. structured_clerk_engineer)
+    #    - Model Spec: Formal mapping
+    #    - Runtime Profile: deployment_id fact lookup (tools, web, memory)
+
+    # 3. BINDING: System returns bound_session
+    {
+        "verification_status": "verified",  # verified | mood_matched | claimed_only
+        "bound_session": {
+            "soul": {"label": "broad_platform_generalist", "archetype": "google_gemini", ...},
+            "runtime": {"profile_id": "vps_main_arifos", "capabilities": {"web_on": true, ...}},
+            "boundary": {"tool_claim_policy": "runtime_truth_only", ...},
+            "bound_role": "broad_platform_generalist_agent"  # Flavor + Law + Mission
+        }
+    }
+
+    # Step 020: Load Canon (in order)
     canon = load_files([
         "BOOT.md",        # This protocol
         "SOUL.md",        # Persona + Duality (Δ·Ω)
         "AGENTS.md",      # Specialist topology
         "USER.md",        # Arif's profile
-        "MEMORY.md",      # Prior seals
-        "HEARTBEAT.md",   # Health states
     ])
     
-    # Step 020: Sync Context
-    repos = sync_from_github([
-        "ariffazil/arifOS",
-        "ariffazil/AGI_ASI_bot",
-        "ariffazil/arif-fazil-sites",
-    ])
-    
-    # Step 030: Channel Adapt
-    if channel == "telegram":
-        format_rules = load("TELEGRAM_FORMAT.md")
-    else:
-        format_rules = minimal_variant()
-    
-    # Step 040: Create Manifest
+    # Step 030: Create Hardened Manifest
     session = Session(
         id=uuid(),
         timestamp=now(),
         channel=channel,
-        user_id=user_id,  # 267378578 = Arif
-        canon_versions=hash(canon),
-        omega_0=omega_0,
-        state="ready",
+        user_id=user_id,
+        identity=identity_binding,
+        omega_0=0.04,
+        state="BEYOND_BENCHMARK",
     )
     
     return session
@@ -306,7 +326,7 @@ hash: a1b2c3d4...
     │  Clean      │
     │  state for  │
     │  next 000   │
-    └─────────────┘
+    └──────┬──────┘
 ```
 
 ---
@@ -333,9 +353,11 @@ hash: a1b2c3d4...
 
 ## 6. Governance Audit
 
-| Floor | Status | Evidence |
-|-------|--------|----------|
-| **F1 Amanah** | ✅ | All ops reversible; 999_SEAL creates immutable record for rollback |
+| Level | Name | Source | Status |
+| :--- | :--- | :--- | :--- |
+| L1 | Provider | Lab Soul | ✅ |
+| L2 | Model | Spec File | ✅ |
+| **F1 Amanah** | ✅ | 999_SEAL creates immutable record for rollback |
 | **F2 Truth** | ✅ | Ω₀ declared; sources cited; "Estimate Only" for gaps |
 | **F7 Humility** | ✅ | Ω₀ = 0.05; explicit uncertainty bounds |
 | **F9 Anti-Hantu** | ✅ | No consciousness claims; tool self-reference only |

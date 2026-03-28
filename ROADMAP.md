@@ -1,7 +1,8 @@
 # arifOS ROADMAP — THE BODY (Engineering & Scaling)
 
-**Version:** 2026.03.27-SEALED  
+**Version:** 2026.03.28-SEALED  
 **Authority:** Muhammad Arif bin Fazil (888_JUDGE)  
+**ZKPC Root:** 3-layer-binding-v2026.03.28  
 **Vision:** *Execution is the proof of Law.*
 
 ---
@@ -16,6 +17,7 @@
 - [x] **A-RIF Canon:** Created `000_A-RIF.md` — Arif Retrieval Intelligence Framework v1.0.
 - [x] **Eigent Deployment:** VPS backend deployed at `eigent.vps.arif-fazil.com` with MiniMax-M2.7.
 - [x] **MiniMax MCP Integration:** `web_search` + `understand_image` connected to opencode.
+- [x] **Three-Layer Identity Binding:** F11 hardened — model declares, system verifies, session binds (soul + runtime + boundary)
 - [x] **Vector Memory:** Ollama `nomic-embed-text` for local semantic search.
 - [x] **Weekly HF Sync Cron:** Sunday 8AM MYT sync HuggingFace AAA dataset to VPS.
 - [ ] **Agentic Knowledge Registry:** Fully automate the `arifos://agents/skills` URI from the `AGENTS.md` root.
@@ -91,7 +93,8 @@ The Body (arifosmcp) is currently a **~$5M USD kernel** with a wide probability 
 | Vector Memory | ✅ Ollama | `nomic-embed-text` |
 | Weekly Sync Cron | ✅ Set | Sunday 8AM MYT |
 | Session Cleanup | ✅ Done | 110 → 24 files |
+| 3-Layer Identity | ✅ Binding | `init_anchor_hardened.py` |
 
 ---
 
-**(End of ROADMAP. SEALed by arifOS Governance Kernel v2026.03.27-SEALED.)**
+**(End of ROADMAP. SEALed by arifOS Governance Kernel v2026.03.28-SEALED.)**

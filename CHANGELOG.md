@@ -1,3 +1,70 @@
+## [2026.03.28-IDENTITY-BINDING] - Three-Layer Identity Binding + ZKPC Anchoring
+
+### 🔐 THREE-LAYER IDENTITY BINDING (Init Anchor Handshake)
+
+**Implemented declarative identity verification: Model declares → arifOS verifies → System binds → Session proceeds with bound truth.**
+
+This transforms identity from "self-described" to "system-verified" — a critical F11 (Authority) hardening.
+
+#### The Handshake Flow
+```
+1. Declaration: Model sends model_soul with base_identity (provider/family/variant)
+2. Verification: arifOS queries the 3-layer registry:
+   - Layer 1: Runtime Profile (deployment_id → capabilities)
+   - Layer 2: Provider Soul (provider_family → archetype)
+   - Layer 3: Self-Claim Boundary (policies for this identity)
+3. Binding: System returns bound_session containing:
+   - soul: Provider archetype (personality, traits)
+   - runtime: Deployment facts (what this instance CAN do)
+   - boundary: Self-claim restrictions (what model is ALLOWED to claim)
+   - bound_role: Effective role (intersection of all three)
+4. Session Proceeds: With bound truth, not declared truth
+```
+
+#### Implementation
+- **`init_anchor_hardened.py`**: Added `_bind_identity()` method with 3-layer resolution
+- **`tool_01_init_anchor.py`**: Added `deployment_id` parameter + `bound_session` to V2 payload
+- **Verification Status Values**:
+  - `verified` — Runtime profile matched (highest authority)
+  - `mood_matched` — Soul matched but no runtime profile
+  - `unverified` — No MODEL_SOUL provided
+  - `claimed_only` — Nothing matched (untrusted guest)
+
+#### ZKPC Anchoring
+- Zero-Knowledge Proof of Computation anchors for each layer:
+  - Runtime: `profile_id` + `verified_at` timestamp
+  - Soul: `soul_id` + `soul_archetype` binding
+  - Boundary: `self_claim_boundary` policy hash
+- Session envelope includes cryptographic session binding via `SignedChallenge`
+
+#### Test Results
+```
+tests/test_model_soul.py::test_init_anchor_v2_function_returns_flat_payload PASSED
+tests/test_model_soul.py::test_init_anchor_v2_with_deployment_id PASSED
+tests/test_model_soul.py::test_init_anchor_v2_no_soul PASSED
+tests/test_model_soul.py::test_init_anchor_v2_claimed_only PASSED
+```
+
+### Files Changed
+| File | Change |
+|------|--------|
+| `arifosmcp/runtime/init_anchor_hardened.py` | NEW `_bind_identity()` 3-layer resolution |
+| `arifosmcp/runtime/megaTools/tool_01_init_anchor.py` | V2 flattening with `bound_session` + `deployment_id` |
+| `tests/test_model_soul.py` | NEW test suite for identity binding |
+
+### Constraint
+- **Zero new tools.** All changes within existing `init_anchor` mega-tool.
+- **Backward compatible.** Legacy calls without `model_soul` default to `unverified`.
+
+### Verdict
+**SEAL — DITEMPA BUKAN DIBERI**
+
+**Timestamp**: 2026-03-28T10:40:00+08:00  
+**ZKPC Root**: `sha256:3-layer-binding-v2026.03.28`  
+**Registry State**: 17 provider souls, 4 runtime profiles, 18 models
+
+---
+
 ## [2026.03.27-ANTIGRAVITY] - P0 Mode Fixes + Constitutional Perception Sealed
 
 ### 🔧 Constitutional P0 Mode Fixes

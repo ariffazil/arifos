@@ -2,7 +2,7 @@
 
 > **DITEMPA BUKAN DIBERI — Forged, Not Given**
 
-[![Version](https://img.shields.io/badge/version-2026.03.27-blue?style=flat-square)](./CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-2026.03.28-blue?style=flat-square)](./CHANGELOG.md)
 [![License](https://img.shields.io/badge/theory-CC0%201.0-green?style=flat-square)](./LICENSE)
 [![Runtime](https://img.shields.io/badge/runtime-AGPL--3.0-orange?style=flat-square)](./LICENSING.md)
 [![MCP](https://img.shields.io/badge/MCP-2025--11--25-purple?style=flat-square)](https://arifosmcp.arif-fazil.com/mcp)
@@ -289,6 +289,73 @@ Any floor failure at any stage returns `888_HOLD` (retrievable) or `VOID` (termi
 | **Platform Builders** | Embed arifOS as a governance layer on top of any LLM API |
 | **Researchers** | Study thermodynamic AI governance with a working reference implementation |
 | **Sovereign Architects** | Design AI systems where a human retains absolute veto power |
+
+---
+
+## VI-A. Three-Layer Identity Binding (F11 Authority)
+
+> **"Identity is not self-described; it is system-verified."**
+
+arifOS implements **declarative identity verification** in `init_anchor`. Models declare their identity via `model_soul`; the system verifies against a 3-layer registry; the session proceeds with **bound truth**, not declared truth.
+
+### The Handshake
+
+```python
+# 1. DECLARATION: Model sends its self-conception
+envelope = await init_anchor(
+    mode="init",
+    actor_id="User",
+    intent="Session start",
+    deployment_id="vps_main_arifos",  # Bound to L2 Law/Runtime
+    model_soul={
+        "base_identity": {
+            "provider": "google",
+            "model_family": "gemini",
+            "model_variant": "gemini-2.0-flash"
+        }
+    }
+)
+
+# 2. VERIFICATION: arifOS queries 4-layer registry (arifOS-model-registry/)
+#    - Catalog: Master index of all providers and models
+#    - Provider Soul: Lab-shaped behavioral archetype (e.g. structured_clerk_engineer)
+#    - Model Spec: Formal variant definition + soul binding
+#    - Runtime Profile: deployment_id → localized capabilities/constraints
+
+# 3. BINDING: System returns bound_session (Flavor -> Law -> Mission)
+{
+    "identity": {
+        "verification_status": "verified",  # verified | mood_matched | claimed_only
+        "declared_identity": {"provider": "google", ...},
+        "verified_identity": {"provider": "google", "soul_archetype": "google_gemini", ...},
+        "self_claim_boundary": {"identity_claim_policy": "verified_against_registry", ...}
+    },
+    "bound_session": {
+        "soul": {"label": "broad_platform_generalist", "archetype": "google_gemini", ...},
+        "runtime": {"profile_id": "vps_main_arifos", "capabilities": {...}},
+        "boundary": {"tool_claim_policy": "runtime_truth_only", ...},
+        "bound_role": "broad_platform_generalist_agent"
+    }
+}
+```
+
+### Verification Status Hierarchy
+
+| Status | Authority | Meaning |
+|--------|-----------|---------|
+| `verified` | **Highest** | Runtime profile matched — deployment truth known |
+| `mood_matched` | Medium | Provider soul matched — archetype known, no runtime profile |
+| `claimed_only` | Low | Nothing matched — operating as untrusted guest |
+| `unverified` | None | No MODEL_SOUL provided — anonymous session |
+
+### ZKPC Anchoring
+
+Each layer carries a Zero-Knowledge Proof of Computation anchor:
+- **Runtime**: `profile_id` + `verified_at` timestamp
+- **Soul**: `soul_id` + `soul_archetype` cryptographic binding
+- **Boundary**: `self_claim_boundary` policy hash
+
+The `SignedChallenge` in the envelope provides cryptographic session binding, preventing tampering after establishment.
 
 ---
 
@@ -620,7 +687,7 @@ pytest tests/ -v       # Full suite (asyncio_mode=auto, no @pytest.mark.asyncio 
 | 4 | **Align** | 13 Floors codified as a mathematical constitution |
 | 5 | **Forge** | First VPS deployment on port 8080 |
 | 6 | **Audit** | Tri-Witness integration + OutcomeLedger |
-| 7 | **Seal** | March 2026: A-RIF finalized, 11-tool surface locked, Quantum Memory Hardening (H1–H9), AAA HuggingFace dataset published, CI infrastructure patched |
+| 7 | **Seal** | March 2026: A-RIF finalized, 11-tool surface locked, Quantum Memory Hardening (H1–H9), AAA HuggingFace dataset published, CI infrastructure patched, **4-Layer Model Registry (Catalog/Souls/Models/Profiles) + Hardened 3-Layer Identity Handshake.** |
 
 ### Epoch 7 Operational Timeline
 
@@ -637,6 +704,8 @@ pytest tests/ -v       # Full suite (asyncio_mode=auto, no @pytest.mark.asyncio 
 | 2026-03-25 | CI infrastructure audit — 8 workflow files patched |
 | 2026-03-25 | 11-tool surface locked, EXPECTED_TOOL_COUNT=11 assertion added |
 | 2026-03-26 | Merged Quantum Memory Hardening SEAL (PR #288) into main |
+| 2026-03-28 | Hardened Model Registry (v2) implemented with 17 Behavioral Souls |
+| 2026-03-28 | Hardened 3-Layer Identity Handshake (Flavor/Law/Mission) landed in `init_000` |
 
 ---
 
@@ -692,5 +761,6 @@ Full model: [`LICENSING.md`](./LICENSING.md)
 **DITEMPA BUKAN DIBERI — Forged, Not Given.**
 
 *Author: Muhammad Arif bin Fazil*  
-*Sealed: 2026-03-26 | Version: 2026.03.25*  
+*Sealed: 2026-03-28 | Version: 2026.03.28*  
+*ZKPC Root: 3-layer-binding-v2026.03.28*  
 *Tri-Witness: Theory ✓ · Law ✓ · Intent ✓*
