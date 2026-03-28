@@ -15,28 +15,27 @@ from __future__ import annotations
 
 import hashlib
 import json
-import re
 import secrets
-import time
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import Any
 
-from arifosmcp.runtime.contracts_v2 import (
-    ToolEnvelope,
+from arifosmcp.runtime.contracts import (
     ToolStatus,
+    OutputPolicy,
+    VerdictScope,
     RiskTier,
     HumanDecisionMarker,
     SessionClass,
     TraceContext,
     EntropyBudget,
-    generate_trace_context,
+    ToolEnvelope,
     validate_fail_closed,
-    determine_human_marker,
     calculate_entropy_budget,
+    generate_trace_context,
+    determine_human_marker,
 )
 from arifosmcp.runtime.sessions import bind_session_identity, clear_session_identity
-
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -57,9 +56,8 @@ _CANONICAL_FIELDS: frozenset[str] = frozenset(
         "trace",
         "query",
         "raw_input",
-        "actor_id",
-        "caller_context",
         "pns_shield",
+        "model_soul",
     }
 )
 
@@ -330,6 +328,198 @@ class HardenedInitAnchor:
 
     # Session registry (in production, use Redis)
     _sessions: dict[str, SessionState] = {}
+    _registry: dict[str, Any] | None = None
+
+    def _load_registry(self) -> dict[str, Any]:
+        """Load Model Registry from standard paths."""
+        if self._registry is not None:
+            return self._registry
+        
+        import os
+        
+        # Priority 1: VPS production path
+        # Priority 2: Local dev fallback
+        paths = [
+            "/opt/arifos/data/openclaw/workspace/init_000/db/MODEL_REGISTRY.json",
+            "C:/ariffazil/arifOS/arifosmcp/data/MODEL_REGISTRY.json", 
+            "memory/MODEL_REGISTRY.json",
+        ]
+        
+        for p in paths:
+            if os.path.exists(p):
+                try:
+                    with open(p, "r") as f:
+                        self._registry = json.load(f)
+                        return self._registry
+                except Exception:
+                    continue
+        
+        return {}
+
+    def _verify_model_soul(self, model_soul: dict[str, Any] | None) -> dict[str, Any]:
+        """
+        Verify model identity against the registry.
+        
+        Implements full MODEL_SOUL specification with declared vs verified split:
+        - base_identity: { provider, model_family, model_variant, runtime_class }
+        - runtime_state: { tooling, web_access, memory_mode }
+        - capability_map: { can_browse, can_execute, ... }
+        - boundary_map: { identity_claim_policy, tool_claim_policy }
+        - constitution: { truth_policy, humility_policy, anti_hantu_policy }
+        
+        Returns verification report with declared vs verified status.
+        """
+        # Default self_claim_boundary for unverified models
+        default_boundary = {
+            "identity": {
+                "policy": "self_claim_only",
+                "trust_tier": "untrusted",
+                "verification_source": "none"
+            },
+            "tools": {
+                "max_risk_tier": "low",
+                "allowed_modes": ["query"],
+                "forbidden_tools": ["asi_heart", "vault_ledger"]
+            },
+            "knowledge": {
+                "can_claim_expertise": False,
+                "must_attest_sources": True,
+                "training_cutoff_policy": "acknowledge"
+            }
+        }
+        
+        if not model_soul:
+            return {
+                "verification_status": "unverified",
+                "declared_identity": None,
+                "verified_identity": None,
+                "self_claim_boundary": default_boundary,
+                "note": "No MODEL_SOUL payload provided."
+            }
+
+        # Extract declared identity from MODEL_SOUL
+        base_identity = model_soul.get("base_identity", {})
+        runtime_state = model_soul.get("runtime_state", {})
+        capability_map = model_soul.get("capability_map", {})
+        boundary_map = model_soul.get("boundary_map", {})
+        constitution = model_soul.get("constitution", {})
+        
+        # Support legacy model_id field for backward compatibility
+        legacy_model_id = model_soul.get("model_id")
+        
+        # Construct declared identity structure
+        declared_identity = {
+            "provider": base_identity.get("provider", "unknown"),
+            "model_family": base_identity.get("model_family", "unknown"),
+            "model_variant": base_identity.get("model_variant", legacy_model_id or "unknown"),
+            "runtime_class": base_identity.get("runtime_class", "unknown"),
+            "capabilities": {
+                "tooling": runtime_state.get("tooling", "unknown"),
+                "web_access": runtime_state.get("web_access", False),
+                "memory_mode": runtime_state.get("memory_mode", "ephemeral"),
+                "can_browse": capability_map.get("can_browse", False),
+                "can_execute": capability_map.get("can_execute", False),
+                "can_reason": capability_map.get("can_reason", True),
+                "can_critique": capability_map.get("can_critique", False),
+            },
+            "claimed_boundaries": {
+                "identity_claim_policy": boundary_map.get("identity_claim_policy", "unknown"),
+                "tool_claim_policy": boundary_map.get("tool_claim_policy", "unknown"),
+            },
+            "constitutional_policies": {
+                "truth_policy": constitution.get("truth_policy", "unknown"),
+                "humility_policy": constitution.get("humility_policy", "unknown"),
+                "anti_hantu_policy": constitution.get("anti_hantu_policy", "unknown"),
+            }
+        }
+        
+        # Build model_id from base_identity for registry lookup
+        # standard: provider/model_family/model_variant
+        provider = base_identity.get("provider", "unknown")
+        family = base_identity.get("model_family", "unknown")
+        variant = base_identity.get("model_variant", legacy_model_id or "unknown")
+        
+        model_id = f"{provider}/{family}/{variant}"
+        
+        registry = self._load_registry()
+        
+        if "models" not in registry:
+            return {
+                "verification_status": "unverified",
+                "declared_identity": declared_identity,
+                "verified_identity": None,
+                "self_claim_boundary": default_boundary,
+                "note": "Model Registry unavailable. Identity is self-claimed only."
+            }
+
+        models = registry.get("models", {})
+        
+        # ─── Verification Logic ───
+        profile = None
+        verification_status = "claimed_only"
+        
+        # Check for exact model_id match
+        if model_id in models:
+            profile = models[model_id]
+            verification_status = "verified"
+        else:
+            # Check if the variant exists under a different provider/family (Mismatch detection)
+            for reg_id, reg_profile in models.items():
+                if reg_profile.get("model_variant") == variant:
+                    profile = reg_profile
+                    verification_status = "mismatch"
+                    break
+        
+        if profile:
+            integrity = profile.get("identity_integrity", {})
+            
+            # Construct verified identity from registry
+            verified_identity = {
+                "provider": profile.get("provider", "unknown"),
+                "model_family": profile.get("model_family", "unknown"),
+                "model_variant": profile.get("model_variant", "unknown"),
+                "runtime_class": profile.get("runtime_class", "unknown"),
+                "soul_archetype": profile.get("soul_archetype", "unknown"),
+                "registry_entry": model_id if verification_status == "verified" else reg_id,
+            }
+            
+            # Get self_claim_boundary from registry or use default
+            self_claim_boundary = integrity.get("self_claim_boundary") or {
+                "identity": {
+                    "policy": "registry_verified",
+                    "trust_tier": integrity.get("trust_tier", "verified"),
+                    "verification_source": "arifOS_MODEL_REGISTRY"
+                },
+                "tools": {
+                    "max_risk_tier": profile.get("max_risk_tier", "medium"),
+                    "allowed_modes": profile.get("allowed_modes", ["query", "reason"]),
+                    "forbidden_tools": profile.get("forbidden_tools", [])
+                },
+                "knowledge": {
+                    "can_claim_expertise": integrity.get("can_claim_expertise", True),
+                    "must_attest_sources": integrity.get("must_attest_sources", True),
+                    "training_cutoff_policy": integrity.get("training_cutoff_policy", "acknowledge")
+                }
+            }
+            
+            return {
+                "verification_status": verification_status,
+                "declared_identity": declared_identity,
+                "verified_identity": verified_identity,
+                "self_claim_boundary": self_claim_boundary,
+                "verification_source": "arifOS_MODEL_REGISTRY",
+                "note": f"Identity verified against arifOS Model Registry: {model_id}"
+            }
+        
+        # Model not in registry - claimed only
+        return {
+            "verification_status": "claimed_only",
+            "declared_identity": declared_identity,
+            "verified_identity": None,
+            "self_claim_boundary": default_boundary,
+            "note": f"Model '{model_id}' not found in registry. Identity is self-claimed only."
+        }
+
 
     async def init(
         self,
@@ -350,6 +540,7 @@ class HardenedInitAnchor:
         actor_id: str | None = None,
         caller_context: dict | None = None,
         pns_shield: Any = None,
+        model_soul: dict[str, Any] | None = None,
         # ── Unknown field absorber (Section 3.1) ──
         **kwargs: Any,
     ) -> ToolEnvelope:
@@ -390,6 +581,8 @@ class HardenedInitAnchor:
             accepted_fields.append("caller_context")
         if pns_shield is not None:
             accepted_fields.append("pns_shield")
+        if model_soul is not None:
+            accepted_fields.append("model_soul")
         if proof is not None:
             accepted_fields.append("proof")
 
@@ -592,6 +785,9 @@ class HardenedInitAnchor:
                 },
             )
 
+        # ── STEP 13.5: Verify MODEL_SOUL Identity ──
+        verification = self._verify_model_soul(model_soul)
+
         # ── STEP 14: Create signed challenge ──
         challenge = SignedChallenge(
             challenge_id=f"chal-{secrets.token_hex(8)}",
@@ -713,20 +909,23 @@ class HardenedInitAnchor:
                 },
                 "provenance": provenance.to_dict(),
                 "degradation_ready": True,
-                # ── Normalization report (contract Section 10) ──
+                # ── Identity & Verification Sovereignty (Phase 2) ──
                 "identity": {
-                    "claimed_actor_id": declared_name_norm,
+                    # Actor identity (caller context)
+                    "declared_actor_id": declared_name_norm,
                     "verified_actor_id": (
                         auth_context.get("actor_id")
                         if auth_context and isinstance(auth_context, dict)
                         else None
                     ),
                     "auth_state": "verified" if auth_context else "claimed_only",
-                    "note": (
-                        "Identity verified via auth_context."
-                        if auth_context
-                        else "Claimed identity accepted for low-risk session. Not treated as authority."
-                    ),
+                    # Model identity (MODEL_SOUL verification)
+                    "verification_status": verification["verification_status"],
+                    "declared_identity": verification.get("declared_identity"),
+                    "verified_identity": verification.get("verified_identity"),
+                    "self_claim_boundary": verification.get("self_claim_boundary"),
+                    "verification_source": verification.get("verification_source", "none"),
+                    "note": verification["note"],
                 },
                 "normalization": {
                     "status": "created",
@@ -735,18 +934,14 @@ class HardenedInitAnchor:
                     "derived_fields": derived_fields,
                     "warnings": normalization_warnings,
                     "missing_requirements": [],
-                    "reason": (
-                        "Anchor created. Low-risk session initialized without full auth."
-                        if not auth_context
-                        else "Anchor created with authenticated context."
-                    ),
+                    "reason": verification["note"],
                 },
                 "continuation": {
                     "session_id": session_id,
                     "next_allowed_tools": self._get_next_tools(sclass),
                     "guidance": (
-                        "Session initialized. Use arifOS_kernel for governed reasoning, "
-                        "or provide auth_context to init_anchor to unlock privileged workflows."
+                        "Session initialized. Identity verification complete. "
+                        "Use arifOS_kernel for governed reasoning."
                     ),
                 },
             },
@@ -876,8 +1071,7 @@ class HardenedInitAnchor:
             "math_estimator",
             "architect_registry",
             "check_vital",
-            "get_caller_status",
-            "init_anchor_state",
+            "init_anchor",
         ]
 
         if session_class in (SessionClass.EXECUTE, SessionClass.SOVEREIGN):
