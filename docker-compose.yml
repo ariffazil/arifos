@@ -336,11 +336,11 @@ services:
       - /opt/arifos/data/core:/usr/src/app/data:rw
       - /proc:/host/proc:ro
       - /sys:/host/sys:ro
-      - /root/arifOS/arifosmcp:/usr/src/app/arifosmcp:ro
-      - /root/arifOS/core:/usr/src/app/core:ro
-      - /root/arifOS/000:/usr/src/app/000:ro
-      - /root/arifOS/333:/usr/src/app/333:ro
-      - /root/arifOS/spec:/usr/src/app/spec:ro
+      - /srv/arifosmcp/arifosmcp:/usr/src/app/arifosmcp:ro
+      - /srv/arifosmcp/core:/usr/src/app/core:ro
+      - /srv/arifosmcp/000:/usr/src/app/000:ro
+      - /srv/arifosmcp/333:/usr/src/app/333:ro
+      - /srv/arifosmcp/spec:/usr/src/app/spec:ro
       - /opt/arifos/secrets:/opt/arifos/secrets:ro
       - arifosmcp_telemetry:/usr/src/app/telemetry:rw
       - arifosmcp_vault:/usr/src/app/VAULT999:rw
@@ -348,6 +348,7 @@ services:
     environment:
       HF_TOKEN: ${HF_TOKEN}
       PYTHONUNBUFFERED: 1
+      PYTHONPATH: /usr/src/app
       PYTHONDONTWRITEBYTECODE: 1
       ARIFOS_WORKDIR: /usr/src/app
       DATABASE_URL: postgresql://${POSTGRES_USER:-arifos_admin}:${POSTGRES_PASSWORD}@arifos_postgres:5432/${POSTGRES_DB:-arifos_vault}
@@ -453,7 +454,7 @@ services:
       - '--web.enable-lifecycle'
       - '--log.level=warn'
     volumes:
-      - /root/arifOS/infrastructure/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - /srv/arifosmcp/infrastructure/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - /opt/arifos/data/prometheus:/prometheus
     networks:
       - arifos_trinity
@@ -491,9 +492,9 @@ services:
       GF_AUTH_BASIC_ENABLED: "true"
     volumes:
       - /opt/arifos/data/grafana:/var/lib/grafana
-      - /root/arifOS/infrastructure/grafana/datasources/prometheus.yml:/etc/grafana/provisioning/datasources/prometheus.yml:ro
-      - /root/arifOS/infrastructure/grafana/dashboards/arifos.yaml:/etc/grafana/provisioning/dashboards/arifos.yaml:ro
-      - /root/arifOS/infrastructure/grafana/dashboards:/etc/grafana/provisioning/dashboards/json:ro
+      - /srv/arifosmcp/infrastructure/grafana/datasources/prometheus.yml:/etc/grafana/provisioning/datasources/prometheus.yml:ro
+      - /srv/arifosmcp/infrastructure/grafana/dashboards/arifos.yaml:/etc/grafana/provisioning/dashboards/arifos.yaml:ro
+      - /srv/arifosmcp/infrastructure/grafana/dashboards:/etc/grafana/provisioning/dashboards/json:ro
     networks:
       - arifos_trinity
     labels:
@@ -583,8 +584,8 @@ services:
     init: true
     command: ["-verbose", "-hooks=/etc/webhook/hooks.json", "-hotreload"]
     volumes:
-      - /root/arifOS/deployment/hooks.json:/etc/webhook/hooks.json:ro
-      - /root/arifOS/infrastructure/deploy_from_git.sh:/var/scripts/deploy_from_git.sh:ro
+      - /srv/arifosmcp/deployment/hooks.json:/etc/webhook/hooks.json:ro
+      - /srv/arifosmcp/infrastructure/deploy_from_git.sh:/var/scripts/deploy_from_git.sh:ro
       - /root/arifOS:/usr/src/app:rw
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /usr/bin/docker:/usr/bin/docker:ro

@@ -56,7 +56,7 @@ class HardenedArifOSKernel:
     ) -> ToolEnvelope:
         tool = "arifOS_kernel"
         session_id = session_id or "anonymous"
-        entropy = calculate_entropy_budget(0.5, 0.9, len(query), 100)
+        entropy = calculate_entropy_budget(0.5, 0.9, len(query or ""), 100)
         return ToolEnvelope(
             status=ToolStatus.OK, tool=tool, session_id=session_id,
             risk_tier=RiskTier(risk_tier.lower() if risk_tier else "medium"),
@@ -107,7 +107,7 @@ class HardenedApexJudge:
         proposal = proposal or "General Review"
         
         # Calculate dynamic entropy and g-score for this decision
-        entropy = calculate_entropy_budget(0.1, 0.95, len(proposal), 300)
+        entropy = calculate_entropy_budget(0.1, 0.95, len(proposal or ""), 300)
         
         # P4 Hardening: Wire dynamic g_score
         from arifosmcp.core.shared.physics import genius_score
@@ -153,7 +153,7 @@ class HardenedAGIReason:
         session_id = session_id or "anonymous"
         
         lanes = [{"type": "baseline", "interpretation": f"Standard: {query}", "confidence": 0.8}]
-        entropy = calculate_entropy_budget(0.4, 0.7, len(query), 500)
+        entropy = calculate_entropy_budget(0.4, 0.7, len(query or ""), 500)
 
         return ToolEnvelope(
             status=ToolStatus.OK, tool=tool, session_id=session_id,
@@ -177,7 +177,7 @@ class HardenedASICritique:
     ) -> ToolEnvelope:
         tool = "asi_heart"
         session_id = session_id or "anonymous"
-        entropy = calculate_entropy_budget(0.4, 0.6, len(candidate), 200)
+        entropy = calculate_entropy_budget(0.4, 0.6, len(candidate or ""), 200)
         return ToolEnvelope(
             status=ToolStatus.OK, tool=tool, session_id=session_id,
             risk_tier=RiskTier(risk_tier.lower() if risk_tier else "medium"),

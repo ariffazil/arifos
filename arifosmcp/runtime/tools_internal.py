@@ -342,6 +342,33 @@ async def init_anchor_impl(
     if mode == "status":
         return await get_caller_status_impl(session_id, ctx)
 
+    if mode == "floor_check":
+        from arifosmcp.core.shared.floors import THRESHOLDS, FLOOR_SPEC_KEYS, get_floor_spec
+
+        floors = []
+        for short_id in sorted(FLOOR_SPEC_KEYS.keys()):
+            spec = get_floor_spec(short_id)
+            key = FLOOR_SPEC_KEYS[short_id]
+            threshold = spec.get("threshold")
+            range_val = spec.get("range")
+            floors.append(
+                {
+                    "floor_id": short_id,
+                    "key": key,
+                    "name": key.replace(f"{short_id}_", ""),
+                    "threshold": threshold,
+                    "range": range_val,
+                    "floor_type": spec.get("type"),
+                    "description": spec.get("desc", ""),
+                }
+            )
+        envelope = await _wrap_call(
+            "init_anchor", Stage.INIT_000, session_id, {"mode": "floor_check"}, ctx
+        )
+        envelope.payload["floors"] = floors
+        envelope.payload["count"] = len(floors)
+        return envelope
+
     if mode == "state":
         # Forensic State Retrieval: Return current identity without forcing re-initialization
         from arifosmcp.runtime.sessions import get_session_identity
@@ -746,7 +773,7 @@ async def asi_heart_dispatch_impl(
     content = payload.get("content", "")
     if mode == "critique":
         return await _wrap_call(
-            "asi_critique", Stage.CRITIQUE_666, session_id, {"draft": content}, ctx
+            "asi_critique", Stage.CRITIQUE_666, session_id, {"draft_output": content}, ctx
         )
     elif mode == "simulate":
         return await _wrap_call(
@@ -811,6 +838,21 @@ async def engineering_memory_dispatch_impl(
                         "memory_id": memory_id,
                         "bytes_written": len(content),
                         "backend": "qdrant",
+                        # LAYER 1 (MEMORY) CONSTITUTIONAL MARKER
+                        "layer_info": {
+                            "layer": 1,
+                            "name": "MEMORY",
+                            "trinity": "OMEGA Ω",
+                            "description": (
+                                "Layer 1 (Memory) stores semantic context. "
+                                "Storage is NOT execution. "
+                                "Stored memories do NOT grant any action authority."
+                            ),
+                            "storage_confirmation": True,
+                            "execution_authority": False,
+                            "requires_verification": True,
+                            "next_required_layer": "REALITY",
+                        },
                     },
                 )
             else:
@@ -884,7 +926,10 @@ async def engineering_memory_dispatch_impl(
                     budget_remaining -= content_len
                 else:
                     truncated = r.copy()
-                    truncated["content"] = r["content"][:budget_remaining] + "\n[...TRUNCATED \u2014 F4 context budget]"
+                    truncated["content"] = (
+                        r["content"][:budget_remaining]
+                        + "\n[...TRUNCATED \u2014 F4 context budget]"
+                    )
                     truncated["truncated"] = True
                     budgeted_results.append(truncated)
                     budget_remaining = 0
@@ -915,6 +960,37 @@ async def engineering_memory_dispatch_impl(
                         "used": context_budget - budget_remaining,
                         "results_truncated": sum(1 for r in budgeted_results if r.get("truncated")),
                     },
+                    # LAYER 1 (MEMORY) CONSTITUTIONAL MARKER
+                    # arifOS 4-Layer Architecture: Memory ≠ Authority
+                    "layer_info": {
+                        "layer": 1,
+                        "name": "MEMORY",
+                        "trinity": "OMEGA Ω",
+                        "description": (
+                            "Layer 1 (Memory) provides semantic recall only. "
+                            "Results are SUGGESTIONS, NOT authoritative truth. "
+                            "MUST verify with Layer 2 (Reality) before conclusions. "
+                            "MUST pass Layer 3 (Judgment) before any action."
+                        ),
+                        "what_it_is": [
+                            "semantic recall",
+                            "document search",
+                            "prior context",
+                            "design history",
+                            "stored patterns",
+                        ],
+                        "what_it_is_not": [
+                            "live system state (→ use physics_reality)",
+                            "authority for truth (→ use agi_mind/apex_soul)",
+                            "execution capability (→ use code_engine)",
+                        ],
+                        "next_required_layer": "REALITY",
+                        "governance_reminder": (
+                            "RAG is a servant inside arifOS, not the throne. "
+                            "Memory can suggest. Reality must verify. "
+                            "Judgment must approve. Action must be gated."
+                        ),
+                    },
                 },
             )
         except Exception as e:
@@ -939,7 +1015,10 @@ async def engineering_memory_dispatch_impl(
                     budget_remaining -= content_len
                 else:
                     truncated = r.copy()
-                    truncated["content"] = r["content"][:budget_remaining] + "\n[...TRUNCATED \u2014 F4 context budget]"
+                    truncated["content"] = (
+                        r["content"][:budget_remaining]
+                        + "\n[...TRUNCATED \u2014 F4 context budget]"
+                    )
                     truncated["truncated"] = True
                     budgeted_results.append(truncated)
                     budget_remaining = 0
@@ -1087,7 +1166,9 @@ async def engineering_memory_dispatch_impl(
                 stage="555_MEMORY",
                 verdict=Verdict.SABAR,
                 status=RuntimeStatus.SABAR,
-                payload={"error": "vector_forget requires 'memory_ids' list or 'query' to identify targets"},
+                payload={
+                    "error": "vector_forget requires 'memory_ids' list or 'query' to identify targets"
+                },
             )
 
         forgot_ids: list[str] = []
@@ -1123,12 +1204,16 @@ async def engineering_memory_dispatch_impl(
 
                     # H3: Delete from LanceDB hot cache
                     try:
-                        from arifosmcp.intelligence.tools.hybrid_vector_memory import get_hybrid_memory
+                        from arifosmcp.intelligence.tools.hybrid_vector_memory import (
+                            get_hybrid_memory,
+                        )
 
                         hm = await get_hybrid_memory()
                         await hm.purge(target_ids)
                     except Exception as e:
-                        logger.warning(f"H3: LanceDB purge in query-forget failed (non-blocking): {e}")
+                        logger.warning(
+                            f"H3: LanceDB purge in query-forget failed (non-blocking): {e}"
+                        )
 
         # H8: Audit tombstone — F1 Amanah requires traceability
         tombstone = {
@@ -1310,6 +1395,15 @@ async def math_estimator_dispatch_impl(
         )
     elif mode == "vitals":
         return await _wrap_call("check_vital", Stage.INIT_000, session_id, {}, ctx)
+    elif mode == "entropy":
+        from arifosmcp.core.physics.thermodynamics_hardened import get_thermodynamic_report
+
+        report = get_thermodynamic_report(session_id or "unknown")
+        envelope = await _wrap_call(
+            "math_estimator", Stage.MEMORY_555, session_id, {"mode": "entropy"}, ctx
+        )
+        envelope.payload["thermodynamic_report"] = report
+        return envelope
     raise ValueError(f"Invalid mode for math_estimator: {mode}")
 
 
