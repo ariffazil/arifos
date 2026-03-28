@@ -103,6 +103,20 @@ from arifosmcp.runtime.megaTools import (
     architect_registry,
 )
 
+try:
+    from arifosmcp.init_000.tools import (
+        get_deployment as init_000_get_deployment,
+        get_provider_soul as init_000_get_provider_soul,
+        get_session_anchor as init_000_get_session_anchor,
+        log_drift_event as init_000_log_drift_event,
+    )
+except (ImportError, ModuleNotFoundError):
+    # init_000 not available in this environment
+    init_000_get_deployment = None
+    init_000_get_provider_soul = None
+    init_000_get_session_anchor = None
+    init_000_log_drift_event = None
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # HELPER FUNCTIONS (kept in tools.py for utilities)
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -178,6 +192,7 @@ async def metabolic_loop_router(
     caller_context: dict | None = None,
     auth_context: dict | None = None,
     ctx: Context | None = None,
+    **kwargs: Any,
 ) -> RuntimeEnvelope:
     return await arifOS_kernel(
         query=query,
@@ -191,6 +206,7 @@ async def metabolic_loop_router(
         caller_context=caller_context,
         auth_context=auth_context,
         ctx=ctx,
+        **kwargs,
     )
 
 
@@ -233,6 +249,7 @@ async def arifos_kernel(
     caller_context: dict | None = None,
     auth_context: dict | None = None,
     ctx: Context | None = None,
+    **kwargs: Any,
 ) -> RuntimeEnvelope:
     return await arifOS_kernel(
         query=query,
@@ -246,6 +263,7 @@ async def arifos_kernel(
         caller_context=caller_context,
         auth_context=auth_context,
         ctx=ctx,
+        **kwargs,
     )
 
 
@@ -595,6 +613,11 @@ FINAL_TOOL_IMPLEMENTATIONS: dict[str, Callable[..., Any]] = {
     "math_estimator": math_estimator,
     "code_engine": code_engine,
     "architect_registry": architect_registry,
+    # init_000 tools
+    "init_000_get_deployment": init_000_get_deployment,
+    "init_000_get_provider_soul": init_000_get_provider_soul,
+    "init_000_get_session_anchor": init_000_get_session_anchor,
+    "init_000_log_drift_event": init_000_log_drift_event,
 }
 
 LEGACY_COMPAT_MAP: dict[str, Callable[..., Any]] = {
@@ -674,6 +697,54 @@ def _build_legacy_payload(mega_tool: str, mode: str, values: dict[str, Any]) -> 
     return payload
 
 
+def _build_user_model(
+    tool_name: str, stage_value: str, payload: dict[str, Any], envelope_data: dict[str, Any]
+) -> UserModel:
+    query = str(
+        payload.get("query") or payload.get("intent") or payload.get("content") or ""
+    ).strip()
+    context = str(payload.get("context") or "").strip()
+    output_constraints: list[UserModelField] = []
+    lowered = f"{query} {context}".lower()
+    if "concise" in lowered:
+        output_constraints.append(
+            UserModelField(value="keep_response_concise", source=UserModelSource.EXPLICIT)
+        )
+    if envelope_data.get("meta", {}).get("dry_run") or payload.get("dry_run"):
+        output_constraints.append(
+            UserModelField(
+                value="state_that_execution_is_simulated", source=UserModelSource.OBSERVABLE
+            )
+        )
+    return UserModel(
+        stated_goal=UserModelField(
+            value=query or context or f"{tool_name}:{stage_value}", source=UserModelSource.EXPLICIT
+        ),
+        output_constraints=output_constraints,
+    )
+
+
+def _resolve_caller_context(
+    caller_context: CallerContext | None, requested_persona: str | None
+) -> CallerContext:
+    base = caller_context or CallerContext()
+    if requested_persona:
+        try:
+            base.persona_id = PersonaId(requested_persona.lower())
+        except (ValueError, AttributeError):
+            pass
+    return base
+
+
+def _resolve_caller_state(
+    session_id: str, authority: Any
+) -> tuple[str, list[str], list[dict[str, str]]]:
+    """Single source of truth for caller state resolution."""
+    from .tools_internal import _resolve_caller_state as _resolve
+
+    return _resolve(session_id, authority)
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # TOOL REGISTRATION
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -692,6 +763,8 @@ def register_tools(mcp: FastMCP, profile: str = "full") -> None:
     # Skip handlers with **kwargs — FastMCP FunctionTool does not support them
     all_public_tools = {**FINAL_TOOL_IMPLEMENTATIONS, **LEGACY_COMPAT_MAP}
     for name, handler in all_public_tools.items():
+        if handler is None:
+            continue
         sig = inspect.signature(handler)
         if any(p.kind == inspect.Parameter.VAR_KEYWORD for p in sig.parameters.values()):
             continue  # skip **kwargs handlers
@@ -755,6 +828,9 @@ __all__ = [
     "select_governed_philosophy",
     "_has_valid_proof",
     "_build_legacy_payload",
+    "_build_user_model",
+    "_resolve_caller_context",
+    "_resolve_caller_state",
 ]
 
 
