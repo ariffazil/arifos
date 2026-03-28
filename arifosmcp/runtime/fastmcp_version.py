@@ -56,21 +56,11 @@ except ImportError:
     class AuthorizationError(FastMCPError):
         """Authorization error (FastMCP 2.x compatibility shim).
         
-        Mirrors FastMCP 3.x AuthorizationError API for seamless cross-version usage:
-        - message: Error message
-        - operation: Optional operation that was attempted
-        - resource: Optional resource being accessed
+        Mirrors FastMCP 3.x AuthorizationError API for seamless cross-version usage.
+        Note: FastMCP 3.x AuthorizationError only takes message argument.
         """
-        def __init__(
-            self, 
-            message: str = "Unauthorized", 
-            *, 
-            operation: str | None = None, 
-            resource: str | None = None
-        ):
+        def __init__(self, message: str = "Unauthorized"):
             super().__init__(message)
-            self.operation = operation
-            self.resource = resource
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # HTTP App Creation Compatibility

@@ -10,6 +10,6 @@ Official Docs:
 - https://gofastmcp.com/integrations/chatgpt
 """
 
-from .chatgpt_tools import search, fetch, chatgpt_tools
+from .chatgpt_tools import search, fetch, chatgpt_tools, register_chatgpt_tools
 
-__all__ = ["search", "fetch", "chatgpt_tools"]
+__all__ = ["search", "fetch", "chatgpt_tools", "register_chatgpt_tools"]
