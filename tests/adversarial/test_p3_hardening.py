@@ -18,11 +18,11 @@ import os
 
 import pytest
 
-import arifosmcp.core.physics.thermodynamics_hardened
+import arifosmcp.core.physics.thermodynamics_hardened as core
 
 # FORCE PHYSICS ENABLED for all tests in this file
 os.environ["ARIFOS_PHYSICS_DISABLED"] = "0"
-importlib.reload(core.physics.thermodynamics_hardened)
+importlib.reload(core)
 
 from arifosmcp.core.physics.thermodynamics_hardened import (  # noqa: E402
     EntropyIncreaseError,

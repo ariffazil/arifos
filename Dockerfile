@@ -22,8 +22,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Copy project files
 COPY . .
 
-# Initialize git submodules (arifOS-model-registry + arifosmcp)
-RUN git submodule update --init --recursive
+# Note: Submodules are included via COPY . . (build context has submodule files)
+# git submodule update --init --recursive  # REMOVED - not needed, COPY brings files
 
 # Install dependencies in build stage to keep runtime image clean
 RUN python -m pip install --upgrade pip && \
