@@ -120,10 +120,12 @@ jobs:
           ssh-private-key: ${{ secrets.VPS_SSH_KEY }}
 
       - name: Connect to Tailscale
-        if: ${{ secrets.TS_AUTHKEY != '' }}
+        env:
+          TS_AUTHKEY: ${{ secrets.TS_AUTHKEY }}
+        if: ${{ env.TS_AUTHKEY != '' }}
         uses: tailscale/github-action@v3
         with:
-          authkey: ${{ secrets.TS_AUTHKEY }}
+          authkey: ${{ env.TS_AUTHKEY }}
           hostname: gha-arifos-deploy
 
       - name: Verify SSH reachability
