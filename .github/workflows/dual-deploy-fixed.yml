@@ -97,6 +97,9 @@ jobs:
             git fetch origin
             git reset --hard origin/main
             
+            # Initialize submodules (arifosmcp + arifOS-model-registry)
+            git submodule update --init --recursive
+            
             # Ensure docker-compose.yml has volume mounts for new files
             if ! grep -q "server.py:/usr/src/app/server.py" docker-compose.yml; then
               echo "Adding volume mounts for new entry point files..."
