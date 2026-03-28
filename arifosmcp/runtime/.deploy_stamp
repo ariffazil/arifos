@@ -1,3 +1,3 @@
-deployment trigger for envelope consistency fix
-commit: b69184d1b829fe6f3c98b7fe9d6f308bdf7752b2
-timestamp: 2026-03-28T10:40:00Z
+deployment trigger after workflow path fix
+main-commit: 1608ec484c3c1a23d07eed040cf4541dc7918cd0
+timestamp: 2026-03-28T10:44:00Z
