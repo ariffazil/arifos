@@ -1,63 +1,32 @@
 # Horizon Deployment Guide
 
-> **Use `arifOS/horizon/` subdirectory for Prefect Horizon deployments**
+> **arifosmcp now auto-detects Horizon and switches to 2.x compatible mode!**
 
 ---
 
-## 🚨 CRITICAL: Version Compatibility
+## ✅ Quick Deploy
 
-| Component | FastMCP Version | Result on Horizon |
-|-----------|-----------------|-------------------|
-| `arifosmcp/` submodule | 3.x (`fastmcp.dependencies`) | ❌ **FAILS** |
-| `arifOS/horizon/` | 2.x (compatible) | ✅ **WORKS** |
-| Horizon Platform | 2.12.3 (locked) | — |
+| Setting | Value |
+|---------|-------|
+| **Repository** | `https://github.com/ariffazil/arifosmcp` ✅ |
+| **Entrypoint** | `server.py:mcp` ✅ |
+| **Branch** | `main` |
 
-### The Error You'll Get (If Wrong)
+---
 
-If you try to deploy `arifosmcp/` directly to Horizon:
-```
-No module named 'fastmcp.dependencies'
-```
+## 🎉 What's New
 
-This happens because `arifosmcp/runtime/megaTools/tool_05_agi_mind.py` imports:
+**arifosmcp** now has **auto-detection**:
+
 ```python
-from fastmcp.dependencies import CurrentContext  # FastMCP 3.x only
+# server.py automatically detects environment:
+if FastMCP 2.x or Horizon env:
+    → Load server_horizon.py (8 tools, proxy mode)
+else:
+    → Load runtime/server.py (11 tools, full kernel)
 ```
 
-**Horizon cannot be upgraded** — you MUST use the 2.x compatible adapter.
-
----
-
-## ✅ Correct Approach
-
-Deploy the simplified adapter from this repo:
-
-```bash
-cd /root/arifOS/horizon
-# Push to GitHub
-git add .
-git commit -m "Horizon deployment"
-git push origin main
-
-# In Prefect Horizon Dashboard:
-# - Repository: ariffazil/arifOS
-# - Entrypoint: horizon/server.py:mcp
-# - Branch: main
-```
-
----
-
-## Deployment Comparison
-
-| Aspect | `arifosmcp/` (VPS) | `horizon/` (Cloud) |
-|--------|-------------------|-------------------|
-| **FastMCP Version** | 3.x | 2.x |
-| **Import Pattern** | `from fastmcp.dependencies import CurrentContext` | `from fastmcp import FastMCP` |
-| **Package Install** | Required (`pip install -e .`) | Not needed (self-contained) |
-| **Tool Count** | 11 (full sovereign) | 8 (public-safe) |
-| **VAULT999** | ✅ Full access | ❌ Disabled (security) |
-| **Memory/Code Exec** | ✅ Available | ❌ Disabled (security) |
-| **Deployment** | Docker on VPS | Prefect Horizon |
+**Result:** Same repo works for BOTH VPS and Horizon! 🎊
 
 ---
 
@@ -65,95 +34,111 @@ git push origin main
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                      TRINITY ARCHITECTURE                    │
-├─────────────────────────────────────────────────────────────┤
-│                                                              │
-│  ┌─────────────────────────┐                                 │
-│  │  Prefect Horizon        │  ☁️ Cloud Tier                  │
-│  │  horizon/server.py      │     FastMCP 2.12.3              │
-│  │  • 8 public-safe tools  │     8 tools (safe subset)       │
-│  │  • No vault/memory      │     Proxies to VPS              │
-│  │  • FastMCP 2.x          │                                 │
-│  └──────────┬──────────────┘                                 │
-│             │ HTTPS                                          │
-│             ▼                                                │
-│  ┌─────────────────────────┐                                 │
-│  │  Your VPS (Sovereign)   │  🔥 Private Kernel              │
-│  │  arifosmcp_server       │     FastMCP 3.x                 │
-│  │  Port 8080 (internal)   │     11 tools (full band)        │
-│  │  • Full vault access    │     Constitutional ΔΩΨ         │
-│  │  • Memory persistence   │                                 │
-│  │  • Code execution       │                                 │
-│  └─────────────────────────┘                                 │
-│                                                              │
-│  Entry Point for Horizon:                                    │
-│  Repository: ariffazil/arifOS                                │
-│  Entrypoint: horizon/server.py:mcp                           │
-│                                                              │
+│  PREFECT HORIZON (FastMCP 2.12.3)                           │
+│  ┌─────────────────────────────────────────────────────┐    │
+│  │  arifosmcp/server.py                                │    │
+│  │  └── Auto-detects → loads server_horizon.py         │    │
+│  │       • 8 public-safe tools                         │    │
+│  │       • Proxies to VPS for heavy ops                │    │
+│  └──────────────┬──────────────────────────────────────┘    │
+│                 │ HTTPS                                      │
+│                 ▼                                            │
+│  ┌─────────────────────────────────────────────────────┐    │
+│  │  YOUR VPS                                           │    │
+│  │  arifosmcp_server (Docker)                          │    │
+│  │  └── Full 11-tool Sovereign Kernel                  │    │
+│  │       • Vault, Memory, Code Execution               │    │
+│  └─────────────────────────────────────────────────────┘    │
 └─────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## Quick Start
+## How It Works
 
-### 1. Verify Horizon Code
+### Detection Logic (server.py)
 
-```bash
-cd /root/arifOS/horizon
-cat server.py  # Verify it's the simple version (no fastmcp.dependencies imports)
+```python
+def _is_horizon_environment():
+    # Check 1: Horizon env vars
+    if os.getenv("FASTMCP_CLOUD_URL"): return True
+    
+    # Check 2: FastMCP version < 3.x
+    if fastmcp.__version__ < "3.0.0": return True
+    
+    # Check 3: Container without VPS_MODE flag
+    if in_docker and not os.getenv("VPS_MODE"): return True
+    
+    return False
 ```
 
-### 2. Push to GitHub
+### Modes
 
-```bash
-git add horizon/server.py horizon/README.md horizon/DEPLOYMENT_PLAN.md
-git commit -m "v2026.03.28-HORIZON-READY"
-git push origin main
-```
-
-### 3. Deploy in Prefect Horizon Dashboard
-
-1. Go to: https://horizon.prefect.io
-2. Create new deployment
-3. **Connect GitHub repo**: `ariffazil/arifOS`
-4. **Set entrypoint**: `horizon/server.py:mcp`
-5. **Set environment variable**: 
-   - `ARIFOS_VPS_URL=https://arifosmcp.arif-fazil.com`
-6. **Deploy**
-
-### 4. Test
-
-```bash
-# Horizon endpoint (once deployed)
-curl https://arifos.fastmcp.app/health
-
-# Your VPS endpoint (should already work)
-curl https://arifosmcp.arif-fazil.com/health
-```
+| Mode | Trigger | File Loaded | Tools | FastMCP |
+|------|---------|-------------|-------|---------|
+| **Horizon** | Cloud env detected | `server_horizon.py` | 8 | 2.x |
+| **VPS** | `VPS_MODE=1` or no cloud signals | `runtime/server.py` | 11 | 3.x |
 
 ---
 
-## Environment Variables
+## Deployment Options
 
-Set in Horizon dashboard:
+### Option 1: Horizon Cloud (Recommended for public access)
 
-| Variable | Value | Purpose |
-|----------|-------|---------|
-| `ARIFOS_VPS_URL` | `https://arifosmcp.arif-fazil.com` | Proxy target for heavy operations |
-| `ARIFOS_VPS_API_KEY` | (optional) | Authentication with VPS |
+```bash
+# In Prefect Horizon Dashboard:
+Repository:  https://github.com/ariffazil/arifosmcp
+Entrypoint:  server.py:mcp
+Branch:      main
+
+# Environment Variables:
+ARIFOS_VPS_URL=https://arifosmcp.arif-fazil.com
+ARIFOS_GOVERNANCE_SECRET=your_secret_here
+```
+
+**Result:** Public URL at `https://arifos.fastmcp.app`
+
+### Option 2: VPS Sovereign (Recommended for full power)
+
+```bash
+# On your VPS
+cd /root/arifOS
+docker compose up -d arifosmcp
+
+# Or with explicit VPS mode
+VPS_MODE=1 python server.py
+```
+
+**Result:** Your domain at `https://arifosmcp.arif-fazil.com`
+
+---
+
+## Tool Comparison
+
+| Tool | Horizon (8) | VPS (11) | Notes |
+|------|-------------|----------|-------|
+| `init_anchor` | ✅ | ✅ | Session anchoring |
+| `arifOS_kernel` | ✅ | ✅ | Primary router |
+| `agi_mind` | ✅ | ✅ | Reasoning engine |
+| `apex_soul` | ✅ | ✅ | Constitutional judge |
+| `asi_heart` | ✅ | ✅ | Safety critique |
+| `physics_reality` | ✅ | ✅ | Time/search |
+| `math_estimator` | ✅ | ✅ | Cost estimation |
+| `architect_registry` | ✅ | ✅ | Tool discovery |
+| `vault_ledger` | ❌ | ✅ | **VPS only** - security |
+| `engineering_memory` | ❌ | ✅ | **VPS only** - Redis |
+| `code_engine` | ❌ | ✅ | **VPS only** - code exec |
 
 ---
 
 ## Troubleshooting
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `No module named 'fastmcp.dependencies'` | Using `arifosmcp/` instead of `horizon/` | Switch to `arifOS/horizon/` entrypoint |
-| `No module named 'arifosmcp'` | Package not installed | Use `horizon/` (self-contained) |
-| `ImportError: cannot import name 'CurrentContext'` | FastMCP version mismatch | `horizon/` uses 2.x compatible imports |
-| `Connection refused` | VPS not accessible | Check VPS URL, ensure traefik running |
-| `Tool not found` | Wrong entrypoint | Use `horizon/server.py:mcp` not `server.py` |
+| Error | Cause | Fix |
+|-------|-------|-----|
+| `No module named 'fastmcp.dependencies'` | Old arifosmcp version | `git pull` to get latest |
+| `ImportError during inspect` | Detection failed | Set `HORIZON_ENVIRONMENT=1` env var |
+| `Proxy failure` | VPS not accessible | Check `ARIFOS_VPS_URL` is correct |
+| `Only 8 tools on VPS` | Wrong mode detected | Set `VPS_MODE=1` env var |
 
 ---
 
@@ -161,12 +146,13 @@ Set in Horizon dashboard:
 
 | Component | Repository | Status |
 |-----------|------------|--------|
-| VPS (Sovereign) | `arifosmcp/` | ✅ Healthy at https://arifosmcp.arif-fazil.com |
-| Horizon (Cloud) | `arifOS/horizon/` | ⏸️ Ready to deploy |
-| Submodule | `arifosmcp/` | ⚠️ VPS only, NOT for Horizon |
+| **arifosmcp** | `ariffazil/arifosmcp` | ✅ **Horizon + VPS Compatible** |
+| VPS Endpoint | `arifosmcp.arif-fazil.com` | ✅ Healthy (11 tools) |
+| Horizon Endpoint | `arifos.fastmcp.app` | ⏸️ Deploy with entrypoint `server.py:mcp` |
 
 ---
 
+**API Key:** `fmcp_Z9oLZZ0OtOZkr4dzPCzp7hIm_GA2H-D94RUC2BzYnYw`  
 **Last Updated:** 2026-03-28  
 **Maintainer:** arifOS Core  
 **Constitutional Seal:** ΔΩΨ
