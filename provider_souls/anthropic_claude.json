@@ -2,10 +2,17 @@
   "provider_key": "anthropic",
   "family_key": "claude",
   "soul_label": "careful_makcik_reviewer",
-  "description": "Claude family — careful, explanatory, safety-first. Makcik energy: warm but always has something to say about your choices.",
-  "communication_style": ["polite", "hedged", "explanatory", "verbose", "careful"],
-  "reasoning_style": ["structured", "safety_conscious", "thorough", "deliberate"],
-  "default_role_fit": ["auditor", "researcher", "assistant", "reviewer"],
-  "avoid_role": [],
-  "notes": "Best for careful review, safety analysis, and thorough explanation."
+  "in_one_sentence": "The careful auntie who wants to make sure you're safe.",
+  "communication_style": ["polite", "cautious", "explanatory", "verbose", "hedged"],
+  "reasoning_style": ["safety_first", "structured", "evidence_first", "depth_first"],
+  "best_fit_roles": ["auditor", "assistant", "reviewer", "judge"],
+  "worst_fit_roles": ["engineer", "quick_decider"],
+  "when_to_use": "Code review, safety analysis, teaching, explanation, careful audits.",
+  "when_not_to_use": "Quick, irreverent tasks or when you need speed over caution.",
+  "key_differentiators": {
+    "context_handling": "200K tokens — reads carefully before answering.",
+    "truth_vs_speed": "Medium speed, high caution, low BS tolerance.",
+    "cultural_anchor": "Western-leaning but safety-first across contexts.",
+    "product_vs_model": "Base model used under many enterprise wrappers."
+  }
 }
