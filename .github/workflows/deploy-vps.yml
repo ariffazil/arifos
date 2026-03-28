@@ -48,6 +48,8 @@ jobs:
         working-directory: AAA
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
       - uses: actions/setup-python@v5
         with:
@@ -86,6 +88,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
       - name: Scan for hardcoded secrets
         run: |
@@ -107,6 +111,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
       - name: Setup SSH agent
         uses: webfactory/ssh-agent@v0.9.0
@@ -133,7 +139,7 @@ jobs:
       - name: Sync code on VPS
         run: |
           ssh -o ConnectTimeout=15 -p ${SSH_PORT} ${{ secrets.VPS_USER }}@${TARGET_HOST} \
-            "cd /srv/arifosmcp && git fetch origin aaa-mcp-induction && git checkout aaa-mcp-induction && git pull --ff-only origin aaa-mcp-induction && echo 'Code synced'"
+            "cd /srv/arifosmcp && git fetch origin aaa-mcp-induction && git checkout aaa-mcp-induction && git pull --ff-only origin aaa-mcp-induction && git submodule update --init --recursive && echo 'Code synced (with submodule)'"
         timeout-minutes: 5
 
       - name: Pre-flight checks on VPS
