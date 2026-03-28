@@ -3,6 +3,53 @@
 
 > Soul = provider vibe. Truth = runtime state. Safety = self-claim boundary.
 
+![Python](https://img.shields.io/badge/python-3.10%2B-blue) ![JSON Schema](https://img.shields.io/badge/JSON%20Schema-draft--07-green) ![License](https://img.shields.io/badge/license-Apache%202.0-blue)
+
+---
+
+## Quick Start
+
+```bash
+# Install dependencies
+pip install -r requirements.txt
+
+# Validate all registry files
+python cli.py validate
+
+# List all provider soul archetypes
+python cli.py list-providers
+
+# List all registered models
+python cli.py list-models
+
+# Inspect a specific soul
+python cli.py show-soul anthropic_claude
+
+# Inspect a model
+python cli.py show-model anthropic/claude/claude-3-7-sonnet
+
+# Create a session anchor (dry-run)
+python cli.py create-anchor --soul anthropic_claude --runtime vps_main_arifos --actor my_agent
+
+# Start the REST API server (port 18792)
+python main.py
+```
+
+### REST API Endpoints
+
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | `/` | Service info |
+| GET | `/health` | Health check |
+| GET | `/catalog` | Full catalog index |
+| GET | `/models` | List all models |
+| GET | `/providers` | List all provider souls |
+| GET | `/model/{provider/family/variant}` | Model profile |
+| GET | `/soul/{soul_key}` | Provider soul profile |
+| GET | `/runtime/{runtime_key}` | Runtime deployment profile |
+| POST | `/verify/identity` | Verify declared identity |
+| POST | `/init_anchor_v2` | Create session anchor |
+
 ---
 
 ## The 4-Layer Source of Truth
@@ -16,7 +63,7 @@
 │  Layer 2: provider_souls/ (The Flavor)              │
 │  Lab-shaped behavioral archetypes (vibe/style)       │
 ├─────────────────────────────────────────────────────┤
-│  Layer 3: model_specs/ (The Mapping)                │
+│  Layer 3: models/ (The Mapping)                     │
 │  Formal model IDs bound to specific souls           │
 ├─────────────────────────────────────────────────────┤
 │  Layer 4: runtime_profiles/ (The Law)               │
@@ -112,10 +159,14 @@ Every session MUST bind:
 
 ```
 arifOS-model-registry/
-├── provider_souls/           # 15 soul archetypes
+├── models/                   # 18 model specs (provider/family/variant)
+│   ├── openai/gpt/gpt-4.json
+│   ├── anthropic/claude/claude-3-7-sonnet.json
+│   └── ...
+├── provider_souls/           # 17 soul archetypes
 │   ├── openai_gpt.json
 │   ├── anthropic_claude.json
-│   └── ...
+│   └── wrong_provider.json   # Honeypot soul (security)
 ├── runtime_profiles/         # Deployment truths
 │   └── vps_main_arifos.json
 ├── session_anchors/          # Schema only (created dynamically)
@@ -123,8 +174,53 @@ arifOS-model-registry/
 ├── schemas/                  # JSON schemas
 │   ├── provider_soul.schema.json
 │   └── runtime_truth.schema.json
+├── scripts/
+│   └── validate_registry.py  # Registry validation script
+├── tests/
+│   └── test_registry.py      # pytest test suite
+├── cli.py                    # Command-line interface
+├── main.py                   # FastAPI REST service
 ├── catalog.json
+├── requirements.txt
 └── README.md
+```
+
+---
+
+## Integration Example (arifOS Agent)
+
+Here is a minimal example showing how an agent queries the registry and enforces the self-claim boundary at session start:
+
+```python
+import json, requests
+
+REGISTRY = "http://localhost:18792"
+
+# 1. Agent declares its identity at session start
+anchor_resp = requests.post(f"{REGISTRY}/init_anchor_v2", json={
+    "actor_id": "agent_auditor_01",
+    "declared_model_key": "anthropic/claude/claude-3-7-sonnet",
+    "declared_role": "auditor",
+    "requested_scope": ["read", "query"]
+})
+anchor = anchor_resp.json()["result"]
+
+# 2. Extract the self_claim_boundary — this is the law for the session
+boundary = anchor["self_claim_boundary"]
+runtime  = anchor["runtime_truth"]
+
+# 3. Enforce: agent can only claim what runtime_truth permits
+assert boundary["tools"] == "verified_only"
+allowed_tools = set(runtime["tools_live"])  # Must not exceed this list
+
+# 4. Enforce: agent cannot claim web if web_on is False
+if not runtime["web_on"]:
+    # Strip web claims from any response
+    pass
+
+print(f"Session: {anchor['session_anchor']['session_id']}")
+print(f"Soul:    {anchor['model_soul_anchor']['soul_label']}")
+print(f"Tools:   {len(allowed_tools)} verified tools")
 ```
 
 ---
@@ -145,9 +241,17 @@ That's it. That's the whole v1 design.
 
 ```
 Phase 1: JSON files in repo    ← NOW
-Phase 2: SQLite
-Phase 3: PostgreSQL
+Phase 2: SQLite                (same 3-table schema)
+Phase 3: PostgreSQL            (same 3-table schema, add multi-tenancy)
 ```
+
+**SQLite/PostgreSQL migration:** The 3 core tables map directly:
+
+| Table | Source | Primary Key |
+|-------|--------|-------------|
+| `provider_souls` | `provider_souls/*.json` | `provider_key + family_key` |
+| `model_specs` | `models/**/*.json` | `provider/family/variant` path |
+| `runtime_profiles` | `runtime_profiles/*.json` | `deployment_id` |
 
 Same 3-table concept, backend scales as needed.
 
