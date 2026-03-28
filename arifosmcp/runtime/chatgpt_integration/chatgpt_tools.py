@@ -14,11 +14,6 @@ import json
 import logging
 from typing import Any
 
-from mcp.types import TextContent
-
-from arifosmcp.runtime.megaTools.tool_08_physics_reality import physics_reality
-from arifosmcp.runtime.megaTools.tool_07_engineering_memory import engineering_memory
-
 logger = logging.getLogger(__name__)
 
 # In-memory cache for search results (mapping id -> document)
@@ -38,6 +33,9 @@ async def search(query: str) -> dict[str, Any]:
     Returns:
         {"results": [{"id": str, "title": str, "url": str}]}
     """
+    # Lazy import to avoid circular dependencies at module load
+    from arifosmcp.runtime.megaTools.tool_08_physics_reality import physics_reality
+    
     logger.info(f"[ChatGPT] search query: {query}")
     
     try:
@@ -112,6 +110,9 @@ async def fetch(id: str) -> dict[str, Any]:
     Returns:
         {"id": str, "title": str, "text": str, "url": str, "metadata": dict}
     """
+    # Lazy import to avoid circular dependencies at module load
+    from arifosmcp.runtime.megaTools.tool_07_engineering_memory import engineering_memory
+    
     logger.info(f"[ChatGPT] fetch id: {id}")
     
     try:
@@ -179,7 +180,7 @@ async def fetch(id: str) -> dict[str, Any]:
         }
 
 
-# Tool registry for easy registration
+# Tool registry for direct access
 chatgpt_tools = {
     "search": search,
     "fetch": fetch,
@@ -190,6 +191,7 @@ chatgpt_tools = {
 def register_chatgpt_tools(mcp) -> None:
     """Register search and fetch tools for ChatGPT Deep Research compatibility."""
     
+    # Simple async tool registration - let FastMCP handle the async
     @mcp.tool(annotations={"readOnlyHint": True})
     async def search_tool(query: str) -> dict:
         """Search for documents matching the query. Returns document IDs."""
