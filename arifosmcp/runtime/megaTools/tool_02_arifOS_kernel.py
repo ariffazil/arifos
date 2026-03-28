@@ -35,10 +35,12 @@ async def arifOS_kernel(
     ctx: Any | None = None,
     use_memory: bool = True,
     use_heart: bool = True,
+    **kwargs: Any,
 ) -> RuntimeEnvelope:
     from arifosmcp.runtime.kernel_router import kernel_intelligent_route
 
     payload = dict(payload or {})
+    payload.update(kwargs)
     if raw_input:
         payload.setdefault("query", raw_input)
     if caller_context:

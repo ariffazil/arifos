@@ -353,10 +353,8 @@ hash: a1b2c3d4...
 
 ## 6. Governance Audit
 
-| Level | Name | Source | Status |
-| :--- | :--- | :--- | :--- |
-| L1 | Provider | Lab Soul | ✅ |
-| L2 | Model | Spec File | ✅ |
+| Floor | Status | Evidence |
+| :--- | :--- | :--- |
 | **F1 Amanah** | ✅ | 999_SEAL creates immutable record for rollback |
 | **F2 Truth** | ✅ | Ω₀ declared; sources cited; "Estimate Only" for gaps |
 | **F7 Humility** | ✅ | Ω₀ = 0.05; explicit uncertainty bounds |

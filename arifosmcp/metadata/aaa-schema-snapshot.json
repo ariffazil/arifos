@@ -3,7 +3,7 @@
   "witness_protocol": "quad-witness-bft",
   "spec_compliance": "95%",
   "tools": {
-    "anchor_session": {
+    "init_anchor": {
       "hash": "8cfeeb87a5ad40a0",
       "description_hash": "9402c15b627170fe",
       "stage": "000",

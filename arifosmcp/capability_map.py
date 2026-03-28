@@ -107,10 +107,7 @@ MEGA_TOOL_MODES: dict[MegaToolName, set[str]] = {
 # LEGACY TOOL SURFACE (MUST BE 100% COVERED)
 # -----------------------------------------------------------------------------
 LEGACY_TOOLS: set[str] = {
-    "get_caller_status",
     "init_anchor",
-    "init_anchor_state",
-    "revoke_anchor_state",
     "register_tools",
     "arifOS_kernel",
     "forge",
@@ -165,9 +162,6 @@ class CapabilityTarget:
 CAPABILITY_MAP: dict[str, CapabilityTarget] = {
     # ---- Governance / Bootstrap (000_INIT) ----
     "init_anchor": CapabilityTarget("init_anchor", "init", "Canonical init"),
-    "init_anchor_state": CapabilityTarget("init_anchor", "state", "Forensic init state"),
-    "revoke_anchor_state": CapabilityTarget("init_anchor", "revoke", "Revoke anchor"),
-    "get_caller_status": CapabilityTarget("init_anchor", "status", "Bootstrap status"),
     "arifOS_kernel": CapabilityTarget("arifOS_kernel", "kernel", "Canonical router"),
     "metabolic_loop": CapabilityTarget("arifOS_kernel", "kernel", "Legacy compatibility"),
     # ---- AGI (333/555) ----
@@ -241,11 +235,8 @@ def iter_invalid_modes() -> list[str]:
 CAPABILITY_MAP.update({
     "arifos_list_resources": CapabilityTarget("engineering_memory", "query", "fallback"),
     "arifos_read_resource": CapabilityTarget("engineering_memory", "query", "fallback"),
-    "get_caller_status": CapabilityTarget("arifOS_kernel", "status", "fallback"),
-    "init_anchor_state": CapabilityTarget("init_anchor", "init", "fallback"),
     "list_resources": CapabilityTarget("engineering_memory", "query", "fallback"),
     "metabolic_loop_router": CapabilityTarget("arifOS_kernel", "kernel", "fallback"),
     "read_resource": CapabilityTarget("engineering_memory", "query", "fallback"),
     "register_tools": CapabilityTarget("arifOS_kernel", "kernel", "fallback"),
-    "revoke_anchor_state": CapabilityTarget("init_anchor", "revoke", "fallback"),
 })

@@ -479,16 +479,17 @@ async def test_verify_vault_ledger():
 async def test_revoke_anchor_state():
     """Test revoke_anchor_state tool."""
     try:
-        from arifosmcp.runtime.tools import revoke_anchor_state
+        from arifosmcp.runtime.tools import init_anchor
         
-        result = await revoke_anchor_state(
+        result = await init_anchor(
+            mode="revoke",
             session_id="test-session-revoke",
             reason="Test revocation"
         )
         
         checks = {
             "returns_envelope": hasattr(result, "tool"),
-            "tool_is_revoke": result.tool == "revoke_anchor_state",
+            "tool_is_revoke": result.tool == "init_anchor",
             "payload_indicates_revoke": "revoked" in str(result.payload),
         }
         

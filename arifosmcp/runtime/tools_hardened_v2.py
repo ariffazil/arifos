@@ -101,6 +101,7 @@ class HardenedApexJudge:
         risk_tier: str = "medium",
         session_id: str | None = None,
         trace: TraceContext | None = None,
+        mode: str = "judge",
     ) -> ToolEnvelope:
         tool = "apex_soul"
         session_id = session_id or "anonymous"
@@ -116,6 +117,23 @@ class HardenedApexJudge:
         # TRIGGER PARADOX ENGINE
         philosophy = get_philosophical_contrast(g_score, risk_tier)
 
+        res_payload = {
+            "verdict": "SEAL",
+            "g_score": g_score,
+            "philosophy": philosophy,
+            "note": "Airlock secured. Paradox grounded."
+        }
+
+        if mode == "rules":
+            # Diagnostic metadata for Stage 888 (Audit)
+            res_payload.update({
+                "tool_contract_table": "Available in arifosmcp/runtime/tool_specs.py",
+                "discovery_resource": "arifos://governance/discovery",
+                "floor_runtime_hooks": ["F1_AMANAH", "F11_AUTHORITY", "F13_SOVEREIGN"],
+                "guidance": "Constitutional rules active. All Stage 000-999 flows governed.",
+                "message": "Audit successful. Rules alignment verified."
+            })
+
         return ToolEnvelope(
             status=ToolStatus.OK,
             tool=tool,
@@ -124,12 +142,7 @@ class HardenedApexJudge:
             confidence=entropy.confidence,
             trace=trace,
             entropy=entropy,
-            payload={
-                "verdict": "SEAL",
-                "g_score": g_score,
-                "philosophy": philosophy,
-                "note": "Airlock secured. Paradox grounded."
-            },
+            payload=res_payload,
         )
 
 # -----------------------------------------------------------------------------

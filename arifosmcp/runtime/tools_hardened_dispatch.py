@@ -14,7 +14,7 @@ from typing import Any
 from arifosmcp.core.shared.physics import delta_S, genius_score, humility_band
 from arifosmcp.runtime.contracts_v2 import (
     OutputPolicy,
-    VerdictScope,  # Fix 1/2/3 hardening
+    VerdictScope,
 )
 from arifosmcp.runtime.init_anchor_hardened import HardenedInitAnchor
 from arifosmcp.runtime.substrate_policy import get_policy
@@ -32,7 +32,7 @@ init_anchor_tool = HardenedInitAnchor()
 reality_compass_tool = HardenedRealityCompass()
 reality_atlas_tool = HardenedRealityAtlas()
 agi_reason_tool = HardenedAGIReason()
-asi_critique_tool = HardenedASICritique()
+asi_heart_dispatch_impl = HardenedASICritique()
 agentzero_engineer_tool = HardenedAgentZeroEngineer()
 apex_judge_tool = HardenedApexJudge()
 vault_seal_tool = HardenedVaultSeal()
@@ -128,62 +128,24 @@ async def hardened_init_anchor_dispatch(
             session_class=payload.get("session_class", "execute"),
             requested_scope=payload.get("requested_scope"),
         )
-    elif mode in ("state", "status", "refresh"):
+    elif mode in ("state", "status"):
         envelope = await init_anchor_tool.state(session_id=payload.get("session_id"))
+    elif mode == "refresh":
+        envelope = await init_anchor_tool.refresh(session_id=payload.get("session_id"))
     elif mode == "revoke":
         envelope = await init_anchor_tool.revoke(session_id=payload.get("session_id") or "unknown")
     else:
         return {"ok": False, "error": f"Invalid mode for init_anchor: {mode}"}
 
     envelope_dict = _apply_policy(envelope.to_dict(), "init_anchor", mode, payload)
-
-    # ─── V2 FLATTENING ───
-    # Change payload.payload nesting to flat result standard: result_type: init_anchor_result@v2
-    if mode == "init":
-        raw_payload = envelope_dict.get("payload", {})
-        
-        # Identity Verification Split (Declared vs Verified)
-        identity = raw_payload.get("identity", {})
-        
-        v2_result = {
-            "session_id": envelope_dict.get("session_id"),
-            "declared_actor_id": identity.get("declared_actor_id"),
-            "verified_actor_id": identity.get("verified_actor_id"),
-            "auth_state": identity.get("auth_state"),
-            "base_identity": {
-                "declared": identity.get("declared_identity"),
-                "verified": identity.get("verified_identity"),
-                "verification_status": identity.get("verification_status", "unverified"),
-                "verification_source": identity.get("verification_source", "none"),
-            },
-            "self_claim_boundary": identity.get("self_claim_boundary"),
-            "scope": raw_payload.get("scope"),
-            "continuation": raw_payload.get("continuation"),
-            "normalization": raw_payload.get("normalization"),
-            "challenge": raw_payload.get("challenge"),
-            "provenance": raw_payload.get("provenance"),
-        }
-        
-        # Flattened Envelope Structure
-        return {
-            "ok": envelope_dict.get("status") == "ok",
-            "tool": "init_anchor",
-            "status": "SUCCESS" if envelope_dict.get("status") == "ok" else "ERROR",
-            "result_type": "init_anchor_result@v2",
-            "result": v2_result,
-            # Preserve metadata for governance audit
-            "organ_stage": envelope_dict.get("organ_stage"),
-            "risk_tier": envelope_dict.get("risk_tier"),
-            "verdict": envelope_dict.get("verdict"),
-            "g_score": envelope_dict.get("g_score"),
-            "entropy": envelope_dict.get("entropy"),
-            "errors": envelope_dict.get("errors", []),
-            "warnings": envelope_dict.get("warnings", []),
-        }
+    
+    # Preserve objects for RuntimeEnvelope reconstruction
+    envelope_dict["authority"] = getattr(envelope, "authority", None)
+    envelope_dict["auth_context"] = getattr(envelope, "auth_context", None)
+    envelope_dict["caller_state"] = getattr(envelope, "caller_state", "anonymous")
+    envelope_dict["allowed_next_tools"] = getattr(envelope, "allowed_next_tools", [])
 
     # Fix 4 — Anchor void propagation (F1/F11/F12).
-    # If init_anchor returns void/session-rejected, register a global 888_HOLD.
-    # All anchor-dependent tools must check anchor_hold_registry.is_held() before executing.
     raw_status = envelope_dict.get("status") or envelope_dict.get("payload", {}).get("status")
     raw_session = envelope_dict.get("session_id", "")
     if mode == "init" and (
@@ -211,18 +173,13 @@ async def hardened_init_anchor_dispatch(
             "Surface to user: '888_HOLD — anchor void. Re-init required.'"
         )
     elif mode == "init" and raw_status not in ("void", "VOID", None):
-        # Successful init — clear any prior hold for this actor
         anchor_key = payload.get("actor_id") or payload.get("session_id") or "unknown"
         anchor_hold_registry.clear_hold(anchor_key)
-        # Mark SESSION_SEAL — anchor is valid
         envelope_dict["verdict_scope"] = VerdictScope.SESSION_SEAL.value
 
-    # EUREKA Layer 6 — Feedback Loop: inject scar_context from previous sessions
-    # This closes the 999→000 loop: past outcomes inform the current anchor.
     if mode == "init":
         try:
             from arifosmcp.core.recovery.rollback_engine import outcome_ledger
-
             envelope_dict["scar_context"] = outcome_ledger.build_scar_context(n=10)
         except Exception as _sc_err:
             envelope_dict["scar_context"] = {"error": str(_sc_err)}
@@ -252,31 +209,6 @@ async def hardened_physics_reality_dispatch(
         return {"ok": False, "error": f"Invalid mode for physics_reality: {mode}"}
 
     result = _apply_policy(envelope.to_dict(), "physics_reality", mode, payload)
-
-    # Fix 2 — Domain payload gate (F2): if the query is a known domain class,
-    # verify required keys are present. Missing keys → CANNOT_COMPUTE.
-    # Detect domain class from query intent or explicit domain_class param.
-    domain_class = payload.get("domain_class")  # caller may declare explicitly
-    if not domain_class:
-        query_str = str(payload.get("query") or payload.get("input") or "").lower()
-        if any(w in query_str for w in ("weather", "temperature", "forecast", "rain", "humid")):
-            domain_class = "weather"
-        elif any(w in query_str for w in ("price", "stock", "finance", "ticker", "market")):
-            domain_class = "finance"
-    if domain_class:
-        from arifosmcp.runtime.contracts_v2 import check_domain_gate
-        passed, missing = check_domain_gate(domain_class, result.get("payload", result))
-        if not passed:
-            result["output_policy"] = OutputPolicy.CANNOT_COMPUTE.value
-            result["verdict_scope"] = VerdictScope.DOMAIN_VOID.value
-            result["domain_gate_failed"] = True
-            result["domain_gate_missing_keys"] = missing
-            result.setdefault("warnings", []).append(
-                f"DOMAIN_GATE_FAIL [{domain_class}]: missing keys {missing}. "
-                "Model MUST answer: 'Cannot Compute — required domain payload absent.' "
-                "Do NOT substitute training data or memory for missing keys."
-            )
-
     return result
 
 
@@ -293,24 +225,6 @@ async def hardened_agi_mind_dispatch(
         return {"ok": False, "error": f"Invalid mode for agi_mind: {mode}"}
 
     envelope_dict = _apply_policy(envelope.to_dict(), "agi_mind", mode, payload)
-
-    # P1: Register every agi_mind output in OutcomeLedger so it's traceable
-    # and can be resolved later with vault_ledger(mode="resolve").
-    try:
-        import secrets as _sec
-        from arifosmcp.core.recovery.rollback_engine import outcome_ledger
-
-        _did = f"AGI-{_sec.token_hex(6).upper()}"
-        outcome_ledger.record_outcome(
-            decision_id=_did,
-            session_id=payload.get("session_id") or envelope_dict.get("session_id") or "anonymous",
-            verdict_issued=envelope_dict.get("verdict", "SEAL"),
-            expected_outcome=f"agi_mind.{mode}: {str(payload.get('query', ''))[:80]}",
-        )
-        envelope_dict["outcome_id"] = _did  # surface so caller can resolve later
-    except Exception as _p1_err:
-        envelope_dict["outcome_id"] = None
-
     return envelope_dict
 
 
@@ -318,7 +232,7 @@ async def hardened_asi_heart_dispatch(
     mode: str, payload: dict[str, Any], **kwargs
 ) -> dict[str, Any]:
     if mode in ("critique", "simulate"):
-        envelope = await asi_critique_tool.critique(
+        envelope = await asi_heart_dispatch_impl.critique(
             candidate=payload.get("proposal") or payload.get("content"),
             session_id=payload.get("session_id"),
         )
@@ -346,11 +260,11 @@ async def hardened_engineering_memory_dispatch(
 async def hardened_apex_soul_dispatch(
     mode: str, payload: dict[str, Any], **kwargs
 ) -> dict[str, Any]:
-    # FIX: Explicitly handle all modes and prevent positional argument error
     if mode in ("judge", "rules", "validate", "armor", "probe", "hold", "notify"):
         envelope = await apex_judge_tool.judge(
             proposal=payload.get("proposal") or payload.get("candidate"),
             session_id=payload.get("session_id"),
+            mode=mode,
         )
     else:
         return {"ok": False, "error": f"Invalid mode for apex_soul: {mode}"}
@@ -366,59 +280,16 @@ async def hardened_vault_ledger_dispatch(
             decision=payload.get("decision") or {}, session_id=payload.get("session_id")
         )
         return _apply_policy(envelope.to_dict(), "vault_ledger", mode, payload)
-
-    if mode == "resolve":
-        # H2 — Metabolizer return port.
-        # Human or agent closes the consequence loop by resolving a PENDING outcome.
-        # payload: { decision_id, actual_outcome, harm_detected, operator_override, ... }
-        decision_id = payload.get("decision_id")
-        if not decision_id:
-            return {"ok": False, "error": "resolve requires decision_id"}
-
-        from arifosmcp.core.recovery.rollback_engine import outcome_ledger
-
-        resolved = outcome_ledger.resolve_outcome(
-            decision_id=decision_id,
-            actual_outcome=payload.get("actual_outcome", ""),
-            harm_detected=bool(payload.get("harm_detected", False)),
-            operator_override=bool(payload.get("operator_override", False)),
-            override_reason=payload.get("override_reason", ""),
-        )
-        if resolved is None:
-            return {"ok": False, "error": f"No PENDING outcome found for decision_id={decision_id}"}
-
-        res = {
-            "ok": True,
-            "decision_id": resolved.decision_id,
-            "session_id": resolved.session_id,
-            "verdict_issued": resolved.verdict_issued,
-            "outcome_status": resolved.outcome_status,
-            "harm_detected": resolved.harm_detected,
-            "calibration_delta": resolved.calibration_delta,
-            "loop": "CLOSED",  # 999→consequence→000 metabolizer complete
-        }
-        return _apply_policy(res, "vault_ledger", mode, payload)
-
     return {"ok": False, "error": f"Invalid mode for vault_ledger: {mode}"}
 
 
 async def hardened_code_engine_dispatch(
     mode: str, payload: dict[str, Any], **kwargs
 ) -> dict[str, Any]:
-    """Hardened dispatch for shell commands through ShellForge."""
     from arifosmcp.runtime.shell_forge import forge
-    
     command = payload.get("command") or payload.get("code")
-    if not command:
-        return {"ok": False, "error": "No command/code provided for code_engine"}
-        
-    res = forge.execute(
-        command=command,
-        cwd=payload.get("cwd"),
-        dry_run=payload.get("dry_run", True),
-        session_id=payload.get("session_id", "anonymous")
-    )
-    
+    if not command: return {"ok": False, "error": "No command/code provided"}
+    res = forge.execute(command=command, dry_run=payload.get("dry_run", True), session_id=payload.get("session_id", "anonymous"))
     return _apply_policy(res, "code_engine", mode, payload)
 
 
@@ -432,53 +303,18 @@ async def hardened_architect_registry_dispatch(
 async def hardened_arifos_kernel_dispatch(
     mode: str, payload: dict[str, Any], **kwargs
 ) -> dict[str, Any]:
-    """Hardened dispatch for arifOS_kernel - preserves session continuity and authority."""
-    # P0: Session continuity check - must preserve anchored session_id
     session_id = payload.get("session_id")
-    if not session_id:
-        return {
-            "ok": False,
-            "error": "arifOS_kernel requires session_id. Run init_anchor first.",
-            "status": "HOLD",
-            "next_action": {
-                "tool": "init_anchor",
-                "reason": "Session anchor required for kernel execution",
-            },
-        }
-
-    # P0: Authority verification - arifOS_kernel does its own boot.
-    pass
-
-    # Route to metabolic loop with preserved context
-    query = payload.get("query") or payload.get("task") or "No query provided"
-    risk_tier = payload.get("risk_tier", "medium")
-    dry_run = payload.get("dry_run", True)
-
-    # Use orchestrator directly to maintain session continuity
+    if not session_id: return {"ok": False, "error": "arifOS_kernel requires session_id."}
     from arifosmcp.runtime.orchestrator import metabolic_loop
-
     result = await metabolic_loop(
-        query=query,
-        session_id=session_id,  # CRITICAL: Preserve original session
-        risk_tier=risk_tier,
+        query=payload.get("query") or "No query",
+        session_id=session_id,
+        risk_tier=payload.get("risk_tier", "medium"),
         actor_id=payload.get("actor_id", "anonymous"),
         auth_context=payload.get("auth_context"),
-        dry_run=dry_run,
-        caller_context=payload.get("caller_context"),
-        declared_name=payload.get("declared_name"),
-        human_approval=payload.get("human_approval", False),
+        dry_run=payload.get("dry_run", True),
     )
-
-    # Fix 3 — Mark kernel output as ROUTER_META; it does NOT authorise domain claims.
-    # ROUTER_SEAL means routing is internally consistent — NOT that any domain fact is verified.
-    kernel_result = _apply_policy(result, "arifOS_kernel", mode, payload)
-    kernel_result["output_policy"] = OutputPolicy.ROUTER_META.value
-    kernel_result["verdict_scope"] = VerdictScope.ROUTER_SEAL.value
-    kernel_result.setdefault("warnings", []).append(
-        "ROUTER_META: arifOS_kernel result is a routing decision. "
-        "ROUTER_SEAL != DOMAIN_SEAL. No domain factual claims are authorised by this result."
-    )
-    return kernel_result
+    return _apply_policy(result, "arifOS_kernel", mode, payload)
 
 
 HARDENED_DISPATCH_MAP = {

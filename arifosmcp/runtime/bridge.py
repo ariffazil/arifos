@@ -71,7 +71,6 @@ if not _USE_REDIS_VAULT:
 
 TOOL_MAP = {
     "init_anchor": "anchor_session",
-    "init_anchor_state": "anchor_session",
     "arifOS_kernel": "metabolic_loop",
     "arifOS.kernel": "metabolic_loop",
     "metabolic_loop_router": "metabolic_loop",
@@ -182,7 +181,7 @@ def _auth_failure_envelope(
                 "reason": identity_reason,
             },
             "next_action": {
-                "tool": "init_anchor_state",
+                "tool": "init_anchor",
                 "required": True,
                 "reason": next_action_reason,
             },
@@ -285,8 +284,7 @@ def _normalize_auth_context(payload: dict[str, Any], auth_context: Any) -> dict[
 
 # Bootstrap tools that can run without prior auth_context (Phase 1 initialization)
 BOOTSTRAP_WHITELIST: set[str] = {
-    "anchor_session",  # init_anchor_state → mints auth token
-    "revoke_anchor_state",  # revokes session
+    "init_anchor",  # Session initialization and management (all modes)
     "check_vital",  # system health check
     "sense_health",  # check_vital alias
 }
@@ -463,7 +461,7 @@ def _build_constitutional_audit(session_id: str) -> dict[str, Any]:
             {"doctrine": "F2 Truth", "runtime": "search_reality, ingest_evidence"},
             {"doctrine": "F4 Clarity", "runtime": "entropy tracking, office_forge_audit"},
             {"doctrine": "F6 Care", "runtime": "assess_heart_impact"},
-            {"doctrine": "F11 Command", "runtime": "init_anchor_state, auth_continuity"},
+            {"doctrine": "F11 Command", "runtime": "init_anchor, auth_continuity"},
             {"doctrine": "F13 Sovereign", "runtime": "888_HOLD, verify_vault_ledger"},
         ],
         "status": "ACTIVE",
@@ -634,7 +632,7 @@ async def call_kernel(
                     claimed_actor_id=claimed_actor_id,
                     identity_claim_status="UNVERIFIED_CLAIM",
                     identity_reason="Auto-bootstrap not allowed for this risk/mode.",
-                    next_action_reason="Run init_anchor_state first.",
+                    next_action_reason="Run init_anchor first.",
                     machine_issue="AUTH_TOKEN_MISSING",
                     dry_run=dry_run,
                 )
@@ -701,7 +699,7 @@ async def call_kernel(
                 claimed_actor_id=claimed_actor_id,
                 identity_claim_status="UNVERIFIED_CLAIM",
                 identity_reason="No auth_context.",
-                next_action_reason="Run init_anchor_state first.",
+                next_action_reason="Run init_anchor first.",
                 machine_issue="AUTH_TOKEN_MISSING",
                 dry_run=dry_run,
             )
@@ -807,7 +805,7 @@ async def call_kernel(
             except ValidationError:
                 caller_ctx_obj = None
 
-        if canonical_name == "anchor_session":
+        if canonical_name == "init_anchor":
             ha_value = bool(payload.get("human_approval", payload.get("human_approved", False)))
             intent_raw = payload.get("intent")
             if intent_raw is None:
@@ -1118,7 +1116,7 @@ async def call_kernel(
         if caller_ctx_data and "caller_context" not in envelope:
             envelope["caller_context"] = caller_ctx_data
 
-        if envelope.get("verdict") != "VOID" and canonical_name != "anchor_session" and auth_ctx:
+        if envelope.get("verdict") != "VOID" and canonical_name != "init_anchor" and auth_ctx:
             envelope["auth_context"] = mint_auth_context(
                 session_id=session_id,
                 actor_id=auth_ctx.get("actor_id", "anonymous"),
@@ -1138,7 +1136,7 @@ async def call_kernel(
                 "level": auth_ctx.get("authority_level", "anonymous"),
                 "auth_state": "verified",
             }
-        elif canonical_name == "anchor_session":
+        elif canonical_name == "init_anchor":
             if "auth_context" in result:
                 envelope["auth_context"] = result["auth_context"]
 

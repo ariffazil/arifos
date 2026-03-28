@@ -12,6 +12,7 @@ Tests for the 11-tool hardened constitutional pipeline with:
 import asyncio
 import pytest
 
+from arifosmcp.core.enforcement.auth_continuity import verify_auth_context
 from arifosmcp.runtime.contracts_v2 import (
     ToolEnvelope, ToolStatus, RiskTier, HumanDecisionMarker,
     generate_trace_context, calculate_entropy_budget,
@@ -23,6 +24,78 @@ from arifosmcp.runtime.tools_hardened_v2 import (
     HardenedAGIReason, HardenedASICritique,
     HardenedAgentZeroEngineer, HardenedApexJudge, HardenedVaultSeal,
 )
+
+
+class TestInitAnchorContinuity:
+    """Regression coverage for F11 continuity bootstrap and rotation."""
+
+    @pytest.mark.asyncio
+    async def test_bootstrap_mints_verifiable_auth_context(self):
+        tool = HardenedInitAnchor()
+
+        result = await tool.init(
+            declared_name="arif",
+            requested_scope=["query"],
+            risk_tier="low",
+            auth_context=None,
+            session_id="sess-bootstrap-regression",
+            query="bootstrap kernel continuity",
+        )
+
+        auth_context = result.auth_context
+        assert auth_context is not None
+        for field in (
+            "token_fingerprint",
+            "nonce",
+            "iat",
+            "exp",
+            "approval_scope",
+            "signature",
+        ):
+            assert field in auth_context
+        assert "arifOS_kernel:execute_limited" in auth_context["approval_scope"]
+        valid, reason = verify_auth_context(result.session_id, auth_context)
+        assert valid, reason
+
+    @pytest.mark.asyncio
+    async def test_refresh_rotates_auth_context_with_parent_signature(self):
+        tool = HardenedInitAnchor()
+
+        initial = await tool.init(
+            declared_name="arif",
+            requested_scope=["query"],
+            risk_tier="low",
+            auth_context=None,
+            session_id="sess-refresh-regression",
+            query="bootstrap refresh continuity",
+        )
+        refreshed = await tool.refresh(initial.session_id)
+
+        assert refreshed.auth_context is not None
+        assert refreshed.auth_context["signature"] != initial.auth_context["signature"]
+        assert (
+            refreshed.auth_context["parent_signature"]
+            == initial.auth_context["signature"]
+        )
+        valid, reason = verify_auth_context(refreshed.session_id, refreshed.auth_context)
+        assert valid, reason
+
+    @pytest.mark.asyncio
+    async def test_identity_mismatch_is_not_marked_verified(self):
+        tool = HardenedInitAnchor()
+
+        binding = tool._bind_identity(
+            model_soul={
+                "base_identity": {
+                    "provider": "openai",
+                    "model_family": "gpt",
+                    "model_variant": "gemini-1.5-pro",
+                }
+            }
+        )
+
+        assert binding["verification_status"] == "identity_mismatch"
+        assert binding["verified_identity"] is None
 
 
 class TestFailClosedDefaults:

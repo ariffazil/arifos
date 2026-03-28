@@ -6,7 +6,6 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
-from arifosmcp.capability_map import CAPABILITY_MAP
 from .tool_specs import (
     ToolSpec,
     ResourceSpec,
@@ -156,6 +155,7 @@ def build_server_json(public_base_url: str = DEFAULT_PUBLIC_BASE_URL) -> dict[st
 
 def get_legacy_redirect(name: str) -> tuple[str, str] | None:
     """Redirect legacy tool names to the new mega-tool surface (tool, mode)."""
+    from arifosmcp.capability_map import CAPABILITY_MAP
     return CAPABILITY_MAP.get(name)
 
 

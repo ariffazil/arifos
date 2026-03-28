@@ -16,7 +16,6 @@ from arifosmcp.runtime.tools import (
     check_vital,
     critique_thought_audit,
     ingest_evidence,
-    init_anchor_state,
     open_apex_dashboard,
     quantum_eureka_forge,
     reason_mind_synthesis,
@@ -24,29 +23,6 @@ from arifosmcp.runtime.tools import (
     search_reality,
     session_memory,
 )
-
-
-async def anchor_session(
-    intent: dict[str, Any] | None = None,
-    math: dict[str, Any] | None = None,
-    governance: dict[str, Any] | None = None,
-    auth_token: str | None = None,
-    session_id: str = "global",
-    actor_id: str = "anonymous",
-) -> dict[str, Any]:
-    """000 INIT - Session anchor. Bootstrap a governed session."""
-    # Support both old and new parameter styles
-    if intent is None:
-        intent = {"query": "INIT", "actor_id": actor_id}
-
-    result = await init_anchor_state(
-        intent=intent,
-        math=math,
-        governance=governance,
-        auth_token=auth_token,
-        session_id=session_id,
-    )
-    return result.model_dump(mode="json")
 
 
 async def reason_mind(
@@ -187,7 +163,6 @@ check_vital = check_vital
 open_apex_dashboard = open_apex_dashboard
 
 __all__ = [
-    "anchor_session",
     "reason_mind",
     "recall_memory",
     "simulate_heart",

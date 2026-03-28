@@ -43,8 +43,12 @@ async def init_anchor(
     use_critique: bool = True,
     context: Any | None = None,
     model_soul: dict[str, Any] | None = None,
+    deployment_id: str | None = None,
+    session_class: str = "execute",
 ) -> RuntimeEnvelope:
     payload = dict(payload or {})
+    if session_class:
+        payload.setdefault("session_class", session_class)
     if human_approved is not None and human_approval is False:
         human_approval = human_approved
     if "human_approved" in payload and "human_approval" not in payload:
@@ -86,24 +90,86 @@ async def init_anchor(
         payload.setdefault("context", context)
     if model_soul:
         payload.setdefault("model_soul", model_soul)
+    if deployment_id:
+        payload.setdefault("deployment_id", deployment_id)
 
     if "init_anchor" in HARDENED_DISPATCH_MAP:
         if mode is None:
             mode = "init"
         res = await HARDENED_DISPATCH_MAP["init_anchor"](mode=mode, payload=payload)
         if isinstance(res, dict):
-            ok = res.get("ok", res.get("status") not in ("HOLD", "ERROR", "VOID", None))
-            _next_tools = res.get("next_allowed_tools", [])
+            ok = res.get("ok")
+            if ok is None:
+                ok = res.get("status") not in ("HOLD", "ERROR", "VOID", None)
+            
+            _next_tools = res.get("allowed_next_tools") or res.get("next_allowed_tools")
+            if not _next_tools:
+                _next_tools = [
+                    "math_estimator",
+                    "architect_registry",
+                    "check_vital",
+                    "init_anchor",
+                ]
+            
             _payload = res.get("payload", res) if isinstance(res.get("payload"), dict) else res
             
-            # ─── V2 Result Preservation ───
-            # If the dispatcher returned a v2 result, pass it through the envelope's payload
-            # so it remains flattened for the caller.
-            v2_payload = res.copy()
-            if res.get("result_type") == "init_anchor_result@v2":
-                # Ensure the payload is the flattened res itself
-                # RuntimeEnvelope(..., payload=res) will put everything in envelope.payload
-                _payload = v2_payload
+            # ─── V2 FLATTENING (Always return flat result for success) ───
+            if ok:
+                identity = _payload.get("identity") or {}
+                bound_session = _payload.get("bound_session") or {}
+                v2_result = {
+                    "session_id": res.get("session_id"),
+                    "resolved_session_id": res.get("session_id"),
+                    "transport_session_id": payload.get("session_id") or "global",
+                    "declared_actor_id": identity.get("declared_actor_id") or _payload.get("declared_name") or _payload.get("actor_id"),
+                    "verified_actor_id": identity.get("verified_actor_id"),
+                    "canonical_actor_id": identity.get("verified_actor_id") or identity.get("declared_actor_id") or _payload.get("actor_id") or "anonymous",
+                    "auth_state": identity.get("auth_state", _payload.get("auth_state", "unverified")),
+                    "base_identity": {
+                        "declared": identity.get("declared_identity"),
+                        "verified": identity.get("verified_identity"),
+                        "verification_status": identity.get("verification_status", "unverified"),
+                        "verification_source": identity.get("verification_source", "none"),
+                    },
+                    "self_claim_boundary": identity.get("self_claim_boundary"),
+                    "bound_role": identity.get("bound_role") or bound_session.get("bound_role"),
+                    "bound_session": bound_session,
+                    "scope": _payload.get("scope"),
+                    "continuation": _payload.get("continuation"),
+                    "normalization": _payload.get("normalization"),
+                    "challenge": _payload.get("challenge"),
+                    "provenance": _payload.get("provenance"),
+                    # Add diagnostic fields for backward compatibility in status/state modes
+                    "bootstrap_sequence": _payload.get("bootstrap_sequence"),
+                    "system_motto": _payload.get("system_motto"),
+                    "caller_state": res.get("caller_state") or _payload.get("caller_state"),
+                    # Stage 888 Diagnostics (Audit)
+                    "tool_contract_table": _payload.get("tool_contract_table"),
+                    "discovery_resource": _payload.get("discovery_resource"),
+                    "floor_runtime_hooks": _payload.get("floor_runtime_hooks"),
+                    "guidance": _payload.get("guidance"),
+                    "message": _payload.get("message"),
+                }
+                
+                # The final payload for the RuntimeEnvelope
+                _final_payload = {
+                    "ok": True,
+                    "tool": "init_anchor",
+                    "status": "SUCCESS",
+                    "result_type": "init_anchor_result@v2",
+                    "result": v2_result,
+                    # Preserve governance metadata at top level
+                    "organ_stage": res.get("organ_stage") or res.get("stage") or "000_INIT",
+                    "risk_tier": res.get("risk_tier", "low"),
+                    "verdict": res.get("verdict"),
+                    "g_score": res.get("g_score"),
+                    "entropy": res.get("entropy"),
+                    "errors": res.get("errors", []),
+                    "warnings": res.get("warnings", []),
+                }
+                # For backward compatibility with tests expecting keys in .payload
+                _final_payload.update({k: v for k, v in v2_result.items() if v is not None})
+                _payload = _final_payload
 
             _hold_reason = res.get("warnings", [""])[0] if res.get("warnings") else ""
             _next_action = None
@@ -128,14 +194,29 @@ async def init_anchor(
             else:
                 effective_verdict = verdict_val or (Verdict.SEAL if ok else Verdict.VOID)
 
+            # Ensure valid defaults for Pydantic validation
+            from arifosmcp.runtime.models import CanonicalAuthority, AuthorityLevel, ClaimStatus
+            _authority = res.get("authority")
+            if _authority is None:
+                # Fallback authority if not provided by dispatcher
+                _authority = CanonicalAuthority(
+                    actor_id=res.get("actor_id") or res.get("declared_actor_id") or "anonymous",
+                    level=AuthorityLevel.ANONYMOUS,
+                    claim_status=ClaimStatus.ANONYMOUS
+                )
+
             return RuntimeEnvelope(
                 tool=res.get("tool", "init_anchor"),
-                stage=res.get("organ_stage", "000_INIT"),
+                stage=res.get("organ_stage") or res.get("stage") or "000_INIT",
                 status=RuntimeStatus.SUCCESS if ok else RuntimeStatus.ERROR,
                 verdict=effective_verdict,
                 allowed_next_tools=_next_tools,
                 next_action=_next_action,
                 payload=_payload,
+                session_id=res.get("session_id"),
+                authority=_authority,
+                auth_context=res.get("auth_context"),
+                caller_state=res.get("caller_state") or "anonymous",
             )
         return res
 

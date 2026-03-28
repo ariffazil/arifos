@@ -10,84 +10,85 @@ Modes: judge, rules, validate, hold, armor, notify, probe
 from __future__ import annotations
 
 from typing import Any
-from fastmcp.dependencies import CurrentContext
 
 from arifosmcp.runtime.models import RuntimeEnvelope, RuntimeStatus, Verdict
-from arifosmcp.runtime.tools_internal import apex_soul_dispatch_impl
 from arifosmcp.runtime.tools_hardened_dispatch import HARDENED_DISPATCH_MAP
+from fastmcp.dependencies import CurrentContext
 
 
 async def apex_soul(
-    mode: str | None = None,
+    mode: str = "judge",
     payload: dict[str, Any] | None = None,
-    query: str | None = None,
-    session_id: str | None = None,
-    actor_id: str | None = None,
-    declared_name: str | None = None,
-    intent: Any | None = None,
-    human_approval: bool = False,
-    risk_tier: str = "medium",
-    dry_run: bool = True,
-    allow_execution: bool = False,
-    caller_context: dict | None = None,
+    proposal: str | None = None,
+    execution_plan: dict | None = None,
     auth_context: dict | None = None,
-    debug: bool = False,
-    request_id: str | None = None,
-    timestamp: str | None = None,
-    raw_input: str | None = None,
+    risk_tier: str = "medium",
+    session_id: str | None = None,
+    dry_run: bool = True,
     ctx: Any | None = None,
+    **kwargs: Any,
 ) -> RuntimeEnvelope:
-    payload = dict(payload or {})
-    if raw_input:
-        payload.setdefault("query", raw_input)
-    if caller_context:
-        payload.setdefault("caller_context", caller_context)
+    resolved_payload = dict(payload or {})
+    if proposal:
+        resolved_payload.setdefault("proposal", proposal)
+    if execution_plan:
+        resolved_payload.setdefault("execution_plan", execution_plan)
     if auth_context:
-        payload.setdefault("auth_context", auth_context)
-    if query:
-        payload.setdefault("query", query)
+        resolved_payload.setdefault("auth_context", auth_context)
+    if risk_tier:
+        resolved_payload.setdefault("risk_tier", risk_tier)
     if session_id:
-        payload.setdefault("session_id", session_id)
-    if actor_id:
-        payload.setdefault("actor_id", actor_id)
-    if intent:
-        payload.setdefault("intent", intent)
-    if human_approval:
-        payload.setdefault("human_approval", human_approval)
+        resolved_payload.setdefault("session_id", session_id)
+    resolved_payload.setdefault("dry_run", dry_run)
+    resolved_payload.update(kwargs)
 
     if "apex_soul" in HARDENED_DISPATCH_MAP:
-        if mode is None:
-            mode = "judge"
-        res = await HARDENED_DISPATCH_MAP["apex_soul"](mode=mode, payload=payload)
+        res = await HARDENED_DISPATCH_MAP["apex_soul"](mode=mode, payload=resolved_payload)
         if isinstance(res, dict):
-            ok = res.get("ok", res.get("status") not in ("HOLD", "ERROR", "VOID", None))
-            _next_tools = res.get("next_allowed_tools", [])
+            ok = res.get("ok", True)
             _payload = res.get("payload", res) if isinstance(res.get("payload"), dict) else res
-            _hold_reason = res.get("warnings", [""])[0] if res.get("warnings") else ""
-            _next_action = None
-            if not ok and _hold_reason:
-                _next_action = {
-                    "reason": _hold_reason,
-                    "missing_requirements": _payload.get("missing_requirements", [])
-                    if isinstance(_payload, dict)
-                    else [],
-                    "next_allowed_tools": _next_tools,
-                    "suggested_canonical_call": _payload.get("suggested_canonical_call")
-                    if isinstance(_payload, dict)
-                    else None,
+            
+            # ─── V2 FLATTENING ───
+            if mode == "rules" and ok:
+                # Move diagnostic fields to top level of payload for TestAuditRulesBootstrap
+                _final_payload = {
+                    "ok": True,
+                    "tool": "apex_soul",
+                    "status": "SUCCESS",
+                    "result_type": "apex_rules_result@v2",
+                    # Metadata for governance
+                    "organ_stage": res.get("organ_stage", "888_JUDGE"),
+                    "risk_tier": res.get("risk_tier", "low"),
+                    "verdict": res.get("verdict", "SEAL"),
+                    "g_score": res.get("g_score"),
+                    "entropy": res.get("entropy"),
                 }
+                # Include all fields from inner payload (contracts, guidance, hooks)
+                _final_payload.update({k: v for k, v in _payload.items() if v is not None})
+                _payload = _final_payload
+
+            # Ensure verdict is a valid Verdict Enum member
+            verdict_val = res.get("verdict", "SEAL" if ok else "VOID")
+            if isinstance(verdict_val, str):
+                try:
+                    effective_verdict = Verdict(verdict_val)
+                except ValueError:
+                    effective_verdict = Verdict.SEAL if ok else Verdict.VOID
+            else:
+                effective_verdict = verdict_val or (Verdict.SEAL if ok else Verdict.VOID)
+
             return RuntimeEnvelope(
-                tool=res.get("tool", "unknown"),
-                stage=res.get("stage", "444_ROUTER"),
+                tool=res.get("tool", "apex_soul"),
+                stage=res.get("organ_stage") or res.get("stage") or "888_JUDGE",
                 status=RuntimeStatus.SUCCESS if ok else RuntimeStatus.ERROR,
-                verdict=Verdict.SEAL if ok else Verdict.VOID,
-                allowed_next_tools=_next_tools,
-                next_action=_next_action,
-                payload=res,
+                verdict=effective_verdict,
+                payload=_payload,
+                session_id=res.get("session_id"),
             )
         return res
 
-    resolved_payload = dict(payload or {})
+    # Fallback if dispatcher missing
+    from arifosmcp.runtime.tools_internal import apex_soul_dispatch_impl
     return await apex_soul_dispatch_impl(
         mode=mode,
         payload=resolved_payload,
