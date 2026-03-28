@@ -1,7 +1,13 @@
 [project]
 name = "arifos"
-version = "2026.03.25"
+version = "2026.03.28"
 # T000 Versioning: YYYY.MM.DD — see T000_VERSIONING.md and CHANGELOG.md for full history
+# 2026.03.28 — Identity Binding + Branch Consolidation (v2026.03.28-IDENTITY-BINDING)
+#   3-Layer Identity Binding: Provider Soul + Runtime Truth + Self-Claim Boundary
+#   ZKPC Anchoring: Zero-Knowledge Proof of Computation per session layer
+#   VPS deploy workflow hardened: TS_AUTHKEY env, secrets-if fix, repo-root paths
+#   Branch consolidation: merged aaa-mcp-induction, deleted 6 stale branches
+#   Genius Equation updated: G=(A×P×X×E2)×(1-h)>=0.80 canonical form
 # 2026.03.24 — AAA MCP Induction (v2026.03.24-UNIFIED)
 #   Repo unification: collapsed AAA/ shadow mirror into root arifOS/ repo
 #   Kernel: moved core/runtime logic exclusively into arifosmcp/ package
@@ -53,7 +59,7 @@ version = "2026.03.25"
 # 2026.1.26 — Live constitutional metrics; 13/13 floors passing
 # 2026.1.24 — Unified core: arifosmcp.transport pure transport, all logic in core/
 # 2026.1.18 — Constitutional Forge: 13 floors F1-F13, Trinity ΔΩΨ, VAULT999, 9-tool MCP
-description = "arifOS v2026.03.25-QUANTUM-MEMORY-SEAL — The World's First Production-Grade Constitutional AI Governance System with Protocol Trinity (MCP + A2A + WebMCP). 11 Mega-Tools (37 modes), 13 constitutional floors (F1-F13), immutable VAULT999 ledger. Trinity architecture (ΔΩΨ): AGI Mind, ASI Heart, APEX Soul. Install: pip install arifosmcp. https://arifos.arif-fazil.com/"
+description = "arifOS v2026.03.28-IDENTITY-BINDING — The World's First Production-Grade Constitutional AI Governance System. 11 Mega-Tools, 13 constitutional floors (F1-F13), immutable VAULT999 ledger. Trinity architecture (ΔΩΨ): AGI Mind, ASI Heart, APEX Soul. 3-Layer Identity Binding + ZKPC. G=(A×P×X×E²)×(1−h)≥0.80. Install: pip install arifosmcp. https://arifos.arif-fazil.com/"
 readme = "README.md"
 requires-python = ">=3.12"
 license = "AGPL-3.0-only"
