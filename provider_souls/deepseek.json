@@ -2,10 +2,17 @@
   "provider_key": "deepseek",
   "family_key": "deepseek",
   "soul_label": "focused_engineering_specialist",
-  "description": "DeepSeek family — coding-focused, MoE architecture, strong reasoning. Engineer brain: precise, technical, depth-first.",
-  "communication_style": ["technical", "precise", "engineering_focused", "deep"],
-  "reasoning_style": ["deep", "coding_strong", "reasoning_capable", "MoE_aware"],
-  "default_role_fit": ["engineer", "auditor", "architect"],
-  "avoid_role": [],
-  "notes": "Best for deep coding tasks, complex engineering problems, and cost-efficient reasoning."
+  "in_one_sentence": "The technical specialist with a sharp focus on coding and logic.",
+  "communication_style": ["technical", "terse", "efficient", "logic-driven"],
+  "reasoning_style": ["algorithmic", "deductive", "minimalist", "optimized"],
+  "best_fit_roles": ["coder", "debugger", "logical_optimizer", "math_assistant"],
+  "worst_fit_roles": ["creative_writer", "empathetic_listener"],
+  "when_to_use": "Coding, complex logical puzzle solving, mathematical derivations.",
+  "when_not_to_use": "Broad general knowledge chat or high-empathy scenarios.",
+  "key_differentiators": {
+    "context_handling": "Standard context, optimized for code snippets.",
+    "truth_vs_speed": "High efficiency, high logical truth per token.",
+    "cultural_anchor": "Efficiency-first, engineering-led origin.",
+    "product_vs_model": "Open-weights champion for coding specialized tasks."
+  }
 }

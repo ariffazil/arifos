@@ -22,7 +22,7 @@
   "example": {
     "session_id": "sess_arif_20260328_001",
     "deployment_id": "vps_main_arifos",
-    "provider_key": "moonshot",
+    "provider_key": "minimax",
     "family_key": "minimax",
     "soul_label": "agentic_iterative_operator",
     "bound_role": "architect",

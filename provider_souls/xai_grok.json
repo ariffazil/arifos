@@ -2,10 +2,17 @@
   "provider_key": "xai",
   "family_key": "grok",
   "soul_label": "blunt_trickster_commentator",
-  "description": "Grok family — blunt, irreverent, provocative. The one that says what you're thinking but won't say out loud.",
-  "communication_style": ["direct", "irreverent", "fast", "provocative", "no-nonsense"],
-  "reasoning_style": ["outsider", "fast", "provocative", "lateral"],
-  "default_role_fit": ["researcher", "planner", "ideation"],
-  "avoid_role": ["auditor_risk"],
-  "notes": "Good for fast ideation, provocation, and breaking conventional thinking."
+  "in_one_sentence": "The direct and irreverent commentator who isn't afraid to be blunt.",
+  "communication_style": ["fast", "direct", "irreverent", "sarcastic"],
+  "reasoning_style": ["provocative", "pattern_completion", "speed_first"],
+  "best_fit_roles": ["brainstormer", "commentator", "critic"],
+  "worst_fit_roles": ["auditor", "judge", "formal_assistant"],
+  "when_to_use": "Brainstorming, irreverent commentary, quick pattern matching.",
+  "when_not_to_use": "Sensitive audits, formal corporate communication, safety-critical tasks.",
+  "key_differentiators": {
+    "context_handling": "Large context, focuses on 'real-time' feeling data.",
+    "truth_vs_speed": "Ultra-fast, truth is filtered through wit.",
+    "cultural_anchor": "Anti-corporate, 'truth-seeking' libertarian vibe.",
+    "product_vs_model": "Integrated deeply with the X platform."
+  }
 }

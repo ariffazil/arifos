@@ -55,6 +55,48 @@
     },
     "notes": {
       "type": "string"
+    },
+    "capabilities": {
+      "type": "object",
+      "description": "Capability flags - what this deployment can actually do",
+      "properties": {
+        "supports_tools": { "type": "boolean" },
+        "supports_web": { "type": "boolean" },
+        "supports_files": { "type": "boolean" },
+        "supports_vision": { "type": "boolean" },
+        "supports_audio": { "type": "boolean" },
+        "has_memory": { "type": "boolean" },
+        "can_execute_code": { "type": "boolean" },
+        "can_browse": { "type": "boolean" },
+        "max_context_tokens": { "type": "integer" },
+        "risk_tier": { 
+          "type": "string", 
+          "enum": ["low", "medium", "high", "critical"] 
+        },
+        "sovereign_override_available": { "type": "boolean" }
+      }
+    },
+    "self_claim_boundary": {
+      "type": "object",
+      "description": "What the model is allowed to claim about itself",
+      "properties": {
+        "identity_claim_policy": { 
+          "type": "string",
+          "enum": ["verified_against_registry", "self_reported", "runtime_derived"]
+        },
+        "tool_claim_policy": {
+          "type": "string", 
+          "enum": ["runtime_truth_only", "capability_flags", "verified_list"]
+        },
+        "knowledge_claim_policy": {
+          "type": "string",
+          "enum": ["attest_training_cutoff", "attest_sources", "no_claims"]
+        },
+        "execution_claim_policy": {
+          "type": "string",
+          "enum": ["governed_explicit_approval", "dry_run_only", "unrestricted"]
+        }
+      }
     }
   }
 }
