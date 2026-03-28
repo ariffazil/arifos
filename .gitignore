@@ -78,3 +78,7 @@ arifosmcp.egg-info/
 .env.docker
 VAULT999/
 eigent/
+
+# SQLite databases
+*.db
+

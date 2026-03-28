@@ -78,7 +78,7 @@ READ_ONLY_TOOLS: set[str] = {
 
 AAA_TOOL_STAGE_MAP: dict[str, str] = {
     "init_anchor": "000_INIT",
-    "anchor_session": "000_INIT",
+    # "anchor_session": "000_INIT",  # LEGACY: use init_anchor
     "arifOS_kernel": "444_ROUTER",
     "metabolic_loop": "444_ROUTER",
     "apex_soul": "888_JUDGE",
@@ -321,6 +321,10 @@ class ToolEnvelope:
     integrity_hash: str = ""
     trace: TraceContext | None = None
     entropy: EntropyBudget = field(default_factory=EntropyBudget)
+    authority: Any | None = None
+    auth_context: Any | None = None
+    caller_state: str | None = None
+    allowed_next_tools: list[str] = field(default_factory=list)
     payload: dict[str, Any] = field(default_factory=dict)
     warnings: list[str] = field(default_factory=list)
     output_policy: OutputPolicy = OutputPolicy.REAL_DOMAIN

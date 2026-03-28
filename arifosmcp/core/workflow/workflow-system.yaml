@@ -509,7 +509,7 @@ decisions:
 tool_permissions:
   000-init:
     allowed:
-      - "anchor_session"
+      - "init_anchor"
       - "audit_rules"
     forbidden:
       - "eureka_forge"

@@ -146,8 +146,7 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
             "🔥 THE IGNITION STATE OF INTELLIGENCE (Unified). "
             "ONE tool for ALL constitutional session operations. "
             "Modes: 'init' (establish identity), 'state' (forensic audit), "
-            "'status' (bootstrap diagnostics), 'revoke' (kill session), 'refresh' (rotate token). "
-            "Legacy tools (init_anchor_state, revoke_anchor_state, get_caller_status) route here."
+            "'status' (bootstrap diagnostics), 'revoke' (kill session), 'refresh' (rotate token)."
         ),
         trinity="PSI Ψ",
         floors=("F11", "F12", "F13"),
@@ -156,6 +155,48 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
             ["init", "revoke", "refresh", "state", "status"],
             {
                 "actor_id": {"type": "string", "minLength": 2, "maxLength": 64},
+                "model_soul": {
+                    "type": "object",
+                    "description": "Deep identity and behavioral contract (V2).",
+                    "properties": {
+                        "base_identity": {
+                            "type": "object",
+                            "properties": {
+                                "provider": {"type": "string"},
+                                "model_family": {"type": "string"},
+                                "model_variant": {"type": "string"},
+                                "runtime_class": {"type": "string"},
+                            },
+                        },
+                        "runtime_state": {
+                            "type": "object",
+                            "properties": {
+                                "tooling": {"type": "array", "items": {"type": "string"}},
+                                "web_access": {"type": "boolean"},
+                                "memory_mode": {"type": "string"},
+                            },
+                        },
+                        "capability_map": {
+                            "type": "object",
+                            "additionalProperties": {"type": "boolean"},
+                        },
+                        "boundary_map": {
+                            "type": "object",
+                            "properties": {
+                                "identity_claim_policy": {"type": "string"},
+                                "tool_claim_policy": {"type": "string"},
+                            },
+                        },
+                        "constitution": {
+                            "type": "object",
+                            "properties": {
+                                "truth_policy": {"type": "string"},
+                                "humility_policy": {"type": "string"},
+                                "anti_hantu_policy": {"type": "string"},
+                            },
+                        },
+                    },
+                },
                 "intent": {
                     "oneOf": [
                         {
@@ -171,12 +212,36 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
                                 "task_type": {
                                     "type": "string",
                                     "maxLength": 64,
-                                    "enum": ["general", "ask", "audit", "design", "decide", "analyze", "execute"],
+                                    "enum": [
+                                        "general",
+                                        "ask",
+                                        "audit",
+                                        "design",
+                                        "decide",
+                                        "analyze",
+                                        "execute",
+                                    ],
                                     "default": "general",
                                 },
                                 "domain": {"type": "string", "maxLength": 64},
-                                "desired_output": {"type": "string", "maxLength": 64, "enum": ["text", "json", "table", "code", "report", "decision", "mixed"]},
-                                "reversibility": {"type": "string", "enum": ["reversible", "irreversible", "auditable"], "default": "auditable"},
+                                "desired_output": {
+                                    "type": "string",
+                                    "maxLength": 64,
+                                    "enum": [
+                                        "text",
+                                        "json",
+                                        "table",
+                                        "code",
+                                        "report",
+                                        "decision",
+                                        "mixed",
+                                    ],
+                                },
+                                "reversibility": {
+                                    "type": "string",
+                                    "enum": ["reversible", "irreversible", "auditable"],
+                                    "default": "auditable",
+                                },
                             },
                             "required": ["query"],
                             "description": "Structured intent object with query, task_type, domain, desired_output, reversibility",
@@ -215,9 +280,13 @@ PUBLIC_TOOL_SPECS: tuple[ToolSpec, ...] = (
                 "intent": {
                     "oneOf": [
                         {"type": "string"},
-                        {"type": "object", "properties": {"query": {"type": "string"}}, "required": ["query"]}
+                        {
+                            "type": "object",
+                            "properties": {"query": {"type": "string"}},
+                            "required": ["query"],
+                        },
                     ],
-                    "description": "Structured intent for governed reasoning."
+                    "description": "Structured intent for governed reasoning.",
                 },
                 "context": {"type": "string", "maxLength": 100000},
                 "max_steps": {"type": "integer", "minimum": 1, "maximum": 50, "default": 13},

@@ -4,7 +4,7 @@
   "commit": "5cbcef05",
   "harness_version": "2026.3.1",
   "trinity": {
-    "anchor_session": {
+    "init_anchor": {
       "ok": true,
       "verdict": "SEAL",
       "session_id": null,

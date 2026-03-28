@@ -33,7 +33,7 @@ from arifosmcp.core.kernel.mcp_transport_kernel import (
 )
 
 CANONICAL_TOOL_TO_LEGACY: dict[str, str] = {
-    "anchor_session": "anchor",
+    "init_anchor": "anchor",
     "reason_mind": "reason",
     "recall_memory": "respond",
     "simulate_heart": "validate",

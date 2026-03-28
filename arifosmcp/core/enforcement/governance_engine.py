@@ -35,7 +35,7 @@ def _motto_for_tool(tool: str) -> dict[str, str]:
     stage_motto = get_motto_for_stage(stage)
     header = ""
     # Use stage-based headers for entry/exit tools
-    if stage == "000_INIT" or tool == "anchor_session":
+    if stage == "000_INIT" or tool == "init_anchor":
         header = MOTTO_000_INIT_HEADER
     elif stage == "999_SEAL" or tool == "seal_vault":
         header = MOTTO_999_SEAL_HEADER
@@ -188,7 +188,7 @@ def _has_session(payload: dict[str, Any]) -> bool:
 def _command_authority_pass(tool: str, payload: dict[str, Any]) -> bool:
     if tool in READ_ONLY_TOOLS:
         return True
-    if tool == "anchor_session":
+    if tool == "init_anchor":
         actor_id = str(payload.get("actor_id", "")).strip()
         token_status = str(payload.get("token_status", "")).strip()
         auth_ctx = payload.get("auth_context")
@@ -206,7 +206,7 @@ def _classify_tool_for_consensus(tool: str) -> dict[str, Any]:
     - CRITICAL: Final authority tools (apex_judge, seal_vault)
     """
     stage = TOOL_STAGE_MAP.get(tool, "000_INIT")
-    if tool == "anchor_session" or stage == "000_INIT" or tool in READ_ONLY_TOOLS:
+    if tool == "init_anchor" or stage == "000_INIT" or tool in READ_ONLY_TOOLS:
         return {"class": "UTILITY", "threshold": 0.90, "witness_floor": 0.85}
     if tool in {"apex_judge", "seal_vault", "eureka_forge"}:
         return {"class": "CRITICAL", "threshold": 0.995, "witness_floor": 0.80}
@@ -303,7 +303,7 @@ def _sovereignty_pass(tool: str, payload: dict[str, Any]) -> bool:
         return True
     session_ok = _has_session(payload)
 
-    if tool == "anchor_session":
+    if tool == "init_anchor":
         return _command_authority_pass(tool, payload)
     if tool in {
         "reason_mind",
@@ -348,7 +348,7 @@ def _law13_checks(tool: str, payload: dict[str, Any]) -> dict[str, Any]:
         elif law == "F2_TRUTH":
             # P0: Identity/Health tools are inherently grounded in system state
             inherently_grounded = tool in {
-                "anchor_session",
+                "init_anchor",
                 "check_vital",
                 "sense_health",
                 "system_audit",
