@@ -4,3 +4,6 @@
 [submodule "geox"]
 	path = geox
 	url = https://github.com/ariffazil/GEOX.git
+[submodule "arifosmcp"]
+	path = arifosmcp
+	url = https://github.com/ariffazil/arifosmcp.git
