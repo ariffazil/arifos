@@ -104,6 +104,7 @@ def _tokenize(text: str) -> set[str]:
 
 @lru_cache(maxsize=1)
 def load_wisdom_quotes() -> list[dict[str, Any]]:
+    if not DEFAULT_WISDOM_PATH.exists(): return []
     data = json.loads(DEFAULT_WISDOM_PATH.read_text(encoding="utf-8"))
     if not isinstance(data, list):
         raise ValueError("wisdom_quotes.json must contain a list of quote objects")
@@ -136,7 +137,7 @@ def _score_quote(quote: dict[str, Any], query_tokens: set[str], category: str) -
 
     quote_category = str(quote.get("category", "wisdom")).lower()
     category_bonus = 1.0 if category == "all" or quote_category == category else -2.0
-    hint_bonus = len(query_tokens & CATEGORY_HINTS.get(quote_category, set())) * 0.5
+    hint_bonus = len(query_tokens & (CATEGORY_HINTS.get(quote_category) or set())) * 0.5
     cost_bonus = float(quote.get("human_cost", 1.0)) * 0.05
     return overlap * 2.0 + category_bonus + hint_bonus + cost_bonus
 
@@ -154,18 +155,7 @@ def retrieve_wisdom(
     is_pseudo = False
 
     # 1. Try vector semantic search first if available
-    try:
-        from arifosmcp.core.intelligence.vector_bridge import qdrant_bridge
-        embedding, is_pseudo = qdrant_bridge.embed_text(query)
-        if embedding:
-            # Note: We assume the 99 quotes are in a separate collection or we search locally
-            # but for 1.0.0 we'll use local token overlap until we have a Qdrant collection for quotes
-            # However, the user wants us to use vectors if available.
-            # If we don't have a 'wisdom_quotes' collection in Qdrant, we'll stick to local.
-            pass
-    except Exception as e:
-        logger.debug(f"Vector bridge unavailable for wisdom: {e}")
-
+    # Vector bridge check disabled for 1.0.0 (sync runtime)
     corpus = load_wisdom_quotes()
     query_tokens = _tokenize(query)
 

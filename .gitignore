@@ -75,3 +75,6 @@ BACKUP_*.zip
 
 # arifosmcp distribution
 arifosmcp.egg-info/
+.env.docker
+VAULT999/
+eigent/

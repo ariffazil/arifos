@@ -7,6 +7,7 @@ FIX: Register routes BEFORE creating http_app
 
 from __future__ import annotations
 
+import logging
 import os
 import sys
 import traceback
@@ -19,6 +20,8 @@ from starlette.middleware.cors import CORSMiddleware
 
 from arifosmcp.runtime.tools import register_tools, ALL_TOOL_IMPLEMENTATIONS
 from arifosmcp.runtime.rest_routes import register_rest_routes
+
+logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
 # HARDENING: GLOBAL PANIC MIDDLEWARE
@@ -64,6 +67,38 @@ app.add_middleware(
     allow_methods=["GET", "POST"],
     allow_headers=["X-API-Key", "Content-Type"],
 )
+
+
+def _attach_protocol_apps() -> None:
+    """
+    Attach side-protocol apps to the live FastMCP site.
+
+    A2A is mounted under `/a2a`, which matches the advertised REST endpoints.
+    WebMCP is mounted at `/` late in route order so its existing `/webmcp`,
+    `/.well-known/webmcp`, and `/api/live/*` routes become reachable without
+    changing their internal path definitions.
+    """
+    if not hasattr(app, "mount"):
+        return
+
+    try:
+        from arifosmcp.runtime.a2a import create_a2a_server
+
+        a2a_server = create_a2a_server(mcp)
+        app.mount("/a2a", a2a_server.app, name="a2a")
+    except Exception:
+        logger.exception("Failed to attach A2A app")
+
+    try:
+        from arifosmcp.runtime.webmcp.server import create_webmcp_app
+
+        webmcp_app = create_webmcp_app(mcp)
+        app.mount("/", webmcp_app, name="webmcp")
+    except Exception:
+        logger.exception("Failed to attach WebMCP app")
+
+
+_attach_protocol_apps()
 
 def create_aaa_mcp_server() -> FastMCP:
     return mcp

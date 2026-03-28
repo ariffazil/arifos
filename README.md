@@ -2,7 +2,7 @@
 
 > **DITEMPA BUKAN DIBERI — Forged, Not Given**
 
-[![Version](https://img.shields.io/badge/version-2026.03.25-blue?style=flat-square)](./CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-2026.03.27-blue?style=flat-square)](./CHANGELOG.md)
 [![License](https://img.shields.io/badge/theory-CC0%201.0-green?style=flat-square)](./LICENSE)
 [![Runtime](https://img.shields.io/badge/runtime-AGPL--3.0-orange?style=flat-square)](./LICENSING.md)
 [![MCP](https://img.shields.io/badge/MCP-2025--11--25-purple?style=flat-square)](https://arifosmcp.arif-fazil.com/mcp)

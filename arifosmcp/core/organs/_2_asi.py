@@ -124,7 +124,7 @@ async def asi(
         if not thought_id:
             thought_id = f"auto-critique:{session_id}"
 
-        target_text = thought_content or scenario or str(kwargs)
+        target_text = thought_content or scenario or str(kwargs) or ""
         findings = []
         severity: Literal["none", "low", "medium", "high"] = "none"
         suggested_action: Literal[
