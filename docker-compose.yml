@@ -748,3 +748,13 @@ volumes:
     driver: local
   arifos_grafana_dashboards:
     driver: local
+
+# ── NETWORK CONFIGURATION NOTE ─────────────────────────────────────────
+# If Traefik and arifosmcp are on different networks, external access will fail.
+# 
+# Current deployment has containers from different compose projects.
+# Manual fix applied: docker network connect arifos_arifos_trinity traefik_router
+# 
+# Permanent fix via systemd: /opt/arifos/bin/fix-traefik-network.sh
+# Service: arifos-network-fix.service (enabled)
+# ───────────────────────────────────────────────────────────────────────
