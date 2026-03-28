@@ -43,9 +43,6 @@ jobs:
   selftest:
     name: F2 Truth — Self-Test Gate
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: AAA
     steps:
       - uses: actions/checkout@v4
 
@@ -53,7 +50,7 @@ jobs:
         with:
           python-version: "3.12"
           cache: pip
-          cache-dependency-path: AAA/pyproject.toml
+          cache-dependency-path: pyproject.toml
 
       - name: Install dependencies
         run: |
@@ -90,7 +87,7 @@ jobs:
       - name: Scan for hardcoded secrets
         run: |
           FOUND=0
-          for f in AAA/docker-compose*.yml; do
+          for f in docker-compose*.yml AAA/docker-compose*.yml; do
             [ -f "$f" ] || continue
             if grep -nE "hf_[A-Za-z0-9]{20,}|sk-[A-Za-z0-9]{20,}|:[0-9]{10}:[A-Za-z0-9_-]{35}" "$f" 2>/dev/null; then
               echo "888 HOLD - Hardcoded secret in $f"
