@@ -58,6 +58,14 @@ mcp = FastMCP(
 register_tools(mcp)
 register_rest_routes(mcp, ALL_TOOL_IMPLEMENTATIONS)
 
+# Register ChatGPT Deep Research tools (search + fetch)
+try:
+    from arifosmcp.runtime.chatgpt_integration import register_chatgpt_tools
+    register_chatgpt_tools(mcp)
+    logger.info("[ChatGPT] Deep Research tools registered (search + fetch)")
+except Exception as e:
+    logger.warning(f"[ChatGPT] Could not register tools: {e}")
+
 # THEN create the app with all routes included
 # FastMCP 2.x/3.x compatibility
 if IS_FASTMCP_3:
