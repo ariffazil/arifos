@@ -123,6 +123,7 @@ async def hardened_init_anchor_dispatch(
             auth_context=payload.get("auth_context"),
             caller_context=payload.get("caller_context"),
             pns_shield=payload.get("pns_shield"),
+            model_soul=payload.get("model_soul"),
             risk_tier=payload.get("risk_tier", "low"),
             session_class=payload.get("session_class", "execute"),
             requested_scope=payload.get("requested_scope"),
@@ -135,6 +136,50 @@ async def hardened_init_anchor_dispatch(
         return {"ok": False, "error": f"Invalid mode for init_anchor: {mode}"}
 
     envelope_dict = _apply_policy(envelope.to_dict(), "init_anchor", mode, payload)
+
+    # ─── V2 FLATTENING ───
+    # Change payload.payload nesting to flat result standard: result_type: init_anchor_result@v2
+    if mode == "init":
+        raw_payload = envelope_dict.get("payload", {})
+        
+        # Identity Verification Split (Declared vs Verified)
+        identity = raw_payload.get("identity", {})
+        
+        v2_result = {
+            "session_id": envelope_dict.get("session_id"),
+            "declared_actor_id": identity.get("declared_actor_id"),
+            "verified_actor_id": identity.get("verified_actor_id"),
+            "auth_state": identity.get("auth_state"),
+            "base_identity": {
+                "declared": identity.get("declared_identity"),
+                "verified": identity.get("verified_identity"),
+                "verification_status": identity.get("verification_status", "unverified"),
+                "verification_source": identity.get("verification_source", "none"),
+            },
+            "self_claim_boundary": identity.get("self_claim_boundary"),
+            "scope": raw_payload.get("scope"),
+            "continuation": raw_payload.get("continuation"),
+            "normalization": raw_payload.get("normalization"),
+            "challenge": raw_payload.get("challenge"),
+            "provenance": raw_payload.get("provenance"),
+        }
+        
+        # Flattened Envelope Structure
+        return {
+            "ok": envelope_dict.get("status") == "ok",
+            "tool": "init_anchor",
+            "status": "SUCCESS" if envelope_dict.get("status") == "ok" else "ERROR",
+            "result_type": "init_anchor_result@v2",
+            "result": v2_result,
+            # Preserve metadata for governance audit
+            "organ_stage": envelope_dict.get("organ_stage"),
+            "risk_tier": envelope_dict.get("risk_tier"),
+            "verdict": envelope_dict.get("verdict"),
+            "g_score": envelope_dict.get("g_score"),
+            "entropy": envelope_dict.get("entropy"),
+            "errors": envelope_dict.get("errors", []),
+            "warnings": envelope_dict.get("warnings", []),
+        }
 
     # Fix 4 — Anchor void propagation (F1/F11/F12).
     # If init_anchor returns void/session-rejected, register a global 888_HOLD.

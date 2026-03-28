@@ -16,7 +16,7 @@ import sys
 from dataclasses import dataclass, field
 from typing import Any
 
-from arifosmcp.runtime.tools import init_anchor_state, metabolic_loop_router
+from arifosmcp.runtime.tools import init_anchor, metabolic_loop_router
 
 logger = logging.getLogger(__name__)
 
@@ -169,7 +169,7 @@ class ACPServer:
         try:
             # 1. Bootstrap identity (Default to 'Arif' if session approved by sovereign)
             # In production, this would come from the editor's auth token.
-            await init_anchor_state(session_id=session_id, declared_name="Arif")
+            await init_anchor(mode="init", session_id=session_id, declared_name="Arif")
 
             # 2. Route through metabolic loop
             # risk_tier is medium for regular editor prompts.

@@ -29,7 +29,6 @@ from typing import Any, Callable, Dict, Union
 from fastmcp import FastMCP
 from fastmcp.dependencies import CurrentContext
 from fastmcp.server.context import Context
-from arifosmcp.capability_map import CAPABILITY_MAP
 from arifosmcp.runtime.bridge import call_kernel
 from arifosmcp.runtime.governance_identities import (
     PROTECTED_SOVEREIGN_IDS,
@@ -79,12 +78,8 @@ from arifosmcp.runtime.tools_internal import (
     asi_heart_dispatch_impl,
     code_engine_dispatch_impl,
     engineering_memory_dispatch_impl,
-    get_caller_status_impl,
-    init_anchor_impl,
     math_estimator_dispatch_impl,
     physics_reality_dispatch_impl,
-    refresh_anchor_impl,
-    revoke_anchor_state_impl,
     vault_ledger_dispatch_impl,
 )
 
@@ -199,6 +194,33 @@ async def metabolic_loop_router(
     )
 
 
+def _build_user_model(
+    tool_name: str, stage_value: str, payload: dict[str, Any], envelope_data: dict[str, Any]
+) -> UserModel:
+    query = str(
+        payload.get("query") or payload.get("intent") or payload.get("content") or ""
+    ).strip()
+    context = str(payload.get("context") or "").strip()
+    output_constraints: list[UserModelField] = []
+    lowered = f"{query} {context}".lower()
+    if "concise" in lowered:
+        output_constraints.append(
+            UserModelField(value="keep_response_concise", source=UserModelSource.EXPLICIT)
+        )
+    if envelope_data.get("meta", {}).get("dry_run") or payload.get("dry_run"):
+        output_constraints.append(
+            UserModelField(
+                value="state_that_execution_is_simulated", source=UserModelSource.OBSERVABLE
+            )
+        )
+    return UserModel(
+        stated_goal=UserModelField(
+            value=query or context or f"{tool_name}:{stage_value}", source=UserModelSource.EXPLICIT
+        ),
+        output_constraints=output_constraints,
+    )
+
+
 async def arifos_kernel(
     query: str | None = None,
     session_id: str | None = None,
@@ -246,53 +268,6 @@ async def audit_rules(
         mode="rules",
         session_id=session_id,
         actor_id=actor_id,
-    )
-
-
-async def init_anchor_state(
-    session_id: str = None,
-    actor_id: str = None,
-    declared_name: str = None,
-    intent: str = None,
-    human_approval: bool = False,
-) -> RuntimeEnvelope:
-    return await init_anchor(
-        mode="state",
-        session_id=session_id,
-        actor_id=actor_id,
-        declared_name=declared_name,
-        intent=intent,
-        human_approval=human_approval,
-    )
-
-
-async def revoke_anchor_state(
-    session_id: str = None,
-    actor_id: str = None,
-    declared_name: str = None,
-    intent: str = None,
-    human_approval: bool = False,
-) -> RuntimeEnvelope:
-    return await init_anchor(
-        mode="revoke",
-        session_id=session_id,
-        actor_id=actor_id,
-        declared_name=declared_name,
-        intent=intent,
-        human_approval=human_approval,
-    )
-
-
-async def get_caller_status(
-    session_id: str = None,
-    actor_id: str = None,
-    declared_name: str = None,
-) -> RuntimeEnvelope:
-    return await init_anchor(
-        mode="status",
-        session_id=session_id,
-        actor_id=actor_id,
-        declared_name=declared_name,
     )
 
 
@@ -627,8 +602,6 @@ LEGACY_COMPAT_MAP: dict[str, Callable[..., Any]] = {
     "arifos_kernel": arifos_kernel,
     "check_vital": check_vital,
     "audit_rules": audit_rules,
-    "init_anchor_state": init_anchor_state,
-    "get_caller_status": get_caller_status,
     "agi_reason": agi_reason,
     "agi_reflect": agi_reflect,
     "asi_critique": asi_critique,
@@ -757,9 +730,6 @@ __all__ = [
     "arifos_kernel",
     "check_vital",
     "audit_rules",
-    "init_anchor_state",
-    "revoke_anchor_state",
-    "get_caller_status",
     "agi_reason",
     "agi_reflect",
     "asi_critique",

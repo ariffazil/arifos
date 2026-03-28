@@ -26,32 +26,31 @@ def public_tool_specs():
     return PUBLIC_TOOL_SPECS
 
 
-class TestLegacyToolRouting:
-    """Verify legacy tools route to unified init_anchor via CAPABILITY_MAP."""
+class TestLegacyToolRemoval:
+    """Verify legacy tools are REMOVED from CAPABILITY_MAP."""
 
-    def test_init_anchor_state_routes_to_init_anchor(self, capability_map):
-        """Legacy 'init_anchor_state' routes to init_anchor with mode='state'."""
-        target = capability_map.get("init_anchor_state")
-        assert target is not None
-        assert target.mega_tool == "init_anchor"
-        assert target.mode == "state"
-        print("✓ init_anchor_state → init_anchor(mode='state')")
+    def test_init_anchor_state_is_removed(self, capability_map):
+        """Legacy 'init_anchor_state' is no longer in CAPABILITY_MAP."""
+        assert "init_anchor_state" not in capability_map
+        print("✓ init_anchor_state successfully purged")
 
-    def test_revoke_anchor_state_routes_to_init_anchor(self, capability_map):
-        """Legacy 'revoke_anchor_state' routes to init_anchor with mode='revoke'."""
-        target = capability_map.get("revoke_anchor_state")
-        assert target is not None
-        assert target.mega_tool == "init_anchor"
-        assert target.mode == "revoke"
-        print("✓ revoke_anchor_state → init_anchor(mode='revoke')")
+    def test_revoke_anchor_state_is_removed(self, capability_map):
+        """Legacy 'revoke_anchor_state' is no longer in CAPABILITY_MAP."""
+        assert "revoke_anchor_state" not in capability_map
+        print("✓ revoke_anchor_state successfully purged")
 
-    def test_get_caller_status_routes_to_init_anchor(self, capability_map):
-        """Legacy 'get_caller_status' routes to init_anchor with mode='status'."""
-        target = capability_map.get("get_caller_status")
-        assert target is not None
-        assert target.mega_tool == "init_anchor"
-        assert target.mode == "status"
-        print("✓ get_caller_status → init_anchor(mode='status')")
+    def test_get_caller_status_is_removed(self, capability_map):
+        """Legacy 'get_caller_status' is no longer in CAPABILITY_MAP."""
+        assert "get_caller_status" not in capability_map
+        print("✓ get_caller_status successfully purged")
+
+    def test_init_anchor_state_impl_is_removed(self):
+        """Internal legacy implementations are physically deleted."""
+        try:
+            from arifosmcp.runtime.tools_internal import init_anchor_impl
+            pytest.fail("init_anchor_impl still exists in tools_internal.py")
+        except ImportError:
+            print("✓ init_anchor_impl successfully deleted from tools_internal.py")
 
 
 class TestToolSpecCompliance:
@@ -97,33 +96,31 @@ class TestModeEnums:
 class TestImplementationStructure:
     """Verify the internal implementation structure."""
 
-    def test_init_anchor_impl_handles_all_modes(self):
-        """init_anchor_impl has dispatch logic for all 5 modes."""
-        from arifosmcp.runtime.tools_internal import init_anchor_impl
+    def test_init_anchor_dispatch_handles_all_modes(self):
+        """hardened_init_anchor_dispatch has logic for all 5 modes."""
+        from arifosmcp.runtime.tools_hardened_dispatch import hardened_init_anchor_dispatch
         import inspect
         
-        source = inspect.getsource(init_anchor_impl)
-        # Check for mode dispatch
+        source = inspect.getsource(hardened_init_anchor_dispatch)
+        # Check for mode dispatch in the hardened layer
         assert 'mode == "revoke"' in source or "mode == 'revoke'" in source
-        assert 'mode == "refresh"' in source or "mode == 'refresh'" in source
-        assert 'mode == "status"' in source or "mode == 'status'" in source
-        print("✓ init_anchor_impl dispatches all 5 modes")
+        assert 'mode in ("state", "status", "refresh")' in source or "mode in ('state', 'status', 'refresh')" in source
+        print("✓ hardened_init_anchor_dispatch handles all 5 modes")
 
-    def test_legacy_impls_exist_as_wrappers(self):
-        """Legacy implementations are maintained as wrappers."""
-        from arifosmcp.runtime.tools_internal import (
-            revoke_anchor_state_impl,
-            refresh_anchor_impl,
-            get_caller_status_impl,
-        )
-        print("✓ Legacy wrapper implementations exist")
+    def test_legacy_impls_are_purged(self):
+        """Legacy implementations are completely removed."""
+        from arifosmcp.runtime import tools_internal
+        assert not hasattr(tools_internal, "revoke_anchor_state_impl")
+        assert not hasattr(tools_internal, "refresh_anchor_impl")
+        assert not hasattr(tools_internal, "get_caller_status_impl")
+        print("✓ Legacy implementations are GONE forever")
 
 
 class TestUnifiedToolSignature:
     """Verify the unified tool signature accepts all parameters."""
 
-    def test_init_anchor_accepts_all_modes_via_payload(self):
-        """init_anchor accepts mode in payload."""
+    def test_init_anchor_accepts_all_modes_via_payload_and_kwargs(self):
+        """init_anchor accepts mode and broad kwargs for ingress tolerance."""
         from arifosmcp.runtime.tools import init_anchor
         import inspect
         
@@ -132,7 +129,9 @@ class TestUnifiedToolSignature:
         
         assert "mode" in params
         assert "payload" in params
-        print(f"✓ init_anchor signature: {list(params)}")
+        assert "query" in params
+        assert "session_id" in params
+        print(f"✓ init_anchor signature complies with V2 Mega-Tool standard")
 
 
 if __name__ == "__main__":
