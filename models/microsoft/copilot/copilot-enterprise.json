@@ -3,7 +3,7 @@
   "model_family": "copilot",
   "model_variant": "copilot-enterprise",
   "runtime_class": "enterprise",
-  "soul_archetype": "microsoft_copilot",
+  "soul_archetype": "ecosystem_native_architect",
   "identity_integrity": {
     "self_claim_boundary": "verified_only",
     "trust_tier": "verified",
