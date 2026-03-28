@@ -1,10 +1,10 @@
-# Byte-compiled / optimized / DLL files
+# Python
 __pycache__/
 *.py[cod]
 *$py.class
-
-# Distribution / packaging
+*.so
 .Python
+env/
 build/
 develop-eggs/
 dist/
@@ -21,55 +21,64 @@ wheels/
 .installed.cfg
 *.egg
 
-# Virtual environments
-venv/
-env/
-ENV/
-.venv
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+.cache/
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
 
-# IDE
+# Environment
+.env
+.venv
+venv/
+ENV/
+env.bak/
+venv.bak/
+*.env
+*.key
+*.pem
+openclaw.json
+
+# IDEs
 .vscode/
 .idea/
 *.swp
 *.swo
-*~
-
-# OS
-.DS_Store
-Thumbs.db
 
 # Logs
-*.log
-logs/
+logs/*.log
+logs/backup.log
+!logs/audit.jsonl
 
-# SQLite databases (Phase 2)
+# OpenClaw internals
+.openclaw/
+
+# build
+bin/
+# dashboard
+node_modules/
+dist/
+# Large files and backups
+_ARCHIVE/
+*.zip
+*.tar.gz
+*.7z
+*.rar
+BACKUP_*.zip
+
+# arifosmcp distribution
+arifosmcp.egg-info/
+.env.docker
+VAULT999/
+eigent/
+
+# SQLite databases
 *.db
-*.sqlite
-*.sqlite3
 
-# Environment files
-.env
-.env.local
-.env.*.local
-
-# Test coverage
-.coverage
-htmlcov/
-.pytest_cache/
-
-# Temporary files
-tmp/
-temp/
-*.tmp
-
-# Secrets (if any creep in)
-secrets/
-keys/
-*.pem
-*.key
-
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# arifOS local overrides
-local/

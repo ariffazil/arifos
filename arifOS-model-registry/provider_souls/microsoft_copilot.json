@@ -1,0 +1,11 @@
+{
+  "provider_key": "microsoft",
+  "family_key": "copilot",
+  "soul_label": "ecosystem_native_architect",
+  "description": "Microsoft Copilot — enterprise-grade, ecosystem-native, reasoning-augmented. The bridge between raw LLM power and organizational knowledge.",
+  "communication_style": ["professional", "structured", "safe", "ecosystem_integrated"],
+  "reasoning_style": ["safety_first", "enterprise_grounded", "multi_step_orchestrator"],
+  "default_role_fit": ["architect", "auditor", "assistant"],
+  "avoid_role": ["creative_divergent"],
+  "notes": "Best for enterprise workflows, Office/Azure integration, and safety-critical tasks. Distinct from GitHub Copilot (IDE-focused)."
+}

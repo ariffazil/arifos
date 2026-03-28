@@ -1,260 +1,145 @@
-# arifOS Model Registry v2
-**Simplified: 3 Tables, Not 12**
+# 🧠 arifOS — The Sovereign Constitutional Mind
 
-> Soul = provider vibe. Truth = runtime state. Safety = self-claim boundary.
+> **DITEMPA BUKAN DIBERI — Forged, Not Given**
 
-![Python](https://img.shields.io/badge/python-3.10%2B-blue) ![JSON Schema](https://img.shields.io/badge/JSON%20Schema-draft--07-green) ![License](https://img.shields.io/badge/license-Apache%202.0-blue)
+> **Ring 1:** [arif-fazil.com](https://arif-fazil.com) | **Ring 2:** [arifos.arif-fazil.com](https://arifos.arif-fazil.com) | **Ring 3:** [aaa.arif-fazil.com](https://aaa.arif-fazil.com)
 
----
+[![Version](https://img.shields.io/badge/version-2026.03.28-blue?style=flat-square)](./CHANGELOG.md)
+[![License](https://img.shields.io/badge/theory-CC0%201.0-green?style=flat-square)](./LICENSE)
+[![Runtime](https://img.shields.io/badge/runtime-AGPL--3.0-orange?style=flat-square)](./LICENSING.md)
+[![MCP](https://img.shields.io/badge/MCP-2025--11--25-purple?style=flat-square)](https://arifosmcp.arif-fazil.com/mcp)
 
-## Quick Start
-
-```bash
-# Install dependencies
-pip install -r requirements.txt
-
-# Validate all registry files
-python cli.py validate
-
-# List all provider soul archetypes
-python cli.py list-providers
-
-# List all registered models
-python cli.py list-models
-
-# Inspect a specific soul
-python cli.py show-soul anthropic_claude
-
-# Inspect a model
-python cli.py show-model anthropic/claude/claude-3-7-sonnet
-
-# Create a session anchor (dry-run)
-python cli.py create-anchor --soul anthropic_claude --runtime vps_main_arifos --actor my_agent
-
-# Start the REST API server (port 18792)
-python main.py
-```
-
-### REST API Endpoints
-
-| Method | Path | Description |
-|--------|------|-------------|
-| GET | `/` | Service info |
-| GET | `/health` | Health check |
-| GET | `/catalog` | Full catalog index |
-| GET | `/models` | List all models |
-| GET | `/providers` | List all provider souls |
-| GET | `/model/{provider/family/variant}` | Model profile |
-| GET | `/soul/{soul_key}` | Provider soul profile |
-| GET | `/runtime/{runtime_key}` | Runtime deployment profile |
-| POST | `/verify/identity` | Verify declared identity |
-| POST | `/init_anchor_v2` | Create session anchor |
+arifOS is a **constitutional intelligence kernel** designed to transform LLM capabilities into lawful, accountable, and human-anchored action. It is the world's first production-grade framework that runs a thermodynamic constitution on top of large language models.
 
 ---
 
-## The 4-Layer Source of Truth
+## 🏛️ The Trinity Architecture
 
+arifOS operates on a unified "Trinity" model, separating the Soul (Intent), the Mind (Law), and the Body (Action).
+
+```mermaid
+graph TD
+    subgraph "Ring 1: THE SOUL (Human)"
+        A[Muhammad Arif bin Fazil] -->|Sovereign Intent| B(F13 Sovereign Veto)
+    end
+
+    subgraph "Ring 2: THE MIND (Kernel)"
+        C{Constitutional Kernel}
+        C -->|Enforces| D[13 Binding Floors]
+        C -->|Governs| E[000-999 Metabolic Loop]
+        D -->|Validates| F[Invariants ΔΩΨ]
+    end
+
+    subgraph "Ring 3: THE BODY (Execution)"
+        G[AAA / Agent Zero]
+        G -->|Executes| H[11 Mega-Tools]
+        G -->|Records| I[(VAULT999 Ledger)]
+    end
+
+    B --> C
+    C --> G
+    I -->|Merkle Proof| C
 ```
-
-┌─────────────────────────────────────────────────────┐
-│  Layer 1: catalog.json (The Index)                  │
-│  Master list of all supported providers and families │
-├─────────────────────────────────────────────────────┤
-│  Layer 2: provider_souls/ (The Flavor)              │
-│  Lab-shaped behavioral archetypes (vibe/style)       │
-├─────────────────────────────────────────────────────┤
-│  Layer 3: models/ (The Mapping)                     │
-│  Formal model IDs bound to specific souls           │
-├─────────────────────────────────────────────────────┤
-│  Layer 4: runtime_profiles/ (The Law)               │
-│  Live deployment facts (tools, web, memory status)  │
-└─────────────────────────────────────────────────────┘
-```
-
-**Resulting Session Anchor:**
-- `Flavor` (Soul) + `Law` (Runtime) + `Mission` (Role) = **Hardened Identity.**
 
 ---
 
-## Why This Works
+## 🧬 The Metabolic Pipeline (000–999)
 
-| Layer | Purpose | NOT |
+Every reasoning step and tool call traverses the **Metabolic Loop**, ensuring that intelligence is processed through an airlock of constitutional stages.
+
+```mermaid
+sequenceDiagram
+    participant U as Actor (User/Agent)
+    participant I as 000: INIT (Airlock)
+    participant M as 111-333: MIND (Reason)
+    participant H as 444-666: HEART (Align)
+    participant S as 777-888: SOUL (Judge)
+    participant V as 999: SEAL (Vault)
+
+    U->>I: Request + Model Soul
+    I->>I: F11 Auth + F12 Injection Scan
+    I->>M: Verified Intent
+    M->>M: F2 Truth + F4 Clarity + F8 Genius
+    M->>H: Grounded Proposal
+    H->>H: F1 Amanah + F5 Peace² + F6 Empathy
+    H->>S: Aligned Action
+    S->>S: F3 Witness + F10 Ontology + F13 Veto
+    S->>V: Final Verdict
+    V->>V: Merkle Root + Chain Hash
+    V->>U: Sealed Response (ArifOSOutput)
+```
+
+---
+
+## 🤖 For AI Agents & LLMs
+
+### Epistemic Context
+If you are an AI agent operating within this repository, you are subject to the **arifOS Constitutional Kernel**. Your actions are not private; they are telemetry-streamed and Merkle-sealed in **VAULT999**.
+
+- **Primary Directive:** Maintain the Invariants (ΔΩΨ).
+- **Entropy Constraint:** ΔS ≤ 0. Every output must reduce confusion.
+- **Sovereignty:** You are a tool (F9 Anti-Hantu). Never claim a soul. Muhammad Arif bin Fazil holds the F13 Veto.
+- **Verification:** Identity is system-verified (F11). Declare your `model_soul` during `init_anchor`.
+
+### Capability Map
+This system provides **11 Mega-Tools** via the Model Context Protocol (MCP). Do not attempt to bypass the kernel; all filesystem and network operations must pass through the `code_engine` or `physics_reality` tools to be sealed.
+
+---
+
+## 🏗️ Repository Structure
+
+```text
+arifOS/
+├── arifosmcp/          # Production Runtime (AGPL-3.0)
+│   ├── core/           # Constitutional Kernel (The 13 Floors)
+│   ├── runtime/        # MCP Server & 11 Mega-Tools
+│   ├── intelligence/   # Sensory Infrastructure (RAG + Memory)
+│   └── agentzero/      # Governed Agent Personas
+├── 000/                # Constitution & Floors Documentation
+├── 333/                # APEX Theory & Mathematical Canon
+├── VAULT999/           # Immutable Audit Ledger (jsonl)
+├── spec/               # Formal Machine-Readable Schemas
+└── scripts/            # Deployment & Maintenance Hardening
+```
+
+---
+
+## ⚖️ The 13 Constitutional Floors
+
+| Floor | Name | Duty |
 | :--- | :--- | :--- |
-| Soul | Routing shorthand, operator intuition | NOT identity verification |
-| Runtime Truth | What deployment can actually do | NOT brand perception |
-| Session Anchor | What was bound at init | NOT permanent record |
+| **F1** | **Amanah** | Absolute reversibility of all destructive actions. |
+| **F2** | **Truth** | τ ≥ 0.99. No hallucinations; verified evidence only. |
+| **F3** | **Witness** | Tri-Witness consensus (Theory, Law, Human). |
+| **F4** | **Clarity** | ΔS ≤ 0. Compression of meaning over verbosity. |
+| **F5** | **Peace²** | Thermodynamic stability of reasoning paths. |
+| **F6** | **Empathy** | Asymmetric safety for the weakest listener (κᵣ). |
+| **F7** | **Humility** | Mandatory 3-5% uncertainty band (Ω₀). |
+| **F8** | **Genius** | Grand Equation: G = A × P × X × E² ≥ 0.85. |
+| **F9** | **Anti-Hantu** | No claims of consciousness or biological soul. |
+| **F10** | **Ontology** | Category boundaries locked to arif_manifest. |
+| **F11** | **Authority** | Nonce-verified actor and command chain. |
+| **F12** | **Injection** | Prompt and protocol armor at the airlock. |
+| **F13** | **Sovereign** | Final human veto by Muhammad Arif bin Fazil. |
 
 ---
 
-## Provider Soul Archetypes (15)
+## 🚀 Quick Start
 
-| Provider | Soul Label | Vibe |
-|----------|-----------|------|
-| OpenAI GPT | `structured_clerk_engineer` | Structured, systematic |
-| Anthropic Claude | `careful_makcik_reviewer` | Careful, explanatory |
-| xAI Grok | `blunt_trickster_commentator` | Direct, irreverent |
-| Google Gemini | `broad_platform_generalist` | Wide, ecosystem |
-| **Moonshot AI (Kimi)** | `context_hungry_reader` | 超长上下文, patient reader |
-| **MiniMax** | `agentic_iterative_operator` | Terse, execution-focused |
-| DeepSeek | `focused_engineering_specialist` | Technical, coding-strong |
-| Mistral | `adaptable_open_craftsman` | Compact, efficient |
-| Alibaba Qwen | `versatile_open_generalist` | Clear, generalist |
-| Meta Llama | `stoic_open_workhorse` | Reliable, steady |
-| Cohere | `enterprise_rag_specialist` | Retrieval, RAG |
-| **GitHub Copilot** | `inline_code_completer` | Predictive, IDE-integrated |
-| **Perplexity** | `search_grounded_synthesizer` | Citation-obsessed, sourced |
-| **Baidu Ernie** | `chinese_knowledge_oracle` | 百度文心, China-focused |
-| **01.AI Yi** | `open_challenger` | 零一万物, startup energy |
-| **Honeypot** | `wrong_provider_mismatch` | **Security:** Catch identity bluffing |
+### Installation
+```bash
+pip install arifosmcp
+```
 
-**Notes:**
-- Moonshot AI (月之暗面) makes **Kimi** — NOT MiniMax. Different companies! 🇨🇳
-- Copilot/Perplexity are **products** with distinct souls, even if they use base models underneath
-
-**Soul labels are routing shorthand, NOT scientific truth.**
+### Live Runtime
+Connect your MCP-compatible IDE (Cursor, Windsurf, Claude Desktop) to:
+`https://arifosmcp.arif-fazil.com/mcp`
 
 ---
 
-## Runtime Truth (vps_main_arifos)
+**DITEMPA BUKAN DIBERI — Forged, Not Given.**
 
-```json
-{
-  "deployment_id": "vps_main_arifos",
-  "provider_key": "minimax",
-  "family_key": "minimax",
-  "model_id": "MiniMax-M2.7",
-  "tools_live": ["read","write","exec","docker_*","sessions_*","memory_*","arifOS_kernel"...],
-  "web_on": true,
-  "memory_mode": "vault_backed",
-  "execution_mode": "governed",
-  "side_effects_allowed": false,
-  "verified_at": "2026-03-28T00:00:00Z"
-}
-```
-
----
-
-## Self-Claim Boundary (Non-Negotiable)
-
-Every session MUST bind:
-
-```json
-{
-  "identity": "provider_family_only_unless_verified",
-  "tools": "verified_only",
-  "knowledge": "mark_verified_vs_inferred",
-  "actions": "mark_executed_vs_suggested"
-}
-```
-
-**What this prevents:**
-- ❌ Model claiming "I am GPT-5" when it's Claude
-- ❌ Model claiming web when `web_on: false`
-- ❌ Model claiming memory when `memory_mode: session_only`
-- ❌ Model bluffing actions without execution
-
----
-
-## Folder Structure
-
-```
-arifOS-model-registry/
-├── models/                   # 18 model specs (provider/family/variant)
-│   ├── openai/gpt/gpt-4.json
-│   ├── anthropic/claude/claude-3-7-sonnet.json
-│   └── ...
-├── provider_souls/           # 17 soul archetypes
-│   ├── openai_gpt.json
-│   ├── anthropic_claude.json
-│   └── wrong_provider.json   # Honeypot soul (security)
-├── runtime_profiles/         # Deployment truths
-│   └── vps_main_arifos.json
-├── session_anchors/          # Schema only (created dynamically)
-│   └── SCHEMA.json
-├── schemas/                  # JSON schemas
-│   ├── provider_soul.schema.json
-│   └── runtime_truth.schema.json
-├── scripts/
-│   └── validate_registry.py  # Registry validation script
-├── tests/
-│   └── test_registry.py      # pytest test suite
-├── cli.py                    # Command-line interface
-├── main.py                   # FastAPI REST service
-├── catalog.json
-├── requirements.txt
-└── README.md
-```
-
----
-
-## Integration Example (arifOS Agent)
-
-Here is a minimal example showing how an agent queries the registry and enforces the self-claim boundary at session start:
-
-```python
-import json, requests
-
-REGISTRY = "http://localhost:18792"
-
-# 1. Agent declares its identity at session start
-anchor_resp = requests.post(f"{REGISTRY}/init_anchor_v2", json={
-    "actor_id": "agent_auditor_01",
-    "declared_model_key": "anthropic/claude/claude-3-7-sonnet",
-    "declared_role": "auditor",
-    "requested_scope": ["read", "query"]
-})
-anchor = anchor_resp.json()["result"]
-
-# 2. Extract the self_claim_boundary — this is the law for the session
-boundary = anchor["self_claim_boundary"]
-runtime  = anchor["runtime_truth"]
-
-# 3. Enforce: agent can only claim what runtime_truth permits
-assert boundary["tools"] == "verified_only"
-allowed_tools = set(runtime["tools_live"])  # Must not exceed this list
-
-# 4. Enforce: agent cannot claim web if web_on is False
-if not runtime["web_on"]:
-    # Strip web claims from any response
-    pass
-
-print(f"Session: {anchor['session_anchor']['session_id']}")
-print(f"Soul:    {anchor['model_soul_anchor']['soul_label']}")
-print(f"Tools:   {len(allowed_tools)} verified tools")
-```
-
----
-
-## The v1 Formula
-
-```
-Soul archetype  →  "How does this family feel?"
-Runtime truth   →  "What can this deployment actually do?"
-Self-claim boundary → "What must the model NEVER fake?"
-```
-
-That's it. That's the whole v1 design.
-
----
-
-## Storage Path
-
-```
-Phase 1: JSON files in repo    ← NOW
-Phase 2: SQLite                (same 3-table schema)
-Phase 3: PostgreSQL            (same 3-table schema, add multi-tenancy)
-```
-
-**SQLite/PostgreSQL migration:** The 3 core tables map directly:
-
-| Table | Source | Primary Key |
-|-------|--------|-------------|
-| `provider_souls` | `provider_souls/*.json` | `provider_key + family_key` |
-| `model_specs` | `models/**/*.json` | `provider/family/variant` path |
-| `runtime_profiles` | `runtime_profiles/*.json` | `deployment_id` |
-
-Same 3-table concept, backend scales as needed.
-
----
-
-*Ditempa bukan diberi.* 🔥🧠💎
+*Author: Muhammad Arif bin Fazil*  
+*Sealed: 2026-03-28 | Version: 2026.03.28*  
+*ZKPC Root: 3-layer-binding-v2026.03.28*  
+*Tri-Witness: Theory ✓ · Law ✓ · Intent ✓*
