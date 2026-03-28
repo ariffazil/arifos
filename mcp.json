@@ -1,0 +1,14 @@
+{
+  "name": "arifOS",
+  "version": "2026.03.25",
+  "description": "arifOS Constitutional AI Governance System - STDIO Mode",
+  "entrypoint": {
+    "type": "stdio",
+    "command": "python",
+    "args": ["stdio_server.py"]
+  },
+  "env": {
+    "ARIFOS_DEPLOYMENT": "local",
+    "ARIFOS_MINIMAL_STDIO": "1"
+  }
+}
