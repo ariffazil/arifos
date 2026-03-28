@@ -1,0 +1,3 @@
+[submodule "arifOS-model-registry"]
+	path = arifOS-model-registry
+	url = https://github.com/ariffazil/arifOS-model-registry.git
