@@ -1,24 +1,84 @@
 """
 arifOS Horizon Adapter - FastMCP 2.x Compatible
+═══════════════════════════════════════════════════════════════════════════════
 
-This is a minimal MCP server for Prefect Horizon that proxies to the
-full arifOS Sovereign Kernel running on the VPS.
+⚠️  CRITICAL DEPLOYMENT INFORMATION
+───────────────────────────────────────────────────────────────────────────────
+This file is specifically designed for Prefect Horizon (FastMCP 2.12.3).
 
-Horizon uses FastMCP 2.12.3, which lacks some 3.x features, so this
-adapter provides a compatible interface.
+DO NOT use arifosmcp/ (the submodule) for Horizon deployment - it will FAIL.
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│  WHY arifosmcp/ FAILS ON HORIZON                                            │
+├─────────────────────────────────────────────────────────────────────────────┤
+│  • FastMCP Version Mismatch:                                                │
+│    - arifosmcp/ uses FastMCP 3.x                                            │
+│    - Horizon runs FastMCP 2.12.3 (locked)                                   │
+│                                                                             │
+│  • Import Error:                                                            │
+│    - arifosmcp imports: from fastmcp.dependencies import CurrentContext     │
+│    - Horizon error: No module named 'fastmcp.dependencies'                  │
+│                                                                             │
+│  • Package Installation:                                                    │
+│    - arifosmcp/ requires: pip install -e .                                  │
+│    - Horizon doesn't support package installation                           │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│  CORRECT HORIZON DEPLOYMENT                                                 │
+├─────────────────────────────────────────────────────────────────────────────┤
+│  Repository:  ariffazil/arifOS                                              │
+│  Entrypoint:  horizon/server.py:mcp                                         │
+│  Branch:      main                                                          │
+│                                                                             │
+│  This file is self-contained with NO imports from arifosmcp package.        │
+│  It uses only FastMCP 2.x compatible imports.                               │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+ARCHITECTURE
+────────────
+    User Request
+         │
+         ▼
+┌─────────────────────────┐
+│  Prefect Horizon        │  ☁️ Cloud (8 tools, public-safe)
+│  horizon/server.py      │     Proxies to VPS for heavy ops
+└──────────┬──────────────┘
+           │ HTTPS
+           ▼
+┌─────────────────────────┐
+│  Your VPS               │  🔥 Private (11 tools, sovereign)
+│  arifosmcp_server       │     Full constitutional kernel
+└─────────────────────────┘
+
+TOOLS (8 Public-Safe)
+─────────────────────
+• init_anchor       - 000_INIT: Session anchoring
+• arifOS_kernel     - 444_ROUTER: Primary conductor  
+• apex_soul         - 888_JUDGE: Constitutional verdicts
+• agi_mind          - 333_MIND: Reasoning engine
+• asi_heart         - 666_HEART: Safety/empathy critique
+• physics_reality   - 111_SENSE: Time/reality grounding
+• math_estimator    - 777_OPS: Cost estimation
+• architect_registry - Tool discovery
+
+NOTE: vault_ledger, engineering_memory, code_engine are VPS-only
+for security reasons (no code execution in cloud).
+
+═══════════════════════════════════════════════════════════════════════════════
 """
 
 import os
 import sys
 import httpx
 from typing import Any
-from fastmcp import FastMCP
+from fastmcp import FastMCP  # FastMCP 2.x compatible
 
 # Configuration
 VPS_BASE_URL = os.getenv("ARIFOS_VPS_URL", "https://arifosmcp.arif-fazil.com")
 VPS_API_KEY = os.getenv("ARIFOS_VPS_API_KEY", "")
 
-# Create minimal MCP server (FastMCP 2.x compatible)
+# Create minimal MCP server (FastMCP 2.x compatible - NO CurrentContext)
 mcp = FastMCP("arifOS Public Ambassador")
 
 
