@@ -1,7 +1,7 @@
 {
   "name": "@arifos/mcp",
-  "version": "2026.3.24",
-  "description": "arifOS MCP Server v2026.3.24 — Unified AAA Induction, Substrate Controller, 13 Constitutional Floors (F1-F13), Protocol Trinity, VAULT999 Ledger",
+  "version": "2026.03.28",
+  "description": "arifOS MCP Server v2026.03.28 — 3-Layer Identity Binding, Substrate Controller, 13 Constitutional Floors (F1-F13), Protocol Trinity, VAULT999 Ledger. G=(A×P×X×E²)×(1−h)≥0.80",
   "main": "index.js",
   "bin": {
     "arifos-mcp": "bin/arifos-mcp.js"
@@ -27,11 +27,11 @@
   "license": "AGPL-3.0-only",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ariffazil/arifosmcp.git",
+    "url": "git+https://github.com/ariffazil/arifOS.git",
     "directory": "npm/arifos-mcp"
   },
   "bugs": {
-    "url": "https://github.com/ariffazil/arifosmcp/issues"
+    "url": "https://github.com/ariffazil/arifOS/issues"
   },
   "homepage": "https://arifos.arif-fazil.com",
   "engines": {
@@ -62,3 +62,4 @@
     "access": "public"
   }
 }
+
