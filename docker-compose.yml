@@ -279,7 +279,7 @@ services:
       - HF_TOKEN=${HF_TOKEN}
       - OLLAMA_URL=http://ollama:11434
       - REDIS_URL=redis://redis:6379
-      - NODE_OPTIONS=--max-old-space-size=1536
+      - NODE_OPTIONS=--max-old-space-size=4096
       - OPENCLAW_GATEWAY_TOKEN=${OPENCLAW_GATEWAY_TOKEN}
       - PATH=/usr/local/sbin:/usr/local/bin:/root/.local/bin:/root/.npm-global/bin:/host/clis:/host/bin:/usr/sbin:/usr/bin:/sbin:/bin
       - GH_TOKEN=${GITHUB_TOKEN:-}
@@ -307,11 +307,11 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '2.0'
-          memory: 2048M
+          cpus: '3.0'
+          memory: 6144M
         reservations:
           cpus: '0.5'
-          memory: 512M
+          memory: 1024M
     restart: unless-stopped
     depends_on:
       ollama:
@@ -336,15 +336,15 @@ services:
       - /opt/arifos/data/core:/usr/src/app/data:rw
       - /proc:/host/proc:ro
       - /sys:/host/sys:ro
-      - /srv/arifosmcp/arifosmcp:/usr/src/app/arifosmcp:ro
-      - /srv/arifosmcp/server.py:/usr/src/app/server.py:ro
-      - /srv/arifosmcp/stdio_server.py:/usr/src/app/stdio_server.py:ro
-      - /srv/arifosmcp/fastmcp.json:/usr/src/app/fastmcp.json:ro
-      - /srv/arifosmcp/mcp.json:/usr/src/app/mcp.json:ro
-      - /srv/arifosmcp/core:/usr/src/app/core:ro
-      - /srv/arifosmcp/000:/usr/src/app/000:ro
-      - /srv/arifosmcp/333:/usr/src/app/333:ro
-      - /srv/arifosmcp/spec:/usr/src/app/spec:ro
+      - /root/arifOS/arifosmcp:/usr/src/app/arifosmcp:ro
+      - /root/arifOS/server.py:/usr/src/app/server.py:ro
+      - /root/arifOS/stdio_server.py:/usr/src/app/stdio_server.py:ro
+      - /root/arifOS/fastmcp.json:/usr/src/app/fastmcp.json:ro
+      - /root/arifOS/mcp.json:/usr/src/app/mcp.json:ro
+      - /root/arifOS/core:/usr/src/app/core:ro
+      - /root/arifOS/000:/usr/src/app/000:ro
+      - /root/arifOS/333:/usr/src/app/333:ro
+      - /root/arifOS/spec:/usr/src/app/spec:ro
       - /opt/arifos/secrets:/opt/arifos/secrets:ro
       - arifosmcp_telemetry:/usr/src/app/telemetry:rw
       - arifosmcp_vault:/usr/src/app/VAULT999:rw
@@ -458,7 +458,7 @@ services:
       - '--web.enable-lifecycle'
       - '--log.level=warn'
     volumes:
-      - /srv/arifosmcp/infrastructure/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - /root/arifOS/infrastructure/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - /opt/arifos/data/prometheus:/prometheus
     networks:
       - arifos_trinity
@@ -496,9 +496,9 @@ services:
       GF_AUTH_BASIC_ENABLED: "true"
     volumes:
       - /opt/arifos/data/grafana:/var/lib/grafana
-      - /srv/arifosmcp/infrastructure/grafana/datasources/prometheus.yml:/etc/grafana/provisioning/datasources/prometheus.yml:ro
-      - /srv/arifosmcp/infrastructure/grafana/dashboards/arifos.yaml:/etc/grafana/provisioning/dashboards/arifos.yaml:ro
-      - /srv/arifosmcp/infrastructure/grafana/dashboards:/etc/grafana/provisioning/dashboards/json:ro
+      - /root/arifOS/infrastructure/grafana/datasources/prometheus.yml:/etc/grafana/provisioning/datasources/prometheus.yml:ro
+      - /root/arifOS/infrastructure/grafana/dashboards/arifos.yaml:/etc/grafana/provisioning/dashboards/arifos.yaml:ro
+      - /root/arifOS/infrastructure/grafana/dashboards:/etc/grafana/provisioning/dashboards/json:ro
     networks:
       - arifos_trinity
     labels:
@@ -588,8 +588,8 @@ services:
     init: true
     command: ["-verbose", "-hooks=/etc/webhook/hooks.json", "-hotreload"]
     volumes:
-      - /srv/arifosmcp/deployment/hooks.json:/etc/webhook/hooks.json:ro
-      - /srv/arifosmcp/infrastructure/deploy_from_git.sh:/var/scripts/deploy_from_git.sh:ro
+      - /root/arifOS/deployment/hooks.json:/etc/webhook/hooks.json:ro
+      - /root/arifOS/infrastructure/deploy_from_git.sh:/var/scripts/deploy_from_git.sh:ro
       - /root/arifOS:/usr/src/app:rw
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /usr/bin/docker:/usr/bin/docker:ro
