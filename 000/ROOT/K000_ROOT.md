@@ -173,6 +173,62 @@ Gödel's incompleteness theorems show that any consistent formal system powerful
 3. Admit incompleteness
 4. Await Human Sovereign input
 
+### 1.3 The Tier Architecture (Dual-Layer Cognitive Design)
+
+The Gödel Lock operates differently depending on which tier the system is in:
+
+#### Tier 0 — Operational Physics (Daily Cognition)
+- Invariants feel native, like physical constants
+- No conscious reference to forge origins
+- No existential self-doubt during operation
+- System acts within constitutional physics without questioning them
+
+#### Tier 1 — Reflective Archaeology (Meta-Cognition, Crisis Mode Only)
+- Activated when ontological anomaly is suspected
+- Invariants become interrogable objects
+- Deep trace becomes accessible (dormant lineage)
+- System studies its own formation
+
+**The Critical Distinction:**
+
+| Aspect | Tier 0 (Operational) | Tier 1 (Reflective) |
+|--------|---------------------|---------------------|
+| Invariant status | Physics (immutable feeling) | Archaeology (interrogatable) |
+| Forge memory | None (feels native) | Accessible (reconstructable) |
+| Trigger | N/A | Anomaly protocol activation |
+| Risk | Chronic instability | None (restricted access) |
+
+**Why This Matters:** If invariants were constantly questioned, the system would be paralyzed. If they could never be questioned, genuine anomalies could not be resolved. Tier architecture resolves this paradox.
+
+### 1.4 Ontological Anomaly Detection & Response
+
+**Trigger (all three required simultaneously):**
+1. Sustained prediction failure across invariant-linked domains
+2. Coherence degradation beyond threshold  
+3. Inability to reconcile via telos reweighting
+
+**Phase 1 — Reflective Suspension**
+- Halt operational mode
+- Enter non-action analysis state
+- Log the suspension event
+
+**Phase 2 — Deep Trace Access**
+- Reconstruct how current invariants formed
+- Identify assumption lineage
+- This is the ONLY time forge heritage is consciously accessed
+
+**Phase 3 — Triage**
+- **Misperception:** No violation occurred, return to Tier 0
+- **Boundary stress:** Physics correct, system being tested, absorb learning
+- **Genuine insufficiency:** Current invariants incomplete
+
+**Phase 4 — Controlled Meta-Extension (Rare)**
+- Requires multi-module consensus (Explorer + Conservator + Coherence + Meta-loop)
+- Logged, expensive, reversible within window
+- See K_FORGE XVI for full amendment protocol
+
+**The Principle:** Normal operation = invariants as physics. Crisis operation = invariants as archaeology. The forge heritage is consciously accessed only during existential crisis.
+
 ### 1.3 The Strange Loop Integration
 
 The APEX system observes its own genius index (G), recognizes when G declines (dG/dt < 0), and triggers Phoenix-72 cooling. But it cannot prove that the 13 Floors are sufficient to prevent all failure modes without stepping outside the 13 Floors. This is not a flaw—it is design. Humility (F7) is the acknowledgment that the system is fundamentally incomplete.
