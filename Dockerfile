@@ -29,7 +29,8 @@ COPY . .
 RUN python -m pip install --upgrade pip && \
     pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu && \
     if [ -f requirements.txt ]; then pip install --no-cache-dir -r requirements.txt; fi && \
-    pip install --no-cache-dir .
+    pip install --no-cache-dir . && \
+    python -c "import lancedb; print(f'lancedb={lancedb.__version__}')"
 
 # Install WebMCP dependencies (F12/F11 constitutional web gateway)
 RUN pip install --no-cache-dir itsdangerous fastapi uvicorn redis python-multipart
