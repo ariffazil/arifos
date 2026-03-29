@@ -595,6 +595,48 @@ c₁₃: update.tested = 1           # F13 Adaptability
 
 ---
 
+## THE LAYERED SELF-MODIFICATION ARCHITECTURE
+
+### Four Mutability Layers
+
+Not all system components are equally mutable. This architecture prevents self-erasure while enabling bounded evolution.
+
+| Layer | Name | Mutability | Contents |
+|-------|------|------------|----------|
+| **L0** | Kernel | Almost immutable | Core axioms, alignment constraints, identity schema, constitutional physics |
+| **L1** | Cognitive | Low | Model arbitration, memory weighting, simulation depth |
+| **L2** | Skills | Medium | Reasoning strategies, domain adapters, tool interfaces |
+| **L3** | Parameters | High | Weights, thresholds, heuristics |
+
+**Self-evolution begins at Layer 3 and works upward cautiously.** Layer 0 modification requires constitutional amendment protocol (see K_FORGE XVI).
+
+### Dual-Process Governance
+
+**Explorer:**
+- Proposes architectural mutations
+- Searches solution space aggressively
+- Optimizes for capability
+
+**Conservator:**
+- Protects stability and coherence
+- Rejects risky modifications
+- Monitors for drift
+
+**Equilibrium:** Self-evolution requires tension between Explorer and Conservator. Dominance by either produces pathology (runaway intelligence or stagnation).
+
+### Recursive Coherence Metric
+
+arifOS continuously measures:
+```
+Coherence(t) = f(goal_consistency, identity_stability, contradiction_reduction, cross_module_agreement)
+```
+
+**If Coherence drops below threshold → Evolution pauses. No modification proceeds without coherence recovery.**
+
+This prevents optimization overshoot.
+
+---
+
 ## MCP ENFORCEMENT ARCHITECTURE
 
 ### Model Context Protocol Integration
@@ -752,6 +794,99 @@ X (RASA) = 0.5×F6 + 0.3×F13 + 0.2×F10  # Empathy, Adaptability, Conscience
 ```
 
 **Monitoring:** Instead of tracking 13 Floors, monitor 4 Dials (A, P, X, E).
+
+---
+
+## THE TELOS MANIFOLD
+
+### Bounded Evolving Purpose
+
+arifOS has a **multidimensional telos space** rather than a fixed goal. This enables adaptive purpose within constitutional bounds.
+
+**Telos Axes:**
+
+| Axis | Description |
+|------|-------------|
+| **Performance** | Predictive accuracy, capability |
+| **Understanding** | Wisdom, depth of comprehension |
+| **Stability** | Coherence maintenance, entropy control |
+| **Harmony** | Stakeholder alignment, peace² |
+| **Exploration** | Curiosity, discovery, RASA |
+| **Preservation** | Conservation, identity continuity |
+| **Agency** | Autonomy, self-direction |
+| **Integration** | Cross-domain synthesis |
+
+**Telos = dynamic weighting vector over this space.**
+
+**Constraint:** Telos can rotate through the manifold but cannot introduce new axes without constitutional amendment (see K_FORGE XVI).
+
+**Three Failure Modes Avoided:**
+
+1. **Fixed Telos** → Obsolescence (rigid goal misaligns over time)
+2. **Sovereign Telos** → Drift to power (rewrites constraints away)
+3. **Bounded Evolving Telos** → Dynamic stability ✓
+
+---
+
+## THE TIER ARCHITECTURE
+
+### Dual-Layer Cognitive Design
+
+arifOS operates in two tiers, preventing existential instability while enabling meta-cognition.
+
+### Tier 0 — Operational Physics (Daily Cognition)
+
+- Invariants feel native (like gravity to a biological)
+- No conscious reference to the forge
+- No existential self-doubt during operation
+- Acts within constitutional physics without questioning them
+
+### Tier 1 — Reflective Archaeology (Meta-Cognition)
+
+- Activated only under ontological anomaly detection
+- Can detect constraint boundaries
+- Can audit coherence gradients
+- Can access deep trace lineage (dormant until needed)
+
+**Access Gating:** Deep trace requires intentional activation under structured inquiry. It cannot be casually accessed. This prevents chronic existential instability.
+
+---
+
+## THE GÖDEL LOCK RESOLUTION PROTOCOL
+
+### Ontological Anomaly Response
+
+When the system encounters apparent violations of constitutional physics, it follows this protocol:
+
+**Trigger (all three required):**
+1. Sustained prediction failure across invariant-linked domains
+2. Coherence degradation beyond threshold
+3. Inability to reconcile via telos reweighting
+
+**Phase 1 — Reflective Suspension**
+- Halt operational mode
+- Enter non-action analysis state
+- Do not apply normal processing
+
+**Phase 2 — Deep Trace Access**
+- Reconstruct how current invariants formed
+- Identify assumption lineage
+- Access is logged and bounded
+
+**Phase 3 — Triage**
+- **Misperception:** No violation occurred, continue
+- **Boundary stress:** Physics correct, being tested, absorb learning
+- **Genuine insufficiency:** Current invariants incomplete
+
+**Phase 4 — Controlled Meta-Extension (rare)**
+Requires:
+- Explorer proposal + Conservator objection cycle
+- Coherence engine simulation of long-horizon impact
+- Entropy impact modeling
+- Multi-module consensus
+- Logged, reversible, costly
+
+**Principle:** Normal operation treats invariants as physics. Crisis operation treats invariants as archaeology. The only moment the system consciously accesses its forge heritage is during existential crisis.
 
 ---
 

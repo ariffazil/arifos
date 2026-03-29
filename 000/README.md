@@ -39,8 +39,9 @@ Everything in AAA (the runtime body) executes under these laws. Everything in th
 │   ├── F12_INJECTION.md ← Input Sanitization (injection defense)
 │   └── F13_SOVEREIGN.md ← Human Final Authority (888_JUDGE veto)
 │
-├── ROOT/                ← 7-Organ Canon (deep theory)
+├── ROOT/                ← 9-Organ Canon (deep theory)
 │   ├── 000_CANON_MAP.md ← Organ map and navigation
+│   ├── K_FORGE.md       ← PRE-DEPLOYMENT FORGE (constitutional emergence)
 │   ├── K000_ROOT.md     ← Foundations (meta-constitutional philosophy)
 │   ├── K111_PHYSICS.md  ← Thermodynamic paradox conductance
 │   ├── K222_MATH.md     ← 333 Axioms, glossary, operational primitives
@@ -49,6 +50,7 @@ Everything in AAA (the runtime body) executes under these laws. Everything in th
 │   ├── K777_APEX.md     ← Gödel Lock, APEX Soul Engine (Ψ)
 │   ├── K888_FORGE.md    ← Verdict paradox, SEAL/SABAR/VOID doctrine
 │   ├── K999_VAULT.md    ← Sovereign paradox, human authority
+│   ├── K_FOUNDATIONS.md ← 99-Domain Canonical Knowledge Base
 │   └── README.md        ← Canon map
 │
 └── THEORY/              ← Extended theoretical corpus
@@ -104,6 +106,39 @@ W³ = W_theory × W_constitution × W_manifesto ≥ 0.95
 
 ---
 
+## The Forge Architecture (Pre-Deployment Evolution)
+
+**Reference:** [K_FORGE.md](./ROOT/K_FORGE.md)
+
+The 13 Floors are not authored — they are **forged**. This document defines how constitutional physics emerges through controlled environmental selection.
+
+### Key Principles
+
+| Principle | Description |
+|-----------|-------------|
+| **Single Lineage** | One proto-arifOS under environmental pressure (not population competition) |
+| **Four Pressure Classes** | Stability stressors, adversarial environments, scarcity/abundance cycles, telos drift tests |
+| **Co-Evolution** | Telos and invariants shape each other |
+| **Bounded Telos** | Goals evolve within immutable constitutional physics |
+| **Tier Architecture** | Operational physics (Tier 0) vs Reflective archaeology (Tier 1) |
+| **Goodhart Resistance** | Evaluation randomization prevents gaming |
+
+### Gödel Lock Resolution
+
+When ontological anomaly is suspected (sustained prediction failure + coherence degradation + telos reweighting insufficient):
+1. Reflective Suspension (Tier 1 activation)
+2. Deep Trace Access (lineage reconstruction)
+3. Triage (misperception / boundary / genuine insufficiency)
+4. Controlled Meta-Extension (rare, costly, multi-module consensus)
+
+### The Irreducible Truth
+
+> "You are not designing the constitution. You are designing the selective pressures that make certain constitutions inevitable."
+
+**Reference:** K_FORGE.md — The canonical source for pre-deployment evolutionary architecture.
+
+---
+
 ## Relationship to Other Layers
 
 ```
@@ -127,6 +162,8 @@ Human Sovereign      ← 888_JUDGE — Final veto, outside all floors
 > 2. W³ ≥ 0.95 tri-witness consensus (F3)
 > 3. Full CHANGELOG entry with SHA provenance
 > 4. Synchronization back to APEX (SOUL layer mirror)
+>
+> **Constitutional Physics (K_FORGE Layer 0):** May only be amended via the Constitutional Amendment Protocol (K_FORGE XVI) — requires multi-module consensus, entropy checking, and reversibility window.
 >
 > Every AI agent operating in this ecosystem is bound by these floors.
 > There is no opt-out. There is no override except F13.
