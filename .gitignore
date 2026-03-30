@@ -86,3 +86,4 @@ eigent/
 # arifOS secret files
 *.secret
 secrets/*.secret
+.coverage
