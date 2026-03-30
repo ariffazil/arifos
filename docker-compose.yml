@@ -432,8 +432,13 @@ services:
           memory: 1024M
     restart: unless-stopped
     # Host system access for machine tools (system_health, process_list, etc.)
+    # pid:host + SYS_PTRACE for process inspection via psutil
     pid: host
-    privileged: true
+    cap_add:
+      - SYS_PTRACE
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
     tmpfs:
       - /tmp:rw,size=128M
     depends_on:
@@ -494,7 +499,7 @@ services:
       GF_SERVER_DOMAIN: monitor.arifosmcp.arif-fazil.com
       GF_SECURITY_DISABLE_GRAVATAR: "true"
       GF_ANALYTICS_REPORTING_ENABLED: "false"
-      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ENABLED: "false"
       GF_AUTH_ANONYMOUS_ORG_ROLE: "Viewer"
       GF_AUTH_ANONYMOUS_ORG_NAME: "Main Org."
       GF_AUTH_BASIC_ENABLED: "true"
@@ -694,7 +699,7 @@ services:
     container_name: civ01_stirling_pdf
     init: true
     environment:
-      - DOCKER_ENABLE_SECURITY=false
+      - DOCKER_ENABLE_SECURITY=true
     volumes:
       - /opt/arifos/data/stirling:/tmp:rw
     networks:
