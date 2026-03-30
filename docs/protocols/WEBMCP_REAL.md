@@ -77,7 +77,7 @@ https://arifosmcp.arif-fazil.com/webmcp/ws               → WebSocket
 ```bash
 # On VPS
 ssh root@arif-fazil.com
-cd /srv/arifosmcp
+cd /root/arifosmcp
 git pull origin main
 docker-compose up -d --build arifosmcp
 ```

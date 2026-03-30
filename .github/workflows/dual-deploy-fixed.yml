@@ -93,8 +93,8 @@ jobs:
           script: |
             echo "🚀 Deploying arifOS Sovereign Kernel to VPS..."
             
-            # FIXED: Use /srv/arifosmcp (actual git repo), not /srv/arifOS
-            cd /srv/arifosmcp
+            # FIXED: Use /root/arifosmcp (actual git repo), not /root/arifOS
+            cd /root/arifosmcp
             
             # Pull latest code
             git fetch origin
@@ -106,7 +106,7 @@ jobs:
             # Ensure docker-compose.yml has volume mounts for new files
             if ! grep -q "server.py:/usr/src/app/server.py" docker-compose.yml; then
               echo "Adding volume mounts for new entry point files..."
-              sed -i '/- \/srv\/arifosmcp\/arifosmcp:/a\      - /srv/arifosmcp/server.py:/usr/src/app/server.py:ro\n      - /srv/arifosmcp/stdio_server.py:/usr/src/app/stdio_server.py:ro\n      - /srv/arifosmcp/fastmcp.json:/usr/src/app/fastmcp.json:ro\n      - /srv/arifosmcp/mcp.json:/usr/src/app/mcp.json:ro' docker-compose.yml
+              sed -i '/- \/srv\/arifosmcp\/arifosmcp:/a\      - /root/arifosmcp/server.py:/usr/src/app/server.py:ro\n      - /root/arifosmcp/stdio_server.py:/usr/src/app/stdio_server.py:ro\n      - /root/arifosmcp/fastmcp.json:/usr/src/app/fastmcp.json:ro\n      - /root/arifosmcp/mcp.json:/usr/src/app/mcp.json:ro' docker-compose.yml
             fi
             
             # Restart container to pick up new code

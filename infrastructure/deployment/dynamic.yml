@@ -20,4 +20,4 @@ http:
     arifos-svc:
       loadBalancer:
         servers:
-          - url: "http://arifosmcp_server:8080"
+          - url: "http://arifosmcp:8080"

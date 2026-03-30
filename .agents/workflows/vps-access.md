@@ -16,14 +16,14 @@ ssh arifos
 ### 2. Infrastructure Overview
 - **Host:** `72.62.71.199` (srv1325122.hstgr.cloud)
 - **User:** `root`
-- **Root Path:** `/opt/arifos` (Symlinked to `/srv/arifOS`)
+- **Root Path:** `/opt/arifos` (Symlinked to `/root/arifOS`)
 - **Containers:** 17 production containers (Traefik, arifosmcp, Qdrant, etc.)
 
 ### 3. Management Skills
 Use the following commands for quick status checks from your local terminal:
 - **List Containers:** `ssh arifos "docker ps --format 'table {{.Names}}\t{{.Status}}'"`
 - **System Health:** `ssh arifos "df -h /; free -m"`
-- **Logs:** `ssh arifos "docker logs -f arifosmcp_server"`
+- **Logs:** `ssh arifos "docker logs -f arifosmcp"`
 
 ### 4. Canonical Documentation
 Refer to the following files in the local repository for ground truth:

@@ -45,14 +45,14 @@ Deploy arifOS MCP to Prefect Horizon as a unified, scalable service with proper 
 │  Project: arifosmcp (Unified - All Services)                         │
 │                                                                      │
 │  ┌───────────────────────────────────────────────────────────────┐ │
-│  │  traefik_router (Edge Router)                                  │ │
+│  │  traefik (Edge Router)                                  │ │
 │  │  ├── Routes: arifosmcp.arif-fazil.com                          │ │
 │  │  ├── TLS: Let's Encrypt (auto)                                 │ │
 │  │  └── Network: arifos_trinity (shared)                          │ │
 │  └───────────────────────────────────────────────────────────────┘ │
 │                              │                                       │
 │  ┌───────────────────────────────────────────────────────────────┐ │
-│  │  arifosmcp_server (Sovereign Kernel)                           │ │
+│  │  arifosmcp (Sovereign Kernel)                           │ │
 │  │  ├── Port: 8080 (internal)                                     │ │
 │  │  ├── Tools: 11 (Full Sovereign Set)                            │ │
 │  │  ├── Vault: ✅ 999_VAULT enabled                               │ │
@@ -83,12 +83,12 @@ Deploy arifOS MCP to Prefect Horizon as a unified, scalable service with proper 
 docker ps --format "table {{.Names}}\t{{.Label \"com.docker.compose.project\"}}" > /opt/arifos/backup/container-inventory-$(date +%Y%m%d).txt
 
 # 2. Save critical data
-docker exec arifos_postgres pg_dump -U arifos_admin arifos_vault > /opt/arifos/backup/vault-$(date +%Y%m%d).sql
+docker exec postgres pg_dump -U arifos_admin arifos_vault > /opt/arifos/backup/vault-$(date +%Y%m%d).sql
 
 # 3. Stop fragmented projects
 docker compose -f /root/arifOS/docker-compose.yml down  # If using unified
-docker stop traefik_router  # From workspace
-docker stop arifosmcp_server  # From arifos
+docker stop traefik  # From workspace
+docker stop arifosmcp  # From arifos
 
 # 4. Prune old networks
 docker network prune -f
@@ -133,7 +133,7 @@ arifosmcp (infra) ────✅── workspace (traefik)
 ```
 arifosmcp (unified project)
 ├── traefik ✅
-├── arifosmcp_server ✅
+├── arifosmcp ✅
 ├── postgres ✅
 ├── redis ✅
 └── All on: arifos_trinity (single network)

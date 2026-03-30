@@ -18,7 +18,7 @@ response: |
   
   This will:
   - Trigger webhook at hook.arifosmcp.arif-fazil.com
-  - Restart the openclaw_gateway container
+  - Restart the openclaw container
   - Reload all configuration
   
   Status will be available in ~10 seconds.

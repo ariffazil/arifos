@@ -28,14 +28,14 @@ Agents must maintain awareness of the 17-container stack running on `srv1325122`
 
 | Ring | Layer | Primary Identity |
 | :--- | :--- | :--- |
-| **Law** | Kernel | `arifosmcp_server` (Port 8080) |
-| **Edge** | Filter | `traefik_router` (Ports 80/443) |
-| **Vault** | Ledger | `arifos_postgres` (Port 5432) |
-| **Mind** | Reasoning | `agent_zero_reasoner` |
+| **Law** | Kernel | `arifosmcp` (Port 8080) |
+| **Edge** | Filter | `traefik` (Ports 80/443) |
+| **Vault** | Ledger | `postgres` (Port 5432) |
+| **Mind** | Reasoning | `agent-zero` |
 | **Synapse** | LLM | `ollama_engine` |
 
 ## 3. KEY PATHS (REMOTE)
-- `/opt/arifos/` : The Source (Symlinked from `/srv/arifOS`)
+- `/opt/arifos/` : The Source (Symlinked from `/root/arifOS`)
 - `/opt/arifos/secrets/` : Governance Vault
 
 ## 4. SEAL

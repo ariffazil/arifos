@@ -12,7 +12,7 @@ echo "⏳ Waiting 10 seconds for restart..."
 sleep 10
 
 # Check status
-if docker ps 2>/dev/null | grep -q "openclaw_gateway.*healthy"; then
+if docker ps 2>/dev/null | grep -q "openclaw.*healthy"; then
     echo "✅ OpenClaw Gateway is healthy"
 else
     echo "⚠️  Check status with: docker ps | grep openclaw"

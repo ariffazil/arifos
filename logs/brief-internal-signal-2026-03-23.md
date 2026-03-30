@@ -28,7 +28,7 @@
 
 ## arifOS Ecosystem Drift (Internal Metadata)
 
-7. **(internal)** arifOS MCP kernel upgraded to v2026.03.22 — 37 tools loaded, ML floors enabled (SBERT), all 7+1 constitutional tools operational. Capability map shows: governed continuity, vault persistence, vector memory, external grounding, and local model runtime all configured. Health: responsive. *(Source: arifosmcp_server:8080/health)*
+7. **(internal)** arifOS MCP kernel upgraded to v2026.03.22 — 37 tools loaded, ML floors enabled (SBERT), all 7+1 constitutional tools operational. Capability map shows: governed continuity, vault persistence, vector memory, external grounding, and local model runtime all configured. Health: responsive. *(Source: arifosmcp:8080/health)*
 
 8. **(internal)** Workspace git log shows: makcikGPT directive added for institutional/humanities issues; Vault-999 PETRONAS evidence reorganized with descriptive titles; Gödel Lock + Traefik HTTPS security hardening completed. Sovereign documentation (SOUL, IDENTITY) now includes Genesis scar-origin narrative. *(Source: git log, AGENTS.md)*
 

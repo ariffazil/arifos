@@ -85,7 +85,7 @@
 
 ## 🏥 DEPLOY.MD STATUS
 
-**Location:** `/srv/arifOS/DEPLOY.md`  
+**Location:** `/root/arifOS/DEPLOY.md`  
 **Status:** ✅ VALID AND CURRENT
 
 ### Key Requirements Met
@@ -159,7 +159,7 @@ curl -sI https://arifosmcp.arif-fazil.com/ | grep cf-ray
 
 ### Container Status
 ```
-Name: arifosmcp_server
+Name: arifosmcp
 Status: Up 22 seconds (healthy)
 Port: 127.0.0.1:8080->8080/tcp
 Image: arifos/arifosmcp:latest

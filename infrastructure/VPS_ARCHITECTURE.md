@@ -15,7 +15,7 @@
 | **Hostname** | `srv1325122` (Legacy: `arifos-primary`) |
 | **IP Address** | `72.62.71.199` (Cloudflare Proxied) |
 | **OS Kernel** | Ubuntu 24.04.2 LTS / `6.8.0-106-generic` |
-| **Primary Path** | `/opt/arifos` (Symlinked to `/srv/arifOS`) |
+| **Primary Path** | `/opt/arifos` (Symlinked to `/root/arifOS`) |
 | **Persistent data root** | `/opt/arifos/data` |
 | **Persistent secret root** | `/opt/arifos/secrets` |
 | **Public ingress** | Traefik on `80/443` |
@@ -30,14 +30,14 @@
 
 | Container | Registry Image | Logic Layer | Exposure / Port |
 | :--- | :--- | :--- | :--- |
-| `arifosmcp_server` | `arifos/arifosmcp:latest` | **Law (Kernel)** | `8080` (Traefik SSL) |
-| `traefik_router` | `traefik:v3.6.9` | **Edge (Filter)** | `80/443` Public |
-| `openclaw_gateway` | `arifos/openclaw-forged:2026.03.14` | **Mind (Gateway)** | `18789` (Internal) |
-| `agent_zero_reasoner` | `agent0ai/agent-zero:latest` | **Mind (Reasoning)** | `18001` (Internal) |
+| `arifosmcp` | `arifos/arifosmcp:latest` | **Law (Kernel)** | `8080` (Traefik SSL) |
+| `traefik` | `traefik:v3.6.9` | **Edge (Filter)** | `80/443` Public |
+| `openclaw` | `arifos/openclaw-forged:2026.03.14` | **Mind (Gateway)** | `18789` (Internal) |
+| `agent-zero` | `agent0ai/agent-zero:latest` | **Mind (Reasoning)** | `18001` (Internal) |
 | `ollama_engine` | `ollama/ollama:latest` | **Synapse (LLM)** | `11434` (Internal) |
-| `qdrant_memory` | `qdrant/qdrant:latest` | **Hippocampus (Vector)** | `6333` (Internal) |
-| `arifos_postgres` | `postgres:16-alpine` | **Vault (Ledger)** | `5432` (Internal) |
-| `arifos_redis` | `redis:7-alpine` | **Synapse (Cache)** | `6379` (Internal) |
+| `qdrant` | `qdrant/qdrant:latest` | **Hippocampus (Vector)** | `6333` (Internal) |
+| `postgres` | `postgres:16-alpine` | **Vault (Ledger)** | `5432` (Internal) |
+| `redis` | `redis:7-alpine` | **Synapse (Cache)** | `6379` (Internal) |
 | `headless_browser` | `ghcr.io/browserless/chromium:latest` | **Perception (Reality)** | `3000` (Internal) |
 | `arifos_n8n` | `n8nio/n8n:latest` | **Metabolic (Work)** | `5678` (Traefik) |
 | `arifos_webhook` | `almir/webhook:latest` | **Trigger (Reforge)** | `9000` (Internal) |

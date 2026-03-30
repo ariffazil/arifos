@@ -69,16 +69,16 @@ Before any work, verify the foundation:
 
 ```bash
 # Check core directory integrity
-core_modules=$(ls /srv/arifosmcp/core/*.py 2>/dev/null | wc -l)
+core_modules=$(ls /root/arifosmcp/core/*.py 2>/dev/null | wc -l)
 if [ "$core_modules" -lt 10 ]; then
-  echo "[P0 CONSTITUTIONAL CRISIS] /srv/arifosmcp/core/ appears broken ($core_modules modules, expected 20+)"
+  echo "[P0 CONSTITUTIONAL CRISIS] /root/arifosmcp/core/ appears broken ($core_modules modules, expected 20+)"
   echo "[ACTION] HALT. Report to Arif. Do not proceed."
   echo "[RECOVERY] Check feature branches: git branch -a | grep feature/"
   return 1 2>/dev/null || exit 1
 fi
 
 # Check pytest can collect tests (structural sanity)
-cd /srv/arifosmcp && pytest --collect-only -q 2>/dev/null | tail -1 && {
+cd /root/arifosmcp && pytest --collect-only -q 2>/dev/null | tail -1 && {
   echo "[OK] Constitutional structure verified."
 } || {
   echo "[WARNING] pytest collection failed. Foundation may be unstable."
@@ -91,7 +91,7 @@ cd /srv/arifosmcp && pytest --collect-only -q 2>/dev/null | tail -1 && {
 # Verify critical floors are loadable
 python3 -c "
 import sys
-sys.path.insert(0, '/srv/arifosmcp')
+sys.path.insert(0, '/root/arifosmcp')
 try:
     from core.shared.floors import THRESHOLDS
     floors_ok = len(THRESHOLDS) >= 13

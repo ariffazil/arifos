@@ -96,7 +96,7 @@ status:
 	@docker ps --filter "name=arifosmcp" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
 	@echo ""
 	@echo "💾 Resource Usage:"
-	@docker stats --no-stream --format "table {{.Name}}\t{{.CPUPerc}}\t{{.MemUsage}}" arifosmcp_server 2>/dev/null || echo "Container not running"
+	@docker stats --no-stream --format "table {{.Name}}\t{{.CPUPerc}}\t{{.MemUsage}}" arifosmcp 2>/dev/null || echo "Container not running"
 
 # Health check
 health:
@@ -106,11 +106,11 @@ health:
 # OpenClaw doctor
 doctor:
 	@echo "🏥 Running OpenClaw Doctor..."
-	@docker exec openclaw_gateway openclaw doctor 2>&1 || echo "Doctor not available"
+	@docker exec openclaw openclaw doctor 2>&1 || echo "Doctor not available"
 
 # Follow logs
 logs:
-	@docker logs -f arifosmcp_server
+	@docker logs -f arifosmcp
 
 # ============================================================================
 # LOW-ENTROPY MAINTENANCE (F4 Entropy Control)
@@ -126,8 +126,8 @@ maintenance:
 setup-cron:
 	@echo "⚙️  Setting up automated cron jobs..."
 	@echo "# arifOS Low-Entropy Maintenance" | sudo tee /etc/cron.d/arifos-maintenance
-	@echo "*/5 * * * * root /srv/arifosmcp/scripts/low-entropy-cron.sh health >> /var/log/arifos-cron.log 2>&1" | sudo tee -a /etc/cron.d/arifos-maintenance
-	@echo "0 */6 * * * root /srv/arifosmcp/scripts/low-entropy-cron.sh all >> /var/log/arifos-cron.log 2>&1" | sudo tee -a /etc/cron.d/arifos-maintenance
+	@echo "*/5 * * * * root /root/arifosmcp/scripts/low-entropy-cron.sh health >> /var/log/arifos-cron.log 2>&1" | sudo tee -a /etc/cron.d/arifos-maintenance
+	@echo "0 */6 * * * root /root/arifosmcp/scripts/low-entropy-cron.sh all >> /var/log/arifos-cron.log 2>&1" | sudo tee -a /etc/cron.d/arifos-maintenance
 	@echo "✅ Cron jobs installed:"
 	@echo "   • Health check: every 5 minutes"
 	@echo "   • Full maintenance: every 6 hours"
@@ -241,7 +241,7 @@ deploy-help:
 	@echo "  make deploy-gh"
 	@echo ""
 	@echo "Emergency rollback:"
-	@echo "  ssh root@arif-fazil.com 'cd /srv/arifosmcp && docker-compose restart'"
+	@echo "  ssh root@arif-fazil.com 'cd /root/arifosmcp && docker-compose restart'"
 	@echo ""
 
 # ============================================================================

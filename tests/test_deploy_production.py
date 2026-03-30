@@ -37,7 +37,7 @@ def test_build_vps_overlay_script_contains_full_build_and_mount_check():
         version="2026.02.28",
         git_sha="527f8e18",
         base_image="arifos/arifosmcp:latest",
-        container_name="arifosmcp_server",
+        container_name="arifosmcp",
         candidate_name="arifosmcp_candidate_overlay",
         candidate_port=18089,
         env_file=".env.docker",

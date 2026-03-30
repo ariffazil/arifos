@@ -31,7 +31,7 @@ No key rotation or production config edits from AI — diff drafts only.
 ## CRITICAL: You Are ON the VPS
 
 This machine IS the production VPS (`srv1325122`). No SSH needed. Manage Docker directly.
-Deploy path: `/srv/arifosmcp/` (symlink from `/srv/arifOS/`) | Disk: 85GB/193GB used (44%)
+Deploy path: `/root/arifosmcp/` (symlink from `/root/arifOS/`) | Disk: 85GB/193GB used (44%)
 Git HEAD: `1af6d53b` — VPS = GitHub = ALIGNED
 
 ---
@@ -95,7 +95,7 @@ bun run <script>
 
 ### Server Management (you are already on the VPS)
 ```bash
-cd /srv/arifosmcp
+cd /root/arifosmcp
 
 # GitHub sync (no SSH key — use HTTPS + token)
 GITHUB_TOKEN=$(grep GITHUB_TOKEN .env | head -1 | cut -d= -f2)
@@ -103,7 +103,7 @@ git pull "https://ariffazil:${GITHUB_TOKEN}@github.com/ariffazil/arifosmcp.git" 
 git push "https://ariffazil:${GITHUB_TOKEN}@github.com/ariffazil/arifosmcp.git" main
 
 # Container management
-docker restart arifosmcp_server               # reload code (volume-mounted, instant)
+docker restart arifosmcp               # reload code (volume-mounted, instant)
 docker compose up -d --no-deps <service>      # restart single container
 docker compose logs -f <service>              # tail logs
 docker ps                                     # list running containers
@@ -153,7 +153,7 @@ Built-in skills: `kimi-cli-help`, `skill-creator`
 
 ## arifosmcp Codebase Architecture
 
-**Path**: `/srv/arifosmcp/` | **Language**: Python 3.12 | **Framework**: FastAPI + FastMCP
+**Path**: `/root/arifosmcp/` | **Language**: Python 3.12 | **Framework**: FastAPI + FastMCP
 
 ### Core Layout
 ```
@@ -175,7 +175,7 @@ core/
 aaa_mcp/                 # FastMCP tool definitions (the 8 public tools)
 ```
 
-### Deployment Commands (run from `/srv/arifosmcp/`)
+### Deployment Commands (run from `/root/arifosmcp/`)
 ```bash
 make fast-deploy         # 2–3 min — code changes only (uses layer cache)
 make reforge             # 10–15 min — full rebuild (use after deps/Dockerfile change)

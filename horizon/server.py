@@ -48,7 +48,7 @@ ARCHITECTURE
            ▼
 ┌─────────────────────────┐
 │  Your VPS               │  🔥 Private (11 tools, sovereign)
-│  arifosmcp_server       │     Full constitutional kernel
+│  arifosmcp       │     Full constitutional kernel
 └─────────────────────────┘
 
 TOOLS (8 Public-Safe)

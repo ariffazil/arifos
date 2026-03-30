@@ -83,7 +83,7 @@ git push origin main
 ssh root@arif-fazil.com
 
 # Navigate to deployment directory
-cd /srv/arifosmcp
+cd /root/arifosmcp
 
 # Pull latest code
 git pull origin main
@@ -93,7 +93,7 @@ docker-compose down arifosmcp
 docker-compose up -d --build arifosmcp
 
 # Check logs
-docker logs -f arifosmcp_server
+docker logs -f arifosmcp
 ```
 
 ### Step 3: Verify All Protocols
@@ -146,7 +146,7 @@ curl https://arifosmcp.arif-fazil.com/webmcp | head -20
 **Solution**: Check Traefik routing
 ```bash
 # Check if routes are registered
-docker exec traefik_router cat /etc/traefik/dynamic/docker.json | grep a2a
+docker exec traefik cat /etc/traefik/dynamic/docker.json | grep a2a
 
 # Restart traefik if needed
 docker-compose restart traefik
@@ -157,7 +157,7 @@ docker-compose restart traefik
 **Solution**: Check if real_webmcp.py is imported correctly
 ```bash
 # Check logs
-docker logs arifosmcp_server 2>&1 | grep -i "webmcp\|a2a"
+docker logs arifosmcp 2>&1 | grep -i "webmcp\|a2a"
 
 # Should see:
 # "✅ Real WebMCP Gateway mounted at /webmcp"

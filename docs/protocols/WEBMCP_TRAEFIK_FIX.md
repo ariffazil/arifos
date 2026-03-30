@@ -98,13 +98,13 @@ grep -A 5 "traefik.http.routers.webmcp.rule" docker-compose.yml
 docker compose up -d --no-deps --force-recreate arifosmcp aclip-cai
 
 # 5. Restart Traefik to force route rediscovery
-docker restart traefik_router
+docker restart traefik
 
 # 6. Wait for propagation
 sleep 15
 
 # 7. Verify routes are registered
-docker logs traefik_router 2>&1 | grep -E "(arifosmcp|webmcp)"
+docker logs traefik 2>&1 | grep -E "(arifosmcp|webmcp)"
 ```
 
 ---
@@ -160,7 +160,7 @@ curl -s https://arifosmcp.arif-fazil.com/webmcp/tools | jq '.tools | length'
 
 **Check 1: Traefik route detection**
 ```bash
-docker logs traefik_router 2>&1 | grep -E "(Adding route|Provider configuration)"
+docker logs traefik 2>&1 | grep -E "(Adding route|Provider configuration)"
 ```
 
 Should see lines like:
@@ -192,7 +192,7 @@ curl -X POST "https://api.cloudflare.com/client/v4/zones/{ZONE_ID}/purge_cache" 
 ```bash
 docker compose down
 docker compose up -d
-docker restart traefik_router
+docker restart traefik
 ```
 
 ---

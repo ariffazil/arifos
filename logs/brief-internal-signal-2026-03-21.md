@@ -28,7 +28,7 @@
 
 ## arifOS Ecosystem Drift (Internal Metadata)
 
-7. **(internal)** arifOS MCP server upgraded to v2026.03.20 — tools_loaded=37 (expanded from 13), ML floors enabled with SBERT method, capability map shows all credential classes configured. Container healthy for 6+ hours. (Source: arifosmcp_server:8080/health)
+7. **(internal)** arifOS MCP server upgraded to v2026.03.20 — tools_loaded=37 (expanded from 13), ML floors enabled with SBERT method, capability map shows all credential classes configured. Container healthy for 6+ hours. (Source: arifosmcp:8080/health)
 
 8. **(internal)** OpenClaw gateway running arifos/openclaw-forged:2026.03.14 — 16 containers operational including AgentZero reasoner, n8n, Qdrant, Ollama. All services report healthy status. (Source: Docker status)
 

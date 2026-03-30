@@ -13,7 +13,7 @@
 - This VPS is purpose-built for AI agent management
 - Arif's API keys are free/limited tier — low financial risk
 - Docker and all services are managed directly via `docker` / `docker compose` commands
-- Production deploy path: `/srv/arifosmcp/` (symlinked from `/srv/arifOS/`)
+- Production deploy path: `/root/arifosmcp/` (symlinked from `/root/arifOS/`)
 
 ---
 
@@ -56,7 +56,7 @@ GitHub: `ariffazil` | Website: https://arif-fazil.com
 - **Live endpoint**: https://arifosmcp.arif-fazil.com/mcp
 - **Current version**: `2026.03.13-FORGED` (git: `1af6d53b`)
 - **PyPI**: `arifosmcp`
-- **VPS path**: `/srv/arifosmcp/`
+- **VPS path**: `/root/arifosmcp/`
 - **Transport**: streamable-http (MCP 2025-11-25 spec)
 - **Auth**: Open — no API key required (intentional, low friction for adoption)
 
@@ -104,15 +104,15 @@ GitHub: `ariffazil` | Website: https://arif-fazil.com
 
 **Server**: Single VPS, 193GB disk (85GB used as of 2026-03-12)
 **You are already on this server.** No SSH needed.
-**Deploy path**: `/srv/arifosmcp/` (symlink → `/srv/arifOS/`)
-**Compose file**: `/srv/arifosmcp/docker-compose.yml`
+**Deploy path**: `/root/arifosmcp/` (symlink → `/root/arifOS/`)
+**Compose file**: `/root/arifosmcp/docker-compose.yml`
 **Disk**: 193GB total, 85GB used (44%), 109GB free — healthy
 
 ### Git Sync (as of 2026-03-13)
 - VPS HEAD: `1af6d53b` = GitHub main HEAD = **ALIGNED**
 - Push/pull uses HTTPS + token (no SSH key on VPS):
   ```bash
-  GITHUB_TOKEN=$(grep GITHUB_TOKEN /srv/arifosmcp/.env | head -1 | cut -d= -f2)
+  GITHUB_TOKEN=$(grep GITHUB_TOKEN /root/arifosmcp/.env | head -1 | cut -d= -f2)
   git pull "https://ariffazil:${GITHUB_TOKEN}@github.com/ariffazil/arifosmcp.git" main
   ```
 
@@ -122,15 +122,15 @@ All 12 containers running. **All healthy.** AgentZero initialized.
 
 | Container | Status | Role |
 |-----------|--------|------|
-| `arifosmcp_server` | ✅ healthy | MCP API (FastAPI + FastMCP) |
-| `traefik_router` | ✅ up | Reverse proxy / TLS — Traefik v3.6.9 |
-| `arifos_postgres` | ✅ healthy | VAULT999 audit ledger — bound to 127.0.0.1 |
-| `arifos_redis` | ✅ healthy | Session cache — bound to 127.0.0.1 |
-| `qdrant_memory` | ✅ up | Vector DB (BGE-M3, 768-dim) |
+| `arifosmcp` | ✅ healthy | MCP API (FastAPI + FastMCP) |
+| `traefik` | ✅ up | Reverse proxy / TLS — Traefik v3.6.9 |
+| `postgres` | ✅ healthy | VAULT999 audit ledger — bound to 127.0.0.1 |
+| `redis` | ✅ healthy | Session cache — bound to 127.0.0.1 |
+| `qdrant` | ✅ up | Vector DB (BGE-M3, 768-dim) |
 | `ollama_engine` | ✅ up | Local LLMs: qwen2.5:3b, bge-m3, nomic-embed-text |
-| `openclaw_gateway` | ✅ healthy | Sandboxed agent execution + Telegram bot |
+| `openclaw` | ✅ healthy | Sandboxed agent execution + Telegram bot |
 | `headless_browser` | ✅ healthy | Headless Chrome (Browserless) |
-| `agent_zero_reasoner` | ✅ up | Reasoning agent |
+| `agent-zero` | ✅ up | Reasoning agent |
 | `arifos_n8n` | ✅ up | Workflow automation |
 | `arifos_prometheus` | ✅ up | Metrics — scraping arifos-mcp ✅ |
 | `arifos_grafana` | ✅ healthy | Monitoring dashboards |
@@ -192,7 +192,7 @@ All 12 containers running. **All healthy.** AgentZero initialized.
 
 ## Full VPS Architecture Doc
 
-→ `/srv/arifosmcp/infrastructure/VPS_ARCHITECTURE.md`
+→ `/root/arifosmcp/infrastructure/VPS_ARCHITECTURE.md`
 
 This is the single source of truth for VPS state. All agents must update it after significant changes.
 

@@ -3,7 +3,7 @@
 ## ✅ STATUS: CONFIGURED AND LIVE
 
 **Time:** 2026-03-09  
-**Container:** openclaw_gateway (healthy)  
+**Container:** openclaw (healthy)  
 **Access Level:** ROOT (full system access)  
 **Sandbox:** OFF  
 **Auto-approve:** ON
@@ -69,9 +69,9 @@ id
 ### Docker Management
 ```
 docker ps
-docker restart arifosmcp_server
+docker restart arifosmcp
 docker-compose up -d
-docker logs openclaw_gateway --tail 50
+docker logs openclaw --tail 50
 ```
 
 ### File Operations
@@ -146,7 +146,7 @@ sudo uptime
 
 ### Restart Services
 ```
-sudo docker restart arifosmcp_server
+sudo docker restart arifosmcp
 sudo systemctl restart postgresql
 ```
 
@@ -236,8 +236,8 @@ To restore sandbox and security restrictions:
 
 ```bash
 # SSH to your VPS
-docker exec openclaw_gateway jq '.agents.defaults.sandbox.mode = "all"' /root/.openclaw/openclaw.json > /tmp/oc.json && mv /tmp/oc.json /root/.openclaw/openclaw.json
-docker restart openclaw_gateway
+docker exec openclaw jq '.agents.defaults.sandbox.mode = "all"' /root/.openclaw/openclaw.json > /tmp/oc.json && mv /tmp/oc.json /root/.openclaw/openclaw.json
+docker restart openclaw
 ```
 
 Or via Telegram:

@@ -96,7 +96,7 @@ python scripts/deploy.py --environment production --rollback
 
 # Or SSH to server and:
 ssh root@arif-fazil.com
-cd /srv/arifosmcp
+cd /root/arifosmcp
 docker-compose down
 git reset --hard <previous-sha>
 docker-compose up -d
@@ -127,7 +127,7 @@ DEPLOY_TELEGRAM_CHAT_ID=your_chat_id
 Target server must have:
 
 - Docker & Docker Compose installed
-- Git repository at `/srv/arifosmcp`
+- Git repository at `/root/arifosmcp`
 - SSH access for deploy user
 - Ports 80/443 available
 
@@ -163,7 +163,7 @@ python scripts/deploy.py --skip-tests
 ```bash
 # Check server logs
 ssh root@arif-fazil.com
-docker logs arifosmcp_server
+docker logs arifosmcp
 
 # Check container status
 docker-compose ps
@@ -266,7 +266,7 @@ cat deployment/manifests/deploy_production_20260315_063000.json
 ssh root@arif-fazil.com
 
 # 2. Emergency restart
-cd /srv/arifosmcp
+cd /root/arifosmcp
 docker-compose down
 docker-compose up -d
 
@@ -279,7 +279,7 @@ curl https://arifosmcp.arif-fazil.com/health
 ```bash
 # Restore from backup
 ssh root@arif-fazil.com
-cd /srv/arifosmcp
+cd /root/arifosmcp
 docker-compose exec postgres pg_restore ...
 ```
 

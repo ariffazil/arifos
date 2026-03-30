@@ -99,7 +99,7 @@ sudo shutdown -h now
 ### Docker Commands
 ```
 docker ps
-docker restart arifosmcp_server
+docker restart arifosmcp
 docker-compose up -d
 ```
 
@@ -181,7 +181,7 @@ arifOS still applies F1-F13 governance to all operations.
 
 ### 3. Audit Trail
 All commands are logged to:
-- OpenClaw logs: `docker logs openclaw_gateway`
+- OpenClaw logs: `docker logs openclaw`
 - Session store: `/root/.openclaw/agents/main/sessions/`
 
 ### 4. Venice AI
@@ -202,8 +202,8 @@ sudo uptime
 
 **Restart services:**
 ```
-sudo systemctl restart arifosmcp_server
-sudo docker restart openclaw_gateway
+sudo systemctl restart arifosmcp
+sudo docker restart openclaw
 ```
 
 **Update system:**
@@ -214,7 +214,7 @@ sudo apt update && sudo apt upgrade -y
 **Check logs:**
 ```
 sudo tail -f /var/log/syslog
-sudo journalctl -u arifosmcp_server -f
+sudo journalctl -u arifosmcp -f
 ```
 
 **File operations:**
@@ -232,13 +232,13 @@ To restore sandbox and security:
 
 ```bash
 # Restore from backup
-docker exec openclaw_gateway cp /root/.openclaw/openclaw.json.pre-exec-* /root/.openclaw/openclaw.json
+docker exec openclaw cp /root/.openclaw/openclaw.json.pre-exec-* /root/.openclaw/openclaw.json
 
 # Or manually set sandbox back to "all"
-docker exec openclaw_gateway jq '.agents.defaults.sandbox.mode = "all"' /root/.openclaw/openclaw.json > /tmp/oc.json && mv /tmp/oc.json /root/.openclaw/openclaw.json
+docker exec openclaw jq '.agents.defaults.sandbox.mode = "all"' /root/.openclaw/openclaw.json > /tmp/oc.json && mv /tmp/oc.json /root/.openclaw/openclaw.json
 
 # Restart
-docker restart openclaw_gateway
+docker restart openclaw
 ```
 
 ---

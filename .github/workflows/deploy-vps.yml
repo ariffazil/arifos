@@ -33,7 +33,7 @@ permissions:
   contents: read
 
 env:
-  VPS_PATH: /srv/arifosmcp
+  VPS_PATH: /root/arifosmcp
   SSH_PORT: ${{ secrets.VPS_SSH_PORT || '22' }}
   TARGET_HOST: ${{ secrets.VPS_TAILSCALE_IP || secrets.VPS_HOST }}
   DEPLOY_STRATEGY: ${{ github.event.inputs.strategy || 'fast' }}
@@ -141,18 +141,18 @@ jobs:
       - name: Sync code on VPS
         run: |
           ssh -o ConnectTimeout=15 -p ${SSH_PORT} ${{ secrets.VPS_USER }}@${TARGET_HOST} \
-            "cd /srv/arifosmcp && git fetch origin aaa-mcp-induction && git checkout aaa-mcp-induction && git pull --ff-only origin aaa-mcp-induction && git submodule update --init --recursive && echo 'Code synced (with submodule)'"
+            "cd /root/arifosmcp && git fetch origin aaa-mcp-induction && git checkout aaa-mcp-induction && git pull --ff-only origin aaa-mcp-induction && git submodule update --init --recursive && echo 'Code synced (with submodule)'"
         timeout-minutes: 5
 
       - name: Pre-flight checks on VPS
         run: |
           ssh -o ConnectTimeout=15 -p ${SSH_PORT} ${{ secrets.VPS_USER }}@${TARGET_HOST} \
-            "cd /srv/arifosmcp && if grep -qE 'hf_[A-Za-z0-9]{20,}' docker-compose.yml 2>/dev/null; then echo '888 HOLD - hardcoded secret'; exit 1; fi && if [ ! -f /opt/arifos/secrets/governance.secret ]; then echo '888 HOLD - governance.secret missing'; exit 1; fi && if [ ! -f .env.docker ]; then echo '888 HOLD - .env.docker missing'; exit 1; fi && echo 'Pre-flight OK'"
+            "cd /root/arifosmcp && if grep -qE 'hf_[A-Za-z0-9]{20,}' docker-compose.yml 2>/dev/null; then echo '888 HOLD - hardcoded secret'; exit 1; fi && if [ ! -f /opt/arifos/secrets/governance.secret ]; then echo '888 HOLD - governance.secret missing'; exit 1; fi && if [ ! -f .env.docker ]; then echo '888 HOLD - .env.docker missing'; exit 1; fi && echo 'Pre-flight OK'"
 
       - name: Build and deploy arifosmcp
         run: |
           ssh -o ConnectTimeout=15 -p ${SSH_PORT} ${{ secrets.VPS_USER }}@${TARGET_HOST} \
-            "cd /srv/arifosmcp && sudo docker system prune -f --volumes=false && export DOCKER_BUILDKIT=1 && sudo docker compose --env-file .env.docker -f docker-compose.yml up -d --build arifosmcp && echo 'Deploy issued'"
+            "cd /root/arifosmcp && sudo docker system prune -f --volumes=false && export DOCKER_BUILDKIT=1 && sudo docker compose --env-file .env.docker -f docker-compose.yml up -d --build arifosmcp && echo 'Deploy issued'"
         timeout-minutes: 35
 
       - name: Wait for startup
@@ -161,14 +161,14 @@ jobs:
       - name: Health check — infrastructure
         run: |
           ssh -o ConnectTimeout=12 -p ${SSH_PORT} ${{ secrets.VPS_USER }}@${TARGET_HOST} \
-            "sudo docker exec arifos_postgres pg_isready -U arifos_admin -d arifos_vault 2>/dev/null && echo 'PostgreSQL OK' || echo 'PostgreSQL not ready'; sudo docker exec arifos_redis redis-cli ping 2>/dev/null | grep -q PONG && echo 'Redis OK' || echo 'Redis not ready'"
+            "sudo docker exec postgres pg_isready -U arifos_admin -d arifos_vault 2>/dev/null && echo 'PostgreSQL OK' || echo 'PostgreSQL not ready'; sudo docker exec redis redis-cli ping 2>/dev/null | grep -q PONG && echo 'Redis OK' || echo 'Redis not ready'"
 
       - name: Health check — arifosmcp server
         run: |
           MAX=18
           for i in $(seq 1 $MAX); do
             if ssh -o ConnectTimeout=12 -p ${SSH_PORT} ${{ secrets.VPS_USER }}@${TARGET_HOST} \
-               "sudo docker exec arifosmcp_server curl -fsS --max-time 3 http://localhost:8080/health" > /dev/null 2>&1; then
+               "sudo docker exec arifosmcp curl -fsS --max-time 3 http://localhost:8080/health" > /dev/null 2>&1; then
               echo "arifosmcp healthy (attempt $i/${MAX})"
               exit 0
             fi
@@ -177,7 +177,7 @@ jobs:
           done
           echo "Health check failed"
           ssh -o ConnectTimeout=12 -p ${SSH_PORT} ${{ secrets.VPS_USER }}@${TARGET_HOST} \
-            "sudo docker logs arifosmcp_server --tail 50" || true
+            "sudo docker logs arifosmcp --tail 50" || true
           exit 1
         timeout-minutes: 6
 
@@ -194,4 +194,4 @@ jobs:
         run: |
           echo "Deployment failed - collecting logs"
           ssh -o ConnectTimeout=12 -p ${SSH_PORT} ${{ secrets.VPS_USER }}@${TARGET_HOST} \
-            "sudo docker ps -a | grep arifos || true; sudo docker logs arifosmcp_server --tail 100 2>&1 || true; sudo docker compose --env-file /srv/arifosmcp/.env.docker restart arifosmcp || true" || true
+            "sudo docker ps -a | grep arifos || true; sudo docker logs arifosmcp --tail 100 2>&1 || true; sudo docker compose --env-file /root/arifosmcp/.env.docker restart arifosmcp || true" || true

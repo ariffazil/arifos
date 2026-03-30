@@ -132,7 +132,7 @@ It answers the question:
 
 | Layer | Location | Purpose |
 |-------|----------|---------|
-| **Qdrant** | `qdrant_memory:6333` | Cross-agent semantic search |
+| **Qdrant** | `qdrant:6333` | Cross-agent semantic search |
 | **sqlite-vec** | OpenClaw workspace | Per-agent memory |
 | **Update** | Weekly cron sync | HF → VPS |
 
@@ -288,7 +288,7 @@ LAW (response) →
 
 ```cron
 # Every Sunday 8AM MYT (00:00 UTC)
-0 0 * * 0 root /srv/arifosmcp/scripts/sync-aaa-hf.sh
+0 0 * * 0 root /root/arifosmcp/scripts/sync-aaa-hf.sh
 ```
 
 ### 6.2 Sync Steps
@@ -305,7 +305,7 @@ LAW (response) →
 ### 6.3 Manual Sync
 
 ```bash
-/srv/arifosmcp/scripts/sync-aaa-hf.sh
+/root/arifosmcp/scripts/sync-aaa-hf.sh
 ```
 
 ---
@@ -326,9 +326,9 @@ LAW (response) →
 
 ```
 OLLAMA_HOST=http://ollama_engine:11434
-QDRANT_HOST=http://qdrant_memory:6333
+QDRANT_HOST=http://qdrant:6333
 OPENCLAW_MEMORY=sqlite-vec
-HF_DATASET=/srv/arifosmcp/AAA-hf-staging
+HF_DATASET=/root/arifosmcp/AAA-hf-staging
 ```
 
 ---

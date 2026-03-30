@@ -139,7 +139,7 @@ execute_strategy() {
 }
 
 # Main
-cd /srv/arifosmcp
+cd /root/arifosmcp
 
 if [ "$1" == "--auto" ]; then
     determine_strategy

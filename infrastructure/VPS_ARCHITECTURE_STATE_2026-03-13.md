@@ -57,14 +57,14 @@ uncertainty:     0.05 (F7 Humility)
 
 | Container | Port | Purpose | Health |
 |-----------|------|---------|--------|
-| `arifosmcp_server` | 8080 | Constitutional MCP Kernel | ✅ HEALTHY |
-| `openclaw_gateway` | 18789 | Multi-channel AI Gateway | ✅ HEALTHY |
-| `qdrant_memory` | 6333-6334 | Vector Store (BGE-M3) | ✅ HEALTHY |
+| `arifosmcp` | 8080 | Constitutional MCP Kernel | ✅ HEALTHY |
+| `openclaw` | 18789 | Multi-channel AI Gateway | ✅ HEALTHY |
+| `qdrant` | 6333-6334 | Vector Store (BGE-M3) | ✅ HEALTHY |
 | `ollama_engine` | 11434 | Local LLM Runtime | ✅ HEALTHY |
-| `arifos_postgres` | 5432 | VAULT999 Ledger | ✅ HEALTHY |
-| `arifos_redis` | 6379 | Session Cache | ✅ HEALTHY |
+| `postgres` | 5432 | VAULT999 Ledger | ✅ HEALTHY |
+| `redis` | 6379 | Session Cache | ✅ HEALTHY |
 | `headless_browser` | 3000 | Reality Fetch Fallback | ✅ HEALTHY |
-| `traefik_router` | 80/443 | Edge Router | ✅ HEALTHY |
+| `traefik` | 80/443 | Edge Router | ✅ HEALTHY |
 | `arifos_n8n` | 5678 | Workflow Automation | ✅ HEALTHY |
 | `arifos_grafana` | 3000 | Observability | ✅ HEALTHY |
 | `arifos_prometheus` | 9090 | Metrics | ✅ HEALTHY |
@@ -160,7 +160,7 @@ curl http://localhost:8080/health
 # → {"status":"healthy","tools_loaded":12}
 
 # Bootstrap Test
-docker exec arifosmcp_server python3 -c "
+docker exec arifosmcp python3 -c "
 import asyncio
 from arifosmcp.runtime.tools import init_anchor_state
 result = asyncio.run(init_anchor_state(declared_name='Arif'))
@@ -168,7 +168,7 @@ print(result.verdict)  # Verdict.SEAL
 "
 
 # 3E Schema Test
-docker exec arifosmcp_server python3 -c "
+docker exec arifosmcp python3 -c "
 from arifosmcp.runtime.models import RuntimeEnvelope
 env = RuntimeEnvelope(tool='test', stage='000_INIT')
 print(env.intelligence_state['entropy'])  # MANAGEABLE
@@ -181,11 +181,11 @@ print(env.intelligence_state['entropy'])  # MANAGEABLE
 
 | Path | Purpose |
 |------|---------|
-| `/srv/arifOS` | Symlink to /srv/arifosmcp |
-| `/srv/arifosmcp` | Main codebase |
-| `/srv/arifosmcp/arifosmcp/data/VAULT999` | Immutable ledger |
-| `/srv/arifosmcp/core/contracts/responses.py` | MGI Contracts |
-| `/srv/arifosmcp/arifosmcp/intelligence/tools/vector_bridge.py` | Vector sync |
+| `/root/arifOS` | Symlink to /root/arifosmcp |
+| `/root/arifosmcp` | Main codebase |
+| `/root/arifosmcp/arifosmcp/data/VAULT999` | Immutable ledger |
+| `/root/arifosmcp/core/contracts/responses.py` | MGI Contracts |
+| `/root/arifosmcp/arifosmcp/intelligence/tools/vector_bridge.py` | Vector sync |
 
 ---
 
@@ -193,16 +193,16 @@ print(env.intelligence_state['entropy'])  # MANAGEABLE
 
 ```bash
 # Restart MCP
-cd /srv/arifOS && docker restart arifosmcp_server
+cd /root/arifOS && docker restart arifosmcp
 
 # View logs
-docker logs arifosmcp_server --tail 50
+docker logs arifosmcp --tail 50
 
 # Health check
 curl http://localhost:8080/health
 
 # Test bootstrap
-docker exec arifosmcp_server python3 -c "
+docker exec arifosmcp python3 -c "
 import asyncio
 from arifosmcp.runtime.tools import init_anchor_state
 asyncio.run(init_anchor_state(declared_name='Test'))

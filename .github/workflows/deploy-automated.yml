@@ -281,7 +281,7 @@ jobs:
         run: |
           echo "🚨 Deployment failed, initiating rollback..."
           ssh ${{ env.DEPLOY_USER }}@${{ env.DEPLOY_HOST }} "
-            cd /srv/arifosmcp && 
+            cd /root/arifosmcp && 
             docker-compose down && 
             docker-compose up -d
           " || echo "Rollback command executed"

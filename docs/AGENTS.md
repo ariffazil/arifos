@@ -206,7 +206,7 @@ docker compose up -d
 curl http://localhost:8080/health
 
 # View logs
-docker logs -f arifosmcp_server
+docker logs -f arifosmcp
 
 # Makefile shortcuts
 make fast-deploy      # Fast redeploy (2-3 min)

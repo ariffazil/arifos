@@ -11,7 +11,7 @@
 ## 1. New Tool — forge_office_document (canonical wiring)
 
 Create file (exact path for PR):
-`/srv/arifosmcp/arifosmcp/runtime/tools/office_forge/forge_office_document.py`
+`/root/arifosmcp/arifosmcp/runtime/tools/office_forge/forge_office_document.py`
 
 ```python
 from mcp import tool
@@ -83,11 +83,11 @@ async def forge_office_document(
 
         return result
 2. Register tool (one line)
-Bashecho 'from .office_forge.forge_office_document import forge_office_document' >> /srv/arifosmcp/arifosmcp/runtime/tools/__init__.py
+Bashecho 'from .office_forge.forge_office_document import forge_office_document' >> /root/arifosmcp/arifosmcp/runtime/tools/__init__.py
 3. Branch & Deploy (safe, reversible)
-Bashcd /srv/arifosmcp
+Bashcd /root/arifosmcp
 git checkout -b feature/civ-infra-forge-v1
 git add arifosmcp/runtime/tools/office_forge/forge_office_document.py arifosmcp/runtime/tools/__init__.py
 git commit -m "feat(forge-v1): hardened office forge — blob-only, full constitutional loop, no auto-trigger"
 git push origin feature/civ-infra-forge-v1
-docker restart arifosmcp_server
+docker restart arifosmcp

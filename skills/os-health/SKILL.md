@@ -21,7 +21,7 @@ echo "--- CPU ---" && grep -c ^processor /proc/cpuinfo && cat /proc/loadavg && \
 echo "--- RAM ---" && free -h && \
 echo "--- DISK ---" && df -h / && \
 echo "--- CONTAINERS ---" && docker ps --format "table {{.Names}}\t{{.Status}}" 2>/dev/null && \
-echo "--- arifOS ---" && curl -sf http://arifosmcp_server:8080/health | python3 -c "import sys,json; d=json.load(sys.stdin); print(f\"status={d['status']} tools={d.get('tools_loaded','?')}\")" 2>/dev/null
+echo "--- arifOS ---" && curl -sf http://arifosmcp:8080/health | python3 -c "import sys,json; d=json.load(sys.stdin); print(f\"status={d['status']} tools={d.get('tools_loaded','?')}\")" 2>/dev/null
 ```
 
 ---
@@ -48,14 +48,14 @@ done
 ```bash
 # From container to arifOS MCP endpoint
 dd if=/dev/urandom bs=1M count=5 2>/dev/null | \
-  curl -s -X POST http://arifosmcp_server:8080/health \
+  curl -s -X POST http://arifosmcp:8080/health \
   -H "Content-Type: application/octet-stream" \
   --data-binary @- -o /dev/null -w "upload: %{speed_upload} B/s\n"
 ```
 
 ### Quick ping test (DNS resolution speed)
 ```bash
-for HOST in arifosmcp_server headless_browser qdrant_memory ollama_engine arifos-postgres; do
+for HOST in arifosmcp headless_browser qdrant ollama_engine arifos-postgres; do
   TIME=$(curl -sf -o /dev/null -w "%{time_namelookup}+%{time_connect}" http://${HOST} 2>/dev/null || echo "unreachable")
   echo "${HOST}: ${TIME}s"
 done

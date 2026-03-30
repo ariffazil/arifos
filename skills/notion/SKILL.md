@@ -24,7 +24,7 @@ API: `https://api.notion.com/v1` | Auth: `NOTION_API_KEY` (Integration Token)
 4. Add the token to VPS:
    ```bash
    # On VPS host:
-   echo 'NOTION_API_KEY=secret_YOUR_TOKEN_HERE' >> /srv/arifOS/.env
+   echo 'NOTION_API_KEY=secret_YOUR_TOKEN_HERE' >> /root/arifOS/.env
    docker compose up -d --force-recreate openclaw
    ```
 5. **Share pages with the integration**: Open any Notion page → **Share** → invite `arifOS_bot`

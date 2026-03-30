@@ -126,7 +126,7 @@ test_functional() {
       ;;
     docker_compose)
       # Real probe: are all critical services reachable?
-      for service in arifosmcp_server traefik_router arifos_postgres; do
+      for service in arifosmcp traefik postgres; do
         docker ps --filter "name=$service" --filter "status=running" | grep -q "$service" || {
           echo "[L3 FAIL] $service not running"
           return 1
@@ -161,13 +161,13 @@ prove_reality() {
   case "$goal" in
     "main branch repaired")
       # The REAL proof: can pytest run? can the server start?
-      cd /srv/arifosmcp
+      cd /root/arifosmcp
       pytest --collect-only -q 2>/dev/null | tail -1 && echo "[L4 PASS] Tests collect" || echo "[L4 FAIL] Tests do not collect"
       curl -sf http://localhost:8080/health > /dev/null 2>&1 && echo "[L4 PASS] Server responds" || echo "[L4 FAIL] Server not responding"
       ;;
     "container running")
       # The REAL proof: can the service actually handle requests?
-      docker exec arifosmcp_server python -c "import sys; sys.path.insert(0,'/srv/arifosmcp'); from core.governance_kernel import GovernanceKernel; print('OK')" 2>/dev/null || echo "[L4 FAIL] Module cannot be imported inside container"
+      docker exec arifosmcp python -c "import sys; sys.path.insert(0,'/root/arifosmcp'); from core.governance_kernel import GovernanceKernel; print('OK')" 2>/dev/null || echo "[L4 FAIL] Module cannot be imported inside container"
       ;;
     "config deployed")
       # The REAL proof: does the new config produce the expected behavior?

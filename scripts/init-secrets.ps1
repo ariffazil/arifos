@@ -176,8 +176,8 @@ Write-Host ""
 Write-Host "  # Docker secret creation commands:" -ForegroundColor White
 Write-Host "  docker secret create arifos_governance_secret_v2026 '$governanceFile'" -ForegroundColor Yellow
 Write-Host "  docker secret create arifos_session_secret_v2026 '$sessionFile'" -ForegroundColor Yellow
-Write-Host "  docker secret create arifos_postgres_password '$pgFile'" -ForegroundColor Yellow
-Write-Host "  docker secret create arifos_redis_password '$redisFile'" -ForegroundColor Yellow
+Write-Host "  docker secret create postgres_password '$pgFile'" -ForegroundColor Yellow
+Write-Host "  docker secret create redis_password '$redisFile'" -ForegroundColor Yellow
 Write-Host ""
 Write-Host "═══════════════════════════════════════════════════════════════" -ForegroundColor Cyan
 

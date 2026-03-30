@@ -118,7 +118,7 @@ make deploy-verify
 ```bash
 # Automatic rollback happens on failure
 # Manual rollback:
-ssh root@arif-fazil.com "cd /srv/arifosmcp && docker-compose restart"
+ssh root@arif-fazil.com "cd /root/arifosmcp && docker-compose restart"
 ```
 
 ### "I'm an AI agent, what's the safest path?"

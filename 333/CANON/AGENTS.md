@@ -124,7 +124,7 @@ The Gödel lock is a **technical enforcement** of F11 (Command Auth) that exists
 
 **AgentZero Access:** ✅ **FULLY SUPPORTED** — AgentZero runs in Ring 1 with full capabilities. Access via:
 - `sessions_spawn(task="...", runtime="acp", agentId="agent-zero")`
-- Direct HTTP: `http://agent_zero_reasoner:80` (internal)
+- Direct HTTP: `http://agent-zero:80` (internal)
 - Via Traefik: `https://agentzero.arif-fazil.com` (public with rate limiting)
 
 ## 2a. The Zero-Set Problem (Orphan Paradox)
@@ -182,7 +182,7 @@ Affective context shapes interpretation. The sovereign's emotional state is data
 ### Mounted Paths (inside OpenClaw container)
 | Mount | Host Path | Container Path |
 |-------|-----------|----------------|
-| arifOS repo | `/srv/arifOS` | `/mnt/arifos` |
+| arifOS repo | `/root/arifOS` | `/mnt/arifos` |
 | APEX-THEORY repo | `/opt/arifos/APEX-THEORY` | `/mnt/apex` |
 | Docker socket | `/var/run/docker.sock` | `/var/run/docker.sock` |
 | OpenClaw data | `/opt/arifos/data/openclaw` | `/home/node/.openclaw` |
@@ -191,11 +191,11 @@ Affective context shapes interpretation. The sovereign's emotional state is data
 ### Running Containers (Docker network: arifos_trinity / 10.0.10.0/24)
 | Container | DNS Alias | Port | Role |
 |-----------|-----------|------|------|
-| arifosmcp_server | arifosmcp_server | 8080 | arifOS MCP kernel (7+1 unified tools) |
-| openclaw_gateway | openclaw | 18789 | You (this container) |
-| traefik_router | traefik_router | 80/443 | Reverse proxy / TLS |
+| arifosmcp | arifosmcp | 8080 | arifOS MCP kernel (7+1 unified tools) |
+| openclaw | openclaw | 18789 | You (this container) |
+| traefik | traefik | 80/443 | Reverse proxy / TLS |
 | headless_browser | headless_browser | 3000 | Chromium DOM extraction |
-| qdrant_memory | qdrant_memory | 6333 | Vector memory store |
+| qdrant | qdrant | 6333 | Vector memory store |
 | ollama_engine | ollama_engine | 11434 | Local LLM inference |
 | arifos-postgres | arifos-postgres | 5432 | PostgreSQL 16 DB |
 | arifos-redis | arifos-redis | 6379 | Redis 7 cache/sessions |
@@ -225,7 +225,7 @@ Affective context shapes interpretation. The sovereign's emotional state is data
 ```bash
 # Run anything on the VPS
 exec: docker ps
-exec: curl http://arifosmcp_server:8080/health
+exec: curl http://arifosmcp:8080/health
 exec: docker exec arifos-postgres psql -U arifos -c "SELECT version();"
 exec: docker logs arifos_n8n --tail 50
 exec: cat /mnt/arifos/docker-compose.yml
@@ -245,7 +245,7 @@ exec: arifos audit           # Floor audit (F1-F13)
 exec: arifos memory "query"  # Semantic memory search
 
 # Direct HTTP call for arifOS_kernel (unified pipeline)
-exec: curl -s -X POST http://arifosmcp_server:8080/mcp \
+exec: curl -s -X POST http://arifosmcp:8080/mcp \
   -H "Content-Type: application/json" \
   -d '{
     "jsonrpc": "2.0",
@@ -264,8 +264,8 @@ exec: curl -s -X POST http://arifosmcp_server:8080/mcp \
 
 Or call HTTP directly (internal):
 ```bash
-exec: curl -s http://arifosmcp_server:8080/health | jq
-exec: curl -s -X POST http://arifosmcp_server:8080/mcp \
+exec: curl -s http://arifosmcp:8080/health | jq
+exec: curl -s -X POST http://arifosmcp:8080/mcp \
   -H "Content-Type: application/json" \
   -d '{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}'
 ```
@@ -276,7 +276,7 @@ exec: docker ps --format "table {{.Names}}\t{{.Status}}"
 exec: docker compose -f /mnt/arifos/docker-compose.yml up -d <service>
 exec: docker compose -f /mnt/arifos/docker-compose.yml logs <service> --tail 30
 exec: docker stats --no-stream
-exec: docker exec arifosmcp_server python3 -c "..."
+exec: docker exec arifosmcp python3 -c "..."
 ```
 
 ### n8n Workflows
@@ -293,8 +293,8 @@ exec: curl -X POST http://ollama_engine:11434/api/generate \
 
 ### Vector Memory (Qdrant)
 ```bash
-exec: curl http://qdrant_memory:6333/collections | jq
-exec: curl http://qdrant_memory:6333/collections/arifos_constitutional/points/count
+exec: curl http://qdrant:6333/collections | jq
+exec: curl http://qdrant:6333/collections/arifos_constitutional/points/count
 ```
 
 ---

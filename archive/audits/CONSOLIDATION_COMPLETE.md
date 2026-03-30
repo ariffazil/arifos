@@ -8,16 +8,16 @@ All Docker containers consolidated into unified project: **arifos**
 
 ## Before (Fragmented)
 ```
-workspace     → traefik_router (isolated)
-arifos        → arifosmcp_server (isolated)
+workspace     → traefik (isolated)
+arifos        → arifosmcp (isolated)
 arifosmcp     → infrastructure (isolated)
 ```
 
 ## After (Unified)
 ```
 arifos (single project)
-├── traefik_router ✅
-├── arifosmcp_server ✅
+├── traefik ✅
+├── arifosmcp ✅
 ├── postgres ✅
 ├── redis ✅
 ├── qdrant ✅

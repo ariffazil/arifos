@@ -18,9 +18,9 @@ def test_canonical_vps_compose_uses_runtime_http_profile():
     assert "dockerfile: Dockerfile" in compose
     assert "ARIFOS_PUBLIC_TOOL_PROFILE: ${ARIFOS_PUBLIC_TOOL_PROFILE:-public}" in compose
     assert "ARIFOS_MCP_PATH: ${ARIFOS_MCP_PATH:-/mcp}" in compose
-    assert "/srv/arifosmcp/infrastructure/prometheus/prometheus.yml" in compose
-    assert "/srv/arifosmcp/infrastructure/deploy_from_git.sh" in compose
-    assert "/srv/arifosmcp/arifosmcp.transport" not in compose
+    assert "/root/arifosmcp/infrastructure/prometheus/prometheus.yml" in compose
+    assert "/root/arifosmcp/infrastructure/deploy_from_git.sh" in compose
+    assert "/root/arifosmcp/arifosmcp.transport" not in compose
     assert "condition: service_started" in compose
     assert "exec 3<>/dev/tcp/127.0.0.1/6333" in compose
 

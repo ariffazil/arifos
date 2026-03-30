@@ -114,7 +114,7 @@ arifos seal
 
 Or via HTTP:
 ```bash
-curl -sf -X POST http://arifosmcp_server:8080/mcp \
+curl -sf -X POST http://arifosmcp:8080/mcp \
   -H "Content-Type: application/json" \
   -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"seal_vault","arguments":{"session_id":"memory-archivist","context":"weekly synthesis sealed"}}}'
 ```

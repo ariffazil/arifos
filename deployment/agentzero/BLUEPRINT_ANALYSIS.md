@@ -166,7 +166,7 @@ This is a **sovereign AI architecture blueprint** for deploying an AgentZero-ins
 #### 1.1 Verify Current Deployment
 ```bash
 # Test existing AgentZero + arifOS integration
-cd /srv/arifosmcp/deployment/agentzero
+cd /root/arifosmcp/deployment/agentzero
 docker compose up -d
 ./scripts/status.sh
 

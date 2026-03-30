@@ -80,12 +80,12 @@ services:
     ports:
       - "8100:8100"
     environment:
-      - GEOX_ARIFOS_KERNEL_URL=http://arifosmcp_server:8000/mcp
-      - GEOX_QDRANT_URL=http://qdrant_memory:6333
+      - GEOX_ARIFOS_KERNEL_URL=http://arifosmcp:8000/mcp
+      - GEOX_QDRANT_URL=http://qdrant:6333
       - GEOX_LOG_LEVEL=INFO
     depends_on:
-      - arifosmcp_server
-      - qdrant_memory
+      - arifosmcp
+      - qdrant
     restart: unless-stopped
     networks:
       - arifos_network
@@ -143,7 +143,7 @@ from arifos.geox.geox_validator import GeoXValidator
 from arifos.geox.geox_memory import GeoMemoryStore
 from arifos.geox.geox_tools import ToolRegistry
 
-ARIFOS_MCP_URL = "http://arifosmcp_server:8000/mcp"
+ARIFOS_MCP_URL = "http://arifosmcp:8000/mcp"
 
 async def call_arifos_tool(tool_name: str, arguments: dict) -> str:
     """Adapter: calls any arifOS MCP tool by name."""
@@ -210,7 +210,7 @@ async def create_production_agent() -> GeoXAgent:
 
     # Qdrant memory (same cluster as arifOS M4)
     from qdrant_client import QdrantClient
-    qdrant = QdrantClient(url="http://qdrant_memory:6333")
+    qdrant = QdrantClient(url="http://qdrant:6333")
     memory = GeoMemoryStore(qdrant_client=qdrant)
 
     return GeoXAgent(
@@ -266,7 +266,7 @@ asyncio.run(main())
 
 ```bash
 # Test GEOX health from inside Docker network
-docker exec arifosmcp_server curl -s http://geox_server:8100/health
+docker exec arifosmcp curl -s http://geox_server:8100/health
 
 # Test tools/list
 curl -s -X POST http://localhost:8100/mcp \

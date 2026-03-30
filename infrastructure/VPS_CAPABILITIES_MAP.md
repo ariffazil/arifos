@@ -11,7 +11,7 @@
 
 | Component | State | Reachability | Notes |
 | :--- | :--- | :--- | :--- |
-| `arifosmcp_server` | healthy | public + internal | canonical MCP brain |
+| `arifosmcp` | healthy | public + internal | canonical MCP brain |
 | **OpenClaw** | healthy | internal + Telegram path | main executive agent gateway |
 | **Agent Zero** | healthy | internal | autonomous reasoning |
 | **n8n** | healthy | routed | workflow automation |

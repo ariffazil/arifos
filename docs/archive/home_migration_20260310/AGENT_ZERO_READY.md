@@ -74,8 +74,8 @@ cd /mnt/arifos && git add . && git commit -m "fix: ..." && git push
 
 If Agent Zero can't access something:
 1. Check container is running: `docker ps | grep agent_zero`
-2. Check logs: `docker logs agent_zero_reasoner --tail 50`
-3. Restart if needed: `docker restart agent_zero_reasoner`
+2. Check logs: `docker logs agent-zero --tail 50`
+3. Restart if needed: `docker restart agent-zero`
 
 ---
 **Status**: ✅ Agent Zero is ready to work on arifOS!

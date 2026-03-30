@@ -1,7 +1,7 @@
 import sys
 import os
 
-path = '/srv/arifosmcp/arifosmcp/runtime/public_registry.py'
+path = '/root/arifosmcp/arifosmcp/runtime/public_registry.py'
 with open(path, 'r') as f:
     content = f.read()
 

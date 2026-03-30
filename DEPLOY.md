@@ -66,23 +66,23 @@ When we run `docker run --rm arifos/arifosmcp:latest python3 -c "import ..."` �
 When we run `docker compose exec arifosmcp python3 -c "import ..."` → OLD site-packages path.
 
 ### Root Cause
-The `pip install .` in the Dockerfile (line 32) installs the old package to `/usr/local/lib/python3.12/site-packages/arifosmcp/`. The volume mounts in `docker-compose.yml` try to mount `/srv/arifosmcp/arifosmcp:/usr/src/app/arifosmcp:ro` but this path is broken (symlink chain creates non-existent `arifosmcp/arifosmcp`).
+The `pip install .` in the Dockerfile (line 32) installs the old package to `/usr/local/lib/python3.12/site-packages/arifosmcp/`. The volume mounts in `docker-compose.yml` try to mount `/root/arifosmcp/arifosmcp:/usr/src/app/arifosmcp:ro` but this path is broken (symlink chain creates non-existent `arifosmcp/arifosmcp`).
 
 ### Symlink Chain
 ```
-/srv/arifosmcp → /srv/arifOS/arifosmcp (symlink)
-/srv/arifOS/arifosmcp/arifosmcp/runtime/ (THIS DOES NOT EXIST)
+/root/arifosmcp → /root/arifOS/arifosmcp (symlink)
+/root/arifOS/arifosmcp/arifosmcp/runtime/ (THIS DOES NOT EXIST)
 ```
 
 The actual structure is:
 ```
-/srv/arifOS/arifosmcp/runtime/       ← contains updated files
-/srv/arifOS/arifosmcp/arifosmcp/   ← broken, doesn't exist
-/srv/arifOS/arifosmcp/core/
+/root/arifOS/arifosmcp/runtime/       ← contains updated files
+/root/arifOS/arifosmcp/arifosmcp/   ← broken, doesn't exist
+/root/arifOS/arifosmcp/core/
 ```
 
 ### Files That Were Copied (but to wrong location)
-We copied new files to `/srv/arifOS/arifosmcp/arifosmcp/runtime/` but Docker mounts expect them at `/srv/arifOS/arifosmcp/runtime/`.
+We copied new files to `/root/arifOS/arifosmcp/arifosmcp/runtime/` but Docker mounts expect them at `/root/arifOS/arifosmcp/runtime/`.
 
 ### Current State
 - Docker image is correct (verified with `docker run --rm`)
@@ -98,20 +98,20 @@ volumes:
   - /opt/arifos/data/core:/usr/src/app/data:rw
   - /proc:/host/proc:ro
   - /sys:/host/sys:ro
-  - /srv/arifosmcp/arifosmcp:/usr/src/app/arifosmcp:ro      # BROKEN SYMLINK
-  - /srv/arifosmcp/server.py:/usr/src/app/server.py:ro    # BROKEN SYMLINK
-  - /srv/arifosmcp/stdio_server.py:/usr/src/app/stdio_server.py:ro
-  - /srv/arifosmcp/fastmcp.json:/usr/src/app/fastmcp.json:ro
-  - /srv/arifosmcp/mcp.json:/usr/src/app/mcp.json:ro
-  - /srv/arifosmcp/core:/usr/src/app/core:ro               # BROKEN SYMLINK
-  - /srv/arifosmcp/000:/usr/src/app/000:ro                # BROKEN SYMLINK
-  - /srv/arifosmcp/333:/usr/src/app/333:ro                # BROKEN SYMLINK
-  - /srv/arifosmcp/spec:/usr/src/app/spec:ro              # BROKEN SYMLINK
+  - /root/arifosmcp/arifosmcp:/usr/src/app/arifosmcp:ro      # BROKEN SYMLINK
+  - /root/arifosmcp/server.py:/usr/src/app/server.py:ro    # BROKEN SYMLINK
+  - /root/arifosmcp/stdio_server.py:/usr/src/app/stdio_server.py:ro
+  - /root/arifosmcp/fastmcp.json:/usr/src/app/fastmcp.json:ro
+  - /root/arifosmcp/mcp.json:/usr/src/app/mcp.json:ro
+  - /root/arifosmcp/core:/usr/src/app/core:ro               # BROKEN SYMLINK
+  - /root/arifosmcp/000:/usr/src/app/000:ro                # BROKEN SYMLINK
+  - /root/arifosmcp/333:/usr/src/app/333:ro                # BROKEN SYMLINK
+  - /root/arifosmcp/spec:/usr/src/app/spec:ro              # BROKEN SYMLINK
 ```
 
-The `/srv/arifosmcp` symlink → `/srv/arifOS/arifosmcp`, so:
-- `/srv/arifosmcp/arifosmcp` → `/srv/arifOS/arifosmcp/arifosmcp` (doesn't exist!)
-- Should be: `/srv/arifOS/arifosmcp` directly
+The `/root/arifosmcp` symlink → `/root/arifOS/arifosmcp`, so:
+- `/root/arifosmcp/arifosmcp` → `/root/arifOS/arifosmcp/arifosmcp` (doesn't exist!)
+- Should be: `/root/arifOS/arifosmcp` directly
 
 ---
 
@@ -145,7 +145,7 @@ The `/srv/arifosmcp` symlink → `/srv/arifOS/arifosmcp`, so:
 - **Working dir**: `/root/arifOS/`
 - **Docker compose**: `/root/arifOS/docker-compose.yml`
 - **Dockerfile**: `/root/arifOS/Dockerfile`
-- **Symlinks**: `/srv/arifosmcp` → `/srv/arifOS/arifosmcp`
+- **Symlinks**: `/root/arifosmcp` → `/root/arifOS/arifosmcp`
 
 ---
 
@@ -160,11 +160,11 @@ The `/srv/arifosmcp` symlink → `/srv/arifOS/arifosmcp`, so:
 
 ```bash
 # All running:
-arifos_postgres       healthy
-arifos_redis         healthy
+postgres       healthy
+redis         healthy
 ollama_engine        running
-qdrant_memory        running
-arifosmcp_server     running  ← THE PROBLEMATIC ONE
+qdrant        running
+arifosmcp     running  ← THE PROBLEMATIC ONE
 
 # Check status:
 docker compose -f /root/arifOS/docker-compose.yml ps
@@ -178,12 +178,12 @@ docker compose -f /root/arifOS/docker-compose.yml logs --tail=30 arifosmcp
 ## HOW TO FIX THE VOLUME MOUNT ISSUE
 
 ### Option 1: Fix docker-compose.yml (RECOMMENDED)
-Change all `/srv/arifosmcp/` volume mounts to `/srv/arifOS/arifosmcp/`:
+Change all `/root/arifosmcp/` volume mounts to `/root/arifOS/arifosmcp/`:
 
 ```yaml
 volumes:
-  - /srv/arifOS/arifosmcp:/usr/src/app/arifosmcp:ro
-  - /srv/arifOS/arifosmcp/server.py:/usr/src/app/server.py:ro
+  - /root/arifOS/arifosmcp:/usr/src/app/arifosmcp:ro
+  - /root/arifOS/arifosmcp/server.py:/usr/src/app/server.py:ro
   # etc.
 ```
 
@@ -191,7 +191,7 @@ But note: the submodule itself has `server.py`, `mcp.json`, etc. at its ROOT, no
 
 Actually, verify the actual structure:
 ```
-/srv/arifOS/arifosmcp/         ← git submodule root (this IS the arifosmcp package)
+/root/arifOS/arifosmcp/         ← git submodule root (this IS the arifosmcp package)
   server.py
   mcp.json
   fastmcp.json
@@ -203,7 +203,7 @@ Actually, verify the actual structure:
 ```
 
 So the mounts should be:
-- `/srv/arifOS/arifosmcp:/usr/src/app/arifosmcp:ro`  ← correct
+- `/root/arifOS/arifosmcp:/usr/src/app/arifosmcp:ro`  ← correct
 - But then server.py, mcp.json are at package root, not `/usr/src/app/`
 
 Wait - the server.py that runs IS `/usr/src/app/server.py` (the uvicorn entrypoint). If we mount the whole submodule to `/usr/src/app/arifosmcp`, we lose the server.py at `/usr/src/app/`.
@@ -274,13 +274,13 @@ curl -s https://arifosmcp.arif-fazil.com/health | python3 -m json.tool
 
 The problematic mount:
 ```yaml
-- /srv/arifosmcp/arifosmcp:/usr/src/app/arifosmcp:ro
+- /root/arifosmcp/arifosmcp:/usr/src/app/arifosmcp:ro
 ```
 
-Since `/srv/arifosmcp` → `/srv/arifOS/arifosmcp`, this resolves to:
-`/srv/arifOS/arifosmcp/arifosmcp` which **DOES NOT EXIST**.
+Since `/root/arifosmcp` → `/root/arifOS/arifosmcp`, this resolves to:
+`/root/arifOS/arifosmcp/arifosmcp` which **DOES NOT EXIST**.
 
-The actual submodule is at `/srv/arifOS/arifosmcp/` (not nested).
+The actual submodule is at `/root/arifOS/arifosmcp/` (not nested).
 
 ---
 

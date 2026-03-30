@@ -24,7 +24,7 @@ def execute_tool(name, args):
     print(f'--- EXECUTING TOOL: {name} ---')
     # Example tool: list_incidents
     if name == 'list_incidents':
-        # Mocking access to arifos_postgres / vault
+        # Mocking access to postgres / vault
         return 'Incident 001: Disk Crash Resolved. Incident 002: Memory Realigned.'
     return f'Tool {name} not found.'
 

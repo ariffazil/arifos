@@ -7,8 +7,8 @@ It is not a proof that production is already updated.
 
 | Item | Canonical path |
 |------|----------------|
-| Git working tree | `/srv/arifosmcp` |
-| Python virtualenv | `/srv/arifosmcp/.venv` |
+| Git working tree | `/root/arifosmcp` |
+| Python virtualenv | `/root/arifosmcp/.venv` |
 | Governance secret directory | `/opt/arifos/secrets` |
 | Governance secret file | `/opt/arifos/secrets/governance.secret` |
 | Public MCP endpoint | `https://arifosmcp.arif-fazil.com/mcp` |
@@ -24,7 +24,7 @@ It is not a proof that production is already updated.
 
 ## Required Preflight
 
-Run on the VPS inside `/srv/arifosmcp`:
+Run on the VPS inside `/root/arifosmcp`:
 
 ```bash
 python scripts/generate_public_specs.py
@@ -46,13 +46,13 @@ ARIFOS_GOVERNANCE_SECRET_FILE=/opt/arifos/secrets/governance.secret \
 Preferred:
 
 ```bash
-sudo /srv/arifosmcp/scripts/deploy-production.sh
+sudo /root/arifosmcp/scripts/deploy-production.sh
 ```
 
 systemd path:
 
 ```bash
-sudo cp /srv/arifosmcp/infrastructure/systemd/arifos-mcp.service /etc/systemd/system/
+sudo cp /root/arifosmcp/infrastructure/systemd/arifos-mcp.service /etc/systemd/system/
 sudo systemctl daemon-reload
 sudo systemctl enable arifos-mcp
 sudo systemctl restart arifos-mcp
@@ -61,7 +61,7 @@ sudo systemctl restart arifos-mcp
 Manual fallback:
 
 ```bash
-cd /srv/arifosmcp
+cd /root/arifosmcp
 ARIFOS_GOVERNANCE_SECRET_FILE=/opt/arifos/secrets/governance.secret \
 AAA_MCP_TRANSPORT=http \
 python -m arifosmcp.runtime http

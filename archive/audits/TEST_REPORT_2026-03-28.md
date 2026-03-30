@@ -37,11 +37,11 @@ All core arifOS MCP tools are operational on the consolidated VPS deployment. Th
 
 | Container | Status | Ports |
 |-----------|--------|-------|
-| arifosmcp_server | ✅ Up 4 minutes (healthy) | 127.0.0.1:8080->8080/tcp |
-| arifos_postgres | ✅ Up 4 minutes (healthy) | 127.0.0.1:5432->5432/tcp |
-| arifos_redis | ✅ Up 4 minutes (healthy) | 127.0.0.1:6379->6379/tcp |
-| qdrant_memory | ✅ Up 4 minutes (healthy) | 0.0.0.0:6333-6334->6333-6334/tcp |
-| traefik_router | ✅ Up 4 minutes | 0.0.0.0:80->80/tcp, 0.0.0.0:443->443/tcp |
+| arifosmcp | ✅ Up 4 minutes (healthy) | 127.0.0.1:8080->8080/tcp |
+| postgres | ✅ Up 4 minutes (healthy) | 127.0.0.1:5432->5432/tcp |
+| redis | ✅ Up 4 minutes (healthy) | 127.0.0.1:6379->6379/tcp |
+| qdrant | ✅ Up 4 minutes (healthy) | 0.0.0.0:6333-6334->6333-6334/tcp |
+| traefik | ✅ Up 4 minutes | 0.0.0.0:80->80/tcp, 0.0.0.0:443->443/tcp |
 | ollama_engine | ✅ Up 4 minutes (healthy) | 11434/tcp |
 
 **All core services operational.**
@@ -54,12 +54,12 @@ All core arifOS MCP tools are operational on the consolidated VPS deployment. Th
 
 | Container | IP Address |
 |-----------|------------|
-| arifos_postgres | 172.20.0.3/16 |
-| arifos_redis | 172.20.0.2/16 |
-| arifosmcp_server | 172.20.0.7/16 |
+| postgres | 172.20.0.3/16 |
+| redis | 172.20.0.2/16 |
+| arifosmcp | 172.20.0.7/16 |
 | ollama_engine | 172.20.0.4/16 |
-| qdrant_memory | 172.20.0.6/16 |
-| traefik_router | 172.20.0.5/16 |
+| qdrant | 172.20.0.6/16 |
+| traefik | 172.20.0.5/16 |
 
 **Status:** ✅ All containers on unified network. No manual fixes needed.
 
