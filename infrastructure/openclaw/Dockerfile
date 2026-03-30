@@ -5,7 +5,7 @@ USER root
 RUN set -eux; \
     mkdir -p /var/lib/apt/lists/partial; \
     apt-get update; \
-    apt-get install -y --no-install-recommends curl ca-certificates git jq; \
+    apt-get install -y --no-install-recommends curl ca-certificates git jq redis-tools; \
     rm -rf /var/lib/apt/lists/*; \
     curl -LsSf https://astral.sh/uv/install.sh | sh; \
     export PATH="/root/.local/bin:${PATH}"; \
@@ -28,8 +28,6 @@ RUN set -eux; \
       @opentelemetry/sdk-trace-base@^2.6.0 \
       @opentelemetry/semantic-conventions@^1.40.0 \
       @pierre/diffs@1.1.0 \
-      @tloncorp/api@github:tloncorp/api-beta#7eede1c1a756977b09f96aa14a92e2b06318ae87 \
-      @tloncorp/tlon-skill@0.2.2 \
       @twurple/api@^8.0.3 \
       @twurple/auth@^8.0.3 \
       @twurple/chat@^8.0.3 \

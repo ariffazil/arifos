@@ -43,6 +43,7 @@ services:
       - /opt/arifos/data/triggers:/shared/triggers
       - /opt/arifos/data/openclaw/models:/root/.node-llama-cpp/models
       - /opt/arifos/traefik/acme.json:/letsencrypt/acme.json
+      - arifosmcp_secrets:/secrets:ro
     networks:
       - arifos_trinity
     deploy:
@@ -407,6 +408,9 @@ services:
       - "traefik.http.routers.a2a.entrypoints=websecure"
       - "traefik.http.routers.a2a.tls.certresolver=letsencrypt"
       - "traefik.http.routers.a2a.service=arifosmcp@docker"
+      - "traefik.http.routers.a2a.middlewares=a2a-auth"
+      # A2A basicAuth middleware (defined on same container as router)
+      - "traefik.http.middlewares.a2a-auth.basicauth.usersfile=/secrets/traefik_htpasswd"
       # A2A Agent Card - /.well-known/agent.json
       - "traefik.http.routers.a2a-wellknown.rule=Host(`arifosmcp.arif-fazil.com`) && PathPrefix(`/.well-known`)"
       - "traefik.http.routers.a2a-wellknown.entrypoints=websecure"
@@ -736,6 +740,8 @@ networks:
 
 # --- Named Volumes ---
 volumes:
+  arifosmcp_secrets:
+    external: true
   arifosmcp_telemetry:
     driver: local
   arifosmcp_vault:
