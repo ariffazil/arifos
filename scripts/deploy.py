@@ -36,7 +36,7 @@ DEPLOYMENT_CONFIG = {
         "staging": {
             "host": "staging.arif-fazil.com",
             "ssh_user": "deploy",
-            "deploy_path": "/srv/arifosmcp-staging",
+            "deploy_path": "/root/arifosmcp-staging",
             "docker_compose_file": "docker-compose.staging.yml",
             "health_endpoint": "/health",
             "requires_approval": False,
@@ -45,7 +45,7 @@ DEPLOYMENT_CONFIG = {
         "production": {
             "host": "arif-fazil.com",
             "ssh_user": "root",
-            "deploy_path": "/srv/arifosmcp",
+            "deploy_path": "/root/arifosmcp",
             "docker_compose_file": "docker-compose.yml",
             "health_endpoint": "/health",
             "requires_approval": True,

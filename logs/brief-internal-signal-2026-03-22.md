@@ -28,7 +28,7 @@
 
 ## arifOS Ecosystem Drift (Internal Metadata)
 
-7. **(internal)** arifOS MCP kernel running v2026.03.20 — 37 tools loaded, F1-F13 constitutional floors active. Health endpoint responsive. AgentZero reasoner, n8n, Qdrant, Ollama all operational on Trinity stack. *(Source: arifosmcp_server:8080/health, Docker status)*
+7. **(internal)** arifOS MCP kernel running v2026.03.20 — 37 tools loaded, F1-F13 constitutional floors active. Health endpoint responsive. AgentZero reasoner, n8n, Qdrant, Ollama all operational on Trinity stack. *(Source: arifosmcp:8080/health, Docker status)*
 
 8. **(internal)** Memory subsystem degradation continues — OpenAI embeddings failing (401 invalid API key), vector search unavailable. Qdrant (port 6333) operational but not receiving new indexed memories. Mitigation: local embedding fallback or credential rotation required. *(Source: logs/audit.jsonl)*
 

@@ -122,7 +122,7 @@ core/organs/_3_apex.py — Soul
 - Image rebuilt correctly (verified with `docker run --rm arifos/arifosmcp:latest`)
 - Running container still uses old site-packages version
 - pip install in Dockerfile creates conflicting package at `/usr/local/lib/python3.12/site-packages/arifosmcp/`
-- Volume mounts broken: `/srv/arifosmcp/arifosmcp` → symlink chain creates non-existent path
+- Volume mounts broken: `/root/arifosmcp/arifosmcp` → symlink chain creates non-existent path
 
 **Status:** Documented in DEPLOY.md for next agent
 

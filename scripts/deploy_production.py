@@ -552,7 +552,7 @@ def main() -> None:
     parser.add_argument("--base-image", default="arifos/arifosmcp:latest", help="Base image")
     parser.add_argument("--image-repo", default="arifos/arifosmcp", help="Target image repository")
     parser.add_argument("--image-tag", default="", help="Override full image tag")
-    parser.add_argument("--container-name", default="arifosmcp_server", help="Prod container name")
+    parser.add_argument("--container-name", default="arifosmcp", help="Prod container name")
     parser.add_argument(
         "--candidate-name", default="arifosmcp_candidate_overlay", help="Candidate container name"
     )

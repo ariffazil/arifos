@@ -19,7 +19,7 @@ TRUST_THRESHOLD = 0.95
 CANON_COLLECTION = "arifos_constitutional"
 # Internal Docker endpoints
 OLLAMA_URL = os.getenv("OLLAMA_URL", "http://ollama_engine:11434")
-QDRANT_URL = os.getenv("QDRANT_URL", "http://qdrant_memory:6333")
+QDRANT_URL = os.getenv("QDRANT_URL", "http://qdrant:6333")
 
 @tool
 def m4_retrieve_canonical_evidence(query: str) -> str:

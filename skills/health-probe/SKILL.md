@@ -1,6 +1,6 @@
 ---
 name: health-probe
-description: Health probes for both sides of the AGI stack — openclaw_gateway + arifOS MCP
+description: Health probes for both sides of the AGI stack — openclaw + arifOS MCP
 user-invocable: true
 ---
 
@@ -15,7 +15,7 @@ Triggers: "health", "probe", "is everything ok", "check stack", "gateway health"
 
 ### 1. arifOS MCP Side
 ```bash
-curl -sf http://arifosmcp_server:8080/health | jq '{status, tools_loaded, version, uptime}'
+curl -sf http://arifosmcp:8080/health | jq '{status, tools_loaded, version, uptime}'
 ```
 Expected: `status: "healthy"`, `tools_loaded: 13`
 Alert if: `tools_loaded < 13` or status != "healthy"
@@ -72,7 +72,7 @@ echo "{\"ts\":\"$(date -u +%Y-%m-%dT%H:%M:%SZ)\",\"event\":\"health_probe\",\"ag
 |--------|---------|----------|--------|
 | Disk usage | >75% | >85% | Notify Arif on Telegram |
 | RAM available | <3 GiB | <1.5 GiB | Notify + pause heavy tasks |
-| tools_loaded | <13 | <10 | Restart arifosmcp_server |
+| tools_loaded | <13 | <10 | Restart arifosmcp |
 | Container state | Restarting | Exited/unhealthy | docker compose up -d <name> |
 | Model count | 0 | — | docker exec ollama_engine ollama pull qwen2.5:3b |
 
@@ -80,7 +80,7 @@ echo "{\"ts\":\"$(date -u +%Y-%m-%dT%H:%M:%SZ)\",\"event\":\"health_probe\",\"ag
 
 ```bash
 # Restart unhealthy arifOS
-docker compose -f /mnt/arifos/docker-compose.yml restart arifosmcp_server
+docker compose -f /mnt/arifos/docker-compose.yml restart arifosmcp
 
 # Restart unhealthy openclaw (from host — self-restart)
 docker compose -f /mnt/arifos/docker-compose.yml restart openclaw
@@ -109,7 +109,7 @@ send_telegram_alert() {
 }
 
 # Example alerts:
-# send_telegram_alert "🔴 arifosmcp_server UNHEALTHY — tools_loaded=$(curl ...)"
+# send_telegram_alert "🔴 arifosmcp UNHEALTHY — tools_loaded=$(curl ...)"
 # send_telegram_alert "💿 Disk ${DISK_PCT}% — run: docker builder prune -f"
 # send_telegram_alert "🧠 RAM critical — available: ${RAM_AVAIL}MiB"
 ```

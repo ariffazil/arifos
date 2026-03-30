@@ -90,7 +90,7 @@ jobs:
           script: |
             echo "🚀 Deploying arifOS Sovereign Kernel to VPS..."
             
-            cd /srv/arifOS || cd ~/arifOS
+            cd /root/arifOS || cd ~/arifOS
             
             # Pull latest code
             git fetch origin

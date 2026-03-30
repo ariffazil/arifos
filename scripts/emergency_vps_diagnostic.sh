@@ -11,14 +11,14 @@ echo "1. Container Status:"
 docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" | grep -E "arifosmcp|traefik"
 echo ""
 
-# 2. Check arifosmcp_server logs (last 50 lines)
-echo "2. arifosmcp_server logs (errors only):"
-docker logs arifosmcp_server --tail 50 2>&1 | grep -E "ERROR|CRITICAL|Traceback|ImportError|ValidationError" | tail -20
+# 2. Check arifosmcp logs (last 50 lines)
+echo "2. arifosmcp logs (errors only):"
+docker logs arifosmcp --tail 50 2>&1 | grep -E "ERROR|CRITICAL|Traceback|ImportError|ValidationError" | tail -20
 echo ""
 
 # 3. Check Traefik logs
 echo "3. Traefik router logs:"
-docker logs traefik_router --tail 20 2>&1 | grep -E "error|404|not found" | tail -10
+docker logs traefik --tail 20 2>&1 | grep -E "error|404|not found" | tail -10
 echo ""
 
 # 4. Test endpoint locally
@@ -39,12 +39,12 @@ echo ""
 
 # 7. Git status
 echo "7. Git status (last commit):"
-cd /srv/arifosmcp && git log --oneline -1
+cd /root/arifosmcp && git log --oneline -1
 echo ""
 
 # 8. Recent server restart
 echo "8. Container uptime:"
-docker ps --format "{{.Names}}\t{{.Status}}" | grep arifosmcp_server
+docker ps --format "{{.Names}}\t{{.Status}}" | grep arifosmcp
 echo ""
 
 echo "=========================================="

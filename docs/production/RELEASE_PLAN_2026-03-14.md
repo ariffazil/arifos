@@ -13,7 +13,7 @@
 | Aspect | Status | Details |
 |--------|--------|---------|
 | **Git Commit** | 309355b5 | "Merge branch 'main' with all fixes" |
-| **Container Health** | ✅ healthy | arifosmcp_server Up 7min |
+| **Container Health** | ✅ healthy | arifosmcp Up 7min |
 | **Public Tools** | 23/23 | 100% functional |
 | **Internal Tools** | 16/16 | 100% functional |
 | **Test Coverage** | 90%+ | 450+ tests |
@@ -91,7 +91,7 @@ ARIFOS_LOG_LEVEL=INFO  # DEBUG for dev, INFO for prod
 0 */6 * * * /usr/local/bin/backup-vault999.sh  # Every 6 hours
 
 # Script content:
-docker exec arifos_postgres pg_dump -U arifos_admin arifos_vault > \
+docker exec postgres pg_dump -U arifos_admin arifos_vault > \
   /backups/vault999-$(date +%Y%m%d-%H%M%S).sql
 gzip /backups/vault999-*.sql
 # Upload to S3/GCS
@@ -170,7 +170,7 @@ Before tagging PRODUCTION:
 
 ```bash
 # 1. Pre-flight (on dev machine)
-cd /srv/arifosmcp
+cd /root/arifosmcp
 git pull origin main
 git status  # Should be clean
 
@@ -192,7 +192,7 @@ docker tag arifos/arifosmcp:v2026.03.14-PRODUCTION arifos/arifosmcp:latest
 docker push arifos/arifosmcp:v2026.03.14-PRODUCTION
 
 # 4. Production deploy (on VPS)
-cd /srv/arifosmcp
+cd /root/arifosmcp
 
 # Backup current
 docker compose exec postgres pg_dump -U arifos_admin arifos_vault > \

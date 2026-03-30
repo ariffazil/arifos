@@ -152,7 +152,7 @@ http:
     arifosmcp-svc:
       loadBalancer:
         servers:
-          - url: "http://arifosmcp_server:8080"
+          - url: "http://arifosmcp:8080"
         healthCheck:
           path: "/health"
           interval: "10s"
@@ -161,7 +161,7 @@ http:
     openclaw-svc:
       loadBalancer:
         servers:
-          - url: "http://openclaw_gateway:18789"
+          - url: "http://openclaw:18789"
         healthCheck:
           path: "/healthz"
           interval: "10s"
@@ -170,7 +170,7 @@ http:
     agentzero-svc:
       loadBalancer:
         servers:
-          - url: "http://agent_zero_reasoner:80"
+          - url: "http://agent-zero:80"
         healthCheck:
           path: "/health"
           interval: "10s"
@@ -194,7 +194,7 @@ http:
     qdrant-svc:
       loadBalancer:
         servers:
-          - url: "http://qdrant_memory:6333"
+          - url: "http://qdrant:6333"
 
     codeserver-svc:
       loadBalancer:

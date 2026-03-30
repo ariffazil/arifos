@@ -129,7 +129,7 @@ secrets:
     name: arifos_session_secret_v2026
   postgres_password:
     external: true
-    name: arifos_postgres_password
+    name: postgres_password
 
 services:
   mcp:

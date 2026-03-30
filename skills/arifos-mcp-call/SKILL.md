@@ -60,15 +60,15 @@ Exit code 88 = HOLD_888 (sovereign approval required).
 
 ```bash
 # Health & discovery
-curl -s http://arifosmcp_server:8080/health | jq
+curl -s http://arifosmcp:8080/health | jq
 
 # List all 42 tools
-curl -s -X POST http://arifosmcp_server:8080/mcp \
+curl -s -X POST http://arifosmcp:8080/mcp \
   -H "Content-Type: application/json" \
   -d '{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}'
 
 # Anchor session (000_INIT)
-curl -s -X POST http://arifosmcp_server:8080/mcp \
+curl -s -X POST http://arifosmcp:8080/mcp \
   -H "Content-Type: application/json" \
   -d '{
     "jsonrpc": "2.0",
@@ -85,7 +85,7 @@ curl -s -X POST http://arifosmcp_server:8080/mcp \
   }'
 
 # Kernel call (after anchor)
-curl -s -X POST http://arifosmcp_server:8080/mcp \
+curl -s -X POST http://arifosmcp:8080/mcp \
   -H "Content-Type: application/json" \
   -d '{
     "jsonrpc": "2.0",

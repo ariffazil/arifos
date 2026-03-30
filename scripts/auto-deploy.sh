@@ -64,7 +64,7 @@ pre_deploy_health_check() {
 
 # Determine if rebuild is needed
 needs_rebuild() {
-    cd /srv/arifosmcp
+    cd /root/arifosmcp
     
     # Pull latest
     git fetch origin main
@@ -162,9 +162,9 @@ deploy() {
     log "❌ Deployment failed - initiating rollback..."
     notify "❌ Deploy failed - rolling back" "error"
     
-    docker stop arifosmcp_server 2>/dev/null || true
-    docker rm arifosmcp_server 2>/dev/null || true
-    docker run -d --name arifosmcp_server_old "$current_image" 2>/dev/null || true
+    docker stop arifosmcp 2>/dev/null || true
+    docker rm arifosmcp 2>/dev/null || true
+    docker run -d --name arifosmcp_old "$current_image" 2>/dev/null || true
     
     notify "🔄 Rollback complete" "warning"
     return 1

@@ -101,8 +101,8 @@ backup_data() {
         # Simple backup of critical configs
         tar czf "/opt/arifos/backups/config-$(date +%Y%m%d).tar.gz" \
             /opt/arifos/data/openclaw/openclaw.json \
-            /srv/arifosmcp/.env \
-            /srv/arifosmcp/.env.docker \
+            /root/arifosmcp/.env \
+            /root/arifosmcp/.env.docker \
             2>/dev/null || true
         
         touch /opt/arifos/data/.last_backup
@@ -119,7 +119,7 @@ backup_data() {
 git_sync() {
     log "🔄 Git sync check..."
     
-    cd /srv/arifosmcp
+    cd /root/arifosmcp
     
     git fetch origin main 2>&1 | tee -a "$LOG_FILE"
     
@@ -133,7 +133,7 @@ git_sync() {
         # Auto-deploy if configured
         if [ "${ARIFOS_AUTO_DEPLOY:-false}" = "true" ]; then
             log "🚀 Auto-deploy enabled, deploying..."
-            /srv/arifosmcp/scripts/auto-deploy.sh 2>&1 | tee -a "$LOG_FILE"
+            /root/arifosmcp/scripts/auto-deploy.sh 2>&1 | tee -a "$LOG_FILE"
         else
             log "⏸️  Auto-deploy disabled, manual action required"
         fi

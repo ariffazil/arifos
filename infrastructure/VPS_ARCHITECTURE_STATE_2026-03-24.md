@@ -58,14 +58,14 @@ identity:        ANCHORED (F11 auth)
 ## 🛠️ Service Topology (The 17-Container Stack)
 
 ### Core Trinity Services
-- `arifosmcp_server` (Port 8080): Constitutional Kernel (FastMCP)
-- `openclaw_gateway` (Port 18789): Multi-channel AI Reasoning Gateway
-- `agent_zero_reasoner` (Port 18001): Autonomous Coding/Task Engine
+- `arifosmcp` (Port 8080): Constitutional Kernel (FastMCP)
+- `openclaw` (Port 18789): Multi-channel AI Reasoning Gateway
+- `agent-zero` (Port 18001): Autonomous Coding/Task Engine
 - `ollama_engine` (Port 11434): Local LLM Runtime (Synapse)
-- `qdrant_memory` (Port 6333): Vector Store (Semantic Memory)
-- `arifos_postgres`: Persistent Vault (VAULT999 Ledger)
-- `arifos_redis`: Session & Sync Cache
-- `traefik_router`: Edge Routing + SSL Termination
+- `qdrant` (Port 6333): Vector Store (Semantic Memory)
+- `postgres`: Persistent Vault (VAULT999 Ledger)
+- `redis`: Session & Sync Cache
+- `traefik`: Edge Routing + SSL Termination
 
 ### Civil Utilities (CIV)
 - `arifos_n8n`: Metabolic Workflow Automation

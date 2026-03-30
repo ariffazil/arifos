@@ -272,7 +272,7 @@ All three protocols enforce arifOS's 13 constitutional floors:
 ```bash
 # SSH to VPS
 ssh root@arif-fazil.com
-cd /srv/arifosmcp
+cd /root/arifosmcp
 
 # Pull latest
 git pull origin main

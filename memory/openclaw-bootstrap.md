@@ -16,7 +16,7 @@
 ## Connections
 - Telegram: @arifOS_bot (active)
 - Web UI: https://claw.arifosmcp.arif-fazil.com
-- arifOS MCP: http://arifosmcp_server:8080 (13 tools, healthy)
+- arifOS MCP: http://arifosmcp:8080 (13 tools, healthy)
 
 ## Identity
 - Name: arifOS_bot (canonical, immutable)

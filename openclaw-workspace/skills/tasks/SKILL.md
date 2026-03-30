@@ -81,7 +81,7 @@ gh project item-list PROJECT_NUMBER --owner ariffazil --format json \
 ```bash
 # 1. Get API key: https://linear.app/settings/api → Personal API Keys
 # 2. Add to VPS:
-echo 'LINEAR_API_KEY=lin_api_YOUR_KEY_HERE' >> /srv/arifOS/.env
+echo 'LINEAR_API_KEY=lin_api_YOUR_KEY_HERE' >> /root/arifOS/.env
 docker compose up -d --force-recreate openclaw
 ```
 

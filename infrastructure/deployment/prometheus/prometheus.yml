@@ -10,7 +10,7 @@ scrape_configs:
   # arifOS MCP Server — /health used until /metrics is implemented
   - job_name: 'arifos-mcp'
     static_configs:
-      - targets: ['arifosmcp_server:8080']
+      - targets: ['arifosmcp:8080']
         labels:
           service: 'arifos-mcp'
           component: 'governance'
@@ -21,7 +21,7 @@ scrape_configs:
   # Qdrant vector store
   - job_name: 'qdrant'
     static_configs:
-      - targets: ['qdrant_memory:6333']
+      - targets: ['qdrant:6333']
     metrics_path: '/metrics'
     scrape_interval: 30s
 

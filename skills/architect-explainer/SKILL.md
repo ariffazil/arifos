@@ -135,9 +135,9 @@ WHAT: Restart the 17 Docker containers in the arifOS stack.
 WHY:  Apply new configuration from docker-compose.yml.
 
 WHAT CHANGED:
-  • traefik_router: reload config (LOW)
-  • arifosmcp_server: restart (MEDIUM — 10s downtime)
-  • arifos_postgres: restart (MEDIUM — brief db connection reset)
+  • traefik: reload config (LOW)
+  • arifosmcp: restart (MEDIUM — 10s downtime)
+  • postgres: restart (MEDIUM — brief db connection reset)
 
 BLAST RADIUS:
   • All agents using arifOS MCP: will retry during restart

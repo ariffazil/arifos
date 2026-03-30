@@ -45,7 +45,7 @@ else:
 │                 ▼                                            │
 │  ┌─────────────────────────────────────────────────────┐    │
 │  │  YOUR VPS                                           │    │
-│  │  arifosmcp_server (Docker)                          │    │
+│  │  arifosmcp (Docker)                          │    │
 │  │  └── Full 11-tool Sovereign Kernel                  │    │
 │  │       • Vault, Memory, Code Execution               │    │
 │  └─────────────────────────────────────────────────────┘    │

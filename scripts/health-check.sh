@@ -2,7 +2,7 @@
 # Health check for arifOS container, restart if unhealthy
 set -e
 
-CONTAINER_NAME="arifosmcp_server"
+CONTAINER_NAME="arifosmcp"
 LOG_FILE="/root/arifOS/data/healthcheck.log"
 
 echo "[$(date)] Health check for $CONTAINER_NAME" >> "$LOG_FILE"

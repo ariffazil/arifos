@@ -35,7 +35,7 @@ This deployment package enables you to run **AgentZero** — a highly autonomous
 
 ```bash
 # 1. Navigate to deployment directory
-cd /srv/arifosmcp/deployment/agentzero
+cd /root/arifosmcp/deployment/agentzero
 
 # 2. Run initialization
 ./scripts/init.sh

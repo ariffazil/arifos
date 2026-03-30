@@ -1,7 +1,7 @@
 name: arifOS CI — F2 Truth Gate
 
 # Runs on push/PR to main or aaa-mcp-induction.
-# Working directory: AAA/ (maps to /srv/arifosmcp/ on VPS).
+# Working directory: AAA/ (maps to /root/arifosmcp/ on VPS).
 # All test paths are relative to AAA/.
 
 on:

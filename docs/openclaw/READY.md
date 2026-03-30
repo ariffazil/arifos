@@ -48,7 +48,7 @@ Hello! What can you do?
 ```
 restart openclaw
 ```
-**Expected:** "Restarting openclaw_gateway..." then success message
+**Expected:** "Restarting openclaw..." then success message
 
 ### Test 4 - System Info
 ```
@@ -190,13 +190,13 @@ Add to Telegram:
 **On VPS:**
 ```bash
 # Check status
-docker exec openclaw_gateway openclaw status
+docker exec openclaw openclaw status
 
 # View logs
-docker exec openclaw_gateway openclaw logs --follow
+docker exec openclaw openclaw logs --follow
 
 # Run diagnostics
-docker exec openclaw_gateway openclaw doctor
+docker exec openclaw openclaw doctor
 ```
 
 ---
@@ -217,9 +217,9 @@ All working? 🎉 **YOU'RE DONE!**
 
 ## 📁 FILES CREATED
 
-- `/srv/arifOS/OPENCLAW_SETUP_COMPLETE.md` - This summary
-- `/srv/arifOS/AGENTS/skills/OPENCLAW_DOCTOR.md` - Troubleshooting guide
-- `/srv/arifOS/AGENTS/skills/openclaw_doctor.py` - Python diagnostic tool
+- `/root/arifOS/OPENCLAW_SETUP_COMPLETE.md` - This summary
+- `/root/arifOS/AGENTS/skills/OPENCLAW_DOCTOR.md` - Troubleshooting guide
+- `/root/arifOS/AGENTS/skills/openclaw_doctor.py` - Python diagnostic tool
 
 ---
 

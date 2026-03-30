@@ -51,7 +51,7 @@ Search for latest news about AI
 ```
 restart openclaw
 ```
-**Expected:** "Restarting openclaw_gateway... Done"
+**Expected:** "Restarting openclaw... Done"
 
 ### Test 5: System Command
 ```
@@ -191,13 +191,13 @@ Send to @arifOS_bot:
 Or run on VPS:
 ```bash
 # Check OpenClaw status
-docker exec openclaw_gateway openclaw status
+docker exec openclaw openclaw status
 
 # View logs
-docker exec openclaw_gateway openclaw logs --follow
+docker exec openclaw openclaw logs --follow
 
 # Run diagnostics
-docker exec openclaw_gateway openclaw doctor
+docker exec openclaw openclaw doctor
 ```
 
 ---

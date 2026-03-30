@@ -7,7 +7,7 @@
 set -e
 
 # Configuration
-REPO_PATH="/srv/arifOS"
+REPO_PATH="/root/arifOS"
 ENV_FILE="$REPO_PATH/.env"
 LOG_FILE="/var/log/arifos-deploy.log"
 DEPLOYMENT_LOCK="/tmp/arifos-deploy.lock"
@@ -149,7 +149,7 @@ if [ -f "$REPO_PATH/docker-compose.yml" ]; then
     
     if [ $RETRY -eq $MAX_RETRIES ]; then
         error "Health check failed after $MAX_RETRIES attempts"
-        sudo docker logs arifosmcp_server --tail 50
+        sudo docker logs arifosmcp --tail 50
         exit 1
     fi
 else
@@ -217,5 +217,5 @@ echo "   curl http://$PUBLIC_IP:8080/health"
 echo "   curl http://$PUBLIC_IP:8080/sse"
 echo ""
 echo "📊 Monitor:"
-echo "   sudo docker logs -f arifosmcp_server"
+echo "   sudo docker logs -f arifosmcp"
 echo "   sudo docker stats"
