@@ -251,11 +251,12 @@ async def main():
     import argparse
     
     parser = argparse.ArgumentParser(description="Floor Optimization Experiment")
-    parser.add_argument("--f4-min", type=float, default=-0.5, help="F4 clarity min")
-    parser.add_argument("--f7-min", type=float, default=0.03, help="F7 humility min")
-    parser.add_argument("--f7-max", type=float, default=0.15, help="F7 humility max")
+    parser.add_argument("--f4-min", type=float, default=0.3, help="F4 clarity max (was min)")
+    parser.add_argument("--f7-min", type=float, default=0.015, help="F7 humility min")
+    parser.add_argument("--f7-max", type=float, default=0.20, help="F7 humility max")
     parser.add_argument("--duration", type=int, default=60, help="Duration in seconds")
     parser.add_argument("--output", type=str, default="floor_opt_result.json")
+    parser.add_argument("--endpoint", type=str, default=None, help="MCP endpoint URL (default: simulation)")
     args = parser.parse_args()
     
     # Create thresholds from CLI args
