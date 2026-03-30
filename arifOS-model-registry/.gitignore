@@ -73,3 +73,5 @@ keys/
 
 # arifOS local overrides
 local/
+provider_souls_backup_*/
+souls_merged/

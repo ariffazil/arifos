@@ -1,8 +1,8 @@
 {
   "schema_version": "SOUL_SCHEMA_V1",
-  "generated_at": "2026-03-30T17:49:46.205153+00:00",
+  "generated_at": "2026-03-30T17:49:46.204202+00:00",
   "source": {
-    "model_spec": "models/google/gemini/gemini-2.0-flash.json",
+    "model_spec": "models/google/gemini/gemini-1.5-pro.json",
     "soul_profile": "provider_souls/google_gemini.json",
     "merged_by": "soul_merger.py",
     "binding_key": "broad_platform_generalist"
@@ -10,7 +10,7 @@
   "identity": {
     "provider": "google",
     "family": "gemini",
-    "variant": "gemini-2.0-flash",
+    "variant": "gemini-1.5-pro",
     "soul_archetype": "broad_platform_generalist"
   },
   "identity_integrity": {
