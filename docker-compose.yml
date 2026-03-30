@@ -501,7 +501,6 @@ services:
     volumes:
       - /opt/arifos/data/grafana:/var/lib/grafana
       - /root/arifOS/infrastructure/grafana/datasources/prometheus.yml:/etc/grafana/provisioning/datasources/prometheus.yml:ro
-      - /root/arifOS/infrastructure/grafana/dashboards/arifos.yaml:/etc/grafana/provisioning/dashboards/arifos.yaml:ro
       - /root/arifOS/infrastructure/grafana/dashboards:/etc/grafana/provisioning/dashboards/json:ro
     networks:
       - arifos_trinity
