@@ -197,6 +197,69 @@ def _parse_range(s: str) -> tuple[float, float]:
 class GeoXValidator:
     """
     Earth → Language contract validator.
+    Enforces arifOS Constitutional Floors on all geological intelligence.
+    
+    Now featuring the 888_JUDGE Adversarial Mode.
+    """
+
+    def __init__(self, confidence_threshold: float = 0.80):
+        self.confidence_threshold = confidence_threshold
+
+    async def adversarial_review(
+        self, 
+        insight: GeoInsight, 
+        supporting_quantities: list[GeoQuantity]
+    ) -> ValidationResult:
+        """
+        The 888_JUDGE mode. 
+        Instead of looking for support, this specifically looks for PHYSICAL VOID.
+        If an insight claims 'net pay 50m' but physical quantities show 'shale presence 1.0',
+        this method triggers an immediate CONTRADICTED verdict.
+        """
+        violations = []
+        contradicted = False
+        explanation = ""
+        
+        # 1. Floor F4 (Clarity) Check
+        if not re.search(r"\d+\s*(m|MPa|degC|fraction|%)", insight.text):
+            violations.append("F4")
+            explanation += "Violation: Missing units or numeric bounds in insight text. "
+
+        # 2. Adversarial Evidence Check (The Forge)
+        # We look for 'anti-evidence'
+        for qty in supporting_quantities:
+            # Example: Lithology contradiction
+            if "shale" in qty.quantity_type and "net pay" in insight.text.lower():
+                # A high shale presence contradicts a 'net pay' (reservoir) claim
+                if qty.value > 0.8:
+                    contradicted = True
+                    explanation += f"Contradiction: Physical quantity '{qty.quantity_type}' ({qty.value}) contradicts reservoir claim. "
+            
+            # Example: Porosity contradiction
+            if "porosity" in qty.quantity_type and qty.value < 0.05:
+                 if "reservoir" in insight.text.lower() or "pay" in insight.text.lower():
+                    contradicted = True
+                    explanation += f"Contradiction: Extreme low porosity ({qty.value}) contradicts reservoir potential. "
+
+        if contradicted:
+            return ValidationResult(
+                insight_id=insight.insight_id,
+                verdict="contradicted",
+                score=0.0,
+                evidence=supporting_quantities,
+                explanation=explanation,
+                floor_violations=violations
+            )
+
+        # Default to supported if no contradictions found and floor check passed
+        return ValidationResult(
+            insight_id=insight.insight_id,
+            verdict="supported" if not violations else "ambiguous",
+            score=1.0 if not violations else 0.5,
+            evidence=supporting_quantities,
+            explanation="Validated by 888_JUDGE. No physical contradictions detected.",
+            floor_violations=violations
+        )
 
     Converts raw tool outputs and LLM-generated text/insights into
     floor-compliant validation verdicts. The primary integrity gate
