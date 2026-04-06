@@ -143,13 +143,13 @@ from arifos.geox.geox_validator import GeoXValidator
 from arifos.geox.geox_memory import GeoMemoryStore
 from arifos.geox.geox_tools import ToolRegistry
 
-ARIFOS_MCP_URL = "http://arifosmcp:8000/mcp"
+arifosmcp_URL = "http://arifosmcp:8000/mcp"
 
 async def call_arifos_tool(tool_name: str, arguments: dict) -> str:
     """Adapter: calls any arifOS MCP tool by name."""
     async with httpx.AsyncClient(timeout=60) as client:
         resp = await client.post(
-            f"{ARIFOS_MCP_URL}",
+            f"{arifosmcp_URL}",
             json={
                 "jsonrpc": "2.0",
                 "id": 1,
