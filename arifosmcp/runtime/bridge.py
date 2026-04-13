@@ -938,6 +938,9 @@ async def call_kernel(
                 session_id=session_id,
                 verdict_candidate=payload.get("verdict_candidate", "SEAL"),
                 reason_summary=payload.get("reason_summary"),
+                candidate_action=payload.get("candidate_action"),  # The actual action being judged
+                risk_tier=payload.get("risk_tier", "medium"),  # Risk tier for escalation
+                floor_scores=payload.get("floor_scores"),  # Constitutional floor results
                 auth_context=auth_ctx,
                 max_tokens=payload.get("max_tokens") or default_max_tokens,
             )
