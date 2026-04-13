@@ -497,9 +497,9 @@ def select_wisdom_quote(
     Select a governed wisdom quote from the unified registry.
     Sources: constitutional_quotes.json, philosophy_atlas.json, wisdom_quotes.json
     """
-    from arifosmcp.runtime.wisdom_quotes import pick_quote
+    from arifosmcp.runtime.wisdom_quotes import pick_quote_with_meta
 
-    quote = pick_quote(
+    meta = pick_quote_with_meta(
         surface=surface,
         tone=tone,
         verdict=verdict,
@@ -508,6 +508,7 @@ def select_wisdom_quote(
         shadow_profile=shadow_profile,
         session_id=session_id,
     )
+    quote = meta["quote"]
     if not quote:
         return {
             "quote_id": "NONE",
@@ -516,6 +517,9 @@ def select_wisdom_quote(
             "category": "wisdom",
             "surface": surface,
             "source_type": "unified_registry",
+            "selection_reason": "safe_default",
+            "display_priority": 0,
+            "fallback_step": "no_quote",
         }
 
     return {
@@ -536,6 +540,9 @@ def select_wisdom_quote(
         "paradox_weight": quote.get("paradox_weight", 0),
         "contrast_pair": quote.get("contrast_pair"),
         "polarity": quote.get("polarity"),
+        "selection_reason": meta.get("selection_reason", "exact_match"),
+        "display_priority": meta.get("display_priority", 0),
+        "fallback_step": meta.get("fallback_step", "none"),
         "source_type": "unified_registry",
     }
 

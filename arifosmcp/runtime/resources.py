@@ -672,6 +672,44 @@ def register_v2_resources(mcp: FastMCP) -> list[str]:
         from arifosmcp.runtime.philosophy import select_wisdom_quote
         return select_wisdom_quote(surface)
 
+    @mcp.resource("arifos://wisdom/index")
+    def get_wisdom_index() -> dict[str, Any]:
+        """Index of all available wisdom resources and surfaces."""
+        from arifosmcp.runtime.wisdom_quotes import SURFACES, WISDOM_REGISTRY
+        return {
+            "surfaces": sorted(SURFACES),
+            "total_quotes": len(WISDOM_REGISTRY),
+            "resources": [
+                "arifos://wisdom/{surface}",
+                "arifos://wisdom/index",
+                "arifos://wisdom/stats",
+                "arifos://wisdom/surfaces",
+            ],
+        }
+
+    @mcp.resource("arifos://wisdom/stats")
+    def get_wisdom_stats() -> dict[str, Any]:
+        """Observability statistics for the wisdom registry."""
+        from arifosmcp.runtime.wisdom_quotes import arifos_wisdom_stats
+        return arifos_wisdom_stats()
+
+    @mcp.resource("arifos://wisdom/surfaces")
+    def get_wisdom_surfaces() -> dict[str, Any]:
+        """Coverage map of quotes per constitutional surface."""
+        from arifosmcp.runtime.wisdom_quotes import registry_stats, quotes_for_surface, SURFACES
+        stats = registry_stats()
+        return {
+            "surfaces": {
+                s: {
+                    "quote_count": stats["by_surface"].get(s, 0),
+                    "sample_quote_ids": [q["id"] for q in quotes_for_surface(s)[:5]],
+                }
+                for s in sorted(SURFACES)
+            },
+            "total_quotes": stats["total"],
+            "active_quotes": stats["active"],
+        }
+
     registered = [
         "arifos://doctrine",
         "arifos://doctrine/floor/{floor_id}",
@@ -682,6 +720,9 @@ def register_v2_resources(mcp: FastMCP) -> list[str]:
         "arifos://session/{session_id}",
         "arifos://forge",
         "arifos://wisdom/{surface}",
+        "arifos://wisdom/index",
+        "arifos://wisdom/stats",
+        "arifos://wisdom/surfaces",
     ]
     logger.info(f"Registered {len(registered)} v2 resources.")
     return registered

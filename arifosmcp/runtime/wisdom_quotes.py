@@ -1101,12 +1101,51 @@ def pick_quote(
       5) surface-only
       6) globally approved safe default
     """
+    result = pick_quote_with_meta(
+        surface=surface,
+        tone=tone,
+        verdict=verdict,
+        risk_tier=risk_tier,
+        language=language,
+        shadow_profile=shadow_profile,
+        audit=audit,
+        session_id=session_id,
+    )
+    return result["quote"]
+
+
+def pick_quote_with_meta(
+    surface: str,
+    tone: str | None = None,
+    verdict: str | None = None,
+    risk_tier: str | None = None,
+    language: str | None = None,
+    shadow_profile: str | None = None,
+    audit: bool = True,
+    session_id: str | None = None,
+) -> dict[str, Any]:
+    """
+    Deterministically select the best active quote for a surface.
+    Returns quote + selection metadata (reason, priority score, fallback step).
+    """
     if surface not in SURFACES:
         if audit:
             audit_quote_injection("DEFAULT", surface, verdict, session_id, {"reason": "unknown_surface"})
-        return _DEFAULT_QUOTE
+        return {
+            "quote": _DEFAULT_QUOTE,
+            "selection_reason": "safe_default",
+            "display_priority": 0,
+            "fallback_step": "unknown_surface",
+        }
 
     candidates = [q for q in WISDOM_REGISTRY if q["active"] and surface in q["surfaces"]]
+
+    reason_map = {
+        (False, False, False): "exact_match",
+        (True, False, False): "language_relaxed",
+        (True, True, False): "tone_relaxed",
+        (True, True, True): "shadow_relaxed",
+    }
 
     # Fallback cascade
     for relax_lang, relax_tone, relax_shadow in [
@@ -1128,6 +1167,7 @@ def pick_quote(
 
         if scored:
             best = scored[0][1]
+            priority_score = int(scored[0][0])
             if audit:
                 audit_quote_injection(
                     best["id"],
@@ -1140,14 +1180,25 @@ def pick_quote(
                         "shadow_profile": _shadow,
                         "risk_tier": risk_tier,
                         "fallback_step": f"lang={relax_lang},tone={relax_tone},shadow={relax_shadow}",
+                        "display_priority": priority_score,
                     },
                 )
-            return best
+            return {
+                "quote": best,
+                "selection_reason": reason_map.get((relax_lang, relax_tone, relax_shadow), "exact_match"),
+                "display_priority": priority_score,
+                "fallback_step": f"lang={relax_lang},tone={relax_tone},shadow={relax_shadow}",
+            }
 
     # Ultimate fallback
     if audit:
         audit_quote_injection("DEFAULT", surface, verdict, session_id, {"reason": "no_candidates"})
-    return _DEFAULT_QUOTE
+    return {
+        "quote": _DEFAULT_QUOTE,
+        "selection_reason": "safe_default",
+        "display_priority": 0,
+        "fallback_step": "no_candidates",
+    }
 
 
 def quotes_for_surface(surface: str) -> list[WisdomQuote]:
@@ -1166,8 +1217,58 @@ def registry_stats() -> dict:
     total = len(WISDOM_REGISTRY)
     by_category: dict[str, int] = {}
     by_surface: dict[str, int] = {}
+    by_language: dict[str, int] = {}
+    by_polarity: dict[str, int] = {}
+    by_attribution: dict[str, int] = {}
+    active_count = 0
     for q in WISDOM_REGISTRY:
+        if q["active"]:
+            active_count += 1
         by_category[q["category"]] = by_category.get(q["category"], 0) + 1
+        by_language[q["language"]] = by_language.get(q["language"], 0) + 1
+        if q.get("polarity"):
+            by_polarity[q["polarity"]] = by_polarity.get(q["polarity"], 0) + 1
+        by_attribution[q["attribution_confidence"]] = by_attribution.get(q["attribution_confidence"], 0) + 1
         for s in q["surfaces"]:
             by_surface[s] = by_surface.get(s, 0) + 1
-    return {"total": total, "by_category": by_category, "by_surface": by_surface}
+    return {
+        "total": total,
+        "active": active_count,
+        "by_category": by_category,
+        "by_surface": by_surface,
+        "by_language": by_language,
+        "by_polarity": by_polarity,
+        "by_attribution_confidence": by_attribution,
+    }
+
+
+def arifos_wisdom_stats() -> dict[str, Any]:
+    """Comprehensive observability over the governed wisdom registry."""
+    stats = registry_stats()
+    surfaces_list = sorted(SURFACES)
+    coverage = {
+        s: {
+            "quote_count": stats["by_surface"].get(s, 0),
+            "sample_quotes": [q["id"] for q in quotes_for_surface(s)[:3]],
+        }
+        for s in surfaces_list
+    }
+    return {
+        "ok": True,
+        "tool": "arifos_wisdom_stats",
+        "registry": stats,
+        "surfaces": coverage,
+        "shadow_index": {
+            "max_scar": max((q["scar_weight"] for q in WISDOM_REGISTRY), default=0),
+            "max_shadow": max((q["shadow_weight"] for q in WISDOM_REGISTRY), default=0),
+            "max_paradox": max((q["paradox_weight"] for q in WISDOM_REGISTRY), default=0),
+            "high_scar_quotes": [q["id"] for q in WISDOM_REGISTRY if q["scar_weight"] >= 2],
+            "high_shadow_quotes": [q["id"] for q in WISDOM_REGISTRY if q["shadow_weight"] >= 2],
+            "high_paradox_quotes": [q["id"] for q in WISDOM_REGISTRY if q["paradox_weight"] >= 2],
+        },
+        "contrast_pairs": [
+            {"quote_id": q["id"], "contrast_pair": q["contrast_pair"], "text": q["text"][:60]}
+            for q in WISDOM_REGISTRY
+            if q.get("contrast_pair")
+        ],
+    }

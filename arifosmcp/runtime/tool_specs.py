@@ -705,6 +705,30 @@ TOOLS: tuple[ToolSpec, ...] = (
         open_world_hint=False,
         idempotent_hint=True,
     ),
+    # -------------------------------------------------------------------------
+    # 20. arifos.wisdom_stats — Wisdom Registry Observability
+    # -------------------------------------------------------------------------
+    ToolSpec(
+        name="arifos_wisdom_stats",
+        stage="444",
+        purpose="Return comprehensive observability statistics for the governed wisdom registry",
+        layer="INTELLIGENCE",
+        description=(
+            "Returns total quotes, coverage by surface/category/language/polarity, "
+            "shadow index metrics, contrast pairs, and sample IDs for each surface."
+        ),
+        trinity="Ω",
+        floors=("F7",),
+        input_schema={
+            "type": "object",
+            "properties": {},
+        },
+        default_tier="low",
+        read_only_hint=True,
+        destructive_hint=False,
+        open_world_hint=False,
+        idempotent_hint=True,
+    ),
 )
 
 # ═══════════════════════════════════════════════════════════════════════════════

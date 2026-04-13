@@ -1547,6 +1547,12 @@ async def arifos_wisdom(
     return {"ok": True, "tool": "arifos_wisdom", "quote": quote}
 
 
+async def arifos_wisdom_stats() -> dict[str, Any]:
+    """Return comprehensive observability statistics for the wisdom registry."""
+    from arifosmcp.runtime.wisdom_quotes import arifos_wisdom_stats as _stats
+    return _stats()
+
+
 CANONICAL_TOOL_HANDLERS: dict[str, Any] = {
     # Canonical underscore names (Universal Compatible)
     "arifos_init": arifos_init,
@@ -1567,6 +1573,7 @@ CANONICAL_TOOL_HANDLERS: dict[str, Any] = {
     "arifos_probe": arifos_probe,
     "arifos_diag_substrate": arifos_diag_substrate,
     "arifos_wisdom": arifos_wisdom,
+    "arifos_wisdom_stats": arifos_wisdom_stats,
     # "arifos_forge_bridge": arifos_forge_bridge,  # TODO: Implement
     # Legacy internal aliases
     "arifos_route": arifos_kernel,
@@ -1592,6 +1599,7 @@ LEGACY_TOOL_ALIASES: dict[str, str] = {
     "arifos.probe": "arifos_probe",
     "arifos.diag_substrate": "arifos_diag_substrate",
     "arifos.wisdom": "arifos_wisdom",
+    "arifos.wisdom_stats": "arifos_wisdom_stats",
     # "arifos.forge_bridge": "arifos_forge_bridge",  # TODO: Implement
 }
 
