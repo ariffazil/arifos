@@ -1,11 +1,11 @@
 # Ω-Wiki Index
 
-> **Last Updated**: 2026-04-12 (Session sealed — anti-chaos restructure complete)
+> **Last Updated**: 2026-04-13 (Cockpit verified — P0/P1 stabilized)
 > **Total Pages**: 48
-> **System Status**: ✅ **999_SEAL CONFIRMED** — All systems operational
+> **System Status**: ✅ **999_SEAL CONFIRMED** — Decision Cockpit operational
 
 > **Current State**: 
-> - arifOS: Main @ `af5e70d` — Session sealed
+> - arifOS: Main — P0/P1 stabilized, `decide(query)` live
 > - GEOX: Submodule @ `d528aa1` — Anti-chaos architecture + GEOX APPS
 > - AF-FORGE: Operational
 > - All wikis synchronized
@@ -74,7 +74,7 @@ python arifosmcp/evals/mcp_inspector_test.py --all
 
 ## 💡 Concepts
 - [[Metabolic_Loop]] (The 000-999 Execution Pipeline)
-- [[MCP_Tools]] (Current tool-surface contrast: 10-tool target vs runtime migration drift)
+- [[MCP_Tools]] (Current tool-surface contrast + **NEW: Decision Cockpit live via `decide(query)`**)
 - **K00X_RUNTIME_POLICY** ([Runtime Policy — Token Budget Law + Call Rules](raw/K00X_RUNTIME_POLICY.md))
 - [[Tool_Surface_Architecture]] (Registry canon vs runtime/discovery contrast, with audit-first next step)
 - [[Governed_Packet_Contract]] (Canonical target contract for governed packets, wajib bands, tripwires, and eval metrics)
@@ -93,7 +93,8 @@ python arifosmcp/evals/mcp_inspector_test.py --all
 - [[Entity_Andrej_Karpathy]] (Researcher)
 
 ## 📄 Sources
-- [[Roadmap]] (arifOS Development Roadmap)
+- [[Roadmap]] (arifOS Development Roadmap — **updated 2026.04.13**)
+- [[Changelog]] (arifOS Changelog — **updated 2026.04.13**)
 - [[arifos_init]] (Session Bootstrap — Ψ Soul)
 - [[arifos_sense]] (Reality Grounding — Δ Mind)
 - [[arifos_mind]] (Structured Synthesis — Δ Mind)

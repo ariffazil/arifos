@@ -87,6 +87,13 @@ async def anchor_session(
         omega0 = float(env_dict.get("telemetry", {}).get("omega_0", 0.04))
         aligned = env_dict.get("ok", True)
 
+        # ── Wisdom quote for anchor surface ───────────────────────────────────
+        try:
+            from arifosmcp.runtime.philosophy import select_wisdom_quote
+            _wisdom = select_wisdom_quote("anchor")
+        except Exception:
+            _wisdom = None
+
         return {
             "session_id": session_id,
             "epoch": epoch,
@@ -96,6 +103,7 @@ async def anchor_session(
             "aligned": aligned,
             "anchored": True,
             "trace_id": env_dict.get("trace_id", "—"),
+            "wisdom": _wisdom,
         }
 
     except Exception as exc:
@@ -150,7 +158,7 @@ def init_surface(
             SetState("trace_id",         RESULT["trace_id"]),
             ShowToast("Session anchored — 000_INIT sealed", variant="success"),
         ],
-        on_error=ShowToast("Session anchor failed", variant="destructive"),
+        on_error=ShowToast("Session anchor failed", variant="error"),
     )
 
     # ── Reactive bindings ────────────────────────────────────────────────────
@@ -171,6 +179,18 @@ def init_surface(
 
         Muted("Constitutional session anchoring · DITEMPA BUKAN DIBERI")
         Separator()
+
+        # ── Wisdom strip ─────────────────────────────────────────────────────
+        try:
+            from arifosmcp.runtime.philosophy import select_wisdom_quote
+            _wisdom = select_wisdom_quote("anchor")
+            if _wisdom and _wisdom.get("quote"):
+                Muted(
+                    f'"{_wisdom["quote"]}" — {_wisdom["author"]}',
+                    css_class="text-xs italic border-l-2 pl-3 border-muted-foreground/30",
+                )
+        except Exception:
+            pass
 
         # ── Epoch + Intent ──────────────────────────────────────────────────
         with Card():

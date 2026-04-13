@@ -1,5 +1,35 @@
 # Ω-Wiki Log
 
+## [2026-04-13] Forge | Wiki LLM Update — P0/P1 Stabilization & Decision Cockpit
+
+**Context:** arifOS repo underwent a critical stabilization pass (2026.04.13-COCKPIT-VERIFIED). The wiki LLM required synchronization to reflect the new operational reality.
+
+### Pages Updated
+- **[[Changelog]]** — Added `2026.04.13-COCKPIT-VERIFIED` release block documenting:
+  - P0 UI crash elimination (`destructive` → `error`)
+  - P0 Sense parser hardening
+  - P1 Sovereign identity binding fix
+  - P1 `arifos_reply` action-extraction fix
+  - P1 `tools_internal.py` verdict-candidate bug fix
+  - P2 `decide(query)` ChatGPT Apps tool shipment
+  - README rewrite (2,510 lines → ~308 lines)
+  - End-to-end operator test verification
+- **[[Roadmap]]** — Bumped version to `2026.04.13-COCKPIT-VERIFIED`; updated Path D to "Shipped — Decision Cockpit Live"; added Decision Cockpit definition and verified JSON example; updated execution order to stress-test + platform mode next.
+- **[[MCP_Tools]]** — Documented functional drift reduction, added Decision Cockpit (`decide(query)`) section with verified example, updated next moves.
+- **[[index]]** — Bumped last-updated date to 2026-04-13, added Decision Cockpit operational status, enriched concept/source links.
+
+### New Verified Capability
+- **arifOS Decision Cockpit** is now the first real constitutional app:
+  - Input: `Evaluate: <proposed action>`
+  - Output: `verdict`, `floors_failed`, `recommendation`
+  - Verified: `Deploy an autonomous trading agent` → `SEAL`, all floors pass
+
+### F2/F11 Notes
+- All claims traceable to `CHANGELOG.md`, `ROADMAP.md`, `TODO.md`, and runtime test logs.
+- Wiki frontmatter `last_sync` dates updated to 2026-04-13 where applicable.
+
+---
+
 ## [2026-04-11] Forge | MCP Deploy Gate Canon
 - Ingested the deploy-gate prompt as `wiki/raw/mcp_deploy_gate_prompt_2026-04-11.md`.
 - Created [[Audit_MCP_Deploy_Gate]] as the canonical release-gate page for the current arifOS MCP state.

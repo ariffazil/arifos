@@ -149,8 +149,33 @@ async def execute_judge(
                 "failed": failed,
             })
 
-        # Philosophy selection
+        # Philosophy selection — fully wired to unified wisdom registry
         philosophy = _PHILOSOPHY.get(verdict, _PHILOSOPHY["pending"])
+        try:
+            from arifosmcp.runtime.philosophy import select_wisdom_quote
+
+            # Map verdict to surface + shadow profile for intentional dramaturgy
+            _verdict_profile: dict[str, dict[str, str | None]] = {
+                "SEAL":     {"surface": "judge",   "tone": "firm",       "shadow_profile": None},
+                "HOLD":     {"surface": "hold",    "tone": "severe",     "shadow_profile": "restraint"},
+                "PARTIAL":  {"surface": "partial", "tone": "reflective", "shadow_profile": "paradox"},
+                "VOID":     {"surface": "void",    "tone": "severe",     "shadow_profile": "shadow"},
+                "SABAR":    {"surface": "sabar",   "tone": "calm",       "shadow_profile": "humility"},
+                "pending":  {"surface": "anchor",  "tone": "calm",       "shadow_profile": None},
+            }
+            profile = _verdict_profile.get(verdict, _verdict_profile["pending"])
+            wisdom = select_wisdom_quote(
+                surface=str(profile["surface"]),
+                tone=str(profile["tone"]) if profile["tone"] else None,
+                verdict=verdict,
+                risk_tier=risk_tier,
+                shadow_profile=str(profile["shadow_profile"]) if profile["shadow_profile"] else None,
+                session_id=env_dict.get("trace_id"),
+            )
+            if wisdom and wisdom.get("quote"):
+                philosophy = wisdom["quote"]
+        except Exception:
+            pass
 
         return {
             "verdict": verdict,
@@ -257,7 +282,7 @@ def judge_surface(
             SetState("judged",             True),
             ShowToast("Constitutional judgment complete", variant="success"),
         ],
-        on_error=ShowToast("Judge tool error — 888_HOLD", variant="destructive"),
+        on_error=ShowToast("Judge tool error — 888_HOLD", variant="error"),
     )
 
     # ── Reactive state references ────────────────────────────────────────────

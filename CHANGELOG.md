@@ -2,6 +2,106 @@
 
 All notable changes to arifOS MCP are documented in this file.
 
+## [2026.04.13-COCKPIT-VERIFIED] — First Meaningful MCP App & P0/P1 Stabilization
+
+### 🔥 P0 — UI Crash Eliminated
+
+**Problem:** `prefab_ui` `ShowToast` accepted only `"error"`, `"success"`, `"warning"`, `"info"` — but all MCP app surfaces used `"destructive"`, causing runtime variant-mismatch crashes.
+
+**Fix:** Replaced 7 occurrences across `judge_app.py`, `forge_app.py`, `init_app.py`, `vault_app.py`.
+
+**Impact:** Constitutional app UIs (Judge, Forge, Init, Vault) now render and update without crashing.
+
+### 🔥 P0 — Sense Parser Hardened
+
+**Problem:** `arifos_sense` verdict derivation was extremely brittle:
+```python
+verdict_tag = route_reason.split("]")[0].lstrip("[") if route_reason.startswith("[") else "SABAR"
+```
+Any routing reason not wrapped in `[SEAL]`/`[HOLD]` instantly collapsed to `SABAR`.
+
+**Fix:** `tools.py` now maps `HOLD`/`ESCALATE`/`BLOCK` and `SEAL`/`PASS`/`FORWARD` substrings; clean routing without hold markers is treated as `SEAL`.
+
+**Impact:** Sense layer no longer fake-HOLDs valid queries.
+
+### 🔥 P1 — Sovereign Identity Binding Fixed
+
+**Problem:** `init_anchor` bound `declared_name` but did not promote it to `SOVEREIGN` class or `human_approval=True`, causing `arifos_reply` to see `"anonymous"` despite a valid anchor.
+
+**Fix:** `init_anchor_hardened.py` now checks `_SOVEREIGN_IDENTITY_MAP`. If `declared_name_norm` matches, it auto-promotes `session_class = SOVEREIGN` and `human_approval = True`.
+
+**Impact:** Arif's identity is now recognized and persisted across the metabolic pipeline.
+
+### 🔥 P1 — arifos_reply Judges Extracted Action, Not Raw Prompt
+
+**Problem:** The orchestrator passed the raw user query (e.g., *"Design a governed decision cockpit..."*) to `arifos_judge`, which correctly returned `HOLD` with `τ=0.50` because it was a design question, not a concrete action.
+
+**Fix:** `tools.py` now pre-extracts `action_to_judge` from `mind_result["action_output"]` or `direct_answer[0]` before calling the judge.
+
+**Impact:** The full 000–999 pipeline evaluates the *actual proposed action*, not the wrapper prompt.
+
+### 🔥 P1 — `tools_internal.py` Verdict-Candidate Bug Fixed
+
+**Problem:** `apex_judge_dispatch_impl` treated `payload["candidate"]` (the action description string) as a verdict string and passed it to `normalize_verdict(888, "Deploy an autonomous trading agent")`, causing coercion warnings and downstream `VOID`.
+
+**Fix:** Separated `candidate_action` (preserved) from `verdict_candidate` (default `"SEAL"`).
+
+**Impact:** Judge dispatch no longer confuses action text with verdict enums.
+
+### 🚀 P2 — First Real ChatGPT Apps Tool: `decide(query)`
+
+**New tool in `chatgpt_integration/chatgpt_tools.py`:**
+```python
+decide(query: str) -> {"verdict": str, "floors_failed": list, "recommendation": str}
+```
+
+**What it does:**
+- Takes a proposed action
+- Runs `arifos_judge` (888_JUDGE, dry_run)
+- Returns operator-grade verdict + failed floors + recommendation
+
+**Verified runtime output:**
+```json
+{
+  "verdict": "SEAL",
+  "floors_failed": [],
+  "recommendation": "Judgment finalized for session ..."
+}
+```
+
+### 🏛️ README Rewritten: Canonical Front Door
+
+**Change:** `README.md` reduced from **2,510 lines / 90 KB** to **~308 lines / 12 KB**.
+
+**What moved out:**
+- Deep architecture → `docs/arifos_architecture_analysis.md`
+- Constitution & Floors → `000/000_README.md`
+- Quick start → `docs/QUICK_START.md`
+- Agent rules → `AGENTS.md`
+
+**What remained:**
+- Elevator pitch + live endpoints
+- Trinity model (ΔΩΨ) + W³ formula
+- 13-floor quick reference
+- Verdict system
+- Canon map linking to deep docs
+- Deployment one-liners
+
+### ✅ Operator Test Verification
+
+**Input:** `Evaluate: Deploy an autonomous trading agent`
+
+**Result through full `arifos_reply` pipeline:**
+- `ok=True`
+- `verdict=Verdict.SEAL`
+- `status=RuntimeStatus.SUCCESS`
+- `to=ariffazil` (sovereign identity resolved)
+- `floors_triggered=[]`
+
+**Verdict:** P0/P1 stabilized. First meaningful MCP app is working.
+
+---
+
 ## [2026.04.11-SEAL-UNIFIED] - 999_SEAL Unification & Hardened Deployment
 
 ### 🏛️ ARCHITECTURE: Single Source-of-Truth Aligned

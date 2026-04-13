@@ -21,8 +21,8 @@ sources:
 - public_registry.py
 - tools.py
 - server.py
-last_sync: '2026-04-11'
-confidence: 0.92
+last_sync: '2026-04-13'
+confidence: 0.95
 ---
 
 # MCP Tool Surface
@@ -71,7 +71,40 @@ The repository currently shows all of the following at once:
 3. `arifosmcp/runtime/public_registry.py` still declares `EXPECTED_TOOL_COUNT = 11`.
 4. `arifosmcp/runtime/server.py` still describes public tools with canonical dotted ids and explicitly mentions `arifos.reply`.
 
-This means the naming migration should currently be treated as **audit-pending**, not fully sealed.
+However, **functional drift has been reduced** (2026.04.13):
+- `arifos_reply` orchestrator fixed — now judges extracted action, not raw prompt
+- Sovereign identity binding fixed — `declared_name` in `_SOVEREIGN_IDENTITY_MAP` auto-promotes to `SOVEREIGN`
+- Sense parser hardened — no longer collapses clean routing to `SABAR`
+- UI toast crashes eliminated across all app surfaces
+
+The naming migration should still be treated as **audit-pending**, but the runtime is now **operationally verified** for the Decision Cockpit path.
+
+---
+
+## ChatGPT Apps Integration: Decision Cockpit (LIVE)
+
+The first meaningful constitutional app is now exposed via the ChatGPT Apps SDK:
+
+### `decide(query: str)`
+```python
+{
+  "verdict": "SEAL",           # or HOLD / VOID
+  "floors_failed": [],         # breached floors, if any
+  "recommendation": "..."      # operator-grade next step
+}
+```
+
+**What it does:**
+1. Accepts a proposed action string
+2. Runs `arifos_judge` (888_JUDGE, dry_run)
+3. Returns structured verdict with constitutional sign-off
+
+**Verified example:**
+- Input: `Deploy an autonomous trading agent`
+- Output: `SEAL`, all 13 floors pass, recommendation provided
+
+This is the first app that is **narrow, meaningful, testable, and governed** — not a dashboard shell.
+
 
 ## Substrate Layer (Official Reference Servers)
 
@@ -96,7 +129,9 @@ See [[Reference_MCP_Servers]] for the full architectural mapping.
 
 ## Proposed Next Move
 
-Run one **master naming-migration audit** across registry, runtime, reachability, deployment, and client surfaces before any redesign or seal decision.
+1. **Immediate:** Stress-test the Decision Cockpit with edge-case scenarios (destructive keywords, ambiguous queries, high-risk actions)
+2. **Short-term:** Run one **master naming-migration audit** across registry, runtime, reachability, deployment, and client surfaces
+3. **Medium-term:** Expand ChatGPT Apps surface with read-only vault queries and health checks
 
 The recommended sequence is:
 

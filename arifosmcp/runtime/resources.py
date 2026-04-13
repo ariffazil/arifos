@@ -16,7 +16,9 @@ from typing import Any
 
 from fastmcp import FastMCP, Context
 from fastmcp.exceptions import ResourceError
-from fastmcp.resources import ResourceResult, ResourceContent
+from fastmcp.resources import ResourceContent
+# ResourceResult is FastMCP 3.x only — stub for 2.x compatibility
+ResourceResult = lambda x: x
 
 logger = logging.getLogger(__name__)
 
@@ -664,6 +666,12 @@ def register_v2_resources(mcp: FastMCP) -> list[str]:
 
         return result
 
+    @mcp.resource("arifos://wisdom/{surface}")
+    def get_wisdom(surface: str = "anchor") -> dict[str, Any]:
+        """Governed wisdom quote for a constitutional surface."""
+        from arifosmcp.runtime.philosophy import select_wisdom_quote
+        return select_wisdom_quote(surface)
+
     registered = [
         "arifos://doctrine",
         "arifos://doctrine/floor/{floor_id}",
@@ -673,6 +681,7 @@ def register_v2_resources(mcp: FastMCP) -> list[str]:
         "arifos://schema/tool/{tool_id}",
         "arifos://session/{session_id}",
         "arifos://forge",
+        "arifos://wisdom/{surface}",
     ]
     logger.info(f"Registered {len(registered)} v2 resources.")
     return registered

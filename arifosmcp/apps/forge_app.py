@@ -87,12 +87,20 @@ async def forge_judge_check(
         )
         floors_failed = (env_dict.get("policy") or {}).get("floors_failed", [])
 
+        # ── Wisdom quote for judge gate ──────────────────────────────────────
+        try:
+            from arifosmcp.runtime.philosophy import select_wisdom_quote
+            _wisdom = select_wisdom_quote("judge")
+        except Exception:
+            _wisdom = None
+
         return {
             "gate1_verdict": verdict,
             "gate1_ok": verdict == "SEAL",
             "floors_failed": floors_failed,
             "floors_failed_count": len(floors_failed),
             "trace_id": env_dict.get("trace_id", "—"),
+            "wisdom": _wisdom,
         }
 
     except Exception as exc:
@@ -130,11 +138,19 @@ async def forge_execute(
         )
 
         verdict = env_dict.get("verdict", "VOID")
+        # ── Wisdom quote for forge surface ───────────────────────────────────
+        try:
+            from arifosmcp.runtime.philosophy import select_wisdom_quote
+            _wisdom = select_wisdom_quote("forge")
+        except Exception:
+            _wisdom = None
+
         return {
             "forge_verdict": verdict,
             "forge_ok": env_dict.get("ok", False),
             "result": env_dict.get("result", "—"),
             "trace_id": env_dict.get("trace_id", "—"),
+            "wisdom": _wisdom,
         }
 
     except Exception as exc:
@@ -187,7 +203,7 @@ def forge_surface(
             SetState("trace_id",           RESULT["trace_id"]),
             ShowToast("Gate 1: Judge evaluated", variant="success"),
         ],
-        on_error=ShowToast("Judge check failed", variant="destructive"),
+        on_error=ShowToast("Judge check failed", variant="error"),
     )
 
     # ── Gate 2: Human Approval ───────────────────────────────────────────────
@@ -200,7 +216,7 @@ def forge_surface(
         SetState("gate2_approved", False),
         SetState("gate1_verdict", "888_HOLD"),
         SetState("gate1_ok", False),
-        ShowToast("Gate 2: Human REJECTED — 888_HOLD", variant="destructive"),
+        ShowToast("Gate 2: Human REJECTED — 888_HOLD", variant="error"),
     ]
 
     # ── Forge Execute ────────────────────────────────────────────────────────
@@ -214,7 +230,7 @@ def forge_surface(
             SetState("forged",        True),
             ShowToast("Forge executed — sealed to VAULT999", variant="success"),
         ],
-        on_error=ShowToast("Forge execution failed", variant="destructive"),
+        on_error=ShowToast("Forge execution failed", variant="error"),
     )
 
     # ── Reactive bindings ────────────────────────────────────────────────────
@@ -235,6 +251,18 @@ def forge_surface(
 
         Muted("Constitutional forge with dual approval · DITEMPA BUKAN DIBERI")
         Separator()
+
+        # ── Wisdom strip ─────────────────────────────────────────────────────
+        try:
+            from arifosmcp.runtime.philosophy import select_wisdom_quote
+            _wisdom = select_wisdom_quote("forge")
+            if _wisdom and _wisdom.get("quote"):
+                Muted(
+                    f'"{_wisdom["quote"]}" — {_wisdom["author"]}',
+                    css_class="text-xs italic border-l-2 pl-3 border-muted-foreground/30",
+                )
+        except Exception:
+            pass
 
         # ── Candidate Action ────────────────────────────────────────────────
         with Card(css_class="bg-muted/40"):
@@ -357,7 +385,7 @@ def forge_surface(
             Button(
                 "② Reject",
                 on_click=on_reject,
-                variant="destructive",
+                variant="error",
             )
 
             # Step 3: Execute Forge (only meaningful after both gates)

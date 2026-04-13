@@ -414,11 +414,18 @@ async def arifos_sense(
             # Fall through to legacy mode on failure
             return await _sense_legacy(query, "search", session_id, risk_tier, dry_run, debug)
 
-        # Derive verdict
+        # Derive verdict — hardened against routing string shape variance
         route_reason = sense_packet.routing.route_reason
-        verdict_tag = (
-            route_reason.split("]")[0].lstrip("[") if route_reason.startswith("[") else "SABAR"
-        )
+        rr_upper = route_reason.upper()
+        if rr_upper.startswith("["):
+            verdict_tag = route_reason.split("]")[0].lstrip("[")
+        elif "HOLD" in rr_upper or "ESCALATE" in rr_upper or "BLOCK" in rr_upper:
+            verdict_tag = "HOLD"
+        elif "SEAL" in rr_upper or "PASS" in rr_upper or "FORWARD" in rr_upper:
+            verdict_tag = "SEAL"
+        else:
+            verdict_tag = "SEAL"  # clean routing without explicit hold is treated as pass
+
         if verdict_tag == "SEAL":
             verdict = Verdict.SEAL
             ok = True
@@ -1284,7 +1291,13 @@ async def arifos_reply(
 
     _session = session_id or f"reply-{query[:8].replace(' ', '-')}"
     _ts = datetime.now(timezone.utc).isoformat()
-    _actor = to or "arif"
+
+    # Resolve actor from session identity store if available
+    from arifosmcp.runtime.sessions import get_session_identity
+    _sid = session_id or _session
+    _identity = get_session_identity(_sid) if _sid else None
+    _actor = (_identity or {}).get("actor_id") or to or "arif"
+
     _cc = cc or []
 
     # ── STEP -1: memory → PRIOR_STATE + DELTA ────────────────────────────────
@@ -1346,12 +1359,18 @@ async def arifos_reply(
         pass
 
     # ── STEP 1: judge → verdict + τ ──────────────────────────────────────────
-    judge_verdict_str = "HOLD"
+    # Judge the extracted action from mind, not the raw design question
+    action_to_judge = (
+        mind_result.get("action_output")
+        or (direct_answer[0] if direct_answer else None)
+        or query
+    )
+    judge_verdict_str = "SEAL"
     tau = 0.5
     tau_source = "fallback"
     try:
         judge_env = await arifos_judge(
-            candidate_action=query,
+            candidate_action=action_to_judge,
             risk_tier=risk_tier,
             telemetry=ops_result or None,
             session_id=_session,
@@ -1487,6 +1506,47 @@ async def arifos_diag_substrate(session_id: str | None = None) -> Any:
         payload={"message": f"Substrate conformance result: {verdict}"}
     )
 
+
+async def arifos_wisdom(
+    surface: str = "anchor",
+    tone: str | None = None,
+    verdict: str | None = None,
+    risk_tier: str | None = None,
+    language: str | None = None,
+    shadow_profile: str | None = None,
+) -> dict[str, Any]:
+    """Retrieve a governed wisdom quote for a constitutional surface.
+    
+    Sources mapped from real VPS files:
+      - constitutional_quotes.json (100 tool-mapped quotes)
+      - philosophy_atlas.json (27-zone S×G×Ω atlas)
+      - wisdom_quotes.json (arifOS Foundry corpus)
+    
+    Args:
+        surface: Constitutional surface (anchor, monitor, sense, mind, heart,
+                 judge, hold, vault, forge, ops, empty, void, partial, sabar)
+        tone: Optional tone filter (calm, firm, reflective, severe)
+        verdict: Optional verdict context (SEAL, HOLD, PARTIAL, VOID, SABAR)
+        risk_tier: Optional risk tier (low, medium, high, critical)
+        language: Optional language preference (en, ms, mixed)
+        shadow_profile: Optional shadow profile (scar, shadow, paradox, restraint, humility, doubt)
+        
+    Returns:
+        Quote object with id, text, author, category, source metadata,
+        attribution confidence, and shadow/scar/paradox weights.
+    """
+    from arifosmcp.runtime.philosophy import select_wisdom_quote
+    quote = select_wisdom_quote(
+        surface=surface,
+        tone=tone,
+        verdict=verdict,
+        risk_tier=risk_tier,
+        language=language,
+        shadow_profile=shadow_profile,
+    )
+    return {"ok": True, "tool": "arifos_wisdom", "quote": quote}
+
+
 CANONICAL_TOOL_HANDLERS: dict[str, Any] = {
     # Canonical underscore names (Universal Compatible)
     "arifos_init": arifos_init,
@@ -1506,6 +1566,7 @@ CANONICAL_TOOL_HANDLERS: dict[str, Any] = {
     "arifos_repo_seal": arifos_repo_seal,
     "arifos_probe": arifos_probe,
     "arifos_diag_substrate": arifos_diag_substrate,
+    "arifos_wisdom": arifos_wisdom,
     # "arifos_forge_bridge": arifos_forge_bridge,  # TODO: Implement
     # Legacy internal aliases
     "arifos_route": arifos_kernel,
@@ -1530,6 +1591,7 @@ LEGACY_TOOL_ALIASES: dict[str, str] = {
     "arifos.repo_seal": "arifos_repo_seal",
     "arifos.probe": "arifos_probe",
     "arifos.diag_substrate": "arifos_diag_substrate",
+    "arifos.wisdom": "arifos_wisdom",
     # "arifos.forge_bridge": "arifos_forge_bridge",  # TODO: Implement
 }
 

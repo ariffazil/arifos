@@ -16,7 +16,7 @@ tags:
 - history
 sources:
 - CHANGELOG.md
-last_sync: '2026-04-10'
+last_sync: '2026-04-13'
 confidence: 1.0
 ---
 
@@ -28,6 +28,66 @@ confidence: 1.0
 ---
 
 ## Release Timeline (Most Recent First)
+
+### `2026.04.13-COCKPIT-VERIFIED` — First Meaningful MCP App & P0/P1 Stabilization
+
+**System state moved from "alive but brittle" to "usable and meaningful."**
+
+#### 🔥 P0 — UI Crash Eliminated
+- `prefab_ui` `ShowToast` only accepted `"error"/"success"/"warning"/"info"` — but app surfaces used `"destructive"`, causing runtime crashes.
+- **Fix:** Replaced 7 occurrences across `judge_app.py`, `forge_app.py`, `init_app.py`, `vault_app.py`.
+- **Impact:** Constitutional app UIs now render without crashing.
+
+#### 🔥 P0 — Sense Parser Hardened
+- `arifos_sense` verdict derivation collapsed any non-bracketed `route_reason` to `SABAR`.
+- **Fix:** `tools.py` now maps `HOLD`/`ESCALATE`/`BLOCK` and `SEAL`/`PASS`/`FORWARD` substrings; clean routing → `SEAL`.
+- **Impact:** Sense layer no longer fake-HOLDs valid queries.
+
+#### 🔥 P1 — Sovereign Identity Binding Fixed
+- `init_anchor` bound `declared_name` but did not promote to `SOVEREIGN` class, causing `arifos_reply` to see `"anonymous"`.
+- **Fix:** `init_anchor_hardened.py` checks `_SOVEREIGN_IDENTITY_MAP`; matching names auto-promote to `SOVEREIGN` + `human_approval=True`.
+- **Impact:** Arif's identity is recognized across the metabolic pipeline.
+
+#### 🔥 P1 — arifos_reply Judges Extracted Action
+- Orchestrator was passing raw user query (e.g., *"Design a cockpit..."*) to `arifos_judge`, causing correct `HOLD` with `τ=0.50`.
+- **Fix:** `tools.py` now extracts `action_to_judge` from `mind_result["action_output"]` before judging.
+- **Impact:** 000–999 pipeline evaluates the actual proposed action, not the wrapper prompt.
+
+#### 🔥 P1 — tools_internal.py Verdict-Candidate Bug Fixed
+- `apex_judge_dispatch_impl` confused `payload["candidate"]` (action text) with verdict string, passing *"Deploy an autonomous trading agent"* to `normalize_verdict(888, ...)`, causing coercion warnings.
+- **Fix:** Separated `candidate_action` from `verdict_candidate` (default `"SEAL"`).
+- **Impact:** Judge dispatch no longer conflates action text with verdict enums.
+
+#### 🚀 P2 — First Real ChatGPT Apps Tool: `decide(query)`
+New tool in `chatgpt_integration/chatgpt_tools.py`:
+```python
+decide(query: str) -> {"verdict": str, "floors_failed": list, "recommendation": str}
+```
+- Takes a proposed action
+- Runs `arifos_judge` (888_JUDGE, dry_run)
+- Returns operator-grade verdict + failed floors + recommendation
+
+**Verified runtime output:**
+```json
+{
+  "verdict": "SEAL",
+  "floors_failed": [],
+  "recommendation": "Judgment finalized for session ..."
+}
+```
+
+#### 🏛️ README Rewritten: Canonical Front Door
+- `README.md` reduced from **2,510 lines / 90 KB** to **~308 lines / 12 KB**.
+- Deep content moved to `docs/`, `000/`, and `AGENTS.md`.
+- Front door now contains: pitch, live endpoints, Trinity model, 13-floor reference, verdict system, canon map.
+
+#### ✅ Operator Test Verification
+**Input:** `Evaluate: Deploy an autonomous trading agent`  
+**Result:** `ok=True`, `verdict=SEAL`, `status=SUCCESS`, `to=ariffazil`, `floors_triggered=[]`.
+
+**Verdict:** P0/P1 stabilized. First meaningful MCP app working.
+
+---
 
 ### `2026.04.07-SOT-SEALED` — Versioned File Unification + Single Source of Truth
 

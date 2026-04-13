@@ -200,6 +200,18 @@ def _register(mcp: FastMCP) -> None:
             Muted("Constitutional Health Dashboard • F1-F13 Floor Status")
             Separator()
 
+            # ── Wisdom strip ──────────────────────────────────────────────────
+            try:
+                from arifosmcp.runtime.philosophy import select_wisdom_quote
+                _wisdom = select_wisdom_quote("monitor")
+                if _wisdom and _wisdom.get("quote"):
+                    Muted(
+                        f'"{_wisdom["quote"]}" — {_wisdom["author"]}',
+                        css_class="text-xs italic border-l-2 pl-3 border-muted-foreground/30",
+                    )
+            except Exception:
+                pass
+
             with Column(gap=3):
                 for floor in floors:
                     f_id = floor["id"]
@@ -268,12 +280,20 @@ def _register(mcp: FastMCP) -> None:
                 css_class="text-xs text-center",
             )
 
+        # ── Wisdom quote for monitor surface ─────────────────────────────────
+        try:
+            from arifosmcp.runtime.philosophy import select_wisdom_quote
+            _wisdom = select_wisdom_quote("monitor")
+            _wisdom_text = f" {_wisdom.get('quote')} — {_wisdom.get('author')}"
+        except Exception:
+            _wisdom_text = ""
+
         floor_summary = ", ".join(
             f"{f['id']}={_status_text(f['status'], f['stability'])}" for f in floors
         )
         summary = (
             f"arifOS Metabolic Monitor | Status: {overall_status} | "
             f"ΔS={delta_s:+.2f} | Peace²={peace_sq:.2f} | Ω₀={omega0:.2f} | "
-            f"Floors: [{floor_summary}]"
+            f"Floors: [{floor_summary}] | Wisdom:{_wisdom_text}"
         )
         return ToolResult(content=summary, structured_content=view)

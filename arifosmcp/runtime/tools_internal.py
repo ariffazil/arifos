@@ -531,8 +531,10 @@ async def apex_judge_dispatch_impl(
     payload["session_id"] = session_id
 
     if mode == "judge":
-        candidate = payload.get("candidate", "SEAL")
-        payload["verdict_candidate"] = candidate
+        # candidate (action text) and verdict_candidate (verdict string) are separate concerns
+        payload.setdefault("candidate_action", payload.get("candidate", ""))
+        verdict_candidate = payload.pop("verdict_candidate", None) or "SEAL"
+        payload["verdict_candidate"] = verdict_candidate
         return await _wrap_call("apex_judge", Stage.JUDGE_888, session_id, payload, ctx)
     elif mode == "rules":
         return await _wrap_call("audit_rules", Stage.INIT_000, session_id, payload, ctx)

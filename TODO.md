@@ -1,6 +1,6 @@
 # arifOS TODO — Active Work Queue
 
-**Version:** 2026.04.07-TIER1-SEALED
+**Version:** 2026.04.13-COCKPIT-VERIFIED
 **Authority:** Muhammad Arif bin Fazil (999_VALIDATOR)
 **SoT:** This file tracks active engineering work. ROADMAP.md owns horizon strategy.
 
@@ -18,6 +18,7 @@
 - [x] **TLS**: Cert extracted from Traefik `acme.json` → `deployments/af-forge/ssl/` (expires 2026-06-03); HTTPS block uncommented
 - [x] **widget route**: `GET /widget/vault-seal` live on `arifosmcp.arif-fazil.com` with `frame-ancestors` CSP (served from Python app)
 - [x] **Verify**: `curl -I https://arifosmcp.arif-fazil.com/widget/vault-seal` returns 200 with CSP header
+- [x] **First real ChatGPT Apps tool**: `decide(query)` — constitutional decision cockpit live
 - [ ] **Vault999 volume backup**: Add `restic` or `borgbackup` cron before Phase 2 write-path opens (F11/F13 gate)
 
 ### Live MCP Tools (`/tools` returning 0)
@@ -63,7 +64,12 @@
 
 ### arifOS Runtime
 - [x] `canonical_tools` + `total_tools` fields added to `/health` — structural fix deployed (0461252f)
-- [ ] **VPS restart required** to confirm `canonical_tools: 10` live
+- [x] **P0 UI crash fixed**: `ShowToast(variant="destructive")` → `variant="error"` across all app surfaces
+- [x] **P0 Sense parser hardened**: verdict mapping no longer collapses clean routing to SABAR
+- [x] **P1 Sovereign identity binding fixed**: `ariffazil` promoted to SOVEREIGN class on init
+- [x] **P1 arifos_reply fixed**: judges extracted `action_output` from mind, not raw prompt
+- [x] **P1 Schema unification verified**: `query` aliases already present in heart/ops/judge
+- [ ] **VPS restart required** to confirm latest runtime fixes are live
 - [ ] `build_info.py` — ensure `ARIFOS_APP_VERSION` env var is read in container context
 - [ ] Entropy budget: implement `chaos_score()` across all MCP endpoints (ROADMAP H1 pending)
 - [ ] Provenance ledger: wire `arifos.vault` directly to AGI Mind Provenance
@@ -92,7 +98,19 @@
 
 ---
 
-## ✅ DONE (This Session — 2026.04.07)
+## ✅ DONE (This Session — 2026.04.13)
+
+- [x] **README rewritten**: 2,510 lines → ~300 lines. True canonical front door.
+- [x] **P0 UI crash fixed**: `ShowToast(variant="destructive")` → `variant="error"` in all 4 app surfaces
+- [x] **P0 Sense parser hardened**: `route_reason` mapping now handles non-bracketed routing cleanly
+- [x] **P1 Sovereign identity binding fixed**: `declared_name_norm` in `_SOVEREIGN_IDENTITY_MAP` auto-promotes to `SOVEREIGN` class + `human_approval=True`
+- [x] **P1 arifos_reply fixed**: `action_to_judge` extracted from `mind_result["action_output"]` instead of raw `query`
+- [x] **P1 Schema unification verified**: `query` aliases already present in heart/ops/judge
+- [x] **P2 ChatGPT Apps `decide` tool shipped**: constitutional decision cockpit (`decide(query) → verdict + floors + recommendation`)
+- [x] **Runtime verified end-to-end**: `Deploy an autonomous trading agent` → `SEAL`, all 13 floors pass
+- [x] `tools_internal.py` verdict-candidate bug fixed: `candidate_action` separated from `verdict_candidate`
+
+## ✅ DONE (Earlier — 2026.04.07)
 
 - [x] Versioned file unification (−3841 lines): `tools_v2.py` → `tools.py` etc.
 - [x] `arifos.v2.*` namespace fully purged from all active code

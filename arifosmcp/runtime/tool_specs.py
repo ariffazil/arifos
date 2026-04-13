@@ -649,6 +649,62 @@ TOOLS: tuple[ToolSpec, ...] = (
         open_world_hint=False,
         idempotent_hint=False,
     ),
+    # -------------------------------------------------------------------------
+    # 19. arifos.wisdom — Governed Wisdom Quote Retrieval
+    # -------------------------------------------------------------------------
+    ToolSpec(
+        name="arifos_wisdom",
+        stage="444",
+        purpose="Retrieve a governed wisdom quote for a constitutional surface",
+        layer="INTELLIGENCE",
+        description=(
+            "Returns a curated philosophical or cultural quote mapped to a constitutional surface. "
+            "Sources include the 27-zone philosophy atlas, constitutional tool quotes, and arifOS forged canon."
+        ),
+        trinity="Ω",
+        floors=("F7",),
+        input_schema={
+            "type": "object",
+            "properties": {
+                "surface": {
+                    "type": "string",
+                    "enum": ["anchor", "monitor", "sense", "mind", "heart", "judge", "hold", "vault", "forge", "ops", "empty", "void", "partial", "sabar"],
+                    "default": "anchor",
+                    "description": "Constitutional surface to retrieve a quote for",
+                },
+                "tone": {
+                    "type": "string",
+                    "enum": ["calm", "firm", "reflective", "severe"],
+                    "description": "Optional tone filter",
+                },
+                "verdict": {
+                    "type": "string",
+                    "enum": ["SEAL", "HOLD", "PARTIAL", "VOID", "SABAR", "pending"],
+                    "description": "Optional verdict context for targeted quote selection",
+                },
+                "risk_tier": {
+                    "type": "string",
+                    "enum": ["low", "medium", "high", "critical"],
+                    "description": "Optional risk tier context",
+                },
+                "language": {
+                    "type": "string",
+                    "enum": ["en", "ms", "mixed"],
+                    "description": "Optional language preference",
+                },
+                "shadow_profile": {
+                    "type": "string",
+                    "enum": ["scar", "shadow", "paradox", "restraint", "humility", "doubt"],
+                    "description": "Optional shadow profile for dramaturgic selection",
+                },
+            },
+        },
+        default_tier="low",
+        read_only_hint=True,
+        destructive_hint=False,
+        open_world_hint=False,
+        idempotent_hint=True,
+    ),
 )
 
 # ═══════════════════════════════════════════════════════════════════════════════

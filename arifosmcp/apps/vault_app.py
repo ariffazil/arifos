@@ -189,6 +189,13 @@ def get_vault_data() -> dict[str, Any]:
             "chain_hash": "",
         }
 
+    # ── Wisdom quote for vault surface ────────────────────────────────────
+    try:
+        from arifosmcp.runtime.philosophy import select_wisdom_quote
+        _wisdom = select_wisdom_quote("vault")
+    except Exception:
+        _wisdom = None
+
     return {
         "seal": seal_card,
         "rows": table_rows,
@@ -202,6 +209,7 @@ def get_vault_data() -> dict[str, Any]:
                 "—",
             )
         ),
+        "wisdom": _wisdom,
     }
 
 
@@ -236,7 +244,7 @@ def vault_ledger_surface() -> PrefabApp:
             SetState("loaded",        True),
             ShowToast("Vault ledger loaded", variant="success"),
         ],
-        on_error=ShowToast("Vault read error", variant="destructive"),
+        on_error=ShowToast("Vault read error", variant="error"),
     )
 
     with Column(gap=5, css_class="p-5 max-w-3xl") as view:
@@ -252,6 +260,18 @@ def vault_ledger_surface() -> PrefabApp:
 
         Muted("Immutable constitutional verdict ledger · DITEMPA BUKAN DIBERI")
         Separator()
+
+        # ── Wisdom strip ─────────────────────────────────────────────────────
+        try:
+            from arifosmcp.runtime.philosophy import select_wisdom_quote
+            _wisdom = select_wisdom_quote("vault")
+            if _wisdom and _wisdom.get("quote"):
+                Muted(
+                    f'"{_wisdom["quote"]}" — {_wisdom["author"]}',
+                    css_class="text-xs italic border-l-2 pl-3 border-muted-foreground/30",
+                )
+        except Exception:
+            pass
 
         # ── Summary Metrics ─────────────────────────────────────────────────
         with Grid(columns=4, gap=3):
