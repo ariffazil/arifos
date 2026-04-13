@@ -143,6 +143,9 @@ def register_chatgpt_app_tools(mcp: FastMCP) -> None:
         name="arifOS Vault Seal Widget",
         mime_type="text/html",
         meta={
+            "ui": {
+                "domain": "https://arifosmcp.arif-fazil.com",
+            },
             "openai/widgetDescription": "Displays constitutional seal telemetry and witness alignment.",
         },
     )

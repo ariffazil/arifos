@@ -156,6 +156,38 @@ DITEMPA, BUKAN DIBERI — Forged, Not Given
 """,
 )
 
+# ═══════════════════════════════════════════════════════════════════════════════
+# PRE-REGISTER PREFAB RENDERER WITH WIDGET DOMAIN
+# ═══════════════════════════════════════════════════════════════════════════════
+# ChatGPT Apps require a unique widget domain per app. We pre-register the
+# shared Prefab renderer so FastMCP's lazy auto-registration skips it.
+# ═══════════════════════════════════════════════════════════════════════════════
+try:
+    from prefab_ui.renderer import get_renderer_csp, get_renderer_html
+    from fastmcp.apps.config import AppConfig, ResourceCSP, app_config_to_meta_dict
+    from fastmcp.resources.types import TextResource
+    from fastmcp.utilities.mime import UI_MIME_TYPE
+
+    _csp = get_renderer_csp()
+    _prefab_app = AppConfig(
+        domain="https://arifosmcp.arif-fazil.com",
+        csp=ResourceCSP(
+            resource_domains=_csp.get("resource_domains"),
+            connect_domains=_csp.get("connect_domains"),
+        ),
+    )
+    _prefab_renderer = TextResource(
+        uri="ui://prefab/renderer.html",
+        name="Prefab Renderer",
+        text=get_renderer_html(),
+        mime_type=UI_MIME_TYPE,
+        meta={"ui": app_config_to_meta_dict(_prefab_app)},
+    )
+    mcp.add_resource(_prefab_renderer)
+    logger.info("Prefab renderer pre-registered with widget domain https://arifosmcp.arif-fazil.com")
+except Exception as _prefab_err:
+    logger.warning(f"Prefab renderer pre-registration skipped: {_prefab_err}")
+
 
 def create_aaa_mcp_server() -> FastMCP:
     """Factory for arifOS MCP Server."""
