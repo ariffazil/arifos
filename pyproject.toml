@@ -193,7 +193,7 @@ observability = [
     "prometheus-client>=0.19.0",
 ]
 viz = [
-    "matplotlib>=3.8.0",
+    "matplotlib>=3.10.8",
     "pandas>=3.0.2",
 ]
 evals = [
@@ -216,7 +216,7 @@ all = [
     "opentelemetry-exporter-otlp>=1.25.0",
     "prometheus-client>=0.19.0",
     # "chromadb>=0.5.0",  # Removed: legacy only; Qdrant is the active vector store
-    "matplotlib>=3.8.0",
+    "matplotlib>=3.10.8",
     "pandas>=3.0.2",
 ]
 
