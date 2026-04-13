@@ -133,6 +133,10 @@ TOOLS: tuple[ToolSpec, ...] = (
                 },
             },
         },
+        read_only_hint=True,
+        destructive_hint=False,
+        open_world_hint=False,
+        idempotent_hint=True,
     ),
     # ─────────────────────────────────────────────────────────────────────────
     # 3. arifos.mind — Structured Reasoning (was 333_MIND, agi_mind)
@@ -160,6 +164,10 @@ TOOLS: tuple[ToolSpec, ...] = (
                 "session_id": {"type": "string"},
             },
         },
+        read_only_hint=False,
+        destructive_hint=False,
+        open_world_hint=False,
+        idempotent_hint=False,
     ),
     # ─────────────────────────────────────────────────────────────────────────
     # 4. arifos.kernel — Execution Lane Selection (was 444_ROUT, arifos.route)
@@ -181,6 +189,10 @@ TOOLS: tuple[ToolSpec, ...] = (
                 "session_id": {"type": "string"},
             },
         },
+        read_only_hint=False,
+        destructive_hint=False,
+        open_world_hint=False,
+        idempotent_hint=False,
     ),
     # ─────────────────────────────────────────────────────────────────────────
     # 5. arifos.heart — Safety Critique (was 666_HEART, asi_heart)
@@ -202,6 +214,10 @@ TOOLS: tuple[ToolSpec, ...] = (
                 "session_id": {"type": "string"},
             },
         },
+        read_only_hint=True,
+        destructive_hint=False,
+        open_world_hint=False,
+        idempotent_hint=True,
     ),
     # ─────────────────────────────────────────────────────────────────────────
     # 6. arifos.ops — Cost Estimation (was 777_OPS, math_estimator)
@@ -253,6 +269,10 @@ TOOLS: tuple[ToolSpec, ...] = (
                 "session_id": {"type": "string"},
             },
         },
+        read_only_hint=False,
+        destructive_hint=False,
+        open_world_hint=False,
+        idempotent_hint=False,
     ),
     # ─────────────────────────────────────────────────────────────────────────
     # 8. arifos.memory — Governed Recall (was 555_MEMORY, engineering_memory)
@@ -307,6 +327,10 @@ TOOLS: tuple[ToolSpec, ...] = (
                 "session_id": {"type": "string"},
             },
         },
+        read_only_hint=False,
+        destructive_hint=False,
+        open_world_hint=False,
+        idempotent_hint=False,
     ),
     # ─────────────────────────────────────────────────────────────────────────
     # 10. arifos.forge — Delegated Execution Bridge (was shell_forge)
@@ -353,6 +377,10 @@ TOOLS: tuple[ToolSpec, ...] = (
                 "af_forge_endpoint": {"type": "string", "description": "Target substrate endpoint"},
             },
         },
+        read_only_hint=False,
+        destructive_hint=False,
+        open_world_hint=True,
+        idempotent_hint=False,
     ),
     # ─────────────────────────────────────────────────────────────────────────
     # 11. arifos.reply — Governed Reply Compositor (AGI Reply Protocol v3)
@@ -450,6 +478,10 @@ TOOLS: tuple[ToolSpec, ...] = (
             "agent": "AgiReplyEnvelopeAgent — see arifos://reply/schemas",
             "platform": "agi_reply (formatter dispatch in output_formatter.py)",
         },
+        read_only_hint=False,
+        destructive_hint=False,
+        open_world_hint=True,
+        idempotent_hint=False,
     ),
     # ─────────────────────────────────────────────────────────────────────────
     # 12. arifos.vps_monitor — Secure Telemetry (New)
@@ -476,6 +508,10 @@ TOOLS: tuple[ToolSpec, ...] = (
             },
         },
         default_tier="low",
+        read_only_hint=True,
+        destructive_hint=False,
+        open_world_hint=False,
+        idempotent_hint=True,
     ),
     # ─────────────────────────────────────────────────────────────────────────
     # 13. arifos.fetch — Governed Web Fetch (F9 Anti-Hantu)
@@ -507,6 +543,10 @@ TOOLS: tuple[ToolSpec, ...] = (
             },
         },
         default_tier="medium",
+        read_only_hint=False,
+        destructive_hint=False,
+        open_world_hint=True,
+        idempotent_hint=False,
     ),
     # ─────────────────────────────────────────────────────────────────────────
     # 14. arifos.git_status — Governed Repository State (Substrate)
@@ -526,6 +566,10 @@ TOOLS: tuple[ToolSpec, ...] = (
             },
         },
         default_tier="small",
+        read_only_hint=True,
+        destructive_hint=False,
+        open_world_hint=False,
+        idempotent_hint=True,
     ),
     # -------------------------------------------------------------------------
     # 15. arifos.probe -- System Health Probe
@@ -600,7 +644,10 @@ TOOLS: tuple[ToolSpec, ...] = (
             },
         },
         default_tier="medium",
-        readonly=False,
+        read_only_hint=False,
+        destructive_hint=True,
+        open_world_hint=False,
+        idempotent_hint=False,
     ),
 )
 

@@ -234,6 +234,26 @@ try:
     v2_resources_registered = register_resources(mcp)
     v2_routes_registered = register_rest_routes(mcp, CANONICAL_TOOL_HANDLERS)
 
+    # Register new MCP Resources (verdict, continuity, vitals)
+    try:
+        from arifosmcp.runtime.fastmcp_ext.resources import register_arifos_resources
+
+        _new_resources = register_arifos_resources(mcp)
+        v2_resources_registered.extend(_new_resources)
+        logger.info(f"FastMCP ext: registered {_new_resources} resources")
+    except Exception as _res_err:
+        logger.warning(f"FastMCP ext resources unavailable: {_res_err}")
+
+    # Register new MCP Prompts (constitutional pre-flight, AGI reply)
+    try:
+        from arifosmcp.runtime.fastmcp_ext.prompts import register_arifos_prompts
+
+        _new_prompts = register_arifos_prompts(mcp)
+        v2_prompts_registered.extend(_new_prompts)
+        logger.info(f"FastMCP ext: registered {_new_prompts} prompts")
+    except Exception as _prompt_err:
+        logger.warning(f"FastMCP ext prompts unavailable: {_prompt_err}")
+
     # Register Prefab MCP Apps (arifOS Metabolic Monitor)
     try:
         from arifosmcp.apps.metabolic_monitor import _register as _register_monitor
