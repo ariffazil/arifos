@@ -1,0 +1,24 @@
+# Apply optimized SKILL.md content from review comment when someone comments /apply-optimize.
+# Docs: https://github.com/tesslio/skill-review-and-optimize
+name: Apply skill optimization
+
+on:
+  issue_comment:
+    types: [created]
+
+jobs:
+  apply:
+    if: >
+      github.event.issue.pull_request &&
+      contains(github.event.comment.body, '/apply-optimize')
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: tesslio/skill-review-and-optimize@main
+        with:
+          mode: apply

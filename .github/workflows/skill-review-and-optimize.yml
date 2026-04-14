@@ -1,0 +1,26 @@
+# Tessl Skill Review & Optimize — review on PRs that touch SKILL.md (no secrets required).
+# Docs: https://github.com/tesslio/skill-review-and-optimize
+name: Skill review and optimize
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "**/SKILL.md"
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: tesslio/skill-review-and-optimize@main
+        # Review-only by default — works without TESSL_API_TOKEN.
+        # Optional: enable optimize after adding repo secret TESSL_API_TOKEN:
+        # with:
+        #   optimize: true
+        #   tessl-token: ${{ secrets.TESSL_API_TOKEN }}
+        # Optional quality gate:
+        #   fail-threshold: 70
