@@ -1,28 +1,13 @@
 ---
 name: agi-autonomous-controller
-description: AGI-level autonomous controller — self-healing, self-optimizing, constitutionally governed by arifOS F1-F13
+description: "Run autonomous perception-deliberation-action cycles with constitutional governance. Use when triggering self-healing, self-optimization, system health recovery, or autonomous agentic workflows governed by arifOS F1-F13. Triggers: autonomous cycle, self-heal, agi controller, auto-fix, autonomous action, system recovery."
 user-invocable: true
 type: flow
 ---
 
 # AGI Autonomous Controller
 
-**Level:** AGI (Autonomous Governance Intelligence)  
-**Governance:** arifOS F1-F13 Constitutional Floors  
-**Architecture:** ΔΩΨ Trinity (Mind/Heart/Soul)  
-**Seal:** QUADWITNESS-SEAL v64.1
-
----
-
-## Autonomous Capabilities
-
-| Capability | Description | Constitutional Floor |
-|------------|-------------|---------------------|
-| **Self-Healing** | Auto-detect and fix issues | F1 (Amanah), F4 (Clarity) |
-| **Self-Optimizing** | Tune performance, select optimal models | F2 (Truth), F8 (Genius) |
-| **Self-Protecting** | Security audits, injection defense | F12 (Injection) |
-| **Self-Governing** | Constitutional validation on all actions | F3-F13 |
-| **Self-Learning** | Pattern recognition from VAULT999 | F7 (Humility) |
+Self-healing, self-optimizing controller governed by arifOS F1-F13 constitutional floors and the ΔΩΨ Trinity architecture.
 
 ---
 
@@ -30,31 +15,22 @@ type: flow
 
 ### Phase 1: Perception (Δ Mind)
 ```bash
-# Collect system state
 arifos anchor '{"query":"Autonomous cycle initiation","actor_id":"agi-controller"}'
-health-probe  # Full stack health check
+health-probe
 arifos memory '{"query":"Similar past situations","session_id":"agi-session"}'
 ```
 
 ### Phase 2: Deliberation (Ω Heart)
 ```bash
-# Stakeholder impact analysis
 arifos heart '{"query":"Impact of proposed action","session_id":"agi-session"}'
-
-# Risk assessment
 critique-thought '{"query":"What could go wrong?","session_id":"agi-session"}'
 ```
 
 ### Phase 3: Action (Ψ Soul)
 ```bash
-# Constitutional verdict
 arifos judge '{"query":"Should proceed autonomously?","session_id":"agi-session"}'
-
-# Execute if SEAL
 arifos forge '{"query":"Execute with governance","session_id":"agi-session"}'
-
-# Commit to ledger
-arifos seal '{"query":"Autonomous action complete","session_id":"agi-session"}'
+arifos seal  '{"query":"Autonomous action complete","session_id":"agi-session"}'
 ```
 
 ---
@@ -76,18 +52,25 @@ arifos seal '{"query":"Autonomous action complete","session_id":"agi-session"}'
 
 ## 888_HOLD Triggers
 
-1. **Irreversible actions** (F1 Amanah) - deployments, migrations, deletions
-2. **Security events** (F12 Injection) - breaches, auth failures
-3. **Constitutional VOID** - Judge returns VOID verdict
-4. **Resource critical** - Disk >90%, RAM <1 GiB
+1. **Irreversible actions** (F1) — deployments, migrations, deletions
+2. **Security events** (F12) — breaches, auth failures
+3. **Constitutional VOID** — Judge returns VOID verdict
+4. **Resource critical** — Disk >90%, RAM <1 GiB
+
+---
+
+## Capabilities Summary
+
+| Capability | Constitutional Floor |
+|------------|---------------------|
+| Self-Healing | F1, F4 |
+| Self-Optimizing | F2, F8 |
+| Self-Protecting | F12 |
+| Self-Governing | F3–F13 |
+| Self-Learning (VAULT999) | F7 |
 
 ---
 
 ## Integration
 
-**Kimi Skills:** openclaw-doctor, vps-operations, arifos-constitutional, quadwitness-seal
-**OpenClaw Skills:** agentic-governance, arifos-mcp-call, health-probe, memory-archivist
-
----
-
-*AGI-LEVEL-AUTONOMOUS | QUADWITNESS-SEAL v64.1 🔱💎🧠*
+**Skills:** openclaw-doctor, vps-operations, arifos-constitutional, quadwitness-seal, agentic-governance, arifos-mcp-call, health-probe, memory-archivist
