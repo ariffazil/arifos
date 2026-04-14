@@ -18,12 +18,19 @@ import secrets
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Literal
-
-import blake3
+try:
+    import blake3
+    _HAS_BLAKE3 = True
+except ModuleNotFoundError:
+    blake3 = None
+    _HAS_BLAKE3 = False
 
 from core.shared.types import HashChain, SealRecord, VaultOutput, Verdict
 
 logger = logging.getLogger(__name__)
+
+if not _HAS_BLAKE3:
+    logger.warning("blake3 not installed; using hashlib.blake2b fallback for vault seal hashes")
 
 # Default storage
 DEFAULT_VAULT_PATH = Path(__file__).parents[2] / "VAULT999" / "vault999.jsonl"
@@ -50,11 +57,14 @@ def _canonical_entry_payload(payload: dict[str, Any]) -> dict[str, Any]:
 
 
 def compute_vault_seal_hash(payload: dict[str, Any]) -> str:
-    """Compute the canonical seal hash for a vault entry using blake3."""
+    """Compute the canonical seal hash for a vault entry using blake3 when available."""
     entry_json = json.dumps(
         _canonical_entry_payload(payload), sort_keys=True, separators=(",", ":")
     )
-    return blake3.blake3(entry_json.encode("utf-8")).hexdigest()
+    encoded = entry_json.encode("utf-8")
+    if _HAS_BLAKE3:
+        return blake3.blake3(encoded).hexdigest()
+    return hashlib.blake2b(encoded, digest_size=32).hexdigest()
 
 
 def verify_vault_record(payload: dict[str, Any]) -> tuple[bool, str | None]:
@@ -448,28 +458,29 @@ async def seal(
 
 async def vault(
     operation: str = "seal",
+    session_id: str = "",
+    summary: str = "",
+    verdict: str = "SEAL",
+    approved_by: str | None = None,
+    approval_reference: str | None = None,
+    telemetry: dict[str, Any] | None = None,
+    seal_mode: Literal["final", "provisional", "audit_only"] = "final",
+    auth_context: dict[str, Any] | None = None,
+    expected_prev_hash: str | None = None,
     **kwargs: Any,
-) -> Any:
-    """Unified Vault Interface."""
+) -> VaultOutput:
+    """Router for vault operations."""
     if operation == "seal":
-        return await seal(**kwargs)
-
-    from .unified_memory import vault as memory_vault
-
-    return await memory_vault(operation=operation, **kwargs)
-
-
-# Unified alias
-SealReceipt = SealRecord
-seal_vault = seal
-
-
-__all__ = [
-    "SealReceipt",
-    "compute_vault_seal_hash",
-    "seal",
-    "seal_vault",
-    "vault",
-    "verify_vault_ledger",
-    "verify_vault_record",
-]
+        return await seal(
+            session_id=session_id,
+            summary=summary,
+            verdict=verdict,
+            approved_by=approved_by,
+            approval_reference=approval_reference,
+            telemetry=telemetry,
+            seal_mode=seal_mode,
+            auth_context=auth_context,
+            expected_prev_hash=expected_prev_hash,
+            **kwargs,
+        )
+    raise ValueError(f"Unsupported vault operation: {operation}")
