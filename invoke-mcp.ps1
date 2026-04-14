@@ -10,7 +10,7 @@ param(
 
     [string]$PythonExe = "python",
 
-    [string]$RepoRoot = "C:\Users\arif.fazil\OneDrive - PETRONAS\Documents\DOWNLOADS\arifOS-main",
+    [string]$RepoRoot = $PWD,
 
     [int]$TimeoutSeconds = 30,
 

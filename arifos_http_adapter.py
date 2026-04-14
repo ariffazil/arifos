@@ -222,11 +222,14 @@ def _call_mcp_stdio(tool_name: str, arguments: dict[str, Any], timeout_seconds: 
     module_name = _env_str(MCP_MODULE_ENV, "arifosmcp.runtime")
     transport_mode = _env_str(MCP_TRANSPORT_ENV, "stdio")
 
-    env = os.environ.copy()
-    env.setdefault("ARIFOS_MINIMAL_STDIO", "1")
+    # Filtered environment: avoid leaking parent secrets to child process
+    env_whitelist = {"PATH", "SYSTEMROOT", "ARIFOS_MINIMAL_STDIO", "PYTHONPATH"}
+    filtered_env = {k: v for k, v in os.environ.items() if k in env_whitelist}
+    filtered_env.setdefault("ARIFOS_MINIMAL_STDIO", "1")
     py_path = os.getenv(MCP_PYTHONPATH_ENV, "").strip()
     if py_path:
-        env["PYTHONPATH"] = py_path
+        filtered_env["PYTHONPATH"] = py_path
+    env = filtered_env
 
     proc = subprocess.Popen(
         [python_exe, "-m", module_name, transport_mode],
@@ -335,16 +338,19 @@ def _decode_mcp_tool_result(tool_response: dict[str, Any] | None) -> tuple[bool,
     content = result.get("content")
 
     if isinstance(content, list):
+        text_parts: list[str] = []
         for block in content:
             if isinstance(block, dict) and block.get("type") == "text":
                 text = block.get("text", "")
-                if not isinstance(text, str):
-                    continue
-                try:
-                    parsed = json.loads(text)
-                except Exception:
-                    parsed = text
-                return is_error, parsed
+                if isinstance(text, str):
+                    text_parts.append(text)
+        if text_parts:
+            full_text = "\n".join(text_parts)
+            try:
+                parsed = json.loads(full_text)
+            except Exception:
+                parsed = full_text
+            return is_error, parsed
 
     return is_error, result
 

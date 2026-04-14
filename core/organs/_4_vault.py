@@ -458,29 +458,28 @@ async def seal(
 
 async def vault(
     operation: str = "seal",
-    session_id: str = "",
-    summary: str = "",
-    verdict: str = "SEAL",
-    approved_by: str | None = None,
-    approval_reference: str | None = None,
-    telemetry: dict[str, Any] | None = None,
-    seal_mode: Literal["final", "provisional", "audit_only"] = "final",
-    auth_context: dict[str, Any] | None = None,
-    expected_prev_hash: str | None = None,
     **kwargs: Any,
-) -> VaultOutput:
-    """Router for vault operations."""
+) -> Any:
+    """Unified Vault Interface."""
     if operation == "seal":
-        return await seal(
-            session_id=session_id,
-            summary=summary,
-            verdict=verdict,
-            approved_by=approved_by,
-            approval_reference=approval_reference,
-            telemetry=telemetry,
-            seal_mode=seal_mode,
-            auth_context=auth_context,
-            expected_prev_hash=expected_prev_hash,
-            **kwargs,
-        )
-    raise ValueError(f"Unsupported vault operation: {operation}")
+        return await seal(**kwargs)
+
+    from .unified_memory import vault as memory_vault
+
+    return await memory_vault(operation=operation, **kwargs)
+
+
+# Unified alias
+SealReceipt = SealRecord
+seal_vault = seal
+
+
+__all__ = [
+    "SealReceipt",
+    "compute_vault_seal_hash",
+    "seal",
+    "seal_vault",
+    "vault",
+    "verify_vault_ledger",
+    "verify_vault_record",
+]
