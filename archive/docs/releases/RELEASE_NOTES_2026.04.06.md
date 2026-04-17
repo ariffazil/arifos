@@ -33,10 +33,10 @@ Tool names are now verbs (MCP best practice):
 ### 2. Docker Production Deployment
 
 **New Files:**
-- `deployments/af-forge/Dockerfile` — Multi-stage build with Python 3.11
-- `deployments/af-forge/docker-compose.yml` — Full stack (MCP + Nginx + Qdrant + Redis)
-- `deployments/af-forge/deploy.sh` — Automated deployment script
-- `deployments/af-forge/nginx.conf` — Nginx with CSP headers for ChatGPT widget
+- `deployments/a-forge/Dockerfile` — Multi-stage build with Python 3.11
+- `deployments/a-forge/docker-compose.yml` — Full stack (MCP + Nginx + Qdrant + Redis)
+- `deployments/a-forge/deploy.sh` — Automated deployment script
+- `deployments/a-forge/nginx.conf` — Nginx with CSP headers for ChatGPT widget
 
 **Features:**
 - Non-root container user (`arifos`)
@@ -53,7 +53,7 @@ Exposed Tools:
 - `render_vault_seal` — Renders interactive widget in ChatGPT UI
 - `list_recent_verdicts` — Read-only vault audit log (last 100)
 
-**Widget:** `https://mcp.af-forge.io/widget/vault-seal`
+**Widget:** `https://mcp.a-forge.io/widget/vault-seal`
 - CSP-compliant (`frame-ancestors https://chat.openai.com`)
 - Displays: Truth Score, Humility Level, Entropy Delta, Harmony Ratio, Reality Index, Witness Strength
 - BLS attestation visualization (3-of-5 juror quorum)
@@ -121,7 +121,7 @@ Exposed Tools:
 
 ### Quick Deploy
 ```bash
-cd deployments/af-forge
+cd deployments/a-forge
 export ARIFOS_BUILD_SHA=$(git rev-parse HEAD)
 export ARIFOS_BUILD_TIME=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 docker compose up -d --build
@@ -131,7 +131,7 @@ docker compose up -d --build
 ```bash
 curl http://localhost:3000/health
 curl http://localhost:3000/build
-curl -I https://mcp.af-forge.io/widget/vault-seal | grep content-security
+curl -I https://mcp.a-forge.io/widget/vault-seal | grep content-security
 ```
 
 ---
@@ -153,7 +153,7 @@ curl -I https://mcp.af-forge.io/widget/vault-seal | grep content-security
 | **PyPI Package** | `pip install arifosmcp` |
 | **Docker Image** | `docker pull arifosmcp:latest` |
 | **GitHub Release** | https://github.com/ariffazil/arifOS/releases |
-| **Widget** | https://mcp.af-forge.io/widget/vault-seal |
+| **Widget** | https://mcp.a-forge.io/widget/vault-seal |
 
 ---
 
