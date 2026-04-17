@@ -57,7 +57,7 @@ The module loader fails with `No module named 'mcp.runtime'` because the import 
 
 ## What is Ready for Core Team
 
-### 1. AF-FORGE Server (Running)
+### 1. A-FORGE Server (Running)
 ```bashnc -zv localhost 7071  # Connection confirmed
 curl http://localhost:7071/health  # Healthy
 curl -X POST http://localhost:7071/sense \
@@ -72,8 +72,8 @@ curl -X POST http://localhost:7071/sense \
 
 ### 3. Integration Code (Complete)
 - `tools_v2_production.py` — Full implementation
-- `af_forge_bridge.py` — Python bridge module
-- Environment variables: `AF_FORGE_ENABLED`, `AF_FORGE_ENDPOINT`, `AF_FORGE_TIMEOUT_SECONDS`
+- `a_forge_bridge.py` — Python bridge module
+- Environment variables: `A_FORGE_ENABLED`, `A_FORGE_ENDPOINT`, `A_FORGE_TIMEOUT_SECONDS`
 
 ### 4. Validation Tests
 - Destructive query → 888_HOLD ✅
@@ -85,8 +85,8 @@ curl -X POST http://localhost:7071/sense \
 ## Handoff Package for Core Team
 
 ```
-/root/AF-FORGE/src/server.ts              # TS governance engine
-/root/af_forge_bridge.py                  # Python bridge reference
+/root/A-FORGE/src/server.ts              # TS governance engine
+/root/a_forge_bridge.py                  # Python bridge reference
 /root/P0_OPTIMUM_PATH.md                  # This document
 /tmp/tools_v2_production.py               # Integration implementation
 /root/P0_FINAL_SEAL.md                    # Complete architecture docs
@@ -105,12 +105,12 @@ import os
 import requests
 import asyncio
 
-AF_FORGE_ENABLED = os.getenv("AF_FORGE_ENABLED", "false").lower() == "true"
-AF_FORGE_ENDPOINT = os.getenv("AF_FORGE_ENDPOINT", "http://host:7071/sense")
-AF_FORGE_TIMEOUT = float(os.getenv("AF_FORGE_TIMEOUT_SECONDS", "2.0"))
+A_FORGE_ENABLED = os.getenv("A_FORGE_ENABLED", "false").lower() == "true"
+A_FORGE_ENDPOINT = os.getenv("A_FORGE_ENDPOINT", "http://host:7071/sense")
+A_FORGE_TIMEOUT = float(os.getenv("A_FORGE_TIMEOUT_SECONDS", "2.0"))
 
 # In arifos_sense() function, at start:
-af_result = await _call_af_forge_bridge(query, session_id)
+af_result = await _call_a_forge_bridge(query, session_id)
 if af_result and af_result.get("sense", {}).get("recommended_next_stage") == "hold":
     return {"verdict": "HOLD", "message": "888_HOLD: ..."}
 ```
@@ -121,9 +121,9 @@ if af_result and af_result.get("sense", {}).get("recommended_next_stage") == "ho
 
 ```bash
 # Add to MCP service environment
-AF_FORGE_ENABLED=true
-AF_FORGE_ENDPOINT=http://af-forge:7071/sense  # or localhost:7071
-AF_FORGE_TIMEOUT_SECONDS=2.0
+A_FORGE_ENABLED=true
+A_FORGE_ENDPOINT=http://a-forge:7071/sense  # or localhost:7071
+A_FORGE_TIMEOUT_SECONDS=2.0
 ```
 
 ---
@@ -133,10 +133,10 @@ AF_FORGE_TIMEOUT_SECONDS=2.0
 | Test | Expected | Method |
 |------|----------|--------|
 | MCP health | 200 OK | `curl /health` |
-| AF-FORGE bridge | No errors | MCP logs |
+| A-FORGE bridge | No errors | MCP logs |
 | Destructive query | 888_HOLD | MCP client call |
 | Safe query | Telemetry | Response inspection |
-| Fallback | Python Sense | Stop AF-FORGE, test |
+| Fallback | Python Sense | Stop A-FORGE, test |
 
 ---
 
@@ -161,7 +161,7 @@ AF_FORGE_TIMEOUT_SECONDS=2.0
 **FOR ARIF/OS CORE TEAM:**
 
 1. Review `tools_v2_production.py` for integration pattern
-2. Add AF-FORGE bridge call to `arifos_sense()` function
+2. Add A-FORGE bridge call to `arifos_sense()` function
 3. Set environment variables in deployment
 4. Run integration tests
 5. Deploy to production
