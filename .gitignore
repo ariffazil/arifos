@@ -79,6 +79,20 @@ arifosmcp.egg-info/
 VAULT999/
 eigent/
 
+# ── FHS Runtime Paths (never in git) ───────────────────────────────
+# These paths are runtime-only. Git tracks source, not state.
+/var/lib/arifOS/
+/var/lib/arifOS/**
+/run/arifOS/
+/run/arifOS/**
+/tmp/arifOS/
+/tmp/arifOS/**
+
+# ── Runtime Artifacts (never in git) ───────────────────────────────
+benchmark_report.json
+SEALED_EVENTS.jsonl
+*.jsonl
+
 # SQLite databases
 *.db
 
