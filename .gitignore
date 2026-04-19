@@ -1,10 +1,16 @@
+# arifOS — FHS-Aligned Gitignore
+# Constitutional governance: runtime state must never be in git.
+
 # Python
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
 .Python
+venv/
+.venv/
 env/
+ENV/
 build/
 develop-eggs/
 dist/
@@ -21,115 +27,55 @@ wheels/
 .installed.cfg
 *.egg
 
-# Testing
-.pytest_cache/
-.coverage
-htmlcov/
-.tox/
-.nox/
-.cache/
-
-# Debug/Temp JSON artifacts (NEVER commit these)
-v*.json
-final_*.json
-trace_*.json
-live_*.json
-debug_*.json
-test_*.json
-persist_*.json
-init_res.json
-mind_res.json
-sense_trace.json
-mcp.json
-wow_*.json
-
-# Deployment audit artifacts (should be in wiki, not repo root)
-DEPLOY_*.md
-EPOCH_*.md
-STATUS_EPOCH_*.md
-THERMO_*.md
-MCP_WEB_*.md
-LANDING_PAGE_*.md
-TOOLS_FLOORS_*.md
-nosetests.xml
-coverage.xml
-*.cover
-*.py,cover
-.hypothesis/
-
-# Environment
-.env
-.venv
-venv/
-ENV/
-env.bak/
-venv.bak/
-*.env
-*.key
-*.pem
-openclaw.json
-
 # IDEs
 .vscode/
 .idea/
 *.swp
-*.swo
+*~
 
-# Logs
-*.log
-logs/*.log
-logs/backup.log
-!logs/audit.jsonl
+# OS
+.DS_Store
+Thumbs.db
 
-# OpenClaw internals
-.openclaw/
-.arifos/
-
-# build
-bin/
-# dashboard
-node_modules/
-dist/
-# Large files and backups
-_ARCHIVE/
-*.zip
-*.tar.gz
-*.7z
-*.rar
-BACKUP_*.zip
-
-# arifosmcp distribution
-arifosmcp.egg-info/
-.env.docker
+# VAULT999 — Runtime Ledger State (NEVER in git)
+# Primary ledger: Supabase. Local JSONL is receipt cache only.
 VAULT999/
-eigent/
 
-# SQLite databases
+# ── FHS Runtime Paths (never in git) ───────────────────────────────
+# Git tracks source. Container enforces FHS. Runtime state is outside git.
+/var/lib/arifOS/
+/var/lib/arifOS/**
+/run/arifOS/
+/run/arifOS/**
+/tmp/arifOS/
+/tmp/arifOS/**
+
+# ── Runtime Artifacts ────────────────────────────────────────────────
+*.jsonl
 *.db
+SEALED_EVENTS.jsonl
+benchmark_report.json
 
-
-# arifOS secret files
-.governance_secret
-*.secret
-secrets/*.secret
-secrets/
-.coverage
-
-
-# Test artefacts — runtime outputs, not source
-test.txt
-test_write.tmp
-pytest_output.txt
-eval_results.json
-eval_results.txt
-*.tmp
-*_output.*
-
-# Vault / Witness runtime outputs (NOT source)
-core/vault999/**/*.jsonl
+# Memory artifacts
+memory/
+*.bin
 *.jsonl
 
-# Test / eval runtime outputs
-pytest_output.txt
-eval_results.*
-*_output.*
+# Logs and telemetry
+logs/
+*.log
+telemetry/
+*.benchmark_report.json
+
+# Pytest
+.pytest_cache/
+.coverage
+htmlcov/
+
+# MyPy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Import Linter
+.importlinter_cache/
