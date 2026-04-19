@@ -1,0 +1,160 @@
+# ============================================================
+# arifOS Runtime Manifest — Linux FHS Contract
+# ============================================================
+# SEALED: 999 — DITEMPA BUKAN DIBERI
+#
+# This document is the runtime contract between source and runtime.
+# Git repos = source control for /usr/lib/arifOS/ only.
+# VPS filesystem = Linux FHS, full stop.
+# Docker = translation layer between the two.
+#
+# Governance rule: If it needs to exist at runtime, it must be
+# produced by the build. Nothing runtime-essential lives in git
+# that isn't compiled in.
+# ============================================================
+
+version: "1.0"
+ sealed: "999"
+ date: "2026-04-19"
+ principle: "Linux FHS (Filesystem Hierarchy Standard)"
+
+# ------------------------------------------------------------
+# RUNTIME FILESYSTEM MAP
+# ------------------------------------------------------------
+# All paths are absolute inside the Docker container / VPS runtime.
+# Git repos are inputs only — never exposed directly at runtime.
+
+filesystem:
+
+  /etc/arifOS/                    # Immutable config, constitutional law
+    description: "Read-only at runtime. Written only during build/deploy."
+    contents:
+      - "F1-F13 floor definitions (YAML/JSON)"
+      - "Tool manifests (MCP registry — auto-generated, 13 canonical only)"
+      - "Constitution (arifOS_CORE_SPEC_v2.0.md)"
+      - "Server config (server.json, capability_map.json)"
+      - "Public certificates, auth tokens (if any)"
+
+  /usr/lib/arifOS/               # Installed package code
+    description: "Python source — installed via pip/docker build. Built FROM git."
+    contents:
+      - "organs/           # GEOX, WEALTH, WELL implementations"
+      - "kernel/           # F1-F13 engine"
+      - "vault/            # VAULT999 client + ledger logic"
+      - "memory/           # Session + vector memory"
+      - "mcp/              # FastMCP server, tool registration"
+      - "shared/           # types, contracts (Artifact, Verdict, etc.)"
+    git_scope: "This directory ONLY. Nothing else in git maps to runtime."
+
+  /usr/bin/arifOS/               # Callable binaries = MCP tool surface
+    description: "13 canonical tool entry points. Auto-generated from /etc/arifOS/manifests/"
+    tools: &canonical_tools
+      - arifos_init          # /bin/init — session anchor
+      - arifos_sense         # /bin/sense — constitutional sensing
+      - arifos_mind          # /bin/mind — reasoning engine
+      - arifos_heart         # /bin/heart — affective/ethical core
+      - arifos_kernel        # /bin/kernel — router, /proc interface
+      - arifos_judge        # /bin/judge — verdict engine
+      - arifos_vault        # /bin/vault — VAULT999 ledger
+      - arifos_forge        # /bin/forge — execution manifest
+      - arifos_gateway      # /bin/gateway — transport + routing
+      - arifos_ops          # /bin/ops — operational tools
+      - arifos_memory       # /bin/memory — session + vector memory
+      - arifos_ora_bio     # /dev/bio — oracle bio mode-dispatch
+      - arifos_ora_world   # /dev/world — oracle world mode-dispatch
+    rule: "No tool registered to MCP may derive its name from a source path."
+
+  /var/lib/arifOS/               # Persistent mutable state
+    description: "Written continuously at runtime. Survives restarts."
+    subdirs:
+      - "vault/         # VAULT999 ledger, chain files"
+      - "sessions/      # Active session state"
+      - "supabase/      # Supabase sync cache"
+      - "cache/         # Vector embeddings cache"
+
+  /var/log/arifOS/              # Write-once audit logs
+    description: "Append-only. Seal records, telemetry emit."
+    subdirs:
+      - "seals/         # VAULT999 seal receipts"
+      - "telemetry/     # Metabolic, thermodynamic logs"
+      - "access/        # Access audit"
+
+  /run/arifOS/                  # Ephemeral runtime artifacts
+    description: "Exists only while process is alive."
+    subdirs:
+      - "pids/          # PID files"
+      - "sockets/       # UDS socket files"
+      - "handles/      # Active session handles"
+
+  /tmp/arifOS/                  # Throw-away computation
+    description: "Temp seals, scratch Monte Carlo, ephemeral work."
+
+# ------------------------------------------------------------
+# SOURCE → RUNTIME COMPILATION CONTRACT
+# ------------------------------------------------------------
+# Git repos are build inputs. The Docker build is the compiler.
+# Git tree NEVER IS the runtime tree. It PRODUCES the runtime tree.
+
+compilation:
+  build_command: "docker build --build-arg GIT_SHA=$(git rev-parse HEAD)"
+  input: "git repos (source control)"
+  output: "Docker image (runtime)"
+
+  stage_1_git_to_source:
+    # git clone → source tree
+    description: "Source files land in /usr/src/ (build stage only)"
+    output_path: "/usr/src/arifOS/"
+
+  stage_2_source_to_lib:
+    # pip install -e . → /usr/lib/arifOS/
+    description: "Installed package code"
+    output_path: "/usr/lib/arifOS/"
+
+  stage_3_manifest_generation:
+    # Generate /etc/arifOS/ from canonical docs in source
+    description: "Tool manifests + floor definitions auto-generated"
+    output_path: "/etc/arifOS/"
+
+  stage_4_mcp_registry:
+    # FastMCP registers only 13 canonical tools from /etc/arifOS/manifests/
+    description: "MCP tool registry = /usr/bin/arifOS/"
+    output_path: "/usr/bin/arifOS/"
+
+# ------------------------------------------------------------
+# ANTI-PROLIFERATION RULE
+# ------------------------------------------------------------
+# Tool naming law: name by what the caller needs, not where code lives.
+#
+# BEFORE (wrong — source-path-as-tool-name):
+#   P_well_state_read        → organs/well/state_read.py
+#   P_well_readiness_check   → organs/well/readiness_check.py
+#   E_geo_fluids             → organs/geox/fluid_systems.py
+#
+# AFTER (correct — function-first):
+#   arifos_ora_bio mode=snapshot_read   → internal: organs/well/*
+#   arifos_ora_bio mode=readiness_check
+#   arifos_ora_world mode=fluid_analysis → internal: organs/geox/*
+#
+# ioctl() principle: one device, many operations via mode=.
+# Same resource domain → one tool with mode dispatch.
+# Different resource domain → different tool.
+
+anti_proliferation:
+  rule: "One tool per conceptual resource domain. Operations on same domain = mode= dispatch."
+  example_ioctl:
+    - "arifos_ora_bio mode=snapshot_read"
+    - "arifos_ora_bio mode=readiness_check"
+    - "arifos_ora_bio mode=floor_scan"
+    - "arifos_ora_bio mode=log_update"
+    - "arifos_ora_bio mode=anchor_state"
+  enforcement: "MCP registry rejects any tool whose name contains an internal path component."
+
+# ------------------------------------------------------------
+# DIRTY FLAG — is this manifest currently accurate?
+# ------------------------------------------------------------
+# If runtime and this manifest disagree, this manifest is wrong —
+# not the runtime. The runtime is always the source of truth.
+# Update this file to reflect reality, then re-seal.
+
+manifest_accuracy: "LIVE"   # LIVE | STALE | SEALED
+last_verified: "2026-04-19T05:45:00Z"
