@@ -487,18 +487,20 @@ python arifosmcp/evals/mcp_inspector_test.py --all
 
 ### Services
 
-| Service | Port | Purpose |
-|---|---|---|
-| arifOS MCP | :8000 | Main API |
-| mcp_time | :8001 | Epoch substrate |
-| mcp_filesystem | :8002 | File substrate |
-| mcp_git | :8003 | Git substrate |
-| mcp_memory | :8004 | Memory substrate |
-| mcp_fetch | :8005 | Fetch substrate |
-| Redis | :6379 | Session cache |
-| PostgreSQL | :5432 | Relational store |
-| Qdrant | :6333 | Vector database |
-| Ollama | :11434 | Local LLM inference |
+| Service | Internal Port | Purpose | Notes |
+|---|---|---|---|
+| arifOS MCP | :8080 | Main API | Behind Traefik; public via `mcp.arif-fazil.com/mcp` |
+| mcp_time | :8001 | Epoch substrate | localhost only |
+| mcp_filesystem | :8002 | File substrate | localhost only |
+| mcp_git | :8003 | Git substrate | localhost only |
+| mcp_memory | :8004 | Memory substrate | localhost only |
+| mcp_fetch | :8005 | Fetch substrate | localhost only |
+| Redis | :6379 | Session cache | internal |
+| PostgreSQL | :5432 | Relational store | internal |
+| Qdrant | :6333 | Vector database | internal |
+| Ollama | :11434 | Local LLM inference | internal |
+
+> **Self-hosted note:** Default deploy exposes MCP only via Traefik (port 443). Substrates (:8001–:8005) are localhost-only binding. Internal MCP service port is :8080, not :8000.
 
 ---
 
@@ -522,32 +524,33 @@ No component failure results in a silent SEAL. Every failure path leads to HOLD 
 
 ## Telemetry
 
-Every response envelope includes:
+Real telemetry snapshot from `arifos_sense` governed query, 2026-04-19:
 
 ```json
 {
-  "telemetry": {
-    "dS":         -0.78,
-    "peace2":      1.22,
-    "kappa_r":     0.97,
-    "echoDebt":    0.06,
-    "shadow":      0.05,
-    "confidence":  0.93,
-    "psi_le":      1.08,
-    "verdict":     "SEAL"
-  },
-  "witness": { "human": 1.0, "ai": 0.93, "earth": 0.9 },
-  "qdf": 0.95
+  "entropy_delta":  -0.0,
+  "peace_squared":   0.5,
+  "vitality_index":  0.5946,
+  "echo_debt":       0.0,
+  "shadow":          0.0,
+  "confidence":      0.5,
+  "verdict":         "HOLD",
+  "metabolic_stage": 333
 }
 ```
 
 | Metric | Meaning | Target |
 |---|---|---|
-| `dS` | Entropy change (F4) | ≤ 0 |
-| `peace2` | Non-destruction (F5) | ≥ 1.0 |
-| `kappa_r` | Reversibility (F1) | ≥ 0.7 |
-| `confidence` | Overall (F3) | ≥ 0.95 |
-| `shadow` | Dark patterns (F9) | < 0.3 |
+| `entropy_delta` | Direction of epistemic order (F4 — Clarity) | ≤ 0 |
+| `peace_squared` | Non-destructive value creation (F5 — Peace²) | ≥ 1.0 |
+| `vitality_index` | System energy / aliveness | ≥ 0.5 |
+| `echo_debt` | Linguistic pattern debt (F4) | < 0.3 |
+| `shadow` | Dark/adversarial pattern presence (F9 — Ethics) | < 0.3 |
+| `confidence` | Overall W³ consensus strength (F3 — Tri-Witness) | ≥ 0.95 |
+| `verdict` | Current constitutional verdict | SEAL / HOLD / VOID |
+| `metabolic_stage` | Current stage in 000–999 pipeline | 000–999 |
+
+Full `/health` response adds: `witness {human, ai, earth}`, `governance.floors_hard_doctrinal`, `capability_map` (redacted by design — reports capability state, never raw credentials).
 
 ---
 
