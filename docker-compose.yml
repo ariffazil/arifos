@@ -5,60 +5,6 @@
 
 services:
   # --- Edge Router ---
-  traefik:
-    image: traefik:v3.6.9
-    container_name: traefik
-    init: true
-    command:
-      - "--api.insecure=false"
-      - "--providers.docker=true"
-      - "--providers.docker.exposedbydefault=false"
-      - "--entrypoints.web.address=:80"
-      - "--entrypoints.websecure.address=:443"
-      - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
-      - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
-      - "--certificatesresolvers.letsencrypt.acme.tlschallenge=true"
-      - "--certificatesresolvers.letsencrypt.acme.email=ariffazil@gmail.com"
-      - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
-      - "--metrics.prometheus=true"
-      - "--metrics.prometheus.addEntryPointsLabels=true"
-      - "--metrics.prometheus.addServicesLabels=true"
-      - "--metrics.prometheus.addRoutersLabels=true"
-      - "--log.level=WARN"
-      - "--accesslog=false"
-    environment:
-      - DOCKER_API_VERSION=1.44
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - /usr/bin/docker:/usr/bin/docker:ro
-      - /usr/libexec/docker:/usr/libexec/docker:ro
-      - /var/scripts/restart_openclaw.sh:/var/scripts/restart_openclaw.sh:ro
-      - /opt/arifos/data/triggers:/shared/triggers
-      - /opt/arifos/data/openclaw/models:/root/.node-llama-cpp/models
-      - /opt/arifos/traefik/acme.json:/letsencrypt/acme.json
-    networks:
-      - arifos_trinity
-    deploy:
-      resources:
-        limits:
-          cpus: '0.5'
-          memory: 256M
-        reservations:
-          cpus: '0.1'
-          memory: 64M
-    mem_limit: 256M
-    mem_reservation: 64M
-    restart: unless-stopped
-    security_opt:
-      - no-new-privileges:true
-    read_only: true
-    tmpfs:
-      - /tmp:noexec,nosuid,size=10m
-
-  # --- Persistence Layers ---
   postgres:
     image: pgvector/pgvector:pg16
     container_name: postgres
@@ -72,7 +18,7 @@ services:
     ports:
       - "127.0.0.1:5432:5432"
     networks:
-      - arifos_trinity
+      - arifos
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-arifos_admin} -d ${POSTGRES_DB:-arifos_vault}"]
       interval: 10s
@@ -101,7 +47,7 @@ services:
     ports:
       - "127.0.0.1:6379:6379"
     networks:
-      - arifos_trinity
+      - arifos
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
@@ -138,7 +84,7 @@ services:
     volumes:
       - /opt/arifos/data/qdrant:/qdrant/storage
     networks:
-      - arifos_trinity
+      - arifos
     healthcheck:
       test: ["CMD-SHELL", "bash -lc 'exec 3<>/dev/tcp/127.0.0.1/6333 && printf \"GET /healthz HTTP/1.1\\r\\nHost: localhost\\r\\nConnection: close\\r\\n\\r\\n\" >&3 && grep -q \"200 OK\" <&3'"]
       interval: 15s
@@ -169,7 +115,7 @@ services:
     volumes:
       - /opt/arifos/data/ollama:/root/.ollama
     networks:
-      - arifos_trinity
+      - arifos
     healthcheck:
       test: ["CMD-SHELL", "OLLAMA_HOST=http://127.0.0.1:11434 ollama list >/dev/null 2>&1 || exit 1"]
       interval: 30s
@@ -241,17 +187,10 @@ services:
       - OLLAMA_API_BASE=http://ollama:11434
       - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
     networks:
-      - arifos_trinity
+      - arifos
     ports:
       - "127.0.0.1:18789:18789"
     labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.openclaw.rule=Host(`claw.arifos.arif-fazil.com`)"
-      - "traefik.http.routers.openclaw.entrypoints=websecure"
-      - "traefik.http.routers.openclaw.tls.certresolver=letsencrypt"
-      - "traefik.http.services.openclaw.loadbalancer.server.port=18789"
-      - "traefik.http.services.openclaw.loadbalancer.healthcheck.path=/healthz"
-      - "traefik.http.services.openclaw.loadbalancer.healthcheck.interval=10s"
     healthcheck:
       test: ["CMD-SHELL", "curl -fsS http://localhost:18789/healthz || exit 1"]
       interval: 30s
@@ -339,34 +278,8 @@ services:
     ports:
       - "127.0.0.1:8080:8080"
     networks:
-      - arifos_trinity
+      - arifos
     labels:
-      - "traefik.enable=true"
-      - "traefik.http.services.arifos.loadbalancer.server.port=8080"
-      - "traefik.http.services.arifos.loadbalancer.healthcheck.path=/health"
-      - "traefik.http.services.arifos.loadbalancer.healthcheck.interval=10s"
-      - "traefik.http.services.arifos.loadbalancer.healthcheck.timeout=5s"
-      - "traefik.http.routers.arifos-root.rule=Host(`arifos.arif-fazil.com`) && (Path(`/`) || PathPrefix(`/health`) || PathPrefix(`/tools`) || PathPrefix(`/prompts`) || PathPrefix(`/resources`) || PathPrefix(`/dashboard`) || PathPrefix(`/static-sites`) || PathPrefix(`/sites`) || PathPrefix(`/openapi`) || PathPrefix(`/llms`) || PathPrefix(`/version`) || PathPrefix(`/status`) || PathPrefix(`/discovery`) || PathPrefix(`/ready`) || PathPrefix(`/metrics`) || PathPrefix(`/webmcp`) || PathPrefix(`/.well-known`))"
-      - "traefik.http.routers.arifos-root.entrypoints=websecure"
-      - "traefik.http.routers.arifos-root.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.arifos-root.priority=100"
-      - "traefik.http.routers.arifos-root.service=arifos@docker"
-      - "traefik.http.routers.arifos.rule=Host(`arifos.arif-fazil.com`) && PathPrefix(`/mcp`)"
-      - "traefik.http.routers.arifos.entrypoints=websecure"
-      - "traefik.http.routers.arifos.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.arifos.service=arifos@docker"
-      - "traefik.http.routers.webmcp.rule=Host(`arifos.arif-fazil.com`) && PathPrefix(`/webmcp`)"
-      - "traefik.http.routers.webmcp.entrypoints=websecure"
-      - "traefik.http.routers.webmcp.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.webmcp.service=arifos@docker"
-      - "traefik.http.routers.a2a.rule=Host(`arifos.arif-fazil.com`) && PathPrefix(`/a2a`)"
-      - "traefik.http.routers.a2a.entrypoints=websecure"
-      - "traefik.http.routers.a2a.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.a2a.service=arifos@docker"
-      - "traefik.http.routers.a2a-wellknown.rule=Host(`arifos.arif-fazil.com`) && PathPrefix(`/.well-known`)"
-      - "traefik.http.routers.a2a-wellknown.entrypoints=websecure"
-      - "traefik.http.routers.a2a-wellknown.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.a2a-wellknown.service=arifos@docker"
     healthcheck:
       test: ["CMD-SHELL", "curl -fsS --max-time 5 http://localhost:8080/health || exit 1"]
       interval: 20s
@@ -415,15 +328,8 @@ services:
     ports:
       - "127.0.0.1:8081:8081"
     networks:
-      - arifos_trinity
+      - arifos
     labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.geoxmcp.rule=Host(`geox.arif-fazil.com`)"
-      - "traefik.http.routers.geoxmcp.entrypoints=websecure"
-      - "traefik.http.routers.geoxmcp.tls.certresolver=letsencrypt"
-      - "traefik.http.services.geoxmcp.loadbalancer.server.port=8081"
-      - "traefik.http.services.geoxmcp.loadbalancer.healthcheck.path=/health"
-      - "traefik.http.services.geoxmcp.loadbalancer.healthcheck.interval=15s"
     healthcheck:
       test: ["CMD-SHELL", "curl -fsS --max-time 5 http://localhost:8081/health || exit 1"]
       interval: 15s
@@ -457,7 +363,7 @@ services:
       - "--path.sysfs=/host/sys"
       - "--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)"
     networks:
-      - arifos_trinity
+      - arifos
 
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:v0.49.1
@@ -471,7 +377,7 @@ services:
       - /var/lib/docker/:/var/lib/docker:ro
       - /dev/disk/:/dev/disk:ro
     networks:
-      - arifos_trinity
+      - arifos
 
   prometheus:
     image: prom/prometheus:latest
@@ -490,7 +396,7 @@ services:
       - /root/arifOS/arifos/infrastructure/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - /opt/arifos/data/prometheus:/prometheus
     networks:
-      - arifos_trinity
+      - arifos
     healthcheck:
       test: ["CMD-SHELL", "wget -q --spider http://localhost:9090/-/healthy || exit 1"]
       interval: 30s
@@ -529,13 +435,8 @@ services:
       - /root/arifOS/arifos/infrastructure/grafana/dashboards/arifos.yaml:/etc/grafana/provisioning/dashboards/arifos.yaml:ro
       - /root/arifOS/arifos/infrastructure/grafana/dashboards:/etc/grafana/provisioning/dashboards/json:ro
     networks:
-      - arifos_trinity
+      - arifos
     labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.grafana.rule=Host(`monitor.arifos.arif-fazil.com`)"
-      - "traefik.http.routers.grafana.entrypoints=websecure"
-      - "traefik.http.routers.grafana.tls.certresolver=letsencrypt"
-      - "traefik.http.services.grafana.loadbalancer.server.port=3000"
     healthcheck:
       test: ["CMD-SHELL", "curl -fsS http://localhost:3000/api/health || exit 1"]
       interval: 30s
@@ -570,13 +471,8 @@ services:
     volumes:
       - /opt/arifos/data/n8n:/home/node/.n8n
     networks:
-      - arifos_trinity
+      - arifos
     labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.n8n.rule=Host(`flow.arifos.arif-fazil.com`)"
-      - "traefik.http.routers.n8n.entrypoints=websecure"
-      - "traefik.http.routers.n8n.tls.certresolver=letsencrypt"
-      - "traefik.http.services.n8n.loadbalancer.server.port=5678"
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://localhost:5678/healthz || exit 1"]
       interval: 30s
@@ -601,13 +497,8 @@ services:
     volumes:
       - ./sites/aaa-mcp-landing:/usr/share/nginx/html:ro
     networks:
-      - arifos_trinity
+      - arifos
     labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.aaa-landing.rule=Host(`aaa.arif-fazil.com`)"
-      - "traefik.http.routers.aaa-landing.entrypoints=websecure"
-      - "traefik.http.routers.aaa-landing.tls.certresolver=letsencrypt"
-      - "traefik.http.services.aaa-landing.loadbalancer.server.port=80"
     restart: unless-stopped
 
   # --- Webhook Auto-Deploy ---
@@ -630,13 +521,8 @@ services:
       - WEBHOOK_SECRET=${WEBHOOK_SECRET}
       - OPENCLAW_RESTART_TOKEN=${OPENCLAW_RESTART_TOKEN}
     networks:
-      - arifos_trinity
+      - arifos
     labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.webhook.rule=Host(`hook.arifos.arif-fazil.com`)"
-      - "traefik.http.routers.webhook.entrypoints=websecure"
-      - "traefik.http.routers.webhook.tls.certresolver=letsencrypt"
-      - "traefik.http.services.webhook.loadbalancer.server.port=9000"
     deploy:
       resources:
         limits:
@@ -664,7 +550,7 @@ services:
       - DEFAULT_IGNORE_HTTPS_ERRORS=true
       - DEFAULT_STEALTH=true
     networks:
-      - arifos_trinity
+      - arifos
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://localhost:3000/docs || exit 1"]
       interval: 30s
@@ -696,13 +582,8 @@ services:
       - /srv/arifos/code:/home/coder/project:rw
       - /root/arifOS:/home/coder/:rw
     networks:
-      - arifos_trinity
+      - arifos
     labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.codeserver.rule=Host(`code.arifos.arif-fazil.com`)"
-      - "traefik.http.routers.codeserver.entrypoints=websecure"
-      - "traefik.http.routers.codeserver.tls.certresolver=letsencrypt"
-      - "traefik.http.services.codeserver.loadbalancer.server.port=8080"
     restart: unless-stopped
 
   # --- Document Intelligence Factory ---
@@ -715,13 +596,8 @@ services:
     volumes:
       - /opt/arifos/data/stirling:/tmp:rw
     networks:
-      - arifos_trinity
+      - arifos
     labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.stirling.rule=Host(`pdf.arifos.arif-fazil.com`)"
-      - "traefik.http.routers.stirling.entrypoints=websecure"
-      - "traefik.http.routers.stirling.tls.certresolver=letsencrypt"
-      - "traefik.http.services.stirling.loadbalancer.server.port=8080"
     restart: unless-stopped
 
   # --- Citizen Service Gateway ---
@@ -738,20 +614,15 @@ services:
     volumes:
       - /opt/arifos/data/evolution:/evolution/instances:rw
     networks:
-      - arifos_trinity
+      - arifos
     labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.evolution.rule=Host(`whatsapp.arifos.arif-fazil.com`)"
-      - "traefik.http.routers.evolution.entrypoints=websecure"
-      - "traefik.http.routers.evolution.tls.certresolver=letsencrypt"
-      - "traefik.http.services.evolution.loadbalancer.server.port=8080"
     depends_on:
       redis:
         condition: service_healthy
     restart: unless-stopped
 
 networks:
-  arifos_trinity:
+  arifos:
     driver: bridge
 
 volumes:
