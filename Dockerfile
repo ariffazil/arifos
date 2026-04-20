@@ -3,8 +3,8 @@
 # Strategy: runtime deps only from requirements.txt (not full pyproject.toml)
 # Code is volume-mounted at /usr/src/app in production — image provides env only.
 #
-# Build:  docker build -t arifos/arifosmcp:latest .
-# Run:    docker compose up arifosmcp
+# Build:  docker build -t arifos/arifos:latest .
+# Run:    docker compose up arifos
 # ─────────────────────────────────────────────────────────────────────────
 
 # ── Stage 1: dependency installer ────────────────────────────────────────
@@ -76,4 +76,4 @@ EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
     CMD curl -f http://localhost:8080/health || exit 1
 
-CMD ["uvicorn", "arifosmcp.runtime.server:app", "--host", "0.0.0.0", "--port", "8080"]
+CMD ["uvicorn", "arifos.runtime.server:app", "--host", "0.0.0.0", "--port", "8080"]
