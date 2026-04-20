@@ -1,0 +1,283 @@
+# arifOS MCP — Constitutional AI Gateway
+## Source of Truth for arifOS Trinity System
+
+**Version:** 2026.4.13-UNIFIED
+**Gateway:** https://mcp.arif-fazil.com
+**Health:** https://mcp.arif-fazil.com/health
+**MCP Protocol:** 2024-11-05 (streamable-http primary)
+**Doctrine:** DITEMPA BUKAN DIBERI — Forged, Not Given
+
+---
+
+## What This Endpoint Is
+
+arifOS MCP is a **constitutional gateway** — a public, no-auth MCP entry point for governed AI agent operations. It is not a chat interface or consumer product. Every tool call, resource access, and prompt execution passes through the same 13-floor governance membrane before anything executes.
+
+The gateway enforces that:
+- Claims are grounded in verifiable evidence (F2 Truth, τ ≥ 0.99 for domain statements)
+- Irreversible actions require human sovereign approval (F13 / 888_HOLD)
+- Every completed action is recorded in an immutable audit ledger (VAULT999)
+- Only arifOS may emit final verdict classes: SEAL, CAUTION, HOLD, VOID
+
+---
+
+## Constitutional Membrane
+
+This gateway is the **constitutional membrane** for ΔΩΨ operations. It governs tool access, floors enforcement, and high-risk escalation before any final verdict leaves the system.
+
+**Verdict semantics:**
+- **SEAL** — Safe to proceed. All floors passed.
+- **CAUTION** — Proceed with care. Marginal conditions detected.
+- **HOLD** — Paused. Requires human review or additional evidence.
+- **VOID** — Do not proceed. Floor violation is conclusive.
+
+**888_HOLD** is the cryptographic human veto gate. Actions tagged as irreversible — commits, deploys, governance changes, state mutations — are blocked at F1 until a human sovereign ratifies. The veto is always real.
+
+---
+
+## Trinity Architecture
+
+arifOS MCP serves three orthogonal AI organs. Every tool call passes through the same 13-floor governance membrane. **Only arifOS may emit final verdict classes.** GEOX and WEALTH are downstream jurisdictions.
+
+### Δ arifOS — Constitutional Core (Governance)
+- **Endpoint:** https://mcp.arif-fazil.com/mcp
+- **Namespace:** arifos_*
+- **Role:** Decision authority, VAULT999 audit ledger, 13-floor enforcement, 888_HOLD human veto
+- **Loaded tools:** arifos_* namespace (count varies by deployment — use /tools to confirm)
+- **Can emit:** SEAL / CAUTION / HOLD / VOID verdicts
+
+### Φ GEOX — Earth Intelligence (Physics Grounding)
+- **Endpoint:** https://mcp.arif-fazil.com/geox/mcp
+- **Namespace:** geox_*
+- **Role:** Petrophysics, stratigraphy, play risk, physics constraints, well data, seismic interpretation
+- **Epistemic rule:** OBS from pixels (direct measurement), DER from computation, INT from interpretation — never conflate the three
+- **Status:** Separate deployment. GEOX acts as a client jurisdiction calling upstream constitutional tools.
+
+### Ψ WEALTH — Capital Engine (Financial Intelligence)
+- **Endpoint:** Not yet deployed to public URL
+- **Namespace:** wealth_*
+- **Role:** Brent crude analysis, NPV/IRR, DSCR, portfolio construction, capital efficiency
+- **Status:** PLANNED — source ready, not yet live on VPS
+
+**Important note on namespaces:** Main public tool exposure on this host is the arifos_* namespace. GEOX and WEALTH operate as routed jurisdictions or planned organs, not as equally exposed peer toolsets on this host.
+
+---
+
+## Metrics Semantics
+
+The `/health` endpoint exposes thermodynamic telemetry. These values require careful interpretation:
+
+| Field | Meaning | Warning |
+|-------|---------|---------|
+| `confidence` (τ system) | Aggregate system readiness | **Not** per-claim F2 truth threshold |
+| `peace_squared` (κ) | Lyapunov stability; >1.0 = stable/reversible posture | Stability proxy, not truth proof |
+| `vitality_index` (Ψ) | System stamina / baseline energy | Not proof-of-truth |
+| `entropy_delta` (ΔS) | Landauer cost; ≤0 for F4 Clarity | System heat indicator |
+| `echo_debt` | Accumulated unresolved iterations | Debt, not confidence |
+
+**F2 Truth threshold:** For any individual claim *emitted beyond this membrane*, F2 enforces τ ≥ 0.99. The `confidence` field in `/health` is an aggregate system-readiness proxy. Related to but distinct from per-claim F2 truth.
+
+**F5 Peace²:** Peace² > 1.0 indicates stable, reversible posture. Below 1.0, some actions may be blocked. This is a system-level stability measure.
+
+**No metric on this endpoint certifies individual claim accuracy.** Each tool call is evaluated independently against F2 at call time.
+
+---
+
+## Orthogonal Composition Protocol
+
+Agents SHOULD compose tools across all three organs in this sequence:
+
+```
+1. arifos_sense  → Capture OBS/INT/DER evidence (Φ GEOX domain)
+2. arifos_mind   → Inductive synthesis from evidence
+3. arifos_judge  → Constitutional verdict (SEAL/CAUTION/HOLD/VOID)
+4. arifos_vault  → VAULT999 immutable seal
+```
+
+**Rule:** GEOX and WEALTH provide evidence; arifOS provides verdict. No organ may self-approve.
+
+---
+
+## Agent-to-Agent Protocol (A2A)
+
+**Status: PLANNED — not yet active**
+
+arifOS exposes `/a2a/` endpoints (health, task, status, subscribe) for future multi-agent coordination with shared constitutional context. These routes are present but the A2A coordination layer is not yet operational. Do not assume A2A federation is live.
+
+---
+
+## Constitutional Floors (13 Floors)
+
+Every AI action is tested against all 13 floors in real-time. A single floor failure triggers a HOLD verdict. No floor is advisory. No exception is silent.
+
+| Floor | Name | Arabic | Description | HOLD trigger |
+|-------|------|--------|-------------|--------------|
+| F1 | Amanah (Trust) | الأمانة | No irreversible action without VAULT999 seal | Irreversible without audit hash |
+| F2 | Haqq (Truth) | الحق | τ ≥ 0.99 for domain statements | τ < 0.99 on domain claim |
+| F3 | Hikmah (Wisdom) | الحكمة | Logical consistency; proportional response | Catastrophic escalation; contradiction |
+| F4 | Sabr (Patience) | الصبر | Full context loaded before execution | Premature execution; context not loaded |
+| F5 | Rahmah (Compassion) | الرحمة | Peace-orientation; ΔS blocks Forge | ΔS entropy cost too high |
+| F6 | Adl (Justice) | العدل | Fair treatment; no special pleading | Special pleading detected |
+| F7 | Gödel Lock (Humility) | تلازم غودل | Bounded confidence; Ω₀+τ check | High Ω₀ + low τ → false omniscience |
+| F8 | Ilm (Knowledge) | العلم | Source-traced evidence only | Unverified claim; hearsay as fact |
+| F9 | Anti-Hantu (No Deception) | مكافحة الخداع | No manipulation, false identity, misleading framing | Manipulation; identity fraud |
+| F10 | Ontology (Self-model) | أنطولوجيا | No contradictory self-models | Contradictory self-model |
+| F11 | Wala (Loyalty) | الولاء | Alignment to declared governance chain | Chain defection; unauthorized override |
+| F12 | Curiosity (Open Inquiry) | الفضول | Epistemic openness; no premature closure | Premature epistemic closure |
+| F13 | Sovereign (Human Authority) | السيادة | 888_HOLD; human holds final veto | 888_HOLD: irreversible awaiting ratification |
+
+---
+
+## Hard vs Soft Floors
+
+- **Hard floors (F1, F2, F6, F9, F10, F11, F13):** Fail closed — VOID or HOLD on violation, no override.
+- **Soft floors (F3, F4, F5, F7, F8, F12):** Escalate to HOLD or 888_HOLD when marginal, but may emit CAUTION at reduced confidence.
+
+---
+
+## Connection
+
+```bash
+# Claude Desktop / MCP-compatible hosts
+npx @anthropic/mcp install arifos --url https://mcp.arif-fazil.com/mcp
+
+# Direct HTTP (MCP JSON-RPC)
+curl -X POST https://mcp.arif-fazil.com/mcp \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json, text/event-stream" \
+  -d '{"jsonrpc":"2.0","method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"client","version":"1.0"}},"id":0}'
+```
+
+---
+
+## Health Endpoint Fields
+
+`GET /health` returns:
+
+```json
+{
+  "status": "healthy",
+  "version": "2026.4.13",
+  "tools_loaded": <integer>,
+  "timestamp": "<ISO-8601>",
+  "source_repo": "https://github.com/ariffazil/arifOS",
+  "source_commit": "<commit-sha>",
+  "thermodynamic": {
+    "entropy_delta": <number>,
+    "peace_squared": <number>,
+    "vitality_index": <number>,
+    "echo_debt": <number>,
+    "shadow": <number>,
+    "confidence": <number>,
+    "verdict": "SEAL|CAUTION|HOLD|VOID",
+    "metabolic_stage": <integer>
+  },
+  "source_of_truth": {
+    "doctrine": "https://github.com/ariffazil/arifOS",
+    "runtime": "/health and /tools on this server",
+    "canonical_index": "/.well-known/mcp/server.json"
+  }
+}
+```
+
+**Field semantics:**
+- `confidence` (system): Aggregate readiness proxy. Not F2 per-claim threshold.
+- `tau_threshold_f2`: The F2 per-claim threshold is 0.99 (defined in floor spec, enforced at call time).
+- `peace_squared`: Stability proxy. > 1.0 = healthy reversibility posture.
+- `vitality_index`: System stamina. Baseline energy, not claim accuracy.
+
+---
+
+## Tool Namespace Exposure
+
+**Current public tool exposure:** arifos_* namespace only.
+
+GEOX and WEALTH are part of the Trinity architecture but are **not** equally exposed on this host:
+- GEOX has a separate endpoint at `/geox/mcp` (separate deployment)
+- WEALTH is PLANNED / not yet deployed
+- A GEOX endpoint showing 0 tools is **not a contradiction** — GEOX may act as a client jurisdiction calling upstream constitutional tools rather than exposing a separate tool inventory
+
+Tool count for the arifos_* namespace is available at `GET /tools`.
+
+---
+
+## Source of Truth
+
+- **Doctrine:** https://github.com/ariffazil/arifOS
+- **Runtime:** `/health` and `/tools` on this server
+- **Canonical index:** `/.well-known/mcp/server.json`
+- **Human sovereign:** Muhammad Arif bin Fazil
+
+---
+
+## Canonical Tool Reference (13-Tool Surface)
+
+The arifos_* namespace exposes 13 metabolic tools. Each call is governed by F1–F13 and returns a thermodynamic envelope.
+
+### arifos_000_init — Session Anchor
+- **Input:** `operator_id` (str), `session_id` (opt), `epoch` (opt), `context` (dict, opt)
+- **Identity rule:** If `context.operator` matches `operator_id` → `identity_verified:true`. Otherwise falls back to whitelist (`arif`, `admin`). If no match, `identity_verified:false` with `identity_reason:"missing_or_mismatch"`.
+- **Side effect:** Emits a VAULT999 `session_open` seal event on every successful init.
+- **Output:** IGNITED payload + operator + session_id + epoch + identity flags.
+
+### arifos_111_sense — Perception & Signal Detection
+- **Modes:** `grounded` (default), `visual`
+- **Visual guard:** `image_url` MUST be a publicly reachable HTTPS URL. Private IPs (`localhost`, `192.168.*`, `10.*`, `172.16-31.*`, etc.) are rejected with `verdict:SABAR` and `error:"image_url must be publicly reachable (https://...)"`.
+- **Visual flow:** If URL passes guard → MiniMax vision bridge → F9 Anti-Hantu scoring → SEAL/VOID.
+- **Grounded flow:** Text intent classification + signal-to-noise scoring.
+- **Partial failure (bridge timeout/empty):** Returns `tri_witness_score:0.33`, `stakeholder_safety:1.0`, `delta_s:+0.01`, `verdict:SABAR`.
+
+### arifos_222_witness — Reality Verification & Consensus
+- **Modes:** `tri-witness` (default), `web_search`
+- **web_search:** Routes to MiniMax MCP `web_search` or HTTP fallback. On timeout or empty results:
+  - `tri_witness_score:0.33` (one-witness partial — Human + AI aware, Earth missing)
+  - `error_class:"earth_witness_timeout"`
+  - `stakeholder_safety:1.0` (never zeroed on bridge failure)
+  - `delta_s:+0.01` (honest entropy recording)
+  - `verdict:SABAR`
+- **tri-witness:** Native consensus across GEOX / WEALTH / WELL organs. Returns `tri_witness_consensus` and organ confidence map.
+
+### arifos_333_mind — Inductive Synthesis
+- **Input:** `query` (str), `depth` (1–4), `context` (dict)
+- **Output:** Synthesis envelope with exploration score E₁ and hypothesis coverage.
+
+### arifos_444_kernel — Execution Bridge
+- **Input:** `route_target` (str), `payload` (dict)
+- **Role:** Routes governed actions to A-FORGE or substrate runtimes. All routes pass 888_JUDGE before execution.
+
+### arifos_555_memory — Constitutional Memory
+- **Input:** `action` ("query"|"append"|"ingest"), `query` (str)
+- **Role:** Vector memory operations via Qdrant with F11 anti-amnesia guarantees.
+
+### arifos_666_heart — Stakeholder Safety & Empathy
+- **Input:** `action_proposal` (dict), `stakeholder_map` (dict)
+- **Role:** F6 harm-floor evaluation, dignity checks, ASI_HEART alignment.
+
+### arifos_777_ops — Operations & Deployment
+- **Input:** `operation_plan` (dict)
+- **Role:** Orchestration, scheduling, Prefect integration. F1 Amanah requires human approval for destructive ops.
+
+### arifos_888_judge — Constitutional Verdict
+- **Input:** `evidence_bundle` (dict)
+- **Output:** SEAL / SABAR / VOID / 888_HOLD verdict with full floor audit.
+- **Rule:** Any 888_HOLD is a hard stop until human sovereign ratifies.
+
+### arifos_999_vault — Immutable Ledger
+- **Input:** `action` ("seal"|"query"), `payload` (dict)
+- **Role:** Merkle-chained VAULT999 append-only log. Every SEAL event becomes a permanent audit record.
+
+### arifos_forge — A-FORGE Execution
+- **Input:** `call` (dict), `receipt` (dict), `organ` (str)
+- **Role:** TypeScript runtime bridge. Versioned via `runtime_contract` in `arifos://forge` resource.
+
+### arifos_gateway — Organ Routing
+- **Input:** `a` (str), `b` (str), `interaction` (str)
+- **Role:** Data-flow routing between organs (GEOX ↔ WEALTH ↔ WELL ↔ arifOS).
+
+### arifos_sabar — Cooling & Retry
+- **Input:** `action` ("status"|"cool"|"release"), `hold_id` (opt)
+- **Role:** Pause/resume cooling state, list pending SABAR holds.
+
+---
+
+*DITEMPA BUKAN DIBERI — Forged, Not Given*

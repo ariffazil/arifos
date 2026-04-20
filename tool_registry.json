@@ -1,0 +1,6 @@
+{
+  "_note": "DEPRECATED — This 11-tool stub is superseded by tool_registry_v2.json (99-tool canonical registry, EPOCH-2026-04-16-W3-RECONCILE). Do not load this file for tool discovery. See TOOL_NAMESPACING.md for public API boundary.",
+  "_redirect": "tool_registry_v2.json",
+  "_deprecated_at": "2026-04-17",
+  "_deprecated_reason": "Replaced by 99-tool tier architecture (T00-T07). arifos_route removed — routing is now handled by arifos_kernel (T00_06). The 11-tool surface is preserved as the PUBLIC API layer; see TOOL_NAMESPACING.md."
+}
