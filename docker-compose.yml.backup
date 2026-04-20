@@ -207,7 +207,7 @@ services:
       - /opt/arifos/data/openclaw/bin:/root/.local/bin
       - /opt/arifos/data/openclaw/npm-global:/root/.npm-global
       - /opt/arifos/data/openclaw/gitconfig:/root/.gitconfig:ro
-      - /srv/arifOS:/mnt/arifos:rw
+      - /root/arifOS:/mnt/arifos:rw
       - /opt/arifos/APEX-THEORY:/mnt/apex:rw
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /usr/bin/docker:/usr/bin/docker:ro
@@ -295,16 +295,16 @@ services:
       - /opt/arifos/data/minimax:/usr/src/app/data/minimax:rw
       - /proc:/host/proc:ro
       - /sys:/host/sys:ro
-      - /srv/arifos/arifos:/usr/src/app/arifosmcp:ro
-      - /srv/arifos/server.py:/usr/src/app/server.py:ro
-      - /srv/arifos/stdio_server.py:/usr/src/app/stdio_server.py:ro
-      - /srv/arifos/fastmcp.json:/usr/src/app/fastmcp.json:ro
-      - /srv/arifos/mcp.json:/usr/src/app/mcp.json:ro
-      - /srv/arifos/core:/usr/src/app/core:ro
-      - /srv/arifos/000:/usr/src/app/000:ro
-      - /srv/arifos/333:/usr/src/app/333:ro
-      - /srv/arifos/spec:/usr/src/app/spec:ro
-      - /srv/arifos/sites:/usr/src/app/sites:ro
+      - /root/arifosmcp/arifosmcp:/usr/src/app/arifosmcp:ro
+      - /root/arifosmcp/server.py:/usr/src/app/server.py:ro
+      - /root/arifosmcp/stdio_server.py:/usr/src/app/stdio_server.py:ro
+      - /root/arifosmcp/fastmcp.json:/usr/src/app/fastmcp.json:ro
+      - /root/arifosmcp/mcp.json:/usr/src/app/mcp.json:ro
+      - /root/arifosmcp/core:/usr/src/app/core:ro
+      - /root/arifosmcp/000:/usr/src/app/000:ro
+      - /root/arifosmcp/333:/usr/src/app/333:ro
+      - /root/arifosmcp/spec:/usr/src/app/spec:ro
+      - /root/arifosmcp/sites:/usr/src/app/sites:ro
       - /opt/arifos/secrets:/opt/arifos/secrets:ro
       - arifosmcp_telemetry:/usr/src/app/telemetry:rw
       - arifosmcp_vault:/usr/src/app/VAULT999:rw
@@ -410,7 +410,7 @@ services:
       - ARIFOS_FLOORS_HASH=${ARIFOS_FLOORS_HASH:-}
       - ARIFOS_GOVERNANCE_URL=http://arifosmcp:8080
     volumes:
-      - /srv/arifOS/geox:/app/geox:ro
+      - /root/arifOS/geox:/app/geox:ro
       - geox_data:/app/data:rw
     ports:
       - "127.0.0.1:8081:8081"
@@ -487,7 +487,7 @@ services:
       - '--web.enable-lifecycle'
       - '--log.level=warn'
     volumes:
-      - /srv/arifos/infrastructure/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - /root/arifosmcp/infrastructure/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - /opt/arifos/data/prometheus:/prometheus
     networks:
       - arifos_trinity
@@ -525,9 +525,9 @@ services:
       GF_AUTH_BASIC_ENABLED: "true"
     volumes:
       - /opt/arifos/data/grafana:/var/lib/grafana
-      - /srv/arifos/infrastructure/grafana/datasources/prometheus.yml:/etc/grafana/provisioning/datasources/prometheus.yml:ro
-      - /srv/arifos/infrastructure/grafana/dashboards/arifos.yaml:/etc/grafana/provisioning/dashboards/arifos.yaml:ro
-      - /srv/arifos/infrastructure/grafana/dashboards:/etc/grafana/provisioning/dashboards/json:ro
+      - /root/arifosmcp/infrastructure/grafana/datasources/prometheus.yml:/etc/grafana/provisioning/datasources/prometheus.yml:ro
+      - /root/arifosmcp/infrastructure/grafana/dashboards/arifos.yaml:/etc/grafana/provisioning/dashboards/arifos.yaml:ro
+      - /root/arifosmcp/infrastructure/grafana/dashboards:/etc/grafana/provisioning/dashboards/json:ro
     networks:
       - arifos_trinity
     labels:
@@ -617,9 +617,9 @@ services:
     init: true
     command: ["-verbose", "-hooks=/etc/webhook/hooks.json", "-hotreload"]
     volumes:
-      - /srv/arifos/deploy/hooks.json:/etc/webhook/hooks.json:ro
-      - /srv/arifos/infrastructure/deploy_from_git.sh:/var/scripts/deploy_from_git.sh:ro
-      - /srv/arifos:/usr/src/app:rw
+      - /root/arifosmcp/deployment/hooks.json:/etc/webhook/hooks.json:ro
+      - /root/arifosmcp/infrastructure/deploy_from_git.sh:/var/scripts/deploy_from_git.sh:ro
+      - /root/arifOS:/usr/src/app:rw
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /usr/bin/docker:/usr/bin/docker:ro
       - /usr/libexec/docker:/usr/libexec/docker:ro
@@ -694,7 +694,7 @@ services:
       - PASSWORD=${CODE_SERVER_PASSWORD:-arifos}
     volumes:
       - /srv/arifos/code:/home/coder/project:rw
-      - /srv/arifOS:/home/coder/arifosmcp:rw
+      - /root/arifOS:/home/coder/arifosmcp:rw
     networks:
       - arifos_trinity
     labels:
