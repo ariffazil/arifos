@@ -1,4 +1,4 @@
-# robots.txt — arifosmcp.arif-fazil.com
+# robots.txt — arifos.arif-fazil.com
 # Trinity Layer: APPS / Mind — Developer Portal & MCP Runtime
 # Authority: ARIF FAZIL (888 Judge)
 # Version: v2026.03-FORGE
@@ -46,15 +46,15 @@ Allow: /
 #   https://arifos.arif-fazil.com/llms.txt
 #
 #   STEP 3 — APPS runtime (this site — tools, API schema, MCP integration):
-#   https://arifosmcp.arif-fazil.com/llms.txt
-#   https://arifosmcp.arif-fazil.com/llms.json
+#   https://arifos.arif-fazil.com/llms.txt
+#   https://arifos.arif-fazil.com/llms.json
 #
 #   CANONICAL INDEX (single truth, start here):
 #   https://arif-fazil.com/.well-known/arifos.json
 #
 # ---
-# MCP ENDPOINT (Canonical):  https://arifosmcp.arif-fazil.com/mcp
-# HEALTH CHECK:               https://arifosmcp.arif-fazil.com/health
+# MCP ENDPOINT (Canonical):  https://arifos.arif-fazil.com/mcp
+# HEALTH CHECK:               https://arifos.arif-fazil.com/health
 # PROTOCOL:                   MCP JSON-RPC 2.0 / Streamable HTTP
 # TOOLS:                      12 governance tools across 7 organs
 # FLOORS:                     13 constitutional floors enforced on every call
@@ -63,4 +63,4 @@ Allow: /
 # ARIF FAZIL — 888 Judge. DITEMPA BUKAN DIBERI.
 # ---
 
-Sitemap: https://arifosmcp.arif-fazil.com/sitemap.xml
+Sitemap: https://arifos.arif-fazil.com/sitemap.xml

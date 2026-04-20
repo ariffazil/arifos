@@ -61,7 +61,7 @@ from prefab_ui.rx import RESULT, STATE
 
 # ── Ledger path ───────────────────────────────────────────────────────────────
 _REPO_ROOT = Path(__file__).parent.parent.parent
-_VAULT999 = _REPO_ROOT / "arifosmcp" / "VAULT999"
+_VAULT999 = _REPO_ROOT / "arifos" / "VAULT999"
 _OUTCOMES = _VAULT999 / "outcomes.jsonl"
 _VAULT999_JSONL = _VAULT999 / "vault999.jsonl"
 _SEALED_EVENTS = _VAULT999 / "SEALED_EVENTS.jsonl"

@@ -91,7 +91,7 @@ telegram: @AGI_ASI_bot
 
 - **Human**: <https://arif-fazil.com>
 - **Theory**: <https://arifos.arif-fazil.com>
-- **Runtime**: <https://arifosmcp.arif-fazil.com>
+- **Runtime**: <https://arifos.arif-fazil.com>
 - **Code**: <https://github.com/ariffazil/arifOS>
 
 ---

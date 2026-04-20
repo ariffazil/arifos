@@ -65,9 +65,9 @@ export const ARIFOS_COMPATIBILITY = [
  * Canonical public endpoints.
  */
 export const ENDPOINTS = {
-  VPS: "https://arifosmcp.arif-fazil.com/mcp",
-  HEALTH: "https://arifosmcp.arif-fazil.com/health",
-  DISCOVERY: "https://arifosmcp.arif-fazil.com/.well-known/mcp/server.json",
-  DASHBOARD: "https://arifosmcp.arif-fazil.com/dashboard/",
+  VPS: "https://arifos.arif-fazil.com/mcp",
+  HEALTH: "https://arifos.arif-fazil.com/health",
+  DISCOVERY: "https://arifos.arif-fazil.com/.well-known/mcp/server.json",
+  DASHBOARD: "https://arifos.arif-fazil.com/dashboard/",
   DOCS: "https://arifos.arif-fazil.com/public-contract",
 } as const;

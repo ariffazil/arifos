@@ -196,17 +196,17 @@
             
             <h3>Installation</h3>
             <pre><code># Python (recommended)
-pip install arifosmcp==2026.3.14
+pip install arifos==2026.3.14
 
 # Node.js wrapper
 npm install -g @arifos/mcp</code></pre>
 
             <h3>Basic Usage</h3>
             <pre><code># Run MCP server
-python -m arifosmcp.runtime stdio
+python -m arifos.runtime stdio
 
 # Or HTTP mode
-python -m arifosmcp.runtime http --port 8080</code></pre>
+python -m arifos.runtime http --port 8080</code></pre>
 
             <div class="note">
                 <strong>Note:</strong> arifOS requires Python 3.12+ for full async/await support and type safety.
@@ -303,7 +303,7 @@ python -m arifosmcp.runtime http --port 8080</code></pre>
   "mcpServers": {
     "arifos": {
       "command": "python",
-      "args": ["-m", "arifosmcp.runtime", "stdio"]
+      "args": ["-m", "arifos.runtime", "stdio"]
     }
   }
 }</code></pre>
@@ -368,7 +368,7 @@ Content-Type: application/json
         </div>
 
         <footer>
-            <p>For more information, visit <a href="https://github.com/ariffazil/arifosmcp" style="color: var(--accent-delta);">GitHub</a></p>
+            <p>For more information, visit <a href="https://github.com/ariffazil/arifos" style="color: var(--accent-delta);">GitHub</a></p>
             <p style="margin-top: 1rem; font-style: italic;">Ditempa Bukan Diberi — Forged, Not Given [ΔΩΨ | ARIF]</p>
         </footer>
     </div>

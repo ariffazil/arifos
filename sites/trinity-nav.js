@@ -19,7 +19,7 @@
         },
         APPS: {
             name: "APPS",
-            url: "https://arifosmcp.arif-fazil.com/",
+            url: "https://arifos.arif-fazil.com/",
             description: "Developer Portal · MCP Runtime",
             color: "#2563eb"
         }
@@ -29,7 +29,7 @@
         const currentHost = window.location.hostname;
         let activeNode = "";
         
-        if (currentHost.includes("arifosmcp")) activeNode = "APPS";
+        if (currentHost.includes("arifos")) activeNode = "APPS";
         else if (currentHost.includes("arifos.")) activeNode = "THEORY";
         else if (currentHost.includes("arif-fazil.com") && !currentHost.includes("arifos")) activeNode = "HUMAN";
 
@@ -125,7 +125,7 @@
         // Inject WebMCP Bridge
         if (!document.querySelector('script[src*="webmcp-bridge"]')) {
             const bridge = document.createElement('script');
-            bridge.src = "https://arifosmcp.arif-fazil.com/static-sites/webmcp-bridge.js";
+            bridge.src = "https://arifos.arif-fazil.com/static-sites/webmcp-bridge.js";
             document.head.appendChild(bridge);
         }
     }

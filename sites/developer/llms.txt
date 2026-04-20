@@ -1,5 +1,5 @@
 # arifOS MCP — Technical Reference (CCC Vault)
-# Location:    https://arifosmcp.arif-fazil.com/llms.txt
+# Location:    https://arifos.arif-fazil.com/llms.txt
 # Version:     v2026.03-FORGE
 # Authority:   ARIF FAZIL (888 Judge)
 # Status:      TECHNICALLY_SEALED
@@ -30,12 +30,12 @@ PyPI:         pip install arifos
 
 ## MCP ENDPOINTS
 
-Canonical Base:   https://arifosmcp.arif-fazil.com
-MCP Endpoint:     https://arifosmcp.arif-fazil.com/mcp
-Health Check:     https://arifosmcp.arif-fazil.com/health
-Status Dashboard: https://arifosmcp.arif-fazil.com/dashboard
+Canonical Base:   https://arifos.arif-fazil.com
+MCP Endpoint:     https://arifos.arif-fazil.com/mcp
+Health Check:     https://arifos.arif-fazil.com/health
+Status Dashboard: https://arifos.arif-fazil.com/dashboard
 
-Note: arifosmcp.arif-fazil.com is the sole canonical endpoint.
+Note: arifos.arif-fazil.com is the sole canonical endpoint.
 All previous variants (arifos.arif-fazil.com/mcp, apex.arif-fazil.com/mcp) are deprecated.
 
 Transport: Streamable HTTP (recommended)
@@ -50,14 +50,14 @@ Fallback:  SSE (Server-Sent Events) for legacy MCP clients
   "mcpServers": {
     "arifos": {
       "command": "npx",
-      "args": ["-y", "mcp-remote", "https://arifosmcp.arif-fazil.com/mcp"],
+      "args": ["-y", "mcp-remote", "https://arifos.arif-fazil.com/mcp"],
       "transport": "streamable-http"
     }
   }
 }
 
 ### Option 2 — Direct HTTP Call
-POST https://arifosmcp.arif-fazil.com/mcp
+POST https://arifos.arif-fazil.com/mcp
 Content-Type: application/json
 
 {
@@ -76,7 +76,7 @@ Content-Type: application/json
 ### Option 3 — Python SDK
 pip install arifos
 from arifos import arifOS
-os = arifOS(endpoint="https://arifosmcp.arif-fazil.com/mcp")
+os = arifOS(endpoint="https://arifos.arif-fazil.com/mcp")
 result = await os.call("mgi_process", {"context": "...", "depth": "full"})
 
 ---
@@ -191,7 +191,7 @@ F_006  AUTHORITY_BYPASS      F11 (Authority) violation. Unauthorized sovereignty
 F_007  SOVEREIGNTY_RISK      F13 (Sovereignty) violation. Human override required.
 F_008  SCAR_002_AMNESIA      Memory cleared without authorization. Anti-amnesia mandate.
 F_009  ABAH_CHECK_TRIGGERED  Dignity/family/money decision escalated to 888 Judge.
-F_010  ENDPOINT_DEPRECATED   Non-canonical endpoint called. Redirect to arifosmcp.arif-fazil.com.
+F_010  ENDPOINT_DEPRECATED   Non-canonical endpoint called. Redirect to arifos.arif-fazil.com.
 F_011  TRIWITNESS_FAIL       F3 violation. Fewer than 3 independent confirmations on high-stakes claim.
 
 ---
@@ -233,7 +233,7 @@ arifOS Metabolic Pipeline → 7-Organ Architecture:
 
 Repository Structure:
   arifOS/
-  ├── arifosmcp/           MCP server (FastMCP, Python 3.12+)
+  ├── arifos/           MCP server (FastMCP, Python 3.12+)
   │   ├── server.py        Main FastMCP application
   │   ├── tools/           12 MCP tool implementations
   │   ├── floors/          13 constitutional floor modules
@@ -269,7 +269,7 @@ Environment Variables (self-hosted):
 |---------|------------------------------|--------|-------------------------------------|
 | HUMAN   | arif-fazil.com               | Red    | Identity · Scars · Authority Anchor |
 | THEORY  | arifos.arif-fazil.com        | Gold   | Constitutional Canon · APEX Theory  |
-| APPS    | arifosmcp.arif-fazil.com     | Blue   | This site — Developer Portal · MCP  |
+| APPS    | arifos.arif-fazil.com     | Blue   | This site — Developer Portal · MCP  |
 
 Canonical Index: https://arif-fazil.com/.well-known/arifos.json
 Read order for AI agents: HUMAN → THEORY → APPS (this)

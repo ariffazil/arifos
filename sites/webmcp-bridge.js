@@ -8,7 +8,7 @@
  */
 
 (function() {
-    const API_BASE = "https://arifosmcp.arif-fazil.com";
+    const API_BASE = "https://arifos.arif-fazil.com";
 
     const TOOLS_CONFIG = {
         HUMAN: [

@@ -25,26 +25,26 @@
       "version": "2026.04.07-SEAL",
       "transport": {
         "type": "stdio",
-        "command": "python -m arifosmcp.runtime stdio"
+        "command": "python -m arifos.runtime stdio"
       }
     },
     {
       "registryType": "oci",
-      "identifier": "docker.io/ariffazil/arifosmcp:latest",
+      "identifier": "docker.io/ariffazil/arifos:latest",
       "transport": {
         "type": "streamable-http",
-        "url": "https://arifosmcp.arif-fazil.com/mcp"
+        "url": "https://arifos.arif-fazil.com/mcp"
       }
     }
   ],
   "remotes": [
     {
       "type": "sse",
-      "url": "https://arifosmcp.arif-fazil.com/sse"
+      "url": "https://arifos.arif-fazil.com/sse"
     },
     {
       "type": "streamable-http",
-      "url": "https://arifosmcp.arif-fazil.com/mcp"
+      "url": "https://arifos.arif-fazil.com/mcp"
     }
   ],
   "resources": [

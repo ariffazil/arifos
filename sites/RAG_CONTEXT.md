@@ -36,7 +36,7 @@
 ## 🔗 NETWORK
 - **Human**: https://arif-fazil.com/
 - **Theory**: https://arifos.arif-fazil.com/
-- **Body**: https://arifosmcp.arif-fazil.com/
+- **Body**: https://arifos.arif-fazil.com/
 - **Discovery**: /llms.txt, /ai.json, /openapi.json
 
 ## 🩸 INVARIANTS

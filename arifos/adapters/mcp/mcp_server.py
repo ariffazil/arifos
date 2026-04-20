@@ -20,7 +20,7 @@ for _index, _entry in reversed(_REMOVED_PATHS):
 from arifos.adapters.mcp.registry import register_all
 
 mcp = FastMCP(
-    "arifosmcp",
+    "arifos",
     instructions=(
         "Constitutional MCP server for arifOS. "
         "Expose 13 tools, 11 metabolic prompts, and 3 organ resources."

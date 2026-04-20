@@ -47,7 +47,7 @@ async def _lifespan(app: FastAPI):
         yield
 
 
-app = FastAPI(title="arifosmcp NEXT HORIZON", lifespan=_lifespan)
+app = FastAPI(title="arifos NEXT HORIZON", lifespan=_lifespan)
 
 
 # ── Helpers ─────────────────────────────────────────────────
@@ -76,7 +76,7 @@ def _last_seal() -> str:
 def _health_payload() -> dict:
     return {
         "status": "healthy",
-        "service": "arifosmcp-next-horizon",
+        "service": "arifos-next-horizon",
         "version": _RELEASE_TAG,
         "source_commit": _GIT_SHA,
         "release_tag": _RELEASE_TAG,
@@ -86,7 +86,7 @@ def _health_payload() -> dict:
         "tools_loaded": len(PRIMARY_METRIC_NAME),
         "prompts_loaded": len(PROMPTS),
         "resources_loaded": len(RESOURCES),
-        "entrypoint": "arifosmcp.mcp_server",
+        "entrypoint": "arifos.mcp_server",
         "vitality": {
             "jsonl": str(VITALITY_JSONL),
             "tsv": str(VITALITY_TSV),
@@ -163,8 +163,8 @@ def _status_payload(request: Request) -> dict:
 @app.get("/")
 async def root() -> dict:
     return {
-        "service": "arifosmcp-next-horizon",
-        "entrypoint": "arifosmcp.runtime.server:app",
+        "service": "arifos-next-horizon",
+        "entrypoint": "arifos.runtime.server:app",
         "mcp_path": "/mcp",
     }
 
@@ -244,7 +244,7 @@ async def llms_txt() -> FileResponse:
 async def well_known(request: Request) -> JSONResponse:
     base_url = _public_base_url(request)
     payload = {
-        "name": "arifosmcp-next-horizon",
+        "name": "arifos-next-horizon",
         "description": (
             f"Constitutional governance server — {len(PRIMARY_METRIC_NAME)} live runtime tools "
             "with NEXT HORIZON prompts and organ resources."

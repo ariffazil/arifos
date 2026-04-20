@@ -1,7 +1,7 @@
 # arifOS MCP Website Improvements
 
 ## Overview
-Complete refactoring of the arifOS MCP developer documentation site (https://arifosmcp.arif-fazil.com/) to make it modular, meaningful, and interactive.
+Complete refactoring of the arifOS MCP developer documentation site (https://arifos.arif-fazil.com/) to make it modular, meaningful, and interactive.
 
 ---
 

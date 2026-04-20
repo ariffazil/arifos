@@ -32,7 +32,7 @@ logger = logging.getLogger(__name__)
 
 # ── App module registry (import path → human label) ──────────────────────────
 _APP_MODULES: list[tuple[str, str]] = [
-    ("arifosmcp.apps.metabolic_monitor", "MetabolicMonitor (F1-F13 Radar)"),
+    ("arifos.apps.metabolic_monitor", "MetabolicMonitor (F1-F13 Radar)"),
 ]
 
 

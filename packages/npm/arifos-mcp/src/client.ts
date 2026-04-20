@@ -345,7 +345,7 @@ export const quickConnect = {
     return createClient({ transport: "stdio", env });
   },
 
-  vps(endpoint = "https://arifosmcp.arif-fazil.com/mcp"): Promise<ArifOSMCPClient> {
+  vps(endpoint = "https://arifos.arif-fazil.com/mcp"): Promise<ArifOSMCPClient> {
     return createClient({ transport: "http", endpoint });
   },
 };

@@ -12,11 +12,11 @@
   "homepage": "https://arifos.arif-fazil.com",
   "repository": {
     "type": "git",
-    "url": "https://github.com/ariffazil/arifosmcp.git",
-    "directory": "arifosmcp/packages/npm/arifos-mcp"
+    "url": "https://github.com/ariffazil/arifos.git",
+    "directory": "packages/npm/arifos-mcp"
   },
   "bugs": {
-    "url": "https://github.com/ariffazil/arifosmcp/issues"
+    "url": "https://github.com/ariffazil/arifos/issues"
   },
   "license": "AGPL-3.0-only",
   "author": "Muhammad Arif bin Fazil <arifos@arif-fazil.com>",

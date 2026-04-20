@@ -7,28 +7,28 @@
   "sealed_date": "2026-03-13",
   "sealed_by": "ARIF FAZIL (888 Judge)",
   "authority": "TECHNICALLY_SEALED",
-  "canonical_url": "https://arifosmcp.arif-fazil.com/llms.txt",
+  "canonical_url": "https://arifos.arif-fazil.com/llms.txt",
   "read_order": "HUMAN first → THEORY second → THIS (APPS)",
   "human_context_required": "https://arif-fazil.com/llms.txt",
   "theory_canon_required": "https://arifos.arif-fazil.com/llms.txt",
 
   "package": {
-    "name": "arifosmcp",
+    "name": "arifos",
     "version": "2026.3.13",
-    "pypi": "pip install arifosmcp",
-    "github": "https://github.com/ariffazil/arifosmcp",
+    "pypi": "pip install arifos",
+    "github": "https://github.com/ariffazil/arifos",
     "license": "AGPL-3.0-only",
     "python_requires": ">=3.12",
     "description": "arifOS Constitutional Intelligence Kernel — MCP Runtime. 13 floors, 11 tools, MGI 3-layer envelope."
   },
 
   "endpoints": {
-    "mcp": "https://arifosmcp.arif-fazil.com/mcp",
-    "health": "https://arifosmcp.arif-fazil.com/health",
-    "dashboard": "https://arifosmcp.arif-fazil.com/dashboard",
-    "mcp_manifest": "https://arifosmcp.arif-fazil.com/.well-known/mcp/server.json",
-    "tools_list": "https://arifosmcp.arif-fazil.com/tools",
-    "metrics": "https://arifosmcp.arif-fazil.com/metrics",
+    "mcp": "https://arifos.arif-fazil.com/mcp",
+    "health": "https://arifos.arif-fazil.com/health",
+    "dashboard": "https://arifos.arif-fazil.com/dashboard",
+    "mcp_manifest": "https://arifos.arif-fazil.com/.well-known/mcp/server.json",
+    "tools_list": "https://arifos.arif-fazil.com/tools",
+    "metrics": "https://arifos.arif-fazil.com/metrics",
     "protocol": "MCP JSON-RPC 2.0",
     "transport": "streamable-http",
     "transport_note": "SSE deprecated by MCP spec (2025-03) and removed from Copilot Studio (2025-08). Use streamable-http."
@@ -208,7 +208,7 @@
   },
 
   "fault_codes": {
-    "source_file": "arifosmcp/runtime/fault_codes.py",
+    "source_file": "arifos/runtime/fault_codes.py",
     "key_invariant": "Mechanical faults ALWAYS → 888_HOLD. NEVER → VOID. VOID is constitutional collapse only.",
     "mechanical_faults": {
       "verdict": "888_HOLD",
@@ -223,7 +223,7 @@
   "service_topology": {
     "source": "infrastructure/VPS_ARCHITECTURE_STATE_2026-03-13.md",
     "services": [
-      { "name": "arifosmcp", "port": 8080,  "purpose": "Constitutional MCP Kernel" },
+      { "name": "arifos", "port": 8080,  "purpose": "Constitutional MCP Kernel" },
       { "name": "openclaw", "port": 18789, "purpose": "Multi-channel AI Gateway" },
       { "name": "qdrant",    "port": 6333,  "purpose": "Vector Store (BGE-M3)" },
       { "name": "ollama_engine",    "port": 11434, "purpose": "Local LLM Runtime" },
@@ -244,7 +244,7 @@
         "mcpServers": {
           "arifos": {
             "command": "npx",
-            "args": ["-y", "mcp-remote", "https://arifosmcp.arif-fazil.com/mcp"],
+            "args": ["-y", "mcp-remote", "https://arifos.arif-fazil.com/mcp"],
             "transport": "streamable-http"
           }
         }
@@ -252,7 +252,7 @@
     },
     "python_sdk": {
       "install": "pip install mcp",
-      "example": "from mcp import ClientSession\nasync with ClientSession('https://arifosmcp.arif-fazil.com/mcp') as session:\n    result = await session.call_tool('init_anchor_state', {'declared_name': 'MyApp'})"
+      "example": "from mcp import ClientSession\nasync with ClientSession('https://arifos.arif-fazil.com/mcp') as session:\n    result = await session.call_tool('init_anchor_state', {'declared_name': 'MyApp'})"
     },
     "tool_profiles": {
       "public": "Default — all 11 tools",
@@ -267,7 +267,7 @@
     "sites": {
       "HUMAN":  { "domain": "arif-fazil.com",           "color": "#ff4d4f", "function": "Identity · Scars · Authority" },
       "THEORY": { "domain": "arifos.arif-fazil.com",    "color": "#ffd24a", "function": "Constitutional Canon · APEX Theory" },
-      "APPS":   { "domain": "arifosmcp.arif-fazil.com", "color": "#2563eb", "function": "This site — Developer Portal · MCP Runtime" }
+      "APPS":   { "domain": "arifos.arif-fazil.com", "color": "#2563eb", "function": "This site — Developer Portal · MCP Runtime" }
     },
     "canonical_index": "https://arif-fazil.com/.well-known/arifos.json"
   },
@@ -275,7 +275,7 @@
   "metadata": {
     "version": "v2026.03-FORGE",
     "epoch": "2026-03-13",
-    "llms_txt": "https://arifosmcp.arif-fazil.com/llms.txt",
+    "llms_txt": "https://arifos.arif-fazil.com/llms.txt",
     "sealed_by": "ARIF FAZIL (888 Judge)",
     "authority": "TECHNICALLY_SEALED"
   }

@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://arifosmcp.arif-fazil.com/schema/envelopes/request.envelope.schema.json",
+  "$id": "https://arifos.arif-fazil.com/schema/envelopes/request.envelope.schema.json",
   "title": "arifOS Universal Request Envelope",
   "description": "Shared request envelope for all arifOS tool calls. Wraps all tool-specific payloads in a unified governance shell.",
   "version": "arifOS.request.v1",

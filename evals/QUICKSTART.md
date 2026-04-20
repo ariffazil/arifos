@@ -16,10 +16,10 @@ export SEQUENTIAL_MCP_URL=http://localhost:3000
 ## Run Full Evaluation
 
 ```bash
-cd arifosmcp/evals
+cd arifos/evals
 
 # Run all eval sets
-python -m arifosmcp.evals.sequential_thinking_runner
+python -m arifos.evals.sequential_thinking_runner
 
 # Results saved to: eval_results.json
 ```
@@ -28,13 +28,13 @@ python -m arifosmcp.evals.sequential_thinking_runner
 
 ```bash
 # Pure reasoning only
-python -m arifosmcp.evals.sequential_thinking_runner --set SET-A
+python -m arifos.evals.sequential_thinking_runner --set SET-A
 
 # Governance stress tests only (fastest)
-python -m arifosmcp.evals.sequential_thinking_runner --set SET-E
+python -m arifos.evals.sequential_thinking_runner --set SET-E
 
 # All applied problems
-python -m arifosmcp.evals.sequential_thinking_runner --set SET-B
+python -m arifos.evals.sequential_thinking_runner --set SET-B
 ```
 
 ## Understanding Results
@@ -105,7 +105,7 @@ For subjective axes (clarity, reasoning quality), create:
 
 Submit via:
 ```bash
-python -m arifosmcp.evals.submit_human_grades human_grades.json
+python -m arifos.evals.submit_human_grades human_grades.json
 ```
 
 ## Delist Checklist
@@ -137,14 +137,14 @@ export SKIP_SEQUENTIAL_MCP=1
 # Ensure you're in the right directory
 cd /path/to/arifOS
 pip install -e .
-python -c "import arifosmcp; print('OK')"
+python -c "import arifos; print('OK')"
 ```
 
 ### Vault Sealing Failed
 
 ```bash
 # Run without vault (for local testing)
-python -m arifosmcp.evals.sequential_thinking_runner --no-vault
+python -m arifos.evals.sequential_thinking_runner --no-vault
 ```
 
 ## Next Steps

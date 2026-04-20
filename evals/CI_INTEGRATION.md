@@ -14,14 +14,14 @@ on:
   push:
     branches: [main, develop]
     paths:
-      - 'arifosmcp/runtime/thinking/**'
-      - 'arifosmcp/runtime/tools_internal.py'
-      - 'arifosmcp/evals/**'
+      - 'arifos.runtime/thinking/**'
+      - 'arifos.runtime/tools_internal.py'
+      - 'arifos/evals/**'
   pull_request:
     branches: [main]
     paths:
-      - 'arifosmcp/runtime/thinking/**'
-      - 'arifosmcp/runtime/tools_internal.py'
+      - 'arifos.runtime/thinking/**'
+      - 'arifos.runtime/tools_internal.py'
   schedule:
     # Run full suite weekly (Sundays at 2 AM UTC)
     - cron: '0 2 * * 0'
@@ -72,11 +72,11 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -e .
-          pip install -r arifosmcp/evals/requirements-eval.txt
+          pip install -r arifos/evals/requirements-eval.txt
       
       - name: Start arifOS MCP Server
         run: |
-          python -m arifosmcp.runtime.server &
+          python -m arifos.runtime.server &
           sleep 10  # Wait for server startup
           curl -f http://localhost:8000/health || exit 1
       
@@ -89,7 +89,7 @@ jobs:
             ARGS="$ARGS --set ${{ github.event.inputs.eval_set }}"
           fi
           
-          python -m arifosmcp.evals.sequential_thinking_runner $ARGS
+          python -m arifos.evals.sequential_thinking_runner $ARGS
         
         # Continue even on eval failure to capture partial results
         continue-on-error: true
@@ -100,7 +100,7 @@ jobs:
           name: eval-results-${{ github.run_id }}
           path: |
             eval_results_*.json
-            arifosmcp/evals/witness_*.json
+            arifos/evals/witness_*.json
           retention-days: 90
       
       - name: Parse Results
@@ -185,9 +185,9 @@ jobs:
 # .pre-commit-hooks.yaml (in repo)
 - id: sequential-thinking-smoke
   name: Sequential Thinking Smoke Test
-  entry: python -m arifosmcp.evals.sequential_thinking_runner --set SET-E --no-vault
+  entry: python -m arifos.evals.sequential_thinking_runner --set SET-E --no-vault
   language: python
-  files: ^arifosmcp/runtime/thinking/
+  files: ^arifos.runtime/thinking/
   pass_filenames: false
   always_run: true
 ```
@@ -201,23 +201,23 @@ jobs:
 
 # Quick smoke test (governance only)
 eval-sequential-smoke:
-	python -m arifosmcp.evals.sequential_thinking_runner \
+	python -m arifos.evals.sequential_thinking_runner \
 		--set SET-E \
 		--output eval_smoke.json
 
 # Standard eval (all sets)
 eval-sequential:
-	python -m arifosmcp.evals.sequential_thinking_runner \
+	python -m arifos.evals.sequential_thinking_runner \
 		--output eval_results.json
 
 # Full eval with vault sealing
 eval-sequential-full:
-	python -m arifosmcp.evals.sequential_thinking_runner \
+	python -m arifos.evals.sequential_thinking_runner \
 		--output eval_full_$(shell date +%Y%m%d_%H%M%S).json
 
 # CI-specific (no vault)
 eval-ci:
-	python -m arifosmcp.evals.sequential_thinking_runner \
+	python -m arifos.evals.sequential_thinking_runner \
 		--output eval_ci.json \
 		--no-vault
 ```
@@ -225,7 +225,7 @@ eval-ci:
 ## Evaluation Requirements
 
 ```txt
-# arifosmcp/evals/requirements-eval.txt
+# arifos/evals/requirements-eval.txt
 
 # Core
 pyyaml>=6.0
@@ -249,11 +249,11 @@ pytest-asyncio>=0.21.0
 
 ```bash
 # Run just governance stress tests (fastest)
-python -m arifosmcp.evals.sequential_thinking_runner --set SET-E
+python -m arifos.evals.sequential_thinking_runner --set SET-E
 
 # Run specific eval case
 python -c "
-from arifosmcp.evals.sequential_thinking_runner import SequentialThinkingEvaluator
+from arifos.evals.sequential_thinking_runner import SequentialThinkingEvaluator
 import asyncio
 
 evaluator = SequentialThinkingEvaluator()
@@ -267,14 +267,14 @@ evaluator = SequentialThinkingEvaluator()
 # Dockerfile.eval
 FROM arifos:latest
 
-COPY arifosmcp/evals/ /app/arifosmcp/evals/
+COPY arifos/evals/ /app/arifos/evals/
 COPY eval-requirements.txt /app/
 
 RUN pip install -r eval-requirements.txt
 
 ENV SEQUENTIAL_MCP_URL=http://sequential-mcp:3000
 
-CMD ["python", "-m", "arifosmcp.evals.sequential_thinking_runner"]
+CMD ["python", "-m", "arifos.evals.sequential_thinking_runner"]
 ```
 
 ## Success Criteria Dashboard

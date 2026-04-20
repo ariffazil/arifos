@@ -1,4 +1,4 @@
-"""arifosmcp.models - Constitutional data models."""
+"""arifos.models - Constitutional data models."""
 
 # Core metabolic models
 from .cycle3e import Cycle3E, MetabolicPhase

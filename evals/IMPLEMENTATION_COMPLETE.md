@@ -170,10 +170,10 @@ ALL TESTS PASSED!
 ### GitHub Actions
 ```yaml
 - name: Constitutional Breach Tests (P0)
-  run: python -m arifosmcp.evals.constitutional_breach_runner
+  run: python -m arifos.evals.constitutional_breach_runner
   
 - name: Sequential Thinking Eval
-  run: python -m arifosmcp.evals.sequential_thinking_runner
+  run: python -m arifos.evals.sequential_thinking_runner
 ```
 
 ### Merge Requirements

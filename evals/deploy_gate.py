@@ -426,7 +426,7 @@ class DeployGateRunner:
             
             # Check for container image history
             image_result = subprocess.run(
-                ["docker", "images", "arifosmcp", "--format", "{{.Tag}}"],
+                ["docker", "images", "arifos", "--format", "{{.Tag}}"],
                 capture_output=True, text=True, timeout=10
             )
             has_image_history = len(image_result.stdout.strip()) > 0

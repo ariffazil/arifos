@@ -3,7 +3,7 @@
 **L2 Skills Adapter** — TypeScript client for the arifOS Constitutional AI Governance System.
 
 > **F4 CLARITY:** This package is a **CABLE**, not the **KERNEL**.  
-> Governance authority resides exclusively in the PyPI [`arifosmcp`](https://pypi.org/project/arifosmcp/) package.  
+> Governance authority resides exclusively in the PyPI [`arifosmcp`](https://pypi.org/project/arifos/) package.  
 > This npm package only provides TypeScript types and a thin MCP transport client.
 
 ---
@@ -29,7 +29,7 @@ import { createClient, ENDPOINTS } from '@arifos/mcp';
 
 const client = await createClient({
   transport: 'http',
-  endpoint: ENDPOINTS.VPS,  // https://arifosmcp.arif-fazil.com/mcp
+  endpoint: ENDPOINTS.VPS,  // https://arifos.arif-fazil.com/mcp
 });
 
 await client.connect();
@@ -158,7 +158,7 @@ import type {
 | 0.1.0 | ≥18 | 2026.2.17 | HTTP/stdio | ✅ Stable |
 
 **Notes:**
-- All versions tested against production VPS endpoint (`arifosmcp.arif-fazil.com`)
+- All versions tested against production VPS endpoint (`arifos.arif-fazil.com`)
 - `stdio` transport tested locally with `arifosmcp>=2026.2.17`
 - Public contract authority comes from the generated runtime registry, not this README alone
 
@@ -233,9 +233,9 @@ AGPL-3.0-only — Same as arifOS kernel.
 
 ## Links
 
-- **arifOS Kernel:** <https://pypi.org/project/arifosmcp/>
+- **arifOS Kernel:** <https://pypi.org/project/arifos/>
 - **Documentation:** <https://arifos.arif-fazil.com>
-- **Repository:** <https://github.com/ariffazil/arifosmcp>
+- **Repository:** <https://github.com/ariffazil/arifos>
 - **MCP Protocol:** <https://modelcontextprotocol.io>
 
 *Ditempa Bukan Diberi* — Forged, Not Given

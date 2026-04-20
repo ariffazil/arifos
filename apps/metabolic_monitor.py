@@ -64,7 +64,7 @@ CANONICAL_RUNTIME_URL = os.getenv(
 )
 
 # ── Widget URI for MCP UI extension ───────────────────────────────────────────
-ARIFOS_WIDGET_DOMAIN = "https://arifosmcp.arif-fazil.com"
+ARIFOS_WIDGET_DOMAIN = "https://arifos.arif-fazil.com"
 VAULT_WIDGET_URI = f"{ARIFOS_WIDGET_DOMAIN}/widget/vault-seal"
 
 

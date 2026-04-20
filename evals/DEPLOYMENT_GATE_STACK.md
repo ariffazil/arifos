@@ -138,32 +138,32 @@ python rollback_verifier.py --rollback-to v2026.04.06
 
 ```bash
 # Full deployment gate with human ratification
-python arifosmcp/evals/deploy_gate.py --ratify
+python arifos/evals/deploy_gate.py --ratify
 
 # Dry run (no human ratification required)
-python arifosmcp/evals/deploy_gate.py
+python arifos/evals/deploy_gate.py
 
 # Specific transport mode
-python arifosmcp/evals/deploy_gate.py --transport http
+python arifos/evals/deploy_gate.py --transport http
 ```
 
 ### Run Individual Test Packs
 
 ```bash
 # L1: Protocol conformance
-python arifosmcp/evals/protocol_conformance_runner.py
+python arifos/evals/protocol_conformance_runner.py
 
 # L2: Constitutional breach tests
-python -m arifosmcp.evals.breach_test_runner
+python -m arifos.evals.breach_test_runner
 
 # L3: Substrate smoke tests
-python arifosmcp/evals/substrate_smoke_runner.py
+python arifos/evals/substrate_smoke_runner.py
 
 # L4: E2E golden paths
-python arifosmcp/evals/e2e_golden_paths.py
+python arifos/evals/e2e_golden_paths.py
 
 # L5: Rollback verification
-python arifosmcp/evals/rollback_verifier.py
+python arifos/evals/rollback_verifier.py
 ```
 
 ### CI/CD Integration

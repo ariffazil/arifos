@@ -5,7 +5,7 @@ arifOS MCP — stdio transport entrypoint
 Used by local MCP clients (Cursor, Claude, Gemini, Kimi) that speak
 stdio JSON-RPC. This script runs inside the Docker container via:
 
-    docker exec -i arifosmcp python /usr/src/app/stdio_server.py
+    docker exec -i arifos python /usr/src/app/stdio_server.py
 
 DITEMPA BUKAN DIBERI
 """

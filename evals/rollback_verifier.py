@@ -100,7 +100,7 @@ class RollbackVerifier:
     def _get_docker_images(self) -> list[str]:
         """Get available docker image tags"""
         rc, stdout, _ = self._run_cmd([
-            "docker", "images", "arifosmcp",
+            "docker", "images", "arifos",
             "--format", "{{.Tag}}|{{.CreatedAt}}"
         ])
         if rc != 0:
@@ -164,7 +164,7 @@ class RollbackVerifier:
         for img in docker_images[:5]:
             parts = img.split("|")
             tag = parts[0] if parts else img
-            print(f"  ✅ arifosmcp:{tag}")
+            print(f"  ✅ arifos:{tag}")
         
         if not docker_images:
             print("  ⚠️ No docker images found")
@@ -230,10 +230,10 @@ class RollbackVerifier:
         # 3. Tag docker image
         print("\n[3/4] Tagging docker image...")
         rc, _, stderr = self._run_cmd([
-            "docker", "tag", "arifosmcp:latest", f"arifosmcp:{name}"
+            "docker", "tag", "arifos:latest", f"arifos:{name}"
         ])
         if rc == 0:
-            print(f"  ✅ Image tagged: arifosmcp:{name}")
+            print(f"  ✅ Image tagged: arifos:{name}")
         else:
             print(f"  ⚠️ Could not tag image: {stderr}")
         
@@ -284,7 +284,7 @@ class RollbackVerifier:
         # 2. Docker rollback
         print("\n[2/3] Docker rollback...")
         rc, _, stderr = self._run_cmd([
-            "docker", "tag", f"arifosmcp:{target}", "arifosmcp:latest"
+            "docker", "tag", f"arifos:{target}", "arifosmcp:latest"
         ])
         if rc == 0:
             print("  ✅ Docker image rolled back")
