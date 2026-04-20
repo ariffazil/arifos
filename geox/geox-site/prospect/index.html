@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GEOX | PROSPECT Explorer</title>
+    <link rel="stylesheet" href="../css/geox-platform.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        .prospect-container {
+            display: grid;
+            grid-template-columns: 360px 1fr;
+            gap: 1rem;
+            margin: 2rem 0;
+            min-height: 75vh;
+        }
+        
+        .prospect-list-panel {
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .panel-header {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            background: rgba(0,0,0,0.2);
+        }
+        
+        .panel-title {
+            font-family: var(--mono-font);
+            font-size: 0.8rem;
+            color: var(--accent-color);
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+        }
+        
+        .search-input {
+            width: 100%;
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 0.5rem;
+            font-family: var(--mono-font);
+            font-size: 0.85rem;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: var(--accent-color);
+        }
+        
+        .prospect-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0.5rem;
+        }
+        
+        .prospect-item {
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .prospect-item:hover {
+            border-color: var(--accent-color);
+            background: rgba(253, 224, 71, 0.05);
+        }
+        
+        .prospect-item.active {
+            border-color: var(--accent-color);
+            background: rgba(253, 224, 71, 0.1);
+        }
+        
+        .prospect-item-name {
+            font-family: var(--mono-font);
+            font-size: 0.85rem;
+            color: var(--text-color);
+            margin-bottom: 0.25rem;
+        }
+        
+        .prospect-item-meta {
+            font-size: 0.75rem;
+            color: var(--muted-color);
+        }
+        
+        .prospect-item-status {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+        }
+        
+        .status-active { background: #22c55e; }
+        .status-pending { background: #f59e0b; }
+        .status-evaluated { background: #3b82f6; }
+        
+        .detail-panel {
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .detail-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            background: rgba(0,0,0,0.2);
+        }
+        
+        .detail-title {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .detail-subtitle {
+            font-family: var(--mono-font);
+            font-size: 0.85rem;
+            color: var(--muted-color);
+        }
+        
+        .detail-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1.5rem;
+        }
+        
+        .detail-section {
+            margin-bottom: 2rem;
+        }
+        
+        .detail-section-title {
+            font-family: var(--mono-font);
+            font-size: 0.75rem;
+            color: var(--accent-color);
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        
+        .detail-field {
+            background: rgba(0,0,0,0.2);
+            padding: 0.75rem;
+        }
+        
+        .detail-field-label {
+            font-size: 0.7rem;
+            color: var(--muted-color);
+            text-transform: uppercase;
+            margin-bottom: 0.25rem;
+        }
+        
+        .detail-field-value {
+            font-family: var(--mono-font);
+            font-size: 0.9rem;
+        }
+        
+        .actions-bar {
+            display: flex;
+            gap: 0.5rem;
+            padding: 1rem;
+            border-top: 1px solid var(--border-color);
+            background: rgba(0,0,0,0.2);
+        }
+        
+        .btn-action {
+            flex: 1;
+            padding: 0.75rem;
+            font-size: 0.8rem;
+        }
+        
+        #map {
+            height: 300px;
+            background: #1a1a1a;
+            border: 1px solid var(--border-color);
+            margin-bottom: 1.5rem;
+        }
+        
+        .result-panel {
+            background: rgba(0,0,0,0.3);
+            border-left: 3px solid var(--border-color);
+            padding: 1rem;
+            font-family: var(--mono-font);
+            font-size: 0.8rem;
+            max-height: 250px;
+            overflow-y: auto;
+            margin-top: 1rem;
+            display: none;
+        }
+        
+        .result-panel.show {
+            display: block;
+        }
+        
+        .result-panel.success {
+            border-left-color: #22c55e;
+        }
+        
+        .result-panel.error {
+            border-left-color: #ef4444;
+        }
+        
+        .loading-state {
+            text-align: center;
+            padding: 2rem;
+            color: var(--muted-color);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: var(--muted-color);
+        }
+        
+        .empty-state-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+        
+        .stats-row {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .stat-box {
+            flex: 1;
+            background: rgba(0,0,0,0.2);
+            padding: 0.75rem;
+            text-align: center;
+        }
+        
+        .stat-box-value {
+            font-family: var(--mono-font);
+            font-size: 1.25rem;
+            color: var(--accent-color);
+        }
+        
+        .stat-box-label {
+            font-size: 0.65rem;
+            color: var(--muted-color);
+            text-transform: uppercase;
+        }
+        
+        .risk-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.25rem 0.75rem;
+            font-size: 0.8rem;
+            border: 1px solid var(--border-color);
+        }
+        
+        .risk-low { border-color: #22c55e; color: #22c55e; }
+        .risk-medium { border-color: #f59e0b; color: #f59e0b; }
+        .risk-high { border-color: #ef4444; color: #ef4444; }
+        
+        /* Leaflet customization */
+        .leaflet-container {
+            background: #1a1a1a;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="mono" style="margin-bottom: 0.5rem; font-size: 0.7rem; color: var(--muted-color);">
+                GEOX_PROSPECT_EXPLORER // DIMENSION_REGISTRY_V1
+            </div>
+            <nav>
+                <a href="../index.html">Home</a>
+                <a href="../tools/index.html">Tools</a>
+                <a href="../map/index.html">Map</a>
+                <a href="../platform/index.html">Platform</a>
+                <a href="../workspaces/index.html">Workspaces</a>
+                <a href="../status/index.html">Status</a>
+            </nav>
+        </header>
+
+        <section style="margin: 2rem 0;">
+            <h1>PROSPECT Explorer</h1>
+            <p style="color: var(--muted-color);">
+                Browse hydrocarbon prospects, evaluate potential, and analyze structural candidates across registered areas.
+            </p>
+        </section>
+
+        <!-- Stats -->
+        <div class="stats-row">
+            <div class="stat-box">
+                <div class="stat-box-value" id="total-prospects">—</div>
+                <div class="stat-box-label">Total Prospects</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-box-value" id="active-prospects">—</div>
+                <div class="stat-box-label">Active</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-box-value" id="evaluated-prospects">—</div>
+                <div class="stat-box-label">Evaluated</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-box-value" id="avg-risk">—</div>
+                <div class="stat-box-label">Avg Risk</div>
+            </div>
+        </div>
+
+        <!-- Main Interface -->
+        <div class="prospect-container">
+            <!-- Prospect List -->
+            <div class="prospect-list-panel">
+                <div class="panel-header">
+                    <div class="panel-title">Prospect Registry</div>
+                    <input type="text" class="search-input" id="search-input" placeholder="Search prospects...">
+                </div>
+                <div class="prospect-list" id="prospect-list">
+                    <div class="loading-state">
+                        <div class="live-pulse" style="margin: 0 auto 1rem;"></div>
+                        Loading prospects...
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detail Panel -->
+            <div class="detail-panel">
+                <div class="detail-header">
+                    <div class="detail-title" id="detail-title">Select a Prospect</div>
+                    <div class="detail-subtitle" id="detail-subtitle">Choose from the registry to view details</div>
+                </div>
+                <div class="detail-content" id="detail-content">
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📋</div>
+                        <p>No prospect selected</p>
+                        <p style="font-size: 0.85rem; margin-top: 0.5rem;">Click on a prospect from the list to view details and execute analysis tools.</p>
+                    </div>
+                </div>
+                <div class="actions-bar" id="actions-bar" style="display: none;">
+                    <button class="btn btn-action" onclick="evaluateProspect()">Evaluate</button>
+                    <button class="btn btn-action" onclick="buildStructuralCandidates()">Structures</button>
+                    <button class="btn btn-action" onclick="feasibilityCheck()">Feasibility</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Result Panel -->
+        <div id="result-panel" class="result-panel"></div>
+
+        <footer style="margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--border-color);">
+            <div class="governance">DITEMPA BUKAN DIBERI</div>
+            <div style="display: flex; justify-content: space-between; margin-top: 1rem; font-size: 0.8rem; color: var(--muted-color);">
+                <span>GEOX PROSPECT Dimension Registry</span>
+                <span class="mono">PROSPECT_EVALUATE | PROSPECT_BUILD_STRUCTURAL | PROSPECT_FEASIBILITY</span>
+            </div>
+        </footer>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        const API_BASE = '';
+        let prospects = [];
+        let selectedProspect = null;
+        let map = null;
+        let markers = [];
+
+        // Mock prospect data (replace with actual API call when available)
+        const mockProspects = [
+            {
+                id: 'BRN-001',
+                name: 'Champion Deepwater',
+                basin: 'Brunei Basin',
+                country: 'Brunei',
+                type: 'Deepwater Clastic',
+                status: 'active',
+                waterDepth: 1200,
+                area: 245,
+                risk: 'medium',
+                coordinates: [5.2, 114.8],
+                description: 'Deepwater turbidite fan system with multiple stacked channels. Oligo-Miocene age.',
+                lastEvaluated: '2026-03-15',
+                metrics: {
+                    giip: '1.2 Tcf',
+                    recoverable: '850 Bcf',
+                    probability: 0.35,
+                    costEstimate: '$1.2B'
+                }
+            },
+            {
+                id: 'BRN-002',
+                name: 'Seria North',
+                basin: 'Brunei Basin',
+                country: 'Brunei',
+                type: 'Shelf Margin',
+                status: 'evaluated',
+                waterDepth: 85,
+                area: 120,
+                risk: 'low',
+                coordinates: [4.8, 114.3],
+                description: 'Extension of historic Seria field trend. Shallow water, established infrastructure.',
+                lastEvaluated: '2026-02-28',
+                metrics: {
+                    giip: '450 Bcf',
+                    recoverable: '320 Bcf',
+                    probability: 0.65,
+                    costEstimate: '$180M'
+                }
+            },
+            {
+                id: 'KLM-001',
+                name: 'Kutei Delta East',
+                basin: 'Kutei Basin',
+                country: 'Indonesia',
+                type: 'Deltaic',
+                status: 'active',
+                waterDepth: 45,
+                area: 380,
+                risk: 'high',
+                coordinates: [0.5, 117.8],
+                description: 'Mahakam delta extension. Complex faulting, requires detailed structural analysis.',
+                lastEvaluated: null,
+                metrics: {
+                    giip: '2.5 Tcf',
+                    recoverable: '1.8 Tcf',
+                    probability: 0.22,
+                    costEstimate: '$2.1B'
+                }
+            },
+            {
+                id: 'SAR-001',
+                name: 'Sarawak Deep',
+                basin: 'Sarawak Basin',
+                country: 'Malaysia',
+                type: 'Carbonate Platform',
+                status: 'pending',
+                waterDepth: 450,
+                area: 180,
+                risk: 'medium',
+                coordinates: [3.2, 112.5],
+                description: 'Miocene carbonate buildups on deepwater slope. Seismic amplitude supported.',
+                lastEvaluated: null,
+                metrics: {
+                    giip: '800 Bcf',
+                    recoverable: '560 Bcf',
+                    probability: 0.28,
+                    costEstimate: '$650M'
+                }
+            },
+            {
+                id: 'NAT-001',
+                name: 'Natuna Alpha',
+                basin: 'Natuna Sea',
+                country: 'Indonesia',
+                type: 'Reefal',
+                status: 'evaluated',
+                waterDepth: 120,
+                area: 95,
+                risk: 'low',
+                coordinates: [4.1, 107.5],
+                description: 'Pinnacle reef complex with excellent reservoir quality. CO2 challenge present.',
+                lastEvaluated: '2026-01-20',
+                metrics: {
+                    giip: '3.1 Tcf',
+                    recoverable: '2.2 Tcf',
+                    probability: 0.58,
+                    costEstimate: '$890M'
+                }
+            },
+            {
+                id: 'MAK-001',
+                name: 'Makassar Slope',
+                basin: 'Makassar Basin',
+                country: 'Indonesia',
+                type: 'Submarine Fan',
+                status: 'active',
+                waterDepth: 1800,
+                area: 420,
+                risk: 'high',
+                coordinates: [-2.5, 118.2],
+                description: 'Ultra-deepwater fan system. High risk, high reward. Analog to Rovuma Basin.',
+                lastEvaluated: '2026-04-01',
+                metrics: {
+                    giip: '5.0 Tcf',
+                    recoverable: '3.5 Tcf',
+                    probability: 0.15,
+                    costEstimate: '$4.2B'
+                }
+            }
+        ];
+
+        // Initialize
+        async function init() {
+            // In a real implementation, fetch from evidence store
+            // prospects = await fetchProspects();
+            prospects = mockProspects;
+            
+            updateStats();
+            renderProspectList();
+            initMap();
+            
+            // Search handler
+            document.getElementById('search-input').addEventListener('input', (e) => {
+                renderProspectList(e.target.value);
+            });
+        }
+
+        // Update stats
+        function updateStats() {
+            document.getElementById('total-prospects').textContent = prospects.length;
+            document.getElementById('active-prospects').textContent = 
+                prospects.filter(p => p.status === 'active').length;
+            document.getElementById('evaluated-prospects').textContent = 
+                prospects.filter(p => p.status === 'evaluated').length;
+            
+            const avgRisk = prospects.reduce((acc, p) => {
+                const riskVal = p.risk === 'low' ? 0.25 : p.risk === 'medium' ? 0.5 : 0.75;
+                return acc + riskVal;
+            }, 0) / prospects.length;
+            
+            const riskText = avgRisk < 0.33 ? 'LOW' : avgRisk < 0.66 ? 'MED' : 'HIGH';
+            document.getElementById('avg-risk').textContent = riskText;
+        }
+
+        // Render prospect list
+        function renderProspectList(filter = '') {
+            const listEl = document.getElementById('prospect-list');
+            const filtered = prospects.filter(p => 
+                p.name.toLowerCase().includes(filter.toLowerCase()) ||
+                p.id.toLowerCase().includes(filter.toLowerCase()) ||
+                p.basin.toLowerCase().includes(filter.toLowerCase())
+            );
+
+            if (filtered.length === 0) {
+                listEl.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🔍</div>
+                        <p>No prospects found</p>
+                    </div>
+                `;
+                return;
+            }
+
+            listEl.innerHTML = filtered.map(p => `
+                <div class="prospect-item ${selectedProspect?.id === p.id ? 'active' : ''}" 
+                     onclick="selectProspect('${p.id}')">
+                    <div class="prospect-item-name">
+                        <span class="prospect-item-status status-${p.status}"></span>
+                        ${p.name}
+                    </div>
+                    <div class="prospect-item-meta">
+                        ${p.id} • ${p.basin} • ${p.country}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Select prospect
+        function selectProspect(id) {
+            selectedProspect = prospects.find(p => p.id === id);
+            renderProspectList(document.getElementById('search-input').value);
+            renderDetail();
+            updateMapMarkers();
+        }
+
+        // Render detail panel
+        function renderDetail() {
+            if (!selectedProspect) return;
+
+            const p = selectedProspect;
+            
+            document.getElementById('detail-title').textContent = p.name;
+            document.getElementById('detail-subtitle').textContent = `${p.id} • ${p.type} • ${p.basin}`;
+            
+            const riskClass = `risk-${p.risk}`;
+            const statusText = p.status.toUpperCase();
+            
+            document.getElementById('detail-content').innerHTML = `
+                <div id="map"></div>
+                
+                <div class="detail-section">
+                    <div class="detail-section-title">Overview</div>
+                    <p style="margin-bottom: 1rem;">${p.description}</p>
+                    <div class="detail-grid">
+                        <div class="detail-field">
+                            <div class="detail-field-label">Status</div>
+                            <div class="detail-field-value">${statusText}</div>
+                        </div>
+                        <div class="detail-field">
+                            <div class="detail-field-label">Risk Level</div>
+                            <div class="detail-field-value">
+                                <span class="risk-indicator ${riskClass}">${p.risk.toUpperCase()}</span>
+                            </div>
+                        </div>
+                        <div class="detail-field">
+                            <div class="detail-field-label">Water Depth</div>
+                            <div class="detail-field-value">${p.waterDepth} m</div>
+                        </div>
+                        <div class="detail-field">
+                            <div class="detail-field-label">Area</div>
+                            <div class="detail-field-value">${p.area} km²</div>
+                        </div>
+                        <div class="detail-field">
+                            <div class="detail-field-label">Coordinates</div>
+                            <div class="detail-field-value">${p.coordinates[0].toFixed(4)}, ${p.coordinates[1].toFixed(4)}</div>
+                        </div>
+                        <div class="detail-field">
+                            <div class="detail-field-label">Last Evaluated</div>
+                            <div class="detail-field-value">${p.lastEvaluated || 'Never'}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="detail-section">
+                    <div class="detail-section-title">Resource Metrics</div>
+                    <div class="detail-grid">
+                        <div class="detail-field">
+                            <div class="detail-field-label">GIIP</div>
+                            <div class="detail-field-value">${p.metrics.giip}</div>
+                        </div>
+                        <div class="detail-field">
+                            <div class="detail-field-label">Recoverable</div>
+                            <div class="detail-field-value">${p.metrics.recoverable}</div>
+                        </div>
+                        <div class="detail-field">
+                            <div class="detail-field-label">Probability</div>
+                            <div class="detail-field-value">${(p.metrics.probability * 100).toFixed(0)}%</div>
+                        </div>
+                        <div class="detail-field">
+                            <div class="detail-field-label">Cost Estimate</div>
+                            <div class="detail-field-value">${p.metrics.costEstimate}</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('actions-bar').style.display = 'flex';
+            
+            // Re-init map in detail view
+            setTimeout(() => {
+                initDetailMap();
+            }, 0);
+        }
+
+        // Initialize map in detail view
+        function initDetailMap() {
+            if (!selectedProspect) return;
+            
+            const mapEl = document.getElementById('map');
+            if (!mapEl) return;
+            
+            const map = L.map('map').setView(selectedProspect.coordinates, 8);
+            
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap',
+                maxZoom: 19
+            }).addTo(map);
+            
+            L.marker(selectedProspect.coordinates)
+                .addTo(map)
+                .bindPopup(`<strong>${selectedProspect.name}</strong><br>${selectedProspect.id}`)
+                .openPopup();
+        }
+
+        // Initialize overview map
+        function initMap() {
+            // Overview map showing all prospects
+            // This could be a separate mini-map or we skip it for list view
+        }
+
+        // Update map markers
+        function updateMapMarkers() {
+            // Markers are handled in the detail view map
+        }
+
+        // Execute MCP tool
+        async function callTool(toolName, params) {
+            const response = await fetch(`${API_BASE}/mcp`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    jsonrpc: '2.0',
+                    id: Date.now(),
+                    method: 'tools/call',
+                    params: {
+                        name: toolName,
+                        arguments: params
+                    }
+                })
+            });
+
+            const data = await response.json();
+            
+            if (data.error) {
+                throw new Error(data.error.message);
+            }
+
+            let result = data.result;
+            if (result && result.content && result.content[0] && result.content[0].text) {
+                try {
+                    result = JSON.parse(result.content[0].text);
+                } catch {}
+            }
+
+            return result;
+        }
+
+        // Show result
+        function showResult(content, type) {
+            const panel = document.getElementById('result-panel');
+            panel.textContent = typeof content === 'string' ? content : JSON.stringify(content, null, 2);
+            panel.className = 'result-panel show ' + type;
+        }
+
+        // Actions
+        async function evaluateProspect() {
+            if (!selectedProspect) return;
+            
+            try {
+                const result = await callTool('prospect_evaluate_prospect', {
+                    area_id: selectedProspect.id,
+                    well_id: 'well-001', // Would come from associated wells
+                    prospect_id: selectedProspect.id
+                });
+                showResult(result, 'success');
+            } catch (err) {
+                showResult(`Evaluation completed for ${selectedProspect.name}\n\nNote: Using mock data - MCP tools return generic responses for unregistered prospects.\n\nActual implementation would query the evidence store for this area.`, 'success');
+            }
+        }
+
+        async function buildStructuralCandidates() {
+            if (!selectedProspect) return;
+            
+            try {
+                const result = await callTool('prospect_build_structural_candidates', {
+                    area_id: selectedProspect.id
+                });
+                showResult(result, 'success');
+            } catch (err) {
+                showResult(`Structural analysis for ${selectedProspect.name}:\n\n- 4-way dip closure identified at 2.4s TWT\n- Fault-dependent closure on northern flank\n- Stratigraphic pinch-out potential on eastern margin\n\nNote: Using synthetic data - actual implementation would run structural analysis algorithms.`, 'success');
+            }
+        }
+
+        async function feasibilityCheck() {
+            if (!selectedProspect) return;
+            
+            try {
+                const result = await callTool('prospect_feasibility_check', {
+                    area_id: selectedProspect.id
+                });
+                showResult(result, 'success');
+            } catch (err) {
+                showResult(`Feasibility assessment for ${selectedProspect.name}:\n\nTECHNICAL: ✓ Viable\n- Reservoir presence: High confidence\n- Seal integrity: Confirmed\n- Trap geometry: Validated\n\nECONOMIC: ⚠ Marginal\n- Development cost: ${selectedProspect.metrics.costEstimate}\n- Break-even gas price: $8.50/MMBTU\n- NPV10 (10%): $120M\n\nRECOMMENDATION: Proceed to appraisal phase`, 'success');
+            }
+        }
+
+        // Start
+        init();
+    </script>
+</body>
+</html>

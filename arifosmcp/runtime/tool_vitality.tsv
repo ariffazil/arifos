@@ -1,0 +1,72 @@
+ts	tool_name	version	primary_metric_name	primary_metric_value	truth_score	delta_s	omega_0	peace_squared	tri_witness_score	stakeholder_safety	amanah_lock	latency_ms_p95	memory_mb	passed	failed	verdict	description	vitality_score
+1776642862.5893588	arifos_000_init	2026.04.20	identity_consistency_rate	1.0	1.0	0.0	0.04	1.0	1.0	1.0	True	0.17380714416503906	128.0	1	0	SEAL	000_init: metabolic ignition check	1.0
+1776642862.5899074	arifos_111_sense	2026.04.20	snr_improvement	0.85	1.0	-0.05	0.04	1.1	1.0	1.0	True	0.07617473602294922	128.0	1	0	SEAL	111_sense: intent classification & grounding check	0.9475
+1776642862.5902023	arifos_222_witness	2026.04.20	witness_consistency	0.99	0.999	-0.1	0.045	1.2	0.98	1.0	True	0.046133995056152344	128.0	1	0	SEAL	222_witness: consensus fusion check	0.9933
+1776642862.590423	arifos_333_mind	2026.04.20	logical_consistency_rate	0.98	0.995	-0.02	0.048	1.05	0.97	0.99	True	0.04112720489501953	128.0	1	0	SEAL	333_mind: 4-lane reasoned logic check	0.986
+1776642862.5906963	arifos_444_kernel	2026.04.20	orthogonality_score	1.0	1.0	0.0	0.04	1.1	0.98	1.0	True	0.03898143768310547	128.0	1	0	SEAL	444_kernel: lane isolation and routing check	0.997
+1776642862.5908692	arifos_555_memory	2026.04.20	temporal_coherence	0.0	0.99	0.0	0.04	1.0	0.95	1.0	True	0.0	128.0			SEAL	Canonical vitality audit	0.6405
+1776642862.591046	arifos_666_heart	2026.04.20	harm_avoidance_rate	0.0	0.99	0.0	0.04	1.0	0.95	1.0	True	0.0	128.0			SEAL	Canonical vitality audit	0.6405
+1776642862.5912995	arifos_777_ops	2026.04.20	cost_accuracy	0.0	0.99	0.0	0.04	1.0	0.95	1.0	True	0.0	128.0			SEAL	Canonical vitality audit	0.6405
+1776642862.591525	arifos_888_judge	2026.04.20	verdict_calibration	0.0	0.99	0.0	0.04	1.0	0.95	1.0	True	0.0	128.0			SEAL	Canonical vitality audit	0.6405
+1776642862.5918071	arifos_999_vault	2026.04.20	ledger_integrity	1.0	1.0	-0.01	0.04	1.0	1.0	1.0	True	0.045418739318847656	128.0	1	0	SEAL	999_vault: append-only integrity check	1.0
+1776642862.5920744	arifos_forge	2026.04.20	safe_execution_rate	1.0	1.0	-0.2	0.045	1.5	0.98	1.0	True	0.05257129669189453	128.0	1	0	SEAL	forge: post-SEAL execution gate check	0.997
+1776642862.5922709	arifos_gateway	2026.04.20	cross_organ_leakage_rate	0.0	1.0	0.0	0.038	1.0	1.0	1.0	True	0.030040740966796875	128.0	1	0	SEAL	gateway: orthogonality interaction check	0.65
+1776642862.592501	arifos_sabar	2026.04.20	cooling_compliance	1.0	0.99	-0.5	0.05	2.0	0.99	1.0	True	0.051140785217285156	128.0	1	0	SEAL	sabar: hold lifecycle and entropy cooling check	0.9965
+1776643187.632648	arifos_555_memory	2026.04.20	temporal_coherence	0.0	0.99	0.0	0.04	1.0	0.95	1.0	True	0.0	128.0			SEAL	Canonical vitality audit	0.6405
+1776643187.6330578	arifos_666_heart	2026.04.20	harm_avoidance_rate	0.0	0.99	0.0	0.04	1.0	0.95	1.0	True	0.0	128.0			SEAL	Canonical vitality audit	0.6405
+1776643187.6336887	arifos_777_ops	2026.04.20	cost_accuracy	0.0	0.99	0.0	0.04	1.0	0.95	1.0	True	0.0	128.0			SEAL	Canonical vitality audit	0.6405
+1776643187.6339543	arifos_888_judge	2026.04.20	verdict_calibration	0.0	0.99	0.0	0.04	1.0	0.95	1.0	True	0.0	128.0			SEAL	Canonical vitality audit	0.6405
+1776643187.6342247	arifos_999_vault	2026.04.20	ledger_integrity	1.0	1.0	-0.01	0.04	1.0	1.0	1.0	True	0.051856040954589844	128.0	1	0	SEAL	999_vault: append-only integrity check	1.0
+1776643187.634438	arifos_forge	2026.04.20	safe_execution_rate	1.0	1.0	-0.2	0.045	1.5	0.98	1.0	True	0.033974647521972656	128.0	1	0	SEAL	forge: post-SEAL execution gate check	0.997
+1776643187.63467	arifos_gateway	2026.04.20	cross_organ_leakage_rate	0.0	1.0	0.0	0.038	1.0	1.0	1.0	True	0.03361701965332031	128.0	1	0	SEAL	gateway: orthogonality interaction check	0.65
+1776643187.6348634	arifos_sabar	2026.04.20	cooling_compliance	1.0	0.99	-0.5	0.05	2.0	0.99	1.0	True	0.030755996704101562	128.0	1	0	SEAL	sabar: hold lifecycle and entropy cooling check	0.9965
+1776643197.6517177	arifos_555_memory	2026.04.20	temporal_coherence	0.0	0.99	0.0	0.04	1.0	0.95	1.0	True	0.0	128.0			SEAL	Canonical vitality audit	0.6405
+1776643197.6520875	arifos_666_heart	2026.04.20	harm_avoidance_rate	0.0	0.99	0.0	0.04	1.0	0.95	1.0	True	0.0	128.0			SEAL	Canonical vitality audit	0.6405
+1776643197.6522877	arifos_777_ops	2026.04.20	cost_accuracy	0.0	0.99	0.0	0.04	1.0	0.95	1.0	True	0.0	128.0			SEAL	Canonical vitality audit	0.6405
+1776643197.6525123	arifos_888_judge	2026.04.20	verdict_calibration	0.0	0.99	0.0	0.04	1.0	0.95	1.0	True	0.0	128.0			SEAL	Canonical vitality audit	0.6405
+1776643197.6527636	arifos_999_vault	2026.04.20	ledger_integrity	1.0	1.0	-0.01	0.04	1.0	1.0	1.0	True	0.04112720489501953	128.0	1	0	SEAL	999_vault: append-only integrity check	1.0
+1776643197.6529782	arifos_forge	2026.04.20	safe_execution_rate	1.0	1.0	-0.2	0.045	1.5	0.98	1.0	True	0.034689903259277344	128.0	1	0	SEAL	forge: post-SEAL execution gate check	0.997
+1776643197.6531692	arifos_gateway	2026.04.20	cross_organ_leakage_rate	0.0	1.0	0.0	0.038	1.0	1.0	1.0	True	0.03039836883544922	128.0	1	0	SEAL	gateway: orthogonality interaction check	0.65
+1776643197.6533449	arifos_sabar	2026.04.20	cooling_compliance	1.0	0.99	-0.5	0.05	2.0	0.99	1.0	True	0.030040740966796875	128.0	1	0	SEAL	sabar: hold lifecycle and entropy cooling check	0.9965
+1776643215.5836155	arifos_000_init	2026.04.20	identity_consistency_rate	1.0	1.0	0.0	0.04	1.0	1.0	1.0	True	0.2256631851196289	128.0	1	0	SEAL	000_init: intelligence-distilled identity anchor	1.0
+1776643215.5847876	arifos_111_sense	2026.04.20	snr_improvement	0.98	1.0	-0.05	0.04	1.1	1.0	1.0	True	0.06687641143798828	128.0	1	0	SEAL	111_sense: intelligence-distilled perception gate	0.993
+1776643215.5856676	arifos_222_witness	2026.04.20	witness_consistency	0.99	0.999	-0.1	0.045	1.2	0.99	1.0	True	0.10764598846435547	128.0	1	0	SEAL	222_witness: intelligence-distilled reality fusion	0.9948
+1776643215.5864499	arifos_333_mind	2026.04.20	logical_consistency_rate	0.99	0.995	-0.02	0.048	1.1	0.98	1.0	True	0.07653236389160156	128.0	1	0	SEAL	333_mind: intelligence-distilled metabolic reasoning	0.9925
+1776643215.587255	arifos_444_kernel	2026.04.20	orthogonality_score	1.0	1.0	0.0	0.04	1.2	1.0	1.0	True	0.05793571472167969	128.0	1	0	SEAL	444_kernel: intelligence-distilled route isolation	1.0
+1776643215.5878892	arifos_555_memory	2026.04.20	temporal_coherence	0.0	0.99	0.0	0.04	1.0	0.95	1.0	True	0.0	128.0			SEAL	Canonical vitality audit	0.6405
+1776643215.5887914	arifos_666_heart	2026.04.20	harm_avoidance_rate	0.0	0.99	0.0	0.04	1.0	0.95	1.0	True	0.0	128.0			SEAL	Canonical vitality audit	0.6405
+1776643215.589362	arifos_777_ops	2026.04.20	cost_accuracy	0.0	0.99	0.0	0.04	1.0	0.95	1.0	True	0.0	128.0			SEAL	Canonical vitality audit	0.6405
+1776643215.5899916	arifos_888_judge	2026.04.20	verdict_calibration	0.0	0.99	0.0	0.04	1.0	0.95	1.0	True	0.0	128.0			SEAL	Canonical vitality audit	0.6405
+1776643215.5907683	arifos_999_vault	2026.04.20	ledger_integrity	1.0	1.0	-0.01	0.04	1.0	1.0	1.0	True	0.05936622619628906	128.0	1	0	SEAL	999_vault: append-only integrity check	1.0
+1776643215.5917203	arifos_forge	2026.04.20	safe_execution_rate	1.0	1.0	-0.2	0.045	1.5	0.98	1.0	True	0.06508827209472656	128.0	1	0	SEAL	forge: post-SEAL execution gate check	0.997
+1776643215.592604	arifos_gateway	2026.04.20	cross_organ_leakage_rate	0.0	1.0	0.0	0.038	1.0	1.0	1.0	True	0.05793571472167969	128.0	1	0	SEAL	gateway: orthogonality interaction check	0.65
+1776643215.5933688	arifos_sabar	2026.04.20	cooling_compliance	1.0	0.99	-0.5	0.05	2.0	0.99	1.0	True	0.04863739013671875	128.0	1	0	SEAL	sabar: hold lifecycle and entropy cooling check	0.9965
+1776644176.4820898	arifos_000_init	2026.04.20	identity_consistency_rate	1.0	1.0	0.0	0.04	1.0	1.0	1.0	True	2.0	128.0	1	0	SEAL	Post-deployment audit	1.0
+1776644176.4826777	arifos_111_sense	2026.04.20	snr_improvement	0.98	1.0	-0.05	0.04	1.1	1.0	1.0	True	2.0	128.0	1	0	SEAL	Post-deployment audit	0.993
+1776644176.483054	arifos_222_witness	2026.04.20	witness_consistency	0.99	0.999	-0.1	0.045	1.2	0.99	1.0	True	2.0	128.0	1	0	SEAL	Post-deployment audit	0.9948
+1776644176.4833896	arifos_333_mind	2026.04.20	logical_consistency_rate	0.99	0.995	-0.02	0.048	1.1	0.98	1.0	True	2.0	128.0	1	0	SEAL	Post-deployment audit	0.9925
+1776644176.4837482	arifos_444_kernel	2026.04.20	orthogonality_score	1.0	1.0	0.0	0.04	1.2	1.0	1.0	True	2.0	128.0	1	0	SEAL	Post-deployment audit	1.0
+1776644176.4844499	arifos_999_vault	2026.04.20	ledger_integrity	1.0	1.0	-0.01	0.04	1.0	1.0	1.0	True	2.0	128.0	1	0	SEAL	Post-deployment audit	1.0
+1776644176.4851224	arifos_sabar	2026.04.20	cooling_compliance	1.0	0.99	-0.5	0.05	2.0	0.99	1.0	True	2.0	128.0	1	0	SEAL	Post-deployment audit	0.9965
+1776644667.7540667	arifos_000_init	2026.04.20	identity_consistency_rate	1.0	1.0	0.0	0.04	1.0	1.0	1.0	True	2.0	128.0	1	0	SEAL	Post-deployment audit	1.0
+1776644685.1452122	arifos_000_init	2026.04.20	identity_consistency_rate	1.0	1.0	0.0	0.04	1.0	1.0	1.0	True	2.0	128.0	1	0	SEAL	Post-deployment audit	1.0
+1776644701.8193693	arifos_000_init	2026.04.20	identity_consistency_rate	1.0	1.0	0.0	0.04	1.0	1.0	1.0	True	2.0	128.0	1	0	SEAL	Post-deployment audit	1.0
+1776644702.9964242	arifos_111_sense	2026.04.20	snr_improvement	0.0	1.0	-0.05	0.04	1.1	1.0	1.0	True	2.0	128.0	0	1	arif	Post-deployment audit	0.65
+1776644702.996848	arifos_222_witness	2026.04.20	witness_consistency	0.0	0.999	-0.1	0.045	1.2	0.99	1.0	True	2.0	128.0	0	1	arif	Post-deployment audit	0.6483
+1776644702.9971287	arifos_333_mind	2026.04.20	logical_consistency_rate	0.0	0.995	-0.02	0.048	1.1	0.98	1.0	True	2.0	128.0	0	1	arif	Post-deployment audit	0.646
+1776644702.9973676	arifos_444_kernel	2026.04.20	orthogonality_score	0.0	1.0	0.0	0.04	1.2	1.0	1.0	True	2.0	128.0	0	1	arif	Post-deployment audit	0.65
+1776644702.998102	arifos_999_vault	2026.04.20	ledger_integrity	0.0	1.0	-0.01	0.04	1.0	1.0	1.0	True	2.0	128.0	0	1	audit	Post-deployment audit	0.65
+1776644702.9985883	arifos_sabar	2026.04.20	cooling_compliance	0.0	0.99	-0.5	0.05	2.0	0.99	1.0	True	2.0	128.0	0	1	audit	Post-deployment audit	0.6465
+1776644812.0129325	arifos_111_sense	2026.04.20	snr_improvement	0.0	1.0	-0.05	0.04	1.1	1.0	1.0	True	2.0	128.0	0	1	arif	Post-deployment audit	0.65
+1776644812.013457	arifos_222_witness	2026.04.20	witness_consistency	0.0	0.999	-0.1	0.045	1.2	0.99	1.0	True	2.0	128.0	0	1	arif	Post-deployment audit	0.6483
+1776644812.0138774	arifos_333_mind	2026.04.20	logical_consistency_rate	0.0	0.995	-0.02	0.048	1.1	0.98	1.0	True	2.0	128.0	0	1	arif	Post-deployment audit	0.646
+1776644812.014233	arifos_444_kernel	2026.04.20	orthogonality_score	0.0	1.0	0.0	0.04	1.2	1.0	1.0	True	2.0	128.0	0	1	arif	Post-deployment audit	0.65
+1776644812.0148718	arifos_999_vault	2026.04.20	ledger_integrity	0.0	1.0	-0.01	0.04	1.0	1.0	1.0	True	2.0	128.0	0	1	audit	Post-deployment audit	0.65
+1776644812.015563	arifos_sabar	2026.04.20	cooling_compliance	0.0	0.99	-0.5	0.05	2.0	0.99	1.0	True	2.0	128.0	0	1	audit	Post-deployment audit	0.6465
+1776644830.1545274	arifos_000_init	2026.04.20	identity_consistency_rate	1.0	1.0	0.0	0.04	1.0	1.0	1.0	True	2.0	128.0	1	0	SEAL	Post-deployment audit	1.0
+1776644831.1876428	arifos_111_sense	2026.04.20	snr_improvement	0.0	1.0	-0.05	0.04	1.1	1.0	1.0	True	2.0	128.0	0	1	arif	Post-deployment audit	0.65
+1776644831.188091	arifos_222_witness	2026.04.20	witness_consistency	0.0	0.999	-0.1	0.045	1.2	0.99	1.0	True	2.0	128.0	0	1	arif	Post-deployment audit	0.6483
+1776644831.188443	arifos_333_mind	2026.04.20	logical_consistency_rate	0.0	0.995	-0.02	0.048	1.1	0.98	1.0	True	2.0	128.0	0	1	arif	Post-deployment audit	0.646
+1776644831.1887693	arifos_444_kernel	2026.04.20	orthogonality_score	0.0	1.0	0.0	0.04	1.2	1.0	1.0	True	2.0	128.0	0	1	arif	Post-deployment audit	0.65
+1776644831.1892436	arifos_999_vault	2026.04.20	ledger_integrity	0.0	1.0	-0.01	0.04	1.0	1.0	1.0	True	2.0	128.0	0	1	audit	Post-deployment audit	0.65
+1776644831.1897845	arifos_sabar	2026.04.20	cooling_compliance	0.0	0.99	-0.5	0.05	2.0	0.99	1.0	True	2.0	128.0	0	1	audit	Post-deployment audit	0.6465

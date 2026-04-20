@@ -1,0 +1,992 @@
+[
+  {
+    "ID": "SED_CLS_001",
+    "Family": "Sedimentary Clastic",
+    "Material": "Clean Quartz Sandstone",
+    "Matrix_Density_gcc": 2.65,
+    "Matrix_NPHI_vv": 0.0,
+    "Typical_GR_API": 15,
+    "Typical_Rt_ohm_m": 500,
+    "Notes": "Low GR clean sand; gas crossover; Archie applies"
+  },
+  {
+    "ID": "SED_CLS_002",
+    "Family": "Sedimentary Clastic",
+    "Material": "Arkosic Sandstone",
+    "Matrix_Density_gcc": 2.66,
+    "Matrix_NPHI_vv": 0.0,
+    "Typical_GR_API": 50,
+    "Typical_Rt_ohm_m": 300,
+    "Notes": "Feldspar increases GR; K-feldspar dominant"
+  },
+  {
+    "ID": "SED_CLS_003",
+    "Family": "Sedimentary Clastic",
+    "Material": "Lithic Sandstone",
+    "Matrix_Density_gcc": 2.68,
+    "Matrix_NPHI_vv": 0.02,
+    "Typical_GR_API": 30,
+    "Typical_Rt_ohm_m": 200,
+    "Notes": "Rock fragments; mixed mineral response"
+  },
+  {
+    "ID": "SED_CLS_004",
+    "Family": "Sedimentary Clastic",
+    "Material": "Glauconitic Sandstone",
+    "Matrix_Density_gcc": 2.7,
+    "Matrix_NPHI_vv": 0.05,
+    "Typical_GR_API": 150,
+    "Typical_Rt_ohm_m": 150,
+    "Notes": "Glauconite causes very high GR"
+  },
+  {
+    "ID": "SED_CLS_005",
+    "Family": "Sedimentary Clastic",
+    "Material": "Calcareous Sandstone",
+    "Matrix_Density_gcc": 2.69,
+    "Matrix_NPHI_vv": 0.0,
+    "Typical_GR_API": 20,
+    "Typical_Rt_ohm_m": 400,
+    "Notes": "Carbonate cement raises density"
+  },
+  {
+    "ID": "SED_CLS_006",
+    "Family": "Sedimentary Clastic",
+    "Material": "Cemented Sandstone",
+    "Matrix_Density_gcc": 2.68,
+    "Matrix_NPHI_vv": 0.0,
+    "Typical_GR_API": 20,
+    "Typical_Rt_ohm_m": 8000,
+    "Notes": "Tight low-porosity; high RT"
+  },
+  {
+    "ID": "SED_CLS_007",
+    "Family": "Sedimentary Clastic",
+    "Material": "Siltstone",
+    "Matrix_Density_gcc": 2.68,
+    "Matrix_NPHI_vv": 0.03,
+    "Typical_GR_API": 40,
+    "Typical_Rt_ohm_m": 30,
+    "Notes": "Fine-grained clastic; transitional"
+  },
+  {
+    "ID": "SED_CLS_008",
+    "Family": "Sedimentary Clastic",
+    "Material": "Claystone",
+    "Matrix_Density_gcc": 2.7,
+    "Matrix_NPHI_vv": 0.35,
+    "Typical_GR_API": 120,
+    "Typical_Rt_ohm_m": 10,
+    "Notes": "High bound water; high NPHI"
+  },
+  {
+    "ID": "SED_CLS_009",
+    "Family": "Sedimentary Clastic",
+    "Material": "Shale (Illite-Rich)",
+    "Matrix_Density_gcc": 2.65,
+    "Matrix_NPHI_vv": 0.35,
+    "Typical_GR_API": 150,
+    "Typical_Rt_ohm_m": 10,
+    "Notes": "K-rich illite; high GR + high NPHI"
+  },
+  {
+    "ID": "SED_CLS_010",
+    "Family": "Sedimentary Clastic",
+    "Material": "Shale (Smectite-Rich)",
+    "Matrix_Density_gcc": 2.6,
+    "Matrix_NPHI_vv": 0.45,
+    "Typical_GR_API": 80,
+    "Typical_Rt_ohm_m": 8,
+    "Notes": "Swelling clay; very high NPHI"
+  },
+  {
+    "ID": "SED_CLS_011",
+    "Family": "Sedimentary Clastic",
+    "Material": "Shale (Kaolinite-Rich)",
+    "Matrix_Density_gcc": 2.62,
+    "Matrix_NPHI_vv": 0.3,
+    "Typical_GR_API": 60,
+    "Typical_Rt_ohm_m": 15,
+    "Notes": "Lower GR; moderate NPHI"
+  },
+  {
+    "ID": "SED_CLS_012",
+    "Family": "Sedimentary Clastic",
+    "Material": "Calcareous Shale",
+    "Matrix_Density_gcc": 2.68,
+    "Matrix_NPHI_vv": 0.3,
+    "Typical_GR_API": 90,
+    "Typical_Rt_ohm_m": 20,
+    "Notes": "Carbonate dilutes clay signature"
+  },
+  {
+    "ID": "SED_CLS_013",
+    "Family": "Sedimentary Clastic",
+    "Material": "Organic-Rich Shale",
+    "Matrix_Density_gcc": 2.5,
+    "Matrix_NPHI_vv": 0.25,
+    "Typical_GR_API": 200,
+    "Typical_Rt_ohm_m": 25,
+    "Notes": "High GR from U; low density from TOC"
+  },
+  {
+    "ID": "SED_CLS_014",
+    "Family": "Sedimentary Clastic",
+    "Material": "Silty Shale",
+    "Matrix_Density_gcc": 2.66,
+    "Matrix_NPHI_vv": 0.32,
+    "Typical_GR_API": 100,
+    "Typical_Rt_ohm_m": 15,
+    "Notes": "Mixed grain size; transitional"
+  },
+  {
+    "ID": "SED_CLS_015",
+    "Family": "Sedimentary Clastic",
+    "Material": "Laminated Sand-Shale",
+    "Matrix_Density_gcc": 2.67,
+    "Matrix_NPHI_vv": 0.2,
+    "Typical_GR_API": 70,
+    "Typical_Rt_ohm_m": 50,
+    "Notes": "Interbedded; scale-dependent log response"
+  },
+  {
+    "ID": "SED_CLS_016",
+    "Family": "Sedimentary Clastic",
+    "Material": "Conglomerate",
+    "Matrix_Density_gcc": 2.66,
+    "Matrix_NPHI_vv": 0.0,
+    "Typical_GR_API": 25,
+    "Typical_Rt_ohm_m": 300,
+    "Notes": "Coarse clastic; matrix-dependent"
+  },
+  {
+    "ID": "SED_CLS_017",
+    "Family": "Sedimentary Clastic",
+    "Material": "Breccia",
+    "Matrix_Density_gcc": 2.68,
+    "Matrix_NPHI_vv": 0.0,
+    "Typical_GR_API": 30,
+    "Typical_Rt_ohm_m": 200,
+    "Notes": "Angular clasts; often cemented"
+  },
+  {
+    "ID": "SED_CLS_018",
+    "Family": "Sedimentary Clastic",
+    "Material": "Mudstone",
+    "Matrix_Density_gcc": 2.68,
+    "Matrix_NPHI_vv": 0.35,
+    "Typical_GR_API": 110,
+    "Typical_Rt_ohm_m": 10,
+    "Notes": "Fine-grained; high NPHI"
+  },
+  {
+    "ID": "SED_CRB_019",
+    "Family": "Sedimentary Carbonate",
+    "Material": "Clean Limestone",
+    "Matrix_Density_gcc": 2.71,
+    "Matrix_NPHI_vv": 0.0,
+    "Typical_GR_API": 10,
+    "Typical_Rt_ohm_m": 1000,
+    "Notes": "Calcite matrix; N-D tracks on limestone scale"
+  },
+  {
+    "ID": "SED_CRB_020",
+    "Family": "Sedimentary Carbonate",
+    "Material": "Dolomite",
+    "Matrix_Density_gcc": 2.87,
+    "Matrix_NPHI_vv": 0.04,
+    "Typical_GR_API": 10,
+    "Typical_Rt_ohm_m": 2000,
+    "Notes": "Higher density; slight N-D separation"
+  },
+  {
+    "ID": "SED_CRB_021",
+    "Family": "Sedimentary Carbonate",
+    "Material": "Chalky Limestone",
+    "Matrix_Density_gcc": 2.65,
+    "Matrix_NPHI_vv": 0.1,
+    "Typical_GR_API": 15,
+    "Typical_Rt_ohm_m": 150,
+    "Notes": "High porosity; low bulk density"
+  },
+  {
+    "ID": "SED_CRB_022",
+    "Family": "Sedimentary Carbonate",
+    "Material": "Micritic Limestone",
+    "Matrix_Density_gcc": 2.7,
+    "Matrix_NPHI_vv": 0.02,
+    "Typical_GR_API": 12,
+    "Typical_Rt_ohm_m": 800,
+    "Notes": "Tight dense micrite"
+  },
+  {
+    "ID": "SED_CRB_023",
+    "Family": "Sedimentary Carbonate",
+    "Material": "Oolitic Limestone",
+    "Matrix_Density_gcc": 2.71,
+    "Matrix_NPHI_vv": 0.05,
+    "Typical_GR_API": 10,
+    "Typical_Rt_ohm_m": 300,
+    "Notes": "Grain-dominated; vuggy porosity"
+  },
+  {
+    "ID": "SED_CRB_024",
+    "Family": "Sedimentary Carbonate",
+    "Material": "Reefal Limestone",
+    "Matrix_Density_gcc": 2.68,
+    "Matrix_NPHI_vv": 0.08,
+    "Typical_GR_API": 15,
+    "Typical_Rt_ohm_m": 500,
+    "Notes": "Framework porosity; variable"
+  },
+  {
+    "ID": "SED_CRB_025",
+    "Family": "Sedimentary Carbonate",
+    "Material": "Calcareous Dolomite",
+    "Matrix_Density_gcc": 2.79,
+    "Matrix_NPHI_vv": 0.02,
+    "Typical_GR_API": 12,
+    "Typical_Rt_ohm_m": 1500,
+    "Notes": "Mixed calcite-dolomite"
+  },
+  {
+    "ID": "SED_CRB_026",
+    "Family": "Sedimentary Carbonate",
+    "Material": "Anhydrite",
+    "Matrix_Density_gcc": 2.98,
+    "Matrix_NPHI_vv": -0.02,
+    "Typical_GR_API": 5,
+    "Typical_Rt_ohm_m": 50000,
+    "Notes": "Very high density; negative NPHI (limestone scale)"
+  },
+  {
+    "ID": "SED_CRB_027",
+    "Family": "Sedimentary Carbonate",
+    "Material": "Gypsum",
+    "Matrix_Density_gcc": 2.35,
+    "Matrix_NPHI_vv": 0.5,
+    "Typical_GR_API": 8,
+    "Typical_Rt_ohm_m": 50000,
+    "Notes": "Hydrated Ca-sulfate; low density very high NPHI"
+  },
+  {
+    "ID": "SED_CHM_028",
+    "Family": "Sedimentary Chemical/Organic",
+    "Material": "Halite (Rock Salt)",
+    "Matrix_Density_gcc": 2.03,
+    "Matrix_NPHI_vv": -0.05,
+    "Typical_GR_API": 5,
+    "Typical_Rt_ohm_m": 100000,
+    "Notes": "NaCl; very low density; negative NPHI"
+  },
+  {
+    "ID": "SED_CHM_029",
+    "Family": "Sedimentary Chemical/Organic",
+    "Material": "Sylvite",
+    "Matrix_Density_gcc": 1.99,
+    "Matrix_NPHI_vv": -0.06,
+    "Typical_GR_API": 500,
+    "Typical_Rt_ohm_m": 50000,
+    "Notes": "KCl; extremely high GR from K-40"
+  },
+  {
+    "ID": "SED_CHM_030",
+    "Family": "Sedimentary Chemical/Organic",
+    "Material": "Chert",
+    "Matrix_Density_gcc": 2.65,
+    "Matrix_NPHI_vv": -0.02,
+    "Typical_GR_API": 10,
+    "Typical_Rt_ohm_m": 20000,
+    "Notes": "Cryptocrystalline quartz; very low NPHI"
+  },
+  {
+    "ID": "SED_CHM_031",
+    "Family": "Sedimentary Chemical/Organic",
+    "Material": "Flint",
+    "Matrix_Density_gcc": 2.64,
+    "Matrix_NPHI_vv": -0.02,
+    "Typical_GR_API": 8,
+    "Typical_Rt_ohm_m": 20000,
+    "Notes": "Microcrystalline quartz; chert variant"
+  },
+  {
+    "ID": "SED_CHM_032",
+    "Family": "Sedimentary Chemical/Organic",
+    "Material": "Bituminous Coal",
+    "Matrix_Density_gcc": 1.3,
+    "Matrix_NPHI_vv": 0.4,
+    "Typical_GR_API": 50,
+    "Typical_Rt_ohm_m": 1000,
+    "Notes": "Very low density; high NPHI from H"
+  },
+  {
+    "ID": "SED_CHM_033",
+    "Family": "Sedimentary Chemical/Organic",
+    "Material": "Anthracite Coal",
+    "Matrix_Density_gcc": 1.5,
+    "Matrix_NPHI_vv": 0.2,
+    "Typical_GR_API": 40,
+    "Typical_Rt_ohm_m": 2000,
+    "Notes": "Higher rank; lower H index"
+  },
+  {
+    "ID": "SED_CHM_034",
+    "Family": "Sedimentary Chemical/Organic",
+    "Material": "Lignite",
+    "Matrix_Density_gcc": 1.2,
+    "Matrix_NPHI_vv": 0.5,
+    "Typical_GR_API": 60,
+    "Typical_Rt_ohm_m": 500,
+    "Notes": "Lowest rank; high moisture"
+  },
+  {
+    "ID": "SED_CHM_035",
+    "Family": "Sedimentary Chemical/Organic",
+    "Material": "Diatomite",
+    "Matrix_Density_gcc": 2.0,
+    "Matrix_NPHI_vv": 0.6,
+    "Typical_GR_API": 20,
+    "Typical_Rt_ohm_m": 50,
+    "Notes": "Biogenic silica; very high porosity; high NPHI"
+  },
+  {
+    "ID": "SED_CHM_036",
+    "Family": "Sedimentary Chemical/Organic",
+    "Material": "Phosphorite",
+    "Matrix_Density_gcc": 3.0,
+    "Matrix_NPHI_vv": 0.1,
+    "Typical_GR_API": 30,
+    "Typical_Rt_ohm_m": 200,
+    "Notes": "Marine phosphate; dense"
+  },
+  {
+    "ID": "IGN_FEL_037",
+    "Family": "Igneous Felsic",
+    "Material": "Granite",
+    "Matrix_Density_gcc": 2.65,
+    "Matrix_NPHI_vv": -0.01,
+    "Typical_GR_API": 150,
+    "Typical_Rt_ohm_m": 5000,
+    "Notes": "High GR from K-feldspar U Th"
+  },
+  {
+    "ID": "IGN_FEL_038",
+    "Family": "Igneous Felsic",
+    "Material": "Rhyolite",
+    "Matrix_Density_gcc": 2.6,
+    "Matrix_NPHI_vv": 0.0,
+    "Typical_GR_API": 140,
+    "Typical_Rt_ohm_m": 2000,
+    "Notes": "Volcanic equivalent of granite"
+  },
+  {
+    "ID": "IGN_FEL_039",
+    "Family": "Igneous Felsic",
+    "Material": "Pegmatite",
+    "Matrix_Density_gcc": 2.64,
+    "Matrix_NPHI_vv": -0.02,
+    "Typical_GR_API": 200,
+    "Typical_Rt_ohm_m": 3000,
+    "Notes": "Coarse K-feldspar; very high GR"
+  },
+  {
+    "ID": "IGN_FEL_040",
+    "Family": "Igneous Felsic",
+    "Material": "Aplite",
+    "Matrix_Density_gcc": 2.65,
+    "Matrix_NPHI_vv": -0.01,
+    "Typical_GR_API": 130,
+    "Typical_Rt_ohm_m": 4000,
+    "Notes": "Fine-grained felsic"
+  },
+  {
+    "ID": "IGN_FEL_041",
+    "Family": "Igneous Felsic",
+    "Material": "Syenite",
+    "Matrix_Density_gcc": 2.68,
+    "Matrix_NPHI_vv": 0.0,
+    "Typical_GR_API": 160,
+    "Typical_Rt_ohm_m": 4000,
+    "Notes": "Alkali feldspar dominant"
+  },
+  {
+    "ID": "IGN_FEL_042",
+    "Family": "Igneous Felsic",
+    "Material": "Granodiorite",
+    "Matrix_Density_gcc": 2.69,
+    "Matrix_NPHI_vv": 0.0,
+    "Typical_GR_API": 100,
+    "Typical_Rt_ohm_m": 3000,
+    "Notes": "Intermediate K-content"
+  },
+  {
+    "ID": "IGN_FEL_043",
+    "Family": "Igneous Felsic",
+    "Material": "Dacite",
+    "Matrix_Density_gcc": 2.63,
+    "Matrix_NPHI_vv": 0.0,
+    "Typical_GR_API": 110,
+    "Typical_Rt_ohm_m": 1500,
+    "Notes": "Volcanic granodiorite"
+  },
+  {
+    "ID": "IGN_FEL_044",
+    "Family": "Igneous Felsic",
+    "Material": "Pumice",
+    "Matrix_Density_gcc": 1.5,
+    "Matrix_NPHI_vv": 0.05,
+    "Typical_GR_API": 120,
+    "Typical_Rt_ohm_m": 500,
+    "Notes": "Vesicular; very low density; rhyolitic"
+  },
+  {
+    "ID": "IGN_FEL_045",
+    "Family": "Igneous Felsic",
+    "Material": "Obsidian",
+    "Matrix_Density_gcc": 2.4,
+    "Matrix_NPHI_vv": 0.0,
+    "Typical_GR_API": 100,
+    "Typical_Rt_ohm_m": 5000,
+    "Notes": "Volcanic glass; no porosity"
+  },
+  {
+    "ID": "IGN_MAF_046",
+    "Family": "Igneous Intermediate/Mafic",
+    "Material": "Diorite",
+    "Matrix_Density_gcc": 2.85,
+    "Matrix_NPHI_vv": 0.01,
+    "Typical_GR_API": 40,
+    "Typical_Rt_ohm_m": 8000,
+    "Notes": "Lower GR; higher density than granite"
+  },
+  {
+    "ID": "IGN_MAF_047",
+    "Family": "Igneous Intermediate/Mafic",
+    "Material": "Andesite",
+    "Matrix_Density_gcc": 2.75,
+    "Matrix_NPHI_vv": 0.02,
+    "Typical_GR_API": 50,
+    "Typical_Rt_ohm_m": 5000,
+    "Notes": "Volcanic diorite"
+  },
+  {
+    "ID": "IGN_MAF_048",
+    "Family": "Igneous Intermediate/Mafic",
+    "Material": "Gabbro",
+    "Matrix_Density_gcc": 3.0,
+    "Matrix_NPHI_vv": 0.02,
+    "Typical_GR_API": 15,
+    "Typical_Rt_ohm_m": 10000,
+    "Notes": "Low GR; high density"
+  },
+  {
+    "ID": "IGN_MAF_049",
+    "Family": "Igneous Intermediate/Mafic",
+    "Material": "Basalt",
+    "Matrix_Density_gcc": 2.95,
+    "Matrix_NPHI_vv": 0.03,
+    "Typical_GR_API": 20,
+    "Typical_Rt_ohm_m": 10000,
+    "Notes": "Volcanic gabbro; can weather to high NPHI"
+  },
+  {
+    "ID": "IGN_MAF_050",
+    "Family": "Igneous Intermediate/Mafic",
+    "Material": "Diabase (Dolerite)",
+    "Matrix_Density_gcc": 2.95,
+    "Matrix_NPHI_vv": 0.02,
+    "Typical_GR_API": 18,
+    "Typical_Rt_ohm_m": 15000,
+    "Notes": "Intrusive basalt texture"
+  },
+  {
+    "ID": "IGN_MAF_051",
+    "Family": "Igneous Intermediate/Mafic",
+    "Material": "Scoria",
+    "Matrix_Density_gcc": 2.0,
+    "Matrix_NPHI_vv": 0.1,
+    "Typical_GR_API": 25,
+    "Typical_Rt_ohm_m": 500,
+    "Notes": "Vesicular basalt; low density"
+  },
+  {
+    "ID": "IGN_MAF_052",
+    "Family": "Igneous Intermediate/Mafic",
+    "Material": "Tuff (Felsic)",
+    "Matrix_Density_gcc": 2.2,
+    "Matrix_NPHI_vv": 0.15,
+    "Typical_GR_API": 100,
+    "Typical_Rt_ohm_m": 500,
+    "Notes": "Welded ash; variable porosity"
+  },
+  {
+    "ID": "IGN_MAF_053",
+    "Family": "Igneous Intermediate/Mafic",
+    "Material": "Tuff (Mafic)",
+    "Matrix_Density_gcc": 2.4,
+    "Matrix_NPHI_vv": 0.12,
+    "Typical_GR_API": 40,
+    "Typical_Rt_ohm_m": 300,
+    "Notes": "Basaltic ash; clay altered"
+  },
+  {
+    "ID": "IGN_MAF_054",
+    "Family": "Igneous Intermediate/Mafic",
+    "Material": "Volcaniclastics",
+    "Matrix_Density_gcc": 2.5,
+    "Matrix_NPHI_vv": 0.1,
+    "Typical_GR_API": 70,
+    "Typical_Rt_ohm_m": 200,
+    "Notes": "Reworked volcanic fragments"
+  },
+  {
+    "ID": "IGN_ULT_055",
+    "Family": "Igneous Ultramafic/Altered",
+    "Material": "Peridotite",
+    "Matrix_Density_gcc": 3.3,
+    "Matrix_NPHI_vv": 0.01,
+    "Typical_GR_API": 5,
+    "Typical_Rt_ohm_m": 20000,
+    "Notes": "Very high density; very low GR"
+  },
+  {
+    "ID": "IGN_ULT_056",
+    "Family": "Igneous Ultramafic/Altered",
+    "Material": "Dunite",
+    "Matrix_Density_gcc": 3.35,
+    "Matrix_NPHI_vv": 0.0,
+    "Typical_GR_API": 3,
+    "Typical_Rt_ohm_m": 20000,
+    "Notes": "Olivine-rich; highest density"
+  },
+  {
+    "ID": "IGN_ULT_057",
+    "Family": "Igneous Ultramafic/Altered",
+    "Material": "Pyroxenite",
+    "Matrix_Density_gcc": 3.28,
+    "Matrix_NPHI_vv": 0.01,
+    "Typical_GR_API": 8,
+    "Typical_Rt_ohm_m": 10000,
+    "Notes": "Orthopyroxene cumulate"
+  },
+  {
+    "ID": "IGN_ULT_058",
+    "Family": "Igneous Ultramafic/Altered",
+    "Material": "Serpentinite",
+    "Matrix_Density_gcc": 2.6,
+    "Matrix_NPHI_vv": 0.3,
+    "Typical_GR_API": 10,
+    "Typical_Rt_ohm_m": 100,
+    "Notes": "Altered peridotite; high NPHI from OH"
+  },
+  {
+    "ID": "IGN_ULT_059",
+    "Family": "Igneous Ultramafic/Altered",
+    "Material": "Kimberlite",
+    "Matrix_Density_gcc": 2.7,
+    "Matrix_NPHI_vv": 0.05,
+    "Typical_GR_API": 30,
+    "Typical_Rt_ohm_m": 50,
+    "Notes": "Ultramafic volcanic pipe; diamond-bearing"
+  },
+  {
+    "ID": "IGN_ULT_060",
+    "Family": "Igneous Ultramafic/Altered",
+    "Material": "Lamprophyre",
+    "Matrix_Density_gcc": 2.9,
+    "Matrix_NPHI_vv": 0.03,
+    "Typical_GR_API": 60,
+    "Typical_Rt_ohm_m": 300,
+    "Notes": "Mafic dike rock; K-rich"
+  },
+  {
+    "ID": "IGN_ULT_061",
+    "Family": "Igneous Ultramafic/Altered",
+    "Material": "Carbonatite",
+    "Matrix_Density_gcc": 2.8,
+    "Matrix_NPHI_vv": 0.02,
+    "Typical_GR_API": 40,
+    "Typical_Rt_ohm_m": 200,
+    "Notes": "Igneous carbonate; rare"
+  },
+  {
+    "ID": "IGN_ULT_062",
+    "Family": "Igneous Ultramafic/Altered",
+    "Material": "Weathered Basalt",
+    "Matrix_Density_gcc": 2.5,
+    "Matrix_NPHI_vv": 0.2,
+    "Typical_GR_API": 25,
+    "Typical_Rt_ohm_m": 50,
+    "Notes": "Clay alteration raises NPHI"
+  },
+  {
+    "ID": "IGN_ULT_063",
+    "Family": "Igneous Ultramafic/Altered",
+    "Material": "Altered Tuff",
+    "Matrix_Density_gcc": 2.3,
+    "Matrix_NPHI_vv": 0.25,
+    "Typical_GR_API": 80,
+    "Typical_Rt_ohm_m": 30,
+    "Notes": "Clay-altered volcanics"
+  },
+  {
+    "ID": "MET_FOL_064",
+    "Family": "Metamorphic Foliated",
+    "Material": "Slate",
+    "Matrix_Density_gcc": 2.75,
+    "Matrix_NPHI_vv": 0.05,
+    "Typical_GR_API": 90,
+    "Typical_Rt_ohm_m": 500,
+    "Notes": "Low-grade; chlorite/mica cleavage"
+  },
+  {
+    "ID": "MET_FOL_065",
+    "Family": "Metamorphic Foliated",
+    "Material": "Phyllite",
+    "Matrix_Density_gcc": 2.76,
+    "Matrix_NPHI_vv": 0.08,
+    "Typical_GR_API": 100,
+    "Typical_Rt_ohm_m": 300,
+    "Notes": "Intermediate grade; fine mica"
+  },
+  {
+    "ID": "MET_FOL_066",
+    "Family": "Metamorphic Foliated",
+    "Material": "Mica Schist",
+    "Matrix_Density_gcc": 2.8,
+    "Matrix_NPHI_vv": 0.15,
+    "Typical_GR_API": 120,
+    "Typical_Rt_ohm_m": 200,
+    "Notes": "High mica content raises NPHI"
+  },
+  {
+    "ID": "MET_FOL_067",
+    "Family": "Metamorphic Foliated",
+    "Material": "Chlorite Schist",
+    "Matrix_Density_gcc": 2.78,
+    "Matrix_NPHI_vv": 0.35,
+    "Typical_GR_API": 80,
+    "Typical_Rt_ohm_m": 150,
+    "Notes": "Very high NPHI from OH in chlorite"
+  },
+  {
+    "ID": "MET_FOL_068",
+    "Family": "Metamorphic Foliated",
+    "Material": "Biotite Schist",
+    "Matrix_Density_gcc": 2.85,
+    "Matrix_NPHI_vv": 0.12,
+    "Typical_GR_API": 130,
+    "Typical_Rt_ohm_m": 200,
+    "Notes": "K-mica raises GR"
+  },
+  {
+    "ID": "MET_FOL_069",
+    "Family": "Metamorphic Foliated",
+    "Material": "Gneiss (Felsic)",
+    "Matrix_Density_gcc": 2.68,
+    "Matrix_NPHI_vv": 0.02,
+    "Typical_GR_API": 110,
+    "Typical_Rt_ohm_m": 500,
+    "Notes": "High GR from K-feldspar layers"
+  },
+  {
+    "ID": "MET_FOL_070",
+    "Family": "Metamorphic Foliated",
+    "Material": "Gneiss (Mafic)",
+    "Matrix_Density_gcc": 2.9,
+    "Matrix_NPHI_vv": 0.03,
+    "Typical_GR_API": 40,
+    "Typical_Rt_ohm_m": 2000,
+    "Notes": "Amphibole/pyroxene layers"
+  },
+  {
+    "ID": "MET_FOL_071",
+    "Family": "Metamorphic Foliated",
+    "Material": "Migmatite",
+    "Matrix_Density_gcc": 2.7,
+    "Matrix_NPHI_vv": 0.02,
+    "Typical_GR_API": 120,
+    "Typical_Rt_ohm_m": 300,
+    "Notes": "Partial melt structures"
+  },
+  {
+    "ID": "MET_FOL_072",
+    "Family": "Metamorphic Foliated",
+    "Material": "Mylonite",
+    "Matrix_Density_gcc": 2.75,
+    "Matrix_NPHI_vv": 0.01,
+    "Typical_GR_API": 80,
+    "Typical_Rt_ohm_m": 100,
+    "Notes": "Shear zone; fine-grained"
+  },
+  {
+    "ID": "MET_NFL_073",
+    "Family": "Metamorphic Non-Foliated",
+    "Material": "Quartzite",
+    "Matrix_Density_gcc": 2.65,
+    "Matrix_NPHI_vv": -0.01,
+    "Typical_GR_API": 15,
+    "Typical_Rt_ohm_m": 5000,
+    "Notes": "Pure quartz; very low NPHI"
+  },
+  {
+    "ID": "MET_NFL_074",
+    "Family": "Metamorphic Non-Foliated",
+    "Material": "Marble",
+    "Matrix_Density_gcc": 2.72,
+    "Matrix_NPHI_vv": 0.0,
+    "Typical_GR_API": 8,
+    "Typical_Rt_ohm_m": 1000,
+    "Notes": "Recrystallized limestone"
+  },
+  {
+    "ID": "MET_NFL_075",
+    "Family": "Metamorphic Non-Foliated",
+    "Material": "Hornfels",
+    "Matrix_Density_gcc": 2.7,
+    "Matrix_NPHI_vv": 0.02,
+    "Typical_GR_API": 60,
+    "Typical_Rt_ohm_m": 1000,
+    "Notes": "Contact metamorphism"
+  },
+  {
+    "ID": "MET_NFL_076",
+    "Family": "Metamorphic Non-Foliated",
+    "Material": "Amphibolite",
+    "Matrix_Density_gcc": 3.05,
+    "Matrix_NPHI_vv": 0.05,
+    "Typical_GR_API": 30,
+    "Typical_Rt_ohm_m": 1000,
+    "Notes": "Amphibole-rich; high density"
+  },
+  {
+    "ID": "MET_NFL_077",
+    "Family": "Metamorphic Non-Foliated",
+    "Material": "Eclogite",
+    "Matrix_Density_gcc": 3.45,
+    "Matrix_NPHI_vv": 0.01,
+    "Typical_GR_API": 20,
+    "Typical_Rt_ohm_m": 5000,
+    "Notes": "Garnet-rich; very high density"
+  },
+  {
+    "ID": "MET_NFL_078",
+    "Family": "Metamorphic Non-Foliated",
+    "Material": "Granulite",
+    "Matrix_Density_gcc": 2.9,
+    "Matrix_NPHI_vv": 0.02,
+    "Typical_GR_API": 50,
+    "Typical_Rt_ohm_m": 2000,
+    "Notes": "High-grade; anhydrous"
+  },
+  {
+    "ID": "MET_NFL_079",
+    "Family": "Metamorphic Non-Foliated",
+    "Material": "Skarn",
+    "Matrix_Density_gcc": 2.95,
+    "Matrix_NPHI_vv": 0.03,
+    "Typical_GR_API": 40,
+    "Typical_Rt_ohm_m": 200,
+    "Notes": "Calc-silicate metasomatite"
+  },
+  {
+    "ID": "MET_NFL_080",
+    "Family": "Metamorphic Non-Foliated",
+    "Material": "Greenschist",
+    "Matrix_Density_gcc": 2.85,
+    "Matrix_NPHI_vv": 0.15,
+    "Typical_GR_API": 60,
+    "Typical_Rt_ohm_m": 200,
+    "Notes": "Chlorite/epidote assemblage"
+  },
+  {
+    "ID": "MET_NFL_081",
+    "Family": "Metamorphic Non-Foliated",
+    "Material": "Blueschist",
+    "Matrix_Density_gcc": 3.1,
+    "Matrix_NPHI_vv": 0.08,
+    "Typical_GR_API": 35,
+    "Typical_Rt_ohm_m": 500,
+    "Notes": "High-pressure assemblage"
+  },
+  {
+    "ID": "UNC_082",
+    "Family": "Unconsolidated/Soil",
+    "Material": "Gravel (Dry)",
+    "Matrix_Density_gcc": 2.0,
+    "Matrix_NPHI_vv": 0.05,
+    "Typical_GR_API": 20,
+    "Typical_Rt_ohm_m": 200,
+    "Notes": "High porosity; air-filled pores"
+  },
+  {
+    "ID": "UNC_083",
+    "Family": "Unconsolidated/Soil",
+    "Material": "Gravel (Saturated)",
+    "Matrix_Density_gcc": 2.2,
+    "Matrix_NPHI_vv": 0.3,
+    "Typical_GR_API": 20,
+    "Typical_Rt_ohm_m": 50,
+    "Notes": "Water-filled pores; conductive"
+  },
+  {
+    "ID": "UNC_084",
+    "Family": "Unconsolidated/Soil",
+    "Material": "Sand (Dry)",
+    "Matrix_Density_gcc": 1.9,
+    "Matrix_NPHI_vv": 0.05,
+    "Typical_GR_API": 15,
+    "Typical_Rt_ohm_m": 100,
+    "Notes": "Air-filled; low density"
+  },
+  {
+    "ID": "UNC_085",
+    "Family": "Unconsolidated/Soil",
+    "Material": "Sand (Saturated)",
+    "Matrix_Density_gcc": 2.1,
+    "Matrix_NPHI_vv": 0.35,
+    "Typical_GR_API": 15,
+    "Typical_Rt_ohm_m": 50,
+    "Notes": "Water-filled; conductive"
+  },
+  {
+    "ID": "UNC_086",
+    "Family": "Unconsolidated/Soil",
+    "Material": "Silt (Saturated)",
+    "Matrix_Density_gcc": 2.0,
+    "Matrix_NPHI_vv": 0.4,
+    "Typical_GR_API": 40,
+    "Typical_Rt_ohm_m": 20,
+    "Notes": "Fine grain; high water content"
+  },
+  {
+    "ID": "UNC_087",
+    "Family": "Unconsolidated/Soil",
+    "Material": "Clay (Saturated)",
+    "Matrix_Density_gcc": 1.85,
+    "Matrix_NPHI_vv": 0.5,
+    "Typical_GR_API": 100,
+    "Typical_Rt_ohm_m": 10,
+    "Notes": "Very high NPHI from bound water"
+  },
+  {
+    "ID": "UNC_088",
+    "Family": "Unconsolidated/Soil",
+    "Material": "Peat",
+    "Matrix_Density_gcc": 1.1,
+    "Matrix_NPHI_vv": 0.6,
+    "Typical_GR_API": 50,
+    "Typical_Rt_ohm_m": 30,
+    "Notes": "Organic; very low density"
+  },
+  {
+    "ID": "UNC_089",
+    "Family": "Unconsolidated/Soil",
+    "Material": "Topsoil",
+    "Matrix_Density_gcc": 1.5,
+    "Matrix_NPHI_vv": 0.45,
+    "Typical_GR_API": 60,
+    "Typical_Rt_ohm_m": 30,
+    "Notes": "Organic-rich; variable"
+  },
+  {
+    "ID": "UNC_090",
+    "Family": "Unconsolidated/Soil",
+    "Material": "Loess",
+    "Matrix_Density_gcc": 1.7,
+    "Matrix_NPHI_vv": 0.35,
+    "Typical_GR_API": 50,
+    "Typical_Rt_ohm_m": 40,
+    "Notes": "Wind-blown silt"
+  },
+  {
+    "ID": "ENG_091",
+    "Family": "Engineered Materials",
+    "Material": "Concrete (Dry)",
+    "Matrix_Density_gcc": 2.3,
+    "Matrix_NPHI_vv": 0.1,
+    "Typical_GR_API": 40,
+    "Typical_Rt_ohm_m": 10000,
+    "Notes": "Portland cement matrix"
+  },
+  {
+    "ID": "ENG_092",
+    "Family": "Engineered Materials",
+    "Material": "Concrete (Saturated)",
+    "Matrix_Density_gcc": 2.4,
+    "Matrix_NPHI_vv": 0.25,
+    "Typical_GR_API": 40,
+    "Typical_Rt_ohm_m": 3000,
+    "Notes": "Water-filled pores"
+  },
+  {
+    "ID": "ENG_093",
+    "Family": "Engineered Materials",
+    "Material": "Reinforced Concrete",
+    "Matrix_Density_gcc": 2.5,
+    "Matrix_NPHI_vv": 0.08,
+    "Typical_GR_API": 35,
+    "Typical_Rt_ohm_m": 20000,
+    "Notes": "Steel increases density; very high RT"
+  },
+  {
+    "ID": "ENG_094",
+    "Family": "Engineered Materials",
+    "Material": "Brick (Clay)",
+    "Matrix_Density_gcc": 2.0,
+    "Matrix_NPHI_vv": 0.2,
+    "Typical_GR_API": 90,
+    "Typical_Rt_ohm_m": 5000,
+    "Notes": "Fired clay; porous"
+  },
+  {
+    "ID": "ENG_095",
+    "Family": "Engineered Materials",
+    "Material": "Asphalt/Bitumen",
+    "Matrix_Density_gcc": 1.4,
+    "Matrix_NPHI_vv": 0.3,
+    "Typical_GR_API": 30,
+    "Typical_Rt_ohm_m": 50000,
+    "Notes": "Hydrocarbon binder; high H index"
+  },
+  {
+    "ID": "ENG_096",
+    "Family": "Engineered Materials",
+    "Material": "Compacted Fill",
+    "Matrix_Density_gcc": 2.0,
+    "Matrix_NPHI_vv": 0.25,
+    "Typical_GR_API": 50,
+    "Typical_Rt_ohm_m": 100,
+    "Notes": "Mixed soil/rubble"
+  },
+  {
+    "ID": "ENG_097",
+    "Family": "Engineered Materials",
+    "Material": "Slag",
+    "Matrix_Density_gcc": 2.6,
+    "Matrix_NPHI_vv": 0.1,
+    "Typical_GR_API": 60,
+    "Typical_Rt_ohm_m": 200,
+    "Notes": "Industrial byproduct"
+  },
+  {
+    "ID": "ENG_098",
+    "Family": "Engineered Materials",
+    "Material": "Fly Ash",
+    "Matrix_Density_gcc": 2.1,
+    "Matrix_NPHI_vv": 0.4,
+    "Typical_GR_API": 80,
+    "Typical_Rt_ohm_m": 30,
+    "Notes": "Coal combustion residue"
+  },
+  {
+    "ID": "ENG_099",
+    "Family": "Engineered Materials",
+    "Material": "Landfill/Waste",
+    "Matrix_Density_gcc": 1.2,
+    "Matrix_NPHI_vv": 0.5,
+    "Typical_GR_API": 70,
+    "Typical_Rt_ohm_m": 20,
+    "Notes": "HIGHLY variable; organic content"
+  }
+]

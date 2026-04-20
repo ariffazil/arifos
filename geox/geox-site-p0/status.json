@@ -1,0 +1,46 @@
+{
+  "generated_at": "2026-04-11T10:40:00Z",
+  "version": "v2026.04.11-DIMENSION-NATIVE",
+  "seal": "DITEMPA BUKAN DIBERI",
+  "components": {
+    "site": {
+      "state": "live",
+      "label": "Live",
+      "note": "Human-facing docs, registry, and wiki serving.",
+      "url": "https://geox.arif-fazil.com/",
+      "last_checked": "2026-04-11T10:40:00Z"
+    },
+    "webmcp": {
+      "state": "live",
+      "label": "Live",
+      "note": "Root manifest and app manifests serving valid JSON.",
+      "url": "https://geox.arif-fazil.com/webmcp.manifest.json",
+      "last_checked": "2026-04-11T10:40:00Z"
+    },
+    "mcp": {
+      "state": "partial",
+      "label": "Partial",
+      "note": "Health endpoint responds; public tool invocation transport still under verification.",
+      "health_url": "https://geox.arif-fazil.com/health",
+      "tools_url": "https://geox.arif-fazil.com/mcp/",
+      "last_checked": "2026-04-11T10:40:00Z"
+    },
+    "a2a": {
+      "state": "not_public",
+      "label": "Not yet routed publicly",
+      "note": "Routing and JSON agent-card responses are not exposed on the public edge yet.",
+      "url": "https://geox.arif-fazil.com/a2a/",
+      "last_checked": "2026-04-11T10:40:00Z"
+    }
+  },
+  "endpoints": {
+    "health": {
+      "url": "https://geox.arif-fazil.com/health",
+      "status": "operational"
+    },
+    "profile": {
+      "url": "http://localhost:8000/profile",
+      "status": "operational"
+    }
+  }
+}

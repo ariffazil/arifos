@@ -1,0 +1,190 @@
+# smithery.yaml — GEOX Smithery MCP Registry Configuration
+# DITEMPA BUKAN DIBERI
+#
+# Smithery is a marketplace for MCP servers
+# Registry: https://smithery.ai
+
+name: geox-earth-witness
+version: "0.5.0"
+display_name: "GEOX — Geological Intelligence Coprocessor"
+description: |
+  GEOX is a governed, agentic geological intelligence coprocessor for arifOS.
+  Provides physically-grounded geological prospect evaluation using Large Earth Models,
+  seismic VLM interpretation, basin simulation, and geospatial verification.
+  
+  Key capabilities:
+  - Prospect evaluation with constitutional floor enforcement
+  - Structural validation (fault mechanics, shortening calculations)
+  - Geological memory RAG over past evaluations
+  - Tri-app architecture: Map + Cross Section + Seismic Section
+  
+  Verdict outcomes: SEAL (high confidence), PARTIAL (supported with caveats),
+  SABAR (wait/gather more), VOID (contradictions detected)
+
+category: science
+subcategory: geology
+
+# MCP protocol
+mcp_version: "2024-11-05"
+transport: stdio
+command: python
+args: ["/full/path/to/server.py"]
+
+# Installation
+install:
+  method: pip
+  package: arifos-geox
+  source: https://github.com/ariffazil/GEOX
+  python_version: ">=3.10"
+
+# Tools exposed
+tools:
+  - id: geox_load_seismic_line
+    name: geox_load_seismic_line
+    description: Load seismic line data and ignite visual mode (Earth Witness Ignition). Returns QC badges, contrast warnings, and governance floor status.
+    input_schema:
+      type: object
+      properties:
+        line_id: { type: string }
+        survey_path: { type: string, default: default_survey }
+        generate_views: { type: boolean, default: true }
+      required: [line_id]
+
+  - id: geox_build_structural_candidates
+    name: geox_build_structural_candidates
+    description: Build structural model candidate ensemble (Inverse Modelling Constraints). Prevents narrative collapse — returns multiple plausible models.
+    input_schema:
+      type: object
+      properties:
+        line_id: { type: string }
+        focus_area: { type: string }
+      required: [line_id]
+
+  - id: geox_feasibility_check
+    name: geox_feasibility_check
+    description: Constitutional Firewall — check if a proposed plan is physically possible against world-state and Earth physics (F4, F9).
+    input_schema:
+      type: object
+      properties:
+        plan_id: { type: string }
+        constraints: { type: array, items: { type: string } }
+      required: [plan_id, constraints]
+
+  - id: geox_verify_geospatial
+    name: geox_verify_geospatial
+    description: Verify coordinates, geological province, and jurisdictional boundaries. Anchors all reasoning in verified CRS per F4 Clarity.
+    input_schema:
+      type: object
+      properties:
+        lat: { type: number }
+        lon: { type: number }
+        radius_m: { type: number, default: 1000.0 }
+      required: [lat, lon]
+
+  - id: geox_evaluate_prospect
+    name: geox_evaluate_prospect
+    description: Full GEOX geological prospect evaluation pipeline
+    input_schema:
+      type: object
+      properties:
+        query: { type: string }
+        prospect_name: { type: string }
+        latitude: { type: number }
+        longitude: { type: number }
+        basin: { type: string }
+        play_type: { type: string, enum: [stratigraphic, structural, combination] }
+        risk_tolerance: { type: string, enum: [low, medium, high] }
+        requester_id: { type: string }
+      required: [query, prospect_name, latitude, longitude, basin, play_type, risk_tolerance, requester_id]
+
+  - id: geox_query_memory
+    name: geox_query_memory
+    description: Query the GEOX geological memory store
+    input_schema:
+      type: object
+      properties:
+        query: { type: string }
+        basin: { type: string }
+        limit: { type: integer, default: 5 }
+      required: [query]
+
+  - id: geox_health
+    name: geox_health
+    description: GEOX server health check
+    input_schema:
+      type: object
+      properties: {}
+
+  # Petrophysics Phase B (4 tools)
+  - id: geox_select_sw_model
+    name: geox_select_sw_model
+    description: Evaluate Archie vs shaly-sand saturation models against shale conductivity, mineralogy, and calibration support. Returns admissible models with confidence scores.
+    input_schema:
+      type: object
+      properties:
+        interval_uri: { type: string, description: "geox://well/{id}/interval/{top}-{base}/rock-state" }
+        candidate_models: { type: array, items: { type: string }, default: ["archie", "simandoux", "indonesia", "dual_water"] }
+      required: [interval_uri]
+
+  - id: geox_compute_petrophysics
+    name: geox_compute_petrophysics
+    description: Compute Vsh, phi_t, phi_e, Sw, BVW, net, pay, RQI/FZI/HFU with uncertainty envelopes. Constitutional computation pipeline.
+    input_schema:
+      type: object
+      properties:
+        interval_uri: { type: string, description: "geox://well/{id}/interval/{top}-{base}/rock-state" }
+        model_id: { type: string, description: "Saturation model to use (e.g., archie, simandoux)" }
+        model_params: { type: object, description: "Model parameters {a, m, n, rw, ...}" }
+        compute_uncertainty: { type: boolean, default: true }
+      required: [interval_uri, model_id]
+
+  - id: geox_validate_cutoffs
+    name: geox_validate_cutoffs
+    description: Apply economic/operational cutoffs as governed policy objects. Distinguishes physics from policy per F4 Clarity.
+    input_schema:
+      type: object
+      properties:
+        interval_uri: { type: string, description: "geox://well/{id}/interval/{top}-{base}/rock-state" }
+        cutoff_policy_id: { type: string, description: "Policy identifier to apply" }
+      required: [interval_uri, cutoff_policy_id]
+
+  - id: geox_petrophysical_hold_check
+    name: geox_petrophysical_hold_check
+    description: Automatic 888_HOLD trigger detection for petrophysics. Checks Rw calibration, shale model support, environmental corrections, invasion handling, depth matching, and cutoff basis.
+    input_schema:
+      type: object
+      properties:
+        interval_uri: { type: string, description: "geox://well/{id}/interval/{top}-{base}/rock-state" }
+      required: [interval_uri]
+
+# Constitutional governance
+governance:
+  floors:
+    - id: F1; name: Amanah; description: Reversibility
+    - id: F2; name: Truth; description: All claims Earth-verified
+    - id: F4; name: Clarity; description: Units + coordinates required
+    - id: F7; name: Humility; description: Uncertainty calibrated
+    - id: F9; name: Anti-Hantu; description: No hallucinated geology
+    - id: F11; name: Authority; description: Provenance mandatory
+    - id: F13; name: Sovereign; description: Human veto hook active
+
+# Verdict system
+verdicts:
+  SEAL: { confidence_min: 0.80, action: auto_proceed }
+  PARTIAL: { confidence_min: 0.50, action: proceed_with_caveats }
+  SABAR: { confidence_min: 0.25, action: hold_wait_data }
+  VOID: { confidence_min: 0.00, action: block_stop }
+
+# Author
+author:
+  name: Muhammad Arif bin Fazil
+  email: "[REDACTED]"
+  org: PETRONAS Exploration
+  github: https://github.com/ariffazil
+
+license: AGPL-3.0
+links:
+  github: https://github.com/ariffazil/GEOX
+  documentation: https://github.com/ariffazil/GEOX#readme
+
+seal: DITEMPA BUKAN DIBERI

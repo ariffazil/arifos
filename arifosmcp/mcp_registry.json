@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "arifos-core": {
+      "command": "python",
+      "args": [
+        "-m",
+        "mcp_server"
+      ],
+      "env": {
+        "PYTHONPATH": "."
+      },
+      "description": "arifOS Sovereign Kernel (000–999)",
+      "version": "2026.04.20"
+    }
+  }
+}

@@ -1,0 +1,192 @@
+:root {
+    --bg-color: #080c08;
+    --text-color: #d4e0d4;
+    --muted-color: #6b7a6b;
+    --border-color: #1e2e1e;
+    --accent-color: #3d5c3d;
+    --success: #4ade80;
+    --warning: #fbbf24;
+    --danger: #f87171;
+    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-family: var(--font-sans);
+    line-height: 1.6;
+    background-image:
+        radial-gradient(ellipse at 20% 80%, rgba(8, 20, 8, 0.7) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 20%, rgba(6, 14, 20, 0.7) 0%, transparent 60%),
+        radial-gradient(ellipse at 50% 50%, rgba(4, 8, 4, 0.5) 0%, var(--bg-color) 100%);
+    background-attachment: fixed;
+}
+
+.container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+header {
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 2rem;
+    margin-bottom: 3rem;
+}
+
+h1, h2, h3 {
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-weight: 700;
+}
+
+.mono {
+    font-family: var(--font-mono);
+}
+
+/* Status Chips */
+.status-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    padding: 0.2rem 0.6rem;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background: rgba(0,0,0,0.5);
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+.status-live .status-dot { background-color: var(--success); box-shadow: 0 0 8px var(--success); }
+.status-partial .status-dot { background-color: var(--warning); box-shadow: 0 0 8px var(--warning); }
+.status-not-public .status-dot { background-color: var(--muted-color); }
+
+/* Tables */
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 2rem 0;
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+}
+
+.data-table th {
+    text-align: left;
+    color: var(--muted-color);
+    border-bottom: 1px solid var(--border-color);
+    padding: 1rem;
+    text-transform: uppercase;
+}
+
+.data-table td {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+/* Hero */
+.hero {
+    padding: 4rem 0;
+}
+
+.hero h1 {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.hero p {
+    font-size: 1.2rem;
+    color: var(--muted-color);
+    max-width: 600px;
+    margin-bottom: 2rem;
+}
+
+.cta-group {
+    display: flex;
+    gap: 1rem;
+}
+
+.btn {
+    padding: 0.8rem 1.5rem;
+    border: 1px solid var(--border-color);
+    background: transparent;
+    color: var(--text-color);
+    text-decoration: none;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+
+.btn:hover {
+    background: var(--text-color);
+    color: var(--bg-color);
+}
+
+/* Grid Sections */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    margin: 3rem 0;
+}
+
+.card {
+    border: 1px solid var(--border-color);
+    padding: 2rem;
+    background: rgba(10, 10, 10, 0.8);
+    position: relative;
+}
+
+.card h3 {
+    margin-bottom: 1rem;
+}
+
+.card p {
+    color: var(--muted-color);
+    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
+}
+
+/* Footer */
+footer {
+    border-top: 1px solid var(--border-color);
+    padding: 4rem 0;
+    margin-top: 4rem;
+    text-align: left;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--muted-color);
+}
+
+.governance {
+    background: var(--accent-color);
+    color: #fff;
+    padding: 0.5rem 1rem;
+    display: inline-block;
+    margin-bottom: 1rem;
+}
+
+nav a {
+    color: var(--muted-color);
+    text-decoration: none;
+    margin-right: 1.5rem;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+}
+
+nav a:hover {
+    color: var(--text-color);
+}

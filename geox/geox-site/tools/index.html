@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GEOX | Tools Catalog</title>
+    <link rel="stylesheet" href="../css/geox-platform.css">
+    <style>
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+        .tool-card {
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            padding: 1.5rem;
+            transition: border-color 0.2s;
+        }
+        .tool-card:hover {
+            border-color: var(--accent-color);
+        }
+        .tool-card.executing {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 1px var(--accent-color);
+        }
+        .tool-card.error {
+            border-color: #ef4444;
+        }
+        .tool-card.success {
+            border-color: #22c55e;
+        }
+        .tool-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+        .tool-name {
+            font-family: var(--mono-font);
+            font-size: 0.9rem;
+            color: var(--accent-color);
+            word-break: break-all;
+        }
+        .tool-dimension {
+            font-size: 0.7rem;
+            background: var(--border-color);
+            padding: 0.2rem 0.5rem;
+            text-transform: uppercase;
+        }
+        .tool-description {
+            font-size: 0.9rem;
+            color: var(--muted-color);
+            margin-bottom: 1rem;
+            min-height: 2.5em;
+        }
+        .tool-params {
+            background: rgba(0,0,0,0.2);
+            padding: 1rem;
+            margin: 1rem 0;
+            font-size: 0.8rem;
+        }
+        .param-field {
+            margin-bottom: 0.75rem;
+        }
+        .param-field:last-child {
+            margin-bottom: 0;
+        }
+        .param-label {
+            display: block;
+            font-family: var(--mono-font);
+            font-size: 0.75rem;
+            margin-bottom: 0.25rem;
+            color: var(--muted-color);
+        }
+        .param-label .required {
+            color: #ef4444;
+        }
+        .param-input {
+            width: 100%;
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 0.5rem;
+            font-family: var(--mono-font);
+            font-size: 0.85rem;
+        }
+        .param-input:focus {
+            outline: none;
+            border-color: var(--accent-color);
+        }
+        .param-type {
+            font-size: 0.7rem;
+            color: var(--muted-color);
+            margin-left: 0.5rem;
+        }
+        .tool-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        .btn-small {
+            padding: 0.5rem 1rem;
+            font-size: 0.8rem;
+        }
+        .btn-secondary {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+        }
+        .btn-secondary:hover {
+            border-color: var(--accent-color);
+        }
+        .tool-result {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: rgba(0,0,0,0.3);
+            border-left: 3px solid var(--border-color);
+            font-family: var(--mono-font);
+            font-size: 0.8rem;
+            max-height: 300px;
+            overflow: auto;
+            display: none;
+        }
+        .tool-result.show {
+            display: block;
+        }
+        .tool-result.success {
+            border-left-color: #22c55e;
+        }
+        .tool-result.error {
+            border-left-color: #ef4444;
+        }
+        .filters {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .filter-select {
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 0.5rem;
+            font-family: var(--mono-font);
+            font-size: 0.85rem;
+        }
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+        }
+        .search-input {
+            width: 100%;
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 0.75rem 1rem;
+            font-family: var(--mono-font);
+            font-size: 0.9rem;
+        }
+        .search-input:focus {
+            outline: none;
+            border-color: var(--accent-color);
+        }
+        .stats-bar {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+        }
+        .stat-item {
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--accent-color);
+            font-family: var(--mono-font);
+        }
+        .stat-label {
+            font-size: 0.7rem;
+            color: var(--muted-color);
+            text-transform: uppercase;
+        }
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .loading-content {
+            text-align: center;
+        }
+        .loading-text {
+            font-family: var(--mono-font);
+            margin-top: 1rem;
+        }
+        .hidden {
+            display: none !important;
+        }
+        .json-key { color: #9cdcfe; }
+        .json-string { color: #ce9178; }
+        .json-number { color: #b5cea8; }
+        .json-boolean { color: #569cd6; }
+        .json-null { color: #569cd6; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="mono" style="margin-bottom: 0.5rem; font-size: 0.7rem; color: var(--muted-color);">
+                GEOX_TOOLS_CATALOG // MCP_INTERFACE_V1
+            </div>
+            <nav>
+                <a href="../index.html">Home</a>
+                <a href="../tools/index.html">Tools</a>
+                <a href="../map/index.html">Map</a>
+                <a href="../platform/index.html">Platform</a>
+                <a href="../workspaces/index.html">Workspaces</a>
+                <a href="../status/index.html">Status</a>
+            </nav>
+        </header>
+
+        <section class="hero" style="padding: 2rem 0;">
+            <h1>Tools Catalog</h1>
+            <p style="color: var(--muted-color);">
+                Browse, test, and execute GEOX MCP tools. Live interface to the dimension-native API.
+            </p>
+        </section>
+
+        <!-- Stats Bar -->
+        <div class="stats-bar">
+            <div class="stat-item">
+                <div class="stat-value" id="total-tools">—</div>
+                <div class="stat-label">Total Tools</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="dimensions-count">—</div>
+                <div class="stat-label">Dimensions</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="last-refresh">—</div>
+                <div class="stat-label">Last Refresh</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="api-status">●</div>
+                <div class="stat-label">API Status</div>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filters">
+            <div class="search-box">
+                <input type="text" class="search-input" id="search-input" placeholder="Search tools by name or description...">
+            </div>
+            <div class="filter-group">
+                <label>Dimension:</label>
+                <select class="filter-select" id="dimension-filter">
+                    <option value="all">All Dimensions</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Sort:</label>
+                <select class="filter-select" id="sort-filter">
+                    <option value="name">Name</option>
+                    <option value="dimension">Dimension</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Tools Grid -->
+        <div id="tools-container">
+            <div class="tools-grid" id="tools-grid">
+                <!-- Tools loaded here -->
+            </div>
+        </div>
+
+        <footer style="margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--border-color);">
+            <div class="governance">DITEMPA BUKAN DIBERI</div>
+            <div style="display: flex; justify-content: space-between; margin-top: 1rem; font-size: 0.8rem; color: var(--muted-color);">
+                <span>GEOX MCP Tools Interface</span>
+                <span class="mono">JSON-RPC 2.0 over HTTP</span>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay">
+        <div class="loading-content">
+            <div class="live-pulse" style="width: 16px; height: 16px; margin: 0 auto;"></div>
+            <div class="loading-text mono">CONNECTING TO MCP SERVER...</div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '';
+        let allTools = [];
+        let dimensions = new Set();
+
+        // Extract dimension from tool name
+        function getDimension(toolName) {
+            const prefixes = ['prospect', 'well', 'earth3d', 'map', 'cross', 'section', 'time4d', 'physics', 'geox'];
+            for (const prefix of prefixes) {
+                if (toolName.toLowerCase().startsWith(prefix)) {
+                    return prefix.toUpperCase();
+                }
+            }
+            return 'CORE';
+        }
+
+        // Format parameter type
+        function formatType(schema) {
+            if (schema.type) {
+                let type = schema.type;
+                if (schema.items) {
+                    type += `<${schema.items.type || 'any'}>`;
+                }
+                return type;
+            }
+            if (schema.anyOf) return 'union';
+            if (schema.enum) return 'enum';
+            return 'any';
+        }
+
+        // Build parameter form
+        function buildParamForm(tool) {
+            const schema = tool.inputSchema || {};
+            const properties = schema.properties || {};
+            const required = schema.required || [];
+
+            if (Object.keys(properties).length === 0) {
+                return '<div style="color: var(--muted-color); font-style: italic;">No parameters required</div>';
+            }
+
+            let html = '';
+            for (const [key, prop] of Object.entries(properties)) {
+                const isRequired = required.includes(key);
+                const type = formatType(prop);
+                const defaultValue = prop.default !== undefined ? JSON.stringify(prop.default) : '';
+                
+                html += `
+                    <div class="param-field">
+                        <label class="param-label">
+                            ${key}
+                            ${isRequired ? '<span class="required">*</span>' : ''}
+                            <span class="param-type">${type}</span>
+                        </label>
+                        <input type="text" 
+                               class="param-input" 
+                               data-param="${key}"
+                               data-type="${type}"
+                               placeholder="${prop.description || ''}${defaultValue ? ' (default: ' + defaultValue + ')' : ''}"
+                               ${defaultValue ? `value="${defaultValue}"` : ''}>
+                    </div>
+                `;
+            }
+            return html;
+        }
+
+        // Create tool card
+        function createToolCard(tool) {
+            const dimension = getDimension(tool.name);
+            dimensions.add(dimension);
+
+            const card = document.createElement('div');
+            card.className = 'tool-card';
+            card.dataset.name = tool.name.toLowerCase();
+            card.dataset.dimension = dimension;
+            card.dataset.description = (tool.description || '').toLowerCase();
+
+            card.innerHTML = `
+                <div class="tool-header">
+                    <div class="tool-name">${tool.name}</div>
+                    <div class="tool-dimension">${dimension}</div>
+                </div>
+                <div class="tool-description">${tool.description || 'No description available.'}</div>
+                <div class="tool-params">
+                    ${buildParamForm(tool)}
+                </div>
+                <div class="tool-actions">
+                    <button class="btn btn-small" onclick="executeTool('${tool.name}', this)">Execute</button>
+                    <button class="btn btn-small btn-secondary" onclick="clearResult(this)">Clear</button>
+                </div>
+                <pre class="tool-result" id="result-${tool.name}"></pre>
+            `;
+
+            return card;
+        }
+
+        // Execute tool
+        async function executeTool(toolName, button) {
+            const card = button.closest('.tool-card');
+            const resultEl = card.querySelector('.tool-result');
+            
+            // Collect parameters
+            const params = {};
+            const inputs = card.querySelectorAll('.param-input');
+            for (const input of inputs) {
+                const key = input.dataset.param;
+                const type = input.dataset.type;
+                let value = input.value.trim();
+                
+                if (value === '' && input.hasAttribute('value')) {
+                    value = input.getAttribute('value');
+                }
+                
+                if (value !== '') {
+                    // Type conversion
+                    if (type === 'number' || type === 'integer') {
+                        value = Number(value);
+                    } else if (type === 'boolean') {
+                        value = value.toLowerCase() === 'true';
+                    } else if (type.startsWith('array')) {
+                        try {
+                            value = JSON.parse(value);
+                        } catch {
+                            value = value.split(',').map(s => s.trim());
+                        }
+                    } else if ((value.startsWith('{') && value.endsWith('}')) || 
+                               (value.startsWith('[') && value.endsWith(']'))) {
+                        try {
+                            value = JSON.parse(value);
+                        } catch {}
+                    }
+                    params[key] = value;
+                }
+            }
+
+            // Show executing state
+            card.classList.add('executing');
+            button.disabled = true;
+            button.textContent = 'Executing...';
+            resultEl.classList.remove('show', 'success', 'error');
+
+            try {
+                const response = await fetch(`${API_BASE}/mcp`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        jsonrpc: '2.0',
+                        id: Date.now(),
+                        method: 'tools/call',
+                        params: {
+                            name: toolName,
+                            arguments: params
+                        }
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.error) {
+                    throw new Error(data.error.message || 'Unknown error');
+                }
+
+                // Extract content from MCP response
+                let result = data.result;
+                if (result && result.content && result.content[0] && result.content[0].text) {
+                    try {
+                        result = JSON.parse(result.content[0].text);
+                    } catch {}
+                }
+
+                // Display result
+                resultEl.textContent = JSON.stringify(result, null, 2);
+                resultEl.classList.add('show', 'success');
+                card.classList.remove('executing', 'error');
+                card.classList.add('success');
+                
+                // Auto-remove success class after 3s
+                setTimeout(() => card.classList.remove('success'), 3000);
+
+            } catch (err) {
+                resultEl.textContent = `ERROR: ${err.message}`;
+                resultEl.classList.add('show', 'error');
+                card.classList.remove('executing', 'success');
+                card.classList.add('error');
+            } finally {
+                button.disabled = false;
+                button.textContent = 'Execute';
+            }
+        }
+
+        // Clear result
+        function clearResult(button) {
+            const card = button.closest('.tool-card');
+            const resultEl = card.querySelector('.tool-result');
+            resultEl.classList.remove('show', 'success', 'error');
+            resultEl.textContent = '';
+            card.classList.remove('success', 'error');
+        }
+
+        // Filter and sort tools
+        function filterTools() {
+            const search = document.getElementById('search-input').value.toLowerCase();
+            const dimension = document.getElementById('dimension-filter').value;
+            const sort = document.getElementById('sort-filter').value;
+
+            let filtered = allTools.filter(tool => {
+                const card = document.querySelector(`[data-name="${tool.name.toLowerCase()}"]`);
+                if (!card) return false;
+
+                const matchesSearch = !search || 
+                    card.dataset.name.includes(search) || 
+                    card.dataset.description.includes(search);
+                
+                const matchesDimension = dimension === 'all' || 
+                    card.dataset.dimension === dimension;
+
+                return matchesSearch && matchesDimension;
+            });
+
+            // Sort
+            filtered.sort((a, b) => {
+                if (sort === 'name') {
+                    return a.name.localeCompare(b.name);
+                } else if (sort === 'dimension') {
+                    const dimA = getDimension(a.name);
+                    const dimB = getDimension(b.name);
+                    if (dimA !== dimB) return dimA.localeCompare(dimB);
+                    return a.name.localeCompare(b.name);
+                }
+                return 0;
+            });
+
+            // Reorder DOM
+            const grid = document.getElementById('tools-grid');
+            filtered.forEach(tool => {
+                const card = document.querySelector(`[data-name="${tool.name.toLowerCase()}"]`);
+                if (card) grid.appendChild(card);
+            });
+
+            // Hide non-matching
+            document.querySelectorAll('.tool-card').forEach(card => {
+                const isMatch = filtered.some(t => t.name.toLowerCase() === card.dataset.name);
+                card.style.display = isMatch ? '' : 'none';
+            });
+        }
+
+        // Initialize
+        async function init() {
+            try {
+                // Fetch tools
+                const response = await fetch(`${API_BASE}/mcp`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        jsonrpc: '2.0',
+                        id: 1,
+                        method: 'tools/list'
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+
+                const data = await response.json();
+                
+                if (data.error) {
+                    throw new Error(data.error.message);
+                }
+
+                allTools = data.result?.tools || [];
+
+                // Update stats
+                document.getElementById('total-tools').textContent = allTools.length;
+                document.getElementById('api-status').style.color = '#22c55e';
+                document.getElementById('last-refresh').textContent = new Date().toLocaleTimeString();
+
+                // Build dimension filter
+                const grid = document.getElementById('tools-grid');
+                grid.innerHTML = '';
+
+                allTools.forEach(tool => {
+                    const card = createToolCard(tool);
+                    grid.appendChild(card);
+                });
+
+                // Populate dimension filter
+                const dimFilter = document.getElementById('dimension-filter');
+                Array.from(dimensions).sort().forEach(dim => {
+                    const option = document.createElement('option');
+                    option.value = dim;
+                    option.textContent = dim;
+                    dimFilter.appendChild(option);
+                });
+
+                document.getElementById('dimensions-count').textContent = dimensions.size;
+
+                // Hide loading
+                document.getElementById('loading-overlay').classList.add('hidden');
+
+                // Setup event listeners
+                document.getElementById('search-input').addEventListener('input', filterTools);
+                document.getElementById('dimension-filter').addEventListener('change', filterTools);
+                document.getElementById('sort-filter').addEventListener('change', filterTools);
+
+            } catch (err) {
+                console.error('Failed to load tools:', err);
+                document.getElementById('loading-overlay').innerHTML = `
+                    <div class="loading-content">
+                        <div style="color: #ef4444; font-size: 2rem;">✗</div>
+                        <div class="loading-text">FAILED TO CONNECT TO MCP</div>
+                        <div style="color: var(--muted-color); margin-top: 1rem; font-size: 0.8rem;">${err.message}</div>
+                        <button class="btn" style="margin-top: 1rem;" onclick="location.reload()">Retry</button>
+                    </div>
+                `;
+            }
+        }
+
+        // Start
+        init();
+    </script>
+</body>
+</html>

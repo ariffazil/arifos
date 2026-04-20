@@ -1,0 +1,39 @@
+{
+  "status": "verified",
+  "epoch": "2026.04_GOLD",
+  "manifold": {
+    "crs": "WGS84_UTM50N",
+    "phi": 0.18,
+    "area": 450000.0,
+    "grossH": 250.0
+  },
+  "canon9": [
+    {
+      "sym": "\u03c1",
+      "name": "Density",
+      "val": "2650",
+      "unit": "kg/m\u00b3"
+    },
+    {
+      "sym": "Vp",
+      "name": "P-Wave",
+      "val": "4500",
+      "unit": "m/s"
+    },
+    {
+      "sym": "\u03c6",
+      "name": "Porosity",
+      "val": "0.18",
+      "unit": "v/v"
+    }
+  ],
+  "claims": {
+    "d2t_tie": true,
+    "fault_intersection": true,
+    "fluid_crossover": false
+  },
+  "truth": {
+    "f2_passed": true,
+    "f7_uncertainty": 0.04
+  }
+}

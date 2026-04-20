@@ -1,0 +1,34 @@
+[project]
+name = "geox-sovereign-backend"
+version = "1.9.0"
+description = "Sovereign subsurface intelligence bridge for OpendTect and React."
+authors = [
+    { name = "Arif Fazil", email = "arif@arifos.geo" }
+]
+dependencies = [
+    "fastmcp>=3.0.0",
+    "pydantic>=2.0.0",
+    "pandas>=2.0.0",
+    "numpy>=1.20.0",
+    "asyncio>=3.4.3",
+    "pyproj>=3.0.0",
+    "shapely>=2.0.0"
+]
+
+[project.scripts]
+geox-server = "geox_unified:main"
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+py-modules = [
+    "geox_mcp_server",
+    "geox_schemas",
+    "arifos_od_siphon",
+    "geox_unified",
+]
+
+[tool.setuptools.packages.find]
+include = ["registries*"]

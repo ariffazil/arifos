@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RATLAS Browser — GEOX Command Center</title>
+    
+    <!-- Tailwind CSS v4 -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    
+    <!-- Shared Styles -->
+    <link rel="stylesheet" href="../shared/styles.css">
+    
+    <style>
+        /* Family Badge Colors - Themed for Physics9 */
+        .family-badge {
+            @apply px-2 py-0.5 rounded text-[10px] font-mono uppercase tracking-wider border;
+        }
+        .family-SED_CLASTIC { @apply bg-blue-500/10 text-blue-400 border-blue-500/20; }
+        .family-SED_CARB { @apply bg-cyan-500/10 text-cyan-400 border-cyan-500/20; }
+        .family-IGN_VOLC { @apply bg-red-500/10 text-red-400 border-red-500/20; }
+        .family-IGN_PLUTONIC { @apply bg-orange-500/10 text-orange-400 border-orange-500/20; }
+        .family-MET_GNEISS { @apply bg-purple-500/10 text-purple-400 border-purple-500/20; }
+        .family-MET_SCHIST { @apply bg-pink-500/10 text-pink-400 border-pink-500/20; }
+        .family-EVAPORITE { @apply bg-yellow-500/10 text-yellow-400 border-yellow-500/20; }
+        .family-ORGANIC { @apply bg-green-500/10 text-green-400 border-green-500/20; }
+        .family-DETRITAL { @apply bg-amber-700/10 text-amber-500 border-amber-700/20; }
+        .family-CHEMICAL { @apply bg-slate-500/10 text-slate-400 border-slate-500/20; }
+        .family-HYDROTHERMAL { @apply bg-teal-500/10 text-teal-400 border-teal-500/20; }
+
+        /* Modal Overrides */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(2, 4, 6, 0.9);
+            backdrop-filter: blur(12px);
+            z-index: 2000;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s var(--ease-out-expo);
+        }
+        .modal-overlay.active { display: flex; opacity: 1; }
+    </style>
+</head>
+    </style>
+</head>
+<body class="bg-void-base text-text-primary min-h-screen">
+    <!-- Scientific Overlays -->
+    <div class="scanlines"></div>
+    <div class="radar-vortex"></div>
+
+    <!-- Navigation Header -->
+                <!-- Logo -->
+                <a href="../index.html" class="flex items-center gap-3">
+                    <div class="w-8 h-8 bg-amber-500 rounded-lg flex items-center justify-center">
+                        <i data-lucide="layers" class="w-5 h-5 text-gray-900"></i>
+                    </div>
+                    <span class="font-semibold text-lg text-white">GEOX</span>
+                </a>
+                
+                <!-- Nav Links -->
+                <div class="hidden md:flex items-center gap-8">
+                    <a href="../index.html" class="text-gray-400 hover:text-white transition-colors">Home</a>
+                    <div class="relative group">
+                        <button class="flex items-center gap-1 text-amber-500 font-medium">
+                            Tools
+                            <i data-lucide="chevron-down" class="w-4 h-4"></i>
+                        </button>
+                        <div class="absolute top-full left-0 mt-2 w-56 bg-gray-900 border border-gray-800 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
+                            <a href="ac-risk.html" class="block px-4 py-3 text-gray-400 hover:text-white hover:bg-gray-800 transition-colors border-b border-gray-800">AC Risk Calculator</a>
+                            <a href="ratlas.html" class="block px-4 py-3 text-amber-500 bg-gray-800/50 border-b border-gray-800">RATLAS Browser</a>
+                            <a href="basin-explorer.html" class="block px-4 py-3 text-gray-400 hover:text-white hover:bg-gray-800 transition-colors border-b border-gray-800">Basin Explorer</a>
+                            <a href="seismic-viewer.html" class="block px-4 py-3 text-gray-400 hover:text-white hover:bg-gray-800 transition-colors border-b border-gray-800">Seismic Viewer</a>
+                            <a href="well-context-desk.html" class="block px-4 py-3 text-gray-400 hover:text-white hover:bg-gray-800 transition-colors">Well Context Desk</a>
+                        </div>
+                    </div>
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors">About</a>
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors">Docs</a>
+                </div>
+                
+                <!-- System Status -->
+                <div class="flex items-center gap-2">
+                    <span class="relative flex h-2.5 w-2.5">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+                    </span>
+                    <span class="text-sm text-gray-400 hidden sm:inline">Online</span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="pt-24 pb-16 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto">
+            <!-- Page Header -->
+            <div class="mb-8 animate-fade-in">
+                <a href="../index.html" class="inline-flex items-center gap-2 text-gray-400 hover:text-amber-500 transition-colors mb-4">
+                    <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                    Back to Dashboard
+                </a>
+                <h1 class="text-3xl sm:text-4xl font-bold text-white mb-2">RATLAS Browser</h1>
+                <p class="text-gray-400">Reference Atlas of Earth Materials — 99 materials, 11 families</p>
+            </div>
+
+            <!-- Search & Filter Bar -->
+            <div class="bg-gray-900/50 border border-gray-800 rounded-xl p-4 mb-6 animate-fade-in" style="animation-delay: 0.1s">
+                <div class="flex flex-col lg:flex-row gap-4">
+                    <!-- Search -->
+                    <div class="relative flex-1">
+                        <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500"></i>
+                        <input 
+                            type="text" 
+                            id="searchInput" 
+                            placeholder="Search materials by name or code..."
+                            class="w-full bg-gray-800 border border-gray-700 rounded-lg pl-10 pr-4 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:border-amber-500 transition-colors"
+                        >
+                    </div>
+                    
+                    <!-- Filters -->
+                    <div class="flex flex-wrap gap-3">
+                        <select id="familyFilter" class="bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-amber-500 transition-colors">
+                            <option value="">All Families</option>
+                            <option value="SED_CLASTIC">SED_CLASTIC</option>
+                            <option value="SED_CARB">SED_CARB</option>
+                            <option value="IGN_VOLC">IGN_VOLC</option>
+                            <option value="IGN_PLUTONIC">IGN_PLUTONIC</option>
+                            <option value="MET_GNEISS">MET_GNEISS</option>
+                            <option value="MET_SCHIST">MET_SCHIST</option>
+                            <option value="EVAPORITE">EVAPORITE</option>
+                            <option value="ORGANIC">ORGANIC</option>
+                            <option value="DETRITAL">DETRITAL</option>
+                            <option value="CHEMICAL">CHEMICAL</option>
+                            <option value="HYDROTHERMAL">HYDROTHERMAL</option>
+                        </select>
+                        
+                        <select id="sortFilter" class="bg-gray-800 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-amber-500 transition-colors">
+                            <option value="name">Sort by Name</option>
+                            <option value="porosity">Sort by Porosity</option>
+                            <option value="density">Sort by Density</option>
+                        </select>
+                        
+                        <!-- View Toggle -->
+                        <div class="flex bg-gray-800 border border-gray-700 rounded-lg overflow-hidden">
+                            <button id="gridViewBtn" class="px-3 py-2.5 bg-amber-500 text-gray-900 transition-colors">
+                                <i data-lucide="grid-3x3" class="w-5 h-5"></i>
+                            </button>
+                            <button id="listViewBtn" class="px-3 py-2.5 text-gray-400 hover:text-white transition-colors">
+                                <i data-lucide="list" class="w-5 h-5"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Family Legend -->
+            <div class="mb-8 animate-fade-in" style="animation-delay: 0.2s">
+                <h3 class="text-sm font-medium text-gray-500 mb-3 uppercase tracking-wider">Family Legend</h3>
+                <div class="flex flex-wrap gap-2">
+                    <span class="family-badge family-sed-clastic px-3 py-1.5 rounded-full text-xs font-medium border cursor-pointer hover:opacity-80 transition-opacity" data-family="SED_CLASTIC">SED_CLASTIC</span>
+                    <span class="family-badge family-sed-carb px-3 py-1.5 rounded-full text-xs font-medium border cursor-pointer hover:opacity-80 transition-opacity" data-family="SED_CARB">SED_CARB</span>
+                    <span class="family-badge family-ign-volc px-3 py-1.5 rounded-full text-xs font-medium border cursor-pointer hover:opacity-80 transition-opacity" data-family="IGN_VOLC">IGN_VOLC</span>
+                    <span class="family-badge family-ign-plutonic px-3 py-1.5 rounded-full text-xs font-medium border cursor-pointer hover:opacity-80 transition-opacity" data-family="IGN_PLUTONIC">IGN_PLUTONIC</span>
+                    <span class="family-badge family-met-gneiss px-3 py-1.5 rounded-full text-xs font-medium border cursor-pointer hover:opacity-80 transition-opacity" data-family="MET_GNEISS">MET_GNEISS</span>
+                    <span class="family-badge family-met-schist px-3 py-1.5 rounded-full text-xs font-medium border cursor-pointer hover:opacity-80 transition-opacity" data-family="MET_SCHIST">MET_SCHIST</span>
+                    <span class="family-badge family-evaporite px-3 py-1.5 rounded-full text-xs font-medium border cursor-pointer hover:opacity-80 transition-opacity" data-family="EVAPORITE">EVAPORITE</span>
+                    <span class="family-badge family-organic px-3 py-1.5 rounded-full text-xs font-medium border cursor-pointer hover:opacity-80 transition-opacity" data-family="ORGANIC">ORGANIC</span>
+                    <span class="family-badge family-detrital px-3 py-1.5 rounded-full text-xs font-medium border cursor-pointer hover:opacity-80 transition-opacity" data-family="DETRITAL">DETRITAL</span>
+                    <span class="family-badge family-chemical px-3 py-1.5 rounded-full text-xs font-medium border cursor-pointer hover:opacity-80 transition-opacity" data-family="CHEMICAL">CHEMICAL</span>
+                    <span class="family-badge family-hydrothermal px-3 py-1.5 rounded-full text-xs font-medium border cursor-pointer hover:opacity-80 transition-opacity" data-family="HYDROTHERMAL">HYDROTHERMAL</span>
+                </div>
+            </div>
+
+            <!-- Results Count -->
+            <div class="flex items-center justify-between mb-4">
+                <p class="text-gray-400 text-sm">
+                    Showing <span id="resultCount" class="text-white font-medium">24</span> materials
+                </p>
+            </div>
+
+            <!-- Material Grid -->
+            <div id="materialGrid" class="material-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                <!-- Cards will be generated by JavaScript -->
+            </div>
+
+            <!-- Empty State -->
+            <div id="emptyState" class="hidden text-center py-16">
+                <i data-lucide="database" class="w-16 h-16 text-gray-600 mx-auto mb-4"></i>
+                <h3 class="text-xl font-medium text-white mb-2">No materials found</h3>
+                <p class="text-gray-400">Try adjusting your search or filter criteria</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Detail Modal -->
+    <div id="detailModal" class="modal-overlay items-center justify-center p-4">
+        <div class="modal-content bg-gray-900 border border-gray-800 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-auto">
+            <div class="p-6 border-b border-gray-800 flex items-center justify-between">
+                <div>
+                    <span id="modalCode" class="font-mono text-sm text-gray-500"></span>
+                    <h2 id="modalName" class="text-2xl font-bold text-white mt-1"></h2>
+                </div>
+                <button id="closeModal" class="p-2 hover:bg-gray-800 rounded-lg transition-colors">
+                    <i data-lucide="x" class="w-6 h-6 text-gray-400"></i>
+                </button>
+            </div>
+            <div class="p-6">
+                <div id="modalFamily" class="inline-block px-3 py-1 rounded-full text-sm font-medium border mb-6"></div>
+                
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                    <div class="bg-gray-800/50 rounded-lg p-4">
+                        <p class="text-gray-500 text-sm mb-1">Porosity</p>
+                        <p id="modalPorosity" class="text-xl font-semibold text-white"></p>
+                    </div>
+                    <div class="bg-gray-800/50 rounded-lg p-4">
+                        <p class="text-gray-500 text-sm mb-1">Density</p>
+                        <p id="modalDensity" class="text-xl font-semibold text-white"></p>
+                    </div>
+                </div>
+                
+                <div class="space-y-4">
+                    <div>
+                        <h4 class="text-sm font-medium text-gray-500 uppercase tracking-wider mb-2">Description</h4>
+                        <p id="modalDescription" class="text-gray-300"></p>
+                    </div>
+                    
+                    <div>
+                        <h4 class="text-sm font-medium text-gray-500 uppercase tracking-wider mb-2">Properties</h4>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="flex justify-between py-2 border-b border-gray-800">
+                                <span class="text-gray-400">Grain Size</span>
+                                <span id="modalGrainSize" class="text-white"></span>
+                            </div>
+                            <div class="flex justify-between py-2 border-b border-gray-800">
+                                <span class="text-gray-400">Sorting</span>
+                                <span id="modalSorting" class="text-white"></span>
+                            </div>
+                            <div class="flex justify-between py-2 border-b border-gray-800">
+                                <span class="text-gray-400">Cementation</span>
+                                <span id="modalCementation" class="text-white"></span>
+                            </div>
+                            <div class="flex justify-between py-2 border-b border-gray-800">
+                                <span class="text-gray-400">Permeability</span>
+                                <span id="modalPermeability" class="text-white"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="border-t border-gray-800 bg-gray-900/30">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 bg-amber-500 rounded-lg flex items-center justify-center">
+                        <i data-lucide="layers" class="w-5 h-5 text-gray-900"></i>
+                    </div>
+                    <span class="font-semibold text-white">GEOX</span>
+                    <span class="text-gray-600">|</span>
+                    <span class="text-gray-500 text-sm">Earth Intelligence Core</span>
+                </div>
+                <div class="flex items-center gap-6 text-sm">
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors">Privacy</a>
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors">Terms</a>
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors">Contact</a>
+                </div>
+                <p class="text-gray-500 text-sm">2024 GEOX Command Center. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Material Data
+        const materials = [
+            { code: 'SED_CL_SST_01', name: 'Clean Sandstone', family: 'SED_CLASTIC', porosity: '15-25%', density: '2.65 g/cm³', description: 'Well-sorted quartz sandstone with minimal clay content. High porosity and permeability make it an excellent reservoir rock.', grainSize: 'Medium', sorting: 'Well', cementation: 'Silica', permeability: 'High' },
+            { code: 'SED_CL_SH_02', name: 'Shale', family: 'SED_CLASTIC', porosity: '5-15%', density: '2.4-2.7 g/cm³', description: 'Fine-grained clastic sedimentary rock composed of mud. Acts as both source rock and cap rock in petroleum systems.', grainSize: 'Very Fine', sorting: 'Poor', cementation: 'Clay', permeability: 'Very Low' },
+            { code: 'SED_CL_SST_03', name: 'Arkose', family: 'SED_CLASTIC', porosity: '10-20%', density: '2.6 g/cm³', description: 'Sandstone containing at least 25% feldspar grains. Indicates rapid erosion and deposition near granitic source.', grainSize: 'Medium', sorting: 'Moderate', cementation: 'Calcite', permeability: 'Moderate' },
+            { code: 'SED_CL_SLT_01', name: 'Siltstone', family: 'SED_CLASTIC', porosity: '8-18%', density: '2.65 g/cm³', description: 'Consolidated silt with particle size between sand and clay. Often forms thin laminations in deltaic deposits.', grainSize: 'Fine', sorting: 'Moderate', cementation: 'Silica', permeability: 'Low' },
+            { code: 'SED_CB_LST_01', name: 'Limestone', family: 'SED_CARB', porosity: '5-20%', density: '2.71 g/cm³', description: 'Sedimentary rock composed primarily of calcium carbonate. Forms in marine environments with abundant biological activity.', grainSize: 'Variable', sorting: 'Variable', cementation: 'Calcite', permeability: 'Variable' },
+            { code: 'SED_CB_DOL_01', name: 'Dolomite', family: 'SED_CARB', porosity: '5-15%', density: '2.85 g/cm³', description: 'Carbonate rock containing calcium magnesium carbonate. Often forms through diagenetic alteration of limestone.', grainSize: 'Fine', sorting: 'Good', cementation: 'Dolomite', permeability: 'Low-Moderate' },
+            { code: 'SED_CB_CHL_01', name: 'Chalk', family: 'SED_CARB', porosity: '15-40%', density: '2.0-2.3 g/cm³', description: 'Soft, porous limestone composed of coccolithophore microfossils. Famous for forming significant oil reservoirs.', grainSize: 'Very Fine', sorting: 'Good', cementation: 'Weak', permeability: 'Moderate' },
+            { code: 'IGN_VL_BAS_01', name: 'Basalt', family: 'IGN_VOLC', porosity: '<5%', density: '2.9-3.1 g/cm³', description: 'Fine-grained extrusive igneous rock. Most common volcanic rock on Earth, forms oceanic crust.', grainSize: 'Fine', sorting: 'N/A', cementation: 'N/A', permeability: 'Very Low' },
+            { code: 'IGN_VL_AND_01', name: 'Andesite', family: 'IGN_VOLC', porosity: '2-8%', density: '2.7-2.8 g/cm³', description: 'Intermediate volcanic rock common in subduction zones. Named after the Andes Mountains.', grainSize: 'Fine', sorting: 'N/A', cementation: 'N/A', permeability: 'Low' },
+            { code: 'IGN_VL_RHY_01', name: 'Rhyolite', family: 'IGN_VOLC', porosity: '5-15%', density: '2.4-2.6 g/cm³', description: 'Felsic volcanic rock with high silica content. Often associated with explosive volcanic eruptions.', grainSize: 'Fine', sorting: 'N/A', cementation: 'N/A', permeability: 'Low' },
+            { code: 'IGN_PL_GRN_01', name: 'Granite', family: 'IGN_PLUTONIC', porosity: '<3%', density: '2.65-2.75 g/cm³', description: 'Coarse-grained felsic intrusive igneous rock. Most abundant basement rock in continental crust.', grainSize: 'Coarse', sorting: 'N/A', cementation: 'N/A', permeability: 'Negligible' },
+            { code: 'IGN_PL_GAB_01', name: 'Gabbro', family: 'IGN_PLUTONIC', porosity: '<2%', density: '2.9-3.1 g/cm³', description: 'Coarse-grained mafic intrusive rock. Intrusive equivalent of basalt, forms much of oceanic crust.', grainSize: 'Coarse', sorting: 'N/A', cementation: 'N/A', permeability: 'Negligible' },
+            { code: 'IGN_PL_DIO_01', name: 'Diorite', family: 'IGN_PLUTONIC', porosity: '<3%', density: '2.8-2.9 g/cm³', description: 'Intermediate intrusive igneous rock with equal amounts of light and dark minerals.', grainSize: 'Coarse', sorting: 'N/A', cementation: 'N/A', permeability: 'Negligible' },
+            { code: 'MET_GN_GRN_01', name: 'Granitic Gneiss', family: 'MET_GNEISS', porosity: '<3%', density: '2.7 g/cm³', description: 'High-grade metamorphic rock with distinct banding. Derived from granite under intense heat and pressure.', grainSize: 'Coarse', sorting: 'N/A', cementation: 'N/A', permeability: 'Negligible' },
+            { code: 'MET_GN_BIO_01', name: 'Biotite Gneiss', family: 'MET_GNEISS', porosity: '<2%', density: '2.75 g/cm³', description: 'Gneiss rich in biotite mica. Common in Precambrian shield areas and basement complexes.', grainSize: 'Medium', sorting: 'N/A', cementation: 'N/A', permeability: 'Negligible' },
+            { code: 'MET_SC_MSC_01', name: 'Muscovite Schist', family: 'MET_SCHIST', porosity: '3-8%', density: '2.7 g/cm³', description: 'Medium-grade metamorphic rock with prominent mica foliation. Derived from clay-rich protoliths.', grainSize: 'Fine', sorting: 'N/A', cementation: 'N/A', permeability: 'Very Low' },
+            { code: 'MET_SC_BLU_01', name: 'Blueschist', family: 'MET_SCHIST', porosity: '2-5%', density: '3.0-3.3 g/cm³', description: 'High-pressure, low-temperature metamorphic rock. Indicator of subduction zone metamorphism.', grainSize: 'Fine', sorting: 'N/A', cementation: 'N/A', permeability: 'Very Low' },
+            { code: 'EVA_HAL_01', name: 'Halite', family: 'EVAPORITE', porosity: '<1%', density: '2.16 g/cm³', description: 'Rock salt formed by evaporation of seawater. Forms excellent seals and cap rocks.', grainSize: 'Variable', sorting: 'Good', cementation: 'Halite', permeability: 'Negligible' },
+            { code: 'EVA_GYP_01', name: 'Gypsum', family: 'EVAPORITE', porosity: '5-15%', density: '2.3 g/cm³', description: 'Soft sulfate mineral formed by evaporation. Common in restricted marine basins.', grainSize: 'Fine', sorting: 'Good', cementation: 'Gypsum', permeability: 'Very Low' },
+            { code: 'EVA_ANH_01', name: 'Anhydrite', family: 'EVAPORITE', porosity: '2-8%', density: '2.9-3.0 g/cm³', description: 'Anhydrous calcium sulfate. Forms under higher temperatures than gypsum. Excellent seal rock.', grainSize: 'Fine', sorting: 'Good', cementation: 'Anhydrite', permeability: 'Negligible' },
+            { code: 'ORG_COAL_01', name: 'Bituminous Coal', family: 'ORGANIC', porosity: '2-10%', density: '1.2-1.5 g/cm³', description: 'Medium-rank coal with high carbon content. Important energy resource and source rock.', grainSize: 'N/A', sorting: 'N/A', cementation: 'N/A', permeability: 'Very Low' },
+            { code: 'ORG_SHL_01', name: 'Oil Shale', family: 'ORGANIC', porosity: '5-15%', density: '1.8-2.3 g/cm³', description: 'Fine-grained sedimentary rock containing kerogen. Can be processed to produce synthetic crude oil.', grainSize: 'Fine', sorting: 'Poor', cementation: 'Clay', permeability: 'Very Low' },
+            { code: 'DET_CNG_01', name: 'Conglomerate', family: 'DETRITAL', porosity: '5-15%', density: '2.5-2.7 g/cm³', description: 'Coarse-grained sedimentary rock with rounded clasts. Indicates high-energy depositional environments.', grainSize: 'Very Coarse', sorting: 'Poor', cementation: 'Variable', permeability: 'Variable' },
+            { code: 'DET_BRC_01', name: 'Breccia', family: 'DETRITAL', porosity: '5-20%', density: '2.5-2.8 g/cm³', description: 'Coarse rock with angular clasts. Indicates minimal transport from source area.', grainSize: 'Very Coarse', sorting: 'Very Poor', cementation: 'Variable', permeability: 'Variable' }
+        ];
+
+        // Family color mapping
+        const familyColors = {
+            'SED_CLASTIC': 'family-sed-clastic',
+            'SED_CARB': 'family-sed-carb',
+            'IGN_VOLC': 'family-ign-volc',
+            'IGN_PLUTONIC': 'family-ign-plutonic',
+            'MET_GNEISS': 'family-met-gneiss',
+            'MET_SCHIST': 'family-met-schist',
+            'EVAPORITE': 'family-evaporite',
+            'ORGANIC': 'family-organic',
+            'DETRITAL': 'family-detrital',
+            'CHEMICAL': 'family-chemical',
+            'HYDROTHERMAL': 'family-hydrothermal'
+        };
+
+        // State
+        let currentView = 'grid';
+        let filteredMaterials = [...materials];
+
+        // DOM Elements
+        const materialGrid = document.getElementById('materialGrid');
+        const searchInput = document.getElementById('searchInput');
+        const familyFilter = document.getElementById('familyFilter');
+        const sortFilter = document.getElementById('sortFilter');
+        const gridViewBtn = document.getElementById('gridViewBtn');
+        const listViewBtn = document.getElementById('listViewBtn');
+        const resultCount = document.getElementById('resultCount');
+        const emptyState = document.getElementById('emptyState');
+        const detailModal = document.getElementById('detailModal');
+        const closeModal = document.getElementById('closeModal');
+        const familyBadges = document.querySelectorAll('.family-badge');
+
+        // Render materials
+        function renderMaterials() {
+            materialGrid.innerHTML = '';
+            
+            if (filteredMaterials.length === 0) {
+                emptyState.classList.remove('hidden');
+                resultCount.textContent = '0';
+                return;
+            }
+            
+            emptyState.classList.add('hidden');
+            resultCount.textContent = filteredMaterials.length;
+            
+            filteredMaterials.forEach((material, index) => {
+                const card = document.createElement('div');
+                card.className = `material-card bg-gray-900 border border-gray-800 rounded-xl p-5 cursor-pointer animate-fade-in ${currentView === 'list' ? 'flex items-center gap-6' : ''}`;
+                card.style.animationDelay = `${index * 0.03}s`;
+                card.onclick = () => openModal(material);
+                
+                const familyClass = familyColors[material.family] || 'family-sed-clastic';
+                
+                if (currentView === 'grid') {
+                    card.innerHTML = `
+                        <div class="flex items-start justify-between mb-3">
+                            <span class="font-mono text-xs text-gray-500">${material.code}</span>
+                            <span class="${familyClass} px-2 py-1 rounded text-xs font-medium border">${material.family}</span>
+                        </div>
+                        <h3 class="text-lg font-semibold text-white mb-3">${material.name}</h3>
+                        <div class="flex items-center gap-4 text-sm">
+                            <div class="flex items-center gap-1.5 text-gray-400">
+                                <i data-lucide="droplets" class="w-4 h-4"></i>
+                                <span>${material.porosity}</span>
+                            </div>
+                            <div class="flex items-center gap-1.5 text-gray-400">
+                                <i data-lucide="weight" class="w-4 h-4"></i>
+                                <span>${material.density}</span>
+                            </div>
+                        </div>
+                        <div class="mt-4 pt-4 border-t border-gray-800 flex items-center justify-between">
+                            <span class="text-xs text-gray-500">Click for details</span>
+                            <i data-lucide="arrow-right" class="w-4 h-4 text-amber-500"></i>
+                        </div>
+                    `;
+                } else {
+                    card.innerHTML = `
+                        <span class="font-mono text-sm text-gray-500 w-32">${material.code}</span>
+                        <h3 class="text-base font-semibold text-white w-48">${material.name}</h3>
+                        <span class="${familyClass} px-2 py-1 rounded text-xs font-medium border">${material.family}</span>
+                        <div class="ml-auto flex items-center gap-8">
+                            <div class="flex items-center gap-2 text-sm text-gray-400">
+                                <i data-lucide="droplets" class="w-4 h-4"></i>
+                                <span>${material.porosity}</span>
+                            </div>
+                            <div class="flex items-center gap-2 text-sm text-gray-400">
+                                <i data-lucide="weight" class="w-4 h-4"></i>
+                                <span>${material.density}</span>
+                            </div>
+                            <i data-lucide="arrow-right" class="w-4 h-4 text-amber-500"></i>
+                        </div>
+                    `;
+                }
+                
+                materialGrid.appendChild(card);
+            });
+            
+            lucide.createIcons();
+        }
+
+        // Filter materials
+        function filterMaterials() {
+            const searchTerm = searchInput.value.toLowerCase();
+            const familyValue = familyFilter.value;
+            
+            filteredMaterials = materials.filter(material => {
+                const matchesSearch = material.name.toLowerCase().includes(searchTerm) || 
+                                      material.code.toLowerCase().includes(searchTerm);
+                const matchesFamily = !familyValue || material.family === familyValue;
+                return matchesSearch && matchesFamily;
+            });
+            
+            sortMaterials();
+            renderMaterials();
+        }
+
+        // Sort materials
+        function sortMaterials() {
+            const sortValue = sortFilter.value;
+            
+            filteredMaterials.sort((a, b) => {
+                if (sortValue === 'name') {
+                    return a.name.localeCompare(b.name);
+                } else if (sortValue === 'porosity') {
+                    const porosityA = parseFloat(a.porosity.replace(/[^0-9.]/g, '').split('-')[0]) || 0;
+                    const porosityB = parseFloat(b.porosity.replace(/[^0-9.]/g, '').split('-')[0]) || 0;
+                    return porosityB - porosityA;
+                } else if (sortValue === 'density') {
+                    const densityA = parseFloat(a.density.replace(/[^0-9.]/g, '').split('-')[0]) || 0;
+                    const densityB = parseFloat(b.density.replace(/[^0-9.]/g, '').split('-')[0]) || 0;
+                    return densityA - densityB;
+                }
+                return 0;
+            });
+        }
+
+        // View toggle
+        function setView(view) {
+            currentView = view;
+            
+            if (view === 'grid') {
+                gridViewBtn.classList.add('bg-amber-500', 'text-gray-900');
+                gridViewBtn.classList.remove('text-gray-400');
+                listViewBtn.classList.remove('bg-amber-500', 'text-gray-900');
+                listViewBtn.classList.add('text-gray-400');
+                materialGrid.classList.remove('flex', 'flex-col');
+                materialGrid.classList.add('grid', 'grid-cols-1', 'sm:grid-cols-2', 'lg:grid-cols-3', 'xl:grid-cols-4');
+            } else {
+                listViewBtn.classList.add('bg-amber-500', 'text-gray-900');
+                listViewBtn.classList.remove('text-gray-400');
+                gridViewBtn.classList.remove('bg-amber-500', 'text-gray-900');
+                gridViewBtn.classList.add('text-gray-400');
+                materialGrid.classList.remove('grid', 'grid-cols-1', 'sm:grid-cols-2', 'lg:grid-cols-3', 'xl:grid-cols-4');
+                materialGrid.classList.add('flex', 'flex-col');
+            }
+            
+            renderMaterials();
+        }
+
+        // Modal functions
+        function openModal(material) {
+            document.getElementById('modalCode').textContent = material.code;
+            document.getElementById('modalName').textContent = material.name;
+            document.getElementById('modalPorosity').textContent = material.porosity;
+            document.getElementById('modalDensity').textContent = material.density;
+            document.getElementById('modalDescription').textContent = material.description;
+            document.getElementById('modalGrainSize').textContent = material.grainSize;
+            document.getElementById('modalSorting').textContent = material.sorting;
+            document.getElementById('modalCementation').textContent = material.cementation;
+            document.getElementById('modalPermeability').textContent = material.permeability;
+            
+            const familyBadge = document.getElementById('modalFamily');
+            familyBadge.className = `inline-block px-3 py-1 rounded-full text-sm font-medium border mb-6 ${familyColors[material.family]}`;
+            familyBadge.textContent = material.family;
+            
+            detailModal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModalFunc() {
+            detailModal.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // Event listeners
+        searchInput.addEventListener('input', filterMaterials);
+        familyFilter.addEventListener('change', filterMaterials);
+        sortFilter.addEventListener('change', () => { sortMaterials(); renderMaterials(); });
+        gridViewBtn.addEventListener('click', () => setView('grid'));
+        listViewBtn.addEventListener('click', () => setView('list'));
+        closeModal.addEventListener('click', closeModalFunc);
+        
+        detailModal.addEventListener('click', (e) => {
+            if (e.target === detailModal) closeModalFunc();
+        });
+        
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeModalFunc();
+        });
+        
+        // Family badge click to filter
+        familyBadges.forEach(badge => {
+            badge.addEventListener('click', () => {
+                const family = badge.dataset.family;
+                familyFilter.value = family;
+                filterMaterials();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        });
+
+        // Initialize
+        lucide.createIcons();
+        renderMaterials();
+    </script>
+</body>
+</html>

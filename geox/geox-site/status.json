@@ -1,0 +1,121 @@
+{
+  "_meta": {
+    "schema": "geox-runtime-sot/v1",
+    "generated_at": "2026-04-12T03:05:00Z",
+    "generated_by": "arifOS-unified",
+    "seal": "DITEMPA BUKAN DIBERI"
+  },
+  "runtime": {
+    "geox_eic": {
+      "container_name": "geox_eic",
+      "image": "geox-geox:latest",
+      "status": "healthy",
+      "ports": ["8000:8000"],
+      "version": "2.0.0-DIMENSION-NATIVE",
+      "service": "geox-dimension-native",
+      "seal": "DITEMPA BUKAN DIBERI",
+      "enabled_dimensions": ["prospect", "well", "earth3d", "map", "cross"],
+      "source_path": "/root/arifOS/geox/",
+      "health_endpoint": "http://localhost:8000/health"
+    },
+    "arifos_mcp": {
+      "container_name": "arifosmcp",
+      "image": "arifos/arifosmcp:latest",
+      "status": "healthy",
+      "ports": ["8080:8080", "8089:8089"],
+      "version": "2026.04.07",
+      "tools_loaded": 17,
+      "verdict": "SEAL",
+      "source_path": "/root/arifOS/",
+      "health_endpoint": "http://localhost:8080/health"
+    },
+    "arifos_landings": {
+      "container_name": "arifos_landings",
+      "image": "nginx:alpine",
+      "status": "running",
+      "ports": ["80/tcp"],
+      "routes": [
+        "https://arifosmcp.arif-fazil.com/",
+        "https://geox.arif-fazil.com/",
+        "https://arif-fazil.com/",
+        "https://arifos.arif-fazil.com/"
+      ]
+    }
+  },
+  "sot_endpoints": {
+    "arifosmcp": {
+      "url": "https://arifosmcp.arif-fazil.com/",
+      "title": "arifOS MCP — Constitutional AI Gateway",
+      "purpose": "MCP Server SOT — Constitutional AI Gateway documentation",
+      "static_path": "/opt/arifos/sites/arif-fazil.com/arifosmcp/",
+      "source_path": "/root/arifOS/",
+      "status": "operational"
+    },
+    "geox": {
+      "url": "https://geox.arif-fazil.com/",
+      "title": "GEOX | Earth Intelligence Platform",
+      "purpose": "GEOX APPS SOT — Earth Intelligence Platform documentation",
+      "static_path": "/opt/arifos/sites/arif-fazil.com/geox/",
+      "source_path": "/root/arifOS/geox/geox-site/",
+      "status": "operational",
+      "sub_paths": {
+        "/tools/index.html": "GEOX Tools Catalog",
+        "/health": "GEOX Health API (proxied to geox_eic:8000)",
+        "/prospect/index.html": "Prospect Dashboard",
+        "/map/index.html": "Map Visualization",
+        "/status.json": "This runtime status document"
+      }
+    }
+  },
+  "architecture": {
+    "description": "Unified GEOX + arifOS Platform",
+    "components": [
+      {
+        "name": "GEOX Core",
+        "path": "/root/arifOS/geox/",
+        "type": "dimension-native-mcp",
+        "features": ["5 dimensions", "Anti-Chaos architecture", "Contracts", "Control Plane", "Execution Plane"]
+      },
+      {
+        "name": "GEOX Platform",
+        "path": "/root/geox/",
+        "type": "skill-platform",
+        "features": ["44 skills", "11 agents", "Registry", "Site"]
+      },
+      {
+        "name": "arifOS MCP",
+        "path": "/root/arifOS/",
+        "type": "constitutional-mcp",
+        "features": ["17 tools", "F1-F13 floors", "WebMCP", "Vault999"]
+      }
+    ]
+  },
+  "networks": [
+    "arifos_core_network",
+    "arifos_trinity", 
+    "traefik_network"
+  ],
+  "constitutional_floors": {
+    "F1": "active",
+    "F2": "active",
+    "F4": "active",
+    "F7": "active",
+    "F9": "active",
+    "F11": "active",
+    "F13": "active"
+  },
+  "git": {
+    "arifos": {
+      "commit": "6f7d9ec",
+      "message": "chore: Update GEOX submodule with FastMCP alias fixes",
+      "remote": "https://github.com/ariffazil/arifOS.git",
+      "branch": "main"
+    },
+    "geox": {
+      "commit": "76584ce",
+      "message": "fix: Fix FastMCP alias registration in cross.py using separate wrapper functions",
+      "remote": "https://github.com/ariffazil/GEOX.git",
+      "branch": "main"
+    }
+  }
+}

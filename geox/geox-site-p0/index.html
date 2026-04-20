@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="GEOX — Earth intelligence platform for governed decisions across terrain, hazard, mobility, infrastructure, and subsurface reasoning.">
+  <title>GEOX — Earth Intelligence Platform</title>
+  <link rel="stylesheet" href="css/geox-platform.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="nav">
+    <div class="nav-container">
+      <a href="/" class="nav-brand">GEOX</a>
+      <ul class="nav-links">
+        <li><a href="/" class="active">Home</a></li>
+        <li><a href="workspaces/">Workspaces</a></li>
+        <li><a href="skills/">Skills</a></li>
+        <li><a href="wiki/">Wiki</a></li>
+        <li><a href="platform/">Platform</a></li>
+        <li><a href="status/">Status</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="container">
+      <h1>GEOX</h1>
+      <p class="hero-subtitle">Earth intelligence for governed decisions. A platform for terrain, hazard, mobility, infrastructure, and subsurface reasoning across human, machine, and void observation surfaces.</p>
+      <div class="hero-ctas">
+        <a href="workspaces/" class="btn btn-primary">Enter Workspaces</a>
+        <a href="skills/" class="btn btn-secondary">Browse Skills</a>
+        <a href="wiki/" class="btn btn-secondary">Read Wiki</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- What GEOX Does -->
+  <section class="section">
+    <div class="container">
+      <h2>What GEOX Does</h2>
+      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; margin-top: 2rem;">
+        <div>
+          <h3 style="font-family: var(--font-mono); color: var(--color-accent); margin-bottom: 0.5rem;">Sense</h3>
+          <p class="text-muted">Ingest signals from satellite, seismic, sensor, and human observation.</p>
+        </div>
+        <div>
+          <h3 style="font-family: var(--font-mono); color: var(--color-accent); margin-bottom: 0.5rem;">Model</h3>
+          <p class="text-muted">Build world models that integrate terrain, hazard, and infrastructure data.</p>
+        </div>
+        <div>
+          <h3 style="font-family: var(--font-mono); color: var(--color-accent); margin-bottom: 0.5rem;">Govern</h3>
+          <p class="text-muted">Route decisions through constitutional workflows with explicit hold states.</p>
+        </div>
+      </div>
+      <p class="text-muted mt-4">Built on <a href="https://github.com/ariffazil/arifOS" style="color: var(--color-accent); text-decoration: none;">arifOS</a> — the constitutional governance kernel.</p>
+    </div>
+  </section>
+
+  <!-- Four Surfaces -->
+  <section class="section">
+    <div class="container">
+      <h2>Four Surfaces</h2>
+      <p class="text-muted mb-2">GEOX exposes capability through four distinct interfaces. Each serves different users and integration patterns.</p>
+      
+      <table class="surfaces-table">
+        <thead>
+          <tr>
+            <th>Surface</th>
+            <th>Purpose</th>
+            <th>Public Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="surface-name">Site</td>
+            <td>Human-facing docs, registry, wiki</td>
+            <td><span class="badge badge-live">● Live</span></td>
+          </tr>
+          <tr>
+            <td class="surface-name">WebMCP</td>
+            <td>Browser-native capability manifests</td>
+            <td><span class="badge badge-live">● Live</span></td>
+          </tr>
+          <tr>
+            <td class="surface-name">MCP</td>
+            <td>Tools, prompts, resources for AI hosts</td>
+            <td><span class="badge badge-partial">◐ Partial</span></td>
+          </tr>
+          <tr>
+            <td class="surface-name">A2A</td>
+            <td>Agent-to-agent coordination</td>
+            <td><span class="badge badge-not-public">○ Not yet routed publicly</span></td>
+          </tr>
+        </tbody>
+      </table>
+      
+      <p class="text-small text-muted">See the <a href="status/" style="color: var(--color-accent);">Status page</a> for detailed component states and operational notes.</p>
+    </div>
+  </section>
+
+  <!-- Workspaces Preview -->
+  <section class="section">
+    <div class="container">
+      <h2>Workspaces</h2>
+      <p class="text-muted mb-2">Task-oriented interfaces for Earth intelligence workflows. Availability varies by host and route exposure.</p>
+      
+      <div class="card-grid">
+        <div class="card">
+          <h4>Risk Console <span class="status-chip" style="background: rgba(88, 166, 255, 0.15); color: var(--color-accent);">MCP App</span></h4>
+          <p>Theory of Anomalous Contrast risk calculator with real-time verdict display.</p>
+          <div class="card-meta">Governance</div>
+        </div>
+        <div class="card">
+          <h4>Judge Console <span class="status-chip" style="background: rgba(88, 166, 255, 0.15); color: var(--color-accent);">MCP App</span></h4>
+          <p>Sovereign decision review with 888_HOLD and 999_SEAL workflows.</p>
+          <div class="card-meta">Governance</div>
+        </div>
+        <div class="card">
+          <h4>Physics Panel <span class="status-chip" style="background: rgba(88, 166, 255, 0.15); color: var(--color-accent);">MCP App</span></h4>
+          <p>Physical parameter verification and thermodynamic audit tools.</p>
+          <div class="card-meta">Physics</div>
+        </div>
+        <div class="card">
+          <h4>Basin Explorer <span class="status-chip" style="background: rgba(63, 185, 80, 0.15); color: var(--color-success);">Web App</span></h4>
+          <p>Basin-scale geological mapping with play fairway analysis.</p>
+          <div class="card-meta">Maps</div>
+        </div>
+        <div class="card">
+          <h4>Seismic Viewer <span class="status-chip" style="background: rgba(210, 153, 34, 0.15); color: var(--color-warning);">Hybrid</span></h4>
+          <p>2D/3D seismic interpretation with structural geometry tools.</p>
+          <div class="card-meta">Earth 3D</div>
+        </div>
+        <div class="card">
+          <h4>Well Context Desk <span class="status-chip" style="background: rgba(210, 153, 34, 0.15); color: var(--color-warning);">Hybrid</span></h4>
+          <p>Borehole data integration with petrophysical analysis.</p>
+          <div class="card-meta">Well</div>
+        </div>
+      </div>
+      
+      <p class="text-small text-muted mt-4">Some workspace surfaces require compatible MCP or browser integration. <a href="workspaces/" style="color: var(--color-accent);">View all Workspaces →</a></p>
+    </div>
+  </section>
+
+  <!-- Skills Preview -->
+  <section class="section">
+    <div class="container">
+      <h2>Skills Registry</h2>
+      <p class="text-muted mb-2">Dimension-native capabilities searchable by domain, substrate, scale, horizon, and risk class.</p>
+      
+      <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin: 1.5rem 0;">
+        <span class="badge badge-live">Terrain</span>
+        <span class="badge badge-live">Hazard</span>
+        <span class="badge badge-live">Mobility</span>
+        <span class="badge badge-live">Infrastructure</span>
+        <span class="badge badge-live">Subsurface</span>
+        <span class="badge badge-partial">Satellite</span>
+        <span class="badge badge-partial">Seismic</span>
+        <span class="badge badge-partial">Well</span>
+        <span class="badge badge-not-public">Strategic</span>
+        <span class="badge badge-not-public">Tactical</span>
+      </div>
+      
+      <p><a href="skills/" class="btn btn-secondary">Browse Skills Registry →</a></p>
+    </div>
+  </section>
+
+  <!-- Platform Preview -->
+  <section class="section">
+    <div class="container">
+      <h2>Platform</h2>
+      <p class="text-muted mb-2">Protocol surfaces and integration endpoints for Earth intelligence workflows.</p>
+      
+      <div class="card-grid">
+        <div class="card">
+          <h4>Tools</h4>
+          <p class="text-muted">Model-invoked operations across seven dimensions.</p>
+          <div class="card-meta">Dimension-native</div>
+        </div>
+        <div class="card">
+          <h4>Prompts</h4>
+          <p class="text-muted">User-invoked structured workflows for geological reasoning.</p>
+          <div class="card-meta">Governed workflows</div>
+        </div>
+        <div class="card">
+          <h4>Resources</h4>
+          <p class="text-muted">Ontology, manifests, evidence context, and materials atlas.</p>
+          <div class="card-meta">Reference data</div>
+        </div>
+        <div class="card">
+          <h4>Schemas</h4>
+          <p class="text-muted">Contract Pack v1 — typed interfaces for all surfaces.</p>
+          <div class="card-meta">Type definitions</div>
+        </div>
+        <div class="card">
+          <h4>Endpoints</h4>
+          <p class="text-muted"><code class="text-mono" style="color: var(--color-accent);">/health</code> <code class="text-mono" style="color: var(--color-accent);">/mcp</code> <code class="text-mono" style="color: var(--color-accent);">/profile</code></p>
+          <div class="card-meta">Runtime interfaces</div>
+        </div>
+      </div>
+      
+      <p class="mt-4"><a href="platform/" style="color: var(--color-accent);">Explore Platform →</a></p>
+    </div>
+  </section>
+
+  <!-- Governance Strip -->
+  <section class="governance">
+    <div class="container">
+      <div class="governance-content">
+        <div class="governance-seal">◈</div>
+        <p class="governance-text">GEOX operates under arifOS constitutional floors F1–F13. High-risk or irreversible actions require explicit hold states and human review.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-brand">
+          <strong>GEOX</strong>
+          <span>Dimension-Native Earth Intelligence</span>
+          <br>
+          <span class="text-mono" style="font-size: 0.75rem; color: var(--color-seal);">v2026.04.11-DIMENSION-NATIVE</span>
+          <br>
+          <span class="text-mono" style="font-size: 0.75rem; color: var(--color-text-muted);">Seal: DITEMPA BUKAN DIBERI</span>
+        </div>
+        <div class="footer-links">
+          <div class="footer-column">
+            <h5>Platform</h5>
+            <ul>
+              <li><a href="workspaces/">Workspaces</a></li>
+              <li><a href="skills/">Skills</a></li>
+              <li><a href="wiki/">Wiki</a></li>
+              <li><a href="platform/">Platform</a></li>
+            </ul>
+          </div>
+          <div class="footer-column">
+            <h5>Reference</h5>
+            <ul>
+              <li><a href="scenarios/">Scenarios</a></li>
+              <li><a href="status/">Status</a></li>
+              <li><a href="https://geox.arif-fazil.com/mcp">MCP Endpoint</a></li>
+              <li><a href="https://github.com/ariffazil/GEOX">GitHub</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

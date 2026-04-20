@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GEOX | Map Portal</title>
+    <link rel="stylesheet" href="../css/geox-platform.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css" />
+    <style>
+        :root {
+            --map-height: 72vh;
+        }
+
+        body {
+            background:
+                radial-gradient(ellipse at 20% 80%, rgba(8, 20, 8, 0.9) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 20%, rgba(6, 12, 20, 0.9) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(4, 8, 4, 1) 0%, #050805 100%);
+            background-attachment: fixed;
+        }
+
+        .map-container {
+            display: grid;
+            grid-template-columns: 400px 1fr;
+            gap: 1rem;
+            margin: 2rem 0;
+            min-height: var(--map-height);
+        }
+
+        .sidebar {
+            background: rgba(10, 18, 10, 0.85);
+            border: 1px solid var(--border-color);
+            padding: 1.5rem;
+            overflow-y: auto;
+            max-height: var(--map-height);
+            backdrop-filter: blur(4px);
+        }
+
+        #map {
+            height: var(--map-height);
+            background: #0a1208;
+            border: 1px solid var(--border-color);
+        }
+
+        .coord-display {
+            font-family: var(--font-mono);
+            font-size: 0.82rem;
+            background: rgba(0, 0, 0, 0.4);
+            padding: 0.75rem;
+            margin-bottom: 1rem;
+            border-left: 3px solid #3d5c3d;
+        }
+
+        .tool-section {
+            margin-bottom: 1.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .tool-section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .tool-title {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: #6b9b6b;
+            margin-bottom: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .input-group {
+            margin-bottom: 0.75rem;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 0.72rem;
+            color: var(--muted-color);
+            margin-bottom: 0.25rem;
+            font-family: var(--font-mono);
+        }
+
+        .input-group input,
+        .input-group select {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 0.5rem;
+            font-family: var(--font-mono);
+            font-size: 0.82rem;
+        }
+
+        .input-group input:focus,
+        .input-group select:focus {
+            outline: none;
+            border-color: #3d5c3d;
+        }
+
+        .btn {
+            border: 1px solid #3d5c3d;
+            background: transparent;
+            color: var(--text-color);
+        }
+
+        .btn:hover {
+            background: #3d5c3d;
+            color: #fff;
+        }
+
+        .btn-full {
+            width: 100%;
+            margin-bottom: 0.4rem;
+        }
+
+        .btn-small {
+            padding: 0.35rem 0.7rem;
+            font-size: 0.72rem;
+        }
+
+        .btn-active {
+            background: #3d5c3d;
+        }
+
+        .result-panel {
+            background: rgba(0, 0, 0, 0.4);
+            border-left: 3px solid var(--border-color);
+            padding: 0.75rem;
+            margin-top: 0.75rem;
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            max-height: 160px;
+            overflow-y: auto;
+            display: none;
+            word-break: break-all;
+        }
+
+        .result-panel.show { display: block; }
+        .result-panel.success { border-left-color: #22c55e; }
+        .result-panel.error { border-left-color: #ef4444; }
+        .result-panel.warning { border-left-color: #f59e0b; }
+
+        .layer-toggle {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+            font-size: 0.82rem;
+        }
+
+        .layer-toggle input[type="checkbox"] {
+            accent-color: #3d5c3d;
+        }
+
+        .layer-toggle label {
+            cursor: pointer;
+        }
+
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.6rem 1rem;
+            background: rgba(10, 18, 10, 0.9);
+            border: 1px solid var(--border-color);
+            margin-bottom: 1rem;
+            font-size: 0.78rem;
+            backdrop-filter: blur(4px);
+        }
+
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #22c55e;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        .click-mode {
+            background: rgba(61, 92, 61, 0.1);
+            border: 1px solid #3d5c3d;
+            padding: 0.75rem;
+            margin-bottom: 1rem;
+            font-size: 0.8rem;
+        }
+
+        .click-mode.active {
+            background: rgba(61, 92, 61, 0.25);
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.4rem;
+            font-size: 0.78rem;
+        }
+
+        .legend-marker {
+            width: 12px;
+            height: 12px;
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+        .map-overlay {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(10, 18, 10, 0.9);
+            padding: 0.6rem 0.8rem;
+            z-index: 1000;
+            font-family: var(--font-mono);
+            font-size: 0.72rem;
+            backdrop-filter: blur(4px);
+            border: 1px solid var(--border-color);
+        }
+
+        .draw-controls {
+            display: flex;
+            gap: 0.4rem;
+            flex-wrap: wrap;
+        }
+
+        .loading-msg {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: #f59e0b;
+            margin-bottom: 0.5rem;
+        }
+
+        .leaflet-container {
+            background: #0a1208;
+        }
+
+        .leaflet-popup-content-wrapper {
+            background: rgba(10, 18, 10, 0.97);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            border-radius: 0;
+            backdrop-filter: blur(4px);
+        }
+
+        .leaflet-popup-tip {
+            background: rgba(10, 18, 10, 0.97);
+            border: 1px solid var(--border-color);
+        }
+
+        .leaflet-draw-toolbar a {
+            background-color: rgba(10, 18, 10, 0.9);
+        }
+
+        .leaflet-bar {
+            border: 1px solid var(--border-color);
+        }
+
+        .leaflet-bar a {
+            background-color: rgba(10, 18, 10, 0.9);
+            color: var(--text-color);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .leaflet-bar a:hover {
+            background-color: #3d5c3d;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="mono" style="margin-bottom: 0.5rem; font-size: 0.7rem; color: var(--muted-color);">
+                GEOX_MAP_PORTAL // SPATIAL_INTERFACE_V2
+            </div>
+            <nav>
+                <a href="../index.html">Home</a>
+                <a href="../platform/index.html">Platform</a>
+                <a href="../workspaces/index.html">Workspaces</a>
+                <a href="../status/index.html">Status</a>
+            </nav>
+        </header>
+
+        <section style="margin: 1.5rem 0;">
+            <h1>MAP PORTAL</h1>
+            <p style="color: var(--muted-color);">
+                Spatial interface — layered geology, tectonics, and subsurface data over satellite imagery.
+            </p>
+        </section>
+
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <div class="status-item">
+                <span class="status-indicator"></span>
+                <span id="map-status">INITIALIZING</span>
+            </div>
+            <div class="status-item mono" id="cursor-coords">Cursor: —</div>
+            <div class="status-item mono" id="click-coords">Click: —</div>
+            <div class="status-item mono" id="layers-loaded">Layers: —</div>
+        </div>
+
+        <!-- Main Interface -->
+        <div class="map-container">
+            <!-- Sidebar -->
+            <div class="sidebar">
+
+                <!-- Coordinates -->
+                <div class="coord-display">
+                    <div style="margin-bottom: 0.5rem; font-size: 0.7rem; color: #6b9b6b;">SELECTED COORDINATES</div>
+                    <div id="selected-lat" style="font-family: var(--font-mono);">Lat: —</div>
+                    <div id="selected-lon" style="font-family: var(--font-mono);">Lon: —</div>
+                    <div style="font-family: var(--font-mono); margin-top: 0.5rem; color: var(--muted-color);">EPSG: 4326 WGS84</div>
+                </div>
+
+                <!-- Click Mode -->
+                <div class="click-mode" id="click-mode">
+                    <strong>MODE:</strong> <span id="click-mode-text">Verify Coordinates</span>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="tool-section">
+                    <div class="tool-title">Quick Actions</div>
+                    <div class="draw-controls">
+                        <button class="btn btn-small" onclick="setClickMode('verify')">✓ Verify</button>
+                        <button class="btn btn-small" onclick="setClickMode('context')">⊡ Context</button>
+                        <button class="btn btn-small" onclick="setClickMode('signals')">📡 Signals</button>
+                    </div>
+                    <div style="margin-top: 0.5rem;">
+                        <button class="btn btn-full btn-small" onclick="clearMarkers()">✕ Clear Markers</button>
+                    </div>
+                </div>
+
+                <!-- Draw & Measure -->
+                <div class="tool-section">
+                    <div class="tool-title">Draw &amp; Measure</div>
+                    <div class="draw-controls">
+                        <button class="btn btn-small" onclick="enableDraw('marker')" title="Drop marker">📍 Marker</button>
+                        <button class="btn btn-small" onclick="enableDraw('polyline')" title="Draw line">📏 Line</button>
+                        <button class="btn btn-small" onclick="enableDraw('polygon')" title="Draw area">🔷 Area</button>
+                    </div>
+                    <div style="margin-top: 0.5rem;">
+                        <button class="btn btn-full btn-small" onclick="clearDrawings()">✕ Clear Drawings</button>
+                    </div>
+                    <div id="measure-result" class="result-panel" style="margin-top: 0.5rem;"></div>
+                </div>
+
+                <!-- Coordinate Transform -->
+                <div class="tool-section">
+                    <div class="tool-title">Transform Coordinates</div>
+                    <div class="input-group">
+                        <label>X / Lon</label>
+                        <input type="number" id="transform-x" step="any" placeholder="0.0">
+                    </div>
+                    <div class="input-group">
+                        <label>Y / Lat</label>
+                        <input type="number" id="transform-y" step="any" placeholder="0.0">
+                    </div>
+                    <div class="input-group">
+                        <label>From EPSG</label>
+                        <input type="number" id="from-epsg" value="4326">
+                    </div>
+                    <div class="input-group">
+                        <label>To EPSG</label>
+                        <input type="number" id="to-epsg" value="32650">
+                    </div>
+                    <button class="btn btn-full btn-small" onclick="transformCoords()">Transform</button>
+                    <div id="transform-result" class="result-panel"></div>
+                </div>
+
+                <!-- Layers -->
+                <div class="tool-section">
+                    <div class="tool-title">Map Layers</div>
+                    <div class="layer-toggle">
+                        <input type="checkbox" id="layer-osm" checked onchange="toggleLayer('osm')">
+                        <label for="layer-osm">OpenStreetMap</label>
+                    </div>
+                    <div class="layer-toggle">
+                        <input type="checkbox" id="layer-satellite" onchange="toggleLayer('satellite')">
+                        <label for="layer-satellite">Satellite Imagery</label>
+                    </div>
+                    <div class="layer-toggle">
+                        <input type="checkbox" id="layer-geology" onchange="toggleLayer('geology')">
+                        <label for="layer-geology">Paleogeography (MacroSTRAT)</label>
+                    </div>
+                    <div class="layer-toggle">
+                        <input type="checkbox" id="layer-faults" onchange="toggleLayer('faults')">
+                        <label for="layer-faults">Earthquakes M4.5+ (USGS)</label>
+                    </div>
+                    <div class="layer-toggle">
+                        <input type="checkbox" id="layer-markers" checked onchange="toggleLayer('markers')">
+                        <label for="layer-markers">Query Markers</label>
+                    </div>
+                </div>
+
+                <!-- Legend -->
+                <div class="tool-section">
+                    <div class="tool-title">Legend</div>
+                    <div class="legend-item">
+                        <div class="legend-marker" style="background: #22c55e;"></div>
+                        <span>Valid Coordinate</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-marker" style="background: #ef4444;"></div>
+                        <span>Invalid / Error</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-marker" style="background: #f59e0b;"></div>
+                        <span>Context Point</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-marker" style="background: #3b82f6;"></div>
+                        <span>Signal Source</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-marker" style="background: #a855f7;"></div>
+                        <span>Earthquake M4.5+</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-marker" style="background: #06b6d4; opacity: 0.7;"></div>
+                        <span>Paleogeography</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Map -->
+            <div style="position: relative;">
+                <div id="map"></div>
+                <div class="map-overlay">
+                    <div>ZOOM: <span id="zoom-level">5</span></div>
+                    <div id="active-layer-count">Layers: 0</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="global-result" class="result-panel" style="margin-top: 1rem; max-height: 250px;"></div>
+
+        <footer style="margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--border-color);">
+            <div class="governance">DITEMPA BUKAN DIBERI</div>
+            <div style="display: flex; justify-content: space-between; margin-top: 1rem; font-size: 0.78rem; color: var(--muted-color);">
+                <span>GEOX MAP PORTAL — Spatial reasoning interface</span>
+                <span class="mono">EPSG:4326 WGS84</span>
+            </div>
+        </footer>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
+    <script>
+    const API_BASE = '';
+    let map, drawnItems;
+    let markers = [];
+    let layers = {};
+    let currentClickMode = 'verify';
+    let selectedCoords = null;
+    let drawHandler = null;
+    let layersCount = 0;
+
+    function initMap() {
+        map = L.map('map').setView([4.5, 114.5], 5);
+
+        layers.osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap',
+            maxZoom: 19
+        }).addTo(map);
+
+        layers.satellite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+            attribution: '© Esri',
+            maxZoom: 18
+        });
+
+        layers.markers = L.layerGroup().addTo(map);
+        layers.faults = L.layerGroup();
+        layers.geology = L.layerGroup();
+
+        drawnItems = new L.FeatureGroup();
+        map.addLayer(drawnItems);
+
+        map.on('mousemove', (e) => {
+            document.getElementById('cursor-coords').textContent =
+                `Cursor: ${e.latlng.lat.toFixed(5)}, ${e.latlng.lng.toFixed(5)}`;
+        });
+
+        map.on('click', (e) => {
+            handleMapClick(e.latlng);
+        });
+
+        map.on('zoomend', () => {
+            document.getElementById('zoom-level').textContent = map.getZoom();
+            updateLayerCount();
+        });
+
+        selectedCoords = { lat: 4.5, lon: 114.5 };
+        updateSelectedDisplay();
+
+        document.getElementById('map-status').textContent = 'READY';
+        loadEarthquakeLayer();
+        updateLayerCount();
+    }
+
+    async function loadEarthquakeLayer() {
+        document.getElementById('map-status').textContent = 'LOADING QUAKES...';
+        try {
+            const res = await fetch('https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/4.5_month.geojson');
+            const data = await res.json();
+
+            data.features.forEach(q => {
+                const [lon, lat] = q.geometry.coordinates;
+                const mag = q.properties.mag;
+                const place = q.properties.place || 'Unknown';
+                const color = mag >= 6 ? '#ef4444' : mag >= 5 ? '#f59e0b' : '#a855f7';
+
+                L.circleMarker([lat, lon], {
+                    radius: Math.max(4, mag * 1.5),
+                    fillColor: color,
+                    color: '#000',
+                    weight: 1,
+                    opacity: 0.9,
+                    fillOpacity: 0.7
+                }).bindPopup(`
+                    <strong style="color:${color}">M${mag} — ${place}</strong><br>
+                    Lat: ${lat.toFixed(4)}<br>
+                    Lon: ${lon.toFixed(4)}
+                `).addTo(layers.faults);
+            });
+
+            document.getElementById('map-status').textContent = 'LAYERS LOADED';
+        } catch (e) {
+            document.getElementById('map-status').textContent = 'QUAKE LOAD FAILED';
+        }
+    }
+
+    async function loadPaleogeography() {
+        const panel = document.getElementById('global-result');
+        panel.textContent = 'Loading paleogeography... (this may take a moment)';
+        panel.className = 'result-panel show warning';
+
+        try {
+            const res = await fetch('https://macrostrat.org/api/v2/paleogeography?age=50');
+            const data = await res.json();
+            const fc = data.success.data;
+
+            if (fc && fc.features) {
+                fc.features.forEach(feat => {
+                    if (feat.geometry) {
+                        L.geoJSON(feat, {
+                            style: {
+                                color: '#06b6d4',
+                                weight: 1,
+                                opacity: 0.6,
+                                fillColor: '#06b6d4',
+                                fillOpacity: 0.15
+                            }
+                        }).bindPopup(`Paleogeography — Age: ~50Ma`).addTo(layers.geology);
+                    }
+                });
+                panel.textContent = `Paleogeography loaded: ${fc.features.length} features`;
+                panel.className = 'result-panel show success';
+            }
+        } catch (e) {
+            panel.textContent = `Paleogeography error: ${e.message}`;
+            panel.className = 'result-panel show error';
+        }
+    }
+
+    function handleMapClick(latlng) {
+        selectedCoords = { lat: latlng.lat, lon: latlng.lng };
+        updateSelectedDisplay();
+
+        document.getElementById('transform-x').value = latlng.lng.toFixed(6);
+        document.getElementById('transform-y').value = latlng.lat.toFixed(6);
+        document.getElementById('click-coords').textContent =
+            `Click: ${latlng.lat.toFixed(5)}, ${latlng.lng.toFixed(5)}`;
+
+        if (drawHandler) return; // don't fire query while drawing
+
+        switch (currentClickMode) {
+            case 'verify': verifyCoordinates(latlng.lng, latlng.lat); break;
+            case 'context': getContextSummary(latlng.lat, latlng.lng); break;
+            case 'signals': getEarthSignals(latlng.lat, latlng.lng); break;
+        }
+    }
+
+    function updateSelectedDisplay() {
+        if (!selectedCoords) return;
+        document.getElementById('selected-lat').textContent = `Lat: ${selectedCoords.lat.toFixed(6)}`;
+        document.getElementById('selected-lon').textContent = `Lon: ${selectedCoords.lon.toFixed(6)}`;
+    }
+
+    function setClickMode(mode) {
+        currentClickMode = mode;
+        if (drawHandler) {
+            map.off('click', handleMapClick);
+            map.on('click', handleMapClick);
+            drawHandler = null;
+        }
+        const names = { verify: 'Verify Coordinates', context: 'Get Context Summary', signals: 'Earth Signals' };
+        const el = document.getElementById('click-mode');
+        document.getElementById('click-mode-text').textContent = names[mode] || mode;
+        el.classList.add('active');
+        setTimeout(() => el.classList.remove('active'), 300);
+    }
+
+    function enableDraw(type) {
+        if (drawHandler) {
+            map.off('click', handleMapClick);
+            drawHandler = null;
+        }
+
+        const drawFn = type === 'marker'
+            ? new L.Draw.Marker(map)
+            : type === 'polyline'
+            ? new L.Draw.Polyline(map)
+            : new L.Draw.Polygon(map);
+
+        drawFn.enable();
+        drawHandler = drawFn;
+
+        map.on('draw:created', (e) => {
+            const layer = e.layer;
+            drawnItems.addLayer(layer);
+
+            if (type === 'marker') {
+                // handled by draw:marker
+            } else if (type === 'polyline') {
+                const latlngs = layer.getLatLngs();
+                let dist = 0;
+                for (let i = 0; i < latlngs.length - 1; i++) {
+                    dist += latlngs[i].distanceTo(latlngs[i + 1]);
+                }
+                showMeasure(`${(dist / 1000).toFixed(2)} km total length`);
+            } else if (type === 'polygon') {
+                const area = L.GeometryUtil.geodesicArea(layer.getLatLngs()[0]);
+                showMeasure(`${(area / 1e6).toFixed(2)} km² area`);
+            }
+
+            layer.bindPopup(`Draw: ${type}`).addTo(drawnItems);
+            map.off('click', handleMapClick);
+            map.on('click', handleMapClick);
+            drawHandler = null;
+        });
+    }
+
+    function showMeasure(text) {
+        const el = document.getElementById('measure-result');
+        el.textContent = text;
+        el.className = 'result-panel show success';
+    }
+
+    function clearDrawings() {
+        drawnItems.clearLayers();
+        document.getElementById('measure-result').className = 'result-panel';
+    }
+
+    function toggleLayer(name) {
+        const checkbox = document.getElementById(`layer-${name}`);
+        if (!checkbox) return;
+
+        if (name === 'markers') {
+            checkbox.checked ? map.addLayer(layers.markers) : map.removeLayer(layers.markers);
+        } else if (name === 'satellite') {
+            if (checkbox.checked) {
+                map.addLayer(layers.satellite);
+                if (map.hasLayer(layers.osm)) map.removeLayer(layers.osm);
+            } else {
+                map.removeLayer(layers.satellite);
+                if (!map.hasLayer(layers.osm)) layers.osm.addTo(map);
+            }
+        } else if (name === 'osm') {
+            if (checkbox.checked) {
+                map.addLayer(layers.osm);
+                if (map.hasLayer(layers.satellite)) map.removeLayer(layers.satellite);
+            }
+        } else if (name === 'faults') {
+            if (checkbox.checked) {
+                map.addLayer(layers.faults);
+            } else {
+                map.removeLayer(layers.faults);
+            }
+        } else if (name === 'geology') {
+            if (checkbox.checked) {
+                if (!map.hasLayer(layers.geology) || layers.geology.getLayers().length === 0) {
+                    loadPaleogeography();
+                }
+                map.addLayer(layers.geology);
+            } else {
+                map.removeLayer(layers.geology);
+            }
+        }
+
+        updateLayerCount();
+    }
+
+    function updateLayerCount() {
+        let count = 0;
+        if (map.hasLayer(layers.osm)) count++;
+        if (map.hasLayer(layers.satellite)) count++;
+        if (map.hasLayer(layers.faults)) count++;
+        if (map.hasLayer(layers.geology)) count++;
+        if (map.hasLayer(layers.markers)) count++;
+        document.getElementById('layers-loaded').textContent = `Layers: ${count}`;
+        document.getElementById('active-layer-count').textContent = `Layers: ${count}`;
+    }
+
+    function clearMarkers() {
+        layers.markers.clearLayers();
+        markers = [];
+    }
+
+    function addMarker(lat, lon, title, color, popup) {
+        const m = L.circleMarker([lat, lon], {
+            radius: 8, fillColor: color, color: '#000', weight: 2, opacity: 1, fillOpacity: 0.8
+        }).bindPopup(popup || title).addTo(layers.markers);
+        markers.push(m);
+        return m;
+    }
+
+    async function callTool(name, params) {
+        const res = await fetch(`${API_BASE}/mcp`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ jsonrpc: '2.0', id: Date.now(), method: 'tools/call', params: { name, arguments: params } })
+        });
+        const data = await res.json();
+        if (data.error) throw new Error(data.error.message);
+        let r = data.result;
+        if (r && r.content && r.content[0] && r.content[0].text) {
+            try { r = JSON.parse(r.content[0].text); } catch {}
+        }
+        return r;
+    }
+
+    async function verifyCoordinates(x, y) {
+        document.getElementById('map-status').textContent = 'VERIFYING...';
+        try {
+            const r = await callTool('map_verify_coordinates', { x, y, epsg: 4326 });
+            const valid = r.data?.is_valid || r.is_valid;
+            addMarker(y, x, 'Verified', valid ? '#22c55e' : '#ef4444',
+                `Coordinate Verification<br>Lat: ${y.toFixed(5)}<br>Lon: ${x.toFixed(5)}<br>Valid: ${valid ? '✓ YES' : '✗ NO'}`);
+            showResult(JSON.stringify(r, null, 2), 'success');
+        } catch (e) {
+            addMarker(y, x, 'Error', '#ef4444', `Error: ${e.message}`);
+            showResult(`ERROR: ${e.message}`, 'error');
+        }
+        document.getElementById('map-status').textContent = 'READY';
+    }
+
+    async function getContextSummary(lat, lon) {
+        document.getElementById('map-status').textContent = 'QUERYING...';
+        try {
+            const r = await callTool('map_get_context_summary', { bounds: [[lon - 0.1, lat - 0.1], [lon + 0.1, lat + 0.1]] });
+            addMarker(lat, lon, 'Context', '#f59e0b', `Context Summary<br>${lat.toFixed(3)}, ${lon.toFixed(3)}`);
+            showResult(JSON.stringify(r, null, 2), 'success');
+        } catch (e) {
+            showResult(`ERROR: ${e.message}`, 'error');
+        }
+        document.getElementById('map-status').textContent = 'READY';
+    }
+
+    async function getEarthSignals(lat, lon) {
+        document.getElementById('map-status').textContent = 'FETCHING SIGNALS...';
+        try {
+            const r = await callTool('map_earth_signals', { location_id: `loc_${lat.toFixed(4)}_${lon.toFixed(4)}` });
+            addMarker(lat, lon, 'Signals', '#3b82f6', `Earth Signals<br>${lat.toFixed(5)}, ${lon.toFixed(5)}`);
+            showResult(JSON.stringify(r, null, 2), 'success');
+        } catch (e) {
+            showResult(`ERROR: ${e.message}`, 'error');
+        }
+        document.getElementById('map-status').textContent = 'READY';
+    }
+
+    async function transformCoords() {
+        const x = parseFloat(document.getElementById('transform-x').value);
+        const y = parseFloat(document.getElementById('transform-y').value);
+        const f = parseInt(document.getElementById('from-epsg').value);
+        const t = parseInt(document.getElementById('to-epsg').value);
+        if (isNaN(x) || isNaN(y)) {
+            showResult('ERROR: invalid coordinates', 'error');
+            return;
+        }
+        document.getElementById('map-status').textContent = 'TRANSFORMING...';
+        try {
+            const r = await callTool('map_transform_coordinates', { x, y, from_epsg: f, to_epsg: t });
+            const el = document.getElementById('transform-result');
+            el.textContent = JSON.stringify(r, null, 2);
+            el.className = 'result-panel show success';
+            showResult(JSON.stringify(r, null, 2), 'success');
+        } catch (e) {
+            const el = document.getElementById('transform-result');
+            el.textContent = `ERROR: ${e.message}`;
+            el.className = 'result-panel show error';
+            showResult(`ERROR: ${e.message}`, 'error');
+        }
+        document.getElementById('map-status').textContent = 'READY';
+    }
+
+    function showResult(text, type) {
+        const p = document.getElementById('global-result');
+        p.textContent = text;
+        p.className = `result-panel show ${type}`;
+    }
+
+    document.addEventListener('DOMContentLoaded', initMap);
+    </script>
+</body>
+</html>
