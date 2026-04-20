@@ -284,7 +284,7 @@ class RollbackVerifier:
         # 2. Docker rollback
         print("\n[2/3] Docker rollback...")
         rc, _, stderr = self._run_cmd([
-            "docker", "tag", f"arifos:{target}", "arifosmcp:latest"
+            "docker", "tag", f"arifos:{target}", "arifos:latest"
         ])
         if rc == 0:
             print("  ✅ Docker image rolled back")

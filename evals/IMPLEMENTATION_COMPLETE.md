@@ -249,7 +249,7 @@ await arifos_mind(mode="merge", thinking_session_id=session_id,
 ## Files Modified/Created
 
 ```
-arifosmcp/
+arifos/
 ├── runtime/
 │   ├── thinking/
 │   │   ├── __init__.py              [NEW]

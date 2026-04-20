@@ -100,7 +100,7 @@
 - **Issue:** Same RuntimeEnvelope interface problem
 
 #### arifos_kernel — Score: 50.0
-- **Error:** `cannot import name 'get_tool_handler' from 'arifosmcp.runtime.tools_hardened_dispatch'`
+- **Error:** `cannot import name 'get_tool_handler' from 'arifos.runtime.tools_hardened_dispatch'`
 - **Verdict:** VOID
 - **Floors Failed:** F4 (ΔS Clarity)
 - **Issue:** Missing import in hardened dispatch layer

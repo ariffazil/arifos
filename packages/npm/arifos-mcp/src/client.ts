@@ -43,7 +43,7 @@ function createTransport(config: ArifOSClientConfig): Transport {
       }
       return new StdioClientTransport({
         command: "python",
-        args: ["-m", "arifosmcp.runtime", "stdio"],
+        args: ["-m", "arifos.runtime", "stdio"],
         env: config.env,
       });
     }

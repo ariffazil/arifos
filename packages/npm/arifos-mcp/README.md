@@ -3,7 +3,7 @@
 **L2 Skills Adapter** — TypeScript client for the arifOS Constitutional AI Governance System.
 
 > **F4 CLARITY:** This package is a **CABLE**, not the **KERNEL**.  
-> Governance authority resides exclusively in the PyPI [`arifosmcp`](https://pypi.org/project/arifos/) package.  
+> Governance authority resides exclusively in the PyPI [`arifos`](https://pypi.org/project/arifos/) package.  
 > This npm package only provides TypeScript types and a thin MCP transport client.
 
 ---
@@ -89,9 +89,9 @@ await client.disconnect();
 └──────────────┼──────────────────────┘
                │ MCP Protocol
 ┌──────────────▼──────────────────────┐
-│  arifosmcp (PyPI) — THE KERNEL         │
+│  arifos (PyPI) — THE KERNEL          │
 │  ├── core/ (13 Floors, Trinity)     │
-│  ├── arifosmcp.runtime/ (MCP server)   │
+│  ├── arifos.runtime/ (MCP server)    │
 │  └── VAULT999 (immutable ledger)    │
 └─────────────────────────────────────┘
 ```
@@ -159,7 +159,7 @@ import type {
 
 **Notes:**
 - All versions tested against production VPS endpoint (`arifos.arif-fazil.com`)
-- `stdio` transport tested locally with `arifosmcp>=2026.2.17`
+- `stdio` transport tested locally with `arifos>=2026.2.17`
 - Public contract authority comes from the generated runtime registry, not this README alone
 
 ---

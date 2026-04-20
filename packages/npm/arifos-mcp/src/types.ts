@@ -2,7 +2,7 @@
  * @arifos/mcp - Public Contract Types
  *
  * Mirrors the generated 8-tool public contract from
- * arifosmcp.runtime.public_registry for model-agnostic clients.
+ * arifos.runtime.public_registry for model-agnostic clients.
  */
 
 export const PUBLIC_TOOL_NAMES = [

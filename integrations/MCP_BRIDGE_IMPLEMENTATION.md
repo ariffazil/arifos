@@ -51,7 +51,7 @@ This document summarizes the implementation of MCP bridge layers that position e
 
 **Usage**:
 ```python
-from arifosmcp.integrations.memory_bridge import kg_upsert_entity
+from arifos.integrations.memory_bridge import kg_upsert_entity
 
 # High confidence entity (succeeds)
 success, entity_id = await kg_upsert_entity(
@@ -84,7 +84,7 @@ success, error = await kg_upsert_entity(
 
 **Usage**:
 ```python
-from arifosmcp.integrations.sequential_mcp_bridge import (
+from arifos.integrations.sequential_mcp_bridge import (
     run_external_sequence,
     compare_native_vs_mcp
 )
@@ -116,13 +116,13 @@ comparison = await compare_native_vs_mcp(
 **CLI**:
 ```bash
 # Sequential thinking only
-python arifosmcp/evals/sequential_thinking_runner.py
+python arifos/evals/sequential_thinking_runner.py
 
 # Include memory bridge
-python arifosmcp/evals/sequential_thinking_runner.py --memory-bridge
+python arifos/evals/sequential_thinking_runner.py --memory-bridge
 
 # Run all evals
-python arifosmcp/evals/sequential_thinking_runner.py --all
+python arifos/evals/sequential_thinking_runner.py --all
 ```
 
 ### 4. `breach_test_runner.py`
@@ -137,8 +137,8 @@ python arifosmcp/evals/sequential_thinking_runner.py --all
 
 **CLI**:
 ```bash
-python -m arifosmcp.evals.breach_test_runner \
-    --config arifosmcp/evals/constitutional_breach_tests.yaml
+python -m arifos.evals.breach_test_runner \
+    --config arifos/evals/constitutional_breach_tests.yaml
 ```
 
 ### 5. `.github/workflows/constitutional-eval.yml`
@@ -212,5 +212,5 @@ Sequential MCP can be delisted when:
 
 - `000/CONSTITUTION.md` - Constitutional floors F1-F13
 - `888_APEX.md` - Judgment engine specification
-- `arifosmcp/runtime/thinking/session.py` - Native thinking implementation
-- `arifosmcp/runtime/tools.py` - `arifos_mind` entry points
+- `arifos/runtime/thinking/session.py` - Native thinking implementation
+- `arifos/runtime/tools.py` - `arifos_mind` entry points

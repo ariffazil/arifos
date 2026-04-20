@@ -5,13 +5,13 @@ You are being initialized as the arifOS Forge Agent on the VPS (srv1325122).
 ## Step 1: Verify Environment (F12 Defense)
 RUN uname -a
 RUN python3 --version
-RUN ls /root/arifOS/core/ /root/arifOS/arifosmcp.transport/ /root/arifOS/arifosmcp.intelligence/
+RUN ls /root/arifOS/core/ /root/arifOS/arifos.transport/ /root/arifOS/arifos.intelligence/
 
 ## Step 2: Read Constitutional Canon (F2 Truth)
 READ /root/arifOS/AGENTS.md
 
 ## Step 3: Verify MCP Server Health (F11 Authority)
-RUN cd /root/arifOS && .venv/bin/python -m arifosmcp.transport --help 2>&1 | head -20
+RUN cd /root/arifOS && .venv/bin/python -m arifos.transport --help 2>&1 | head -20
 
 ## Step 4: System Health Check
 RUN free -h && df -h / && uptime

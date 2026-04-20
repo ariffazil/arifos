@@ -177,7 +177,7 @@ pip install arifos[all]</code></pre>
     <div class="code-block-wrapper">
       <div class="code-block-header"><span>bash</span><button class="copy-btn">Copy</button></div>
       <pre><code class="language-bash"># Pull the official image
-docker pull ghcr.io/ariffazil/arifosmcp:latest
+docker pull ghcr.io/ariffazil/arifos:latest
 
 # Run with environment variables
 docker run -d \
@@ -185,7 +185,7 @@ docker run -d \
   -p 8080:8080 \
   -e BRAVE_API_KEY=your_key_here \
   -e ARIFOS_LOG_LEVEL=INFO \
-  ghcr.io/ariffazil/arifosmcp:latest</code></pre>
+  ghcr.io/ariffazil/arifos:latest</code></pre>
     </div>
 
     <h2 id="quick-start">Quick Start</h2>
@@ -218,7 +218,7 @@ uvicorn arifosmcp.server:app --host 0.0.0.0 --port 8080</code></pre>
       <div class="code-block-header"><span>bash</span><button class="copy-btn">Copy</button></div>
       <pre><code class="language-bash">docker run -p 8080:8080 \
   -e BRAVE_API_KEY=your_key \
-  ghcr.io/ariffazil/arifosmcp:latest</code></pre>
+  ghcr.io/ariffazil/arifos:latest</code></pre>
     </div>
 
     <h3>Your First Query</h3>

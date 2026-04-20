@@ -87,7 +87,7 @@ class MemoryEngine:
         qdrant_id: str,
         vector: List[float] | None,
     ) -> None:
-        """Write memory record to Supabase arifosmcp_memory_records.
+        """Write memory record to Supabase arifos_memory_records.
 
         Dual-write target: Supabase is canonical cloud store.
         Local postgres + Qdrant remain as VPS air-gap fallback.
@@ -110,7 +110,7 @@ class MemoryEngine:
                 "version": 1,
                 "revocation_possible": tier not in ("sacred", "canon"),
             }
-            self._supabase_client.table("arifosmcp_memory_records").insert(record).execute()
+            self._supabase_client.table("arifos_memory_records").insert(record).execute()
             logger.info(f"Supabase memory write OK: {memory_id}")
         except Exception as e:
             logger.warning(f"Supabase memory write failed (non-fatal): {e}")
@@ -310,7 +310,7 @@ class MemoryEngine:
         if not self._supabase_client:
             return
         try:
-            self._supabase_client.table("arifosmcp_memory_records").update(
+            self._supabase_client.table("arifos_memory_records").update(
                 {"status": "quarantined"}
             ).eq("memory_id", memory_id).execute()
         except Exception as e:

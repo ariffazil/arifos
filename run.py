@@ -4,9 +4,9 @@ arifOS Federation — MCP Server Entry Point
 Run individual agents or unified server.
 
 Usage:
-    python -m arifOS.arifosmcp.run --agent P
-    python -m arifOS.arifosmcp.run --agents P,T,V
-    python -m arifOS.arifosmcp.run --catalog
+    python run.py --agent P
+    python run.py --agents P,T,V
+    python run.py --catalog
 """
 
 from __future__ import annotations
@@ -104,9 +104,9 @@ def main():
     if "--help" in args or "-h" in args:
         print(__doc__)
         print("\nExamples:")
-        print("  python -m arifOS.arifosmcp.run --agent P")
-        print("  python -m arifOS.arifosmcp.run --agents P,T,V")
-        print("  python -m arifOS.arifosmcp.run --catalog")
+        print("  python run.py --agent P")
+        print("  python run.py --agents P,T,V")
+        print("  python run.py --catalog")
         return 0
 
     # Parse --agent or --agents

@@ -118,7 +118,7 @@ curl https://mcp.arif-fazil.com/health
 
 ## Status
 
-- Package: `arifos` (was `arifosmcp`)
+- Package: `arifos`
 - Core imports: zero FastMCP
 - SEAL authority: `888_JUDGE` only
 - Transport: MCP via `adapters/mcp/`, interchangeable
