@@ -1,0 +1,157 @@
+<!-- GEOX Command Center - Navigation Component -->
+<!-- Copy this component into your page body, at the top -->
+
+<header class="fixed top-0 left-0 right-0 z-50 h-16 border-b border-[#1E293B]" style="background: rgba(10, 12, 14, 0.95); backdrop-filter: blur(12px);">
+  <div class="container h-full flex items-center justify-between">
+    
+    <!-- Logo Section -->
+    <a href="index.html" class="flex items-center gap-3">
+      <div class="w-8 h-8 rounded-lg bg-[#F59E0B] flex items-center justify-center">
+        <i data-lucide="hexagon" class="w-5 h-5 text-[#0A0C0E]"></i>
+      </div>
+      <div class="flex flex-col">
+        <span class="text-lg font-semibold text-[#F8FAFC] leading-tight">GEOX</span>
+        <span class="text-xs text-[#64748B] leading-tight">Command Center</span>
+      </div>
+    </a>
+
+    <!-- Desktop Navigation -->
+    <nav class="hidden md:flex items-center gap-1">
+      <!-- Home Link -->
+      <a href="index.html" class="nav-link" data-nav="index">
+        <i data-lucide="home" class="w-4 h-4"></i>
+        <span>Home</span>
+      </a>
+
+      <!-- Tools Dropdown -->
+      <div class="dropdown relative">
+        <button class="nav-link" data-nav="tools" onclick="toggleDropdown(event)">
+          <i data-lucide="wrench" class="w-4 h-4"></i>
+          <span>Tools</span>
+          <i data-lucide="chevron-down" class="w-4 h-4 ml-1 transition-transform" id="tools-chevron"></i>
+        </button>
+        <div class="dropdown-menu" id="tools-dropdown">
+          <a href="ac-risk.html" class="dropdown-item">
+            <i data-lucide="calculator" class="w-4 h-4"></i>
+            <span>AC Risk Calculator</span>
+          </a>
+          <a href="ratlas.html" class="dropdown-item">
+            <i data-lucide="database" class="w-4 h-4"></i>
+            <span>RATLAS Browser</span>
+          </a>
+          <a href="basin-explorer.html" class="dropdown-item">
+            <i data-lucide="mountain" class="w-4 h-4"></i>
+            <span>Basin Explorer</span>
+          </a>
+          <a href="seismic-viewer.html" class="dropdown-item">
+            <i data-lucide="activity" class="w-4 h-4"></i>
+            <span>Seismic Viewer</span>
+          </a>
+          <a href="well-context-desk.html" class="dropdown-item">
+            <i data-lucide="align-left" class="w-4 h-4"></i>
+            <span>Well Context Desk</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- About Link -->
+      <a href="#about" class="nav-link" data-nav="about">
+        <i data-lucide="info" class="w-4 h-4"></i>
+        <span>About</span>
+      </a>
+
+      <!-- Docs Link (External) -->
+      <a href="https://docs.geox.dev" target="_blank" rel="noopener noreferrer" class="nav-link">
+        <i data-lucide="book-open" class="w-4 h-4"></i>
+        <span>Docs</span>
+        <i data-lucide="external-link" class="w-3 h-3 ml-1 opacity-50"></i>
+      </a>
+    </nav>
+
+    <!-- Right Section: System Status -->
+    <div class="flex items-center gap-4">
+      <!-- System Status Indicator -->
+      <div class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#111418] border border-[#1E293B]">
+        <span class="status-dot status-online"></span>
+        <span class="text-xs font-medium text-[#10B981]">ONLINE</span>
+      </div>
+
+      <!-- Mobile Menu Toggle -->
+      <button 
+        class="md:hidden p-2 rounded-lg text-[#94A3B8] hover:text-[#F8FAFC] hover:bg-white/5 transition-colors"
+        onclick="toggleMobileMenu()"
+        aria-label="Toggle menu"
+        aria-expanded="false"
+        id="mobile-menu-toggle"
+      >
+        <i data-lucide="menu" class="w-6 h-6" id="menu-icon-open"></i>
+        <i data-lucide="x" class="w-6 h-6 hidden" id="menu-icon-close"></i>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- Mobile Menu -->
+<div class="mobile-menu" id="mobile-menu">
+  <nav class="flex flex-col gap-2">
+    <!-- Home -->
+    <a href="index.html" class="flex items-center gap-3 p-3 rounded-lg text-[#94A3B8] hover:text-[#F8FAFC] hover:bg-white/5 transition-colors" data-nav="index">
+      <i data-lucide="home" class="w-5 h-5"></i>
+      <span class="font-medium">Home</span>
+    </a>
+
+    <!-- Tools Section -->
+    <div class="p-3">
+      <div class="flex items-center gap-3 text-[#64748B] mb-2">
+        <i data-lucide="wrench" class="w-5 h-5"></i>
+        <span class="font-medium text-sm uppercase tracking-wider">Tools</span>
+      </div>
+      <div class="flex flex-col gap-1 ml-2 pl-4 border-l border-[#1E293B]">
+        <a href="ac-risk.html" class="flex items-center gap-2 p-2 rounded-lg text-[#94A3B8] hover:text-[#F8FAFC] hover:bg-white/5 transition-colors text-sm" data-nav="ac-risk">
+          <i data-lucide="calculator" class="w-4 h-4"></i>
+          <span>AC Risk Calculator</span>
+        </a>
+        <a href="ratlas.html" class="flex items-center gap-2 p-2 rounded-lg text-[#94A3B8] hover:text-[#F8FAFC] hover:bg-white/5 transition-colors text-sm" data-nav="ratlas">
+          <i data-lucide="database" class="w-4 h-4"></i>
+          <span>RATLAS Browser</span>
+        </a>
+        <a href="basin-explorer.html" class="flex items-center gap-2 p-2 rounded-lg text-[#94A3B8] hover:text-[#F8FAFC] hover:bg-white/5 transition-colors text-sm" data-nav="basin">
+          <i data-lucide="mountain" class="w-4 h-4"></i>
+          <span>Basin Explorer</span>
+        </a>
+        <a href="seismic-viewer.html" class="flex items-center gap-2 p-2 rounded-lg text-[#94A3B8] hover:text-[#F8FAFC] hover:bg-white/5 transition-colors text-sm" data-nav="seismic">
+          <i data-lucide="activity" class="w-4 h-4"></i>
+          <span>Seismic Viewer</span>
+        </a>
+        <a href="well-context-desk.html" class="flex items-center gap-2 p-2 rounded-lg text-[#94A3B8] hover:text-[#F8FAFC] hover:bg-white/5 transition-colors text-sm" data-nav="well">
+          <i data-lucide="align-left" class="w-4 h-4"></i>
+          <span>Well Context Desk</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- About -->
+    <a href="#about" class="flex items-center gap-3 p-3 rounded-lg text-[#94A3B8] hover:text-[#F8FAFC] hover:bg-white/5 transition-colors" data-nav="about">
+      <i data-lucide="info" class="w-5 h-5"></i>
+      <span class="font-medium">About</span>
+    </a>
+
+    <!-- Docs -->
+    <a href="https://docs.geox.dev" target="_blank" rel="noopener noreferrer" class="flex items-center gap-3 p-3 rounded-lg text-[#94A3B8] hover:text-[#F8FAFC] hover:bg-white/5 transition-colors">
+      <i data-lucide="book-open" class="w-5 h-5"></i>
+      <span class="font-medium">Documentation</span>
+      <i data-lucide="external-link" class="w-4 h-4 ml-auto opacity-50"></i>
+    </a>
+
+    <!-- Mobile Status -->
+    <div class="mt-4 pt-4 border-t border-[#1E293B]">
+      <div class="flex items-center justify-center gap-2 p-3 rounded-lg bg-[#111418] border border-[#1E293B]">
+        <span class="status-dot status-online"></span>
+        <span class="text-sm font-medium text-[#10B981]">System Online</span>
+      </div>
+    </div>
+  </nav>
+</div>
+
+<!-- Spacer for fixed header -->
+<div class="h-16"></div>

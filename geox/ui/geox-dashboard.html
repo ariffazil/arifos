@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>GEOX Kitchen Sink</title>
+    <style>
+        body { font-family: 'Inter', sans-serif; background: #f8fafc; color: #1e293b; padding: 24px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+        .card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid #e2e8f0; }
+        .status-pill { padding: 4px 12px; border-radius: 999px; font-size: 12px; font-weight: 600; text-transform: uppercase; }
+        .status-seal { background: #dcfce7; color: #166534; }
+        .button { background: #2563eb; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; }
+        pre { background: #f1f5f9; padding: 12px; border-radius: 6px; overflow-x: auto; font-size: 13px; }
+    </style>
+</head>
+<body>
+    <header style="display:flex; justify-content:space-between; align-items:center; margin-bottom:32px;">
+        <div>
+            <h1 style="margin:0; font-size:24px;">GEOX Kitchen Sink</h1>
+            <p style="color:#64748b; margin:4px 0 0;">Unified Control Plane (arifOS)</p>
+        </div>
+        <span class="status-pill status-seal">DITEMPA BUKAN DIBERI</span>
+    </header>
+
+    <div class="grid">
+        <div class="card">
+            <h3>Live Workflow State</h3>
+            <div id="state-display">Waiting for data...</div>
+            <button class="button" onclick="callCompute()" style="margin-top:16px;">Trigger Petrophysics</button>
+        </div>
+        <div class="card">
+            <h3>Governance Console</h3>
+            <pre id="governance-log">F1: Identity Bound...
+F7: Humility Check Active...</pre>
+        </div>
+    </div>
+
+    <script>
+        // Listen for data from ChatGPT Apps SDK
+        window.addEventListener("message", (event) => {
+            const data = event.data;
+            if (data.type === "mcp_data") {
+                document.getElementById("state-display").innerHTML = `
+                    <p><strong>Tool:</strong> ${data.tool_name}</p>
+                    <p><strong>Artifact:</strong> ${data.artifact_status}</p>
+                    <pre>${JSON.stringify(data.primary_artifact, null, 2)}</pre>
+                `;
+            }
+        });
+
+        async function callCompute() {
+            // Communicate with ChatGPT Apps SDK to trigger an MCP tool call
+            parent.postMessage({
+                type: "mcp_tool_call",
+                name: "geox.well.compute_petrophysics",
+                arguments: {
+                    "well_ref": "MB-WELL-01",
+                    "model": "Archie"
+                }
+            }, "*");
+            
+            document.getElementById("governance-log").innerHTML += "\nF9: Requesting Petrophysics Compute...";
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="GEOX Platform Status — Real-time component availability and operational state.">
+  <title>Status — GEOX Platform</title>
+  <link rel="stylesheet" href="../css/geox-platform.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="nav">
+    <div class="nav-container">
+      <a href="/" class="nav-brand">GEOX</a>
+      <ul class="nav-links">
+        <li><a href="/">Home</a></li>
+        <li><a href="../workspaces/">Workspaces</a></li>
+        <li><a href="../skills/">Skills</a></li>
+        <li><a href="../wiki/">Wiki</a></li>
+        <li><a href="../platform/">Platform</a></li>
+        <li><a href="./" class="active">Status</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Header -->
+  <section class="hero" style="padding: 4rem 0 2rem;">
+    <div class="container">
+      <h1>Status</h1>
+      <p class="hero-subtitle">Real-time component availability and operational state for the GEOX Earth Intelligence Platform.</p>
+    </div>
+  </section>
+
+  <!-- Component Status -->
+  <section class="section">
+    <div class="container">
+      <h2>Component Status</h2>
+      
+      <!-- Site -->
+      <div class="status-component">
+        <div class="status-header">
+          <h3>Site</h3>
+          <span class="badge badge-live">● Live</span>
+        </div>
+        <p class="status-note">Human-facing documentation, registry, and wiki serving.</p>
+        <div class="status-meta">
+          URL: https://geox.arif-fazil.com/ | Last checked: 2026-04-11T10:40:00Z
+        </div>
+      </div>
+
+      <!-- WebMCP -->
+      <div class="status-component">
+        <div class="status-header">
+          <h3>WebMCP</h3>
+          <span class="badge badge-live">● Live</span>
+        </div>
+        <p class="status-note">Root manifest and app-level capability manifests serving valid JSON.</p>
+        <div class="status-meta">
+          URL: https://geox.arif-fazil.com/webmcp.manifest.json | Last checked: 2026-04-11T10:40:00Z
+        </div>
+      </div>
+
+      <!-- MCP -->
+      <div class="status-component">
+        <div class="status-header">
+          <h3>MCP</h3>
+          <span class="badge badge-partial">◐ Partial</span>
+        </div>
+        <p class="status-note">Health endpoint responds; public tool invocation transport still under verification. SSE-based session handling is operational but public tool interaction paths require additional testing.</p>
+        <div class="status-meta">
+          Health: https://geox.arif-fazil.com/health (200 OK) | Tools: https://geox.arif-fazil.com/mcp/ (SSE stream) | Last checked: 2026-04-11T10:40:00Z
+        </div>
+      </div>
+
+      <!-- A2A -->
+      <div class="status-component">
+        <div class="status-header">
+          <h3>A2A</h3>
+          <span class="badge badge-not-public">○ Not yet routed publicly</span>
+        </div>
+        <p class="status-note">Routing and JSON agent-card responses are not exposed on the public edge yet. A2A coordination layer exists internally but is not accessible for external agent discovery.</p>
+        <div class="status-meta">
+          Planned URL: https://geox.arif-fazil.com/a2a/ | Status: Internal only | Last checked: 2026-04-11T10:40:00Z
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Endpoints -->
+  <section class="section">
+    <div class="container">
+      <h2>Endpoints</h2>
+      
+      <table class="surfaces-table">
+        <thead>
+          <tr>
+            <th>Endpoint</th>
+            <th>URL</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="surface-name">Health</td>
+            <td><code class="text-mono">https://geox.arif-fazil.com/health</code></td>
+            <td><span class="badge badge-live">● Operational</span></td>
+          </tr>
+          <tr>
+            <td class="surface-name">MCP Stream</td>
+            <td><code class="text-mono">https://geox.arif-fazil.com/mcp/</code></td>
+            <td><span class="badge badge-partial">◐ Available</span></td>
+          </tr>
+          <tr>
+            <td class="surface-name">WebMCP Root</td>
+            <td><code class="text-mono">https://geox.arif-fazil.com/webmcp.manifest.json</code></td>
+            <td><span class="badge badge-live">● Operational</span></td>
+          </tr>
+          <tr>
+            <td class="surface-name">Profile</td>
+            <td><code class="text-mono">http://localhost:8000/profile</code></td>
+            <td><span class="badge badge-live">● Operational</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Build Info -->
+  <section class="section">
+    <div class="container">
+      <h2>Build Information</h2>
+      
+      <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-top: 1rem;">
+        <div>
+          <p class="text-muted text-small">Version</p>
+          <p class="text-mono">v2026.04.11-DIMENSION-NATIVE</p>
+        </div>
+        <div>
+          <p class="text-muted text-small">Seal</p>
+          <p class="text-mono" style="color: var(--color-seal);">DITEMPA BUKAN DIBERI</p>
+        </div>
+        <div>
+          <p class="text-muted text-small">Profile</p>
+          <p class="text-mono">vps (5 dimensions active)</p>
+        </div>
+        <div>
+          <p class="text-muted text-small">Active Dimensions</p>
+          <p class="text-mono">prospect, well, earth3d, map, cross</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Incidents -->
+  <section class="section">
+    <div class="container">
+      <h2>Recent Changes</h2>
+      
+      <div class="status-component" style="border-left: 3px solid var(--color-success);">
+        <div class="status-header">
+          <h3>Dimension-Native Architecture Deployed</h3>
+          <span style="font-size: 0.875rem; color: var(--color-text-muted);">2026-04-11</span>
+        </div>
+        <p class="status-note">Migrated to unified 7-dimension registry architecture. VPS profile active with 5 dimensions. MCP health endpoint verified. WebMCP manifest serving.</p>
+      </div>
+
+      <div class="status-component" style="border-left: 3px solid var(--color-warning);">
+        <div class="status-header">
+          <h3>MCP Tools Transport Under Verification</h3>
+          <span style="font-size: 0.875rem; color: var(--color-text-muted);">2026-04-11</span>
+        </div>
+        <p class="status-note">SSE transport operational. Public tool invocation paths require additional testing before marking Live. Currently Partial.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-brand">
+          <strong>GEOX</strong>
+          <span>Dimension-Native Earth Intelligence</span>
+        </div>
+        <div class="footer-links">
+          <div class="footer-column">
+            <h5>Platform</h5>
+            <ul>
+              <li><a href="../workspaces/">Workspaces</a></li>
+              <li><a href="../skills/">Skills</a></li>
+              <li><a href="../wiki/">Wiki</a></li>
+              <li><a href="../platform/">Platform</a></li>
+            </ul>
+          </div>
+          <div class="footer-column">
+            <h5>Reference</h5>
+            <ul>
+              <li><a href="../scenarios/">Scenarios</a></li>
+              <li><a href="./">Status</a></li>
+              <li><a href="https://github.com/ariffazil/GEOX">GitHub</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

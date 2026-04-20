@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wiki | GEOX — Unified Architecture</title>
+    <link rel="stylesheet" href="../css/geox-platform.css">
+    <style>
+        .wiki-grid {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        .wiki-sidebar {
+            border-right: 1px solid var(--border-color);
+            padding-right: 1rem;
+        }
+        .wiki-sidebar ul {
+            list-style: none;
+            padding: 0;
+        }
+        .wiki-sidebar li {
+            margin: 0.5rem 0;
+        }
+        .wiki-sidebar a {
+            color: var(--text-color);
+            text-decoration: none;
+            display: block;
+            padding: 0.5rem;
+            border-radius: 4px;
+        }
+        .wiki-sidebar a:hover {
+            background: var(--accent-color);
+            color: var(--bg-color);
+        }
+        .wiki-content {
+            max-width: 800px;
+        }
+        .wiki-content h2 {
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.5rem;
+            margin-top: 2rem;
+        }
+        .wiki-content h3 {
+            color: var(--accent-color);
+            margin-top: 1.5rem;
+        }
+        .wiki-content code {
+            background: #1a1a1a;
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+        .wiki-content pre {
+            background: #1a1a1a;
+            padding: 1rem;
+            border-radius: 4px;
+            overflow-x: auto;
+            border-left: 3px solid var(--accent-color);
+        }
+        .seal-box {
+            background: linear-gradient(90deg, #1a1a2e 0%, #16213e 100%);
+            color: #ffd700;
+            padding: 1.5rem;
+            text-align: center;
+            border: 1px solid #ffd700;
+            margin: 2rem 0;
+            border-radius: 4px;
+        }
+        .seal-text {
+            font-size: 1.5rem;
+            font-weight: bold;
+            letter-spacing: 0.1em;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        .status-ok {
+            background: #4caf50;
+            color: #fff;
+        }
+        .status-warn {
+            background: #ff9800;
+            color: #fff;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+        th, td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+        th {
+            background: var(--bg-color);
+            font-weight: bold;
+        }
+        .highlight {
+            background: rgba(255, 215, 0, 0.1);
+            padding: 1rem;
+            border-left: 3px solid #ffd700;
+            margin: 1rem 0;
+        }
+    </style>
+</head>
+<body>
+    <header class="nav-header">
+        <div class="container">
+            <a href="/" class="logo">GEOX</a>
+            <nav class="nav-links">
+                <a href="/platform/">Platform</a>
+                <a href="/prospect/">Prospect</a>
+                <a href="/map/">Map</a>
+                <a href="/tools/">Tools</a>
+                <a href="/status/">Status</a>
+                <a href="/wiki/">Wiki</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="wiki-grid">
+            <aside class="wiki-sidebar">
+                <h3>Documentation</h3>
+                <ul>
+                    <li><a href="#overview">Overview</a></li>
+                    <li><a href="#architecture">Architecture</a></li>
+                    <li><a href="#geox-core">GEOX Core</a></li>
+                    <li><a href="#geox-platform">GEOX Platform</a></li>
+                    <li><a href="#arifos">arifOS MCP</a></li>
+                    <li><a href="#sot">SOT Endpoints</a></li>
+                    <li><a href="#deployment">Deployment</a></li>
+                    <li><a href="#git">Git Source</a></li>
+                    <li><a href="#chaos">Chaos Resolution</a></li>
+                </ul>
+                
+                <h3>Reference</h3>
+                <ul>
+                    <li><a href="/status/">Runtime Status</a></li>
+                    <li><a href="/status.json">Status JSON</a></li>
+                </ul>
+            </aside>
+
+            <article class="wiki-content">
+                <h1>GEOX — Unified Architecture</h1>
+                <p class="subtitle">Complete system documentation — Final unified state (2026-04-12)</p>
+
+                <div class="seal-box">
+                    <div class="seal-text">💎 DITEMPA BUKAN DIBERI 🔥</div>
+                    <div>Forged, Not Given — Chaos Unified</div>
+                </div>
+
+                <h2 id="overview">Overview</h2>
+                <p>
+                    The GEOX system has undergone a <strong>chaos resolution</strong> process, unifying two previously 
+                    divergent realities into a single coherent architecture. This document serves as the definitive 
+                    reference for the final unified state.
+                </p>
+                
+                <div class="highlight">
+                    <strong>What changed:</strong> The "Two GEOX Realities" (Core vs Platform) now coexist 
+                    within a unified architecture, with arifOS MCP providing constitutional governance (F1-F13) 
+                    across both.
+                </div>
+
+                <h2 id="architecture">Architecture</h2>
+                <pre>
+┌─────────────────────────────────────────────────────────────────┐
+│                    UNIFIED GEOX + arifOS PLATFORM                │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│   ┌──────────────┐      ┌──────────────┐      ┌──────────────┐  │
+│   │  GEOX Core   │◄────►│ arifOS MCP   │◄────►│ GEOX Platform│  │
+│   │  (Anti-Chaos)│      │ (F1-F13)     │      │ (44 Skills)  │  │
+│   └──────────────┘      └──────────────┘      └──────────────┘  │
+│          │                      │                      │         │
+│          └──────────────────────┼──────────────────────┘         │
+│                                 │                                │
+│                    ┌────────────┴────────────┐                   │
+│                    │  https://geox.arif-f    │                   │
+│                    │  azil.com/ (SOT)        │                   │
+│                    └─────────────────────────┘                   │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+                </pre>
+
+                <h3>Component Interaction</h3>
+                <ul>
+                    <li><strong>GEOX Core</strong> handles canonical MCP protocol (dimensions, contracts)</li>
+                    <li><strong>GEOX Platform</strong> preserves 44 skills and 11 agents (legacy capability)</li>
+                    <li><strong>arifOS MCP</strong> provides constitutional governance (F1-F13) for both</li>
+                </ul>
+
+                <h2 id="geox-core">GEOX Core</h2>
+                <p><span class="status-badge status-ok">OPERATIONAL</span></p>
+                
+                <table>
+                    <tr>
+                        <th>Property</th>
+                        <th>Value</th>
+                    </tr>
+                    <tr>
+                        <td>Location</td>
+                        <td><code>/root/arifOS/geox/</code></td>
+                    </tr>
+                    <tr>
+                        <td>Architecture</td>
+                        <td>Anti-Chaos (5 functional planes)</td>
+                    </tr>
+                    <tr>
+                        <td>Dimensions</td>
+                        <td>5 (prospect, well, earth3d, map, cross)</td>
+                    </tr>
+                    <tr>
+                        <td>Version</td>
+                        <td>2.0.0-DIMENSION-NATIVE</td>
+                    </tr>
+                    <tr>
+                        <td>Container</td>
+                        <td><code>geox_eic</code></td>
+                    </tr>
+                    <tr>
+                        <td>Seal</td>
+                        <td>DITEMPA BUKAN DIBERI</td>
+                    </tr>
+                </table>
+
+                <h3>Functional Planes</h3>
+                <ol>
+                    <li><strong>Contracts</strong> — Single source of truth (enums, schemas, tools)</li>
+                    <li><strong>Control Plane</strong> — Routing, coordination, FastMCP server</li>
+                    <li><strong>Execution Plane</strong> — Calculations, VPS adapters</li>
+                    <li><strong>Compatibility</strong> — Legacy aliases and migration paths</li>
+                    <li><strong>Services</strong> — Evidence store, geo fabric, governance, witness</li>
+                </ol>
+
+                <h2 id="geox-platform">GEOX Platform</h2>
+                <p><span class="status-badge status-ok">RESTORED</span></p>
+                
+                <table>
+                    <tr>
+                        <th>Property</th>
+                        <th>Value</th>
+                    </tr>
+                    <tr>
+                        <td>Location</td>
+                        <td><code>/root/geox/</code></td>
+                    </tr>
+                    <tr>
+                        <td>Type</td>
+                        <td>Skill Platform</td>
+                    </tr>
+                    <tr>
+                        <td>Skills</td>
+                        <td>44</td>
+                    </tr>
+                    <tr>
+                        <td>Agents</td>
+                        <td>11</td>
+                    </tr>
+                    <tr>
+                        <td>Status</td>
+                        <td>Restored from git (accidentally deleted)</td>
+                    </tr>
+                </table>
+
+                <h3>Directory Structure</h3>
+                <pre>
+/root/geox/
+├── mcp/           # MCP server implementations
+├── registry/      # Tool registries
+├── schemas/       # Data schemas
+├── site/          # Static site
+└── skills/        # 44 GEOX skills
+                </pre>
+
+                <h2 id="arifos">arifOS MCP</h2>
+                <p><span class="status-badge status-ok">OPERATIONAL</span></p>
+                
+                <table>
+                    <tr>
+                        <th>Property</th>
+                        <th>Value</th>
+                    </tr>
+                    <tr>
+                        <td>Location</td>
+                        <td><code>/root/arifOS/</code></td>
+                    </tr>
+                    <tr>
+                        <td>Type</td>
+                        <td>Constitutional MCP Server</td>
+                    </tr>
+                    <tr>
+                        <td>Tools</td>
+                        <td>17</td>
+                    </tr>
+                    <tr>
+                        <td>Floors</td>
+                        <td>F1-F13 (Constitutional)</td>
+                    </tr>
+                    <tr>
+                        <td>Version</td>
+                        <td>2026.04.07</td>
+                    </tr>
+                    <tr>
+                        <td>Container</td>
+                        <td><code>arifosmcp</code></td>
+                    </tr>
+                    <tr>
+                        <td>Verdict</td>
+                        <td>SEAL</td>
+                    </tr>
+                </table>
+
+                <h3>Constitutional Floors (F1-F13)</h3>
+                <table>
+                    <tr>
+                        <th>Floor</th>
+                        <th>Name</th>
+                        <th>Status</th>
+                    </tr>
+                    <tr>
+                        <td>F1</td>
+                        <td>Irreversible Change Control</td>
+                        <td><span class="status-badge status-ok">ACTIVE</span></td>
+                    </tr>
+                    <tr>
+                        <td>F2</td>
+                        <td>Truth</td>
+                        <td><span class="status-badge status-ok">ACTIVE</span></td>
+                    </tr>
+                    <tr>
+                        <td>F4</td>
+                        <td>Entropy</td>
+                        <td><span class="status-badge status-ok">ACTIVE</span></td>
+                    </tr>
+                    <tr>
+                        <td>F7</td>
+                        <td>Confidence</td>
+                        <td><span class="status-badge status-ok">ACTIVE</span></td>
+                    </tr>
+                    <tr>
+                        <td>F9</td>
+                        <td>Injection Guard</td>
+                        <td><span class="status-badge status-ok">ACTIVE</span></td>
+                    </tr>
+                    <tr>
+                        <td>F11</td>
+                        <td>Coherence</td>
+                        <td><span class="status-badge status-ok">ACTIVE</span></td>
+                    </tr>
+                    <tr>
+                        <td>F13</td>
+                        <td>Human Authority</td>
+                        <td><span class="status-badge status-ok">ACTIVE</span></td>
+                    </tr>
+                </table>
+
+                <h2 id="sot">Single Source of Truth (SOT) Endpoints</h2>
+                
+                <table>
+                    <tr>
+                        <th>Endpoint</th>
+                        <th>Status</th>
+                        <th>Purpose</th>
+                    </tr>
+                    <tr>
+                        <td><a href="https://arifosmcp.arif-fazil.com/" target="_blank">arifosmcp.arif-fazil.com</a></td>
+                        <td><span class="status-badge status-ok">200 OK</span></td>
+                        <td>MCP Server SOT</td>
+                    </tr>
+                    <tr>
+                        <td><a href="https://geox.arif-fazil.com/" target="_blank">geox.arif-fazil.com</a></td>
+                        <td><span class="status-badge status-ok">200 OK</span></td>
+                        <td>GEOX APPS SOT</td>
+                    </tr>
+                    <tr>
+                        <td><a href="https://geox.arif-fazil.com/status/" target="_blank">geox.arif-fazil.com/status/</a></td>
+                        <td><span class="status-badge status-ok">200 OK</span></td>
+                        <td>Runtime Status Dashboard</td>
+                    </tr>
+                    <tr>
+                        <td><a href="https://geox.arif-fazil.com/status.json" target="_blank">geox.arif-fazil.com/status.json</a></td>
+                        <td><span class="status-badge status-ok">200 OK</span></td>
+                        <td>Machine-readable Runtime State</td>
+                    </tr>
+                </table>
+
+                <h2 id="deployment">Deployment</h2>
+                
+                <h3>Containers</h3>
+                <pre>
+NAME            STATUS                    PORTS
+geox_eic        Up (healthy)              0.0.0.0:8000->8000/tcp
+arifosmcp       Up (healthy)              0.0.0.0:8080->8080/tcp
+arifos_landings Up                        80/tcp
+                </pre>
+
+                <h3>Networks</h3>
+                <ul>
+                    <li><code>arifos_core_network</code> — Core internal communication</li>
+                    <li><code>arifos_trinity</code> — Trinity protocol layer</li>
+                    <li><code>traefik_network</code> — Edge routing</li>
+                </ul>
+
+                <h3>Volume Mounts</h3>
+                <pre>
+/opt/arifos/sites/arif-fazil.com/geox      → /usr/share/nginx/html/geox
+/opt/arifos/sites/arif-fazil.com/arifosmcp → /usr/share/nginx/html/arifosmcp
+/root/arifOS/infrastructure/nginx/arifos_landings.conf → /etc/nginx/conf.d/default.conf
+                </pre>
+
+                <h2 id="git">Git Source of Truth</h2>
+                
+                <table>
+                    <tr>
+                        <th>Repository</th>
+                        <th>Commit</th>
+                        <th>Message</th>
+                    </tr>
+                    <tr>
+                        <td>arifOS</td>
+                        <td><code>d0eafa7</code></td>
+                        <td>chore: Update GEOX submodule with SOT status page</td>
+                    </tr>
+                    <tr>
+                        <td>GEOX</td>
+                        <td><code>cf9fe28</code></td>
+                        <td>feat: Add runtime SOT status.json and status page</td>
+                    </tr>
+                </table>
+
+                <p>
+                    <strong>arifOS:</strong> <a href="https://github.com/ariffazil/arifOS">https://github.com/ariffazil/arifOS</a><br>
+                    <strong>GEOX:</strong> <a href="https://github.com/ariffazil/GEOX">https://github.com/ariffazil/GEOX</a>
+                </p>
+
+                <h2 id="chaos">Chaos Resolution Log</h2>
+                
+                <h3>Issues Resolved</h3>
+                
+                <h4>1. WebMCP Deletion</h4>
+                <p><strong>Problem:</strong> <code>arifosmcp/runtime/webmcp/server.py</code> was moved to archive during cleanup, breaking <code>arifos_init</code>.</p>
+                <p><strong>Fix:</strong> Restored from <code>.archive/build/lib/</code>.</p>
+                
+                <h4>2. Two GEOX Realities</h4>
+                <p><strong>Problem:</strong> Confusion between GEOX Core (Anti-Chaos) and GEOX Platform (44 skills).</p>
+                <p><strong>Fix:</strong> Unified architecture with clear separation of concerns.</p>
+                
+                <h4>3. FastMCP Alias Registration</h4>
+                <p><strong>Problem:</strong> FastMCP only registers the last <code>@mcp.tool()</code> decorator when multiple are applied to one function.</p>
+                <p><strong>Fix:</strong> Created separate wrapper functions for each alias in <code>cross.py</code>.</p>
+                
+                <h4>4. Missing SOT Documentation</h4>
+                <p><strong>Problem:</strong> Runtime state not documented, causing drift between deployed and documented state.</p>
+                <p><strong>Fix:</strong> Created <code>status.json</code> and <code>status/</code> page documenting actual runtime state.</p>
+
+                <div class="seal-box" style="margin-top: 3rem;">
+                    <div class="seal-text">✅ CHAOS UNIFIED</div>
+                    <div>Runtime = Documented = Deployed</div>
+                </div>
+
+                <footer style="margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--border-color); color: #666; font-size: 0.9rem;">
+                    <p>Last updated: 2026-04-12</p>
+                    <p>Schema: geox-wiki-unified/v1</p>
+                    <p>Verification: <a href="/status/">Runtime Status</a></p>
+                </footer>
+            </article>
+        </div>
+    </main>
+</body>
+</html>

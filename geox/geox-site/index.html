@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GEOX | Earth Intelligence Platform</title>
+    <link rel="stylesheet" href="css/geox-platform.css">
+    <style>
+        .live-pulse {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: #22c55e;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+            margin-right: 6px;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+        .metric-card {
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            padding: 1rem;
+            text-align: center;
+        }
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 600;
+            color: var(--accent-color);
+            font-family: var(--mono-font);
+        }
+        .metric-label {
+            font-size: 0.75rem;
+            color: var(--muted-color);
+            text-transform: uppercase;
+            margin-top: 0.5rem;
+        }
+        .dimension-tag {
+            display: inline-block;
+            background: var(--border-color);
+            color: var(--text-color);
+            padding: 0.2rem 0.6rem;
+            font-size: 0.75rem;
+            margin: 0.2rem;
+            font-family: var(--mono-font);
+        }
+        .dimension-tag.active {
+            background: var(--accent-color);
+            color: #000;
+        }
+        .status-detail {
+            font-size: 0.75rem;
+            color: var(--muted-color);
+            margin-top: 0.25rem;
+        }
+        .error-state {
+            color: #ef4444;
+        }
+        .last-updated {
+            font-size: 0.7rem;
+            color: var(--muted-color);
+            text-align: right;
+            margin-top: 0.5rem;
+        }
+        .floor-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        .floor-item {
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            padding: 0.5rem;
+            text-align: center;
+            font-size: 0.75rem;
+        }
+        .floor-item.active {
+            border-color: var(--accent-color);
+            background: rgba(253, 224, 71, 0.1);
+        }
+        .loading {
+            opacity: 0.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="mono" style="margin-bottom: 0.5rem; font-size: 0.7rem; color: var(--muted-color);">
+                GEOX_PLATFORM_HUBNODE // PROTOCOL_V1
+            </div>
+            <nav>
+                <a href="index.html">Home</a>
+                <a href="tools/index.html">Tools</a>
+                <a href="map/index.html">Map</a>
+                <a href="prospect/index.html">Prospect</a>
+                <a href="platform/index.html">Platform</a>
+                <a href="workspaces/index.html">Workspaces</a>
+                <a href="status/index.html">Status</a>
+            </nav>
+        </header>
+
+        <!-- HERO -->
+        <section class="hero">
+            <h1>GEOX</h1>
+            <p>Earth intelligence for governed decisions.</p>
+            <p style="color: var(--muted-color); max-width: 60ch; margin: 1rem auto;">
+                A platform for terrain, hazard, mobility, infrastructure, and subsurface reasoning
+                across human, machine, and void observation surfaces — built with constitutional
+                governance from the ground up.
+            </p>
+            <div class="cta-group">
+                <a href="workspaces/index.html" class="btn">Enter Workspaces</a>
+                <a href="platform/index.html" class="btn">Browse Skills</a>
+                <a href="status/index.html" class="btn">Read Wiki</a>
+            </div>
+        </section>
+
+        <!-- LIVE STATUS DASHBOARD (SOT) -->
+        <section id="live-status" style="margin: 4rem 0; padding: 2rem; border: 1px solid var(--border-color);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <h2 style="margin: 0;">
+                    <span class="live-pulse"></span>
+                    Live System Status
+                </h2>
+                <span class="mono" style="font-size: 0.75rem; color: var(--muted-color);" id="server-version">—</span>
+            </div>
+            
+            <div class="metric-grid" id="metrics-container">
+                <div class="metric-card loading">
+                    <div class="metric-value" id="tool-count">—</div>
+                    <div class="metric-label">MCP Tools</div>
+                </div>
+                <div class="metric-card loading">
+                    <div class="metric-value" id="dimension-count">—</div>
+                    <div class="metric-label">Dimensions</div>
+                </div>
+                <div class="metric-card loading">
+                    <div class="metric-value" id="health-status">—</div>
+                    <div class="metric-label">Health</div>
+                </div>
+                <div class="metric-card loading">
+                    <div class="metric-value" id="profile-mode">—</div>
+                    <div class="metric-label">Profile</div>
+                </div>
+            </div>
+
+            <div style="margin: 1.5rem 0;">
+                <div style="font-size: 0.75rem; color: var(--muted-color); margin-bottom: 0.5rem;">ENABLED DIMENSIONS</div>
+                <div id="dimensions-container">
+                    <span class="dimension-tag">Loading...</span>
+                </div>
+            </div>
+
+            <div class="floor-grid" id="floors-container">
+                <div class="floor-item">F1</div>
+                <div class="floor-item">F2</div>
+                <div class="floor-item">F3</div>
+                <div class="floor-item">F4</div>
+                <div class="floor-item">F6</div>
+                <div class="floor-item">F7</div>
+                <div class="floor-item">F8</div>
+                <div class="floor-item">F9</div>
+                <div class="floor-item">F11</div>
+                <div class="floor-item">F13</div>
+            </div>
+
+            <div class="last-updated" id="last-updated">Last updated: —</div>
+        </section>
+
+        <!-- FOUR SURFACES -->
+        <section id="surfaces" style="margin: 4rem 0;">
+            <h2 style="margin-bottom: 1rem;">Four Surfaces</h2>
+            <p style="color: var(--muted-color); margin-bottom: 2rem;">Public infrastructure reach — status from live system checks.</p>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Surface</th>
+                        <th>Purpose</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Site</td>
+                        <td>Human-facing docs, registry, wiki</td>
+                        <td><span class="status-chip status-live"><span class="status-dot"></span> LIVE</span></td>
+                    </tr>
+                    <tr>
+                        <td>WebMCP</td>
+                        <td>Browser-native capability manifests</td>
+                        <td><span class="status-chip status-live"><span class="status-dot"></span> LIVE</span></td>
+                    </tr>
+                    <tr>
+                        <td>MCP</td>
+                        <td>Tools, prompts, resources for AI hosts</td>
+                        <td>
+                            <span class="status-chip status-live" id="mcp-status-chip"><span class="status-dot"></span> <span id="mcp-status-text">LIVE</span></span>
+                            <div class="status-detail" id="mcp-status-detail">Health OK; <span id="tool-count-detail">0</span> tools available</div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>A2A</td>
+                        <td>Agent-to-agent coordination</td>
+                        <td><span class="status-chip status-not-public"><span class="status-dot"></span> NOT PUBLIC</span><br><span style="font-size: 0.75rem; color: var(--muted-color);">Internal only; not yet routed publicly</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- WHAT GEOX DOES -->
+        <section id="what-geox-does" style="margin: 4rem 0;">
+            <h2 style="margin-bottom: 2rem;">What GEOX Does</h2>
+            <p>
+                GEOX ingests signals from wells, seismic, and structural evidence into a
+                dimension-native manifold — then builds a physics-grounded world model that routes
+                every decision through arifOS constitutional governance before anything is acted upon.
+            </p>
+            <p style="color: var(--muted-color); margin-top: 1rem;">
+                Built on arifOS — the constitutional governance kernel.
+            </p>
+        </section>
+
+        <!-- WORKSPACES PREVIEW -->
+        <section id="workspaces-preview">
+            <h2 style="margin-bottom: 2rem;">Workspaces</h2>
+            <p style="color: var(--muted-color); margin-bottom: 2rem; font-size: 0.9rem;">
+                Some surfaces require compatible MCP or browser integration.
+            </p>
+            <div class="grid">
+                <div class="card">
+                    <div class="status-chip status-live" style="margin-bottom: 1rem;"><span class="status-dot"></span> MCP APP</div>
+                    <h3>Risk Console</h3>
+                    <p>Quantitative analysis of exploratory risk and geological uncertainty.</p>
+                </div>
+                <div class="card">
+                    <div class="status-chip status-live" style="margin-bottom: 1rem;"><span class="status-dot"></span> MCP APP</div>
+                    <h3>Judge Console</h3>
+                    <p>Substrate policy enforcement and interpretive arbitration.</p>
+                </div>
+                <div class="card">
+                    <div class="status-chip status-live" style="margin-bottom: 1rem;"><span class="status-dot"></span> MCP APP</div>
+                    <h3>Physics Panel</h3>
+                    <p>Thermodynamic and physical governance metrics for reservoir candidates.</p>
+                </div>
+                <div class="card">
+                    <div class="status-chip status-live" style="margin-bottom: 1rem;"><span class="status-dot"></span> WEB APP</div>
+                    <h3>Basin Explorer</h3>
+                    <p>Structural basin visualization and Play-based screening.</p>
+                </div>
+                <div class="card">
+                    <div class="status-chip status-live" style="margin-bottom: 1rem;"><span class="status-dot"></span> WEB APP</div>
+                    <h3>Map Portal</h3>
+                    <p>Multi-layer map interface for surface and subsurface data overlay.</p>
+                </div>
+                <div class="card">
+                    <div class="status-chip status-live" style="margin-bottom: 1rem;"><span class="status-dot"></span> WEB APP</div>
+                    <h3>Timeline View</h3>
+                    <p>Temporal reconstruction of geological events and horizon relationships.</p>
+                </div>
+                <div class="card">
+                    <div class="status-chip status-live" style="margin-bottom: 1rem;"><span class="status-dot"></span> HYBRID</div>
+                    <h3>Seismic Viewer</h3>
+                    <p>Human-AI co-interpretation of seismic volumes with constitutional constraints.</p>
+                </div>
+                <div class="card">
+                    <div class="status-chip status-live" style="margin-bottom: 1rem;"><span class="status-dot"></span> HYBRID</div>
+                    <h3>Well Context Desk</h3>
+                    <p>Integrated well log correlation and stratigraphic reasoning environment.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- APPS GRID -->
+        <section id="apps-grid" style="margin: 4rem 0;">
+            <h2 style="margin-bottom: 2rem;">Platform Apps</h2>
+            <div class="grid">
+                <div class="card" style="border-color: var(--accent-color);">
+                    <div style="font-size: 1.5rem; margin-bottom: 1rem;">🛠️</div>
+                    <h3>Tools Catalog</h3>
+                    <p>Browse and execute all <strong id="tools-cta-count">—</strong> MCP tools with live parameter forms.</p>
+                    <a href="tools/index.html" class="btn" style="margin-top: 1rem;">Open Tools →</a>
+                </div>
+                <div class="card" style="border-color: #3b82f6;">
+                    <div style="font-size: 1.5rem; margin-bottom: 1rem;">🗺️</div>
+                    <h3>MAP Module</h3>
+                    <p>Interactive spatial interface. Click-to-query coordinates, context, and earth signals.</p>
+                    <a href="map/index.html" class="btn" style="margin-top: 1rem;">Open Map →</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- SKILLS PREVIEW -->
+        <section id="skills-preview" style="margin: 4rem 0;">
+            <h2 style="margin-bottom: 2rem;">Skills</h2>
+            <p>Dimension-native capabilities across terrain, hazard, mobility, infrastructure, and subsurface domains — exposed via MCP tools and resources.</p>
+            <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 1.5rem 0;">
+                <span class="dimension-tag active">Terrain</span>
+                <span class="dimension-tag active">Hazard</span>
+                <span class="dimension-tag active">Mobility</span>
+                <span class="dimension-tag active">Infrastructure</span>
+                <span class="dimension-tag active">Subsurface</span>
+            </div>
+            <p style="font-size: 0.85rem; color: var(--muted-color); margin-bottom: 1rem;">
+                <strong id="skills-tool-count">—</strong> MCP tools available across <strong id="skills-dimension-count">—</strong> dimensions.
+            </p>
+            <a href="tools/index.html" class="btn">Browse Tools</a>
+        </section>
+
+        <!-- PLATFORM / API PREVIEW -->
+        <section id="platform-preview" style="margin: 4rem 0;">
+            <h2 style="margin-bottom: 2rem;">Platform</h2>
+            <div class="grid">
+                <div class="card">
+                    <h3>Tools</h3>
+                    <p>Dimension-native MCP tools across canonical subsurface registries — organized by domain, scale, and risk class.</p>
+                </div>
+                <div class="card">
+                    <h3>Prompts</h3>
+                    <p>Structured, user-invoked workflows for deterministic multi-stage subsurface analysis.</p>
+                </div>
+                <div class="card">
+                    <h3>Resources</h3>
+                    <p>Dimension-native ontology, manifests, and seeded evidence context for situational awareness.</p>
+                </div>
+                <div class="card">
+                    <h3>Schemas</h3>
+                    <p>Contract Pack v1 — enforcing structural integrity across TypeScript and Python logic.</p>
+                </div>
+            </div>
+
+            <h3 style="margin: 3rem 0 1rem;">Endpoints</h3>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Path</th>
+                        <th>Function</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="mono">/health</td>
+                        <td>Server heartbeat and structural readiness</td>
+                        <td><span class="status-chip status-live"><span class="status-dot"></span> LIVE</span></td>
+                    </tr>
+                    <tr>
+                        <td class="mono">/mcp</td>
+                        <td>Standardized MCP-SSE tool transport</td>
+                        <td><span class="status-chip status-live"><span class="status-dot"></span> LIVE</span></td>
+                    </tr>
+                    <tr>
+                        <td class="mono">/profile</td>
+                        <td>Dynamic registry state and profile configuration</td>
+                        <td><span class="status-chip status-live"><span class="status-dot"></span> LIVE</span></td>
+                    </tr>
+                    <tr>
+                        <td class="mono">GitHub</td>
+                        <td>Source code and deployment configs</td>
+                        <td><span class="status-chip status-live"><span class="status-dot"></span> LIVE</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- SCENARIOS -->
+        <section id="scenarios" style="margin: 4rem 0;">
+            <h2 style="margin-bottom: 2rem;">Scenarios</h2>
+            <ul style="line-height: 2; padding-left: 1.5rem;">
+                <li>Basin Screening</li>
+                <li>Seismic Review</li>
+                <li>Flood-Risk Triage</li>
+                <li>Route Viability</li>
+                <li>Infrastructure Watch</li>
+                <li>Hazard Escalation</li>
+            </ul>
+        </section>
+
+        <!-- GOVERNANCE STRIP -->
+        <section id="governance" style="margin: 4rem 0; padding: 2rem; border: 1px solid var(--border-color);">
+            <p style="margin: 0;">
+                GEOX operates under arifOS constitutional floors F1–F13.
+                High-risk or irreversible actions require explicit hold states and human review.
+            </p>
+        </section>
+
+        <footer>
+            <div class="governance">DITEMPA BUKAN DIBERI</div>
+            <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: 2rem;">
+                <div>
+                    <p>&copy; 2026 GEOX — Dimension-Native Earth Intelligence</p>
+                    <p class="mono" id="footer-version">VER: —</p>
+                </div>
+                <div class="mono" style="text-align: right;">
+                    <a href="status/index.html" style="color: var(--muted-color); font-size: 0.7rem;" id="footer-status">SYSTEM_STATUS: [INITIALIZING]</a>
+                    <br>
+                    <a href="https://github.com/ariffazil/GEOX" style="color: var(--muted-color); font-size: 0.7rem;" target="_blank" rel="noopener">SOURCE: GitHub</a>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // Live Data Fetching for SOT
+        const API_BASE = '';
+        
+        async function fetchHealth() {
+            try {
+                const res = await fetch(`${API_BASE}/health`);
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                return await res.json();
+            } catch (e) {
+                console.error('Health fetch failed:', e);
+                return null;
+            }
+        }
+
+        async function fetchProfile() {
+            try {
+                const res = await fetch(`${API_BASE}/profile`);
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                return await res.json();
+            } catch (e) {
+                console.error('Profile fetch failed:', e);
+                return null;
+            }
+        }
+
+        async function fetchTools() {
+            try {
+                const res = await fetch(`${API_BASE}/mcp`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'tools/list' })
+                });
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const data = await res.json();
+                return data.result?.tools || [];
+            } catch (e) {
+                console.error('Tools fetch failed:', e);
+                return null;
+            }
+        }
+
+        function updateUI(health, profile, tools) {
+            const now = new Date().toLocaleString();
+            document.getElementById('last-updated').textContent = `Last updated: ${now}`;
+
+            // Remove loading states
+            document.querySelectorAll('.loading').forEach(el => el.classList.remove('loading'));
+
+            if (health) {
+                document.getElementById('health-status').textContent = health.status?.toUpperCase() || 'UNKNOWN';
+                document.getElementById('health-status').style.color = health.status === 'healthy' ? '#22c55e' : '#ef4444';
+                document.getElementById('server-version').textContent = health.version || '—';
+                document.getElementById('footer-version').textContent = `VER: ${health.version || '—'}`;
+                document.getElementById('dimension-count').textContent = health.enabled_dimensions?.length || '—';
+                
+                // Dimensions display
+                const dimsContainer = document.getElementById('dimensions-container');
+                if (health.enabled_dimensions) {
+                    dimsContainer.innerHTML = health.enabled_dimensions.map(d => 
+                        `<span class="dimension-tag active">${d.toUpperCase()}</span>`
+                    ).join('');
+                }
+
+                // Constitutional floors
+                const floors = health.constitutional_floors || {};
+                document.querySelectorAll('.floor-item').forEach(item => {
+                    const floor = item.textContent;
+                    if (floors[floor] === 'active') {
+                        item.classList.add('active');
+                        item.title = `${floor}: Active`;
+                    } else {
+                        item.classList.remove('active');
+                        item.title = `${floor}: Inactive`;
+                    }
+                });
+
+                // Footer status
+                document.getElementById('footer-status').textContent = 
+                    `SYSTEM_STATUS: [${health.status?.toUpperCase() || 'UNKNOWN'}]`;
+            } else {
+                document.getElementById('health-status').textContent = 'ERROR';
+                document.getElementById('health-status').classList.add('error-state');
+                document.getElementById('footer-status').textContent = 'SYSTEM_STATUS: [ERROR]';
+            }
+
+            if (profile) {
+                document.getElementById('profile-mode').textContent = (profile.profile || '—').toUpperCase();
+            }
+
+            // Tool count
+            const toolCount = tools ? tools.length : '—';
+            document.getElementById('tool-count').textContent = toolCount;
+            document.getElementById('tool-count-detail').textContent = toolCount;
+            document.getElementById('skills-tool-count').textContent = toolCount;
+            document.getElementById('skills-dimension-count').textContent = health?.enabled_dimensions?.length || '—';
+            document.getElementById('tools-cta-count').textContent = toolCount;
+
+            // MCP Status in Four Surfaces
+            if (tools !== null && health?.status === 'healthy') {
+                document.getElementById('mcp-status-text').textContent = 'LIVE';
+                document.getElementById('mcp-status-chip').className = 'status-chip status-live';
+            } else if (health?.status === 'healthy') {
+                document.getElementById('mcp-status-text').textContent = 'DEGRADED';
+                document.getElementById('mcp-status-chip').className = 'status-chip status-partial';
+            } else {
+                document.getElementById('mcp-status-text').textContent = 'OFFLINE';
+                document.getElementById('mcp-status-chip').className = 'status-chip status-not-public';
+            }
+        }
+
+        async function loadAllData() {
+            const [health, profile, tools] = await Promise.all([
+                fetchHealth(),
+                fetchProfile(),
+                fetchTools()
+            ]);
+            updateUI(health, profile, tools);
+        }
+
+        // Initial load
+        loadAllData();
+        
+        // Refresh every 30 seconds
+        setInterval(loadAllData, 30000);
+    </script>
+</body>
+</html>

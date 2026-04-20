@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Basin Explorer — GEOX Command Center</title>
+    
+    <!-- Tailwind CSS v4 -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    
+    <!-- Shared Styles -->
+    <link rel="stylesheet" href="../shared/styles.css">
+    
+    <style>
+        /* Stratigraphic column patterns maintained for geological accuracy */
+        .pattern-sand {
+            background: repeating-linear-gradient(0deg, #D4A574 0px, #D4A574 4px, #C49A6C 4px, #C49A6C 8px);
+        }
+        .pattern-clay {
+            background: repeating-linear-gradient(90deg, #8B7355 0px, #8B7355 2px, #A0826D 2px, #A0826D 6px);
+        }
+        .pattern-sandstone {
+            background: linear-gradient(135deg, #D4A574 0%, #C49A6C 50%, #B8956A 100%);
+        }
+        .pattern-shale {
+            background: repeating-linear-gradient(0deg, #4A5568 0px, #4A5568 3px, #3D4852 3px, #3D4852 6px);
+        }
+        .pattern-marl {
+            background: repeating-linear-gradient(45deg, #718096 0px, #718096 4px, #A0AEC0 4px, #A0AEC0 8px);
+        }
+        .pattern-chalk {
+            background: linear-gradient(180deg, #E2E8F0 0%, #CBD5E0 100%);
+        }
+        
+        /* Interactive Elements */
+        .formation-item {
+            transition: all 0.2s var(--ease-out-expo);
+            cursor: pointer;
+            border: 1px solid transparent;
+        }
+        .formation-item:hover {
+            transform: translateX(4px);
+            border-color: var(--plasma-primary);
+            background: var(--void-elevated);
+        }
+        .formation-item.selected {
+            border-color: var(--plasma-primary);
+            background: var(--plasma-glow);
+        }
+
+        .well-dot {
+            width: 10px;
+            height: 10px;
+            background: var(--plasma-primary);
+            border: 2px solid var(--void-base);
+            border-radius: 50%;
+            position: absolute;
+            cursor: pointer;
+            transition: all 0.2s var(--ease-out-expo);
+            box-shadow: 0 0 10px var(--plasma-glow);
+        }
+        .well-dot:hover {
+            transform: scale(1.5);
+            background: white;
+            box-shadow: 0 0 20px var(--plasma-glow);
+        }
+    </style>
+</head>
+<body class="bg-void-base text-text-primary min-h-screen">
+    <!-- Visual Overlays -->
+    <div class="scanlines"></div>
+    <div class="radar-vortex"></div>
+
+    <!-- Navigation Header -->
+    <nav class="fixed top-0 left-0 right-0 z-50 h-[var(--header-h)] glass border-b border-border-glass">
+        <div class="max-w-[var(--max-width)] mx-auto px-6 h-full flex items-center justify-between">
+            <a href="../index.html" class="flex items-center gap-3 group">
+                <div class="w-10 h-10 rounded-lg bg-plasma-primary flex items-center justify-center group-hover:shadow-[0_0_20px_var(--plasma-glow)] transition-all">
+                    <i data-lucide="globe" class="w-6 h-6 text-void-base"></i>
+                </div>
+                <div class="flex flex-col">
+                    <span class="font-bold text-xl tracking-tighter text-white">GEOX</span>
+                    <span class="text-[10px] uppercase tracking-widest text-integrity-emerald font-mono">Basin Explorer</span>
+                </div>
+            </a>
+            
+            <div class="hidden md:flex items-center gap-10">
+                <a href="../index.html" class="text-text-secondary hover:text-white transition-colors text-sm font-semibold">COMMAND</a>
+                <a href="ac-risk.html" class="text-text-secondary hover:text-white transition-colors text-sm font-semibold">RISK</a>
+                <a href="ratlas.html" class="text-text-secondary hover:text-white transition-colors text-sm font-semibold">RATLAS</a>
+                <div class="h-4 w-px bg-border-glass"></div>
+                <a href="#" class="glass-pill px-4 py-1.5 text-xs font-mono text-integrity-emerald flex items-center gap-2">
+                    <span class="w-1.5 h-1.5 rounded-full bg-integrity-emerald animate-pulse"></span>
+                    GEOSPATIAL_SYNCED
+                </a>
+            </div>
+        </div>
+    </nav>
+                
+                <!-- System Status -->
+                <div class="flex items-center gap-2">
+                    <span class="w-2 h-2 bg-[#10B981] rounded-full animate-pulse"></span>
+                    <span class="text-xs text-[#94A3B8] hidden sm:inline">System Online</span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-1 pt-16">
+        <!-- Page Header -->
+        <header class="bg-[#111418] border-b border-[#1E293B]">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+                <!-- Back Link -->
+                <a href="../index.html" class="inline-flex items-center gap-2 text-[#94A3B8] hover:text-[#F59E0B] transition-colors text-sm mb-4">
+                    <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                    Back to Command Center
+                </a>
+                
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div>
+                        <div class="flex items-center gap-3 mb-2">
+                            <h1 class="text-2xl sm:text-3xl font-bold text-[#F8FAFC]">Basin Explorer</h1>
+                            <span class="px-2 py-1 bg-[#F59E0B]/20 text-[#F59E0B] text-xs font-medium rounded pulse-demo">Demo Mode</span>
+                        </div>
+                        <p class="text-[#94A3B8] text-sm">Sedimentary basin analysis and stratigraphic visualization</p>
+                    </div>
+                    
+                    <!-- Basin Selector -->
+                    <div class="flex items-center gap-3">
+                        <label class="text-[#94A3B8] text-sm">Select Basin:</label>
+                        <select id="basinSelector" class="bg-[#1A1F24] border border-[#1E293B] text-[#F8FAFC] text-sm rounded-lg px-4 py-2 focus:outline-none focus:border-[#F59E0B] transition-colors">
+                            <option value="north-sea">North Sea Graben</option>
+                            <option value="gulf-mexico">Gulf of Mexico</option>
+                            <option value="permian">Permian Basin</option>
+                            <option value="niger">Niger Delta</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Visualization Area -->
+        <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
+                <!-- Left Panel: Stratigraphic Column (40%) -->
+                <div class="lg:col-span-2">
+                    <div class="bg-[#111418] border border-[#1E293B] rounded-xl overflow-hidden">
+                        <div class="px-4 py-3 border-b border-[#1E293B] bg-[#1A1F24]">
+                            <div class="flex items-center gap-2">
+                                <i data-lucide="layers" class="w-4 h-4 text-[#F59E0B]"></i>
+                                <h3 class="text-sm font-semibold text-[#F8FAFC]">Stratigraphic Column</h3>
+                            </div>
+                        </div>
+                        
+                        <!-- Column Header -->
+                        <div class="grid grid-cols-12 gap-1 px-3 py-2 bg-[#0A0C0E] text-xs text-[#64748B] border-b border-[#1E293B]">
+                            <div class="col-span-3">Formation</div>
+                            <div class="col-span-3 text-right">Age (Ma)</div>
+                            <div class="col-span-3 text-right">Thickness</div>
+                            <div class="col-span-3">Lithology</div>
+                        </div>
+                        
+                        <!-- Stratigraphic Column -->
+                        <div id="stratColumn" class="max-h-[500px] overflow-y-auto custom-scrollbar">
+                            <!-- Formations will be populated by JavaScript -->
+                        </div>
+                    </div>
+                    
+                    <!-- Legend -->
+                    <div class="mt-4 bg-[#111418] border border-[#1E293B] rounded-xl p-4">
+                        <h4 class="text-xs font-semibold text-[#94A3B8] mb-3 uppercase tracking-wider">Lithology Legend</h4>
+                        <div class="grid grid-cols-2 gap-2 text-xs">
+                            <div class="flex items-center gap-2">
+                                <div class="w-4 h-4 pattern-sand rounded"></div>
+                                <span class="text-[#94A3B8]">Sand</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <div class="w-4 h-4 pattern-clay rounded"></div>
+                                <span class="text-[#94A3B8]">Clay</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <div class="w-4 h-4 pattern-sandstone rounded"></div>
+                                <span class="text-[#94A3B8]">Sandstone</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <div class="w-4 h-4 pattern-shale rounded"></div>
+                                <span class="text-[#94A3B8]">Shale</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <div class="w-4 h-4 pattern-marl rounded"></div>
+                                <span class="text-[#94A3B8]">Marl</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <div class="w-4 h-4 pattern-chalk rounded"></div>
+                                <span class="text-[#94A3B8]">Chalk</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Right Panel: Basin Map & Properties (60%) -->
+                <div class="lg:col-span-3 space-y-6">
+                    <!-- Basin Map Placeholder -->
+                    <div class="bg-[#111418] border border-[#1E293B] rounded-xl overflow-hidden">
+                        <div class="px-4 py-3 border-b border-[#1E293B] bg-[#1A1F24]">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-2">
+                                    <i data-lucide="map" class="w-4 h-4 text-[#F59E0B]"></i>
+                                    <h3 class="text-sm font-semibold text-[#F8FAFC]">Basin Map</h3>
+                                </div>
+                                <span id="basinName" class="text-xs text-[#94A3B8]">North Sea Graben</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Map Visualization -->
+                        <div class="relative h-[300px] bg-[#0A0C0E] overflow-hidden">
+                            <!-- Basin Outline -->
+                            <svg class="absolute inset-0 w-full h-full" viewBox="0 0 400 300">
+                                <!-- Basin boundary -->
+                                <path id="basinOutline" d="M50,150 Q100,50 200,60 Q300,70 350,150 Q320,250 200,240 Q80,230 50,150 Z" 
+                                      fill="none" stroke="#374151" stroke-width="2" stroke-dasharray="5,5"/>
+                                
+                                <!-- Graben faults -->
+                                <line x1="120" y1="60" x2="100" y2="240" stroke="#4B5563" stroke-width="1" stroke-dasharray="3,3"/>
+                                <line x1="280" y1="70" x2="300" y2="250" stroke="#4B5563" stroke-width="1" stroke-dasharray="3,3"/>
+                                
+                                <!-- Wells -->
+                                <g id="wells">
+                                    <circle cx="150" cy="120" r="4" fill="#F59E0B" class="well-dot-svg"/>
+                                    <circle cx="200" cy="150" r="4" fill="#F59E0B" class="well-dot-svg"/>
+                                    <circle cx="250" cy="130" r="4" fill="#F59E0B" class="well-dot-svg"/>
+                                    <circle cx="180" cy="180" r="4" fill="#F59E0B" class="well-dot-svg"/>
+                                    <circle cx="220" cy="200" r="4" fill="#F59E0B" class="well-dot-svg"/>
+                                </g>
+                                
+                                <!-- Well labels -->
+                                <text x="155" y="115" fill="#94A3B8" font-size="8" font-family="JetBrains Mono">NS-01</text>
+                                <text x="205" y="145" fill="#94A3B8" font-size="8" font-family="JetBrains Mono">NS-02</text>
+                                <text x="255" y="125" fill="#94A3B8" font-size="8" font-family="JetBrains Mono">NS-03</text>
+                                <text x="185" y="175" fill="#94A3B8" font-size="8" font-family="JetBrains Mono">NS-04</text>
+                                <text x="225" y="195" fill="#94A3B8" font-size="8" font-family="JetBrains Mono">NS-05</text>
+                                
+                                <!-- Scale bar -->
+                                <line x1="50" y1="270" x2="150" y2="270" stroke="#64748B" stroke-width="2"/>
+                                <line x1="50" y1="265" x2="50" y2="275" stroke="#64748B" stroke-width="2"/>
+                                <line x1="150" y1="265" x2="150" y2="275" stroke="#64748B" stroke-width="2"/>
+                                <text x="100" y="285" fill="#64748B" font-size="10" text-anchor="middle" font-family="JetBrains Mono">100 km</text>
+                            </svg>
+                            
+                            <!-- Map Legend -->
+                            <div class="absolute bottom-2 right-2 bg-[#111418]/90 backdrop-blur border border-[#1E293B] rounded-lg p-2 text-xs">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <div class="w-3 h-3 rounded-full bg-[#F59E0B]"></div>
+                                    <span class="text-[#94A3B8]">Well</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <div class="w-4 h-0.5 border-t border-dashed border-[#374151]"></div>
+                                    <span class="text-[#94A3B8]">Fault</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Properties Panel -->
+                    <div class="bg-[#111418] border border-[#1E293B] rounded-xl overflow-hidden">
+                        <div class="px-4 py-3 border-b border-[#1E293B] bg-[#1A1F24]">
+                            <div class="flex items-center gap-2">
+                                <i data-lucide="info" class="w-4 h-4 text-[#F59E0B]"></i>
+                                <h3 class="text-sm font-semibold text-[#F8FAFC]">Formation Properties</h3>
+                            </div>
+                        </div>
+                        
+                        <div id="propertiesPanel" class="p-4">
+                            <div class="text-center py-8 text-[#64748B]">
+                                <i data-lucide="mouse-pointer-click" class="w-8 h-8 mx-auto mb-2 opacity-50"></i>
+                                <p class="text-sm">Click on a formation in the stratigraphic column to view details</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Basin Statistics -->
+                    <div class="grid grid-cols-3 gap-4">
+                        <div class="bg-[#111418] border border-[#1E293B] rounded-xl p-4 text-center card-hover">
+                            <div class="text-2xl font-bold text-[#F59E0B] font-mono" id="totalThickness">0</div>
+                            <div class="text-xs text-[#94A3B8] mt-1">Total Thickness (m)</div>
+                        </div>
+                        <div class="bg-[#111418] border border-[#1E293B] rounded-xl p-4 text-center card-hover">
+                            <div class="text-2xl font-bold text-[#10B981] font-mono" id="ageSpan">0</div>
+                            <div class="text-xs text-[#94A3B8] mt-1">Age Span (Ma)</div>
+                        </div>
+                        <div class="bg-[#111418] border border-[#1E293B] rounded-xl p-4 text-center card-hover">
+                            <div class="text-2xl font-bold text-[#3B82F6] font-mono" id="formationCount">0</div>
+                            <div class="text-xs text-[#94A3B8] mt-1">Formations</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-[#111418] border-t border-[#1E293B] mt-auto">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 bg-[#F59E0B] rounded flex items-center justify-center">
+                        <i data-lucide="mountain" class="w-5 h-5 text-[#0A0C0E]"></i>
+                    </div>
+                    <div>
+                        <span class="text-sm font-semibold text-[#F8FAFC]">GEOX Command Center</span>
+                        <p class="text-xs text-[#64748B]">Earth Intelligence Core — Real Tools, Zero Theater</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-center gap-6 text-sm text-[#94A3B8]">
+                    <a href="../index.html" class="hover:text-[#F8FAFC] transition-colors">Home</a>
+                    <a href="#" class="hover:text-[#F8FAFC] transition-colors">Tools</a>
+                    <a href="#" class="hover:text-[#F8FAFC] transition-colors">About</a>
+                    <a href="#" class="hover:text-[#F8FAFC] transition-colors">Docs</a>
+                </div>
+                
+                <div class="text-xs text-[#64748B]">
+                    &copy; 2024 GEOX. All rights reserved.
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Basin data
+        const basinData = {
+            'north-sea': {
+                name: 'North Sea Graben',
+                formations: [
+                    { name: 'Holocene', ageStart: 0, ageEnd: 0.0117, thickness: 50, lithology: 'sand', lithologyName: 'Sand/Clay', environment: 'Marine shelf', potential: 'Low' },
+                    { name: 'Pleistocene', ageStart: 0.0117, ageEnd: 2.58, thickness: 150, lithology: 'clay', lithologyName: 'Clay/Sand', environment: 'Glacio-marine', potential: 'Low' },
+                    { name: 'Pliocene', ageStart: 2.58, ageEnd: 5.33, thickness: 300, lithology: 'sandstone', lithologyName: 'Sandstone', environment: 'Shallow marine', potential: 'Moderate' },
+                    { name: 'Miocene', ageStart: 5.33, ageEnd: 23.03, thickness: 500, lithology: 'shale', lithologyName: 'Shale/Sand', environment: 'Deep marine', potential: 'High' },
+                    { name: 'Oligocene', ageStart: 23.03, ageEnd: 33.9, thickness: 400, lithology: 'shale', lithologyName: 'Shale', environment: 'Deep marine', potential: 'High' },
+                    { name: 'Eocene', ageStart: 33.9, ageEnd: 56, thickness: 600, lithology: 'marl', lithologyName: 'Marl', environment: 'Open marine', potential: 'Moderate' },
+                    { name: 'Paleocene', ageStart: 56, ageEnd: 66, thickness: 800, lithology: 'chalk', lithologyName: 'Chalk', environment: 'Pelagic', potential: 'Low' },
+                    { name: 'Cretaceous', ageStart: 66, ageEnd: 145, thickness: 1200, lithology: 'chalk-shale', lithologyName: 'Chalk/Shale', environment: 'Pelagic', potential: 'Moderate' }
+                ],
+                wells: [
+                    { id: 'NS-01', x: 150, y: 120 },
+                    { id: 'NS-02', x: 200, y: 150 },
+                    { id: 'NS-03', x: 250, y: 130 },
+                    { id: 'NS-04', x: 180, y: 180 },
+                    { id: 'NS-05', x: 220, y: 200 }
+                ]
+            },
+            'gulf-mexico': {
+                name: 'Gulf of Mexico',
+                formations: [
+                    { name: 'Holocene', ageStart: 0, ageEnd: 0.0117, thickness: 100, lithology: 'sand', lithologyName: 'Sand/Silt', environment: 'Deltaic', potential: 'Moderate' },
+                    { name: 'Pleistocene', ageStart: 0.0117, ageEnd: 2.58, thickness: 400, lithology: 'sandstone', lithologyName: 'Sandstone', environment: 'Deltaic/Fluvial', potential: 'High' },
+                    { name: 'Pliocene', ageStart: 2.58, ageEnd: 5.33, thickness: 600, lithology: 'sandstone', lithologyName: 'Sandstone', environment: 'Deepwater turbidites', potential: 'Very High' },
+                    { name: 'Miocene', ageStart: 5.33, ageEnd: 23.03, thickness: 900, lithology: 'shale', lithologyName: 'Shale/Sand', environment: 'Deepwater', potential: 'Very High' },
+                    { name: 'Oligocene', ageStart: 23.03, ageEnd: 33.9, thickness: 700, lithology: 'shale', lithologyName: 'Shale', environment: 'Deep marine', potential: 'High' },
+                    { name: 'Eocene', ageStart: 33.9, ageEnd: 56, thickness: 500, lithology: 'marl', lithologyName: 'Marl/Limestone', environment: 'Carbonate shelf', potential: 'Moderate' },
+                    { name: 'Paleocene', ageStart: 56, ageEnd: 66, thickness: 400, lithology: 'chalk', lithologyName: 'Chalk', environment: 'Pelagic', potential: 'Low' }
+                ],
+                wells: [
+                    { id: 'GoM-01', x: 120, y: 100 },
+                    { id: 'GoM-02', x: 200, y: 140 },
+                    { id: 'GoM-03', x: 280, y: 120 },
+                    { id: 'GoM-04', x: 160, y: 180 },
+                    { id: 'GoM-05', x: 240, y: 200 },
+                    { id: 'GoM-06', x: 200, y: 80 }
+                ]
+            },
+            'permian': {
+                name: 'Permian Basin',
+                formations: [
+                    { name: 'Quaternary', ageStart: 0, ageEnd: 2.58, thickness: 75, lithology: 'sand', lithologyName: 'Alluvium', environment: 'Continental', potential: 'Low' },
+                    { name: 'Tertiary', ageStart: 2.58, ageEnd: 66, thickness: 200, lithology: 'sandstone', lithologyName: 'Sandstone', environment: 'Fluvial', potential: 'Low' },
+                    { name: 'Cretaceous', ageStart: 66, ageEnd: 145, thickness: 350, lithology: 'shale', lithologyName: 'Shale', environment: 'Marine', potential: 'Moderate' },
+                    { name: 'Jurassic', ageStart: 145, ageEnd: 201, thickness: 250, lithology: 'sandstone', lithologyName: 'Sandstone', environment: 'Shallow marine', potential: 'Moderate' },
+                    { name: 'Triassic', ageStart: 201, ageEnd: 252, thickness: 300, lithology: 'shale', lithologyName: 'Shale/Siltstone', environment: 'Lacustrine', potential: 'Low' },
+                    { name: 'Permian', ageStart: 252, ageEnd: 299, thickness: 800, lithology: 'chalk', lithologyName: 'Carbonate/Reef', environment: 'Platform', potential: 'Very High' },
+                    { name: 'Pennsylvanian', ageStart: 299, ageEnd: 323, thickness: 600, lithology: 'marl', lithologyName: 'Carbonate', environment: 'Platform', potential: 'High' }
+                ],
+                wells: [
+                    { id: 'PER-01', x: 140, y: 110 },
+                    { id: 'PER-02', x: 200, y: 150 },
+                    { id: 'PER-03', x: 260, y: 130 },
+                    { id: 'PER-04', x: 180, y: 190 },
+                    { id: 'PER-05', x: 220, y: 170 }
+                ]
+            },
+            'niger': {
+                name: 'Niger Delta',
+                formations: [
+                    { name: 'Holocene', ageStart: 0, ageEnd: 0.0117, thickness: 150, lithology: 'sand', lithologyName: 'Sand/Clay', environment: 'Delta top', potential: 'Moderate' },
+                    { name: 'Pleistocene', ageStart: 0.0117, ageEnd: 2.58, thickness: 500, lithology: 'sandstone', lithologyName: 'Sandstone', environment: 'Delta front', potential: 'High' },
+                    { name: 'Pliocene', ageStart: 2.58, ageEnd: 5.33, thickness: 800, lithology: 'sandstone', lithologyName: 'Sandstone', environment: 'Deepwater channels', potential: 'Very High' },
+                    { name: 'Miocene', ageStart: 5.33, ageEnd: 23.03, thickness: 1000, lithology: 'shale', lithologyName: 'Shale/Sand', environment: 'Deepwater lobes', potential: 'Very High' },
+                    { name: 'Oligocene', ageStart: 23.03, ageEnd: 33.9, thickness: 700, lithology: 'shale', lithologyName: 'Shale', environment: 'Pro-delta', potential: 'High' },
+                    { name: 'Eocene', ageStart: 33.9, ageEnd: 56, thickness: 500, lithology: 'marl', lithologyName: 'Marl', environment: 'Marine', potential: 'Moderate' }
+                ],
+                wells: [
+                    { id: 'ND-01', x: 130, y: 120 },
+                    { id: 'ND-02', x: 200, y: 140 },
+                    { id: 'ND-03', x: 270, y: 110 },
+                    { id: 'ND-04', x: 170, y: 180 },
+                    { id: 'ND-05', x: 230, y: 200 },
+                    { id: 'ND-06', x: 200, y: 90 }
+                ]
+            }
+        };
+
+        let currentBasin = 'north-sea';
+        let selectedFormation = null;
+
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // Render stratigraphic column
+        function renderStratColumn() {
+            const container = document.getElementById('stratColumn');
+            const data = basinData[currentBasin];
+            
+            container.innerHTML = '';
+            
+            data.formations.forEach((formation, index) => {
+                const div = document.createElement('div');
+                div.className = `formation-item grid grid-cols-12 gap-1 px-3 py-3 border-b border-[#1E293B] items-center ${selectedFormation === index ? 'selected bg-[#1A1F24]' : 'hover:bg-[#1A1F24]/50'}`;
+                div.onclick = () => selectFormation(index);
+                
+                div.innerHTML = `
+                    <div class="col-span-3">
+                        <span class="text-sm font-medium text-[#F8FAFC]">${formation.name}</span>
+                    </div>
+                    <div class="col-span-3 text-right">
+                        <span class="text-xs font-mono text-[#94A3B8]">${formation.ageStart}-${formation.ageEnd}</span>
+                    </div>
+                    <div class="col-span-3 text-right">
+                        <span class="text-xs font-mono text-[#F59E0B]">${formation.thickness}m</span>
+                    </div>
+                    <div class="col-span-3 flex items-center gap-2">
+                        <div class="w-6 h-6 pattern-${formation.lithology} rounded flex-shrink-0 border border-[#374151]"></div>
+                        <span class="text-xs text-[#94A3B8] truncate">${formation.lithologyName}</span>
+                    </div>
+                `;
+                
+                container.appendChild(div);
+            });
+            
+            // Update statistics
+            updateStatistics(data);
+        }
+
+        // Update basin statistics
+        function updateStatistics(data) {
+            const totalThickness = data.formations.reduce((sum, f) => sum + f.thickness, 0);
+            const ageSpan = Math.max(...data.formations.map(f => f.ageEnd)) - Math.min(...data.formations.map(f => f.ageStart));
+            
+            document.getElementById('totalThickness').textContent = totalThickness.toLocaleString();
+            document.getElementById('ageSpan').textContent = ageSpan.toFixed(1);
+            document.getElementById('formationCount').textContent = data.formations.length;
+        }
+
+        // Select formation and show properties
+        function selectFormation(index) {
+            selectedFormation = index;
+            const data = basinData[currentBasin];
+            const formation = data.formations[index];
+            
+            // Update selection visual
+            renderStratColumn();
+            
+            // Update properties panel
+            const panel = document.getElementById('propertiesPanel');
+            panel.innerHTML = `
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h4 class="text-lg font-semibold text-[#F8FAFC]">${formation.name}</h4>
+                        <span class="px-2 py-1 bg-[#1A1F24] text-[#F59E0B] text-xs font-mono rounded">${formation.lithologyName}</span>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-[#0A0C0E] rounded-lg p-3">
+                            <div class="text-xs text-[#64748B] mb-1">Age Range</div>
+                            <div class="text-sm font-mono text-[#F8FAFC]">${formation.ageStart} - ${formation.ageEnd} Ma</div>
+                        </div>
+                        <div class="bg-[#0A0C0E] rounded-lg p-3">
+                            <div class="text-xs text-[#64748B] mb-1">Thickness</div>
+                            <div class="text-sm font-mono text-[#F8FAFC]">${formation.thickness} meters</div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-[#0A0C0E] rounded-lg p-3">
+                        <div class="text-xs text-[#64748B] mb-1">Depositional Environment</div>
+                        <div class="text-sm text-[#F8FAFC]">${formation.environment}</div>
+                    </div>
+                    
+                    <div class="bg-[#0A0C0E] rounded-lg p-3">
+                        <div class="text-xs text-[#64748B] mb-1">Hydrocarbon Potential</div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-sm text-[#F8FAFC]">${formation.potential}</span>
+                            <span class="w-20 h-2 bg-[#1E293B] rounded-full overflow-hidden">
+                                <span class="h-full ${getPotentialColor(formation.potential)} rounded-full" style="width: ${getPotentialWidth(formation.potential)}%"></span>
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center gap-3 pt-2">
+                        <div class="w-12 h-12 pattern-${formation.lithology} rounded-lg border border-[#374151] flex-shrink-0"></div>
+                        <div>
+                            <div class="text-xs text-[#64748B]">Lithology Pattern</div>
+                            <div class="text-sm text-[#94A3B8]">${formation.lithologyName}</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Get potential color
+        function getPotentialColor(potential) {
+            const colors = {
+                'Low': 'bg-[#64748B]',
+                'Moderate': 'bg-[#3B82F6]',
+                'High': 'bg-[#F59E0B]',
+                'Very High': 'bg-[#10B981]'
+            };
+            return colors[potential] || 'bg-[#64748B]';
+        }
+
+        // Get potential width
+        function getPotentialWidth(potential) {
+            const widths = {
+                'Low': 25,
+                'Moderate': 50,
+                'High': 75,
+                'Very High': 100
+            };
+            return widths[potential] || 25;
+        }
+
+        // Update basin map
+        function updateBasinMap() {
+            const data = basinData[currentBasin];
+            document.getElementById('basinName').textContent = data.name;
+            
+            // Update wells
+            const wellsGroup = document.getElementById('wells');
+            wellsGroup.innerHTML = '';
+            
+            data.wells.forEach(well => {
+                const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                circle.setAttribute('cx', well.x);
+                circle.setAttribute('cy', well.y);
+                circle.setAttribute('r', '4');
+                circle.setAttribute('fill', '#F59E0B');
+                circle.setAttribute('class', 'well-dot-svg');
+                wellsGroup.appendChild(circle);
+                
+                // Add label
+                const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                text.setAttribute('x', well.x + 5);
+                text.setAttribute('y', well.y - 5);
+                text.setAttribute('fill', '#94A3B8');
+                text.setAttribute('font-size', '8');
+                text.setAttribute('font-family', 'JetBrains Mono');
+                text.textContent = well.id;
+                wellsGroup.appendChild(text);
+            });
+        }
+
+        // Basin selector change handler
+        document.getElementById('basinSelector').addEventListener('change', function() {
+            currentBasin = this.value;
+            selectedFormation = null;
+            
+            // Reset properties panel
+            document.getElementById('propertiesPanel').innerHTML = `
+                <div class="text-center py-8 text-[#64748B]">
+                    <i data-lucide="mouse-pointer-click" class="w-8 h-8 mx-auto mb-2 opacity-50"></i>
+                    <p class="text-sm">Click on a formation in the stratigraphic column to view details</p>
+                </div>
+            `;
+            lucide.createIcons();
+            
+            renderStratColumn();
+            updateBasinMap();
+        });
+
+        // Initialize
+        renderStratColumn();
+        updateBasinMap();
+        
+        // Select first formation by default
+        selectFormation(0);
+    </script>
+</body>
+</html>

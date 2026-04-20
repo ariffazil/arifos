@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Risk & Reward - GEOX Command Center</title>
+  
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="../shared/styles.css">
+  
+  <style>
+    .metric-card {
+      background: rgba(17, 20, 24, 0.95);
+      border: 1px solid #1E293B;
+      border-radius: 12px;
+      padding: 20px;
+      transition: all 0.3s ease;
+    }
+    .metric-card:hover {
+      border-color: #F59E0B;
+      transform: translateY(-2px);
+    }
+    .void-gradient {
+      background: radial-gradient(circle at center, #1E293B 0%, #0A0C0E 100%);
+    }
+    .pos-slider {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 6px;
+      border-radius: 3px;
+      background: #1E293B;
+      outline: none;
+    }
+    .pos-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #F59E0B;
+      cursor: pointer;
+      box-shadow: 0 0 10px rgba(245, 158, 11, 0.4);
+    }
+  </style>
+</head>
+<body class="bg-[#0A0C0E] min-h-screen text-[#F8FAFC]">
+
+  <header class="fixed top-0 left-0 right-0 z-50 h-16 border-b border-[#1E293B]" style="background: rgba(10, 12, 14, 0.95); backdrop-filter: blur(12px);">
+    <div class="container h-full flex items-center justify-between px-6 mx-auto">
+      <a href="../index.html" class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-lg bg-[#F59E0B] flex items-center justify-center">
+          <i data-lucide="trending-up" class="w-5 h-5 text-[#0A0C0E]"></i>
+        </div>
+        <div class="flex flex-col">
+          <span class="text-lg font-semibold leading-tight">GEOX</span>
+          <span class="text-xs text-[#64748B] leading-tight">Risk & Reward</span>
+        </div>
+      </a>
+      
+      <div class="flex items-center gap-4">
+        <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#111418] border border-[#1E293B]">
+          <span class="w-2 h-2 rounded-full bg-[#10B981] animate-pulse"></span>
+          <span class="text-xs font-medium text-[#10B981]">GROUNDED</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container pt-24 pb-12 px-6 mx-auto">
+    
+    <!-- Hero Section -->
+    <section class="mb-10">
+      <div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div>
+          <h1 class="text-3xl md:text-4xl font-bold mb-2">The Volumetric Void</h1>
+          <p class="text-[#94A3B8] max-w-2xl">Stochastic prospect evaluation and risk-adjusted economic modelling. Forged for the high-stakes decisions of regional exploration.</p>
+        </div>
+        <div class="flex gap-2">
+          <button class="px-4 py-2 bg-[#F59E0B] text-[#0A0C0E] rounded-lg font-semibold text-sm hover:bg-[#FBBF24] transition-all flex items-center gap-2" onclick="runSimulation()">
+            <i data-lucide="play" class="w-4 h-4"></i>
+            Run Monte Carlo
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Controls & Inputs -->
+    <section class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+      
+      <!-- Volumetric Inputs -->
+      <div class="metric-card">
+        <h3 class="text-sm font-bold text-[#F59E0B] uppercase tracking-widest mb-4 flex items-center gap-2">
+          <i data-lucide="layers" class="w-4 h-4"></i>
+          Volumetric Chain
+        </h3>
+        <div class="space-y-4">
+          <div>
+            <label class="text-xs text-[#64748B] uppercase block mb-1">Area (km²)</label>
+            <input type="number" id="input-area" value="12.5" class="w-full bg-[#0A0C0E] border border-[#1E293B] rounded px-3 py-2 text-sm focus:border-[#F59E0B] outline-none">
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="text-xs text-[#64748B] uppercase block mb-1">Net Pay (m)</label>
+              <input type="number" id="input-pay" value="45" class="w-full bg-[#0A0C0E] border border-[#1E293B] rounded px-3 py-2 text-sm focus:border-[#F59E0B] outline-none">
+            </div>
+            <div>
+              <label class="text-xs text-[#64748B] uppercase block mb-1">Porosity (%)</label>
+              <input type="number" id="input-phi" value="18" class="w-full bg-[#0A0C0E] border border-[#1E293B] rounded px-3 py-2 text-sm focus:border-[#F59E0B] outline-none">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Risk Inputs -->
+      <div class="metric-card">
+        <h3 class="text-sm font-bold text-[#F59E0B] uppercase tracking-widest mb-4 flex items-center gap-2">
+          <i data-lucide="shield-alert" class="w-4 h-4"></i>
+          Risk Parameters
+        </h3>
+        <div class="space-y-6">
+          <div>
+            <div class="flex justify-between mb-2">
+              <label class="text-xs text-[#64748B] uppercase block">Probability of Success (PoS)</label>
+              <span id="pos-value" class="text-sm font-mono text-[#F59E0B]">25%</span>
+            </div>
+            <input type="range" id="input-pos" class="pos-slider" min="5" max="95" value="25" oninput="updatePos(this.value)">
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div class="p-3 bg-[#0A0C0E] rounded-lg border border-[#1E293B]">
+              <div class="text-[10px] text-[#64748B] uppercase mb-1">Source Risk</div>
+              <div class="text-sm font-medium">Low (0.9)</div>
+            </div>
+            <div class="p-3 bg-[#0A0C0E] rounded-lg border border-[#1E293B]">
+              <div class="text-[10px] text-[#64748B] uppercase mb-1">Seal Risk</div>
+              <div class="text-sm font-medium">Med (0.6)</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Economic Inputs -->
+      <div class="metric-card">
+        <h3 class="text-sm font-bold text-[#F59E0B] uppercase tracking-widest mb-4 flex items-center gap-2">
+          <i data-lucide="dollar-sign" class="w-4 h-4"></i>
+          Economic Floor
+        </h3>
+        <div class="space-y-4">
+          <div>
+            <label class="text-xs text-[#64748B] uppercase block mb-1">Oil Price ($/bbl)</label>
+            <input type="number" id="input-price" value="80" class="w-full bg-[#0A0C0E] border border-[#1E293B] rounded px-3 py-2 text-sm focus:border-[#F59E0B] outline-none">
+          </div>
+          <div>
+            <label class="text-xs text-[#64748B] uppercase block mb-1">Exploration CAPEX ($M)</label>
+            <input type="number" id="input-capex" value="120" class="w-full bg-[#0A0C0E] border border-[#1E293B] rounded px-3 py-2 text-sm focus:border-[#F59E0B] outline-none">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Results Section -->
+    <section class="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
+      
+      <!-- Volumetric Curve -->
+      <div class="lg:col-span-2 metric-card void-gradient">
+        <h3 class="text-sm font-bold text-[#F8FAFC] mb-4">Volume Distribution (Expectation Curve)</h3>
+        <div class="h-64 flex items-center justify-center">
+          <canvas id="volCurve"></canvas>
+        </div>
+      </div>
+
+      <!-- Key Metrics -->
+      <div class="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="metric-card border-l-4 border-l-[#F59E0B]">
+          <div class="text-xs text-[#64748B] uppercase mb-1">Mean Recoverable</div>
+          <div class="text-3xl font-bold font-mono tracking-tight" id="res-vol">142.5 <span class="text-sm text-[#64748B]">MMbbl</span></div>
+          <div class="text-[10px] text-[#10B981] mt-2 flex items-center gap-1">
+            <i data-lucide="check-circle" class="w-3 h-3"></i>
+            Grounding Verified
+          </div>
+        </div>
+        <div class="metric-card border-l-4 border-l-[#EF4444]">
+          <div class="text-xs text-[#64748B] uppercase mb-1">ENPV (Risk-Adjusted)</div>
+          <div class="text-3xl font-bold font-mono tracking-tight" id="res-enpv">$34.2 <span class="text-sm text-[#64748B]">M</span></div>
+          <div class="text-[10px] text-[#F59E0B] mt-2 flex items-center gap-1">
+            <i data-lucide="alert-triangle" class="w-3 h-3"></i>
+            Excludes Carbon Tax
+          </div>
+        </div>
+        <div class="metric-card">
+          <div class="text-xs text-[#64748B] uppercase mb-1">P90 - P10 Range</div>
+          <div class="text-xl font-bold font-mono" id="res-range">45 - 310 <span class="text-xs text-[#64748B]">MMbbl</span></div>
+        </div>
+        <div class="metric-card">
+          <div class="text-xs text-[#64748B] uppercase mb-1">Profitability Index</div>
+          <div class="text-xl font-bold font-mono" id="res-pi">2.4x</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Decision Verdict -->
+    <section class="metric-card bg-[#111418] border-[#F59E0B]/50 flex flex-col md:flex-row items-center justify-between gap-6">
+      <div class="flex items-center gap-4">
+        <div class="w-16 h-16 rounded-full bg-[#F59E0B]/10 flex items-center justify-center border-2 border-[#F59E0B]">
+          <i data-lucide="gavel" class="w-8 h-8 text-[#F59E0B]"></i>
+        </div>
+        <div>
+          <h2 class="text-xl font-bold">Exploration Verdict: <span class="text-[#10B981]" id="verdict">QUALIFIED</span></h2>
+          <p class="text-sm text-[#94A3B8]" id="verdict-note">Risk-adjusted return exceeds hurdle rate. Proceed to detailed well design.</p>
+        </div>
+      </div>
+      <div class="flex gap-3">
+        <button class="px-6 py-2 border border-[#1E293B] rounded-lg text-sm font-medium hover:bg-white/5 transition-all">Download Report</button>
+        <button class="px-6 py-2 bg-[#F59E0B] text-[#0A0C0E] rounded-lg text-sm font-bold hover:bg-[#FBBF24] transition-all">Submit for 888 HOLD</button>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="border-t border-[#1E293B] bg-[#0A0C0E] mt-auto">
+    <div class="container py-8 px-6 mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-2">
+        <span class="text-xs text-[#64748B] font-mono">v0.1.0-VOID</span>
+        <span class="text-xs text-[#F59E0B] font-bold">DITEMPA BUKAN DIBERI</span>
+      </div>
+      <p class="text-[10px] text-[#64748B] uppercase tracking-widest">arifOS Intelligence Unit</p>
+    </div>
+  </footer>
+
+  <script>
+    lucide.createIcons();
+
+    let chart = null;
+
+    function updatePos(val) {
+      document.getElementById('pos-value').innerText = val + '%';
+      calculateEconomics();
+    }
+
+    function calculateEconomics() {
+      const pos = parseFloat(document.getElementById('input-pos').value) / 100;
+      const price = parseFloat(document.getElementById('input-price').value);
+      const capex = parseFloat(document.getElementById('input-capex').value);
+      const vol = parseFloat(document.getElementById('res-vol').innerText);
+
+      // Success profit
+      const success = (vol * 1.0 * price * 0.35) - (capex * 1.0); // 0.35 for take/tax
+      const enpv = (success * pos) - (capex * 0.1 * (1-pos)); // Loss is 10% of capex
+
+      document.getElementById('res-enpv').innerText = '$' + (enpv / 1).toFixed(1) + ' M';
+      document.getElementById('res-pi').innerText = (success / capex).toFixed(2) + 'x';
+
+      const verdict = document.getElementById('verdict');
+      const note = document.getElementById('verdict-note');
+      if (enpv > 0) {
+        verdict.innerText = 'QUALIFIED';
+        verdict.className = 'text-[#10B981]';
+        note.innerText = 'Risk-adjusted return exceeds hurdle rate. Proceed to detailed well design.';
+      } else {
+        verdict.innerText = 'HOLD';
+        verdict.className = 'text-[#EF4444]';
+        note.innerText = 'Expected monetary value is negative. Peer review required for strategic override.';
+      }
+    }
+
+    function runSimulation() {
+      const area = parseFloat(document.getElementById('input-area').value);
+      const pay = parseFloat(document.getElementById('input-pay').value);
+      const phi = parseFloat(document.getElementById('input-phi').value) / 100;
+
+      // Deterministic mean for now
+      const mean = area * pay * phi * 0.7 * 0.35 * 6.29; // Simple conversion factors
+      document.getElementById('res-vol').innerText = mean.toFixed(1) + ' MMbbl';
+      
+      const p90 = mean * 0.4;
+      const p10 = mean * 2.2;
+      document.getElementById('res-range').innerText = p90.toFixed(0) + ' - ' + p10.toFixed(0) + ' MMbbl';
+
+      updateChart(mean);
+      calculateEconomics();
+    }
+
+    function updateChart(mean) {
+      const ctx = document.getElementById('volCurve').getContext('2d');
+      
+      if (chart) chart.destroy();
+
+      const labels = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0].map(p => (p * 100) + '%');
+      const data = labels.map((p, i) => {
+        // Simple lognormal proxy
+        return mean * Math.exp(1.2 - (i * 0.3));
+      }).reverse();
+
+      chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: ['P100', 'P90', 'P80', 'P70', 'P60', 'P50', 'P40', 'P30', 'P20', 'P10'],
+          datasets: [{
+            label: 'Recoverable Volume (MMbbl)',
+            data: data,
+            borderColor: '#F59E0B',
+            backgroundColor: 'rgba(245, 158, 11, 0.1)',
+            fill: true,
+            tension: 0.4,
+            borderWidth: 2,
+            pointRadius: 4,
+            pointBackgroundColor: '#F59E0B'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false }
+          },
+          scales: {
+            y: {
+              grid: { color: 'rgba(255, 255, 255, 0.05)' },
+              ticks: { color: '#64748B', font: { family: 'JetBrains Mono', size: 10 } }
+            },
+            x: {
+              grid: { display: false },
+              ticks: { color: '#64748B', font: { family: 'JetBrains Mono', size: 10 } }
+            }
+          }
+        }
+      });
+    }
+
+    window.onload = runSimulation;
+  </script>
+</body>
+</html>

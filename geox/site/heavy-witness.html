@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GEOX // HEAVY WITNESS [999_SEAL_CLARITY]</title>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide icons fix for standalone React -->
+    <script>
+        // Manually creating Lucide stubs for the refined ontology
+        window.Lucide = {
+            Activity: (props) => React.createElement('svg', { ...props, xmlns: 'http://www.w3.org/2000/svg', width: 24, height: 24, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round' }, React.createElement('path', { d: 'M22 12h-4l-3 9L9 3l-3 9H2' })),
+            Layers: (props) => React.createElement('svg', { ...props, xmlns: 'http://www.w3.org/2000/svg', width: 24, height: 24, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round' }, React.createElement('path', { d: 'm12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.91a1 1 0 0 0 0-1.83Z' }), React.createElement('path', { d: 'm2.9 12.92 6.59 3a2 2 0 0 0 1.66 0l6.59-3' }), React.createElement('path', { d: 'm2.9 17.92 6.59 3a2 2 0 0 0 1.66 0l6.59-3' })),
+            Box: (props) => React.createElement('svg', { ...props, xmlns: 'http://www.w3.org/2000/svg', width: 24, height: 24, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round' }, React.createElement('path', { d: 'M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z' }), React.createElement('path', { d: 'm3.3 7 8.7 5 8.7-5' }), React.createElement('path', { d: 'M12 22V12' })),
+            Terminal: (props) => React.createElement('svg', { ...props, xmlns: 'http://www.w3.org/2000/svg', width: 24, height: 24, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round' }, React.createElement('polyline', { points: '4 17 10 11 4 5' }), React.createElement('line', { x1: '12', x2: '20', y1: '19', y2: '19' })),
+            Shield: (props) => React.createElement('svg', { ...props, xmlns: 'http://www.w3.org/2000/svg', width: 24, height: 24, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round' }, React.createElement('path', { d: 'M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z' })),
+            Zap: (props) => React.createElement('svg', { ...props, xmlns: 'http://www.w3.org/2000/svg', width: 24, height: 24, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round' }, React.createElement('polygon', { points: '13 2 3 14 12 14 11 22 21 10 12 10 13 2' })),
+            Target: (props) => React.createElement('svg', { ...props, xmlns: 'http://www.w3.org/2000/svg', width: 24, height: 24, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round' }, React.createElement('circle', { cx: '12', cy: '12', r: '10' }), React.createElement('circle', { cx: '12', cy: '12', r: '6' }), React.createElement('circle', { cx: '12', cy: '12', r: '2' })),
+            Cpu: (props) => React.createElement('svg', { ...props, xmlns: 'http://www.w3.org/2000/svg', width: 24, height: 24, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round' }, React.createElement('rect', { x: '4', y: '4', width: '16', height: '16', rx: '2' }), React.createElement('rect', { x: '9', y: '9', width: '6', height: '6' }), React.createElement('path', { d: 'M15 2v2M15 20v2M2 15h2M2 9h2M20 15h2M20 9h2M9 2v2M9 20v2' })),
+            Database: (props) => React.createElement('svg', { ...props, xmlns: 'http://www.w3.org/2000/svg', width: 24, height: 24, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round' }, React.createElement('ellipse', { cx: '12', cy: '5', rx: '9', ry: '3' }), React.createElement('path', { d: 'M3 5V19A9 3 0 0 0 21 19V5M3 12A9 3 0 0 0 21 12' })),
+            Crosshair: (props) => React.createElement('svg', { ...props, xmlns: 'http://www.w3.org/2000/svg', width: 24, height: 24, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round' }, React.createElement('circle', { cx: '12', cy: '12', r: '10' }), React.createElement('line', { x1: '22', x2: '18', y1: '12', y2: '12' }), React.createElement('line', { x1: '6', x2: '2', y1: '12', y2: '12' }), React.createElement('line', { x1: '12', x2: '12', y1: '2', y2: '6' }), React.createElement('line', { x1: '12', x2: '12', y1: '18', y2: '22' })),
+            Sliders: (props) => React.createElement('svg', { ...props, xmlns: 'http://www.w3.org/2000/svg', width: 24, height: 24, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round' }, React.createElement('line', { x1: '4', x2: '4', y1: '21', y2: '14' }), React.createElement('line', { x1: '4', x2: '4', y1: '10', y2: '3' }), React.createElement('line', { x1: '12', x2: '12', y1: '21', y2: '12' }), React.createElement('line', { x1: '12', x2: '12', y1: '8', y2: '3' }), React.createElement('line', { x1: '20', x2: '20', y1: '21', y2: '16' }), React.createElement('line', { x1: '20', x2: '20', y1: '12', y2: '3' }), React.createElement('line', { x1: '2', x2: '6', y1: '14', y2: '14' }), React.createElement('line', { x1: '10', x2: '14', y1: '8', y2: '8' }), React.createElement('line', { x1: '18', x2: '22', y1: '12', y2: '12' })),
+            Ruler: (props) => React.createElement('svg', { ...props, xmlns: 'http://www.w3.org/2000/svg', width: 24, height: 24, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round' }, React.createElement('path', { d: 'M21.3 15.3 4.7 18.7a2.4 2.4 0 0 1-2.8-1.9l-1.2-5.8a2.4 2.4 0 0 1 1.9-2.8l16.6-3.4a2.4 2.4 0 0 1 2.8 1.9l1.2 5.8a2.4 2.4 0 0 1-1.9 2.8Z' }), React.createElement('path', { d: 'M7.2 10.1 8.2 15M12.1 9.1 13 13.9M17.1 8.1 18 12.9' })),
+            Clock: (props) => React.createElement('svg', { ...props, xmlns: 'http://www.w3.org/2000/svg', width: 24, height: 24, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round' }, React.createElement('circle', { cx: '12', cy: '12', r: '10' }), React.createElement('polyline', { points: '12 6 12 12 16 14' })),
+            ScanFace: (props) => React.createElement('svg', { ...props, xmlns: 'http://www.w3.org/2000/svg', width: 24, height: 24, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round' }, React.createElement('path', { d: 'M3 7V5a2 2 0 0 1 2-2h2' }), React.createElement('path', { d: 'M17 3h2a2 2 0 0 1 2 2v2' }), React.createElement('path', { d: 'M21 17v2a2 2 0 0 1-2 2h-2' }), React.createElement('path', { d: 'M7 21H5a2 2 0 0 1-2-2v-2' }), React.createElement('path', { d: 'M8 14s1.5 2 4 2 4-2 4-2' }), React.createElement('path', { d: 'M9 9h.01' }), React.createElement('path', { d: 'M15 9h.01' })),
+            Globe: (props) => React.createElement('svg', { ...props, xmlns: 'http://www.w3.org/2000/svg', width: 24, height: 24, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round' }, React.createElement('circle', { cx: '12', cy: '12', r: '10' }), React.createElement('line', { x1: '2', x2: '22', y1: '12', y2: '12' }), React.createElement('path', { d: 'M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z' })),
+            CheckCircle2: (props) => React.createElement('svg', { ...props, xmlns: 'http://www.w3.org/2000/svg', width: 24, height: 24, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round' }, React.createElement('path', { d: 'M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z' }), React.createElement('path', { d: 'm9 12 2 2 4-4' })),
+            AlertCircle: (props) => React.createElement('svg', { ...props, xmlns: 'http://www.w3.org/2000/svg', width: 24, height: 24, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round' }, React.createElement('circle', { cx: '12', cy: '12', r: '10' }), React.createElement('line', { x1: '12', x2: '12', y1: '8', y2: '12' }), React.createElement('line', { x1: '12', x2: '12.01', y1: '16', y2: '16' })),
+            Network: (props) => React.createElement('svg', { ...props, xmlns: 'http://www.w3.org/2000/svg', width: 24, height: 24, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round' }, React.createElement('rect', { x: '16', y: '16', width: '6', height: '6', rx: '1' }), React.createElement('rect', { x: '2', y: '16', width: '6', height: '6', rx: '1' }), React.createElement('rect', { x: '9', y: '2', width: '6', height: '6', rx: '1' }), React.createElement('path', { d: 'M5 16v-3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3' }), React.createElement('path', { d: 'M12 12V8' })),
+            ArrowRightLeft: (props) => React.createElement('svg', { ...props, xmlns: 'http://www.w3.org/2000/svg', width: 24, height: 24, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round' }, React.createElement('path', { d: 'm16 3 4 4-4 4M20 7H4' }), React.createElement('path', { d: 'm8 21-4-4 4-4M4 17h16' })),
+            DatabaseZap: (props) => React.createElement('svg', { ...props, xmlns: 'http://www.w3.org/2000/svg', width: 24, height: 24, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round' }, React.createElement('ellipse', { cx: '12', cy: '5', rx: '9', ry: '3' }), React.createElement('path', { d: 'M3 5v14a9 3 0 0 0 11.233 2.915M3 12a9 3 0 0 0 9 3M21 11.5V5' }), React.createElement('path', { d: 'm16 11 3 3-3 3M21 14h-5' })),
+            Lock: (props) => React.createElement('svg', { ...props, xmlns: 'http://www.w3.org/2000/svg', width: 24, height: 24, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round' }, React.createElement('rect', { x: '3', y: '11', width: '18', height: '11', rx: '2', ry: '2' }), React.createElement('path', { d: 'M7 11V7a5 5 0 0 1 10 0v4' })),
+            Unlock: (props) => React.createElement('svg', { ...props, xmlns: 'http://www.w3.org/2000/svg', width: 24, height: 24, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round' }, React.createElement('rect', { x: '3', y: '11', width: '18', height: '11', rx: '2', ry: '2' }), React.createElement('path', { d: 'M7 11V7a5 5 0 0 1 9.9-1' })),
+            Wifi: (props) => React.createElement('svg', { ...props, xmlns: 'http://www.w3.org/2000/svg', width: 24, height: 24, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round' }, React.createElement('path', { d: 'M12 20h.01M8.5 16.429a5 5 0 0 1 7 0M5 12.859a10 10 0 0 1 14 0M2 8.571a15 15 0 0 1 20 0' })),
+            Server: (props) => React.createElement('svg', { ...props, xmlns: 'http://www.w3.org/2000/svg', width: 24, height: 24, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round' }, React.createElement('rect', { x: '2', y: '2', width: '20', height: '8', rx: '2', ry: '2' }), React.createElement('rect', { x: '2', y: '14', width: '20', height: '8', rx: '2', ry: '2' }), React.createElement('line', { x1: '6', x2: '6.01', y1: '6', y2: '6' }), React.createElement('line', { x1: '6', x2: '6.01', y1: '18', y2: '18' })),
+            Radio: (props) => React.createElement('svg', { ...props, xmlns: 'http://www.w3.org/2000/svg', width: 24, height: 24, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round' }, React.createElement('path', { d: 'M4.9 19.1C1 15.2 1 8.8 4.9 4.9' }), React.createElement('path', { d: 'M7.8 16.2c-2.3-2.3-2.3-6.1 0-8.5' }), React.createElement('circle', { cx: '12', cy: '12', r: '2' }), React.createElement('path', { d: 'M16.2 7.8c2.3 2.3 2.3 6.1 0 8.5' }), React.createElement('path', { d: 'M19.1 4.9C23 8.8 23 15.2 19.1 19.1' })),
+            XCircle: (props) => React.createElement('svg', { ...props, xmlns: 'http://www.w3.org/2000/svg', width: 24, height: 24, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round' }, React.createElement('circle', { cx: '12', cy: '12', r: '10' }), React.createElement('line', { x1: '15', x2: '9', y1: '9', y2: '15' }), React.createElement('line', { x1: '9', x2: '15', y1: '9', y2: '15' })),
+            Search: (props) => React.createElement('svg', { ...props, xmlns: 'http://www.w3.org/2000/svg', width: 24, height: 24, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round' }, React.createElement('circle', { cx: '11', cy: '11', r: '8' }), React.createElement('line', { x1: '21', x2: '16.65', y1: '21', y2: '16.65' })),
+            Scale: (props) => React.createElement('svg', { ...props, xmlns: 'http://www.w3.org/2000/svg', width: 24, height: 24, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round' }, React.createElement('path', { d: 'm16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z' }), React.createElement('path', { d: 'm2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z' }), React.createElement('path', { d: 'M7 21h10' }), React.createElement('path', { d: 'M12 3v18' }), React.createElement('path', { d: 'M3 7h18' })),
+            PieChart: (props) => React.createElement('svg', { ...props, xmlns: 'http://www.w3.org/2000/svg', width: 24, height: 24, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2, strokeLinecap: 'round', strokeLinejoin: 'round' }, React.createElement('path', { d: 'M21.21 15.89A10 10 0 1 1 8 2.83' }), React.createElement('path', { d: 'M12 12V2a10 10 0 0 1 10 10h-10' }))
+        };
+    </script>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { 
+            Activity, Layers, Box, Terminal, Shield, Zap, Target, 
+            Cpu, Database, Crosshair, Sliders,
+            Ruler, Clock, ScanFace, Globe, CheckCircle2, AlertCircle,
+            Network, ArrowRightLeft, DatabaseZap, Lock, Unlock, Wifi, Server,
+            Radio, XCircle, Search, Scale, PieChart
+        } = window.Lucide;
+
+        const { useState, useEffect, useRef } = React;
+
+        // --- GEMINI API INTEGRATION HOOK ---
+        const useGeminiAPI = () => {
+          const [isLoading, setIsLoading] = useState(false);
+          const [error, setError] = useState(null);
+          const generate = async (prompt, systemInstruction) => {
+            setIsLoading(true); setError(null);
+            const apiKey = ""; // Secret key provided by environment
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+            const payload = { contents: [{ parts: [{ text: prompt }] }], systemInstruction: { parts: [{ text: systemInstruction || "You are an elite, brutalist geological AI assistant embedded in the GEOX system. Keep responses analytical, highly technical, and strictly grounded in earth sciences." }] } };
+            const delays = [1000, 2000, 4000];
+            for (let attempt = 0; attempt < 3; attempt++) {
+              try {
+                const response = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                const result = await response.json();
+                const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
+                setIsLoading(false); return text || "NO_ACTIONABLE_INTELLIGENCE_FOUND";
+              } catch (err) { if (attempt === 2) { setIsLoading(false); setError(err.message); return `API Error: ${err.message}`; } await new Promise(r => setTimeout(r, delays[attempt])); }
+            }
+          };
+          return { generate, isLoading, error };
+        };
+
+        // --- REAL MCP TRANSPORT LAYER (THE UMBILICAL CORD) ---
+        const useMCPClient = (url) => {
+          const [mcpStatus, setMcpStatus] = useState('idle'); // idle, connecting, connected, isolated
+          const [canonState, setCanonState] = useState(null);
+          const connect = () => {
+            setMcpStatus('connecting');
+            try {
+              const ws = new WebSocket(url);
+              const timeout = setTimeout(() => { if (ws.readyState !== WebSocket.OPEN) { ws.close(); setMcpStatus('isolated'); } }, 3000);
+              ws.onopen = () => { clearTimeout(timeout); setMcpStatus('connected'); ws.send(JSON.stringify({ jsonrpc: "2.0", method: "geox_sync_state", id: 1 })); };
+              ws.onmessage = (event) => { try { const data = JSON.parse(event.data); if (data.result && data.result.canon9) setCanonState(data.result.canon9); } catch(e) {} };
+              ws.onclose = () => setMcpStatus('isolated');
+              ws.onerror = () => setMcpStatus('isolated');
+            } catch (e) { setMcpStatus('isolated'); }
+          };
+          return { mcpStatus, connect, canonState };
+        };
+
+        // --- STYLING ---
+        const StyleInject = () => (
+          <style dangerouslySetInnerHTML={{ __html: `
+            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
+            :root { --bg-void: #0A0C0E; --accent-amber: #F59E0B; --accent-emerald: #10B981; --accent-crimson: #EF4444; --accent-purple: #8B5CF6; --accent-cyan: #06B6D4; --glass-border: rgba(255, 255, 255, 0.05); --glass-bg: rgba(20, 24, 28, 0.6); }
+            body { background: var(--bg-void); color: #E2E8F0; font-family: 'Inter', sans-serif; overflow: hidden; margin: 0; }
+            .font-mono { font-family: 'JetBrains Mono', monospace; }
+            .glass-panel { background: var(--glass-bg); backdrop-filter: blur(12px); border: 1px solid var(--glass-border); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5); }
+            .scanline { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(to bottom, transparent, transparent 50%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0.1)); background-size: 100% 4px; pointer-events: none; z-index: 50; opacity: 0.3; }
+            .radar-sweep { position: absolute; top: 0; left: 0; width: 100%; height: 10%; background: linear-gradient(to bottom, transparent, rgba(16, 185, 129, 0.1)); animation: sweep 8s linear infinite; pointer-events: none; }
+            @keyframes sweep { 0% { transform: translateY(-100%); } 100% { transform: translateY(1000%); } }
+            @keyframes pulse-border { 0% { border-color: rgba(6, 182, 212, 0.3); } 50% { border-color: rgba(6, 182, 212, 0.8); } 100% { border-color: rgba(6, 182, 212, 0.3); } }
+            .gcp-active { animation: pulse-border 2s infinite; }
+            ::-webkit-scrollbar { width: 4px; } ::-webkit-scrollbar-thumb { background: #334155; }
+          `}} />
+        );
+
+        const Badge = ({ children, color = "amber" }) => {
+          const colors = { amber: "border-amber-500/30 text-amber-500 bg-amber-500/10", emerald: "border-emerald-500/30 text-emerald-500 bg-emerald-500/10", crimson: "border-red-500/30 text-red-500 bg-red-500/10", purple: "border-purple-500/30 text-purple-400 bg-purple-500/10", cyan: "border-cyan-500/30 text-cyan-400 bg-cyan-500/10" };
+          return <span className={`px-1.5 py-0.5 text-[10px] font-mono border rounded uppercase tracking-wider ${colors[color]}`}>{children}</span>;
+        };
+
+        // --- DOMAINS ---
+        const DomainRisk = ({ isSealed }) => {
+          const { generate, isLoading } = useGeminiAPI();
+          const [llmVerdict, setLlmVerdict] = useState(''); const [llmAnalog, setLlmAnalog] = useState('');
+          const [rw, setRw] = useState(0.04); const [archieM, setArchieM] = useState(2.0); const [phiCut, setPhiCut] = useState(0.10);
+          const phi = 0.18, res = 12.5, area = 5000, h = 250, bo = 1.25;
+          const sw = Math.min(1, Math.max(0, Math.sqrt(rw / (phi**archieM * res)))); const ntg = phi >= phiCut ? 0.75 - ((phiCut - 0.05) * 2) : 0;
+          const stoiip = (7758 * area * h * ntg * phi * (1 - sw)) / bo / 1000000;
+          return (
+            <div className="flex flex-col h-full gap-4 p-4">
+              <div className="flex justify-between items-end mb-2 border-b border-gray-800 pb-2"><div><h2 className="text-xl font-bold tracking-widest flex items-center gap-2 font-mono"><PieChart className="w-5 h-5 text-amber-500" /> PROSPECT RISK</h2><p className="text-[10px] text-gray-500 font-mono">VOLUMETRICS & GCOS ENGINE</p></div><div className="flex gap-2"><Badge color="purple">LLM: ONLINE</Badge><Badge color="amber">F7: Ω₀ ∈ [0.03, 0.05]</Badge></div></div>
+              <div className="grid grid-cols-3 gap-4 h-full overflow-hidden">
+                <div className="col-span-2 glass-panel p-4 flex flex-col overflow-y-auto">
+                   <div className="flex-1 border-b border-gray-800 pb-4 relative min-h-[150px] flex items-end justify-center gap-1">
+                      <div className="absolute top-0 left-0 text-[10px] font-mono text-gray-500">STOIIP DISTRIBUTION (MMstb)</div>
+                      <div className="absolute inset-0 flex items-center justify-center opacity-10"><PieChart size={120}/></div>
+                      <div className="z-10 bg-amber-500 text-black px-4 py-1 font-mono text-xl font-bold mb-8">P50: {stoiip.toFixed(1)} MMstb</div>
+                   </div>
+                   <div className="grid grid-cols-4 gap-4 mt-4 text-[10px] font-mono">
+                      <div>Sw: <span className="text-amber-500">{(sw*100).toFixed(1)}%</span></div><div>NTG: <span className="text-amber-500">{(ntg*100).toFixed(1)}%</span></div><div>Phi: <span className="text-cyan-400">18%</span></div><div>STOIIP: <span className="text-emerald-400">{stoiip.toFixed(1)}</span></div>
+                   </div>
+                   {(llmVerdict || llmAnalog) && <div className="mt-4 space-y-2">{llmVerdict && <div className="p-2 bg-emerald-500/5 border border-emerald-500/20 text-emerald-100 text-[10px] font-mono"><Badge color="emerald" className="mb-2">RISK REVIEW</Badge><br/>{llmVerdict}</div>}{llmAnalog && <div className="p-2 bg-purple-500/5 border border-purple-500/20 text-purple-100 text-[10px] font-mono"><Badge color="purple" className="mb-2">ANALOG MATCH</Badge><br/>{llmAnalog}</div>}</div>}
+                </div>
+                <div className="flex flex-col gap-4">
+                   <div className="glass-panel p-4 flex-1">
+                      <div className="text-[10px] font-mono text-gray-500 mb-4 border-b border-gray-800 pb-1">CONSTITUTIVE LEVERS</div>
+                      {isSealed && <div className="p-2 bg-amber-500/10 border border-amber-500/30 text-amber-500 text-[9px] font-mono mb-4 flex items-center gap-2"><Lock size={12}/> LOCKED BY MCP</div>}
+                      <div className="space-y-6">
+                        <div><div className="flex justify-between text-[10px] font-mono"><span>Rw</span><span>{rw}</span></div><input type="range" min="0.01" max="0.1" step="0.005" value={rw} onChange={e=>setRw(parseFloat(e.target.value))} disabled={isSealed} className="w-full h-1 accent-amber-500 cursor-pointer"/></div>
+                        <div><div className="flex justify-between text-[10px] font-mono"><span>Archie m</span><span>{archieM}</span></div><input type="range" min="1.5" max="2.5" step="0.05" value={archieM} onChange={e=>setArchieM(parseFloat(e.target.value))} disabled={isSealed} className="w-full h-1 accent-amber-500 cursor-pointer"/></div>
+                      </div>
+                   </div>
+                   <div className="space-y-2">
+                     <button onClick={async()=>setLlmVerdict(await generate(`Analyze prospect STOIIP ${stoiip.toFixed(1)} MMstb.`))} disabled={isLoading} className="w-full py-2 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[10px] font-mono hover:bg-emerald-500/20 transition-all">✨ RISK ASSESSMENT</button>
+                     <button onClick={async()=>setLlmAnalog(await generate(`Find analogs for ${stoiip.toFixed(1)} MMstb field.`))} disabled={isLoading} className="w-full py-2 bg-purple-500/10 border border-purple-500/30 text-purple-400 text-[10px] font-mono hover:bg-purple-500/20 transition-all">✨ ANALOG MATCH</button>
+                   </div>
+                </div>
+              </div>
+            </div>
+          );
+        };
+
+        const DomainPetro = () => (
+          <div className="p-4 flex flex-col h-full gap-4">
+             <div className="flex justify-between items-end border-b border-gray-800 pb-2"><div><h2 className="text-xl font-bold tracking-widest flex items-center gap-2 font-mono"><Target className="w-5 h-5 text-emerald-500" /> 1D PETROPHYSICS</h2><p className="text-[10px] text-gray-500 font-mono">WELL LOGS & CORE SYNTHESIS</p></div><Badge color="emerald">F2: TRUTH</Badge></div>
+             <div className="flex-1 glass-panel relative overflow-hidden flex items-center justify-center"><div className="scanline"/><div className="text-[10px] font-mono text-gray-600 uppercase tracking-widest text-center">Triple Combo Manifold Active<br/>[RHOB / NPHI / GR / RES]</div></div>
+          </div>
+        );
+
+        const DomainStructural = () => (
+          <div className="p-4 flex flex-col h-full gap-4">
+             <div className="flex justify-between items-end border-b border-gray-800 pb-2"><div><h2 className="text-xl font-bold tracking-widest flex items-center gap-2 font-mono"><Layers className="w-5 h-5 text-blue-500" /> 2D STRUCTURAL</h2><p className="text-[10px] text-gray-500 font-mono">SEISMIC IMAGING & FAULTS</p></div><Badge color="cyan">TRUE SCALE</Badge></div>
+             <div className="flex-1 glass-panel relative overflow-hidden flex items-center justify-center font-mono text-[10px] text-gray-600 uppercase tracking-widest text-center">SEG-Y Emulator Hydrated<br/>[FAULT_TRAP DETECTED at 1200ms]</div>
+          </div>
+        );
+
+        const DomainBasin = () => (
+          <div className="p-4 flex flex-col h-full gap-4">
+             <div className="flex justify-between items-end border-b border-gray-800 pb-2"><div><h2 className="text-xl font-bold tracking-widest flex items-center gap-2 font-mono"><Box className="w-5 h-5 text-purple-500" /> 3D REGIONAL BASIN</h2><p className="text-[10px] text-gray-500 font-mono">EVOLUTION & STRATIGRAPHY</p></div><Badge color="purple">MACROSTRAT</Badge></div>
+             <div className="flex-1 glass-panel relative overflow-hidden"><iframe src="https://macrostrat.org/map/#/z=5/x=103/y=5" className="w-full h-full border-0 opacity-40 grayscale invert" /></div>
+          </div>
+        );
+
+        const DomainPhysics = ({ isSealed, serverState }) => {
+          const { generate, isLoading } = useGeminiAPI();
+          const [audit, setAudit] = useState('');
+          const canon9 = [ { sym: 'ρ', name: 'Density', val: '2650', color: 'text-amber-500' }, { sym: 'Vp', name: 'P-Wave', val: '4500', color: 'text-blue-400' }, { sym: 'Vs', name: 'S-Wave', val: '2200', color: 'text-blue-400' }, { sym: 'ρₑ', name: 'Resistivity', val: '12.5', color: 'text-red-400' }, { sym: 'k', name: 'Thermal', val: '2.5', color: 'text-orange-500' }, { sym: 'P', name: 'Pressure', val: '45.2', color: 'text-purple-400' }, { sym: 'T', name: 'Temp', val: '385', color: 'text-crimson-400' }, { sym: 'φ', name: 'Porosity', val: '0.18', color: 'text-cyan-400' }, { sym: 'χ', name: 'Mag Susc', val: '0.002', color: 'text-gray-400' } ];
+          return (
+            <div className="flex flex-col h-full gap-4 p-4">
+              <div className="flex justify-between items-end border-b border-gray-800 pb-2"><div><h2 className="text-xl font-bold tracking-widest flex items-center gap-2 font-mono"><Network className="w-5 h-5 text-purple-500" /> PHYSICS ENGINE</h2><p className="text-[10px] text-gray-500 font-mono">EARTH.CANON_9 THERMODYNAMIC SOLVER</p></div><Badge color="purple">F9: ANTI-HANTU</Badge></div>
+              <div className="flex-1 grid grid-cols-2 gap-4">
+                <div className="glass-panel p-4 grid grid-cols-3 gap-3">
+                   {canon9.map((v, i) => (<div key={i} className="border border-gray-800 p-2 flex flex-col justify-between"><div className={`text-xl font-bold ${v.color}`}>{v.sym}</div><div className="text-[9px] text-gray-500 uppercase">{v.name}</div><div className="text-right text-xs font-mono">{v.val}</div></div>))}
+                </div>
+                <div className="flex flex-col gap-4">
+                   <div className="glass-panel p-4 flex-1">
+                      <div className="text-[10px] font-mono text-gray-500 mb-4 border-b border-gray-800 pb-1">ANTI-HANTU AUDIT</div>
+                      <button onClick={async()=>setAudit(await generate(`Audit Canon-9 state.`))} disabled={isLoading} className="w-full py-2 bg-red-500/10 border border-red-500/30 text-red-100 text-[10px] font-mono">✨ RUN F9 AUDIT</button>
+                      {audit && <div className="mt-4 p-2 bg-red-500/5 text-[9px] font-mono text-red-200 border-l-2 border-red-500">{audit}</div>}
+                   </div>
+                   <button className="py-3 bg-purple-500/10 border border-purple-500/30 text-purple-400 font-mono text-xs uppercase disabled:opacity-50" disabled={isSealed}>EXECUTE BACK-PROPAGATION</button>
+                </div>
+              </div>
+            </div>
+          );
+        };
+
+        // --- GATEWAY ---
+        const McpGatewayModal = ({ isOpen, onClose, onSeal }) => {
+          const [step, setStep] = useState(0); const mcp = useMCPClient("ws://localhost:8000/mcp");
+          useEffect(() => { if (isOpen) { setStep(0); setTimeout(()=>setStep(1), 500); setTimeout(()=>{ setStep(2); mcp.connect(); }, 1200); } }, [isOpen]);
+          useEffect(() => { if (step === 2 && mcp.mcpStatus !== 'connecting' && mcp.mcpStatus !== 'idle') { setStep(3); setTimeout(()=>{ onSeal(mcp.mcpStatus, mcp.canonState); onClose(); }, 1000); } }, [mcp.mcpStatus]);
+          if (!isOpen) return null;
+          return (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md">
+              <div className="w-[400px] border border-amber-500 p-6 bg-black shadow-[0_0_40px_rgba(245,158,11,0.2)] font-mono text-[10px]">
+                <div className="flex gap-4 border-b border-amber-500/30 pb-4 mb-4 items-center"><Server size={24} className="text-amber-500"/><div><h3 className="text-amber-500 font-bold tracking-widest">999_SEAL // COMMAND_AUTH</h3><p className="text-gray-600 uppercase">Tethering WebMCP Umbilical Cord...</p></div></div>
+                <div className="space-y-2 text-gray-400">
+                  <div className="flex gap-2">{step >= 0 ? <CheckCircle2 size={12} className="text-emerald-500"/> : "---"} <span>[F11] Sovereignty Granted</span></div>
+                  <div className="flex gap-2">{step >= 1 ? <CheckCircle2 size={12} className="text-emerald-500"/> : "---"} <span>Locking State Vectors</span></div>
+                  <div className="flex gap-2">{step >= 2 ? <CheckCircle2 size={12} className="text-emerald-500"/> : "---"} <span>Handshaking geox_mcp_server.py</span></div>
+                  <div className="flex gap-2">{step >= 3 ? (mcp.mcpStatus==='connected'?<Badge color="emerald">CONNECTED</Badge>:<Badge color="crimson">ISOLATED</Badge>) : "---"}</div>
+                </div>
+              </div>
+            </div>
+          );
+        };
+
+        // --- APP ---
+        function GeoxCore() {
+          const [active, setActive] = useState('risk'); const [sealed, setSealed] = useState(false); const [status, setStatus] = useState('unsealed'); const [showModal, setShowModal] = useState(false);
+          const domains = [ { id: 'risk', label: 'PROSPECT RISK', icon: Activity }, { id: 'petro', label: '1D PETROPHYSICS', icon: Target }, { id: 'structural', label: '2D STRUCTURAL', icon: Layers }, { id: 'basin', label: '3D REGIONAL BASIN', icon: Box }, { id: 'physics', label: 'PHYSICS ENGINE', icon: Network } ];
+          return (
+            <div className="h-screen w-full flex flex-col font-sans">
+              <StyleInject />
+              <McpGatewayModal isOpen={showModal} onClose={()=>setShowModal(false)} onSeal={(s)=> { setSealed(true); setStatus(s); }} />
+              <header className="h-12 border-b border-gray-800 bg-black flex items-center justify-between px-4 z-10">
+                <div className="flex items-center gap-4"><div className="flex items-center gap-2"><Database className="text-amber-500" size={18}/><h1 className="font-mono font-bold tracking-widest text-sm uppercase">GEOX // CORE</h1></div><div className="h-4 w-px bg-gray-800" /><div className="flex items-center gap-3 text-[9px] font-mono">{sealed ? (status==='connected'?<div className="text-amber-500 flex items-center gap-1 animate-pulse"><Server size={10}/> MCP: CONNECTED</div>:<div className="text-crimson-400 flex items-center gap-1"><Radio size={10}/> F12: ISOLATED</div>) : <div className="text-emerald-500 flex items-center gap-1"><div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"/> ARIF_OS SIMULATION</div>}</div></div>
+                <button onClick={()=>!sealed && setShowModal(true)} className={`px-4 py-1 border font-mono text-[10px] tracking-widest uppercase transition-all ${sealed?'border-amber-500 text-amber-500 bg-amber-500/10':'border-gray-700 text-gray-500 hover:text-white'}`}>{sealed?'999_SEALED':'888_JUDGE'}</button>
+              </header>
+              <div className="flex-1 flex overflow-hidden">
+                <aside className="w-64 border-r border-gray-800 bg-black/20 flex flex-col py-4">
+                  {domains.map(d => (<button key={d.id} onClick={()=>setActive(d.id)} className={`flex items-center gap-4 px-6 py-4 border-l-2 transition-all ${active===d.id?'border-amber-500 text-amber-500 bg-amber-500/5':'border-transparent text-gray-600 hover:text-gray-300'}`}><d.icon size={18}/><span className="text-[10px] font-mono tracking-widest uppercase text-left">{d.label}</span></button>))}
+                  <div className="mt-auto p-4 border-t border-gray-800"><div className="text-[9px] font-mono text-gray-600 mb-2 flex justify-between">SWARM TERMINAL {sealed&&status==='connected'&&<Wifi size={10} className="text-amber-500 animate-pulse"/>}</div><div className="h-32 bg-black border border-gray-800 p-2 text-[9px] font-mono text-emerald-700 overflow-y-auto">{">"} GEOX.INIT_COMPLETE<br/>{">"} 888_JUDGE_READY<br/>{sealed && <span className="text-amber-500">{">"} SWARM_SYNCED_STREAMING</span>}</div></div>
+                </aside>
+                <main className="flex-1 relative bg-black">
+                  {active === 'risk' && <DomainRisk isSealed={sealed} />}
+                  {active === 'petro' && <DomainPetro />}
+                  {active === 'structural' && <DomainStructural />}
+                  {active === 'basin' && <DomainBasin />}
+                  {active === 'physics' && <DomainPhysics isSealed={sealed} />}
+                </main>
+              </div>
+              <footer className="h-8 border-t border-gray-800 bg-black flex items-center justify-between px-4 text-[8px] font-mono text-gray-600 tracking-widest"><span>GEOX_CORE_v1.0.0 // UNIT: MALAY_BASIN</span><div className="flex gap-4"><span>ΔS: -0.12</span><span>Ω₀: 0.04</span><span>DITEMPA BUKAN DIBERI</span></div></footer>
+            </div>
+          );
+        }
+        ReactDOM.createRoot(document.getElementById('root')).render(<GeoxCore />);
+    </script>
+</body>
+</html>

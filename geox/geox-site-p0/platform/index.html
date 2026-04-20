@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Platform — GEOX</title>
+  <link rel="stylesheet" href="../css/geox-platform.css">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <nav class="nav">
+    <div class="nav-container">
+      <a href="/" class="nav-brand">GEOX</a>
+      <ul class="nav-links">
+        <li><a href="/">Home</a></li>
+        <li><a href="../workspaces/">Workspaces</a></li>
+        <li><a href="../skills/">Skills</a></li>
+        <li><a href="../wiki/">Wiki</a></li>
+        <li><a href="./" class="active">Platform</a></li>
+        <li><a href="../status/">Status</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <section class="hero" style="padding: 4rem 0 2rem;">
+    <div class="container">
+      <h1>Platform</h1>
+      <p class="hero-subtitle">Protocol surfaces and integration endpoints for Earth intelligence workflows.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="card-grid">
+        <div class="card">
+          <h4>Tools</h4>
+          <p class="text-muted">Model-invoked operations across seven dimensions: prospect, well, section, earth3d, time4d, physics, map.</p>
+          <div class="card-meta">Dimension-native</div>
+        </div>
+        <div class="card">
+          <h4>Prompts</h4>
+          <p class="text-muted">User-invoked structured workflows for geological reasoning and decision support.</p>
+          <div class="card-meta">Governed workflows</div>
+        </div>
+        <div class="card">
+          <h4>Resources</h4>
+          <p class="text-muted">Ontology, manifests, evidence context, and Physics9 materials atlas.</p>
+          <div class="card-meta">Reference data</div>
+        </div>
+        <div class="card">
+          <h4>Schemas</h4>
+          <p class="text-muted">Contract Pack v1 — typed interfaces for all surfaces and dimensions.</p>
+          <div class="card-meta">Type definitions</div>
+        </div>
+      </div>
+
+      <h2 style="margin-top: 3rem;">Endpoints</h2>
+      
+      <table class="surfaces-table">
+        <thead>
+          <tr>
+            <th>Endpoint</th>
+            <th>Path</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="surface-name">Health</td>
+            <td><code class="text-mono">/health</code></td>
+            <td><span class="badge badge-live">● Live</span></td>
+          </tr>
+          <tr>
+            <td class="surface-name">Profile</td>
+            <td><code class="text-mono">/profile</code></td>
+            <td><span class="badge badge-live">● Live</span></td>
+          </tr>
+          <tr>
+            <td class="surface-name">MCP</td>
+            <td><code class="text-mono">/mcp</code></td>
+            <td><span class="badge badge-partial">◐ Partial</span></td>
+          </tr>
+          <tr>
+            <td class="surface-name">WebMCP Root</td>
+            <td><code class="text-mono">/webmcp.manifest.json</code></td>
+            <td><span class="badge badge-live">● Live</span></td>
+          </tr>
+          <tr>
+            <td class="surface-name">A2A</td>
+            <td><code class="text-mono">/a2a</code></td>
+            <td><span class="badge badge-not-public">○ Not Public</span></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2 style="margin-top: 3rem;">MCP Protocol</h2>
+      <p class="text-muted">GEOX implements the Model Context Protocol (MCP) for AI host integration. The server exposes:</p>
+      <ul style="margin: 1rem 0; color: var(--color-text-muted); padding-left: 1.5rem;">
+        <li>Dimension-native tools for Earth intelligence workflows</li>
+        <li>Structured prompts for geological reasoning</li>
+        <li>Resources including ontology and evidence context</li>
+        <li>SSE-based streaming transport</li>
+      </ul>
+      <p class="text-small text-muted">Status: MCP health endpoint operational. Public tool invocation transport under verification. <a href="../status/" style="color: var(--color-accent);">See Status page →</a></p>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-brand">
+          <strong>GEOX</strong>
+          <span>Dimension-Native Earth Intelligence</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,1315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seismic Viewer — GEOX Command Center</title>
+    
+    <!-- Tailwind CSS v4 -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    
+    <!-- Shared Styles -->
+    <link rel="stylesheet" href="../shared/styles.css">
+    
+    <style>
+    /* Seismic Viewer Specific Styles */
+    .seismic-canvas {
+      background: linear-gradient(180deg, var(--void-base) 0%, var(--void-surface) 100%);
+      cursor: crosshair;
+    }
+    
+    .seismic-canvas.panning {
+      cursor: grabbing;
+    }
+    
+    .control-panel {
+      background: rgba(17, 20, 24, 0.95);
+      border: 1px solid #1E293B;
+      border-radius: 8px;
+    }
+    
+    .horizon-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 12px;
+      border-radius: 6px;
+      transition: background-color 0.2s;
+    }
+    
+    .horizon-item:hover {
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+    
+    .horizon-color {
+      width: 16px;
+      height: 3px;
+      border-radius: 2px;
+    }
+    
+    .toggle-btn {
+      padding: 6px 12px;
+      font-size: 12px;
+      font-weight: 500;
+      border-radius: 6px;
+      border: 1px solid #1E293B;
+      background: transparent;
+      color: #94A3B8;
+      transition: all 0.2s;
+    }
+    
+    .toggle-btn.active {
+      background: rgba(245, 158, 11, 0.15);
+      border-color: #F59E0B;
+      color: #F59E0B;
+    }
+    
+    .toggle-btn:hover:not(.active) {
+      background: rgba(255, 255, 255, 0.05);
+      color: #F8FAFC;
+    }
+    
+    .zoom-btn {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 6px;
+      border: 1px solid #1E293B;
+      background: transparent;
+      color: #94A3B8;
+      transition: all 0.2s;
+    }
+    
+    .zoom-btn:hover {
+      background: rgba(255, 255, 255, 0.05);
+      color: #F8FAFC;
+    }
+    
+    .slider-container {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .slider {
+      -webkit-appearance: none;
+      width: 120px;
+      height: 4px;
+      border-radius: 2px;
+      background: #1E293B;
+      outline: none;
+    }
+    
+    .slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #F59E0B;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    
+    .slider::-webkit-slider-thumb:hover {
+      transform: scale(1.2);
+    }
+    
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 6px 0;
+      border-bottom: 1px solid #1E293B;
+    }
+    
+    .info-row:last-child {
+      border-bottom: none;
+    }
+    
+    .axis-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: #64748B;
+    }
+    
+    .canvas-container {
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .time-axis {
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 40px;
+      background: #111418;
+      border-right: 1px solid #1E293B;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 8px 4px;
+    }
+    
+    .trace-axis {
+      position: absolute;
+      left: 40px;
+      right: 0;
+      bottom: 0;
+      height: 24px;
+      background: #111418;
+      border-top: 1px solid #1E293B;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 12px;
+    }
+    
+    .amplitude-legend {
+      position: absolute;
+      right: 12px;
+      top: 12px;
+      width: 20px;
+      height: 150px;
+      background: linear-gradient(180deg, #3B82F6 0%, #1E293B 50%, #EF4444 100%);
+      border-radius: 4px;
+      border: 1px solid #1E293B;
+    }
+    
+    .amplitude-labels {
+      position: absolute;
+      right: 36px;
+      top: 12px;
+      height: 150px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      color: #64748B;
+      text-align: right;
+    }
+  </style>
+</head>
+<body class="bg-[#0A0C0E] min-h-screen">
+  
+  <!-- ============================================
+       NAVIGATION HEADER
+       ============================================ -->
+  <header class="fixed top-0 left-0 right-0 z-50 h-16 border-b border-[#1E293B]" style="background: rgba(10, 12, 14, 0.95); backdrop-filter: blur(12px);">
+    <div class="container h-full flex items-center justify-between">
+      
+      <!-- Logo Section -->
+      <a href="../index.html" class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-lg bg-[#F59E0B] flex items-center justify-center">
+          <i data-lucide="hexagon" class="w-5 h-5 text-[#0A0C0E]"></i>
+        </div>
+        <div class="flex flex-col">
+          <span class="text-lg font-semibold text-[#F8FAFC] leading-tight">GEOX</span>
+          <span class="text-xs text-[#64748B] leading-tight">Command Center</span>
+        </div>
+      </a>
+
+      <!-- Desktop Navigation -->
+      <nav class="hidden md:flex items-center gap-1">
+        <a href="../index.html" class="nav-link" data-nav="index">
+          <i data-lucide="home" class="w-4 h-4"></i>
+          <span>Home</span>
+        </a>
+
+        <div class="dropdown relative">
+          <button class="nav-link active" data-nav="tools" onclick="toggleDropdown(event)">
+            <i data-lucide="wrench" class="w-4 h-4"></i>
+            <span>Tools</span>
+            <i data-lucide="chevron-down" class="w-4 h-4 ml-1 transition-transform" id="tools-chevron"></i>
+          </button>
+          <div class="dropdown-menu" id="tools-dropdown">
+            <a href="ac-risk.html" class="dropdown-item">
+              <i data-lucide="calculator" class="w-4 h-4"></i>
+              <span>AC Risk Calculator</span>
+            </a>
+            <a href="ratlas.html" class="dropdown-item">
+              <i data-lucide="database" class="w-4 h-4"></i>
+              <span>RATLAS Browser</span>
+            </a>
+            <a href="basin-explorer.html" class="dropdown-item">
+              <i data-lucide="mountain" class="w-4 h-4"></i>
+              <span>Basin Explorer</span>
+            </a>
+            <a href="seismic-viewer.html" class="dropdown-item">
+              <i data-lucide="activity" class="w-4 h-4"></i>
+              <span>Seismic Viewer</span>
+            </a>
+            <a href="well-context-desk.html" class="dropdown-item">
+              <i data-lucide="align-left" class="w-4 h-4"></i>
+              <span>Well Context Desk</span>
+            </a>
+          </div>
+        </div>
+
+        <a href="#about" class="nav-link" data-nav="about">
+          <i data-lucide="info" class="w-4 h-4"></i>
+          <span>About</span>
+        </a>
+
+        <a href="https://docs.geox.dev" target="_blank" rel="noopener noreferrer" class="nav-link">
+          <i data-lucide="book-open" class="w-4 h-4"></i>
+          <span>Docs</span>
+          <i data-lucide="external-link" class="w-3 h-3 ml-1 opacity-50"></i>
+        </a>
+      </nav>
+
+      <!-- Right Section: System Status -->
+      <div class="flex items-center gap-4">
+        <div class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#111418] border border-[#1E293B]">
+          <span class="status-dot status-online"></span>
+          <span class="text-xs font-medium text-[#10B981]">ONLINE</span>
+        </div>
+
+        <button 
+          class="md:hidden p-2 rounded-lg text-[#94A3B8] hover:text-[#F8FAFC] hover:bg-white/5 transition-colors"
+          onclick="toggleMobileMenu()"
+          aria-label="Toggle menu"
+          aria-expanded="false"
+          id="mobile-menu-toggle"
+        >
+          <i data-lucide="menu" class="w-6 h-6" id="menu-icon-open"></i>
+          <i data-lucide="x" class="w-6 h-6 hidden" id="menu-icon-close"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Mobile Menu -->
+  <div class="mobile-menu" id="mobile-menu">
+    <nav class="flex flex-col gap-2">
+      <a href="../index.html" class="flex items-center gap-3 p-3 rounded-lg text-[#94A3B8] hover:text-[#F8FAFC] hover:bg-white/5 transition-colors" data-nav="index">
+        <i data-lucide="home" class="w-5 h-5"></i>
+        <span class="font-medium">Home</span>
+      </a>
+
+      <div class="p-3">
+        <div class="flex items-center gap-3 text-[#64748B] mb-2">
+          <i data-lucide="wrench" class="w-5 h-5"></i>
+          <span class="font-medium text-sm uppercase tracking-wider">Tools</span>
+        </div>
+        <div class="flex flex-col gap-1 ml-2 pl-4 border-l border-[#1E293B]">
+          <a href="ac-risk.html" class="flex items-center gap-2 p-2 rounded-lg text-[#94A3B8] hover:text-[#F8FAFC] hover:bg-white/5 transition-colors text-sm" data-nav="ac-risk">
+            <i data-lucide="calculator" class="w-4 h-4"></i>
+            <span>AC Risk Calculator</span>
+          </a>
+          <a href="ratlas.html" class="flex items-center gap-2 p-2 rounded-lg text-[#94A3B8] hover:text-[#F8FAFC] hover:bg-white/5 transition-colors text-sm" data-nav="ratlas">
+            <i data-lucide="database" class="w-4 h-4"></i>
+            <span>RATLAS Browser</span>
+          </a>
+          <a href="basin-explorer.html" class="flex items-center gap-2 p-2 rounded-lg text-[#94A3B8] hover:text-[#F8FAFC] hover:bg-white/5 transition-colors text-sm" data-nav="basin">
+            <i data-lucide="mountain" class="w-4 h-4"></i>
+            <span>Basin Explorer</span>
+          </a>
+          <a href="seismic-viewer.html" class="flex items-center gap-2 p-2 rounded-lg text-[#F59E0B] bg-[#F59E0B]/10 transition-colors text-sm" data-nav="seismic">
+            <i data-lucide="activity" class="w-4 h-4"></i>
+            <span>Seismic Viewer</span>
+          </a>
+          <a href="well-context-desk.html" class="flex items-center gap-2 p-2 rounded-lg text-[#94A3B8] hover:text-[#F8FAFC] hover:bg-white/5 transition-colors text-sm" data-nav="well">
+            <i data-lucide="align-left" class="w-4 h-4"></i>
+            <span>Well Context Desk</span>
+          </a>
+        </div>
+      </div>
+
+      <a href="#about" class="flex items-center gap-3 p-3 rounded-lg text-[#94A3B8] hover:text-[#F8FAFC] hover:bg-white/5 transition-colors" data-nav="about">
+        <i data-lucide="info" class="w-5 h-5"></i>
+        <span class="font-medium">About</span>
+      </a>
+
+      <a href="https://docs.geox.dev" target="_blank" rel="noopener noreferrer" class="flex items-center gap-3 p-3 rounded-lg text-[#94A3B8] hover:text-[#F8FAFC] hover:bg-white/5 transition-colors">
+        <i data-lucide="book-open" class="w-5 h-5"></i>
+        <span class="font-medium">Documentation</span>
+        <i data-lucide="external-link" class="w-4 h-4 ml-auto opacity-50"></i>
+      </a>
+
+      <div class="mt-4 pt-4 border-t border-[#1E293B]">
+        <div class="flex items-center justify-center gap-2 p-3 rounded-lg bg-[#111418] border border-[#1E293B]">
+          <span class="status-dot status-online"></span>
+          <span class="text-sm font-medium text-[#10B981]">System Online</span>
+        </div>
+      </div>
+    </nav>
+  </div>
+
+  <!-- Spacer for fixed header -->
+  <div class="h-16"></div>
+
+  <!-- ============================================
+       MAIN CONTENT
+       ============================================ -->
+  <main class="container py-8">
+    
+    <!-- Page Header -->
+    <section class="mb-8 animate-slide-up">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <a href="../index.html" class="inline-flex items-center gap-2 text-[#94A3B8] hover:text-[#F59E0B] text-sm mb-3 transition-colors">
+            <i data-lucide="arrow-left" class="w-4 h-4"></i>
+            <span>Back to Tools</span>
+          </a>
+          <h1 class="text-3xl md:text-4xl font-bold text-[#F8FAFC] mb-2">Seismic Viewer</h1>
+          <p class="text-[#94A3B8]">Seismic interpretation and amplitude analysis</p>
+        </div>
+        <div class="flex items-center gap-3">
+          <span class="status-badge status-badge-demo">
+            <span class="w-2 h-2 rounded-full bg-[#F59E0B]"></span>
+            Demo Mode
+          </span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Data Selector -->
+    <section class="mb-6 animate-slide-up delay-100">
+      <div class="control-panel p-4">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+          <label class="text-sm text-[#94A3B8] flex items-center gap-2">
+            <i data-lucide="database" class="w-4 h-4"></i>
+            Data Source:
+          </label>
+          <select id="dataSelector" class="input select flex-1 max-w-md" onchange="changeDataSource()">
+            <option value="line-a">Synthetic Line A</option>
+            <option value="line-b">Synthetic Line B</option>
+            <option value="inline-100">3D Volume Slice (Inline 100)</option>
+            <option value="crossline-250">3D Volume Slice (Crossline 250)</option>
+          </select>
+          <button class="btn btn-primary text-sm" onclick="regenerateData()">
+            <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+            Regenerate
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Main Viewer Area -->
+    <section class="grid grid-cols-1 lg:grid-cols-4 gap-6 animate-slide-up delay-200">
+      
+      <!-- Left Sidebar: Controls & Horizons -->
+      <div class="lg:col-span-1 space-y-6">
+        
+        <!-- Display Controls -->
+        <div class="control-panel p-4">
+          <h3 class="text-sm font-semibold text-[#F8FAFC] mb-4 flex items-center gap-2">
+            <i data-lucide="settings" class="w-4 h-4 text-[#F59E0B]"></i>
+            Display Controls
+          </h3>
+          
+          <!-- Display Mode Toggle -->
+          <div class="mb-4">
+            <label class="text-xs text-[#64748B] uppercase tracking-wider mb-2 block">Display Mode</label>
+            <div class="flex gap-2">
+              <button id="mode-wiggle" class="toggle-btn active" onclick="setDisplayMode('wiggle')">Wiggle</button>
+              <button id="mode-color" class="toggle-btn" onclick="setDisplayMode('color')">Color Fill</button>
+              <button id="mode-both" class="toggle-btn" onclick="setDisplayMode('both')">Both</button>
+            </div>
+          </div>
+          
+          <!-- Gain Slider -->
+          <div class="mb-4">
+            <label class="text-xs text-[#64748B] uppercase tracking-wider mb-2 block">Gain</label>
+            <div class="slider-container">
+              <input type="range" id="gainSlider" class="slider" min="0.5" max="5" step="0.1" value="1" oninput="updateGain(this.value)">
+              <span id="gainValue" class="font-mono text-sm text-[#F8FAFC]">1.0x</span>
+            </div>
+          </div>
+          
+          <!-- Zoom Controls -->
+          <div class="mb-4">
+            <label class="text-xs text-[#64748B] uppercase tracking-wider mb-2 block">Zoom</label>
+            <div class="flex gap-2">
+              <button class="zoom-btn" onclick="zoomOut()" title="Zoom Out">
+                <i data-lucide="zoom-out" class="w-4 h-4"></i>
+              </button>
+              <button class="zoom-btn" onclick="resetZoom()" title="Reset Zoom">
+                <i data-lucide="maximize-2" class="w-4 h-4"></i>
+              </button>
+              <button class="zoom-btn" onclick="zoomIn()" title="Zoom In">
+                <i data-lucide="zoom-in" class="w-4 h-4"></i>
+              </button>
+            </div>
+          </div>
+          
+          <!-- Pan Controls -->
+          <div>
+            <label class="text-xs text-[#64748B] uppercase tracking-wider mb-2 block">Pan</label>
+            <div class="grid grid-cols-3 gap-1 w-max">
+              <div></div>
+              <button class="zoom-btn" onclick="pan(0, -50)" title="Pan Up">
+                <i data-lucide="chevron-up" class="w-4 h-4"></i>
+              </button>
+              <div></div>
+              <button class="zoom-btn" onclick="pan(-50, 0)" title="Pan Left">
+                <i data-lucide="chevron-left" class="w-4 h-4"></i>
+              </button>
+              <button class="zoom-btn" onclick="pan(0, 0)" title="Reset Pan">
+                <i data-lucide="target" class="w-4 h-4"></i>
+              </button>
+              <button class="zoom-btn" onclick="pan(50, 0)" title="Pan Right">
+                <i data-lucide="chevron-right" class="w-4 h-4"></i>
+              </button>
+              <div></div>
+              <button class="zoom-btn" onclick="pan(0, 50)" title="Pan Down">
+                <i data-lucide="chevron-down" class="w-4 h-4"></i>
+              </button>
+              <div></div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Horizon Panel -->
+        <div class="control-panel p-4">
+          <h3 class="text-sm font-semibold text-[#F8FAFC] mb-4 flex items-center gap-2">
+            <i data-lucide="layers" class="w-4 h-4 text-[#F59E0B]"></i>
+            Horizons
+          </h3>
+          
+          <div class="space-y-1">
+            <label class="horizon-item cursor-pointer">
+              <input type="checkbox" id="horizon-h1" class="w-4 h-4 rounded border-[#1E293B] bg-[#111418] text-[#F59E0B] focus:ring-[#F59E0B]" checked onchange="toggleHorizon('h1')">
+              <span class="horizon-color" style="background-color: #22D3EE;"></span>
+              <span class="text-sm text-[#94A3B8]">Horizon H1</span>
+              <span class="text-xs text-[#64748B] ml-auto">Top Reservoir</span>
+            </label>
+            
+            <label class="horizon-item cursor-pointer">
+              <input type="checkbox" id="horizon-h2" class="w-4 h-4 rounded border-[#1E293B] bg-[#111418] text-[#F59E0B] focus:ring-[#F59E0B]" checked onchange="toggleHorizon('h2')">
+              <span class="horizon-color" style="background-color: #A855F7;"></span>
+              <span class="text-sm text-[#94A3B8]">Horizon H2</span>
+              <span class="text-xs text-[#64748B] ml-auto">Base Reservoir</span>
+            </label>
+            
+            <label class="horizon-item cursor-pointer">
+              <input type="checkbox" id="horizon-h3" class="w-4 h-4 rounded border-[#1E293B] bg-[#111418] text-[#F59E0B] focus:ring-[#F59E0B]" onchange="toggleHorizon('h3')">
+              <span class="horizon-color" style="background-color: #10B981;"></span>
+              <span class="text-sm text-[#94A3B8]">Horizon H3</span>
+              <span class="text-xs text-[#64748B] ml-auto">Oil-Water Contact</span>
+            </label>
+          </div>
+        </div>
+        
+        <!-- Seismic Attributes -->
+        <div class="control-panel p-4">
+          <h3 class="text-sm font-semibold text-[#F8FAFC] mb-4 flex items-center gap-2">
+            <i data-lucide="wand-2" class="w-4 h-4 text-[#F59E0B]"></i>
+            Seismic Attributes
+          </h3>
+          
+          <div class="space-y-1">
+            <label class="horizon-item cursor-pointer">
+              <input type="checkbox" id="attr-coherence" class="w-4 h-4 rounded border-[#1E293B] bg-[#111418] text-[#F59E0B] focus:ring-[#F59E0B]" onchange="toggleAttribute('coherence')">
+              <i data-lucide="split" class="w-4 h-4 text-[#64748B]"></i>
+              <span class="text-sm text-[#94A3B8]">Coherence</span>
+              <span class="text-[10px] text-[#64748B] ml-auto">Fault Det.</span>
+            </label>
+            
+            <label class="horizon-item cursor-pointer">
+              <input type="checkbox" id="attr-rms" class="w-4 h-4 rounded border-[#1E293B] bg-[#111418] text-[#F59E0B] focus:ring-[#F59E0B]" onchange="toggleAttribute('rms')">
+              <i data-lucide="waves" class="w-4 h-4 text-[#64748B]"></i>
+              <span class="text-sm text-[#94A3B8]">Spectral RMS</span>
+              <span class="text-[10px] text-[#64748B] ml-auto">Amplitude</span>
+            </label>
+            
+            <label class="horizon-item cursor-pointer">
+              <input type="checkbox" id="attr-sweetness" class="w-4 h-4 rounded border-[#1E293B] bg-[#111418] text-[#F59E0B] focus:ring-[#F59E0B]" onchange="toggleAttribute('sweetness')">
+              <i data-lucide="sparkles" class="w-4 h-4 text-[#64748B]"></i>
+              <span class="text-sm text-[#94A3B8]">Sweetness</span>
+              <span class="text-[10px] text-[#64748B] ml-auto">DHI</span>
+            </label>
+          </div>
+          
+          <div class="mt-4 pt-4 border-t border-[#1E293B]">
+            <p class="text-[10px] text-[#64748B]">
+              <i data-lucide="info" class="w-3 h-3 inline mr-1"></i>
+              Computed via <code>SeismicAttributesTool</code> for real open-source data.
+            </p>
+          </div>
+        </div>
+        
+        <!-- Info Panel -->
+        <div class="control-panel p-4">
+          <h3 class="text-sm font-semibold text-[#F8FAFC] mb-4 flex items-center gap-2">
+            <i data-lucide="info" class="w-4 h-4 text-[#F59E0B]"></i>
+            Data Info
+          </h3>
+          
+          <div class="text-sm">
+            <div class="info-row">
+              <span class="text-[#64748B]">Line Name</span>
+              <span id="info-line-name" class="font-mono text-[#F8FAFC]">Synthetic Line A</span>
+            </div>
+            <div class="info-row">
+              <span class="text-[#64748B]">Sample Rate</span>
+              <span class="font-mono text-[#F8FAFC]">4ms</span>
+            </div>
+            <div class="info-row">
+              <span class="text-[#64748B]">Trace Spacing</span>
+              <span class="font-mono text-[#F8FAFC]">25m</span>
+            </div>
+            <div class="info-row">
+              <span class="text-[#64748B]">Data Range</span>
+              <span class="font-mono text-[#F8FAFC]">-5000 to +5000</span>
+            </div>
+            <div class="info-row">
+              <span class="text-[#64748B]">Traces</span>
+              <span id="info-traces" class="font-mono text-[#F8FAFC]">500</span>
+            </div>
+            <div class="info-row">
+              <span class="text-[#64748B]">Time Range</span>
+              <span class="font-mono text-[#F8FAFC]">0-4s</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Right Area: Seismic Display -->
+      <div class="lg:col-span-3">
+        <div class="control-panel p-0 overflow-hidden">
+          <!-- Display Header -->
+          <div class="flex items-center justify-between px-4 py-3 border-b border-[#1E293B] bg-[#111418]">
+            <div class="flex items-center gap-4">
+              <span class="text-sm font-medium text-[#F8FAFC]">Seismic Section</span>
+              <span class="text-xs text-[#64748B]">Click and drag to pan • Scroll to zoom</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <button class="zoom-btn" onclick="downloadImage()" title="Download Image">
+                <i data-lucide="download" class="w-4 h-4"></i>
+              </button>
+              <button class="zoom-btn" onclick="toggleFullscreen()" title="Fullscreen">
+                <i data-lucide="maximize" class="w-4 h-4"></i>
+              </button>
+            </div>
+          </div>
+          
+          <!-- Canvas Container -->
+          <div class="canvas-container relative" id="canvasContainer">
+            <!-- Time Axis (Left) -->
+            <div class="time-axis">
+              <span class="axis-label">0.0s</span>
+              <span class="axis-label">1.0s</span>
+              <span class="axis-label">2.0s</span>
+              <span class="axis-label">3.0s</span>
+              <span class="axis-label">4.0s</span>
+            </div>
+            
+            <!-- Main Canvas -->
+            <canvas id="seismicCanvas" class="seismic-canvas block" style="margin-left: 40px; margin-bottom: 24px;"></canvas>
+            
+            <!-- Trace Axis (Bottom) -->
+            <div class="trace-axis">
+              <span class="axis-label">0</span>
+              <span class="axis-label">100</span>
+              <span class="axis-label">200</span>
+              <span class="axis-label">300</span>
+              <span class="axis-label">400</span>
+              <span class="axis-label">500</span>
+            </div>
+            
+            <!-- Amplitude Legend -->
+            <div class="amplitude-legend"></div>
+            <div class="amplitude-labels">
+              <span>+5000</span>
+              <span>0</span>
+              <span>-5000</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ============================================
+       FOOTER
+       ============================================ -->
+  <footer class="border-t border-[#1E293B] bg-[#0A0C0E] mt-12">
+    <div class="container py-12 md:py-16">
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
+        
+        <div class="lg:col-span-2">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="w-10 h-10 rounded-lg bg-[#F59E0B] flex items-center justify-center">
+              <i data-lucide="hexagon" class="w-6 h-6 text-[#0A0C0E]"></i>
+            </div>
+            <div class="flex flex-col">
+              <span class="text-xl font-semibold text-[#F8FAFC]">GEOX</span>
+              <span class="text-sm text-[#64748B]">Command Center</span>
+            </div>
+          </div>
+          
+          <div class="mb-4">
+            <span class="seal-text text-[#F59E0B]">DITEMPA BUKAN DIBERI</span>
+          </div>
+          
+          <p class="text-[#94A3B8] text-sm max-w-sm mb-6">
+            Earth Intelligence Core — Real Tools, Zero Theater. 
+            A governed, agentic geological intelligence coprocessor for arifOS.
+          </p>
+          
+          <div>
+            <span class="text-xs text-[#64748B] uppercase tracking-wider mb-2 block">Constitutional Floors</span>
+            <div class="flex flex-wrap gap-2">
+              <span class="floor-badge">F1</span>
+              <span class="floor-badge">F2</span>
+              <span class="floor-badge">F4</span>
+              <span class="floor-badge">F7</span>
+              <span class="floor-badge">F9</span>
+              <span class="floor-badge">F11</span>
+              <span class="floor-badge">F13</span>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <h4 class="text-sm font-semibold text-[#F8FAFC] uppercase tracking-wider mb-4">Quick Links</h4>
+          <ul class="space-y-2">
+            <li>
+              <a href="../index.html" class="text-[#94A3B8] hover:text-[#F59E0B] text-sm transition-colors flex items-center gap-2">
+                <i data-lucide="home" class="w-4 h-4"></i>
+                Home
+              </a>
+            </li>
+            <li>
+              <a href="ac-risk.html" class="text-[#94A3B8] hover:text-[#F59E0B] text-sm transition-colors flex items-center gap-2">
+                <i data-lucide="calculator" class="w-4 h-4"></i>
+                AC Risk Calculator
+              </a>
+            </li>
+            <li>
+              <a href="ratlas.html" class="text-[#94A3B8] hover:text-[#F59E0B] text-sm transition-colors flex items-center gap-2">
+                <i data-lucide="database" class="w-4 h-4"></i>
+                RATLAS Browser
+              </a>
+            </li>
+            <li>
+              <a href="basin-explorer.html" class="text-[#94A3B8] hover:text-[#F59E0B] text-sm transition-colors flex items-center gap-2">
+                <i data-lucide="mountain" class="w-4 h-4"></i>
+                Basin Explorer
+              </a>
+            </li>
+            <li>
+              <a href="seismic-viewer.html" class="text-[#F59E0B] text-sm transition-colors flex items-center gap-2">
+                <i data-lucide="activity" class="w-4 h-4"></i>
+                Seismic Viewer
+              </a>
+            </li>
+            <li>
+              <a href="well-context-desk.html" class="text-[#94A3B8] hover:text-[#F59E0B] text-sm transition-colors flex items-center gap-2">
+                <i data-lucide="align-left" class="w-4 h-4"></i>
+                Well Context Desk
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="text-sm font-semibold text-[#F8FAFC] uppercase tracking-wider mb-4">Resources</h4>
+          <ul class="space-y-2">
+            <li>
+              <a href="https://docs.geox.dev" target="_blank" rel="noopener noreferrer" class="text-[#94A3B8] hover:text-[#F59E0B] text-sm transition-colors flex items-center gap-2">
+                <i data-lucide="book-open" class="w-4 h-4"></i>
+                Documentation
+                <i data-lucide="external-link" class="w-3 h-3 ml-auto opacity-50"></i>
+              </a>
+            </li>
+            <li>
+              <a href="#api" class="text-[#94A3B8] hover:text-[#F59E0B] text-sm transition-colors flex items-center gap-2">
+                <i data-lucide="code" class="w-4 h-4"></i>
+                API Reference
+              </a>
+            </li>
+            <li>
+              <a href="#changelog" class="text-[#94A3B8] hover:text-[#F59E0B] text-sm transition-colors flex items-center gap-2">
+                <i data-lucide="git-commit" class="w-4 h-4"></i>
+                Changelog
+              </a>
+            </li>
+            <li>
+              <a href="#status" class="text-[#94A3B8] hover:text-[#F59E0B] text-sm transition-colors flex items-center gap-2">
+                <i data-lucide="activity" class="w-4 h-4"></i>
+                System Status
+              </a>
+            </li>
+          </ul>
+
+          <div class="mt-6">
+            <span class="text-xs text-[#64748B] uppercase tracking-wider mb-3 block">Connect</span>
+            <div class="flex gap-2">
+              <a href="#" class="w-9 h-9 rounded-lg bg-[#111418] border border-[#1E293B] flex items-center justify-center text-[#94A3B8] hover:text-[#F59E0B] hover:border-[#F59E0B] transition-all">
+                <i data-lucide="github" class="w-4 h-4"></i>
+              </a>
+              <a href="#" class="w-9 h-9 rounded-lg bg-[#111418] border border-[#1E293B] flex items-center justify-center text-[#94A3B8] hover:text-[#F59E0B] hover:border-[#F59E0B] transition-all">
+                <i data-lucide="twitter" class="w-4 h-4"></i>
+              </a>
+              <a href="#" class="w-9 h-9 rounded-lg bg-[#111418] border border-[#1E293B] flex items-center justify-center text-[#94A3B8] hover:text-[#F59E0B] hover:border-[#F59E0B] transition-all">
+                <i data-lucide="linkedin" class="w-4 h-4"></i>
+              </a>
+              <a href="#" class="w-9 h-9 rounded-lg bg-[#111418] border border-[#1E293B] flex items-center justify-center text-[#94A3B8] hover:text-[#F59E0B] hover:border-[#F59E0B] transition-all">
+                <i data-lucide="mail" class="w-4 h-4"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-12 pt-6 border-t border-[#1E293B]">
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p class="text-[#64748B] text-sm">
+            &copy; 2026 GEOX Command Center. All rights reserved.
+          </p>
+          
+          <div class="flex items-center gap-4">
+            <span class="font-mono text-xs text-[#64748B] bg-[#111418] px-2 py-1 rounded">
+              v2026.04.10
+            </span>
+            <a href="#privacy" class="text-[#64748B] hover:text-[#94A3B8] text-xs transition-colors">
+              Privacy
+            </a>
+            <a href="#terms" class="text-[#64748B] hover:text-[#94A3B8] text-xs transition-colors">
+              Terms
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Shared Scripts -->
+  <script src="../shared/scripts.js"></script>
+  
+  <!-- Seismic Viewer JavaScript -->
+  <script>
+    // ============================================
+    // Seismic Viewer State
+    // ============================================
+    const state = {
+      displayMode: 'wiggle', // 'wiggle', 'color', 'both'
+      gain: 1.0,
+      zoom: 1.0,
+      panX: 0,
+      panY: 0,
+      horizons: {
+        h1: { visible: true, time: 1.2, color: '#22D3EE', name: 'Top Reservoir' },
+        h2: { visible: true, time: 2.1, color: '#A855F7', name: 'Base Reservoir' },
+        h3: { visible: false, time: 2.8, color: '#10B981', name: 'Oil-Water Contact' }
+      },
+      dataSource: 'line-a',
+      traces: [],
+      numTraces: 500,
+      numSamples: 1000,
+      sampleRate: 0.004, // 4ms in seconds
+      timeRange: 4.0, // 4 seconds
+      isDragging: false,
+      lastMouseX: 0,
+      lastMouseY: 0,
+      attributes: {
+        coherence: { visible: false },
+        rms: { visible: false },
+        sweetness: { visible: false }
+      }
+    };
+
+
+    const dataSourceInfo = {
+      'line-a': { name: 'Synthetic Line A', traces: 500 },
+      'line-b': { name: 'Synthetic Line B', traces: 400 },
+      'inline-100': { name: '3D Volume (Inline 100)', traces: 600 },
+      'crossline-250': { name: '3D Volume (Crossline 250)', traces: 550 }
+    };
+
+    // ============================================
+    // Canvas Setup
+    // ============================================
+    let canvas, ctx;
+
+    function initCanvas() {
+      canvas = document.getElementById('seismicCanvas');
+      ctx = canvas.getContext('2d');
+      
+      // Set canvas size
+      resizeCanvas();
+      
+      // Generate initial data
+      generateSyntheticData();
+      
+      // Initial render
+      render();
+      
+      // Add event listeners
+      setupEventListeners();
+      
+      // Handle window resize
+      window.addEventListener('resize', debounce(() => {
+        resizeCanvas();
+        render();
+      }, 250));
+    }
+
+    function resizeCanvas() {
+      const container = document.getElementById('canvasContainer');
+      const width = container.clientWidth - 40; // Subtract time axis width
+      const height = 500; // Fixed height
+      
+      canvas.width = width;
+      canvas.height = height;
+      canvas.style.width = width + 'px';
+      canvas.style.height = height + 'px';
+    }
+
+    function setupEventListeners() {
+      // Mouse events for panning
+      canvas.addEventListener('mousedown', (e) => {
+        state.isDragging = true;
+        state.lastMouseX = e.clientX;
+        state.lastMouseY = e.clientY;
+        canvas.classList.add('panning');
+      });
+
+      document.addEventListener('mousemove', (e) => {
+        if (!state.isDragging) return;
+        
+        const deltaX = e.clientX - state.lastMouseX;
+        const deltaY = e.clientY - state.lastMouseY;
+        
+        state.panX += deltaX;
+        state.panY += deltaY;
+        
+        state.lastMouseX = e.clientX;
+        state.lastMouseY = e.clientY;
+        
+        render();
+      });
+
+      document.addEventListener('mouseup', () => {
+        state.isDragging = false;
+        canvas.classList.remove('panning');
+      });
+
+      // Wheel event for zooming
+      canvas.addEventListener('wheel', (e) => {
+        e.preventDefault();
+        
+        const zoomFactor = e.deltaY > 0 ? 0.9 : 1.1;
+        state.zoom = Math.max(0.5, Math.min(5, state.zoom * zoomFactor));
+        
+        render();
+      });
+    }
+
+    // ============================================
+    // Synthetic Data Generation
+    // ============================================
+    function generateSyntheticData() {
+      state.traces = [];
+      
+      // Generate reflectors (key seismic events)
+      const reflectors = [
+        { time: 0.5, amplitude: 0.8, frequency: 25 },
+        { time: 1.2, amplitude: 0.6, frequency: 20 },
+        { time: 1.8, amplitude: 0.9, frequency: 30 },
+        { time: 2.5, amplitude: 0.5, frequency: 22 },
+        { time: 3.2, amplitude: 0.7, frequency: 28 }
+      ];
+      
+      for (let traceIdx = 0; traceIdx < state.numTraces; traceIdx++) {
+        const trace = [];
+        
+        // Add some trace-to-trace variation
+        const traceOffset = (traceIdx / state.numTraces) * 0.3;
+        const noiseLevel = 0.05 + Math.random() * 0.03;
+        
+        for (let sampleIdx = 0; sampleIdx < state.numSamples; sampleIdx++) {
+          const time = sampleIdx * state.sampleRate;
+          let amplitude = 0;
+          
+          // Add wavelets for each reflector
+          reflectors.forEach(reflector => {
+            const adjustedTime = reflector.time + traceOffset * (1 + Math.sin(traceIdx * 0.02) * 0.5);
+            const timeDiff = time - adjustedTime;
+            
+            // Ricker wavelet approximation
+            if (Math.abs(timeDiff) < 0.15) {
+              const freq = reflector.frequency;
+              const wavelet = reflector.amplitude * 
+                (1 - 2 * Math.PI * Math.PI * freq * freq * timeDiff * timeDiff) *
+                Math.exp(-Math.PI * Math.PI * freq * freq * timeDiff * timeDiff);
+              amplitude += wavelet;
+            }
+          });
+          
+          // Add random noise
+          amplitude += (Math.random() - 0.5) * noiseLevel;
+          
+          // Add some coherent noise (ground roll simulation)
+          amplitude += Math.sin(time * 10 + traceIdx * 0.1) * 0.02 * Math.exp(-time * 2);
+          
+          trace.push(amplitude);
+        }
+        
+        state.traces.push(trace);
+      }
+    }
+
+    // ============================================
+    // Rendering
+    // ============================================
+    function render() {
+      if (!ctx) return;
+      
+      const width = canvas.width;
+      const height = canvas.height;
+      
+      // Clear canvas
+      ctx.fillStyle = '#0d1117';
+      ctx.fillRect(0, 0, width, height);
+      
+      // Calculate trace spacing
+      const traceSpacing = (width / state.numTraces) * state.zoom;
+      const sampleSpacing = height / state.numSamples;
+      
+      // Apply pan
+      ctx.save();
+      ctx.translate(state.panX, state.panY);
+      
+      // Render based on display mode
+      if (state.displayMode === 'color' || state.displayMode === 'both') {
+        renderColorFill(traceSpacing, sampleSpacing);
+      }
+      
+      if (state.displayMode === 'wiggle' || state.displayMode === 'both') {
+        renderWiggleTraces(traceSpacing, sampleSpacing);
+      }
+      
+      // Render horizons
+      renderHorizons(traceSpacing, sampleSpacing);
+      
+      // Render grid
+      renderGrid(traceSpacing, sampleSpacing);
+      
+      ctx.restore();
+    }
+
+    function renderColorFill(traceSpacing, sampleSpacing) {
+      const width = canvas.width;
+      const height = canvas.height;
+      const activeAttr = Object.keys(state.attributes || {}).find(k => state.attributes[k].visible);
+      
+      for (let traceIdx = 0; traceIdx < state.numTraces; traceIdx++) {
+        const trace = state.traces[traceIdx];
+        const x = traceIdx * traceSpacing + traceSpacing / 2;
+        
+        if (x < -traceSpacing || x > width + traceSpacing) continue;
+        
+        for (let sampleIdx = 0; sampleIdx < state.numSamples; sampleIdx++) {
+          let val = trace[sampleIdx] * state.gain;
+          let color;
+          let intensity;
+
+          if (activeAttr === 'coherence') {
+            // Simulated Coherence (Edge detection via Sobel-like filter)
+            if (traceIdx > 0 && sampleIdx > 0) {
+              const diffX = Math.abs(trace[sampleIdx] - state.traces[traceIdx-1][sampleIdx]);
+              const diffY = Math.abs(trace[sampleIdx] - trace[sampleIdx-1]);
+              val = (diffX + diffY) * 5 * state.gain;
+            } else val = 0;
+            intensity = Math.min(1, val);
+            color = `rgba(0, 0, 0, ${intensity})`; // Black edges
+          } else if (activeAttr === 'rms') {
+            // Windowed RMS Amplitude
+            const window = 5;
+            let sum = 0;
+            for(let i = -window; i <= window; i++) {
+              const idx = Math.min(state.numSamples-1, Math.max(0, sampleIdx + i));
+              sum += trace[idx] * trace[idx];
+            }
+            val = Math.sqrt(sum / (window * 2 + 1)) * 3 * state.gain;
+            intensity = Math.min(1, val);
+            color = `rgba(245, 158, 11, ${intensity})`; // Heatmap
+          } else if (activeAttr === 'sweetness') {
+            // Simulated Sweetness (Amplitude / sqrt(Frequency))
+            // Here we use RMS / (Local Slope + constant) proxy
+            const rms = Math.abs(trace[sampleIdx]) * 5 * state.gain;
+            intensity = Math.min(1, rms);
+            color = `rgba(168, 85, 247, ${intensity})`; // Purple glow
+          } else {
+            // Standard Amplitude mapping
+            intensity = Math.min(1, Math.abs(val));
+            if (val > 0) {
+              const r = Math.floor(239 + (255 - 239) * (1 - intensity));
+              color = `rgba(${r}, ${Math.floor(68*(1-intensity))}, ${Math.floor(68*(1-intensity))}, ${intensity * 0.7})`;
+            } else {
+              const b = Math.floor(246 + (255 - 246) * (1 - intensity));
+              color = `rgba(${Math.floor(59*(1-intensity))}, ${Math.floor(130*(1-intensity))}, ${b}, ${intensity * 0.7})`;
+            }
+          }
+          
+          ctx.fillStyle = color;
+          ctx.fillRect(x - traceSpacing / 2, y, traceSpacing, sampleSpacing + 1);
+        }
+      }
+    }
+
+
+    function renderWiggleTraces(traceSpacing, sampleSpacing) {
+      const width = canvas.width;
+      const wiggleScale = traceSpacing * 0.4 * state.gain;
+      
+      ctx.strokeStyle = '#F8FAFC';
+      ctx.lineWidth = 0.5;
+      
+      for (let traceIdx = 0; traceIdx < state.numTraces; traceIdx += Math.max(1, Math.floor(2 / state.zoom))) {
+        const trace = state.traces[traceIdx];
+        const x = traceIdx * traceSpacing + traceSpacing / 2;
+        
+        if (x < -traceSpacing || x > width + traceSpacing) continue;
+        
+        ctx.beginPath();
+        
+        for (let sampleIdx = 0; sampleIdx < state.numSamples; sampleIdx++) {
+          const amplitude = trace[sampleIdx];
+          const y = sampleIdx * sampleSpacing;
+          const xOffset = x + amplitude * wiggleScale;
+          
+          if (sampleIdx === 0) {
+            ctx.moveTo(xOffset, y);
+          } else {
+            ctx.lineTo(xOffset, y);
+          }
+        }
+        
+        ctx.stroke();
+        
+        // Fill positive amplitudes
+        ctx.fillStyle = 'rgba(239, 68, 68, 0.3)';
+        ctx.beginPath();
+        
+        let hasPositive = false;
+        for (let sampleIdx = 0; sampleIdx < state.numSamples; sampleIdx++) {
+          const amplitude = trace[sampleIdx];
+          const y = sampleIdx * sampleSpacing;
+          const xOffset = x + amplitude * wiggleScale;
+          
+          if (amplitude > 0) {
+            if (!hasPositive) {
+              ctx.moveTo(x, y);
+              hasPositive = true;
+            }
+            ctx.lineTo(xOffset, y);
+          } else {
+            if (hasPositive) {
+              ctx.lineTo(x, y);
+              ctx.closePath();
+              ctx.fill();
+              ctx.beginPath();
+              hasPositive = false;
+            }
+          }
+        }
+        
+        if (hasPositive) {
+          ctx.lineTo(x, state.numSamples * sampleSpacing);
+          ctx.closePath();
+          ctx.fill();
+        }
+      }
+    }
+
+    function renderHorizons(traceSpacing, sampleSpacing) {
+      const width = canvas.width;
+      
+      Object.entries(state.horizons).forEach(([key, horizon]) => {
+        if (!horizon.visible) return;
+        
+        ctx.strokeStyle = horizon.color;
+        ctx.lineWidth = 2;
+        ctx.setLineDash([5, 3]);
+        
+        ctx.beginPath();
+        
+        for (let traceIdx = 0; traceIdx < state.numTraces; traceIdx++) {
+          const x = traceIdx * traceSpacing + traceSpacing / 2;
+          
+          if (x < -traceSpacing || x > width + traceSpacing) continue;
+          
+          // Add some variation to horizon time
+          const variation = Math.sin(traceIdx * 0.05) * 0.1 + Math.sin(traceIdx * 0.02) * 0.15;
+          const adjustedTime = horizon.time + variation;
+          const y = (adjustedTime / state.timeRange) * canvas.height;
+          
+          if (traceIdx === 0) {
+            ctx.moveTo(x, y);
+          } else {
+            ctx.lineTo(x, y);
+          }
+        }
+        
+        ctx.stroke();
+        ctx.setLineDash([]);
+      });
+    }
+
+    function renderGrid(traceSpacing, sampleSpacing) {
+      const width = canvas.width;
+      const height = canvas.height;
+      
+      ctx.strokeStyle = 'rgba(30, 41, 59, 0.5)';
+      ctx.lineWidth = 0.5;
+      
+      // Vertical grid lines (every 50 traces)
+      for (let traceIdx = 0; traceIdx < state.numTraces; traceIdx += 50) {
+        const x = traceIdx * traceSpacing + traceSpacing / 2;
+        if (x >= 0 && x <= width) {
+          ctx.beginPath();
+          ctx.moveTo(x, 0);
+          ctx.lineTo(x, height);
+          ctx.stroke();
+        }
+      }
+      
+      // Horizontal grid lines (every 0.5 seconds)
+      for (let time = 0; time <= state.timeRange; time += 0.5) {
+        const y = (time / state.timeRange) * height;
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(width, y);
+        ctx.stroke();
+      }
+    }
+
+    // ============================================
+    // Control Functions
+    // ============================================
+    function setDisplayMode(mode) {
+      state.displayMode = mode;
+      
+      // Update button states
+      document.querySelectorAll('.toggle-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      document.getElementById('mode-' + mode).classList.add('active');
+      
+      render();
+    }
+
+    function updateGain(value) {
+      state.gain = parseFloat(value);
+      document.getElementById('gainValue').textContent = state.gain.toFixed(1) + 'x';
+      render();
+    }
+
+    function zoomIn() {
+      state.zoom = Math.min(5, state.zoom * 1.2);
+      render();
+    }
+
+    function zoomOut() {
+      state.zoom = Math.max(0.5, state.zoom / 1.2);
+      render();
+    }
+
+    function resetZoom() {
+      state.zoom = 1.0;
+      state.panX = 0;
+      state.panY = 0;
+      render();
+    }
+
+    function pan(dx, dy) {
+      if (dx === 0 && dy === 0) {
+        // Reset pan
+        state.panX = 0;
+        state.panY = 0;
+      } else {
+        state.panX += dx;
+        state.panY += dy;
+      }
+      render();
+    }
+
+    function toggleHorizon(horizonKey) {
+      const checkbox = document.getElementById('horizon-' + horizonKey);
+      state.horizons[horizonKey].visible = checkbox.checked;
+      render();
+    }
+
+    function toggleAttribute(attrKey) {
+      const checkbox = document.getElementById('attr-' + attrKey);
+      // Only allow one attribute at a time for clarity in this demo
+      Object.keys(state.attributes).forEach(k => {
+        if (k !== attrKey) {
+          state.attributes[k].visible = false;
+          const otherCheckbox = document.getElementById('attr-' + k);
+          if (otherCheckbox) otherCheckbox.checked = false;
+        }
+      });
+      state.attributes[attrKey].visible = checkbox.checked;
+      
+      // If color mode isn't active, switch to both for attributes
+      if (checkbox.checked && state.displayMode === 'wiggle') {
+        setDisplayMode('both');
+      }
+      
+      render();
+    }
+
+
+    function changeDataSource() {
+      const selector = document.getElementById('dataSelector');
+      state.dataSource = selector.value;
+      
+      const info = dataSourceInfo[state.dataSource];
+      document.getElementById('info-line-name').textContent = info.name;
+      document.getElementById('info-traces').textContent = info.traces;
+      
+      state.numTraces = info.traces;
+      
+      generateSyntheticData();
+      render();
+    }
+
+    function regenerateData() {
+      generateSyntheticData();
+      render();
+    }
+
+    function downloadImage() {
+      const link = document.createElement('a');
+      link.download = 'seismic-section-' + state.dataSource + '.png';
+      link.href = canvas.toDataURL();
+      link.click();
+    }
+
+    function toggleFullscreen() {
+      const container = document.getElementById('canvasContainer');
+      
+      if (!document.fullscreenElement) {
+        container.requestFullscreen().then(() => {
+          resizeCanvas();
+          render();
+        });
+      } else {
+        document.exitFullscreen().then(() => {
+          resizeCanvas();
+          render();
+        });
+      }
+    }
+
+    // ============================================
+    // Initialize on DOM Ready
+    // ============================================
+    document.addEventListener('DOMContentLoaded', initCanvas);
+  </script>
+
+</body>
+</html>

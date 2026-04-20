@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GEOX Command Center — Earth Intelligence Core</title>
+    <meta name="description" content="GEOX Command Center — Real Tools, Zero Theater. Earth Intelligence Core for geoscience professionals.">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS v4 -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style type="text/tailwindcss">
+        @theme {
+            --color-bg-primary: #0A0C0E;
+            --color-bg-secondary: #111418;
+            --color-bg-tertiary: #1A1F24;
+            --color-accent-amber: #F59E0B;
+            --color-accent-amber-light: #FBBF24;
+            --color-text-primary: #F8FAFC;
+            --color-text-secondary: #94A3B8;
+            --color-text-muted: #64748B;
+            --color-status-online: #10B981;
+            --color-status-warning: #F59E0B;
+            --color-status-error: #EF4444;
+            --color-border-default: #1E293B;
+        }
+    </style>
+    
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        
+        html, body {
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background-color: #0A0C0E;
+            color: #F8FAFC;
+            min-height: 100vh;
+        }
+        
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        
+        /* Animations */
+        @keyframes fade-in {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slide-up {
+            from { 
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes pulse-glow {
+            0%, 100% { 
+                box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4);
+            }
+            50% { 
+                box-shadow: 0 0 20px 4px rgba(245, 158, 11, 0.2);
+            }
+        }
+        
+        @keyframes status-pulse {
+            0%, 100% { 
+                opacity: 1;
+                transform: scale(1);
+            }
+            50% { 
+                opacity: 0.7;
+                transform: scale(1.1);
+            }
+        }
+        
+        @keyframes progress-fill {
+            from { width: 0%; }
+        }
+        
+        .animate-fade-in {
+            animation: fade-in 300ms ease-out forwards;
+        }
+        
+        .animate-slide-up {
+            animation: slide-up 400ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        
+        .animate-pulse-glow {
+            animation: pulse-glow 2000ms ease-in-out infinite;
+        }
+        
+        .animate-status-pulse {
+            animation: status-pulse 2000ms ease-in-out infinite;
+        }
+        
+        .animate-progress {
+            animation: progress-fill 1000ms ease-out forwards;
+        }
+        
+        /* Staggered animations */
+        .stagger-1 { animation-delay: 100ms; }
+        .stagger-2 { animation-delay: 200ms; }
+        .stagger-3 { animation-delay: 300ms; }
+        .stagger-4 { animation-delay: 400ms; }
+        .stagger-5 { animation-delay: 500ms; }
+        .stagger-6 { animation-delay: 600ms; }
+        
+        /* Card hover effect */
+        .app-card {
+            transition: transform 200ms ease, box-shadow 200ms ease, border-color 200ms ease;
+        }
+        
+        .app-card:hover {
+            transform: translateY(-4px);
+            border-color: #F59E0B;
+            box-shadow: 0 0 24px rgba(245, 158, 11, 0.2);
+        }
+        
+        /* Button styles */
+        .btn-primary {
+            background-color: #F59E0B;
+            color: #0A0C0E;
+            transition: all 200ms ease;
+        }
+        
+        .btn-primary:hover {
+            background-color: #FBBF24;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+        }
+        
+        .btn-secondary {
+            background-color: transparent;
+            color: #F59E0B;
+            border: 1px solid #F59E0B;
+            transition: all 200ms ease;
+        }
+        
+        .btn-secondary:hover {
+            background-color: rgba(245, 158, 11, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        /* Scroll reveal */
+        .reveal {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 400ms ease, transform 400ms ease;
+        }
+        
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        /* Progress bar animation */
+        .progress-bar {
+            height: 100%;
+            border-radius: 9999px;
+            transition: width 1000ms ease-out;
+        }
+        
+        /* Dropdown menu */
+        .dropdown-menu {
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-8px);
+            transition: all 200ms ease;
+        }
+        
+        .dropdown:hover .dropdown-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        
+        /* Constitutional floor badges */
+        .floor-badge {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            padding: 4px 10px;
+            background-color: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            color: #F59E0B;
+            border-radius: 4px;
+            transition: all 200ms ease;
+        }
+        
+        .floor-badge:hover {
+            background-color: rgba(245, 158, 11, 0.2);
+            border-color: #F59E0B;
+        }
+        
+        /* Status badges */
+        .badge-live {
+            background-color: rgba(16, 185, 129, 0.15);
+            color: #10B981;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+        
+        .badge-demo {
+            background-color: rgba(245, 158, 11, 0.15);
+            color: #F59E0B;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+        
+        .badge-core {
+            background-color: rgba(99, 102, 241, 0.15);
+            color: #818CF8;
+            border: 1px solid rgba(99, 102, 241, 0.3);
+        }
+    </style>
+</head>
+<body class="bg-bg-primary text-text-primary">
+    <!-- Navigation Header -->
+    <nav class="fixed top-0 left-0 right-0 z-50 h-16 border-b border-border-default" style="background-color: rgba(10, 12, 14, 0.95); backdrop-filter: blur(12px);">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
+            <div class="flex items-center justify-between h-full">
+                <!-- Logo -->
+                <a href="./index.html" class="flex items-center gap-3 group">
+                    <div class="w-8 h-8 rounded-lg bg-accent-amber flex items-center justify-center group-hover:animate-pulse-glow">
+                        <i data-lucide="globe" class="w-5 h-5 text-bg-primary"></i>
+                    </div>
+                    <span class="font-semibold text-lg tracking-tight">GEOX</span>
+                </a>
+                
+                <!-- Navigation Links -->
+                <div class="hidden md:flex items-center gap-8">
+                    <a href="./index.html" class="text-text-secondary hover:text-text-primary transition-colors text-sm font-medium">Home</a>
+                    
+                    <!-- Tools Dropdown -->
+                    <div class="dropdown relative">
+                        <button class="flex items-center gap-1 text-text-secondary hover:text-text-primary transition-colors text-sm font-medium">
+                            Tools
+                            <i data-lucide="chevron-down" class="w-4 h-4"></i>
+                        </button>
+                        <div class="dropdown-menu absolute top-full left-0 mt-2 w-56 bg-bg-secondary border border-border-default rounded-lg shadow-xl py-2">
+                            <a href="./ac-risk.html" class="flex items-center gap-3 px-4 py-2.5 text-sm text-text-secondary hover:text-text-primary hover:bg-bg-tertiary transition-colors">
+                                <i data-lucide="calculator" class="w-4 h-4"></i>
+                                AC Risk Calculator
+                            </a>
+                            <a href="./ratlas.html" class="flex items-center gap-3 px-4 py-2.5 text-sm text-text-secondary hover:text-text-primary hover:bg-bg-tertiary transition-colors">
+                                <i data-lucide="database" class="w-4 h-4"></i>
+                                RATLAS Browser
+                            </a>
+                            <a href="./basin-explorer.html" class="flex items-center gap-3 px-4 py-2.5 text-sm text-text-secondary hover:text-text-primary hover:bg-bg-tertiary transition-colors">
+                                <i data-lucide="mountain" class="w-4 h-4"></i>
+                                Basin Explorer
+                            </a>
+                            <a href="./seismic-viewer.html" class="flex items-center gap-3 px-4 py-2.5 text-sm text-text-secondary hover:text-text-primary hover:bg-bg-tertiary transition-colors">
+                                <i data-lucide="activity" class="w-4 h-4"></i>
+                                Seismic Viewer
+                            </a>
+                            <a href="./well-context-desk.html" class="flex items-center gap-3 px-4 py-2.5 text-sm text-text-secondary hover:text-text-primary hover:bg-bg-tertiary transition-colors">
+                                <i data-lucide="align-left" class="w-4 h-4"></i>
+                                Well Context Desk
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <a href="#" class="text-text-secondary hover:text-text-primary transition-colors text-sm font-medium">About</a>
+                    <a href="#" class="text-text-secondary hover:text-text-primary transition-colors text-sm font-medium flex items-center gap-1">
+                        Docs
+                        <i data-lucide="external-link" class="w-3 h-3"></i>
+                    </a>
+                </div>
+                
+                <!-- System Status -->
+                <div class="flex items-center gap-3">
+                    <div class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-bg-tertiary border border-border-default">
+                        <span class="w-2 h-2 rounded-full bg-status-online animate-status-pulse"></span>
+                        <span class="text-xs text-text-secondary font-mono">SYSTEM ONLINE</span>
+                    </div>
+                    
+                    <!-- Mobile menu button -->
+                    <button class="md:hidden p-2 text-text-secondary hover:text-text-primary transition-colors" id="mobile-menu-btn">
+                        <i data-lucide="menu" class="w-6 h-6"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Mobile Menu -->
+        <div class="md:hidden hidden bg-bg-secondary border-b border-border-default" id="mobile-menu">
+            <div class="px-4 py-4 space-y-3">
+                <a href="./index.html" class="block py-2 text-text-primary font-medium">Home</a>
+                <div class="py-2">
+                    <span class="text-text-muted text-sm font-medium uppercase tracking-wider">Tools</span>
+                    <div class="mt-2 space-y-2 pl-4">
+                        <a href="./ac-risk.html" class="block py-1.5 text-text-secondary hover:text-text-primary">AC Risk Calculator</a>
+                        <a href="./ratlas.html" class="block py-1.5 text-text-secondary hover:text-text-primary">RATLAS Browser</a>
+                        <a href="./basin-explorer.html" class="block py-1.5 text-text-secondary hover:text-text-primary">Basin Explorer</a>
+                        <a href="./seismic-viewer.html" class="block py-1.5 text-text-secondary hover:text-text-primary">Seismic Viewer</a>
+                        <a href="./well-context-desk.html" class="block py-1.5 text-text-secondary hover:text-text-primary">Well Context Desk</a>
+                    </div>
+                </div>
+                <a href="#" class="block py-2 text-text-secondary hover:text-text-primary">About</a>
+                <a href="#" class="block py-2 text-text-secondary hover:text-text-primary">Documentation</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="min-h-screen flex items-center justify-center relative overflow-hidden" style="background: radial-gradient(ellipse at top, #1a1f24 0%, #0a0c0e 70%);">
+        <!-- Subtle grid overlay -->
+        <div class="absolute inset-0 opacity-5" style="background-image: linear-gradient(#1E293B 1px, transparent 1px), linear-gradient(90deg, #1E293B 1px, transparent 1px); background-size: 60px 60px;"></div>
+        
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10 pt-16">
+            <!-- Seal -->
+            <div class="animate-fade-in mb-6">
+                <span class="inline-block px-4 py-1.5 rounded-full border border-border-default bg-bg-secondary/50 text-text-muted text-xs font-mono tracking-widest uppercase">
+                    DITEMPA BUKAN DIBERI
+                </span>
+            </div>
+            
+            <!-- Title -->
+            <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold text-text-primary mb-4 animate-slide-up opacity-0" style="animation-delay: 100ms; animation-fill-mode: forwards;">
+                GEOX Command Center
+            </h1>
+            
+            <!-- Tagline -->
+            <p class="text-lg sm:text-xl text-text-secondary mb-8 animate-slide-up opacity-0" style="animation-delay: 200ms; animation-fill-mode: forwards;">
+                Earth Intelligence Core — Real Tools, Zero Theater
+            </p>
+            
+            <!-- Constitutional Floors -->
+            <div class="flex flex-wrap justify-center gap-2 mb-10 animate-slide-up opacity-0" style="animation-delay: 300ms; animation-fill-mode: forwards;">
+                <span class="floor-badge">F1</span>
+                <span class="floor-badge">F2</span>
+                <span class="floor-badge">F4</span>
+                <span class="floor-badge">F7</span>
+                <span class="floor-badge">F9</span>
+                <span class="floor-badge">F11</span>
+                <span class="floor-badge">F13</span>
+            </div>
+            
+            <!-- CTA Buttons -->
+            <div class="flex flex-col sm:flex-row gap-4 justify-center animate-slide-up opacity-0" style="animation-delay: 400ms; animation-fill-mode: forwards;">
+                <a href="#app-showcase" class="btn-primary px-8 py-3 rounded-lg font-semibold text-sm inline-flex items-center justify-center gap-2">
+                    <i data-lucide="rocket" class="w-4 h-4"></i>
+                    Launch Tools
+                </a>
+                <a href="#" class="btn-secondary px-8 py-3 rounded-lg font-semibold text-sm inline-flex items-center justify-center gap-2">
+                    <i data-lucide="book-open" class="w-4 h-4"></i>
+                    View Documentation
+                </a>
+            </div>
+        </div>
+        
+        <!-- Scroll indicator -->
+        <div class="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
+            <i data-lucide="chevron-down" class="w-6 h-6 text-text-muted"></i>
+        </div>
+    </section>
+
+    <!-- App Showcase Grid -->
+    <section id="app-showcase" class="py-20 lg:py-28 bg-bg-primary">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- Section Header -->
+            <div class="text-center mb-12 reveal">
+                <h2 class="text-3xl sm:text-4xl font-semibold text-text-primary mb-4">Intelligence Tools</h2>
+                <p class="text-text-secondary max-w-2xl mx-auto">Professional-grade geoscience applications designed for precision, speed, and reliability.</p>
+            </div>
+            
+            <!-- App Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Card 1: AC Risk Calculator -->
+                <a href="./ac-risk.html" class="app-card reveal bg-bg-secondary border border-border-default rounded-xl p-6 block">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="w-12 h-12 rounded-lg bg-accent-amber/10 flex items-center justify-center">
+                            <i data-lucide="calculator" class="w-6 h-6 text-accent-amber"></i>
+                        </div>
+                        <span class="badge-live px-2.5 py-1 rounded-full text-xs font-medium flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-status-online animate-pulse"></span>
+                            Live
+                        </span>
+                    </div>
+                    <h3 class="text-lg font-semibold text-text-primary mb-2">AC Risk Calculator</h3>
+                    <p class="text-text-secondary text-sm mb-4">Calculate Anomalous Contrast Risk with real-time formula computation and risk level assessment.</p>
+                    <div class="flex items-center text-accent-amber text-sm font-medium">
+                        Open Tool
+                        <i data-lucide="arrow-right" class="w-4 h-4 ml-1.5"></i>
+                    </div>
+                </a>
+                
+                <!-- Card 2: RATLAS Browser -->
+                <a href="./ratlas.html" class="app-card reveal bg-bg-secondary border border-border-default rounded-xl p-6 block" style="transition-delay: 100ms;">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="w-12 h-12 rounded-lg bg-accent-amber/10 flex items-center justify-center">
+                            <i data-lucide="database" class="w-6 h-6 text-accent-amber"></i>
+                        </div>
+                        <span class="badge-live px-2.5 py-1 rounded-full text-xs font-medium flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-status-online animate-pulse"></span>
+                            Live
+                        </span>
+                    </div>
+                    <h3 class="text-lg font-semibold text-text-primary mb-2">RATLAS Browser</h3>
+                    <p class="text-text-secondary text-sm mb-4">Browse 99+ geological materials across 11 families with advanced search and filtering capabilities.</p>
+                    <div class="flex items-center text-accent-amber text-sm font-medium">
+                        Open Tool
+                        <i data-lucide="arrow-right" class="w-4 h-4 ml-1.5"></i>
+                    </div>
+                </a>
+                
+                <!-- Card 3: Basin Explorer -->
+                <a href="./basin-explorer.html" class="app-card reveal bg-bg-secondary border border-border-default rounded-xl p-6 block" style="transition-delay: 200ms;">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="w-12 h-12 rounded-lg bg-accent-amber/10 flex items-center justify-center">
+                            <i data-lucide="mountain" class="w-6 h-6 text-accent-amber"></i>
+                        </div>
+                        <span class="badge-demo px-2.5 py-1 rounded-full text-xs font-medium flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-status-warning"></span>
+                            Demo
+                        </span>
+                    </div>
+                    <h3 class="text-lg font-semibold text-text-primary mb-2">Basin Explorer</h3>
+                    <p class="text-text-secondary text-sm mb-4">Explore sedimentary basins with stratigraphic columns, formation details, and geological analysis.</p>
+                    <div class="flex items-center text-accent-amber text-sm font-medium">
+                        Open Tool
+                        <i data-lucide="arrow-right" class="w-4 h-4 ml-1.5"></i>
+                    </div>
+                </a>
+                
+                <!-- Card 4: Seismic Viewer -->
+                <a href="./seismic-viewer.html" class="app-card reveal bg-bg-secondary border border-border-default rounded-xl p-6 block" style="transition-delay: 300ms;">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="w-12 h-12 rounded-lg bg-accent-amber/10 flex items-center justify-center">
+                            <i data-lucide="activity" class="w-6 h-6 text-accent-amber"></i>
+                        </div>
+                        <span class="badge-demo px-2.5 py-1 rounded-full text-xs font-medium flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-status-warning"></span>
+                            Demo
+                        </span>
+                    </div>
+                    <h3 class="text-lg font-semibold text-text-primary mb-2">Seismic Viewer</h3>
+                    <p class="text-text-secondary text-sm mb-4">Visualize seismic data with wiggle traces, amplitude displays, and interactive time-axis controls.</p>
+                    <div class="flex items-center text-accent-amber text-sm font-medium">
+                        Open Tool
+                        <i data-lucide="arrow-right" class="w-4 h-4 ml-1.5"></i>
+                    </div>
+                </a>
+                
+                <!-- Card 5: Well Context Desk -->
+                <a href="./well-context-desk.html" class="app-card reveal bg-bg-secondary border border-border-default rounded-xl p-6 block" style="transition-delay: 400ms;">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="w-12 h-12 rounded-lg bg-accent-amber/10 flex items-center justify-center">
+                            <i data-lucide="align-left" class="w-6 h-6 text-accent-amber"></i>
+                        </div>
+                        <span class="badge-demo px-2.5 py-1 rounded-full text-xs font-medium flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-status-warning"></span>
+                            Demo
+                        </span>
+                    </div>
+                    <h3 class="text-lg font-semibold text-text-primary mb-2">Well Context Desk</h3>
+                    <p class="text-text-secondary text-sm mb-4">Analyze well logs with multi-track displays, depth tracking, and formation top annotations.</p>
+                    <div class="flex items-center text-accent-amber text-sm font-medium">
+                        Open Tool
+                        <i data-lucide="arrow-right" class="w-4 h-4 ml-1.5"></i>
+                    </div>
+                </a>
+                
+                <!-- Card 6: arifOS Core -->
+                <div class="app-card reveal bg-bg-secondary border border-border-default rounded-xl p-6 block" style="transition-delay: 500ms;">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="w-12 h-12 rounded-lg bg-indigo-500/10 flex items-center justify-center">
+                            <i data-lucide="cpu" class="w-6 h-6 text-indigo-400"></i>
+                        </div>
+                        <span class="badge-core px-2.5 py-1 rounded-full text-xs font-medium flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse"></span>
+                            Core
+                        </span>
+                    </div>
+                    <h3 class="text-lg font-semibold text-text-primary mb-2">arifOS Core</h3>
+                    <p class="text-text-secondary text-sm mb-4">The foundational intelligence layer powering all GEOX applications. Governed, agentic, precise.</p>
+                    <div class="flex items-center text-indigo-400 text-sm font-medium">
+                        <i data-lucide="lock" class="w-4 h-4 mr-1.5"></i>
+                        System Core
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- System Status Panel -->
+    <section class="py-16 lg:py-20 bg-bg-secondary border-y border-border-default">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                <!-- Left: Metrics -->
+                <div class="reveal">
+                    <h2 class="text-2xl sm:text-3xl font-semibold text-text-primary mb-6">System Status</h2>
+                    <p class="text-text-secondary mb-8">Real-time monitoring of GEOX infrastructure performance and availability metrics.</p>
+                    
+                    <div class="grid grid-cols-3 gap-6">
+                        <div class="text-center sm:text-left">
+                            <div class="text-3xl sm:text-4xl font-bold text-accent-amber font-mono mb-1">99.97%</div>
+                            <div class="text-text-muted text-sm">Uptime</div>
+                        </div>
+                        <div class="text-center sm:text-left">
+                            <div class="text-3xl sm:text-4xl font-bold text-status-online font-mono mb-1">1,247</div>
+                            <div class="text-text-muted text-sm">Active Users</div>
+                        </div>
+                        <div class="text-center sm:text-left">
+                            <div class="text-3xl sm:text-4xl font-bold text-accent-amber-light font-mono mb-1">2.4M</div>
+                            <div class="text-text-muted text-sm">Data Points</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Right: Resource Bars -->
+                <div class="space-y-6 reveal" style="transition-delay: 200ms;">
+                    <!-- CPU -->
+                    <div>
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-sm text-text-secondary flex items-center gap-2">
+                                <i data-lucide="cpu" class="w-4 h-4"></i>
+                                CPU Load
+                            </span>
+                            <span class="text-sm font-mono text-text-primary" id="cpu-value">42%</span>
+                        </div>
+                        <div class="h-2 bg-bg-tertiary rounded-full overflow-hidden">
+                            <div class="progress-bar bg-accent-amber" id="cpu-bar" style="width: 0%;" data-width="42"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Memory -->
+                    <div>
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-sm text-text-secondary flex items-center gap-2">
+                                <i data-lucide="hard-drive" class="w-4 h-4"></i>
+                                Memory Usage
+                            </span>
+                            <span class="text-sm font-mono text-text-primary" id="memory-value">68%</span>
+                        </div>
+                        <div class="h-2 bg-bg-tertiary rounded-full overflow-hidden">
+                            <div class="progress-bar bg-status-online" id="memory-bar" style="width: 0%;" data-width="68"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Storage -->
+                    <div>
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-sm text-text-secondary flex items-center gap-2">
+                                <i data-lucide="database" class="w-4 h-4"></i>
+                                Storage
+                            </span>
+                            <span class="text-sm font-mono text-text-primary" id="storage-value">54%</span>
+                        </div>
+                        <div class="h-2 bg-bg-tertiary rounded-full overflow-hidden">
+                            <div class="progress-bar bg-accent-amber-light" id="storage-bar" style="width: 0%;" data-width="54"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Last Updated -->
+                    <div class="pt-4 border-t border-border-default">
+                        <div class="flex items-center justify-between text-xs text-text-muted">
+                            <span class="flex items-center gap-2">
+                                <i data-lucide="refresh-cw" class="w-3 h-3"></i>
+                                Last updated: <span id="last-updated">Just now</span>
+                            </span>
+                            <span class="flex items-center gap-1.5">
+                                <span class="w-1.5 h-1.5 rounded-full bg-status-online animate-pulse"></span>
+                                All systems operational
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-bg-primary border-t border-border-default py-12 lg:py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-12">
+                <!-- Logo & Description -->
+                <div class="lg:col-span-2">
+                    <a href="./index.html" class="flex items-center gap-3 mb-4">
+                        <div class="w-10 h-10 rounded-lg bg-accent-amber flex items-center justify-center">
+                            <i data-lucide="globe" class="w-6 h-6 text-bg-primary"></i>
+                        </div>
+                        <span class="font-semibold text-xl tracking-tight">GEOX</span>
+                    </a>
+                    <p class="text-text-secondary text-sm max-w-md mb-6">
+                        Earth Intelligence Core — Real Tools, Zero Theater. Professional-grade geoscience applications for the modern earth scientist.
+                    </p>
+                    <div class="flex items-center gap-4">
+                        <a href="#" class="w-10 h-10 rounded-lg bg-bg-secondary border border-border-default flex items-center justify-center text-text-secondary hover:text-text-primary hover:border-accent-amber transition-all">
+                            <i data-lucide="github" class="w-5 h-5"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-lg bg-bg-secondary border border-border-default flex items-center justify-center text-text-secondary hover:text-text-primary hover:border-accent-amber transition-all">
+                            <i data-lucide="twitter" class="w-5 h-5"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-lg bg-bg-secondary border border-border-default flex items-center justify-center text-text-secondary hover:text-text-primary hover:border-accent-amber transition-all">
+                            <i data-lucide="linkedin" class="w-5 h-5"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Quick Links -->
+                <div>
+                    <h4 class="text-sm font-semibold text-text-primary uppercase tracking-wider mb-4">Quick Links</h4>
+                    <ul class="space-y-3">
+                        <li><a href="./index.html" class="text-text-secondary hover:text-text-primary transition-colors text-sm">Home</a></li>
+                        <li><a href="./ac-risk.html" class="text-text-secondary hover:text-text-primary transition-colors text-sm">AC Risk Calculator</a></li>
+                        <li><a href="./ratlas.html" class="text-text-secondary hover:text-text-primary transition-colors text-sm">RATLAS Browser</a></li>
+                        <li><a href="./basin-explorer.html" class="text-text-secondary hover:text-text-primary transition-colors text-sm">Basin Explorer</a></li>
+                        <li><a href="./seismic-viewer.html" class="text-text-secondary hover:text-text-primary transition-colors text-sm">Seismic Viewer</a></li>
+                        <li><a href="./well-context-desk.html" class="text-text-secondary hover:text-text-primary transition-colors text-sm">Well Context Desk</a></li>
+                    </ul>
+                </div>
+                
+                <!-- Resources -->
+                <div>
+                    <h4 class="text-sm font-semibold text-text-primary uppercase tracking-wider mb-4">Resources</h4>
+                    <ul class="space-y-3">
+                        <li><a href="#" class="text-text-secondary hover:text-text-primary transition-colors text-sm flex items-center gap-1">
+                            Documentation
+                            <i data-lucide="external-link" class="w-3 h-3"></i>
+                        </a></li>
+                        <li><a href="#" class="text-text-secondary hover:text-text-primary transition-colors text-sm">API Reference</a></li>
+                        <li><a href="#" class="text-text-secondary hover:text-text-primary transition-colors text-sm">Changelog</a></li>
+                        <li><a href="#" class="text-text-secondary hover:text-text-primary transition-colors text-sm">Privacy Policy</a></li>
+                        <li><a href="#" class="text-text-secondary hover:text-text-primary transition-colors text-sm">Terms of Service</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Bottom Bar -->
+            <div class="mt-12 pt-8 border-t border-border-default flex flex-col sm:flex-row justify-between items-center gap-4">
+                <p class="text-text-muted text-sm">
+                    &copy; 2026 GEOX Command Center. All rights reserved.
+                </p>
+                <div class="flex items-center gap-2 text-text-muted text-xs">
+                    <span class="w-2 h-2 rounded-full bg-status-online animate-pulse"></span>
+                    System Operational
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+        
+        // Mobile menu toggle
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        
+        if (mobileMenuBtn && mobileMenu) {
+            mobileMenuBtn.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+        }
+        
+        // Scroll reveal animation
+        const revealElements = document.querySelectorAll('.reveal');
+        
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                    
+                    // Animate progress bars when in view
+                    const progressBars = entry.target.querySelectorAll('.progress-bar');
+                    progressBars.forEach(bar => {
+                        const width = bar.getAttribute('data-width');
+                        if (width) {
+                            setTimeout(() => {
+                                bar.style.width = width + '%';
+                            }, 200);
+                        }
+                    });
+                }
+            });
+        }, {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        });
+        
+        revealElements.forEach(el => revealObserver.observe(el));
+        
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                const href = this.getAttribute('href');
+                if (href !== '#') {
+                    e.preventDefault();
+                    const target = document.querySelector(href);
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                }
+            });
+        });
+        
+        // Update last updated time
+        const lastUpdatedEl = document.getElementById('last-updated');
+        if (lastUpdatedEl) {
+            const now = new Date();
+            lastUpdatedEl.textContent = now.toLocaleTimeString('en-US', { 
+                hour: '2-digit', 
+                minute: '2-digit' 
+            });
+        }
+        
+        // Simulate live metric updates
+        function updateMetrics() {
+            const cpuValue = document.getElementById('cpu-value');
+            const memoryValue = document.getElementById('memory-value');
+            
+            if (cpuValue && memoryValue) {
+                // Small random fluctuations
+                const cpu = 40 + Math.floor(Math.random() * 8);
+                const memory = 66 + Math.floor(Math.random() * 6);
+                
+                cpuValue.textContent = cpu + '%';
+                memoryValue.textContent = memory + '%';
+            }
+        }
+        
+        // Update metrics every 5 seconds
+        setInterval(updateMetrics, 5000);
+    </script>
+</body>
+</html>

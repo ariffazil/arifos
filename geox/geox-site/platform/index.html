@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Platform | GEOX</title>
+    <link rel="stylesheet" href="../css/geox-platform.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="mono" style="margin-bottom: 0.5rem; font-size: 0.7rem; color: var(--muted-color);">
+                GEOX_PLATFORM_REGISTRY // ARCHITECTURE
+            </div>
+            <nav>
+                <a href="../index.html">Home</a>
+                <a href="index.html">Platform</a>
+                <a href="../workspaces/index.html">Workspaces</a>
+                <a href="../status/index.html">Status</a>
+            </nav>
+        </header>
+
+        <section>
+            <h1>Platform Overview</h1>
+            <p style="color: var(--muted-color); margin-bottom: 3rem;">The structural interface between the Earth and the Agent.</p>
+
+            <div class="grid">
+                <div class="card">
+                    <h3>Tools</h3>
+                    <p>Dimension-native MCP tools organized under 7 canonical registries: Prospecting, Wells, Sections, Earth3D, Time4D, Physics, and Mapping.</p>
+                </div>
+                <div class="card">
+                    <h3>Prompts</h3>
+                    <p>Structured, user-invoked workflows for deterministic multi-stage subsurface analysis.</p>
+                </div>
+                <div class="card">
+                    <h3>Resources</h3>
+                    <p>Dimension-native ontology, manifests, and seeded evidence context for situational awareness.</p>
+                </div>
+                <div class="card">
+                    <h3>Schemas</h3>
+                    <p>Contract Pack v1 (Shared Schemas). Enforcing structural integrity across Typescript and Python logic.</p>
+                </div>
+            </div>
+
+            <h2 style="margin: 4rem 0 2rem;">Verification Endpoints</h2>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Path</th>
+                        <th>Function</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="mono">/health</td>
+                        <td>Server heart-beat and structural readiness</td>
+                        <td><span class="status-chip status-live"><span class="status-dot"></span> LIVE</span></td>
+                    </tr>
+                    <tr>
+                        <td class="mono">/mcp</td>
+                        <td>Standardized MCP-SSE tool transport</td>
+                        <td><span class="status-chip status-partial"><span class="status-dot"></span> PARTIAL</span></td>
+                    </tr>
+                    <tr>
+                        <td class="mono">/profile</td>
+                        <td>Dynamic registry state and profile configuration</td>
+                        <td><span class="status-chip status-live"><span class="status-dot"></span> LIVE</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <footer>
+            <div class="governance">CONTRACT: DIMENSION-NATIVE_V1</div>
+            <p>&copy; 2026 GEOX Subsurface Intelligence</p>
+        </footer>
+    </div>
+</body>
+</html>

@@ -1,0 +1,1791 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Well Context Desk — GEOX Command Center</title>
+    
+    <!-- Tailwind CSS v4 -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    
+    <!-- Shared Styles -->
+    <link rel="stylesheet" href="../shared/styles.css">
+    
+    <style>
+    /* Well Context Desk Specific Styles */
+    .well-status-critical {
+      border-left: 4px solid var(--plasma-amber);
+      background: rgba(245, 158, 11, 0.05);
+    }
+    
+    .well-status-nominal {
+      border-left: 4px solid var(--integrity-emerald);
+      background: rgba(16, 185, 129, 0.05);
+    }
+    
+    /* Page-specific styles */
+
+    .log-canvas {
+      background: #0A0C0E;
+      border: 1px solid #1E293B;
+      border-radius: 8px;
+    }
+    
+    .track-header {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 8px;
+      background: #111418;
+      border-bottom: 1px solid #1E293B;
+    }
+    
+    .formation-line {
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 2px;
+      pointer-events: none;
+    }
+    
+    .formation-label {
+      position: absolute;
+      right: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      white-space: nowrap;
+    }
+    
+    .control-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 8px 12px;
+      background: #111418;
+      border: 1px solid #1E293B;
+      border-radius: 6px;
+      color: #94A3B8;
+      font-size: 13px;
+      font-weight: 500;
+      transition: all 200ms ease-out;
+    }
+    
+    .control-btn:hover {
+      background: #1A1F24;
+      border-color: #F59E0B;
+      color: #F8FAFC;
+    }
+    
+    .control-btn.active {
+      background: rgba(245, 158, 11, 0.15);
+      border-color: #F59E0B;
+      color: #F59E0B;
+    }
+    
+    .control-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    .info-card {
+      background: #111418;
+      border: 1px solid #1E293B;
+      border-radius: 8px;
+      padding: 16px;
+    }
+    
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid #1E293B;
+    }
+    
+    .info-row:last-child {
+      border-bottom: none;
+    }
+    
+    .info-label {
+      font-size: 12px;
+      color: #64748B;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    
+    .info-value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      color: #F8FAFC;
+    }
+    
+    .track-toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      background: #111418;
+      border: 1px solid #1E293B;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 200ms ease-out;
+    }
+    
+    .track-toggle:hover {
+      border-color: #F59E0B;
+    }
+    
+    .track-toggle.active {
+      background: rgba(245, 158, 11, 0.15);
+      border-color: #F59E0B;
+    }
+    
+    .track-toggle input {
+      accent-color: #F59E0B;
+    }
+    
+    .depth-marker {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: #64748B;
+      text-align: right;
+      padding-right: 8px;
+    }
+    
+    .grid-line {
+      stroke: #1E293B;
+      stroke-width: 0.5;
+      stroke-dasharray: 2, 2;
+    }
+    
+    .curve-gr { stroke: #22C55E; }
+    .curve-rt { stroke: #F59E0B; }
+    .curve-rhob { stroke: #3B82F6; }
+    .curve-nphi { stroke: #EF4444; }
+    
+    .zone-highlight {
+      background: rgba(245, 158, 11, 0.1);
+      border-left: 3px solid #F59E0B;
+      padding: 12px;
+      border-radius: 0 8px 8px 0;
+      margin: 8px 0;
+    }
+    
+    .stat-value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 24px;
+      font-weight: 600;
+      color: #F59E0B;
+    }
+    
+    .stat-label {
+      font-size: 11px;
+      color: #64748B;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+  </style>
+</head>
+<body class="bg-[#0A0C0E] text-[#F8FAFC] relative min-h-screen">
+  
+  <!-- Visual Overlays -->
+  <div class="scanline"></div>
+  <div class="radar-sweep"></div>
+
+  <!-- ============================================
+       NAVIGATION HEADER
+       ============================================ -->
+  <header class="fixed top-0 left-0 right-0 z-50 h-16 border-b border-[#1E293B]" style="background: rgba(10, 12, 14, 0.95); backdrop-filter: blur(12px);">
+    <div class="container h-full flex items-center justify-between">
+      
+      <!-- Logo Section -->
+      <a href="../index.html" class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-lg bg-[#F59E0B] flex items-center justify-center">
+          <i data-lucide="hexagon" class="w-5 h-5 text-[#0A0C0E]"></i>
+        </div>
+        <div class="flex flex-col">
+          <span class="text-lg font-semibold text-[#F8FAFC] leading-tight">GEOX</span>
+          <span class="text-xs text-[#64748B] leading-tight">Command Center</span>
+        </div>
+      </a>
+
+      <!-- Desktop Navigation -->
+      <nav class="hidden md:flex items-center gap-1">
+        <a href="../index.html" class="nav-link" data-nav="index">
+          <i data-lucide="home" class="w-4 h-4"></i>
+          <span>Home</span>
+        </a>
+
+        <div class="dropdown relative">
+          <button class="nav-link active" data-nav="tools" onclick="toggleDropdown(event)">
+            <i data-lucide="wrench" class="w-4 h-4"></i>
+            <span>Tools</span>
+            <i data-lucide="chevron-down" class="w-4 h-4 ml-1 transition-transform" id="tools-chevron"></i>
+          </button>
+          <div class="dropdown-menu" id="tools-dropdown">
+            <a href="ac-risk.html" class="dropdown-item">
+              <i data-lucide="calculator" class="w-4 h-4"></i>
+              <span>AC Risk Calculator</span>
+            </a>
+            <a href="ratlas.html" class="dropdown-item">
+              <i data-lucide="database" class="w-4 h-4"></i>
+              <span>RATLAS Browser</span>
+            </a>
+            <a href="basin-explorer.html" class="dropdown-item">
+              <i data-lucide="mountain" class="w-4 h-4"></i>
+              <span>Basin Explorer</span>
+            </a>
+            <a href="seismic-viewer.html" class="dropdown-item">
+              <i data-lucide="activity" class="w-4 h-4"></i>
+              <span>Seismic Viewer</span>
+            </a>
+            <a href="well-context-desk.html" class="dropdown-item">
+              <i data-lucide="align-left" class="w-4 h-4"></i>
+              <span>Well Context Desk</span>
+            </a>
+          </div>
+        </div>
+
+        <a href="#about" class="nav-link" data-nav="about">
+          <i data-lucide="info" class="w-4 h-4"></i>
+          <span>About</span>
+        </a>
+
+        <a href="https://docs.geox.dev" target="_blank" rel="noopener noreferrer" class="nav-link">
+          <i data-lucide="book-open" class="w-4 h-4"></i>
+          <span>Docs</span>
+          <i data-lucide="external-link" class="w-3 h-3 ml-1 opacity-50"></i>
+        </a>
+      </nav>
+
+      <!-- Right Section: System Status -->
+      <div class="flex items-center gap-4">
+        <div class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#111418] border border-[#1E293B]">
+          <span class="status-dot status-online"></span>
+          <span class="text-xs font-medium text-[#10B981]">ONLINE</span>
+        </div>
+
+        <button 
+          class="md:hidden p-2 rounded-lg text-[#94A3B8] hover:text-[#F8FAFC] hover:bg-white/5 transition-colors"
+          onclick="toggleMobileMenu()"
+          aria-label="Toggle menu"
+          aria-expanded="false"
+          id="mobile-menu-toggle"
+        >
+          <i data-lucide="menu" class="w-6 h-6" id="menu-icon-open"></i>
+          <i data-lucide="x" class="w-6 h-6 hidden" id="menu-icon-close"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Mobile Menu -->
+  <div class="mobile-menu" id="mobile-menu">
+    <nav class="flex flex-col gap-2">
+      <a href="../index.html" class="flex items-center gap-3 p-3 rounded-lg text-[#94A3B8] hover:text-[#F8FAFC] hover:bg-white/5 transition-colors" data-nav="index">
+        <i data-lucide="home" class="w-5 h-5"></i>
+        <span class="font-medium">Home</span>
+      </a>
+
+      <div class="p-3">
+        <div class="flex items-center gap-3 text-[#64748B] mb-2">
+          <i data-lucide="wrench" class="w-5 h-5"></i>
+          <span class="font-medium text-sm uppercase tracking-wider">Tools</span>
+        </div>
+        <div class="flex flex-col gap-1 ml-2 pl-4 border-l border-[#1E293B]">
+          <a href="ac-risk.html" class="flex items-center gap-2 p-2 rounded-lg text-[#94A3B8] hover:text-[#F8FAFC] hover:bg-white/5 transition-colors text-sm" data-nav="ac-risk">
+            <i data-lucide="calculator" class="w-4 h-4"></i>
+            <span>AC Risk Calculator</span>
+          </a>
+          <a href="ratlas.html" class="flex items-center gap-2 p-2 rounded-lg text-[#94A3B8] hover:text-[#F8FAFC] hover:bg-white/5 transition-colors text-sm" data-nav="ratlas">
+            <i data-lucide="database" class="w-4 h-4"></i>
+            <span>RATLAS Browser</span>
+          </a>
+          <a href="basin-explorer.html" class="flex items-center gap-2 p-2 rounded-lg text-[#94A3B8] hover:text-[#F8FAFC] hover:bg-white/5 transition-colors text-sm" data-nav="basin">
+            <i data-lucide="mountain" class="w-4 h-4"></i>
+            <span>Basin Explorer</span>
+          </a>
+          <a href="seismic-viewer.html" class="flex items-center gap-2 p-2 rounded-lg text-[#94A3B8] hover:text-[#F8FAFC] hover:bg-white/5 transition-colors text-sm" data-nav="seismic">
+            <i data-lucide="activity" class="w-4 h-4"></i>
+            <span>Seismic Viewer</span>
+          </a>
+          <a href="well-context-desk.html" class="flex items-center gap-2 p-2 rounded-lg text-[#94A3B8] hover:text-[#F8FAFC] hover:bg-white/5 transition-colors text-sm" data-nav="well">
+            <i data-lucide="align-left" class="w-4 h-4"></i>
+            <span>Well Context Desk</span>
+          </a>
+        </div>
+      </div>
+
+      <a href="#about" class="flex items-center gap-3 p-3 rounded-lg text-[#94A3B8] hover:text-[#F8FAFC] hover:bg-white/5 transition-colors" data-nav="about">
+        <i data-lucide="info" class="w-5 h-5"></i>
+        <span class="font-medium">About</span>
+      </a>
+
+      <a href="https://docs.geox.dev" target="_blank" rel="noopener noreferrer" class="flex items-center gap-3 p-3 rounded-lg text-[#94A3B8] hover:text-[#F8FAFC] hover:bg-white/5 transition-colors">
+        <i data-lucide="book-open" class="w-5 h-5"></i>
+        <span class="font-medium">Documentation</span>
+        <i data-lucide="external-link" class="w-4 h-4 ml-auto opacity-50"></i>
+      </a>
+
+      <div class="mt-4 pt-4 border-t border-[#1E293B]">
+        <div class="flex items-center justify-center gap-2 p-3 rounded-lg bg-[#111418] border border-[#1E293B]">
+          <span class="status-dot status-online"></span>
+          <span class="text-sm font-medium text-[#10B981]">System Online</span>
+        </div>
+      </div>
+    </nav>
+  </div>
+
+  <!-- Spacer for fixed header -->
+  <div class="h-16"></div>
+
+  <!-- ============================================
+       PAGE HEADER
+       ============================================ -->
+  <section class="py-8 border-b border-[#1E293B] bg-gradient-to-b from-[#111418] to-[#0A0C0E]">
+    <div class="container">
+      <!-- Back Link -->
+      <a href="../index.html" class="inline-flex items-center gap-2 text-[#94A3B8] hover:text-[#F59E0B] text-sm mb-4 transition-colors">
+        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+        <span>Back to Command Center</span>
+      </a>
+      
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <div class="flex items-center gap-3 mb-2">
+            <div class="w-10 h-10 rounded-lg bg-[#F59E0B]/15 flex items-center justify-center">
+              <i data-lucide="align-left" class="w-5 h-5 text-[#F59E0B]"></i>
+            </div>
+            <div>
+              <h1 class="text-2xl md:text-3xl font-semibold text-[#F8FAFC]">Well Context Desk</h1>
+            </div>
+          </div>
+          <p class="text-[#94A3B8]">Well log analysis and formation evaluation</p>
+        </div>
+        
+        <!-- Status Badge -->
+        <div class="status-badge status-badge-demo">
+          <span class="w-2 h-2 rounded-full bg-[#F59E0B] animate-pulse"></span>
+          <span>Demo Mode</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================
+       MAIN CONTENT
+       ============================================ -->
+  <main class="py-6">
+    <div class="container">
+      
+      <!-- Well Selector & Controls Row -->
+      <div class="flex flex-col lg:flex-row gap-4 mb-6">
+        
+        <!-- Well Selector -->
+        <div class="flex items-center gap-3">
+          <label class="text-sm text-[#94A3B8] whitespace-nowrap">Select Well:</label>
+          <select id="wellSelector" class="input select min-w-[200px]" onchange="changeWell()">
+            <option value="A-1">Demo Well A-1 (Offshore)</option>
+            <option value="B-2">Demo Well B-2 (Onshore)</option>
+            <option value="C-3">Demo Well C-3 (Deepwater)</option>
+          </select>
+        </div>
+        
+        <!-- Quick Actions -->
+        <div class="flex items-center gap-2 ml-auto">
+          <button class="control-btn" onclick="exportData()" title="Export Data">
+            <i data-lucide="download" class="w-4 h-4"></i>
+            <span class="hidden sm:inline">Export</span>
+          </button>
+          <button class="control-btn" onclick="printLog()" title="Print">
+            <i data-lucide="printer" class="w-4 h-4"></i>
+            <span class="hidden sm:inline">Print</span>
+          </button>
+          <button class="control-btn" onclick="resetView()" title="Reset View">
+            <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+            <span class="hidden sm:inline">Reset</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Main Grid Layout -->
+      <div class="grid grid-cols-1 xl:grid-cols-4 gap-6">
+        
+        <!-- Left Panel: Well Info -->
+        <div class="xl:col-span-1 space-y-4">
+          
+          <!-- Well Info Card -->
+          <div class="info-card">
+            <h3 class="text-sm font-semibold text-[#F8FAFC] uppercase tracking-wider mb-4 flex items-center gap-2">
+              <i data-lucide="info" class="w-4 h-4 text-[#F59E0B]"></i>
+              Well Information
+            </h3>
+            
+            <div class="info-row">
+              <span class="info-label">Well Name</span>
+              <span class="info-value" id="wellName">Demo Well A-1</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Location</span>
+              <span class="info-value" id="wellLocation">28.5N, 92.3W</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Total Depth (TD)</span>
+              <span class="info-value" id="wellTD">3,500 m</span>
+            </div>
+            <div class="info-row" id="waterDepthRow">
+              <span class="info-label">Water Depth</span>
+              <span class="info-value" id="waterDepth">125 m</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Spud Date</span>
+              <span class="info-value" id="spudDate">2023-03-15</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Status</span>
+              <span class="info-value text-[#10B981]">Completed</span>
+            </div>
+          </div>
+          
+          <!-- Track Visibility Controls -->
+          <div class="info-card">
+            <h3 class="text-sm font-semibold text-[#F8FAFC] uppercase tracking-wider mb-4 flex items-center gap-2">
+              <i data-lucide="eye" class="w-4 h-4 text-[#F59E0B]"></i>
+              Track Visibility
+            </h3>
+            
+            <div class="space-y-2">
+              <label class="track-toggle active" id="toggle-depth">
+                <input type="checkbox" checked onchange="toggleTrack('depth')">
+                <span class="w-3 h-3 rounded-full bg-[#94A3B8]"></span>
+                <span class="text-sm text-[#F8FAFC]">Depth Track</span>
+              </label>
+              
+              <label class="track-toggle active" id="toggle-gr">
+                <input type="checkbox" checked onchange="toggleTrack('gr')">
+                <span class="w-3 h-3 rounded-full bg-[#22C55E]"></span>
+                <span class="text-sm text-[#F8FAFC]">Gamma Ray</span>
+              </label>
+              
+              <label class="track-toggle active" id="toggle-rt">
+                <input type="checkbox" checked onchange="toggleTrack('rt')">
+                <span class="w-3 h-3 rounded-full bg-[#F59E0B]"></span>
+                <span class="text-sm text-[#F8FAFC]">Resistivity</span>
+              </label>
+              
+              <label class="track-toggle active" id="toggle-den">
+                <input type="checkbox" checked onchange="toggleTrack('den')">
+                <span class="w-3 h-3 rounded-full bg-[#3B82F6]"></span>
+                <span class="text-sm text-[#F8FAFC]">Density</span>
+              </label>
+              
+              <label class="track-toggle active" id="toggle-neu">
+                <input type="checkbox" checked onchange="toggleTrack('neu')">
+                <span class="w-3 h-3 rounded-full bg-[#EF4444]"></span>
+                <span class="text-sm text-[#F8FAFC]">Neutron</span>
+              </label>
+            </div>
+          </div>
+          
+          <!-- Formation Tops Toggle -->
+          <div class="info-card">
+            <h3 class="text-sm font-semibold text-[#F8FAFC] uppercase tracking-wider mb-4 flex items-center gap-2">
+              <i data-lucide="layers" class="w-4 h-4 text-[#F59E0B]"></i>
+              Formation Tops
+            </h3>
+            
+            <label class="flex items-center gap-3 cursor-pointer">
+              <input type="checkbox" id="formationToggle" checked onchange="toggleFormations()" class="w-4 h-4 accent-[#F59E0B]">
+              <span class="text-sm text-[#F8FAFC]">Show Formation Lines</span>
+            </label>
+            
+            <div class="mt-4 space-y-2 text-sm" id="formationList">
+              <div class="flex items-center justify-between py-1">
+                <span class="text-[#94A3B8]">Top Reservoir</span>
+                <span class="font-mono text-[#F59E0B]">2450 m</span>
+              </div>
+              <div class="flex items-center justify-between py-1">
+                <span class="text-[#94A3B8]">Oil-Water Contact</span>
+                <span class="font-mono text-[#3B82F6]">2680 m</span>
+              </div>
+              <div class="flex items-center justify-between py-1">
+                <span class="text-[#94A3B8]">Base Reservoir</span>
+                <span class="font-mono text-[#22C55E]">2800 m</span>
+              </div>
+              <div class="flex items-center justify-between py-1">
+                <span class="text-[#94A3B8]">Top Source Rock</span>
+                <span class="font-mono text-[#EF4444]">3100 m</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Center Panel: Log Display -->
+        <div class="xl:col-span-2">
+          <div class="info-card p-0 overflow-hidden">
+            
+            <!-- Log Controls Header -->
+            <div class="flex flex-wrap items-center justify-between gap-3 p-4 border-b border-[#1E293B] bg-[#111418]">
+              <div class="flex items-center gap-2">
+                <span class="text-xs text-[#64748B] uppercase tracking-wider">Zoom:</span>
+                <button class="control-btn active" id="zoom-1x" onclick="setZoom(1)">1x</button>
+                <button class="control-btn" id="zoom-2x" onclick="setZoom(2)">2x</button>
+                <button class="control-btn" id="zoom-5x" onclick="setZoom(5)">5x</button>
+              </div>
+              
+              <div class="flex items-center gap-2">
+                <button class="control-btn" onclick="scrollUp()" title="Scroll Up">
+                  <i data-lucide="chevron-up" class="w-4 h-4"></i>
+                </button>
+                <span class="text-xs text-[#64748B] font-mono" id="depthRange">1500-3500m</span>
+                <button class="control-btn" onclick="scrollDown()" title="Scroll Down">
+                  <i data-lucide="chevron-down" class="w-4 h-4"></i>
+                </button>
+              </div>
+            </div>
+            
+            <!-- Log Canvas Container -->
+            <div class="relative bg-[#0A0C0E] overflow-auto" style="max-height: 600px;">
+              <canvas id="logCanvas" class="log-canvas"></canvas>
+              
+              <!-- Formation Lines Overlay -->
+              <div id="formationOverlay" class="absolute inset-0 pointer-events-none">
+                <!-- Formation lines will be positioned by JavaScript -->
+              </div>
+            </div>
+            
+            <!-- Curve Legend -->
+            <div class="flex flex-wrap items-center gap-4 p-3 border-t border-[#1E293B] bg-[#111418]">
+              <div class="flex items-center gap-2">
+                <span class="w-3 h-0.5 bg-[#22C55E]"></span>
+                <span class="text-xs text-[#94A3B8]">GR (0-150 API)</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="w-3 h-0.5 bg-[#F59E0B]"></span>
+                <span class="text-xs text-[#94A3B8]">RT (0.2-2000 ohm-m)</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="w-3 h-0.5 bg-[#3B82F6]"></span>
+                <span class="text-xs text-[#94A3B8]">RHOB (1.9-2.9 g/cc)</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="w-3 h-0.5 bg-[#EF4444]"></span>
+                <span class="text-xs text-[#94A3B8]">NPHI (0.45-0.15 frac)</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Right Panel: Analysis -->
+        <div class="xl:col-span-1 space-y-4">
+          
+          <!-- Zone of Interest -->
+          <div class="info-card">
+            <h3 class="text-sm font-semibold text-[#F8FAFC] uppercase tracking-wider mb-4 flex items-center gap-2">
+              <i data-lucide="target" class="w-4 h-4 text-[#F59E0B]"></i>
+              Zone of Interest
+            </h3>
+            
+            <div class="zone-highlight">
+              <div class="text-xs text-[#64748B] mb-1">RESERVOIR INTERVAL</div>
+              <div class="font-mono text-lg text-[#F8FAFC]">2450 - 2800 m</div>
+              <div class="text-sm text-[#94A3B8] mt-1">Thickness: 350 m</div>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-3 mt-4">
+              <div class="text-center p-3 bg-[#0A0C0E] rounded-lg">
+                <div class="stat-value" id="avgGR">42</div>
+                <div class="stat-label">Avg GR (API)</div>
+              </div>
+              <div class="text-center p-3 bg-[#0A0C0E] rounded-lg">
+                <div class="stat-value" id="avgRT">185</div>
+                <div class="stat-label">Avg RT (ohm-m)</div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Net-to-Gross -->
+          <div class="info-card">
+            <h3 class="text-sm font-semibold text-[#F8FAFC] uppercase tracking-wider mb-4 flex items-center gap-2">
+              <i data-lucide="pie-chart" class="w-4 h-4 text-[#F59E0B]"></i>
+              Net-to-Gross Ratio
+            </h3>
+            
+            <div class="relative pt-2">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-sm text-[#94A3B8]">Net Pay</span>
+                <span class="font-mono text-[#F59E0B]" id="netPay">245 m</span>
+              </div>
+              <div class="h-3 bg-[#0A0C0E] rounded-full overflow-hidden">
+                <div class="h-full bg-gradient-to-r from-[#F59E0B] to-[#FBBF24] rounded-full transition-all duration-500" style="width: 70%"></div>
+              </div>
+              <div class="flex items-center justify-between mt-2">
+                <span class="text-xs text-[#64748B]">0%</span>
+                <span class="font-mono text-lg text-[#F8FAFC]" id="ntgRatio">70%</span>
+                <span class="text-xs text-[#64748B]">100%</span>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Hydrocarbon Indicators -->
+          <div class="info-card">
+            <h3 class="text-sm font-semibold text-[#F8FAFC] uppercase tracking-wider mb-4 flex items-center gap-2">
+              <i data-lucide="droplet" class="w-4 h-4 text-[#F59E0B]"></i>
+              HC Indicators
+            </h3>
+            
+            <div class="space-y-3">
+              <div class="flex items-center justify-between p-3 bg-[#0A0C0E] rounded-lg">
+                <div class="flex items-center gap-2">
+                  <i data-lucide="check-circle" class="w-4 h-4 text-[#10B981]"></i>
+                  <span class="text-sm text-[#F8FAFC]">High Resistivity</span>
+                </div>
+                <span class="text-xs text-[#10B981]">Positive</span>
+              </div>
+              
+              <div class="flex items-center justify-between p-3 bg-[#0A0C0E] rounded-lg">
+                <div class="flex items-center gap-2">
+                  <i data-lucide="check-circle" class="w-4 h-4 text-[#10B981]"></i>
+                  <span class="text-sm text-[#F8FAFC]">Density-Neutron Sep.</span>
+                </div>
+                <span class="text-xs text-[#10B981]">Positive</span>
+              </div>
+              
+              <div class="flex items-center justify-between p-3 bg-[#0A0C0E] rounded-lg">
+                <div class="flex items-center gap-2">
+                  <i data-lucide="check-circle" class="w-4 h-4 text-[#10B981]"></i>
+                  <span class="text-sm text-[#F8FAFC]">Low GR (Clean Sand)</span>
+                </div>
+                <span class="text-xs text-[#10B981]">Positive</span>
+              </div>
+              
+              <div class="flex items-center justify-between p-3 bg-[#0A0C0E] rounded-lg">
+                <div class="flex items-center gap-2">
+                  <i data-lucide="alert-circle" class="w-4 h-4 text-[#F59E0B]"></i>
+                  <span class="text-sm text-[#F8FAFC]">OWC Identified</span>
+                </div>
+                <span class="text-xs text-[#F59E0B]">2680 m</span>
+              </div>
+            </div>
+          </div>
+          
+            <!-- RATLAS Material Calibration -->
+            <div class="info-card">
+              <h3 class="text-sm font-semibold text-[#F8FAFC] uppercase tracking-wider mb-4 flex items-center gap-2">
+                <i data-lucide="book-open" class="w-4 h-4 text-[#F59E0B]"></i>
+                RATLAS Material Calibration
+              </h3>
+              
+              <div class="space-y-4">
+                <!-- Search & Select -->
+                <div>
+                  <label class="text-[10px] text-[#64748B] uppercase tracking-widest mb-1.5 block">Search Material Library</label>
+                  <div class="relative">
+                    <input type="text" id="materialSearch" placeholder="e.g. Quartz Sandstone..." class="w-full bg-[#0A0C0E] border border-[#1E293B] rounded-lg px-3 py-2 text-sm text-[#F8FAFC] focus:border-[#F59E0B] outline-none">
+                    <i data-lucide="search" class="w-4 h-4 text-[#64748B] absolute right-3 top-2.5"></i>
+                  </div>
+                  
+                  <div id="materialList" class="mt-2 max-h-40 overflow-y-auto border border-[#1E293B] rounded-lg hidden bg-[#111418] z-10 absolute w-full left-0">
+                    <!-- Populated by JS -->
+                  </div>
+                </div>
+
+                <!-- Selected Material Details -->
+                <div id="selectedMaterialCard" class="p-3 bg-[#0A0C0E] border border-[#F59E0B]/20 rounded-lg hidden">
+                  <div class="flex items-center justify-between mb-2">
+                    <span id="matName" class="text-sm font-medium text-[#F8FAFC]">No selection</span>
+                    <button onclick="clearMaterial()" class="text-[#64748B] hover:text-[#EF4444]">
+                      <i data-lucide="x-circle" class="w-4 h-4"></i>
+                    </button>
+                  </div>
+                  <div class="grid grid-cols-2 gap-y-2 gap-x-4 text-[10px]">
+                    <div class="flex flex-col">
+                      <span class="text-[#64748B]">GR Typical</span>
+                      <span id="matGR" class="text-[#22C55E]">-- API</span>
+                    </div>
+                    <div class="flex flex-col">
+                      <span class="text-[#64748B]">Rt Typical</span>
+                      <span id="matRT" class="text-[#F59E0B]">-- ohm-m</span>
+                    </div>
+                    <div class="flex flex-col">
+                      <span class="text-[#64748B]">Matrix Dens</span>
+                      <span id="matDens" class="text-[#3B82F6]">-- g/cc</span>
+                    </div>
+                    <div class="flex flex-col">
+                      <span class="text-[#64748B]">NPHI Matrix</span>
+                      <span id="matNPHI" class="text-[#EF4444]">-- frac</span>
+                    </div>
+                  </div>
+                  <p id="matNotes" class="mt-3 text-[10px] text-[#94A3B8] italic leading-relaxed"></p>
+                </div>
+
+                <!-- Calibration Controls -->
+                <div class="flex flex-col gap-2">
+                  <button id="btnOverlay" onclick="toggleOverlay()" class="w-full py-2 text-xs font-medium border border-[#1E293B] rounded-lg text-[#94A3B8] hover:text-[#F8FAFC] hover:border-[#F59E0B] transition-colors disabled:opacity-50" disabled>
+                    Overlay Typicals
+                  </button>
+                  <button id="btnComputeMatch" onclick="computeMatch()" class="w-full py-2 text-xs font-medium bg-[#F59E0B]/10 text-[#F59E0B] border border-[#F59E0B]/20 rounded-lg hover:bg-[#F59E0B]/20 transition-colors disabled:opacity-50" disabled>
+                    Compute Match %
+                  </button>
+                </div>
+
+                <div id="matchVerdict" class="hidden">
+                  <div class="flex items-center justify-between mb-1">
+                    <span class="text-xs text-[#94A3B8]">Cross-Plot Match</span>
+                    <span id="matchValue" class="text-xs font-mono font-bold text-[#F59E0B]">--%</span>
+                  </div>
+                  <div class="h-1.5 bg-[#0A0C0E] rounded-full overflow-hidden">
+                    <div id="matchBar" class="h-full bg-[#F59E0B]" style="width: 0%"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+
+            <!-- LLM Intelligence Coprogram -->
+            <div class="info-card border-purple-500/30 bg-purple-500/5">
+              <h3 class="text-sm font-semibold text-purple-400 uppercase tracking-wider mb-4 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <i data-lucide="cpu" class="w-4 h-4"></i>
+                  LLM Subsurface Copilot
+                </div>
+                <span class="text-[9px] font-mono text-purple-500/60 animate-pulse">v2.5_FLASH</span>
+              </h3>
+              
+              <div class="space-y-4">
+                <button id="btnAutoInterpret" onclick="simulateAIInterpretation()" class="w-full py-2.5 bg-purple-500/10 border border-purple-500/40 text-purple-400 text-[10px] font-mono uppercase hover:bg-purple-500/20 transition-all flex justify-center items-center gap-2 shadow-[0_0_15px_rgba(139,92,246,0.1)]">
+                  ✨ Auto-Interpret Logs
+                </button>
+                
+                <div id="aiInterpretationArea" class="hidden">
+                  <div class="flex items-center gap-2 mb-2">
+                    <div class="w-1.5 h-1.5 rounded-full bg-purple-500 animate-pulse"></div>
+                    <span class="text-[10px] font-mono text-purple-400 uppercase tracking-widest">Synthesis Complete</span>
+                  </div>
+                  <div id="aiOutputText" class="text-[11px] font-mono text-gray-300 leading-relaxed border-l-2 border-purple-500 pl-3 py-1 bg-black/20">
+                    <!-- Populated by LLM -->
+                  </div>
+                  <div class="mt-3 flex justify-between items-center text-[9px] font-mono text-purple-500/40">
+                    <span>CONFIDENCE: 0.94</span>
+                    <span>TOKENS: 142</span>
+                  </div>
+                </div>
+                
+                <div id="aiLoadingIndicator" class="hidden flex-col items-center justify-center py-6 gap-3">
+                  <div class="flex gap-1">
+                    <div class="w-2 h-2 bg-purple-500 rounded-full animate-bounce" style="animation-delay: 0s"></div>
+                    <div class="w-2 h-2 bg-purple-500 rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
+                    <div class="w-2 h-2 bg-purple-500 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+                  </div>
+                  <span class="text-[10px] font-mono text-purple-500/60 uppercase tracking-widest">Processing Tensors...</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      
+    </div>
+  </main>
+
+  <!-- ============================================
+       FOOTER
+       ============================================ -->
+  <footer class="border-t border-[#1E293B] bg-[#0A0C0E] mt-12">
+    <div class="container py-12 md:py-16">
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
+        
+        <div class="lg:col-span-2">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="w-10 h-10 rounded-lg bg-[#F59E0B] flex items-center justify-center">
+              <i data-lucide="hexagon" class="w-6 h-6 text-[#0A0C0E]"></i>
+            </div>
+            <div class="flex flex-col">
+              <span class="text-xl font-semibold text-[#F8FAFC]">GEOX</span>
+              <span class="text-sm text-[#64748B]">Command Center</span>
+            </div>
+          </div>
+          
+          <div class="mb-4">
+            <span class="seal-text text-[#F59E0B]">DITEMPA BUKAN DIBERI</span>
+          </div>
+          
+          <p class="text-[#94A3B8] text-sm max-w-sm mb-6">
+            Earth Intelligence Core — Real Tools, Zero Theater. 
+            A governed, agentic geological intelligence coprocessor for arifOS.
+          </p>
+          
+          <div>
+            <span class="text-xs text-[#64748B] uppercase tracking-wider mb-2 block">Constitutional Floors</span>
+            <div class="flex flex-wrap gap-2">
+              <span class="floor-badge">F1</span>
+              <span class="floor-badge">F2</span>
+              <span class="floor-badge">F4</span>
+              <span class="floor-badge">F7</span>
+              <span class="floor-badge">F9</span>
+              <span class="floor-badge">F11</span>
+              <span class="floor-badge">F13</span>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <h4 class="text-sm font-semibold text-[#F8FAFC] uppercase tracking-wider mb-4">Quick Links</h4>
+          <ul class="space-y-2">
+            <li>
+              <a href="../index.html" class="text-[#94A3B8] hover:text-[#F59E0B] text-sm transition-colors flex items-center gap-2">
+                <i data-lucide="home" class="w-4 h-4"></i>
+                Home
+              </a>
+            </li>
+            <li>
+              <a href="ac-risk.html" class="text-[#94A3B8] hover:text-[#F59E0B] text-sm transition-colors flex items-center gap-2">
+                <i data-lucide="calculator" class="w-4 h-4"></i>
+                AC Risk Calculator
+              </a>
+            </li>
+            <li>
+              <a href="ratlas.html" class="text-[#94A3B8] hover:text-[#F59E0B] text-sm transition-colors flex items-center gap-2">
+                <i data-lucide="database" class="w-4 h-4"></i>
+                RATLAS Browser
+              </a>
+            </li>
+            <li>
+              <a href="basin-explorer.html" class="text-[#94A3B8] hover:text-[#F59E0B] text-sm transition-colors flex items-center gap-2">
+                <i data-lucide="mountain" class="w-4 h-4"></i>
+                Basin Explorer
+              </a>
+            </li>
+            <li>
+              <a href="seismic-viewer.html" class="text-[#94A3B8] hover:text-[#F59E0B] text-sm transition-colors flex items-center gap-2">
+                <i data-lucide="activity" class="w-4 h-4"></i>
+                Seismic Viewer
+              </a>
+            </li>
+            <li>
+              <a href="well-context-desk.html" class="text-[#94A3B8] hover:text-[#F59E0B] text-sm transition-colors flex items-center gap-2">
+                <i data-lucide="align-left" class="w-4 h-4"></i>
+                Well Context Desk
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="text-sm font-semibold text-[#F8FAFC] uppercase tracking-wider mb-4">Resources</h4>
+          <ul class="space-y-2">
+            <li>
+              <a href="https://docs.geox.dev" target="_blank" rel="noopener noreferrer" class="text-[#94A3B8] hover:text-[#F59E0B] text-sm transition-colors flex items-center gap-2">
+                <i data-lucide="book-open" class="w-4 h-4"></i>
+                Documentation
+                <i data-lucide="external-link" class="w-3 h-3 ml-auto opacity-50"></i>
+              </a>
+            </li>
+            <li>
+              <a href="#api" class="text-[#94A3B8] hover:text-[#F59E0B] text-sm transition-colors flex items-center gap-2">
+                <i data-lucide="code" class="w-4 h-4"></i>
+                API Reference
+              </a>
+            </li>
+            <li>
+              <a href="#changelog" class="text-[#94A3B8] hover:text-[#F59E0B] text-sm transition-colors flex items-center gap-2">
+                <i data-lucide="git-commit" class="w-4 h-4"></i>
+                Changelog
+              </a>
+            </li>
+            <li>
+              <a href="#status" class="text-[#94A3B8] hover:text-[#F59E0B] text-sm transition-colors flex items-center gap-2">
+                <i data-lucide="activity" class="w-4 h-4"></i>
+                System Status
+              </a>
+            </li>
+          </ul>
+
+          <div class="mt-6">
+            <span class="text-xs text-[#64748B] uppercase tracking-wider mb-3 block">Connect</span>
+            <div class="flex gap-2">
+              <a href="#" class="w-9 h-9 rounded-lg bg-[#111418] border border-[#1E293B] flex items-center justify-center text-[#94A3B8] hover:text-[#F59E0B] hover:border-[#F59E0B] transition-all">
+                <i data-lucide="github" class="w-4 h-4"></i>
+              </a>
+              <a href="#" class="w-9 h-9 rounded-lg bg-[#111418] border border-[#1E293B] flex items-center justify-center text-[#94A3B8] hover:text-[#F59E0B] hover:border-[#F59E0B] transition-all">
+                <i data-lucide="twitter" class="w-4 h-4"></i>
+              </a>
+              <a href="#" class="w-9 h-9 rounded-lg bg-[#111418] border border-[#1E293B] flex items-center justify-center text-[#94A3B8] hover:text-[#F59E0B] hover:border-[#F59E0B] transition-all">
+                <i data-lucide="linkedin" class="w-4 h-4"></i>
+              </a>
+              <a href="#" class="w-9 h-9 rounded-lg bg-[#111418] border border-[#1E293B] flex items-center justify-center text-[#94A3B8] hover:text-[#F59E0B] hover:border-[#F59E0B] transition-all">
+                <i data-lucide="mail" class="w-4 h-4"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-12 pt-6 border-t border-[#1E293B]">
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p class="text-[#64748B] text-sm">
+            &copy; 2026 GEOX Command Center. All rights reserved.
+          </p>
+          
+          <div class="flex items-center gap-4">
+            <span class="font-mono text-xs text-[#64748B] bg-[#111418] px-2 py-1 rounded">
+              v2026.04.10
+            </span>
+            <a href="#privacy" class="text-[#64748B] hover:text-[#94A3B8] text-xs transition-colors">
+              Privacy
+            </a>
+            <a href="#terms" class="text-[#64748B] hover:text-[#94A3B8] text-xs transition-colors">
+              Terms
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Shared Scripts -->
+  <script src="../shared/scripts.js"></script>
+  
+  <!-- Page-specific JavaScript -->
+  <script>
+    // ============================================
+    // Well Data Configuration
+    // ============================================
+    const wellData = {
+      'A-1': {
+        name: 'Demo Well A-1',
+        location: '28.5N, 92.3W',
+        td: '3,500 m',
+        waterDepth: '125 m',
+        spudDate: '2023-03-15',
+        isOffshore: true,
+        avgGR: 42,
+        avgRT: 185,
+        netPay: '245 m',
+        ntgRatio: '70%'
+      },
+      'B-2': {
+        name: 'Demo Well B-2',
+        location: '32.1N, 101.8W',
+        td: '4,200 m',
+        waterDepth: null,
+        spudDate: '2023-06-22',
+        isOffshore: false,
+        avgGR: 55,
+        avgRT: 120,
+        netPay: '180 m',
+        ntgRatio: '58%'
+      },
+      'C-3': {
+        name: 'Demo Well C-3',
+        location: '26.8N, 89.5W',
+        td: '5,800 m',
+        waterDepth: '1,450 m',
+        spudDate: '2023-09-08',
+        isOffshore: true,
+        avgGR: 38,
+        avgRT: 250,
+        netPay: '320 m',
+        ntgRatio: '75%'
+      }
+    };
+
+    // Formation tops (in meters)
+    const formationTops = [
+      { name: 'Top Reservoir', depth: 2450, color: '#F59E0B' },
+      { name: 'Oil-Water Contact', depth: 2680, color: '#3B82F6' },
+      { name: 'Base Reservoir', depth: 2800, color: '#22C55E' },
+      { name: 'Top Source Rock', depth: 3100, color: '#EF4444' }
+    ];
+
+    // ============================================
+    // Log Display State
+    // ============================================
+    let currentWell = 'A-1';
+    let zoomLevel = 1;
+    let scrollOffset = 0;
+    let showFormations = true;
+    let trackVisibility = {
+      depth: true,
+      gr: true,
+      rt: true,
+      den: true,
+      neu: true
+    };
+
+    // Depth range
+    const minDepth = 1500;
+    const maxDepth = 3500;
+    const totalDepthRange = maxDepth - minDepth;
+
+    // Canvas dimensions
+    let canvas, ctx;
+    let canvasWidth = 800;
+    let canvasHeight = 500;
+
+    // ============================================
+    // Initialize
+    // ============================================
+    let ratlasMaterials = [];
+    let selectedMaterial = null;
+    let showOverlay = false;
+
+    document.addEventListener('DOMContentLoaded', async function() {
+      canvas = document.getElementById('logCanvas');
+      ctx = canvas.getContext('2d');
+      
+      // Load RATLAS Data
+      try {
+        const response = await fetch('../data/ratlas_materials.json');
+        ratlasMaterials = await response.json();
+        setupMaterialSelector();
+      } catch (err) {
+        console.warn('Failed to load RATLAS data:', err);
+      }
+
+      // Set canvas size
+      resizeCanvas();
+      
+      // Generate and draw log data
+      generateLogData();
+      drawLog();
+      
+      // Handle window resize
+      window.addEventListener('resize', debounce(function() {
+        resizeCanvas();
+        drawLog();
+      }, 250));
+    });
+
+    function setupMaterialSelector() {
+      const searchInput = document.getElementById('materialSearch');
+      const listEl = document.getElementById('materialList');
+      
+      if (!searchInput || !listEl) return;
+
+      searchInput.addEventListener('input', (e) => {
+        const query = e.target.value.toLowerCase();
+        if (query.length < 2) {
+          listEl.classList.add('hidden');
+          return;
+        }
+        
+        const matches = ratlasMaterials.filter(m => 
+          m.Material.toLowerCase().includes(query) || 
+          m.Family.toLowerCase().includes(query)
+        ).slice(0, 10);
+        
+        if (matches.length > 0) {
+          listEl.innerHTML = matches.map(m => `
+            <div class="px-3 py-2 text-xs text-[#94A3B8] hover:text-[#F8FAFC] hover:bg-[#1A1F24] cursor-pointer border-b border-[#1E293B] last:border-0" onclick='window.selectMaterial(${JSON.stringify(m).replace(/'/g, "&apos;")})'>
+              <div class="font-medium">${m.Material}</div>
+              <div class="text-[10px] opacity-60">${m.Family}</div>
+            </div>
+          `).join('');
+          listEl.classList.remove('hidden');
+        } else {
+          listEl.classList.add('hidden');
+        }
+      });
+      
+      // Close list on blur
+      document.addEventListener('click', (e) => {
+        if (!searchInput.contains(e.target) && !listEl.contains(e.target)) {
+          listEl.classList.add('hidden');
+        }
+      });
+    }
+
+    window.selectMaterial = function(m) {
+      selectedMaterial = m;
+      document.getElementById('materialList').classList.add('hidden');
+      document.getElementById('materialSearch').value = m.Material;
+      
+      // Update Card
+      document.getElementById('selectedMaterialCard').classList.remove('hidden');
+      document.getElementById('matName').textContent = m.Material;
+      document.getElementById('matGR').textContent = `${m.Typical_GR_API} API`;
+      document.getElementById('matRT').textContent = `${m.Typical_Rt_ohm_m} ohm-m`;
+      document.getElementById('matDens').textContent = `${m.Matrix_Density_gcc} g/cc`;
+      document.getElementById('matNPHI').textContent = `${m.Matrix_NPHI_vv} frac`;
+      document.getElementById('matNotes').textContent = m.Notes;
+      
+      // Enable buttons
+      document.getElementById('btnOverlay').disabled = false;
+      document.getElementById('btnComputeMatch').disabled = false;
+      
+      drawLog();
+    };
+
+    window.clearMaterial = function() {
+      selectedMaterial = null;
+      document.getElementById('selectedMaterialCard').classList.add('hidden');
+      document.getElementById('materialSearch').value = '';
+      document.getElementById('btnOverlay').disabled = true;
+      document.getElementById('btnComputeMatch').disabled = true;
+      document.getElementById('matchVerdict').classList.add('hidden');
+      showOverlay = false;
+      
+      const btn = document.getElementById('btnOverlay');
+      btn.textContent = 'Overlay Typicals';
+      btn.style.backgroundColor = '';
+      btn.style.borderColor = '';
+      btn.style.color = '';
+      
+      drawLog();
+    };
+
+    window.toggleOverlay = function() {
+      showOverlay = !showOverlay;
+      const btn = document.getElementById('btnOverlay');
+      if (showOverlay) {
+        btn.textContent = 'Hide Overlay';
+        btn.style.backgroundColor = 'rgba(245, 158, 11, 0.1)';
+        btn.style.borderColor = '#F59E0B';
+        btn.style.color = '#F59E0B';
+      } else {
+        btn.textContent = 'Overlay Typicals';
+        btn.style.backgroundColor = '';
+        btn.style.borderColor = '';
+        btn.style.color = '';
+      }
+      drawLog();
+    };
+
+    window.computeMatch = function() {
+      if (!selectedMaterial) return;
+      
+      // Compute a probabilistic "Match" based on zone averages
+      const well = wellData[currentWell];
+      
+      // Delta calculations (normalized)
+      const dGR = Math.abs(well.avgGR - selectedMaterial.Typical_GR_API) / 150;
+      const dRT = Math.abs(Math.log10(well.avgRT) - Math.log10(selectedMaterial.Typical_Rt_ohm_m)) / 4;
+      
+      const matchScore = Math.max(0, 100 - (dGR * 40 + dRT * 60));
+      const finalMatch = (matchScore + (Math.random() * 5)).toFixed(1);
+      
+      const verdictEl = document.getElementById('matchVerdict');
+      const valEl = document.getElementById('matchValue');
+      const barEl = document.getElementById('matchBar');
+      
+      verdictEl.classList.remove('hidden');
+      valEl.textContent = `${finalMatch}%`;
+      barEl.style.width = `${finalMatch}%`;
+      
+      // Color coding
+      if (finalMatch > 80) barEl.style.backgroundColor = '#10B981';
+      else if (finalMatch > 50) barEl.style.backgroundColor = '#F59E0B';
+      else barEl.style.backgroundColor = '#EF4444';
+    };
+
+
+
+    // ============================================
+    // Canvas Management
+    // ============================================
+    function resizeCanvas() {
+      const container = canvas.parentElement;
+      canvasWidth = container.clientWidth - 32; // Account for padding
+      canvasHeight = 500 * zoomLevel;
+      
+      canvas.width = canvasWidth;
+      canvas.height = canvasHeight;
+      canvas.style.width = canvasWidth + 'px';
+      canvas.style.height = canvasHeight + 'px';
+    }
+
+    // ============================================
+    // Synthetic Log Data Generation
+    // ============================================
+    let logData = [];
+
+    function generateLogData() {
+      logData = [];
+      const step = 5; // 5m intervals
+      
+      for (let depth = minDepth; depth <= maxDepth; depth += step) {
+        // Determine lithology based on depth
+        let isSand = false;
+        let isReservoir = false;
+        
+        // Sand intervals (clean, low GR)
+        if ((depth >= 1800 && depth <= 1950) ||
+            (depth >= 2100 && depth <= 2250) ||
+            (depth >= 2450 && depth <= 2800)) {
+          isSand = true;
+        }
+        
+        // Reservoir interval (with hydrocarbons)
+        if (depth >= 2450 && depth < 2680) {
+          isReservoir = true;
+        }
+        
+        // Generate Gamma Ray (API)
+        let gr;
+        if (isSand) {
+          gr = 30 + Math.random() * 20 + Math.sin(depth / 50) * 5; // Clean sand: 30-50
+        } else {
+          gr = 80 + Math.random() * 40 + Math.sin(depth / 30) * 10; // Shale: 80-120
+        }
+        
+        // Generate Resistivity (ohm-m) - log scale
+        let rt;
+        if (isReservoir) {
+          rt = 100 + Math.random() * 200; // High resistivity in HC-bearing sands
+        } else if (isSand) {
+          rt = 5 + Math.random() * 15; // Moderate in water-bearing sands
+        } else {
+          rt = 0.5 + Math.random() * 2; // Low in shales
+        }
+        
+        // Generate Density (g/cc)
+        let rhob;
+        if (isSand) {
+          rhob = 2.15 + Math.random() * 0.15; // Lower density in porous sand
+        } else {
+          rhob = 2.5 + Math.random() * 0.15; // Higher in shale
+        }
+        
+        // Generate Neutron (fraction)
+        let nphi;
+        if (isSand) {
+          nphi = 0.25 + Math.random() * 0.1; // Higher porosity in sand
+        } else {
+          nphi = 0.35 + Math.random() * 0.08; // Higher in shale (clay effect)
+        }
+        
+        logData.push({
+          depth: depth,
+          gr: Math.min(150, Math.max(0, gr)),
+          rt: Math.min(2000, Math.max(0.2, rt)),
+          rhob: Math.min(2.9, Math.max(1.9, rhob)),
+          nphi: Math.min(0.45, Math.max(0.15, nphi))
+        });
+      }
+    }
+
+    // ============================================
+    // Log Drawing
+    // ============================================
+    function drawLog() {
+      if (!ctx) return;
+      
+      // Clear canvas
+      ctx.fillStyle = '#0A0C0E';
+      ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+      
+      // Calculate track widths
+      const trackCount = Object.values(trackVisibility).filter(v => v).length;
+      if (trackCount === 0) return;
+      
+      const trackWidth = (canvasWidth - 80) / trackCount; // 80px for depth track
+      let currentX = 0;
+      
+      // Draw Depth Track
+      if (trackVisibility.depth) {
+        drawDepthTrack(currentX, 80);
+        currentX += 80;
+      }
+      
+      // Draw Gamma Ray Track
+      if (trackVisibility.gr) {
+        drawCurveTrack(currentX, trackWidth, 'GR', 'gr', 0, 150, '#22C55E', 'API');
+        currentX += trackWidth;
+      }
+      
+      // Draw Resistivity Track
+      if (trackVisibility.rt) {
+        drawLogarithmicTrack(currentX, trackWidth, 'RT', 'rt', 0.2, 2000, '#F59E0B', 'ohm-m');
+        currentX += trackWidth;
+      }
+      
+      // Draw Density Track
+      if (trackVisibility.den) {
+        drawCurveTrack(currentX, trackWidth, 'RHOB', 'rhob', 1.9, 2.9, '#3B82F6', 'g/cc');
+        currentX += trackWidth;
+      }
+      
+      // Draw Neutron Track
+      if (trackVisibility.neu) {
+        drawCurveTrack(currentX, trackWidth, 'NPHI', 'nphi', 0.45, 0.15, '#EF4444', 'frac');
+        currentX += trackWidth;
+      }
+      
+      // Draw overlays if enabled
+      if (showOverlay && selectedMaterial) {
+        drawMaterialOverlay();
+      }
+      
+      // Draw formation tops
+      if (showFormations) {
+        drawFormationTops();
+      }
+    }
+
+    function drawMaterialOverlay() {
+      if (!selectedMaterial) return;
+      
+      const trackCount = Object.values(trackVisibility).filter(v => v).length;
+      if (trackCount === 0) return;
+      
+      const trackWidth = (canvasWidth - 80) / trackCount;
+      let currentX = 0;
+      if (trackVisibility.depth) currentX += 80;
+
+      // Gamma Overlay
+      if (trackVisibility.gr) {
+        drawOverlayLine(currentX, trackWidth, selectedMaterial.Typical_GR_API, 0, 150, '#22C55E');
+        currentX += trackWidth;
+      }
+
+      // Rt Overlay
+      if (trackVisibility.rt) {
+        drawOverlayLine(currentX, trackWidth, selectedMaterial.Typical_Rt_ohm_m, 0.2, 2000, '#F59E0B', true);
+        currentX += trackWidth;
+      }
+
+      // Density Overlay
+      if (trackVisibility.den) {
+        drawOverlayLine(currentX, trackWidth, selectedMaterial.Matrix_Density_gcc, 1.9, 2.9, '#3B82F6');
+        currentX += trackWidth;
+      }
+
+      // Neutron Overlay
+      if (trackVisibility.neu) {
+        drawOverlayLine(currentX, trackWidth, selectedMaterial.Matrix_NPHI_vv, 0.45, 0.15, '#EF4444');
+        currentX += trackWidth;
+      }
+    }
+
+    function drawOverlayLine(x, width, val, minVal, maxVal, color, isLog = false) {
+      if (val === undefined || val === null) return;
+      
+      let normVal;
+      if (isLog) {
+        const safeVal = Math.max(minVal, Math.min(maxVal, val));
+        normVal = (Math.log10(safeVal) - Math.log10(minVal)) / (Math.log10(maxVal) - Math.log10(minVal));
+      } else {
+        // Curve tracks are often visually inverted (e.g. NPHI/RHOB)
+        // For simplicity here, we assume standard linear norm matching the curve tracks
+        normVal = (val - minVal) / (maxVal - minVal);
+      }
+      
+      const lineX = x + (1 - normVal) * width;
+      
+      ctx.save();
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 2;
+      ctx.setLineDash([10, 5]);
+      ctx.globalAlpha = 0.5;
+      
+      ctx.beginPath();
+      ctx.moveTo(lineX, 30);
+      ctx.lineTo(lineX, canvasHeight);
+      ctx.stroke();
+      ctx.restore();
+    }
+
+
+    function drawDepthTrack(x, width) {
+      // Track header
+      ctx.fillStyle = '#111418';
+      ctx.fillRect(x, 0, width, 30);
+      ctx.strokeStyle = '#1E293B';
+      ctx.strokeRect(x, 0, width, 30);
+      
+      ctx.fillStyle = '#94A3B8';
+      ctx.font = '11px JetBrains Mono';
+      ctx.textAlign = 'center';
+      ctx.fillText('DEPTH', x + width / 2, 20);
+      
+      // Draw depth grid lines
+      const depthStep = 100;
+      const pixelsPerMeter = canvasHeight / totalDepthRange;
+      
+      ctx.textAlign = 'right';
+      ctx.fillStyle = '#64748B';
+      
+      for (let depth = minDepth; depth <= maxDepth; depth += depthStep) {
+        const y = 30 + (depth - minDepth) * pixelsPerMeter;
+        
+        // Grid line
+        ctx.strokeStyle = '#1E293B';
+        ctx.setLineDash([2, 2]);
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.lineTo(canvasWidth, y);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        
+        // Depth label
+        ctx.fillText(depth + 'm', x + width - 5, y + 4);
+      }
+      
+      // Track border
+      ctx.strokeStyle = '#1E293B';
+      ctx.strokeRect(x, 0, width, canvasHeight);
+    }
+
+    function drawCurveTrack(x, width, title, curveKey, minVal, maxVal, color, unit) {
+      const headerHeight = 30;
+      const trackHeight = canvasHeight - headerHeight;
+      
+      // Track header
+      ctx.fillStyle = '#111418';
+      ctx.fillRect(x, 0, width, headerHeight);
+      ctx.strokeStyle = '#1E293B';
+      ctx.strokeRect(x, 0, width, headerHeight);
+      
+      ctx.fillStyle = '#94A3B8';
+      ctx.font = '11px JetBrains Mono';
+      ctx.textAlign = 'center';
+      ctx.fillText(title, x + width / 2, 14);
+      ctx.font = '9px JetBrains Mono';
+      ctx.fillText(`${minVal}-${maxVal} ${unit}`, x + width / 2, 26);
+      
+      // Draw scale lines
+      ctx.strokeStyle = '#1E293B';
+      ctx.setLineDash([2, 2]);
+      for (let i = 0; i <= 4; i++) {
+        const lineX = x + (width * i / 4);
+        ctx.beginPath();
+        ctx.moveTo(lineX, headerHeight);
+        ctx.lineTo(lineX, canvasHeight);
+        ctx.stroke();
+      }
+      ctx.setLineDash([]);
+      
+      // Draw curve
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      
+      const pixelsPerMeter = trackHeight / totalDepthRange;
+      
+      for (let i = 0; i < logData.length; i++) {
+        const point = logData[i];
+        const y = headerHeight + (point.depth - minDepth) * pixelsPerMeter;
+        const normalizedValue = (point[curveKey] - minVal) / (maxVal - minVal);
+        const pointX = x + (1 - normalizedValue) * width; // Inverted scale
+        
+        if (i === 0) {
+          ctx.moveTo(pointX, y);
+        } else {
+          ctx.lineTo(pointX, y);
+        }
+      }
+      
+      ctx.stroke();
+      
+      // Track border
+      ctx.strokeStyle = '#1E293B';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(x, 0, width, canvasHeight);
+    }
+
+    function drawLogarithmicTrack(x, width, title, curveKey, minVal, maxVal, color, unit) {
+      const headerHeight = 30;
+      const trackHeight = canvasHeight - headerHeight;
+      
+      // Track header
+      ctx.fillStyle = '#111418';
+      ctx.fillRect(x, 0, width, headerHeight);
+      ctx.strokeStyle = '#1E293B';
+      ctx.strokeRect(x, 0, width, headerHeight);
+      
+      ctx.fillStyle = '#94A3B8';
+      ctx.font = '11px JetBrains Mono';
+      ctx.textAlign = 'center';
+      ctx.fillText(title, x + width / 2, 14);
+      ctx.font = '9px JetBrains Mono';
+      ctx.fillText(`0.2-2000 ${unit}`, x + width / 2, 26);
+      
+      // Draw logarithmic scale lines
+      ctx.strokeStyle = '#1E293B';
+      ctx.setLineDash([2, 2]);
+      const logValues = [0.2, 1, 10, 100, 1000, 2000];
+      logValues.forEach(val => {
+        const logPos = (Math.log10(val) - Math.log10(minVal)) / (Math.log10(maxVal) - Math.log10(minVal));
+        const lineX = x + (1 - logPos) * width;
+        ctx.beginPath();
+        ctx.moveTo(lineX, headerHeight);
+        ctx.lineTo(lineX, canvasHeight);
+        ctx.stroke();
+      });
+      ctx.setLineDash([]);
+      
+      // Draw curve
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      
+      const pixelsPerMeter = trackHeight / totalDepthRange;
+      
+      for (let i = 0; i < logData.length; i++) {
+        const point = logData[i];
+        const y = headerHeight + (point.depth - minDepth) * pixelsPerMeter;
+        const logPos = (Math.log10(point[curveKey]) - Math.log10(minVal)) / (Math.log10(maxVal) - Math.log10(minVal));
+        const pointX = x + (1 - logPos) * width;
+        
+        if (i === 0) {
+          ctx.moveTo(pointX, y);
+        } else {
+          ctx.lineTo(pointX, y);
+        }
+      }
+      
+      ctx.stroke();
+      
+      // Track border
+      ctx.strokeStyle = '#1E293B';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(x, 0, width, canvasHeight);
+    }
+
+    function drawFormationTops() {
+      const headerHeight = 30;
+      const trackHeight = canvasHeight - headerHeight;
+      const pixelsPerMeter = trackHeight / totalDepthRange;
+      
+      formationTops.forEach(formation => {
+        const y = headerHeight + (formation.depth - minDepth) * pixelsPerMeter;
+        
+        // Draw line
+        ctx.strokeStyle = formation.color;
+        ctx.lineWidth = 2;
+        ctx.setLineDash([5, 3]);
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(canvasWidth, y);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        
+        // Draw label background
+        const labelText = `${formation.name} (${formation.depth}m)`;
+        ctx.font = '10px JetBrains Mono';
+        const textWidth = ctx.measureText(labelText).width;
+        
+        ctx.fillStyle = 'rgba(10, 12, 14, 0.9)';
+        ctx.fillRect(canvasWidth - textWidth - 16, y - 12, textWidth + 12, 18);
+        
+        // Draw label
+        ctx.fillStyle = formation.color;
+        ctx.textAlign = 'right';
+        ctx.fillText(labelText, canvasWidth - 8, y);
+      });
+    }
+
+    // ============================================
+    // Well Selection
+    // ============================================
+    function changeWell() {
+      const selector = document.getElementById('wellSelector');
+      currentWell = selector.value;
+      const data = wellData[currentWell];
+      
+      // Update well info
+      document.getElementById('wellName').textContent = data.name;
+      document.getElementById('wellLocation').textContent = data.location;
+      document.getElementById('wellTD').textContent = data.td;
+      document.getElementById('spudDate').textContent = data.spudDate;
+      
+      // Update water depth visibility
+      const waterDepthRow = document.getElementById('waterDepthRow');
+      if (data.isOffshore) {
+        waterDepthRow.style.display = 'flex';
+        document.getElementById('waterDepth').textContent = data.waterDepth;
+      } else {
+        waterDepthRow.style.display = 'none';
+      }
+      
+      // Update analysis values
+      document.getElementById('avgGR').textContent = data.avgGR;
+      document.getElementById('avgRT').textContent = data.avgRT;
+      document.getElementById('netPay').textContent = data.netPay;
+      document.getElementById('ntgRatio').textContent = data.ntgRatio;
+      
+      // Regenerate log data for new well
+      generateLogData();
+      drawLog();
+    }
+
+    // ============================================
+    // Zoom Controls
+    // ============================================
+    function setZoom(level) {
+      zoomLevel = level;
+      
+      // Update button states
+      document.querySelectorAll('[id^="zoom-"]').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      document.getElementById('zoom-' + level + 'x').classList.add('active');
+      
+      resizeCanvas();
+      drawLog();
+    }
+
+    // ============================================
+    // Scroll Controls
+    // ============================================
+    function scrollUp() {
+      const container = canvas.parentElement;
+      container.scrollBy({ top: -100, behavior: 'smooth' });
+      updateDepthRange();
+    }
+
+    function scrollDown() {
+      const container = canvas.parentElement;
+      container.scrollBy({ top: 100, behavior: 'smooth' });
+      updateDepthRange();
+    }
+
+    function updateDepthRange() {
+      const container = canvas.parentElement;
+      const scrollRatio = container.scrollTop / (canvasHeight - container.clientHeight);
+      const visibleDepthStart = Math.round(minDepth + scrollRatio * totalDepthRange);
+      const visibleDepthEnd = Math.round(visibleDepthStart + totalDepthRange / zoomLevel);
+      
+      document.getElementById('depthRange').textContent = 
+        `${Math.max(minDepth, visibleDepthStart)}-${Math.min(maxDepth, visibleDepthEnd)}m`;
+    }
+
+    // ============================================
+    // Track Visibility
+    // ============================================
+    function toggleTrack(track) {
+      trackVisibility[track] = !trackVisibility[track];
+      
+      const toggleEl = document.getElementById('toggle-' + track);
+      if (trackVisibility[track]) {
+        toggleEl.classList.add('active');
+      } else {
+        toggleEl.classList.remove('active');
+      }
+      
+      drawLog();
+    }
+
+    // ============================================
+    // Formation Tops Toggle
+    // ============================================
+    function toggleFormations() {
+      showFormations = document.getElementById('formationToggle').checked;
+      drawLog();
+    }
+
+    // ============================================
+    // Action Buttons
+    // ============================================
+    function exportData() {
+      // Create CSV content
+      let csv = 'Depth,GR,RT,RHOB,NPHI\n';
+      logData.forEach(point => {
+        csv += `${point.depth},${point.gr.toFixed(2)},${point.rt.toFixed(2)},${point.rhob.toFixed(3)},${point.nphi.toFixed(3)}\n`;
+      });
+      
+      // Download
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `well_${currentWell}_log_data.csv`;
+      a.click();
+      window.URL.revokeObjectURL(url);
+    }
+
+    function printLog() {
+      window.print();
+    }
+
+    function resetView() {
+      zoomLevel = 1;
+      scrollOffset = 0;
+      
+      document.querySelectorAll('[id^="zoom-"]').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      document.getElementById('zoom-1x').classList.add('active');
+      
+      // Reset track visibility
+      Object.keys(trackVisibility).forEach(track => {
+        trackVisibility[track] = true;
+        document.getElementById('toggle-' + track).classList.add('active');
+        document.getElementById('toggle-' + track).querySelector('input').checked = true;
+      });
+      
+      // Reset formations
+      showFormations = true;
+      document.getElementById('formationToggle').checked = true;
+      
+      resizeCanvas();
+      drawLog();
+    }
+
+    function simulateAIInterpretation() {
+      const btn = document.getElementById('btnAutoInterpret');
+      const loader = document.getElementById('aiLoadingIndicator');
+      const area = document.getElementById('aiInterpretationArea');
+      const output = document.getElementById('aiOutputText');
+      
+      btn.disabled = true;
+      btn.textContent = 'Analyzing Signal Manifold...';
+      loader.classList.remove('hidden');
+      area.classList.add('hidden');
+      
+      // Simulate API latency
+      setTimeout(() => {
+        const well = wellData[currentWell];
+        const scenario = `Interval [2640-2670m] exhibits significant GR-trough consistent with high-energy clean sand facies. Enhanced resistivity (>200 ohmm) coupled with distinct density-neutron crossover identifies a potential hydrocarbon-bearing column. Matrix calibration matches RATLAS quartz-arenite signatures with 92% confidence. Recommended action: 888_PROCEED with production casing.`;
+        
+        output.textContent = scenario;
+        loader.classList.add('hidden');
+        area.classList.remove('hidden');
+        btn.disabled = false;
+        btn.textContent = '✨ Auto-Interpret Logs';
+        
+        // Ensure Lucide icons are refreshed if any were added
+        if (window.lucide) {
+          window.lucide.createIcons();
+        }
+      }, 2400);
+    }
+
+    // ============================================
+    // Utility Functions
+    // ============================================
+    function debounce(func, wait) {
+      let timeout;
+      return function executedFunction(...args) {
+        const later = () => {
+          clearTimeout(timeout);
+          func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+      };
+    };
+  </script>
+</body>
+</html>
+
+      return function(...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), wait);
+      };
+    }
+  </script>
+  
+</body>
+</html>

@@ -1,0 +1,345 @@
+/* ============================================
+   GEOX Command Center - CORE PHYSICS9 DESIGN SYSTEM
+   "DITEMPA BUKAN DIBERI"
+   ============================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500&family=Outfit:wght@400;600;700;800&display=swap');
+
+:root {
+  /* The Void Palette - Deep Subsurface Physics */
+  --void-base: #020406;
+  --void-surface: #0A0C0E;
+  --void-panel: rgba(16, 20, 24, 0.7);
+  --void-elevated: rgba(26, 31, 36, 0.85);
+  
+  /* Plasma Accents - Kinetic Energy */
+  --plasma-primary: #F59E0B;
+  --plasma-secondary: #B45309;
+  --plasma-glow: rgba(245, 158, 11, 0.4);
+  
+  /* Biological/Physical Integrity */
+  --integrity-emerald: #10B981;
+  --integrity-glow: rgba(16, 185, 129, 0.3);
+  
+  /* Spectral Colors */
+  --spectral-indigo: #6366F1;
+  --spectral-ruby: #EF4444;
+  
+  /* Textures & Borders */
+  --border-glass: rgba(255, 255, 255, 0.08);
+  --border-subtle: rgba(30, 41, 59, 0.5);
+  --text-primary: #F8FAFC;
+  --text-secondary: #94A3B8;
+  --text-muted: #4B5563;
+
+  /* Spacing System */
+  --s-1: 0.25rem;
+  --s-2: 0.5rem;
+  --s-4: 1rem;
+  --s-6: 1.5rem;
+  --s-8: 2rem;
+  --s-12: 3rem;
+  --s-16: 4rem;
+
+  /* Layout Variables */
+  --header-h: 64px;
+  --max-width: 1280px;
+
+  /* Animations */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out-sine: cubic-bezier(0.45, 0.05, 0.55, 0.95);
+}
+
+/* ------------------------------------------
+   Sovereign Reset
+   ------------------------------------------ */
+* {
+  box-sizing: border-box;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+  scroll-padding-top: var(--header-h);
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', system-ui, sans-serif;
+  background-color: var(--void-base);
+  color: var(--text-primary);
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* ------------------------------------------
+   Typography Mastery
+   ------------------------------------------ */
+h1, h2, h3, h4 {
+  font-family: 'Outfit', sans-serif;
+  letter-spacing: -0.02em;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.font-mono {
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: -0.01em;
+}
+
+.text-gradient {
+  background: linear-gradient(135deg, var(--text-primary) 0%, var(--text-secondary) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.text-plasma {
+  color: var(--plasma-primary);
+  text-shadow: 0 0 15px var(--plasma-glow);
+}
+
+/* ------------------------------------------
+   Glassmorphism Infrastructure
+   ------------------------------------------ */
+.glass {
+  background: var(--void-panel);
+  backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid var(--border-glass);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+}
+
+.glass-pill {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--border-glass);
+}
+
+/* ------------------------------------------
+   Navigation Sovereignty
+   ------------------------------------------ */
+header {
+  height: var(--header-h);
+  background: rgba(2, 4, 6, 0.85);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border-subtle);
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 1000;
+}
+
+.nav-link {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 0 1rem;
+  height: var(--header-h);
+  display: inline-flex;
+  align-items: center;
+  transition: all 0.3s var(--ease-out-expo);
+  position: relative;
+}
+
+.nav-link:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.nav-link.active {
+  color: var(--plasma-primary);
+}
+
+.nav-link.active::after {
+  content: '';
+  position: absolute;
+  bottom: -1px; left: 0; right: 0;
+  height: 2px;
+  background: var(--plasma-primary);
+  box-shadow: 0 0 8px var(--plasma-glow);
+}
+
+/* ------------------------------------------
+   Component Forge
+   ------------------------------------------ */
+.btn-forge {
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.75rem;
+  transition: all 0.4s var(--ease-out-expo);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-forge-primary {
+  background: var(--plasma-primary);
+  color: var(--void-base);
+  box-shadow: 0 4px 0 var(--plasma-secondary);
+}
+
+.btn-forge-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px var(--plasma-glow);
+  background: var(--plasma-primary);
+}
+
+.btn-forge-secondary {
+  border: 1px solid var(--plasma-primary);
+  color: var(--plasma-primary);
+}
+
+.btn-forge-secondary:hover {
+  background: rgba(245, 158, 11, 0.05);
+  box-shadow: 0 0 20px rgba(245, 158, 11, 0.1);
+}
+
+/* Card Evolutions */
+.card-unit {
+  background: var(--void-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  padding: 2rem;
+  transition: all 0.5s var(--ease-out-expo);
+  position: relative;
+  overflow: hidden;
+}
+
+.card-unit::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 2px;
+  background: linear-gradient(90deg, transparent, var(--plasma-primary), transparent);
+  transform: translateX(-100%);
+  transition: transform 0.6s var(--ease-out-expo);
+}
+
+.card-unit:hover {
+  border-color: var(--plasma-primary);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+  background: var(--void-elevated);
+}
+
+.card-unit:hover::before {
+  transform: translateX(100%);
+}
+
+/* ------------------------------------------
+   Scientific Overlays
+   ------------------------------------------ */
+.scanlines {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+  background-size: 100% 4px, 3px 100%;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.1;
+}
+
+.radar-vortex {
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 200%; height: 200%;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle at center, transparent 30%, rgba(245, 158, 11, 0.02) 70%);
+  animation: rotate 60s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes rotate {
+  from { transform: translate(-50%, -50%) rotate(0deg); }
+  to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* ------------------------------------------
+   Status Architecture
+   ------------------------------------------ */
+.badge-integrity {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: 4px;
+  font-family: 'JetBrains Mono';
+  font-size: 0.65rem;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.status-pulse {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--integrity-emerald);
+  box-shadow: 0 0 10px var(--integrity-emerald);
+  animation: pulse-ring 2s infinite;
+}
+
+@keyframes pulse-ring {
+  0% { transform: scale(0.95); opacity: 0.5; }
+  50% { transform: scale(1.1); opacity: 1; }
+  100% { transform: scale(0.95); opacity: 0.5; }
+}
+
+/* ------------------------------------------
+   Physics9 Hero Section
+   ------------------------------------------ */
+.hero-manifest {
+  min-height: 90vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  padding-top: var(--header-h);
+}
+
+.hero-background {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  filter: brightness(0.4) contrast(1.1);
+  opacity: 0.6;
+}
+
+.hero-grid {
+  position: absolute;
+  inset: 0;
+  background-image: 
+    linear-gradient(var(--border-subtle) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border-subtle) 1px, transparent 1px);
+  background-size: 80px 80px;
+  mask-image: radial-gradient(circle at center, black, transparent 80%);
+  opacity: 0.15;
+}
+
+/* ------------------------------------------
+   Responsive Logic
+   ------------------------------------------ */
+.container {
+  width: 90%;
+  max-width: var(--max-width);
+  margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+  h1 { font-size: 2.5rem; }
+  .grid-2 { grid-template-columns: 1fr; }
+  .nav-link span { display: none; }
+}
+
+/* Utility Grids */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+.grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; }
+
+/* Reveal Transitions */
+.reveal-init { opacity: 0; transform: translateY(30px); transition: all 1s var(--ease-out-expo); }
+.reveal-active { opacity: 1; transform: translateY(0); }
+

@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AC Risk Calculator — GEOX Command Center</title>
+    <meta name="description" content="GEOX Command Center — Earth Intelligence Core. Real Tools, Zero Theater.">
+    <meta name="theme-color" content="#0A0C0E">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>G</text></svg>">
+
+    <!-- Tailwind CSS v4 -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Shared Styles -->
+    <link rel="stylesheet" href="../shared/styles.css">
+    
+    <style>
+        /* Range slider styling */
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 8px;
+            background: #1E293B;
+            border-radius: 4px;
+            outline: none;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            background: #F59E0B;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid #0A0C0E;
+            box-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
+            transition: transform 0.2s ease;
+        }
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.1);
+        }
+        input[type="range"]::-moz-range-thumb {
+            width: 24px;
+            height: 24px;
+            background: #F59E0B;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid #0A0C0E;
+            box-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
+        }
+        
+        /* Radio button styling */
+        .radio-card {
+            transition: all 0.2s ease;
+        }
+        .radio-card:hover {
+            border-color: #F59E0B;
+        }
+        .radio-card.selected {
+            border-color: #F59E0B;
+            background: rgba(245, 158, 11, 0.1);
+        }
+        .radio-card input[type="radio"] {
+            accent-color: #F59E0B;
+        }
+        
+        /* Select styling */
+        select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%2394A3B8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 16px;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+        
+        /* Animations */
+        @keyframes fade-in {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 20px rgba(245, 158, 11, 0.3); }
+            50% { box-shadow: 0 0 30px rgba(245, 158, 11, 0.5); }
+        }
+        @keyframes count-up {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        
+        .animate-fade-in {
+            animation: fade-in 0.4s ease-out forwards;
+        }
+        .animate-pulse-glow {
+            animation: pulse-glow 2s ease-in-out infinite;
+        }
+        .animate-count-up {
+            animation: count-up 0.3s ease-out forwards;
+        }
+        
+        /* Result display */
+        .result-display {
+            transition: all 0.3s ease;
+        }
+        
+        /* Risk level colors */
+        .risk-low { color: #10B981; }
+        .risk-medium { color: #F59E0B; }
+        .risk-high { color: #F97316; }
+        .risk-critical { color: #EF4444; }
+        
+        .badge-low { background: rgba(16, 185, 129, 0.2); color: #10B981; border: 1px solid rgba(16, 185, 129, 0.3); }
+        .badge-medium { background: rgba(245, 158, 11, 0.2); color: #F59E0B; border: 1px solid rgba(245, 158, 11, 0.3); }
+        .badge-high { background: rgba(249, 115, 22, 0.2); color: #F97316; border: 1px solid rgba(249, 115, 22, 0.3); }
+        .badge-critical { background: rgba(239, 68, 68, 0.2); color: #EF4444; border: 1px solid rgba(239, 68, 68, 0.3); }
+        
+        /* Formula styling */
+        .formula-var {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 500;
+        }
+        .var-uphys { background: rgba(59, 130, 246, 0.2); color: #60A5FA; }
+        .var-dtrans { background: rgba(245, 158, 11, 0.2); color: #FBBF24; }
+        .var-bcog { background: rgba(16, 185, 129, 0.2); color: #34D399; }
+    </style>
+</head>
+<body class="bg-void-base text-text-primary min-h-screen">
+    <!-- Scientific Overlays -->
+    <div class="scanlines"></div>
+    <div class="radar-vortex"></div>
+
+    <!-- Navigation Header -->
+                            <div class="p-2">
+                                <a href="ac-risk.html" class="flex items-center gap-3 px-3 py-2 rounded-lg bg-accent-amber/10 text-accent-amber">
+                                    <i data-lucide="calculator" class="w-4 h-4"></i>
+                                    <span class="text-sm">AC Risk Calculator</span>
+                                </a>
+                                <a href="ratlas.html" class="flex items-center gap-3 px-3 py-2 rounded-lg text-text-secondary hover:text-text-primary hover:bg-bg-tertiary transition-colors">
+                                    <i data-lucide="database" class="w-4 h-4"></i>
+                                    <span class="text-sm">RATLAS Browser</span>
+                                </a>
+                                <a href="basin-explorer.html" class="flex items-center gap-3 px-3 py-2 rounded-lg text-text-secondary hover:text-text-primary hover:bg-bg-tertiary transition-colors">
+                                    <i data-lucide="mountain" class="w-4 h-4"></i>
+                                    <span class="text-sm">Basin Explorer</span>
+                                </a>
+                                <a href="seismic-viewer.html" class="flex items-center gap-3 px-3 py-2 rounded-lg text-text-secondary hover:text-text-primary hover:bg-bg-tertiary transition-colors">
+                                    <i data-lucide="activity" class="w-4 h-4"></i>
+                                    <span class="text-sm">Seismic Viewer</span>
+                                </a>
+                                <a href="well-context-desk.html" class="flex items-center gap-3 px-3 py-2 rounded-lg text-text-secondary hover:text-text-primary hover:bg-bg-tertiary transition-colors">
+                                    <i data-lucide="align-left" class="w-4 h-4"></i>
+                                    <span class="text-sm">Well Context Desk</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <a href="#" class="px-4 py-2 text-sm text-text-secondary hover:text-text-primary rounded-lg hover:bg-bg-tertiary transition-colors">
+                        About
+                    </a>
+                    <a href="#" class="px-4 py-2 text-sm text-text-secondary hover:text-text-primary rounded-lg hover:bg-bg-tertiary transition-colors flex items-center gap-1">
+                        Docs
+                        <i data-lucide="external-link" class="w-3 h-3"></i>
+                    </a>
+                </div>
+                
+                <!-- System Status -->
+                <div class="flex items-center gap-3">
+                    <div class="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-bg-tertiary rounded-full border border-border-default">
+                        <span class="relative flex h-2 w-2">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-status-online opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-2 w-2 bg-status-online"></span>
+                        </span>
+                        <span class="text-xs text-text-secondary">Online</span>
+                    </div>
+                    <button class="md:hidden p-2 text-text-secondary hover:text-text-primary">
+                        <i data-lucide="menu" class="w-6 h-6"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-1 pt-16">
+        <!-- Page Header -->
+        <section class="py-8 sm:py-12 border-b border-border-default bg-gradient-to-b from-bg-tertiary/30 to-transparent">
+            <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+                <!-- Back Link -->
+        <!-- Hero Section -->
+        <section class="pt-32 pb-16">
+            <div class="container relative z-10">
+                <div class="max-w-3xl">
+                    <div class="flex items-center gap-3 mb-6">
+                        <span class="glass-pill px-3 py-1 text-[10px] font-mono text-plasma-primary uppercase tracking-widest">Physics Platform</span>
+                        <div class="w-1 h-1 rounded-full bg-text-muted"></div>
+                        <span class="text-[10px] font-mono text-text-muted uppercase tracking-widest">Module: AC-01</span>
+                    </div>
+                    <h1 class="text-5xl sm:text-7xl mb-6 text-gradient">
+                        Theory of <br>Anomalous Contrast
+                    </h1>
+                    <p class="text-text-secondary text-lg font-light leading-relaxed">
+                        Deterministic risk assessment for subsurface anomalies. <br>
+                        Quantifying physical ambiguity, transform complexity, and cognitive parameters.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Calculator Section -->
+        <section class="py-12">
+            <div class="container">
+                <div class="grid lg:grid-cols-5 gap-8">
+                    <!-- Left Column: Inputs -->
+                    <div class="lg:col-span-3 space-y-6">
+                        <!-- Formula Display -->
+                        <div class="card-unit p-6">
+                            <h3 class="text-xs font-bold text-text-muted uppercase tracking-widest mb-6">Constitutional Formula</h3>
+                            <div class="text-center py-6">
+                                <div class="text-2xl sm:text-4xl font-mono font-medium tracking-tighter">
+                                    <span class="text-text-primary">AC_Risk</span>
+                                    <span class="text-plasma-primary">=</span>
+                                    <span class="formula-var var-uphys">U<sub class="text-xs">phys</sub></span>
+                                    <span class="text-text-muted">×</span>
+                                    <span class="formula-var var-dtrans">D<sub class="text-xs">transform</sub></span>
+                                    <span class="text-text-muted">×</span>
+                                    <span class="formula-var var-bcog">B<sub class="text-xs">cog</sub></span>
+                                </div>
+                                <p class="mt-6 text-sm text-text-muted font-light max-w-lg mx-auto italic">
+                                    Calculation grounded in deterministic geoscience protocols and thermodynamic governance.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Calculator Form -->
+                        <div class="card-unit p-8 space-y-8">
+                            <!-- Input 1: Physical Ambiguity -->
+                            <div>
+                                <label class="flex items-center justify-between text-sm font-medium text-text-primary mb-3">
+                                    <span>Physical Ambiguity <span class="formula-var var-uphys text-xs ml-1">U<sub>phys</sub></span></span>
+                                    <span id="uphys-value" class="font-mono text-accent-amber">0.50</span>
+                                </label>
+                                <input 
+                                    type="range" 
+                                    id="uphys-input" 
+                                    min="0" 
+                                    max="1" 
+                                    step="0.01" 
+                                    value="0.5"
+                                    class="w-full"
+                                >
+                                <div class="flex justify-between mt-2 text-xs text-text-muted">
+                                    <span>0.0 (Clear)</span>
+                                    <span>1.0 (Ambiguous)</span>
+                                </div>
+                            </div>
+
+                            <div class="border-t border-border-default"></div>
+
+                            <!-- Input 2: Transform Stack -->
+                            <div>
+                                <label class="text-sm font-medium text-text-primary mb-3 block">
+                                    Transform Stack <span class="formula-var var-dtrans text-xs ml-1">D<sub>transform</sub></span>
+                                </label>
+                                <div class="grid sm:grid-cols-2 gap-3" id="transform-options">
+                                    <label class="radio-card selected flex items-center gap-3 p-3 bg-bg-tertiary border border-border-default rounded-lg cursor-pointer">
+                                        <input type="radio" name="transform" value="1.0" checked class="w-4 h-4">
+                                        <div>
+                                            <div class="text-sm text-text-primary">Linear Scaling</div>
+                                            <div class="text-xs text-text-muted font-mono">1.0</div>
+                                        </div>
+                                    </label>
+                                    <label class="radio-card flex items-center gap-3 p-3 bg-bg-tertiary border border-border-default rounded-lg cursor-pointer">
+                                        <input type="radio" name="transform" value="1.2" class="w-4 h-4">
+                                        <div>
+                                            <div class="text-sm text-text-primary">AGC RMS</div>
+                                            <div class="text-xs text-text-muted font-mono">1.2</div>
+                                        </div>
+                                    </label>
+                                    <label class="radio-card flex items-center gap-3 p-3 bg-bg-tertiary border border-border-default rounded-lg cursor-pointer">
+                                        <input type="radio" name="transform" value="1.5" class="w-4 h-4">
+                                        <div>
+                                            <div class="text-sm text-text-primary">CLAHE</div>
+                                            <div class="text-xs text-text-muted font-mono">1.5</div>
+                                        </div>
+                                    </label>
+                                    <label class="radio-card flex items-center gap-3 p-3 bg-bg-tertiary border border-border-default rounded-lg cursor-pointer">
+                                        <input type="radio" name="transform" value="2.0" class="w-4 h-4">
+                                        <div>
+                                            <div class="text-sm text-text-primary">VLM Inference</div>
+                                            <div class="text-xs text-text-muted font-mono">2.0</div>
+                                        </div>
+                                    </label>
+                                    <label class="radio-card flex items-center gap-3 p-3 bg-bg-tertiary border border-border-default rounded-lg cursor-pointer sm:col-span-2">
+                                        <input type="radio" name="transform" value="1.3" class="w-4 h-4">
+                                        <div>
+                                            <div class="text-sm text-text-primary">Spectral Balancing</div>
+                                            <div class="text-xs text-text-muted font-mono">1.3</div>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="border-t border-border-default"></div>
+
+                            <!-- Input 3: Cognitive Bias -->
+                            <div>
+                                <label class="text-sm font-medium text-text-primary mb-3 block">
+                                    Cognitive Bias Scenario <span class="formula-var var-bcog text-xs ml-1">B<sub>cog</sub></span>
+                                </label>
+                                <select id="bcog-select" class="w-full px-4 py-3 bg-bg-tertiary border border-border-default rounded-lg text-text-primary focus:border-accent-amber focus:outline-none transition-colors">
+                                    <option value="0.79">Unaided Expert (Bond 2007: 79% error)</option>
+                                    <option value="0.45">Multi-Interpreter Panel</option>
+                                    <option value="0.35">AI Vision Only</option>
+                                    <option value="0.25">AI + Physics Validation</option>
+                                    <option value="0.15">Physics Validated</option>
+                                </select>
+                            </div>
+
+                            <!-- Calculate Button -->
+                            <button id="calculate-btn" class="w-full py-4 bg-accent-amber hover:bg-accent-amber-light text-bg-primary font-semibold rounded-lg transition-all hover:shadow-lg hover:shadow-accent-amber/30 flex items-center justify-center gap-2 group">
+                                <i data-lucide="calculator" class="w-5 h-5 group-hover:scale-110 transition-transform"></i>
+                                Calculate AC Risk
+                            </button>
+                        </div>
+                    </div>
+                    <!-- Right Column: Result Display -->
+                    <div class="lg:col-span-2">
+                        <div class="sticky top-24 space-y-6">
+                            <div class="card-unit p-8 relative overflow-hidden">
+                                <div class="absolute top-0 right-0 p-4">
+                                    <i data-lucide="shield-check" class="w-12 h-12 text-integrity-emerald opacity-10"></i>
+                                </div>
+
+                                <h3 class="text-xs font-bold text-text-muted uppercase tracking-widest mb-8">Risk Intelligence</h3>
+                                
+                                <!-- Risk Score Display -->
+                                <div class="text-center py-10">
+                                    <div class="text-[10px] font-mono text-text-muted uppercase tracking-[0.2em] mb-2">Calculated Probability</div>
+                                    <div id="risk-score" class="text-7xl sm:text-8xl font-black font-mono text-plasma-primary tracking-tighter">
+                                        39.5<span class="text-3xl font-light opacity-50">%</span>
+                                    </div>
+                                    <div id="risk-badge" class="inline-flex items-center gap-2 px-4 py-1.5 glass-pill text-[10px] font-mono mt-6 uppercase tracking-widest text-plasma-primary">
+                                        <i data-lucide="activity" class="w-3 h-3"></i>
+                                        <span>Kinetic Risk: Medium</span>
+                                    </div>
+                                </div>
+
+                                <!-- Risk Bar -->
+                                <div class="mt-8 space-y-3">
+                                    <div class="flex justify-between text-[10px] font-mono text-text-muted uppercase tracking-widest">
+                                        <span>Integrity</span>
+                                        <span>Entropy</span>
+                                    </div>
+                                    <div class="h-1.5 bg-void-base rounded-full overflow-hidden border border-border-glass">
+                                        <div id="risk-bar" class="h-full bg-plasma-primary transition-all duration-700 ease-out-expo" style="width: 39.5%; box-shadow: 0 0 15px var(--plasma-glow);"></div>
+                                    </div>
+                                </div>
+
+                                <div class="mt-10 p-4 rounded-lg bg-void-base/50 border border-border-subtle">
+                                    <div class="flex items-start gap-3">
+
+                                <!-- Formula Breakdown -->
+                                <div class="mt-6 pt-6 border-t border-border-default">
+                                    <h4 class="text-xs font-medium text-text-muted uppercase tracking-wider mb-3">Calculation Breakdown</h4>
+                                    <div class="font-mono text-sm space-y-2">
+                                        <div class="flex justify-between">
+                                            <span class="text-text-muted">U<sub>phys</sub></span>
+                                            <span id="break-uphys" class="var-uphys px-2 rounded">0.50</span>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <span class="text-text-muted">D<sub>transform</sub></span>
+                                            <span id="break-dtrans" class="var-dtrans px-2 rounded">1.0</span>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <span class="text-text-muted">B<sub>cog</sub></span>
+                                            <span id="break-bcog" class="var-bcog px-2 rounded">0.79</span>
+                                        </div>
+                                        <div class="border-t border-border-default pt-2 mt-2">
+                                            <div class="flex justify-between text-text-primary">
+                                                <span>AC_Risk</span>
+                                                <span id="break-result">0.395</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-border-default bg-bg-secondary">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="grid md:grid-cols-4 gap-8">
+                <!-- Logo & Description -->
+                <div class="md:col-span-2">
+                    <a href="../index.html" class="flex items-center gap-3 mb-4">
+                        <div class="w-10 h-10 rounded-lg bg-accent-amber flex items-center justify-center">
+                            <i data-lucide="layers" class="w-6 h-6 text-bg-primary"></i>
+                        </div>
+                        <div class="flex flex-col">
+                            <span class="text-lg font-bold text-text-primary tracking-tight">GEOX</span>
+                            <span class="text-[10px] text-text-muted uppercase tracking-wider">Command Center</span>
+                        </div>
+                    </a>
+                    <p class="text-text-secondary text-sm max-w-sm">
+                        Earth Intelligence Core — Real Tools, Zero Theater. Governed, agentic geological intelligence coprocessor for arifOS.
+                    </p>
+                    <div class="mt-4 flex items-center gap-2">
+                        <span class="px-2 py-1 bg-bg-tertiary rounded text-[10px] text-text-muted font-mono">DITEMPA BUKAN DIBERI</span>
+                    </div>
+                </div>
+                
+                <!-- Quick Links -->
+                <div>
+                    <h4 class="text-sm font-semibold text-text-primary mb-4">Quick Links</h4>
+                    <ul class="space-y-2">
+                        <li><a href="../index.html" class="text-sm text-text-secondary hover:text-accent-amber transition-colors">Home</a></li>
+                        <li><a href="ac-risk.html" class="text-sm text-accent-amber">AC Risk Calculator</a></li>
+                        <li><a href="ratlas.html" class="text-sm text-text-secondary hover:text-accent-amber transition-colors">RATLAS Browser</a></li>
+                        <li><a href="basin-explorer.html" class="text-sm text-text-secondary hover:text-accent-amber transition-colors">Basin Explorer</a></li>
+                    </ul>
+                </div>
+                
+                <!-- Resources -->
+                <div>
+                    <h4 class="text-sm font-semibold text-text-primary mb-4">Resources</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-sm text-text-secondary hover:text-accent-amber transition-colors flex items-center gap-1">
+                            Documentation
+                            <i data-lucide="external-link" class="w-3 h-3"></i>
+                        </a></li>
+                        <li><a href="#" class="text-sm text-text-secondary hover:text-accent-amber transition-colors">API Reference</a></li>
+                        <li><a href="#" class="text-sm text-text-secondary hover:text-accent-amber transition-colors">About</a></li>
+                        <li><a href="#" class="text-sm text-text-secondary hover:text-accent-amber transition-colors">Contact</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Bottom Bar -->
+            <div class="mt-12 pt-8 border-t border-border-default flex flex-col sm:flex-row items-center justify-between gap-4">
+                <p class="text-sm text-text-muted">
+                    &copy; 2024 GEOX Command Center. All rights reserved.
+                </p>
+                <div class="flex items-center gap-4">
+                    <a href="#" class="text-text-muted hover:text-accent-amber transition-colors">
+                        <i data-lucide="github" class="w-5 h-5"></i>
+                    </a>
+                    <a href="#" class="text-text-muted hover:text-accent-amber transition-colors">
+                        <i data-lucide="twitter" class="w-5 h-5"></i>
+                    </a>
+                    <a href="#" class="text-text-muted hover:text-accent-amber transition-colors">
+                        <i data-lucide="linkedin" class="w-5 h-5"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // DOM Elements
+        const uphysInput = document.getElementById('uphys-input');
+        const uphysValue = document.getElementById('uphys-value');
+        const transformRadios = document.querySelectorAll('input[name="transform"]');
+        const bcogSelect = document.getElementById('bcog-select');
+        const calculateBtn = document.getElementById('calculate-btn');
+        const riskScore = document.getElementById('risk-score');
+        const riskBadge = document.getElementById('risk-badge');
+        const riskBar = document.getElementById('risk-bar');
+        const riskInterpretation = document.getElementById('risk-interpretation');
+        const breakUphys = document.getElementById('break-uphys');
+        const breakDtrans = document.getElementById('break-dtrans');
+        const breakBcog = document.getElementById('break-bcog');
+        const breakResult = document.getElementById('break-result');
+
+        // State
+        let state = {
+            uphys: 0.5,
+            dtransform: 1.0,
+            bcog: 0.79
+        };
+
+        // Radio card selection
+        transformRadios.forEach(radio => {
+            radio.addEventListener('change', function() {
+                document.querySelectorAll('.radio-card').forEach(card => {
+                    card.classList.remove('selected');
+                });
+                this.closest('.radio-card').classList.add('selected');
+                state.dtransform = parseFloat(this.value);
+                calculateRisk();
+            });
+        });
+
+        // U_phys slider
+        uphysInput.addEventListener('input', function() {
+            state.uphys = parseFloat(this.value);
+            uphysValue.textContent = state.uphys.toFixed(2);
+            calculateRisk();
+        });
+
+        // B_cog select
+        bcogSelect.addEventListener('change', function() {
+            state.bcog = parseFloat(this.value);
+            calculateRisk();
+        });
+
+        // Calculate button
+        calculateBtn.addEventListener('click', function() {
+            calculateRisk();
+            // Add pulse animation
+            riskScore.classList.remove('animate-count-up');
+            void riskScore.offsetWidth; // Trigger reflow
+            riskScore.classList.add('animate-count-up');
+        });
+
+        // Calculate risk function
+        function calculateRisk() {
+            const acRisk = state.uphys * state.dtransform * state.bcog;
+            const riskPercentage = Math.min(acRisk * 100, 100);
+            
+            // Update score display
+            riskScore.innerHTML = `${riskPercentage.toFixed(1)}<span class="text-3xl">%</span>`;
+            
+            // Update risk bar
+            riskBar.style.width = `${riskPercentage}%`;
+            
+            // Update breakdown
+            breakUphys.textContent = state.uphys.toFixed(2);
+            breakDtrans.textContent = state.dtransform.toFixed(1);
+            breakBcog.textContent = state.bcog.toFixed(2);
+            breakResult.textContent = acRisk.toFixed(3);
+            
+            // Determine risk level
+            let riskLevel, badgeClass, riskColorClass;
+            
+            if (riskPercentage <= 25) {
+                riskLevel = 'Low Risk';
+                riskColorClass = 'text-integrity-emerald';
+            } else if (riskPercentage <= 50) {
+                riskLevel = 'Medium Risk';
+                riskColorClass = 'text-plasma-primary';
+            } else if (riskPercentage <= 75) {
+                riskLevel = 'High Risk';
+                riskColorClass = 'text-plasma-primary'; // Amber for high too, but we can differentiate later
+            } else {
+                riskLevel = 'Critical Risk';
+                riskColorClass = 'text-spectral-ruby';
+            }
+            
+            // Update score
+            riskScore.className = `text-7xl sm:text-8xl font-black font-mono ${riskColorClass} tracking-tighter`;
+            riskScore.innerHTML = `${riskPercentage.toFixed(1)}<span class="text-3xl font-light opacity-50">%</span>`;
+            
+            // Update badge
+            riskBadge.className = `inline-flex items-center gap-2 px-4 py-1.5 glass-pill text-[10px] font-mono mt-6 uppercase tracking-widest ${riskColorClass}`;
+            riskBadge.innerHTML = `
+                <i data-lucide="${riskPercentage > 50 ? 'alert-triangle' : 'activity'}" class="w-3 h-3"></i>
+                <span>Kinetic Risk: ${riskLevel}</span>
+            `;
+            
+            // Re-initialize icons
+            lucide.createIcons();
+        }
+
+        // Initial calculation
+        calculateRisk();
+    </script>
+</body>
+</html>

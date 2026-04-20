@@ -1,0 +1,23 @@
+http:
+  routers:
+    geox-gui:
+      rule: "Host(`geox.arif-fazil.com`)"
+      service: geox-gui-svc
+      tls: {}
+    geox-mcp:
+      rule: "Host(`geox.arif-fazil.com`) && PathPrefix(`/mcp`)"
+      service: geox-mcp-svc
+      tls: {}
+    geox-health:
+      rule: "Host(`geox.arif-fazil.com`) && PathPrefix(`/health`)"
+      service: geox-mcp-svc
+      tls: {}
+  services:
+    geox-gui-svc:
+      loadBalancer:
+        servers:
+          - url: "http://172.20.0.3:80"
+    geox-mcp-svc:
+      loadBalancer:
+        servers:
+          - url: "http://172.20.0.2:8000"
