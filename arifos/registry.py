@@ -1,6 +1,9 @@
 from typing import Any
 
-from fastmcp.tools.function_tool import FunctionTool
+try:
+    from fastmcp.tools.function_tool import FunctionTool
+except ImportError:
+    from fastmcp.tools.tool import FunctionTool
 
 from arifos.prompts import PROMPTS
 from arifos.resources import RESOURCES
