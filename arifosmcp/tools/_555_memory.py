@@ -1,16 +1,16 @@
-from __future__ import annotations
-
-from arifosmcp.runtime.governance import ThermodynamicMetrics, governed_return
-
+"""
+arifOS tool: arifos_555_memory
+Plane: Compute
+DITEMPA BUKAN DIBERI
+"""
+from arifosmcp.runtime.governance import governed_return, ThermodynamicMetrics
 
 async def execute(
-    action: str = "query",
-    query: str | None = None,
-    operator_id: str | None = None,
-    session_id: str | None = None,
+    operator_id: str,
+    session_id: str,
+    query: str,
 ) -> dict:
     report = {
-        "action": action,
         "query": query,
         "memory_status": "GOVERNED_RECALL",
         "temporal_coherence": 0.9,

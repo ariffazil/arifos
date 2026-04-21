@@ -1,7 +1,9 @@
-from __future__ import annotations
-
-from arifosmcp.runtime.governance import ThermodynamicMetrics, governed_return
-
+"""
+arifOS tool: arifos_777_ops
+Plane: Compute
+DITEMPA BUKAN DIBERI
+"""
+from arifosmcp.runtime.governance import governed_return, ThermodynamicMetrics
 
 async def execute(
     operation_plan: dict | None = None,

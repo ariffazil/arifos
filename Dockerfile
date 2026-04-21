@@ -69,6 +69,10 @@ RUN pip install --no-deps -e .
 
 # Non-root user for security
 RUN useradd -m -u 1000 arifos && chown -R arifos:arifos /usr/src/project
+
+# ── Fix: server.py imports arifos.runtime.verify, but verify lives in arifOS.runtime ─
+RUN ln -sf /usr/src/project/arifOS/runtime/verify_arifos_tools.py /usr/src/project/arifos/runtime/verify_arifos_tools.py
+
 USER arifos
 
 EXPOSE 8080
