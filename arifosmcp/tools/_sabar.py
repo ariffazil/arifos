@@ -1,5 +1,5 @@
 # arifosmcp/tools/_sabar.py
-from runtime.governance import ThermodynamicMetrics, governed_return
+from arifosmcp.runtime.governance import ThermodynamicMetrics, governed_return
 
 async def execute(hold_id: str = None, action: str = "status", approval: dict = None, operator_id=None, session_id=None):
     """
