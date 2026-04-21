@@ -2,9 +2,9 @@ from typing import Any
 
 from fastmcp.tools import FunctionTool
 
-from arifos.prompts import PROMPTS
-from arifos.resources import RESOURCES
-from arifos.tools import (
+from arifOS.prompts import PROMPTS
+from arifOS.resources import RESOURCES
+from arifOS.tools import (
     forge,
     gateway,
     heart_666,
