@@ -10,6 +10,7 @@ from arifos.core.governance import (
     append_vault999_event,
     Verdict,
 )
+from arifos.tools._tool_support import invariant_fields
 
 
 SABAR_LOCK_PATH = "/tmp/arifos_sabar.lock"
@@ -75,6 +76,26 @@ async def execute(
             "cooling_compliance": None,
             "time_remaining_minutes": round(time_remaining / 60, 2) if time_remaining else None,
         }
+        report.update(
+            invariant_fields(
+                tool_name="arifos_sabar",
+                input_payload={
+                    "hold_id": hold_id,
+                    "action": action,
+                    "approval": approval,
+                    "operator_id": operator_id,
+                    "session_id": session_id,
+                },
+                assumptions=[
+                    "SABAR reports cooling state from the local lock file only.",
+                    "Cooling duration is advisory unless a higher constitutional gate overrides it.",
+                    "This stage blocks or clears execution; it does not execute downstream actions itself.",
+                ],
+                floors_evaluated=["F5"],
+                confidence=0.71,
+                extra_meta={"cooling_active": True},
+            )
+        )
         metrics = ThermodynamicMetrics(
             truth_score=None,
             delta_s=None,
@@ -128,6 +149,26 @@ async def execute(
         "cooling_compliance": None,
         "time_remaining_minutes": None,
     }
+    report.update(
+        invariant_fields(
+            tool_name="arifos_sabar",
+            input_payload={
+                "hold_id": hold_id,
+                "action": action,
+                "approval": approval,
+                "operator_id": operator_id,
+                "session_id": session_id,
+            },
+            assumptions=[
+                "SABAR status is derived from the local cooling lock state.",
+                "A clear SABAR state means no active cooldown was observed at query time.",
+                "This stage reports governance posture only; it does not mutate downstream state.",
+            ],
+            floors_evaluated=["F4", "F5"],
+            confidence=0.74,
+            extra_meta={"cooling_active": False},
+        )
+    )
 
     # Removed hardcoded metric assertions — set to NULL/UNKNOWN
     metrics = ThermodynamicMetrics(
