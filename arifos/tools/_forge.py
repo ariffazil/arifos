@@ -23,7 +23,7 @@ from arifos.tools._tool_support import (
 # Constants
 # ──────────────────────────────────────────────────────────────────────────────
 
-SABAR_LOCK_PATH = "/tmp/arifos_sabar.lock"
+SABAR_LOCK_PATH = os.path.join(os.getenv("ARIFOS_RUNTIME_DIR", "/run/arifos"), "sabar.lock")
 VAULT999_LEDGER_PATH = os.getenv(
     "ARIFOS_VAULT999_LEDGER",
     str(Path(os.getenv("ARIFOS_WORKDIR", Path(__file__).resolve().parents[2])) / "VAULT999" / "SEALED_EVENTS.jsonl"),

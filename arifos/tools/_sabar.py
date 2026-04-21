@@ -13,7 +13,7 @@ from arifos.core.governance import (
 from arifos.tools._tool_support import invariant_fields
 
 
-SABAR_LOCK_PATH = "/tmp/arifos_sabar.lock"
+SABAR_LOCK_PATH = os.path.join(os.getenv("ARIFOS_RUNTIME_DIR", "/run/arifos"), "sabar.lock")
 
 
 def _check_sabar_cooling() -> tuple[bool, float | None]:

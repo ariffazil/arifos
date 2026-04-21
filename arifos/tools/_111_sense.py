@@ -11,8 +11,10 @@ DITEMPA BUKAN DIBERI — Forged, Not Given
 from __future__ import annotations
 
 import hashlib
+import ipaddress
 import json
 import logging
+import urllib.parse
 from datetime import datetime, timezone
 
 from arifos.integrations.minimax_mcp_bridge import minimax_bridge
@@ -30,20 +32,26 @@ def _is_public_https(url: str | None) -> bool:
     """Quick guard: image_url must be a publicly reachable HTTPS URL."""
     if not url:
         return False
-    url_lower = url.lower()
-    if not url_lower.startswith("https://"):
-        return False
-    private_prefixes = (
-        "localhost", "127.0.0.1", "192.168.", "10.0.", "172.16.",
-        "172.17.", "172.18.", "172.19.", "172.20.", "172.21.",
-        "172.22.", "172.23.", "172.24.", "172.25.", "172.26.",
-        "172.27.", "172.28.", "172.29.", "172.30.", "172.31.",
-        "::1", "0.0.0.0",
-    )
-    for prefix in private_prefixes:
-        if prefix in url_lower:
+    try:
+        parsed = urllib.parse.urlparse(url)
+        if parsed.scheme.lower() != "https":
             return False
-    return True
+        hostname = parsed.hostname
+        if not hostname:
+            return False
+        try:
+            ip = ipaddress.ip_address(hostname)
+            return not (ip.is_private or ip.is_loopback or ip.is_unspecified or ip.is_reserved)
+        except ValueError:
+            pass
+        hostname_lower = hostname.lower()
+        if hostname_lower in ("localhost", "127.0.0.1", "0.0.0.0"):
+            return False
+        if hostname_lower.endswith(".internal") or hostname_lower.endswith(".private"):
+            return False
+        return True
+    except Exception:
+        return False
 
 
 def _classify_truth(query: str) -> str:

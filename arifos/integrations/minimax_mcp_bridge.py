@@ -98,6 +98,8 @@ class _RawMinimaxBridge:
 
     async def web_search(self, query: str) -> dict[str, Any]:
         result = await self._call("tools/call", {"name": "web_search", "arguments": {"query": query}})
+        if result is None:
+            return {"organic": [], "base_resp": {"status_code": -1, "status_msg": "bridge_result_none"}}
         for block in result.get("content", []):
             if block.get("type") == "text":
                 text = block["text"]
@@ -110,10 +112,12 @@ class _RawMinimaxBridge:
         return {"organic": [], "base_resp": {"status_code": -1, "status_msg": "no text content"}}
 
     async def understand_image(self, image_url: str, prompt: str = "") -> dict[str, Any]:
-        args: dict[str, Any] = {"image_source": image_url}
+        arguments: dict[str, Any] = {"image_source": image_url}
         if prompt:
-            args["prompt"] = prompt
-        result = await self._call("tools/call", {"name": "understand_image", "arguments": args})
+            arguments["prompt"] = prompt
+        result = await self._call("tools/call", {"name": "understand_image", "arguments": arguments})
+        if result is None:
+            return {"result": "", "base_resp": {"status_code": -1, "status_msg": "bridge_result_none"}}
         for block in result.get("content", []):
             if block.get("type") == "text":
                 text = block["text"]
@@ -203,6 +207,8 @@ class _RawFullMinimaxBridge:
 
     async def call_tool(self, name: str, arguments: dict[str, Any]) -> dict[str, Any]:
         result = await self._call("tools/call", {"name": name, "arguments": arguments})
+        if result is None:
+            return {"result": None, "base_resp": {"status_code": -1, "status_msg": "bridge_result_none"}}
         for block in result.get("content", []):
             if block.get("type") == "text":
                 text = block["text"]
