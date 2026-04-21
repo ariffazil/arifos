@@ -86,7 +86,7 @@ def _health_payload() -> dict:
         "tools_loaded": len(PRIMARY_METRIC_NAME),
         "prompts_loaded": len(PROMPTS),
         "resources_loaded": len(RESOURCES),
-        "entrypoint": "arifosmcp.mcp_server",
+        "entrypoint": "arifos.mcp_server",
         "vitality": {
             "jsonl": str(VITALITY_JSONL),
             "tsv": str(VITALITY_TSV),
@@ -164,7 +164,7 @@ def _status_payload(request: Request) -> dict:
 async def root() -> dict:
     return {
         "service": "arifosmcp-next-horizon",
-        "entrypoint": "arifosmcp.runtime.server:app",
+        "entrypoint": "arifos.runtime.server:app",
         "mcp_path": "/mcp",
     }
 

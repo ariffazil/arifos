@@ -225,10 +225,9 @@ Trinity       = "https://github.com/ariffazil/arifOS/blob/main/KERNEL/TRINITY_AR
 PyPI          = "https://pypi.org/project/arifosmcp/"
 
 [project.scripts]
-arifos     = "arifosmcp.runtime.__main__:main"
-arifos-mcp = "arifosmcp.runtime.__main__:main"
-aaa-mcp    = "arifosmcp.runtime.__main__:main"
-aclip-cai  = "arifosmcp.intelligence.cli:main"
+arifos     = "arifos.runtime.__main__:main"
+arifos-mcp = "arifos.runtime.__main__:main"
+aaa-mcp    = "arifos.runtime.__main__:main"
 
 [tool.setuptools]
 include-package-data = true
@@ -236,9 +235,7 @@ include-package-data = true
 [tool.setuptools.packages.find]
 include = [
     "scripts*",
-    "arifosmcp*",
-    "mcp_server*",
-    "core*",
+    "arifos*",
 ]
 exclude = [
     "*.tests",
@@ -250,7 +247,7 @@ exclude = [
 
 [tool.setuptools.package-data]
 "*" = ["spec/*.yaml", "spec/*.json"]
-"arifosmcp" = ["sites/apex-dashboard/*.html"]
+"arifos" = ["sites/apex-dashboard/*.html"]
 
 [tool.setuptools.data-files]
 "spec" = ["spec/**/*.json", "spec/**/*.yaml", "spec/**/*.md"]

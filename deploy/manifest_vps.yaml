@@ -1,22 +1,22 @@
-name: arifosmcp-next-horizon
-entrypoint: arifosmcp/mcp_server.py
+name: arifos-next-horizon
+entrypoint: server.py
 port: 8080
 paths:
-  tools: arifosmcp/tools/
-  runtime: arifosmcp/runtime/
-  prompts: arifosmcp/prompts/
-  resources: arifosmcp/resources/
+  tools: arifos/tools/
+  runtime: arifos/runtime/
+  prompts: arifos/prompts/
+  resources: arifos/resources/
 python:
   version: "3.12"
   package_manager: uv
   install:
-    - uv sync --all-extras
+    - pip install -e ".[dev]"
 health_checks:
   - name: governance-import
-    command: python -c "from arifosmcp.runtime.governance import governed_return, ThermodynamicMetrics; print('ok')"
+    command: python -c "from arifos.core.governance import governed_return, ThermodynamicMetrics; print('ok')"
   - name: tool-registration
-    command: python -c "from arifosmcp.registry import register_all; print('ok')"
+    command: python -c "from arifos.registry import register_all; print('ok')"
   - name: vitality-runner
-    command: python -c "import asyncio; from arifosmcp.runtime.verify_arifos_tools import run_all; print(len(asyncio.run(run_all())))"
+    command: python -c "import asyncio; from arifos.adapters.mcp.verify_arifos_tools import run_all; print(len(asyncio.run(run_all())))"
   - name: vault-write-test
-    command: python -c "import asyncio; from arifosmcp.tools._999_vault import execute; print(asyncio.run(execute(action='append', payload={'health': True}, operator_id='deploy', session_id='health'))['verdict'])"
+    command: 'python -c "import asyncio; from arifos.tools._999_vault import execute; print(asyncio.run(execute(action=''append'', payload={''health'': True}, operator_id=''deploy'', session_id=''health''))[''verdict''])"'

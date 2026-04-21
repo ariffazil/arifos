@@ -19,7 +19,7 @@ from fastapi.staticfiles import StaticFiles
 from arifos.adapters.mcp.mcp_server import mcp
 from arifos.prompts import PROMPTS
 from arifos.resources import RESOURCES
-from arifos.runtime.verify_arifos_tools import PRIMARY_METRIC_NAME, VITALITY_JSONL, VITALITY_TSV
+from arifos.adapters.mcp.verify_arifos_tools import PRIMARY_METRIC_NAME, VITALITY_JSONL, VITALITY_TSV
 from arifos.core.governance import VAULT999_LEDGER_PATH
 
 # ── Metadata (F2 Truth — pinned at deploy time) ─────────────
@@ -86,7 +86,7 @@ def _health_payload() -> dict:
         "tools_loaded": len(PRIMARY_METRIC_NAME),
         "prompts_loaded": len(PROMPTS),
         "resources_loaded": len(RESOURCES),
-        "entrypoint": "arifosmcp.mcp_server",
+        "entrypoint": "arifos.mcp_server",
         "vitality": {
             "jsonl": str(VITALITY_JSONL),
             "tsv": str(VITALITY_TSV),
@@ -164,7 +164,7 @@ def _status_payload(request: Request) -> dict:
 async def root() -> dict:
     return {
         "service": "arifosmcp-next-horizon",
-        "entrypoint": "arifosmcp.runtime.server:app",
+        "entrypoint": "arifos.runtime.server:app",
         "mcp_path": "/mcp",
     }
 
