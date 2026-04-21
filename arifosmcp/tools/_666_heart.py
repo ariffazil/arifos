@@ -1,7 +1,9 @@
-from __future__ import annotations
-
-from arifosmcp.runtime.governance import ThermodynamicMetrics, governed_return
-
+"""
+arifOS tool: arifos_666_heart
+Plane: Compute
+DITEMPA BUKAN DIBERI
+"""
+from arifosmcp.runtime.governance import governed_return, ThermodynamicMetrics
 
 async def execute(
     stakeholder_map: dict | None = None,
