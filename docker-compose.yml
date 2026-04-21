@@ -7,7 +7,6 @@ services:
   # --- Edge Router ---
   traefik:
     image: traefik:v3.6.9
-    container_name: traefik
     init: true
     command:
       - "--api.insecure=false"
@@ -61,7 +60,6 @@ services:
   # --- Persistence Layers ---
   postgres:
     image: pgvector/pgvector:pg16
-    container_name: postgres
     init: true
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-arifos_vault}
@@ -93,7 +91,6 @@ services:
 
   redis:
     image: redis:7-alpine
-    container_name: redis
     init: true
     command: redis-server --save 60 1 --loglevel warning --maxmemory 96mb --maxmemory-policy allkeys-lru
     volumes:
@@ -125,7 +122,6 @@ services:
   # --- Internal Memory Layers ---
   qdrant:
     image: qdrant/qdrant:latest
-    container_name: qdrant
     ports:
       - "127.0.0.1:6333:6333"
       - "127.0.0.1:6334:6334"
@@ -160,7 +156,6 @@ services:
   # --- LLM Engine ---
   ollama:
     image: ollama/ollama:latest
-    container_name: ollama_engine
     init: true
     environment:
       - OLLAMA_KEEP_ALIVE=24h
@@ -196,7 +191,6 @@ services:
       context: .
       dockerfile: infrastructure/openclaw/Dockerfile
     image: arifos/openclaw-forged:2026.03.14
-    container_name: openclaw
     init: true
     user: root
     env_file:
@@ -246,7 +240,7 @@ services:
       - "127.0.0.1:18789:18789"
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.openclaw.rule=Host(`claw.arifosmcp.arif-fazil.com`)"
+      - "traefik.http.routers.openclaw.rule=Host(`claw.arifOS.arif-fazil.com`)"
       - "traefik.http.routers.openclaw.entrypoints=websecure"
       - "traefik.http.routers.openclaw.tls.certresolver=letsencrypt"
       - "traefik.http.services.openclaw.loadbalancer.server.port=18789"
@@ -274,14 +268,14 @@ services:
         condition: service_healthy
 
   # --- Constitutional Kernel ---
-  arifosmcp:
+  arifOS:
     build:
       context: .
       dockerfile: Dockerfile
       args:
         - BUILDKIT_INLINE_CACHE=1
-    image: arifos/arifosmcp:latest
-    container_name: arifosmcp
+    image: arifos/arifOS:latest
+    container_name: arifOS
     init: true
     working_dir: /usr/src/app
     env_file:
@@ -295,7 +289,7 @@ services:
       - /opt/arifos/data/minimax:/usr/src/app/data/minimax:rw
       - /proc:/host/proc:ro
       - /sys:/host/sys:ro
-      - /srv/arifos/arifos:/usr/src/app/arifosmcp:ro
+      - /srv/arifos:/usr/src/app:ro
       - /srv/arifos/server.py:/usr/src/app/server.py:ro
       - /srv/arifos/stdio_server.py:/usr/src/app/stdio_server.py:ro
       - /srv/arifos/fastmcp.json:/usr/src/app/fastmcp.json:ro
@@ -306,9 +300,9 @@ services:
       - /srv/arifos/spec:/usr/src/app/spec:ro
       - /srv/arifos/sites:/usr/src/app/sites:ro
       - /opt/arifos/secrets:/opt/arifos/secrets:ro
-      - arifosmcp_telemetry:/usr/src/app/telemetry:rw
-      - arifosmcp_vault:/usr/src/app/VAULT999:rw
-      - arifosmcp_memory:/usr/src/app/memory:rw
+      - arifOS_telemetry:/usr/src/app/telemetry:rw
+      - arifOS_vault:/usr/src/app/VAULT999:rw
+      - arifOS_memory:/usr/src/app/memory:rw
     environment:
       HF_TOKEN: ${HF_TOKEN}
       PYTHONUNBUFFERED: 1
@@ -331,7 +325,7 @@ services:
       ARIFOS_GOVERNANCE_SECRET_PREVIOUS: ${ARIFOS_GOVERNANCE_SECRET_PREVIOUS:-}
       ARIFOS_PUBLIC_TOOL_PROFILE: ${ARIFOS_PUBLIC_TOOL_PROFILE:-public}
       ARIFOS_ML_FLOORS: "1"
-      arifosmcp_PATH: ${arifosmcp_PATH:-/mcp}
+      arifOS_PATH: ${arifOS_PATH:-/mcp}
       UVICORN_WORKERS: ${UVICORN_WORKERS:-1}
       UVICORN_TIMEOUT: ${UVICORN_TIMEOUT:-120}
       PYTHONHASHSEED: 0
@@ -342,31 +336,31 @@ services:
       - arifos_trinity
     labels:
       - "traefik.enable=true"
-      - "traefik.http.services.arifosmcp.loadbalancer.server.port=8080"
-      - "traefik.http.services.arifosmcp.loadbalancer.healthcheck.path=/health"
-      - "traefik.http.services.arifosmcp.loadbalancer.healthcheck.interval=10s"
-      - "traefik.http.services.arifosmcp.loadbalancer.healthcheck.timeout=5s"
-      - "traefik.http.routers.arifosmcp-root.rule=Host(`arifosmcp.arif-fazil.com`) && (Path(`/`) || PathPrefix(`/health`) || PathPrefix(`/tools`) || PathPrefix(`/prompts`) || PathPrefix(`/resources`) || PathPrefix(`/dashboard`) || PathPrefix(`/static-sites`) || PathPrefix(`/sites`) || PathPrefix(`/openapi`) || PathPrefix(`/llms`) || PathPrefix(`/version`) || PathPrefix(`/status`) || PathPrefix(`/discovery`) || PathPrefix(`/ready`) || PathPrefix(`/metrics`) || PathPrefix(`/webmcp`) || PathPrefix(`/.well-known`))"
-      - "traefik.http.routers.arifosmcp-root.entrypoints=websecure"
-      - "traefik.http.routers.arifosmcp-root.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.arifosmcp-root.priority=100"
-      - "traefik.http.routers.arifosmcp-root.service=arifosmcp@docker"
-      - "traefik.http.routers.arifosmcp.rule=Host(`arifosmcp.arif-fazil.com`) && PathPrefix(`/mcp`)"
-      - "traefik.http.routers.arifosmcp.entrypoints=websecure"
-      - "traefik.http.routers.arifosmcp.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.arifosmcp.service=arifosmcp@docker"
-      - "traefik.http.routers.webmcp.rule=Host(`arifosmcp.arif-fazil.com`) && PathPrefix(`/webmcp`)"
+      - "traefik.http.services.arifOS.loadbalancer.server.port=8080"
+      - "traefik.http.services.arifOS.loadbalancer.healthcheck.path=/health"
+      - "traefik.http.services.arifOS.loadbalancer.healthcheck.interval=10s"
+      - "traefik.http.services.arifOS.loadbalancer.healthcheck.timeout=5s"
+      - "traefik.http.routers.arifOS-root.rule=Host(`arifOS.arif-fazil.com`) && (Path(`/`) || PathPrefix(`/health`) || PathPrefix(`/tools`) || PathPrefix(`/prompts`) || PathPrefix(`/resources`) || PathPrefix(`/dashboard`) || PathPrefix(`/static-sites`) || PathPrefix(`/sites`) || PathPrefix(`/openapi`) || PathPrefix(`/llms`) || PathPrefix(`/version`) || PathPrefix(`/status`) || PathPrefix(`/discovery`) || PathPrefix(`/ready`) || PathPrefix(`/metrics`) || PathPrefix(`/webmcp`) || PathPrefix(`/.well-known`))"
+      - "traefik.http.routers.arifOS-root.entrypoints=websecure"
+      - "traefik.http.routers.arifOS-root.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.arifOS-root.priority=100"
+      - "traefik.http.routers.arifOS-root.service=arifOS@docker"
+      - "traefik.http.routers.arifOS.rule=Host(`arifOS.arif-fazil.com`) && PathPrefix(`/mcp`)"
+      - "traefik.http.routers.arifOS.entrypoints=websecure"
+      - "traefik.http.routers.arifOS.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.arifOS.service=arifOS@docker"
+      - "traefik.http.routers.webmcp.rule=Host(`arifOS.arif-fazil.com`) && PathPrefix(`/webmcp`)"
       - "traefik.http.routers.webmcp.entrypoints=websecure"
       - "traefik.http.routers.webmcp.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.webmcp.service=arifosmcp@docker"
-      - "traefik.http.routers.a2a.rule=Host(`arifosmcp.arif-fazil.com`) && PathPrefix(`/a2a`)"
+      - "traefik.http.routers.webmcp.service=arifOS@docker"
+      - "traefik.http.routers.a2a.rule=Host(`arifOS.arif-fazil.com`) && PathPrefix(`/a2a`)"
       - "traefik.http.routers.a2a.entrypoints=websecure"
       - "traefik.http.routers.a2a.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.a2a.service=arifosmcp@docker"
-      - "traefik.http.routers.a2a-wellknown.rule=Host(`arifosmcp.arif-fazil.com`) && PathPrefix(`/.well-known`)"
+      - "traefik.http.routers.a2a.service=arifOS@docker"
+      - "traefik.http.routers.a2a-wellknown.rule=Host(`arifOS.arif-fazil.com`) && PathPrefix(`/.well-known`)"
       - "traefik.http.routers.a2a-wellknown.entrypoints=websecure"
       - "traefik.http.routers.a2a-wellknown.tls.certresolver=letsencrypt"
-      - "traefik.http.routers.a2a-wellknown.service=arifosmcp@docker"
+      - "traefik.http.routers.a2a-wellknown.service=arifOS@docker"
     healthcheck:
       test: ["CMD-SHELL", "curl -fsS --max-time 5 http://localhost:8080/health || exit 1"]
       interval: 20s
@@ -402,13 +396,12 @@ services:
       context: ./geox
       dockerfile: Dockerfile
     image: arifos/geox-mcp:latest
-    container_name: geox-mcp
     init: true
     environment:
       - PYTHONUNBUFFERED=1
       - PYTHONPATH=/app
       - ARIFOS_FLOORS_HASH=${ARIFOS_FLOORS_HASH:-}
-      - ARIFOS_GOVERNANCE_URL=http://arifosmcp:8080
+      - ARIFOS_GOVERNANCE_URL=http://arifOS:8080
     volumes:
       - /srv/arifOS/geox:/app/geox:ro
       - geox_data:/app/data:rw
@@ -440,13 +433,12 @@ services:
           memory: 512M
     restart: unless-stopped
     depends_on:
-      arifosmcp:
+      arifOS:
         condition: service_healthy
 
   # --- Monitoring Stack ---
   node-exporter:
     image: prom/node-exporter:latest
-    container_name: node-exporter
     restart: unless-stopped
     volumes:
       - /proc:/host/proc:ro
@@ -461,7 +453,6 @@ services:
 
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:v0.49.1
-    container_name: cadvisor
     restart: unless-stopped
     privileged: true
     volumes:
@@ -515,8 +506,8 @@ services:
     environment:
       GF_SECURITY_ADMIN_USER: admin
       GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD}
-      GF_SERVER_ROOT_URL: https://monitor.arifosmcp.arif-fazil.com
-      GF_SERVER_DOMAIN: monitor.arifosmcp.arif-fazil.com
+      GF_SERVER_ROOT_URL: https://monitor.arifOS.arif-fazil.com
+      GF_SERVER_DOMAIN: monitor.arifOS.arif-fazil.com
       GF_SECURITY_DISABLE_GRAVATAR: "true"
       GF_ANALYTICS_REPORTING_ENABLED: "false"
       GF_AUTH_ANONYMOUS_ENABLED: "true"
@@ -532,7 +523,7 @@ services:
       - arifos_trinity
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.grafana.rule=Host(`monitor.arifosmcp.arif-fazil.com`)"
+      - "traefik.http.routers.grafana.rule=Host(`monitor.arifOS.arif-fazil.com`)"
       - "traefik.http.routers.grafana.entrypoints=websecure"
       - "traefik.http.routers.grafana.tls.certresolver=letsencrypt"
       - "traefik.http.services.grafana.loadbalancer.server.port=3000"
@@ -558,11 +549,11 @@ services:
     image: n8nio/n8n:latest
     container_name: arifos_n8n
     environment:
-      N8N_HOST: flow.arifosmcp.arif-fazil.com
+      N8N_HOST: flow.arifOS.arif-fazil.com
       N8N_PORT: "5678"
       N8N_PROTOCOL: https
-      WEBHOOK_URL: https://flow.arifosmcp.arif-fazil.com/
-      N8N_EDITOR_BASE_URL: https://flow.arifosmcp.arif-fazil.com/
+      WEBHOOK_URL: https://flow.arifOS.arif-fazil.com/
+      N8N_EDITOR_BASE_URL: https://flow.arifOS.arif-fazil.com/
       GENERIC_TIMEZONE: Asia/Kuala_Lumpur
       N8N_LOG_LEVEL: warn
       N8N_METRICS: "true"
@@ -573,7 +564,7 @@ services:
       - arifos_trinity
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.n8n.rule=Host(`flow.arifosmcp.arif-fazil.com`)"
+      - "traefik.http.routers.n8n.rule=Host(`flow.arifOS.arif-fazil.com`)"
       - "traefik.http.routers.n8n.entrypoints=websecure"
       - "traefik.http.routers.n8n.tls.certresolver=letsencrypt"
       - "traefik.http.services.n8n.loadbalancer.server.port=5678"
@@ -633,7 +624,7 @@ services:
       - arifos_trinity
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.webhook.rule=Host(`hook.arifosmcp.arif-fazil.com`)"
+      - "traefik.http.routers.webhook.rule=Host(`hook.arifOS.arif-fazil.com`)"
       - "traefik.http.routers.webhook.entrypoints=websecure"
       - "traefik.http.routers.webhook.tls.certresolver=letsencrypt"
       - "traefik.http.services.webhook.loadbalancer.server.port=9000"
@@ -652,7 +643,6 @@ services:
   # --- Headless Browser ---
   headless_browser:
     image: ghcr.io/browserless/chromium:latest
-    container_name: headless_browser
     init: true
     environment:
       - MAX_CONCURRENT_SESSIONS=2
@@ -688,18 +678,17 @@ services:
   # --- Developer Agent Workspace ---
   code-server:
     image: codercom/code-server:latest
-    container_name: civ08_code_server
     init: true
     environment:
       - PASSWORD=${CODE_SERVER_PASSWORD:-arifos}
     volumes:
       - /srv/arifos/code:/home/coder/project:rw
-      - /srv/arifOS:/home/coder/arifosmcp:rw
+      - /srv/arifOS:/home/coder/arifOS:rw
     networks:
       - arifos_trinity
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.codeserver.rule=Host(`code.arifosmcp.arif-fazil.com`)"
+      - "traefik.http.routers.codeserver.rule=Host(`code.arifOS.arif-fazil.com`)"
       - "traefik.http.routers.codeserver.entrypoints=websecure"
       - "traefik.http.routers.codeserver.tls.certresolver=letsencrypt"
       - "traefik.http.services.codeserver.loadbalancer.server.port=8080"
@@ -708,7 +697,6 @@ services:
   # --- Document Intelligence Factory ---
   stirling-pdf:
     image: frooodle/s-pdf:latest
-    container_name: civ01_stirling_pdf
     init: true
     environment:
       - DOCKER_ENABLE_SECURITY=false
@@ -718,7 +706,7 @@ services:
       - arifos_trinity
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.stirling.rule=Host(`pdf.arifosmcp.arif-fazil.com`)"
+      - "traefik.http.routers.stirling.rule=Host(`pdf.arifOS.arif-fazil.com`)"
       - "traefik.http.routers.stirling.entrypoints=websecure"
       - "traefik.http.routers.stirling.tls.certresolver=letsencrypt"
       - "traefik.http.services.stirling.loadbalancer.server.port=8080"
@@ -727,10 +715,9 @@ services:
   # --- Citizen Service Gateway ---
   evolution-api:
     image: atendai/evolution-api:v1.8.1
-    container_name: civ03_evolution_api
     init: true
     environment:
-      - SERVER_URL=https://whatsapp.arifosmcp.arif-fazil.com
+      - SERVER_URL=https://whatsapp.arifOS.arif-fazil.com
       - AUTHENTICATION_API_KEY=${EVOLUTION_API_KEY:-arifos-evo-key}
       - DATABASE_ENABLED=false
       - CACHE_REDIS_ENABLED=true
@@ -741,7 +728,7 @@ services:
       - arifos_trinity
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.evolution.rule=Host(`whatsapp.arifosmcp.arif-fazil.com`)"
+      - "traefik.http.routers.evolution.rule=Host(`whatsapp.arifOS.arif-fazil.com`)"
       - "traefik.http.routers.evolution.entrypoints=websecure"
       - "traefik.http.routers.evolution.tls.certresolver=letsencrypt"
       - "traefik.http.services.evolution.loadbalancer.server.port=8080"
@@ -755,11 +742,11 @@ networks:
     driver: bridge
 
 volumes:
-  arifosmcp_telemetry:
+  arifOS_telemetry:
     driver: local
-  arifosmcp_vault:
+  arifOS_vault:
     driver: local
-  arifosmcp_memory:
+  arifOS_memory:
     driver: local
   arifos_grafana_data:
     driver: local
