@@ -251,7 +251,7 @@ def check_floor_awareness_declaration(output: dict[str, Any], tool_name: str) ->
 
     missing_floors = required - evaluated - deferred
     if missing_floors:
-        failures.append(f"floors_not_evaluated({list(missing_floors)})")
+        failures.append(f"floors_not_evaluated({sorted(missing_floors)})")
 
     return failures
 

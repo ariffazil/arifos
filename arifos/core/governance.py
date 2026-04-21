@@ -201,9 +201,9 @@ def governed_return(
 
     if verdict == Verdict.PARTIAL:
         envelope["status"] = "partial"
-        envelope["error"] = (
-            "AGI invariants failed: " + ", ".join(invariant_failures)
-        )
+        actual_failures = raw_output.get("invariant_failures", []) if isinstance(raw_output, dict) else []
+        if actual_failures:
+            envelope["error"] = "AGI invariants failed: " + ", ".join(str(f) for f in actual_failures)
         return envelope
 
     envelope["status"] = "blocked"
