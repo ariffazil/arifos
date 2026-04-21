@@ -24,6 +24,42 @@ from arifos.core.governance import (
 logger = logging.getLogger(__name__)
 
 
+def _normalize_bridge_hits(bridge_result: dict | None) -> list[dict]:
+    """Accept old and new bridge result shapes without crashing on empty payloads."""
+    if not isinstance(bridge_result, dict):
+        return []
+
+    hits = bridge_result.get("hits")
+    if isinstance(hits, list):
+        return [h for h in hits if isinstance(h, dict)]
+
+    results = bridge_result.get("results")
+    if isinstance(results, dict):
+        nested_hits = results.get("organic") or results.get("hits") or results.get("results")
+        if isinstance(nested_hits, list):
+            return [h for h in nested_hits if isinstance(h, dict)]
+
+    return []
+
+
+def _extract_bridge_answer(bridge_result: dict | None) -> str | None:
+    """Prefer normalized answer, then tolerate legacy/raw result shapes."""
+    if not isinstance(bridge_result, dict):
+        return None
+
+    answer = bridge_result.get("answer")
+    if isinstance(answer, str) and answer.strip():
+        return answer
+
+    results = bridge_result.get("results")
+    if isinstance(results, dict):
+        nested_answer = results.get("answer") or results.get("result")
+        if isinstance(nested_answer, str) and nested_answer.strip():
+            return nested_answer
+
+    return None
+
+
 def _get_organ_confidence(evidence: dict | None) -> float | None:
     """
     Honest degradation: None → 0.5 (unknown), present-no-conf → 0.7,
@@ -324,18 +360,25 @@ async def execute(
                 bridge_result = await minimax_bridge.web_search(
                     query=search_query or focus_claim
                 )
-                earth_claim = bridge_result.get("answer")
+                earth_claim = _extract_bridge_answer(bridge_result)
+                hits = _normalize_bridge_hits(bridge_result)
+                bridge_error = bridge_result.get("error") if isinstance(bridge_result, dict) else None
                 # Build WEB organ evidence block
-                web_confidence = 0.7 if earth_claim else 0.5
+                web_confidence = 0.7 if (earth_claim or hits) else 0.5
                 web_evidence = {
                     "claim": earth_claim or f"No web evidence for: {focus_claim}",
                     "confidence": web_confidence,
-                    "grounded": earth_claim is not None,
+                    "grounded": bool(earth_claim or hits),
                     "source_tag": "minimax_web_search",
-                    "result_count": bridge_result.get("result_count", 0),
+                    "result_count": (
+                        bridge_result.get("result_count", len(hits))
+                        if isinstance(bridge_result, dict)
+                        else len(hits)
+                    ),
                 }
+                if bridge_error:
+                    web_evidence["error"] = bridge_error
                 # Extract external_evidence (top hits)
-                hits = bridge_result.get("hits", bridge_result.get("results", []))
                 depth_limit = 5 if depth == "deep" else 3
                 external_evidence = [
                     {

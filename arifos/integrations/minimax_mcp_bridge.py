@@ -237,6 +237,9 @@ class MinimaxMCPBridge:
                     "error": raw["error"],
                     "error_class": "bridge_failure",
                     "results": None,
+                    "answer": None,
+                    "hits": [],
+                    "result_count": 0,
                     "metrics": {"f2_truth_score": 0.99, "f3_earth_witness": 0.33},
                     "witness_debug": {
                         "human": True,
@@ -258,6 +261,9 @@ class MinimaxMCPBridge:
                     "error": base_resp.get("status_msg", "earth_witness_timeout"),
                     "error_class": "earth_witness_timeout",
                     "results": raw,
+                    "answer": None,
+                    "hits": [],
+                    "result_count": 0,
                     "metrics": {"f2_truth_score": 0.99, "f3_earth_witness": 0.33},
                     "witness_debug": {
                         "human": True,
@@ -278,6 +284,9 @@ class MinimaxMCPBridge:
                 "status": "success",
                 "verdict": "SEAL",
                 "results": raw,
+                "answer": raw.get("result"),
+                "hits": organic[:max_results],
+                "result_count": hit_count,
                 "witness_debug": {
                     "human": True,
                     "ai": True,
@@ -297,6 +306,9 @@ class MinimaxMCPBridge:
                 "error": str(exc),
                 "error_class": "bridge_timeout",
                 "results": None,
+                "answer": None,
+                "hits": [],
+                "result_count": 0,
                 "metrics": {"f2_truth_score": 0.99, "f3_earth_witness": 0.33},
                 "witness_debug": {
                     "human": True,
