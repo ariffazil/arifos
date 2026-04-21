@@ -12,6 +12,7 @@ from arifos.core.governance import (
     append_vault999_event,
     governed_return,
 )
+from arifos.tools._tool_support import probe_tcp_endpoint, resolve_tcp_endpoint
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -23,7 +24,7 @@ VAULT999_LEDGER_PATH = os.getenv(
     "ARIFOS_VAULT999_LEDGER",
     str(Path(os.getenv("ARIFOS_WORKDIR", Path(__file__).resolve().parents[2])) / "VAULT999" / "SEALED_EVENTS.jsonl"),
 )
-POSTGRES_DEFAULT_HOST = os.getenv("ARIFOS_PG_HOST", "localhost")
+POSTGRES_DEFAULT_HOST = os.getenv("ARIFOS_PG_HOST", "")
 POSTGRES_DEFAULT_PORT = os.getenv("ARIFOS_PG_PORT", "5432")
 
 
@@ -68,13 +69,26 @@ def readiness_probe(organ: str) -> dict:
     Returns {"vault999": bool, "postgres": bool, "organ": bool, "overall": str}
     """
     vault_ok = _probe_vault999()
-    pg_ok = _probe_postgres(POSTGRES_DEFAULT_HOST, POSTGRES_DEFAULT_PORT)
+    postgres_probe = probe_tcp_endpoint(
+        resolve_tcp_endpoint(
+            host_env="ARIFOS_PG_HOST",
+            port_env="ARIFOS_PG_PORT",
+            url_envs=("DATABASE_URL",),
+            default_port=int(POSTGRES_DEFAULT_PORT),
+        )
+    )
+    pg_ok = True if not postgres_probe["configured"] else bool(postgres_probe["reachable"])
     organ_ok = _probe_organ(organ)
 
     checks = {"vault999": vault_ok, "postgres": pg_ok, "organ": organ_ok}
     overall = "PASS" if all(checks.values()) else "FAIL"
 
-    return {"checks": checks, "overall": overall, "organ_target": organ}
+    return {
+        "checks": checks,
+        "overall": overall,
+        "organ_target": organ,
+        "postgres_probe": postgres_probe,
+    }
 
 
 # ──────────────────────────────────────────────────────────────────────────────

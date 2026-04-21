@@ -9,6 +9,7 @@ from arifos.core.governance import (
     append_vault999_event,
     Verdict,
 )
+from arifos.tools._tool_support import invariant_fields
 
 
 async def execute(
@@ -43,6 +44,25 @@ async def execute(
         "reasoning_lanes": lanes,
         "global_confidence": None,
     }
+    report.update(
+        invariant_fields(
+            tool_name="arifos_333_mind",
+            input_payload={
+                "problem_set": problem_set,
+                "operator_id": operator_id,
+                "session_id": session_id,
+                "depth": depth,
+            },
+            assumptions=[
+                "Mind stage is performing bounded internal lane alignment, not external truth retrieval.",
+                "Confidence reflects reasoning scaffold completeness rather than downstream execution certainty.",
+                "Problem identity falls back to GENERIC when no explicit problem_set.id is supplied.",
+            ],
+            floors_evaluated=["F7", "F8"],
+            confidence=0.64,
+            extra_meta={"reasoning_depth": depth},
+        )
+    )
 
     # Removed hardcoded metric assertions — set to NULL/UNKNOWN
     metrics = ThermodynamicMetrics(

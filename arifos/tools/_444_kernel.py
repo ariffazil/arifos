@@ -9,6 +9,7 @@ from arifos.core.governance import (
     append_vault999_event,
     Verdict,
 )
+from arifos.tools._tool_support import invariant_fields
 
 
 async def execute(
@@ -37,6 +38,25 @@ async def execute(
         "payload": payload or {},
         "orthogonality_check": "PASS" if target_clean in {"MIND", "HEART", "SOUL", "PHYSICS"} else "WARNING",
     }
+    report.update(
+        invariant_fields(
+            tool_name="arifos_444_kernel",
+            input_payload={
+                "route_target": route_target,
+                "payload": payload,
+                "operator_id": operator_id,
+                "session_id": session_id,
+            },
+            assumptions=[
+                "Kernel routing validates declared target lanes but does not execute downstream organs directly.",
+                "Orthogonality warnings indicate semantic drift risk, not immediate runtime failure.",
+                "Payload is treated as declarative routing context during this stage.",
+            ],
+            floors_evaluated=["F1", "F2", "F3", "F5", "F8", "F13"],
+            confidence=0.66 if target_clean in {"MIND", "HEART", "SOUL", "PHYSICS"} else 0.58,
+            extra_meta={"orthogonality_warning": target_clean not in {"MIND", "HEART", "SOUL", "PHYSICS"}},
+        )
+    )
 
     # Removed hardcoded metric assertions — set to NULL/UNKNOWN
     metrics = ThermodynamicMetrics(

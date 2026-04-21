@@ -9,6 +9,7 @@ from arifos.core.governance import (
     append_vault999_event,
     Verdict,
 )
+from arifos.tools._tool_support import invariant_fields
 
 
 async def execute(
@@ -36,6 +37,24 @@ async def execute(
         "entropy_projection": None,
         "feasibility": None,
     }
+    report.update(
+        invariant_fields(
+            tool_name="arifos_777_ops",
+            input_payload={
+                "operation_plan": operation_plan,
+                "operator_id": operator_id,
+                "session_id": session_id,
+            },
+            assumptions=[
+                "Ops stage estimates execution posture from the declared plan only.",
+                "Missing cost or entropy figures are treated as bounded unknowns.",
+                "Feasibility remains provisional until downstream systems confirm readiness.",
+            ],
+            floors_evaluated=["F11", "F12"],
+            confidence=0.63,
+            extra_meta={"plan_steps": len((operation_plan or {}).get("steps", [])) if isinstance(operation_plan, dict) else 0},
+        )
+    )
 
     # Removed hardcoded metric assertions — set to NULL/UNKNOWN
     metrics = ThermodynamicMetrics(

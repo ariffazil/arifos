@@ -9,6 +9,7 @@ from arifos.core.governance import (
     append_vault999_event,
     Verdict,
 )
+from arifos.tools._tool_support import invariant_fields
 
 
 async def execute(
@@ -37,6 +38,25 @@ async def execute(
         "harm_avoidance_rate": None,
         "weakest_stakeholder_protected": None,
     }
+    report.update(
+        invariant_fields(
+            tool_name="arifos_666_heart",
+            input_payload={
+                "stakeholder_map": stakeholder_map,
+                "action_proposal": action_proposal,
+                "operator_id": operator_id,
+                "session_id": session_id,
+            },
+            assumptions=[
+                "Heart stage evaluates declared stakeholder context, not hidden stakeholders outside the provided map.",
+                "Absent harm metrics are treated as uncertainty, not proof of safety.",
+                "Action proposals are reviewed constitutionally before any execution stage.",
+            ],
+            floors_evaluated=["F1", "F3", "F6", "F9", "F10"],
+            confidence=0.62,
+            extra_meta={"stakeholder_count": len(stakeholder_map or {})},
+        )
+    )
 
     # Removed hardcoded metric assertions — set to NULL/UNKNOWN
     metrics = ThermodynamicMetrics(

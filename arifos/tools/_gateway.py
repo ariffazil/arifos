@@ -9,6 +9,7 @@ from arifos.core.governance import (
     append_vault999_event,
     Verdict,
 )
+from arifos.tools._tool_support import invariant_fields
 
 
 async def execute(
@@ -39,6 +40,26 @@ async def execute(
         "interaction": interaction,
         "cross_organ_leakage_rate": None,
     }
+    report.update(
+        invariant_fields(
+            tool_name="arifos_gateway",
+            input_payload={
+                "a": a,
+                "b": b,
+                "interaction": interaction,
+                "operator_id": operator_id,
+                "session_id": session_id,
+            },
+            assumptions=[
+                "Gateway stage evaluates declared organ interaction, not full downstream payload semantics.",
+                "Distinct organ names imply intended separation even before runtime enforcement.",
+                "Leakage rate remains unknown until a concrete exchange is simulated or observed.",
+            ],
+            floors_evaluated=["F5", "F8"],
+            confidence=0.67 if is_orthogonal else 0.41,
+            extra_meta={"orthogonal_pair": is_orthogonal},
+        )
+    )
 
     # Removed hardcoded metric assertions — set to NULL/UNKNOWN
     metrics = ThermodynamicMetrics(

@@ -4,7 +4,6 @@ import hashlib
 import json
 import os
 import time
-from pathlib import Path
 from typing import Any, Optional
 
 from arifos.core.governance import (
@@ -12,15 +11,12 @@ from arifos.core.governance import (
     Verdict,
     governed_return,
     append_vault999_event,
+    VAULT999_LEDGER_PATH,
 )
+from arifos.tools._tool_support import invariant_fields
 
-VAULT999_DIR = os.path.dirname(
-    os.getenv(
-        "ARIFOS_VAULT999_LEDGER",
-        str(Path(os.getenv("ARIFOS_WORKDIR", Path(__file__).resolve().parents[2])) / "VAULT999" / "SEALED_EVENTS.jsonl"),
-    )
-)
-VAULT999_FILE = os.path.join(VAULT999_DIR, "SEEDED_EVENTS.jsonl")
+VAULT999_DIR = os.path.dirname(VAULT999_LEDGER_PATH)
+VAULT999_FILE = VAULT999_LEDGER_PATH
 LEDGER_LOCK_PATH = os.path.join(VAULT999_DIR, ".write.lock")
 POSTGRES_REQUIRED = False  # flip to True if DB check is mandatory
 
@@ -52,10 +48,12 @@ def _get_last_chain_position(ledger_path: str) -> int:
     if os.path.exists(ledger_path):
         try:
             with open(ledger_path, "r", encoding="utf-8") as fh:
+                fallback_pos = 0
                 for line in fh:
                     line = line.strip()
                     if not line:
                         continue
+                    fallback_pos += 1
                     try:
                         rec = json.loads(line)
                         cp = rec.get("chain_position")
@@ -63,6 +61,8 @@ def _get_last_chain_position(ledger_path: str) -> int:
                             pos = cp
                     except Exception:
                         pass
+                if pos == 0:
+                    pos = fallback_pos
         except Exception:
             pass
     return pos
@@ -384,11 +384,12 @@ async def _vault_query(
             with open(VAULT999_FILE, "r", encoding="utf-8") as fh:
                 lines = [ln.strip() for ln in fh if ln.strip()]
             # last 5 entries
-            for ln in lines[-5:]:
+            start_pos = max(len(lines) - 4, 1)
+            for index, ln in enumerate(lines[-5:], start=start_pos):
                 try:
                     rec = json.loads(ln)
                     recent.append({
-                        "chain_position": rec.get("chain_position"),
+                        "chain_position": rec.get("chain_position") or index,
                         "chain_hash": rec.get("chain_hash"),
                         "ts": rec.get("ts"),
                         "event_type": rec.get("event_type"),
@@ -405,6 +406,26 @@ async def _vault_query(
         "ledger_integrity": computed_integrity,
         "recent_entries": recent,
     }
+    report.update(
+        invariant_fields(
+            tool_name="arifos_999_vault",
+            input_payload={
+                "action": "query",
+                "payload": payload,
+                "chain_hash": chain_hash,
+                "operator_id": operator_id,
+                "session_id": session_id,
+            },
+            assumptions=[
+                "Vault query reads the canonical governance ledger configured for the runtime.",
+                "Entries without explicit chain_position are ordered by append sequence.",
+                "Query mode is read-only and does not mutate Vault999 state.",
+            ],
+            floors_evaluated=["F11", "F12"],
+            confidence=0.84 if computed_integrity >= 0.99 else 0.63,
+            extra_meta={"ledger_path": VAULT999_FILE},
+        )
+    )
 
     metrics = ThermodynamicMetrics(
         truth_score=0.99,
