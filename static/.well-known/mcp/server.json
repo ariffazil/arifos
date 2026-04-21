@@ -1,8 +1,8 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.ariffazil/arifos-mcp",
-  "version": "2026.04.07-SEAL",
-  "description": "arifOS AAA MCP runtime with streamable HTTP at /mcp, SSE compatibility, 17 public tools, and the arifOS dashboard app resources.",
+  "version": "2026.04.21-UNIFIED",
+  "description": "arifOS AAA MCP runtime with streamable HTTP at /mcp, SSE compatibility, 13 public tools, and the arifOS dashboard app resources.",
   "vendor": {
     "name": "arifOS",
     "url": "https://arifos.arif-fazil.com"
@@ -22,10 +22,10 @@
     {
       "registryType": "pypi",
       "identifier": "arifos",
-      "version": "2026.04.07-SEAL",
+      "version": "2026.04.16",
       "transport": {
         "type": "stdio",
-        "command": "python -m arifosmcp.runtime stdio"
+        "command": "python stdio_server.py"
       }
     },
     {

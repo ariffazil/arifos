@@ -43,6 +43,9 @@ arifos/
 | 777 | `arifos_777_ops` | Operations |
 | 888 | `arifos_888_judge` | **SEAL authority** |
 | 999 | `arifos_999_vault` | Immutable ledger |
+| FORGE | `arifos_forge` | Governed execution after SEAL |
+| GATEWAY | `arifos_gateway` | Governed organ-to-organ interaction |
+| SABAR | `arifos_sabar` | Cooling and hold-state governance |
 
 Full doctrine: [`000/000_CONSTITUTION.md`](./000/000_CONSTITUTION.md)
 
@@ -106,12 +109,12 @@ No silent SEAL is possible.
 git clone https://github.com/ariffazil/arifOS
 cd arifOS
 docker compose up -d
-curl http://localhost:8000/health
+curl http://localhost:8080/health
 ```
 
 **Hosted (evaluation only):**
 ```bash
-curl https://mcp.arif-fazil.com/health
+curl https://arifOS.arif-fazil.com/health
 ```
 
 ---
@@ -122,6 +125,9 @@ curl https://mcp.arif-fazil.com/health
 - Core imports: zero FastMCP
 - SEAL authority: `888_JUDGE` only
 - Transport: MCP via `adapters/mcp/`, interchangeable
+- Live public MCP surface: **13 tools** on `/mcp`
+- Live health endpoint: `http://localhost:8080/health`
+- `arifos_222_witness` web-search path is normalized for empty/error MiniMax bridge payloads; missing web evidence now degrades honestly instead of raising `NoneType` errors
 - Baseline: **2026.04.20 — Sovereign core/adapter architecture**
 
 ---
