@@ -38,12 +38,12 @@ import time
 from datetime import datetime, timezone
 from typing import Any
 
-from arifos.geox.geox_schemas import (
+from arifosmcp.geox.geox_schemas import (
     CoordinatePoint,
     GeoQuantity,
     ProvenanceRecord,
 )
-from arifos.geox.geox_tools import BaseTool, GeoToolResult
+from arifosmcp.geox.geox_tools import BaseTool, GeoToolResult
 
 # ---------------------------------------------------------------------------
 # Perception bridge rule enforcement

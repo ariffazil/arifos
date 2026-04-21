@@ -31,8 +31,8 @@ from datetime import datetime, timezone
 from enum import Enum
 from typing import Any
 
-from arifos.integrations.substrate_bridge import SubstrateClient, bridge
-from arifos.runtime.models import Verdict
+from arifosmcp.integrations.substrate_bridge import SubstrateClient, bridge
+from arifosmcp.runtime.models import Verdict
 
 logger = logging.getLogger(__name__)
 
@@ -243,7 +243,7 @@ class ProtocolConformanceRunner:
     
     async def _test_everything_reference(self):
         """Test against 'everything' maximal-surface reference server"""
-        from arifos.integrations.everything_probe import everything_probe
+        from arifosmcp.integrations.everything_probe import everything_probe
         
         # Test full diagnostic
         start = datetime.now(timezone.utc)
@@ -309,7 +309,7 @@ class ProtocolConformanceRunner:
     def seal_to_vault(self, report: ConformanceReport):
         """Seal conformance report to VAULT999"""
         try:
-            from arifos.runtime.tools import arifos_vault
+            from arifosmcp.runtime.tools import arifos_vault
             
             evidence = {
                 "timestamp": report.timestamp,

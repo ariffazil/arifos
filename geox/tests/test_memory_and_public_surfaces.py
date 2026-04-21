@@ -5,10 +5,10 @@ from datetime import datetime, timedelta, timezone
 
 import pytest
 
-from arifos.geox.geox_hardened import HardenedGeoxAgent
-from arifos.geox.geox_memory import DualMemoryStore, GeoMemoryEntry, GeoMemoryStore
-from arifos.geox.geox_schemas import CoordinatePoint
-from arifos.geox.geox_validator import GeoXValidator
+from arifosmcp.geox.geox_hardened import HardenedGeoxAgent
+from arifosmcp.geox.geox_memory import DualMemoryStore, GeoMemoryEntry, GeoMemoryStore
+from arifosmcp.geox.geox_schemas import CoordinatePoint
+from arifosmcp.geox.geox_validator import GeoXValidator
 
 
 def test_geo_memory_entry_round_trip_preserves_datetime_fields():

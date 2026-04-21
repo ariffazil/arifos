@@ -36,8 +36,8 @@ from typing import Any
 
 import numpy as np
 
-from arifos.geox.base_tool import _make_provenance
-from arifos.geox.geox_mcp_schemas import GEOXFeatureSet
+from arifosmcp.geox.base_tool import _make_provenance
+from arifosmcp.geox.geox_mcp_schemas import GEOXFeatureSet
 
 
 def detect_lineaments(

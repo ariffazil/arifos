@@ -26,8 +26,8 @@ from typing import Any
 
 import httpx
 
-from arifos.geox.base_tool import BaseTool, GeoToolResult
-from arifos.geox.geox_schemas import CoordinatePoint, GeoQuantity, ProvenanceRecord
+from arifosmcp.geox.base_tool import BaseTool, GeoToolResult
+from arifosmcp.geox.geox_schemas import CoordinatePoint, GeoQuantity, ProvenanceRecord
 
 logger = logging.getLogger("geox.tools.earth_realtime")
 

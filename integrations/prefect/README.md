@@ -34,7 +34,7 @@ pip install "prefect[all]" marvin cyclopts
 
 ```python
 from prefect import flow
-from arifos.integrations.prefect import constitutional_flow
+from arifosmcp.integrations.prefect import constitutional_flow
 
 @flow
 def my_workflow():
@@ -49,7 +49,7 @@ def my_workflow():
 ### 2. Marvin AI with arifOS Governance
 
 ```python
-from arifos.integrations.prefect import arifos_agent
+from arifosmcp.integrations.prefect import arifos_agent
 
 # Create governed AI agent
 writer = arifos_agent(
@@ -72,7 +72,7 @@ pip install cyclopts
 python -m arifos.integrations.prefect.cli --help
 
 # Or create your own
-from arifos.integrations.prefect import create_cyclopts_app
+from arifosmcp.integrations.prefect import create_cyclopts_app
 
 app = create_cyclopts_app()
 app()
@@ -130,7 +130,7 @@ arifos/integrations/prefect/
 
 ```python
 from prefect import flow
-from arifos.integrations.prefect.tasks import (
+from arifosmcp.integrations.prefect.tasks import (
     research_task, vault_seal_task, safety_check_task
 )
 
@@ -155,7 +155,7 @@ async def research_flow(query: str):
 ### Governed AI Classification
 
 ```python
-from arifos.integrations.prefect.marvin_bridge import governed_classify
+from arifosmcp.integrations.prefect.marvin_bridge import governed_classify
 
 # Classify with safety checks
 label = await governed_classify(

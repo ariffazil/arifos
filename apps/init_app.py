@@ -108,7 +108,7 @@ async def anchor_session(
     and returns session metadata including epoch, session_id, and alignment.
     """
     try:
-        from arifos.runtime.tools import arifos_init
+        from arifosmcp.runtime.tools import arifos_init
 
         envelope = await arifos_init(
             intent=declared_intent or "General session",
@@ -129,7 +129,7 @@ async def anchor_session(
 
         # ── Wisdom quote for anchor surface (Logic from forge-ssct-sync) ──────
         try:
-            from arifos.runtime.philosophy import select_wisdom_quote
+            from arifosmcp.runtime.philosophy import select_wisdom_quote
 
             _wisdom_res = select_wisdom_quote("anchor")
             _philosophy_text = (
@@ -268,7 +268,7 @@ def init_surface(
 
         # ── Wisdom strip ─────────────────────────────────────────────────────
         try:
-            from arifos.runtime.philosophy import select_wisdom_quote
+            from arifosmcp.runtime.philosophy import select_wisdom_quote
 
             _wisdom = select_wisdom_quote("anchor")
             if _wisdom and _wisdom.get("quote"):

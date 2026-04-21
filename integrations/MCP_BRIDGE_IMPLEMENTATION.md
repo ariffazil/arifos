@@ -51,7 +51,7 @@ This document summarizes the implementation of MCP bridge layers that position e
 
 **Usage**:
 ```python
-from arifos.integrations.memory_bridge import kg_upsert_entity
+from arifosmcp.integrations.memory_bridge import kg_upsert_entity
 
 # High confidence entity (succeeds)
 success, entity_id = await kg_upsert_entity(
@@ -84,7 +84,7 @@ success, error = await kg_upsert_entity(
 
 **Usage**:
 ```python
-from arifos.integrations.sequential_mcp_bridge import (
+from arifosmcp.integrations.sequential_mcp_bridge import (
     run_external_sequence,
     compare_native_vs_mcp
 )

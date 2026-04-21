@@ -19,11 +19,11 @@ import httpx
 _CACHE: dict[str, tuple[float, Any]] = {}
 _CACHE_TTL_SECONDS: float = 3600.0  # 1 hour — geology doesn't change fast
 
-from arifos.geox.base_tool import (
+from arifosmcp.geox.base_tool import (
     BaseTool,
     GeoToolResult,
 )
-from arifos.geox.geox_schemas import (
+from arifosmcp.geox.geox_schemas import (
     CoordinatePoint,
     GeoQuantity,
     ProvenanceRecord,

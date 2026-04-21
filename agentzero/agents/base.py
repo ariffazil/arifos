@@ -53,7 +53,7 @@ class FloorScore:
 @dataclass
 class Verdict:
     """
-    Constitutional verdict from arifOS evaluation.
+    Constitutional verdict from arifosmcp evaluation.
     
     This is the core governance mechanism - every agent action
     must receive a verdict before execution.
@@ -378,7 +378,7 @@ class ConstitutionalAgent(ABC):
                 f"Cannot handoff unsealed action: verdict={getattr(self, '_last_verdict', 'UNKNOWN')}"
             )
 
-        from arifos.agentzero.handoff.sealer import HandoffSealer
+        from arifosmcp.agentzero.handoff.sealer import HandoffSealer
 
         sealer = HandoffSealer(vault_manager=vault, secret_key=secret_key)
 
@@ -429,7 +429,7 @@ class ConstitutionalAgent(ABC):
         Returns:
             (is_valid, reason)
         """
-        from arifos.agentzero.handoff.sealer import HandoffReceipt, HandoffSealer
+        from arifosmcp.agentzero.handoff.sealer import HandoffReceipt, HandoffSealer
 
         # Reconstruct receipt object
         try:

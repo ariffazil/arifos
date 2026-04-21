@@ -20,11 +20,11 @@ from typing import Any
 
 from fastmcp import FastMCP
 
-from arifos.geox.tool_registry import (
+from arifosmcp.geox.tool_registry import (
     ToolRegistry, ToolStatus, ErrorCode,
     create_standardized_error, GEOX_TOOLS
 )
-from arifos.geox.ENGINE.ac_risk import ACRiskCalculator, Verdict
+from arifosmcp.geox.ENGINE.ac_risk import ACRiskCalculator, Verdict
 
 SERVER_NAME = "GEOX Earth Witness"
 SERVER_VERSION = "1.0.0"

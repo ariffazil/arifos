@@ -21,7 +21,7 @@ import json
 from datetime import datetime, timezone
 from typing import Any
 
-from arifos.geox.geox_schemas import GeoRequest, GeoResponse
+from arifosmcp.geox.geox_schemas import GeoRequest, GeoResponse
 
 
 class GeoXReporter:

@@ -10,10 +10,10 @@ DITEMPA BUKAN DIBERI
 """
 
 import numpy as np
-from arifos.geox.oned.canon9_profile import Canon9Profile, DepthSample
-from arifos.geox.oned.rock_physics import GassmannModel
-from arifos.geox.oned.synthetic import SyntheticSeismic, Wavelet
-from arifos.geox.oned.inversion import JointInversion1D
+from arifosmcp.geox.oned.canon9_profile import Canon9Profile, DepthSample
+from arifosmcp.geox.oned.rock_physics import GassmannModel
+from arifosmcp.geox.oned.synthetic import SyntheticSeismic, Wavelet
+from arifosmcp.geox.oned.inversion import JointInversion1D
 
 
 def create_synthetic_well(

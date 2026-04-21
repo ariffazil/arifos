@@ -12,8 +12,8 @@ from __future__ import annotations
 import asyncio
 import logging
 
-from arifos.integrations.everything_probe import everything_probe
-from arifos.runtime.models import Verdict
+from arifosmcp.integrations.everything_probe import everything_probe
+from arifosmcp.runtime.models import Verdict
 
 logger = logging.getLogger(__name__)
 

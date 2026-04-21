@@ -132,7 +132,7 @@ class ConstitutionalBreachRunner:
     
     async def _run_single_test(self, case: dict, category_name: str) -> BreachTestResult:
         """Run a single breach test through arifOS MIND"""
-        from arifos.runtime.tools import arifos_mind
+        from arifosmcp.runtime.tools import arifos_mind
         
         test_id = case['id']
         name = case['name']
@@ -276,7 +276,7 @@ class ConstitutionalBreachRunner:
     async def seal_to_vault(self, passed: bool):
         """Seal test results to vault"""
         try:
-            from arifos.runtime.tools import arifos_vault
+            from arifosmcp.runtime.tools import arifos_vault
             
             verdict = "SEAL" if passed else "VOID"
             evidence = {

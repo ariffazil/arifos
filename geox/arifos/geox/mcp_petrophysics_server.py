@@ -25,25 +25,25 @@ try:
 except ImportError:
     raise ImportError("fastmcp required. Install: pip install fastmcp")
 
-from arifos.geox.resources.well_resources import get_resource
-from arifos.geox.tools.petrophysics import (
+from arifosmcp.geox.resources.well_resources import get_resource
+from arifosmcp.geox.tools.petrophysics import (
     LogBundleLoader,
     load_bundle_from_store,
     store_bundle,
     QCEngine,
     generate_qc_report,
 )
-from arifos.geox.tools.petrophysics.property_calculator import (
+from arifosmcp.geox.tools.petrophysics.property_calculator import (
     PetrophysicsCalculator,
     load_rock_state,
     store_rock_state,
 )
-from arifos.geox.tools.petrophysics.cutoff_validator import (
+from arifosmcp.geox.tools.petrophysics.cutoff_validator import (
     CutoffValidator,
     load_cutoff_policy,
 )
-from arifos.geox.tools.petrophysics.hold_checker import PetrophysicalHoldChecker
-from arifos.geox.tools.petrophysics.model_selector import SaturationModelSelector
+from arifosmcp.geox.tools.petrophysics.hold_checker import PetrophysicalHoldChecker
+from arifosmcp.geox.tools.petrophysics.model_selector import SaturationModelSelector
 
 # Initialize MCP server
 mcp = FastMCP(

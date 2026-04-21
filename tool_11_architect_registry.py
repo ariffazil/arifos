@@ -11,8 +11,8 @@ from __future__ import annotations
 
 from typing import Any
 
-from arifos.runtime.models import RuntimeEnvelope, RuntimeStatus, Verdict
-from arifos.runtime.tools_internal import architect_registry_dispatch_impl
+from arifosmcp.runtime.models import RuntimeEnvelope, RuntimeStatus, Verdict
+from arifosmcp.runtime.tools_internal import architect_registry_dispatch_impl
 
 
 async def architect_registry(
@@ -35,7 +35,7 @@ async def architect_registry(
     raw_input: str | None = None,
     ctx: Any | None = None,
 ) -> RuntimeEnvelope:
-    from arifos.runtime.tools_hardened_dispatch import HARDENED_DISPATCH_MAP
+    from arifosmcp.runtime.tools_hardened_dispatch import HARDENED_DISPATCH_MAP
 
     payload = dict(payload or {})
     if raw_input:

@@ -14,13 +14,13 @@ Renderers:
   - export: Static snapshot export
 """
 
-from arifos.geox.renderers.base import (
+from arifosmcp.geox.renderers.base import (
     RenderMode,
     RenderResult,
     RenderSession,
     RendererAdapter,
 )
-from arifos.geox.renderers.primitives import (
+from arifosmcp.geox.renderers.primitives import (
     AnnotationPrimitive,
     AxisPrimitive,
     BoundingBox,
@@ -41,8 +41,8 @@ from arifos.geox.renderers.primitives import (
     WellTrajectoryPrimitive,
     UncertaintyZonePrimitive,
 )
-from arifos.geox.renderers.scene_compiler import SceneCompiler
-from arifos.geox.renderers.export import RenderExporter
+from arifosmcp.geox.renderers.scene_compiler import SceneCompiler
+from arifosmcp.geox.renderers.export import RenderExporter
 
 __all__ = [
     # Base
@@ -79,7 +79,7 @@ __all__ = [
 
 CIGVIS_AVAILABLE = True
 try:
-    from arifos.geox.renderers.cigvis_adapter import (
+    from arifosmcp.geox.renderers.cigvis_adapter import (
         CigvisAdapter,
         StaticCigvisRenderer,
         InteractiveCigvisRenderer,

@@ -28,9 +28,9 @@ from datetime import datetime, timezone
 from typing import Any
 from uuid import uuid4
 
-from arifos.geox.renderers import CigvisAdapter, SceneCompiler
-from arifos.geox.renderers.export import RenderExporter
-from arifos.geox.volume_context import VolumeSceneBuilder
+from arifosmcp.geox.renderers import CigvisAdapter, SceneCompiler
+from arifosmcp.geox.renderers.export import RenderExporter
+from arifosmcp.geox.volume_context import VolumeSceneBuilder
 
 logger = logging.getLogger("geox.apps.volume_app")
 

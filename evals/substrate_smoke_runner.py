@@ -32,16 +32,16 @@ from datetime import datetime, timezone
 from enum import Enum
 from typing import Any
 
-from arifos.integrations.fetch_bridge import FetchBridge
-from arifos.integrations.git_bridge import GitBridge
-from arifos.integrations.memory_bridge import (
+from arifosmcp.integrations.fetch_bridge import FetchBridge
+from arifosmcp.integrations.git_bridge import GitBridge
+from arifosmcp.integrations.memory_bridge import (
     kg_delete_entity,
     kg_link_entities,
     kg_search,
     kg_upsert_entity,
 )
-from arifos.integrations.substrate_bridge import bridge
-from arifos.runtime.models import Verdict
+from arifosmcp.integrations.substrate_bridge import bridge
+from arifosmcp.runtime.models import Verdict
 
 logger = logging.getLogger(__name__)
 
@@ -450,7 +450,7 @@ class SubstrateSmokeRunner:
     async def _everything_discovery(self) -> tuple[bool, str | None]:
         """Happy path: feature discovery"""
         try:
-            from arifos.integrations.everything_probe import everything_probe
+            from arifosmcp.integrations.everything_probe import everything_probe
             features = await everything_probe.probe_server_features()
             return features.get("health", {}).get("status") == "OK", None
         except Exception as e:
@@ -459,7 +459,7 @@ class SubstrateSmokeRunner:
     async def _everything_sequence(self) -> tuple[bool, str | None]:
         """Edge case: multi-feature sequence"""
         try:
-            from arifos.integrations.everything_probe import everything_probe
+            from arifosmcp.integrations.everything_probe import everything_probe
             result = await everything_probe.probe_tools_roundtrip()
             return result.get("ok", False), None
         except Exception as e:
@@ -545,7 +545,7 @@ class SubstrateSmokeRunner:
     def seal_to_vault(self, report: SmokeReport):
         """Seal smoke test report to VAULT999"""
         try:
-            from arifos.runtime.tools import arifos_vault
+            from arifosmcp.runtime.tools import arifos_vault
             
             evidence = {
                 "timestamp": report.timestamp,

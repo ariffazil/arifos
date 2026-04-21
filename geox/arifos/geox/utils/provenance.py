@@ -17,7 +17,7 @@ import json
 from datetime import datetime, timezone
 from typing import Any, Literal
 
-from arifos.geox.geox_schemas import ProvenanceRecord
+from arifosmcp.geox.geox_schemas import ProvenanceRecord
 
 # Default floor check template — all True means fully compliant
 _DEFAULT_FLOOR_CHECK: dict[str, bool] = {

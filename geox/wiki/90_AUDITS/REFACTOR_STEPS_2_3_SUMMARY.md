@@ -200,7 +200,7 @@ bus.getBus()?.on(EventType.TOOL_REQUEST, async (event) => {
 ### 5.3 Python (Manifest Loading)
 
 ```python
-from arifos.geox.contracts.app_manifest import GeoXAppManifest, get_app_registry
+from arifosmcp.geox.contracts.app_manifest import GeoXAppManifest, get_app_registry
 
 # Load manifest
 manifest = GeoXAppManifest.parse_file('manifest.json')

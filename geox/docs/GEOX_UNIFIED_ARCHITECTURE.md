@@ -297,7 +297,7 @@ arifos/geox/
 ## Example: Seismic as ONE Domain
 
 ```python
-from arifos.geox import GEOX
+from arifosmcp.geox import GEOX
 
 # Seismic is just a domain parameter
 result = await GEOX.interpret(

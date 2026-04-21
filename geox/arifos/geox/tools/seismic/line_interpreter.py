@@ -11,17 +11,17 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from arifos.geox.geox_schemas import GeoxMcpEnvelope, ProvenanceRecord
-from arifos.geox.schemas.seismic_image import (
+from arifosmcp.geox.geox_schemas import GeoxMcpEnvelope, ProvenanceRecord
+from arifosmcp.geox.schemas.seismic_image import (
     GEOX_FEATURE_SET,
     GEOX_INTERPRETATION_SUMMARY,
     GEOX_SEISMIC_IMAGE_INPUT,
 )
-from arifos.geox.tools.seismic_candidate_ranker import rank_candidates
-from arifos.geox.tools.seismic_contrast_views import generate_contrast_views
-from arifos.geox.tools.seismic_feature_extract import extract_lineaments
-from arifos.geox.tools.seismic_image_ingest import ingest_seismic_image
-from arifos.geox.tools.seismic_structure_rules import check_structure_rules
+from arifosmcp.geox.tools.seismic_candidate_ranker import rank_candidates
+from arifosmcp.geox.tools.seismic_contrast_views import generate_contrast_views
+from arifosmcp.geox.tools.seismic_feature_extract import extract_lineaments
+from arifosmcp.geox.tools.seismic_image_ingest import ingest_seismic_image
+from arifosmcp.geox.tools.seismic_structure_rules import check_structure_rules
 
 logger = logging.getLogger(__name__)
 

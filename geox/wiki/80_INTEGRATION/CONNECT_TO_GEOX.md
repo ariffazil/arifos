@@ -312,7 +312,7 @@ if __name__ == "__main__":
 For full arifOS ecosystem integration with constitutional guardrails:
 
 ```python
-from arifos.integrations.openai_agents import ArifOSAgent, ConstitutionalGuardrails
+from arifosmcp.integrations.openai_agents import ArifOSAgent, ConstitutionalGuardrails
 
 # Create agent with F1-F13 enforcement
 agent = await ArifOSAgent.create_geox_agent(

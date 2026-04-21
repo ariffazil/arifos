@@ -15,7 +15,7 @@ Import order:
 3. chatgpt_subset (depends on all above)
 """
 
-from arifos.specs.chatgpt_subset import (
+from arifosmcp.specs.chatgpt_subset import (
     CHATGPT_PROMPT_NAMES,
     CHATGPT_RESOURCE_URIS,
     CHATGPT_TOOL_NAMES,
@@ -25,7 +25,7 @@ from arifos.specs.chatgpt_subset import (
     is_chatgpt_safe_tool,
     validate_chatgpt_safety,
 )
-from arifos.specs.contracts import (
+from arifosmcp.specs.contracts import (
     ConstitutionalHealthView,
     # Evidence
     EvidenceBundle,
@@ -51,19 +51,19 @@ from arifos.specs.contracts import (
     # Utils
     make_telemetry_seed,
 )
-from arifos.specs.prompt_specs import (
+from arifosmcp.specs.prompt_specs import (
     CANONICAL_PROMPT_SPECS,
     PROMPT_NAMES,
     PromptSpec,
     get_prompt_spec,
 )
-from arifos.specs.resource_specs import (
+from arifosmcp.specs.resource_specs import (
     CANONICAL_RESOURCE_SPECS,
     RESOURCE_URIS,
     ResourceSpec,
     get_resource_spec,
 )
-from arifos.specs.tool_specs import (
+from arifosmcp.specs.tool_specs import (
     CANONICAL_TOOL_SPECS,
     TOOL_NAMES,
     ToolSpec,

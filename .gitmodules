@@ -1,0 +1,6 @@
+[submodule "organs/geox"]
+	path = organs/geox
+	url = git@github.com:ariffazil/geox.git
+[submodule "organs/wealth"]
+	path = organs/wealth
+	url = git@github.com:ariffazil/wealth.git

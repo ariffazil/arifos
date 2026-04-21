@@ -30,14 +30,14 @@ from typing import Any
 
 import numpy as np
 
-from arifos.geox.base_tool import (
+from arifosmcp.geox.base_tool import (
     BaseTool,
     GeoToolResult,
     _make_provenance,
     _make_quantity,
 )
-from arifos.geox.geox_schemas import CoordinatePoint
-from arifos.geox.seismic_attribute_taxonomy import (
+from arifosmcp.geox.geox_schemas import CoordinatePoint
+from arifosmcp.geox.seismic_attribute_taxonomy import (
     SEISMIC_ATTRIBUTES,
     get_governance_flags,
     is_high_contrast_risk,

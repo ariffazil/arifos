@@ -9,7 +9,7 @@ Modes: audit, probe, ping
 
 from __future__ import annotations
 
-from arifos.runtime.models import RuntimeEnvelope, RuntimeStatus, Verdict
+from arifosmcp.runtime.models import RuntimeEnvelope, RuntimeStatus, Verdict
 
 
 async def compat_probe(
@@ -26,7 +26,7 @@ async def compat_probe(
     - Authority ladder alignment (Identity vs Class)
     - Protocol signature parity
     """
-    from arifos.runtime.sessions import get_session_identity
+    from arifosmcp.runtime.sessions import get_session_identity
 
     # 1. Check Identity
     identity = get_session_identity(session_id) if session_id else None

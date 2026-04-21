@@ -1,6 +1,6 @@
 import pytest
 import numpy as np
-from arifos.geox.physics.petrophysics import archie_sw, simandoux_sw, indonesia_sw, monte_carlo_sw
+from arifosmcp.geox.physics.petrophysics import archie_sw, simandoux_sw, indonesia_sw, monte_carlo_sw
 
 def test_archie_sw():
     # Rw=0.1, Rt=10, phi=0.2, a=1, m=2, n=2

@@ -29,13 +29,13 @@ except ImportError:
     def get_run_logger():
         return logging.getLogger(__name__)
 
-from arifos.runtime.megaTools import (
+from arifosmcp.runtime.megaTools import (
     asi_heart,
     init_anchor,
     physics_reality,
     vault_ledger,
 )
-from arifos.runtime.models import RuntimeEnvelope, Verdict
+from arifosmcp.runtime.models import RuntimeEnvelope, Verdict
 
 logger = logging.getLogger(__name__)
 

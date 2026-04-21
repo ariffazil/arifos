@@ -397,7 +397,7 @@ def create_perception_mcp() -> FastMCP:
     ) -> dict[str, Any]:
         """Read from VAULT999 ledger via vault_postgres if available."""
         try:
-            from arifos.runtime.vault_postgres import PostgresVaultStore
+            from arifosmcp.runtime.vault_postgres import PostgresVaultStore
 
             vault = PostgresVaultStore()
             rows = vault.get_seals(
@@ -1130,7 +1130,7 @@ def create_execution_mcp() -> FastMCP:
         }
 
         try:
-            from arifos.runtime.vault_postgres import seal_to_vault
+            from arifosmcp.runtime.vault_postgres import seal_to_vault
 
             result = await seal_to_vault(**record)
             return {

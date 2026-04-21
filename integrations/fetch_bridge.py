@@ -13,9 +13,9 @@ from __future__ import annotations
 import logging
 import re
 
-from arifos.integrations.substrate_bridge import bridge
-from arifos.runtime.models import RiskClass, Verdict
-from arifos.runtime.models import RuntimeEnvelope as _RE
+from arifosmcp.integrations.substrate_bridge import bridge
+from arifosmcp.runtime.models import RiskClass, Verdict
+from arifosmcp.runtime.models import RuntimeEnvelope as _RE
 
 logger = logging.getLogger(__name__)
 

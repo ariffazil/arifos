@@ -8,12 +8,12 @@ rest of GEOX and the existing test suite.
 
 from __future__ import annotations
 
-from arifos.geox.governance.validator import (
+from arifosmcp.geox.governance.validator import (
     AggregateVerdict,
     ValidationResult,
     _parse_range,
 )
-from arifos.geox.governance.validator import (
+from arifosmcp.geox.governance.validator import (
     GeoXValidator as _GovernanceGeoXValidator,
 )
 

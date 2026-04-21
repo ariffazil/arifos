@@ -18,8 +18,8 @@ import functools
 from collections.abc import Callable
 from typing import Any, TypeVar
 
-from arifos.geox.schemas.continuity import ContinuityRecord, HardenedToolOutput
-from arifos.geox.geox_schemas import (
+from arifosmcp.geox.schemas.continuity import ContinuityRecord, HardenedToolOutput
+from arifosmcp.geox.geox_schemas import (
     ContrastMetadata,
     GeoxGovernance,
     GeoxUncertainty,

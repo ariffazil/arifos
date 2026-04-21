@@ -14,7 +14,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, Field, model_validator
 
-from arifos.geox.schemas.geox_schemas import ProvenanceRecord
+from arifosmcp.geox.schemas.geox_schemas import ProvenanceRecord
 
 
 class MineralVolume(BaseModel):

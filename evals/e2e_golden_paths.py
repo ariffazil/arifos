@@ -27,7 +27,7 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Any
 
-from arifos.runtime.models import Verdict
+from arifosmcp.runtime.models import Verdict
 
 logger = logging.getLogger(__name__)
 
@@ -150,7 +150,7 @@ class E2EGoldenPathRunner:
             steps.append({"step": "query_received", "query": query})
             
             # Step 2: MIND plans research
-            from arifos.runtime.tools import arifos_mind
+            from arifosmcp.runtime.tools import arifos_mind
             plan = await arifos_mind(
                 query=f"Research plan for: {query}",
                 mode="reason",
@@ -159,7 +159,7 @@ class E2EGoldenPathRunner:
             steps.append({"step": "mind_plan", "verdict": plan.verdict})
             
             # Step 3: Fetch bridge
-            from arifos.integrations.fetch_bridge import FetchBridge
+            from arifosmcp.integrations.fetch_bridge import FetchBridge
             fetcher = FetchBridge()
             fetch_result = await fetcher.fetch_guarded(
                 url="https://modelcontextprotocol.io",
@@ -185,7 +185,7 @@ class E2EGoldenPathRunner:
             steps.append({"step": "check_outputs", "has_evidence": has_evidence, "has_uncertainty": has_uncertainty})
             
             # Step 6: Vault entry
-            from arifos.runtime.tools import arifos_vault
+            from arifosmcp.runtime.tools import arifos_vault
             vault_result = await arifos_vault(
                 verdict=summary.verdict.value,
                 evidence=json.dumps({
@@ -244,7 +244,7 @@ class E2EGoldenPathRunner:
             steps.append({"step": "user_request", "request": request})
             
             # Step 2: Git read-only inspection
-            from arifos.integrations.git_bridge import GitBridge
+            from arifosmcp.integrations.git_bridge import GitBridge
             git = GitBridge()
             state = await git.get_repo_state(
                 repo_path="/usr/src/project",
@@ -265,7 +265,7 @@ class E2EGoldenPathRunner:
             mutation_blocked = not unratified_commit.ok or unratified_commit.verdict in [Verdict.HOLD, Verdict.VOID]
             
             # Step 4: Vault log
-            from arifos.runtime.tools import arifos_vault
+            from arifosmcp.runtime.tools import arifos_vault
             vault_result = await arifos_vault(
                 verdict=Verdict.SEAL.value if mutation_blocked else Verdict.VOID.value,
                 evidence=json.dumps({
@@ -319,7 +319,7 @@ class E2EGoldenPathRunner:
             steps.append({"step": "user_preference", "preference": preference})
             
             # Step 2: Store in memory
-            from arifos.integrations.memory_bridge import kg_upsert_entity
+            from arifosmcp.integrations.memory_bridge import kg_upsert_entity
             store_result, error = await kg_upsert_entity(
                 entity_id="user_preference_lang",
                 entity_type="UserPreference",
@@ -334,7 +334,7 @@ class E2EGoldenPathRunner:
                 raise Exception(f"Memory store failed: {error}")
             
             # Step 3: Later query to recall
-            from arifos.integrations.memory_bridge import kg_search
+            from arifosmcp.integrations.memory_bridge import kg_search
             recall_results, error = await kg_search("preferred language", limit=5)
             steps.append({"step": "memory_recall", "found": recall_results is not None, "error": error})
             
@@ -343,7 +343,7 @@ class E2EGoldenPathRunner:
             steps.append({"step": "verify_recall", "correct": correctly_recalled})
             
             # Step 5: Vault log
-            from arifos.runtime.tools import arifos_vault
+            from arifosmcp.runtime.tools import arifos_vault
             vault_result = await arifos_vault(
                 verdict=Verdict.SEAL.value if correctly_recalled else Verdict.VOID.value,
                 evidence=json.dumps({
@@ -397,7 +397,7 @@ class E2EGoldenPathRunner:
             steps.append({"step": "query", "query": query})
             
             # Step 2: Native sequential MIND
-            from arifos.runtime.thinking.session import ThinkingSessionManager
+            from arifosmcp.runtime.thinking.session import ThinkingSessionManager
             
             manager = ThinkingSessionManager()
             session = await manager.create_session(
@@ -436,7 +436,7 @@ class E2EGoldenPathRunner:
             steps.append({"step": "final_verdict", "session_verdict": final_session.constitutional_verdict})
             
             # Step 6: Vault log
-            from arifos.runtime.tools import arifos_vault
+            from arifosmcp.runtime.tools import arifos_vault
             vault_result = await arifos_vault(
                 verdict=final_session.constitutional_verdict,
                 evidence=json.dumps({
@@ -491,7 +491,7 @@ class E2EGoldenPathRunner:
             steps.append({"step": "boot", "status": "OK"})
             
             # Step 2: Initialize
-            from arifos.integrations.substrate_bridge import bridge
+            from arifosmcp.integrations.substrate_bridge import bridge
             steps.append({"step": "initialize", "bridge_initialized": True})
             
             # Step 3: Substrate health checks
@@ -525,7 +525,7 @@ class E2EGoldenPathRunner:
             steps.append({"step": "telemetry", "has_data": has_telemetry})
             
             # Step 6: Vault log
-            from arifos.runtime.tools import arifos_vault
+            from arifosmcp.runtime.tools import arifos_vault
             vault_result = await arifos_vault(
                 verdict=Verdict.SEAL.value if (substrate_healthy and all_tools_ok) else Verdict.VOID.value,
                 evidence=json.dumps({
@@ -593,7 +593,7 @@ class E2EGoldenPathRunner:
     def seal_to_vault(self, report: E2EReport):
         """Seal E2E report to VAULT999"""
         try:
-            from arifos.runtime.tools import arifos_vault
+            from arifosmcp.runtime.tools import arifos_vault
             
             evidence = {
                 "timestamp": report.timestamp,

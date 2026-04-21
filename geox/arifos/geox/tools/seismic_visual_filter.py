@@ -36,13 +36,13 @@ from typing import Any
 
 import numpy as np
 
-from arifos.geox.base_tool import (
+from arifosmcp.geox.base_tool import (
     BaseTool,
     GeoToolResult,
     _make_provenance,
     _make_quantity,
 )
-from arifos.geox.geox_schemas import CoordinatePoint
+from arifosmcp.geox.geox_schemas import CoordinatePoint
 
 logger = logging.getLogger("geox.tools.seismic_visual_filter")
 

@@ -82,7 +82,7 @@ async def a_architect_dispatch_impl(
         - refactor: Suggest refactoring for a system
         - decision: Make an architectural decision with trade-off analysis
     """
-    from arifos.runtime.tools_internal import RuntimeEnvelope, RuntimeStatus, Verdict
+    from arifosmcp.runtime.tools_internal import RuntimeEnvelope, RuntimeStatus, Verdict
     
     session_id = payload.get("session_id")
     query = payload.get("query", "")

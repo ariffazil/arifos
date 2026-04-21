@@ -75,7 +75,7 @@ def make_synthetic_seismic(h: int = 100, w: int = 200) -> np.ndarray:
 
 ```python
 # tests/tools/test_geox_output.py
-from arifos.geox.schemas.geox_output import GEOXOutput, GEOXUncertainty, GEOXContrastMeta, GEOXGovernance
+from arifosmcp.geox.schemas.geox_output import GEOXOutput, GEOXUncertainty, GEOXContrastMeta, GEOXGovernance
 
 def test_geox_output_minimal():
     out = GEOXOutput(
@@ -217,7 +217,7 @@ git commit -m "feat(geox): add GEOXOutput common envelope — Band-A foundation"
 ```python
 # tests/tools/test_structural_interp_schemas.py
 import pytest
-from arifos.geox.schemas.structural_interp import (
+from arifosmcp.geox.schemas.structural_interp import (
     SeismicImageInput, SeismicView, Lineament, Discontinuity, DipVector,
     FeatureSet, StructuralCandidate, InterpretationResult,
 )
@@ -413,8 +413,8 @@ git commit -m "feat(geox): add structural interpretation schemas (Band-A)"
 # tests/tools/test_seismic_image_ingest.py
 import numpy as np
 import pytest
-from arifos.geox.tools.seismic_image_ingest import load_seismic_image, ingest_seismic_image
-from arifos.geox.schemas.geox_output import GEOXOutput
+from arifosmcp.geox.tools.seismic_image_ingest import load_seismic_image, ingest_seismic_image
+from arifosmcp.geox.schemas.geox_output import GEOXOutput
 
 def make_synthetic_seismic(h=100, w=200):
     rng = np.random.default_rng(42)
@@ -486,10 +486,10 @@ from typing import Any
 
 import numpy as np
 
-from arifos.geox.schemas.geox_output import (
+from arifosmcp.geox.schemas.geox_output import (
     GEOXOutput, GEOXUncertainty, GEOXContrastMeta, GEOXGovernance,
 )
-from arifos.geox.schemas.structural_interp import SeismicImageInput
+from arifosmcp.geox.schemas.structural_interp import SeismicImageInput
 
 
 def load_seismic_image(
@@ -630,9 +630,9 @@ git commit -m "feat(geox): Stage 1 seismic image ingest (Band-A)"
 # tests/tools/test_seismic_contrast_views.py
 import numpy as np
 import pytest
-from arifos.geox.tools.seismic_contrast_views import generate_contrast_views, contrast_views_output
-from arifos.geox.schemas.structural_interp import SeismicView
-from arifos.geox.schemas.geox_output import GEOXOutput
+from arifosmcp.geox.tools.seismic_contrast_views import generate_contrast_views, contrast_views_output
+from arifosmcp.geox.schemas.structural_interp import SeismicView
+from arifosmcp.geox.schemas.geox_output import GEOXOutput
 
 def make_synthetic_seismic(h=100, w=200):
     rng = np.random.default_rng(42)
@@ -701,11 +701,11 @@ from __future__ import annotations
 
 import numpy as np
 
-from arifos.geox.schemas.geox_output import (
+from arifosmcp.geox.schemas.geox_output import (
     GEOXOutput, GEOXUncertainty, GEOXContrastMeta, GEOXGovernance,
 )
-from arifos.geox.schemas.structural_interp import SeismicView
-from arifos.geox.tools.seismic_visual_filter import (
+from arifosmcp.geox.schemas.structural_interp import SeismicView
+from arifosmcp.geox.tools.seismic_visual_filter import (
     _gaussian_filter,
     _clahe_filter,
     _sobel_filter,
@@ -864,9 +864,9 @@ git commit -m "feat(geox): Stage 2 contrast view generation — 6 variants with 
 ```python
 # tests/tools/test_seismic_feature_extract.py
 import numpy as np
-from arifos.geox.tools.seismic_feature_extract import extract_features, feature_extract_output
-from arifos.geox.schemas.structural_interp import FeatureSet
-from arifos.geox.schemas.geox_output import GEOXOutput
+from arifosmcp.geox.tools.seismic_feature_extract import extract_features, feature_extract_output
+from arifosmcp.geox.schemas.structural_interp import FeatureSet
+from arifosmcp.geox.schemas.geox_output import GEOXOutput
 
 def make_synthetic_seismic(h=100, w=200):
     rng = np.random.default_rng(42)
@@ -938,13 +938,13 @@ from __future__ import annotations
 
 import numpy as np
 
-from arifos.geox.schemas.geox_output import (
+from arifosmcp.geox.schemas.geox_output import (
     GEOXOutput, GEOXUncertainty, GEOXContrastMeta, GEOXGovernance,
 )
-from arifos.geox.schemas.structural_interp import (
+from arifosmcp.geox.schemas.structural_interp import (
     FeatureSet, Lineament, Discontinuity, DipVector,
 )
-from arifos.geox.tools.seismic_visual_filter import (
+from arifosmcp.geox.tools.seismic_visual_filter import (
     _gaussian_filter, _canny_filter, _convolve2d,
 )
 
@@ -1088,10 +1088,10 @@ git commit -m "feat(geox): Stage 3 image feature extraction — lineaments, disc
 # tests/tools/test_seismic_structure_rules.py
 import numpy as np
 import pytest
-from arifos.geox.tools.seismic_structure_rules import (
+from arifosmcp.geox.tools.seismic_structure_rules import (
     score_candidate, build_candidate, FAMILY_TEMPLATES, ALL_FAMILIES,
 )
-from arifos.geox.schemas.structural_interp import (
+from arifosmcp.geox.schemas.structural_interp import (
     StructuralCandidate, FeatureSet, Lineament, Discontinuity,
 )
 
@@ -1166,7 +1166,7 @@ F9 (no hallucinated geology — rules require evidence, not assumptions).
 """
 from __future__ import annotations
 
-from arifos.geox.schemas.structural_interp import FeatureSet, StructuralCandidate
+from arifosmcp.geox.schemas.structural_interp import FeatureSet, StructuralCandidate
 
 FAMILY_TEMPLATES: dict[str, dict] = {
     "normal_fault": {
@@ -1360,12 +1360,12 @@ git commit -m "feat(geox): Stage 5 geological rule engine — Bond-aware candida
 ```python
 # tests/tools/test_seismic_candidate_ranker.py
 import numpy as np
-from arifos.geox.tools.seismic_candidate_ranker import (
+from arifosmcp.geox.tools.seismic_candidate_ranker import (
     build_candidates_from_features, rank_candidates, build_interpretation_result,
 )
-from arifos.geox.tools.seismic_feature_extract import extract_features
-from arifos.geox.schemas.structural_interp import InterpretationResult
-from arifos.geox.tools.seismic_structure_rules import ALL_FAMILIES
+from arifosmcp.geox.tools.seismic_feature_extract import extract_features
+from arifosmcp.geox.schemas.structural_interp import InterpretationResult
+from arifosmcp.geox.tools.seismic_structure_rules import ALL_FAMILIES
 
 def make_synthetic_seismic(h=100, w=200):
     rng = np.random.default_rng(42)
@@ -1442,8 +1442,8 @@ warn that multiple hypotheses must be maintained.
 """
 from __future__ import annotations
 
-from arifos.geox.schemas.structural_interp import FeatureSet, StructuralCandidate, InterpretationResult
-from arifos.geox.tools.seismic_structure_rules import (
+from arifosmcp.geox.schemas.structural_interp import FeatureSet, StructuralCandidate, InterpretationResult
+from arifosmcp.geox.tools.seismic_structure_rules import (
     ALL_FAMILIES, build_candidate, FAMILY_TEMPLATES,
 )
 
@@ -1610,12 +1610,12 @@ git commit -m "feat(geox): Stages 4+6 candidate builder and ranker — Bond-bias
 ```python
 # tests/tools/test_seismic_report_writer.py
 import numpy as np
-from arifos.geox.tools.seismic_report_writer import write_markdown_report, write_json_result
-from arifos.geox.tools.seismic_feature_extract import extract_features
-from arifos.geox.tools.seismic_candidate_ranker import (
+from arifosmcp.geox.tools.seismic_report_writer import write_markdown_report, write_json_result
+from arifosmcp.geox.tools.seismic_feature_extract import extract_features
+from arifosmcp.geox.tools.seismic_candidate_ranker import (
     build_candidates_from_features, rank_candidates, build_interpretation_result,
 )
-from arifos.geox.schemas.structural_interp import SeismicImageInput
+from arifosmcp.geox.schemas.structural_interp import SeismicImageInput
 
 def make_result():
     rng = np.random.default_rng(42)
@@ -1681,7 +1681,7 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from pathlib import Path
 
-from arifos.geox.schemas.structural_interp import InterpretationResult, SeismicImageInput
+from arifosmcp.geox.schemas.structural_interp import InterpretationResult, SeismicImageInput
 
 
 def write_markdown_report(
@@ -1800,14 +1800,14 @@ import json
 import numpy as np
 import pytest
 
-from arifos.geox.tools.seismic_image_ingest import load_seismic_image, ingest_seismic_image
-from arifos.geox.tools.seismic_contrast_views import generate_contrast_views, contrast_views_output
-from arifos.geox.tools.seismic_feature_extract import extract_features
-from arifos.geox.tools.seismic_candidate_ranker import (
+from arifosmcp.geox.tools.seismic_image_ingest import load_seismic_image, ingest_seismic_image
+from arifosmcp.geox.tools.seismic_contrast_views import generate_contrast_views, contrast_views_output
+from arifosmcp.geox.tools.seismic_feature_extract import extract_features
+from arifosmcp.geox.tools.seismic_candidate_ranker import (
     build_candidates_from_features, rank_candidates, build_interpretation_result,
 )
-from arifos.geox.tools.seismic_report_writer import write_markdown_report, write_json_result
-from arifos.geox.schemas.structural_interp import SeismicImageInput
+from arifosmcp.geox.tools.seismic_report_writer import write_markdown_report, write_json_result
+from arifosmcp.geox.schemas.structural_interp import SeismicImageInput
 
 
 def make_bond_synthetic(h=100, w=200) -> np.ndarray:

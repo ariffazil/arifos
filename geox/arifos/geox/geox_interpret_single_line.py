@@ -50,19 +50,19 @@ from typing import Any
 
 import numpy as np
 
-from arifos.geox.base_tool import BaseTool, GeoToolResult, _make_provenance
-from arifos.geox.geox_mcp_schemas import (
+from arifosmcp.geox.base_tool import BaseTool, GeoToolResult, _make_provenance
+from arifosmcp.geox.geox_mcp_schemas import (
     GEOXConceptualBias,
     GEOXInterpretationResult,
     ImageSourceType,
     Line2DVerdict,
     TimeDepthDomain,
 )
-from arifos.geox.seismic_candidate_ranker import build_structural_models
-from arifos.geox.seismic_contrast_views import generate_contrast_views
-from arifos.geox.seismic_feature_extract import extract_features
-from arifos.geox.seismic_image_ingest import ingest_seismic_array
-from arifos.geox.seismic_structure_rules import generate_structural_candidates
+from arifosmcp.geox.seismic_candidate_ranker import build_structural_models
+from arifosmcp.geox.seismic_contrast_views import generate_contrast_views
+from arifosmcp.geox.seismic_feature_extract import extract_features
+from arifosmcp.geox.seismic_image_ingest import ingest_seismic_array
+from arifosmcp.geox.seismic_structure_rules import generate_structural_candidates
 
 BOND_REFERENCE = (
     "Bond, C. E., Gibbs, A. D., Shipton, Z. K., & Jones, S. (2007). "

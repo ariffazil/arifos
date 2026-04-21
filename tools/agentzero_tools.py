@@ -21,18 +21,18 @@ from typing import Any
 
 from fastmcp import Context
 
-from arifos.agentzero.agents.base import FloorScore
-from arifos.agentzero.agents.base import Verdict as AZVerdict
+from arifosmcp.agentzero.agents.base import FloorScore
+from arifosmcp.agentzero.agents.base import Verdict as AZVerdict
 
 # AgentZero Components
-from arifos.agentzero.agents.engineer import EngineerAgent
-from arifos.agentzero.agents.validator import ValidatorAgent
-from arifos.agentzero.escalation.hold_state import HoldStateManager
-from arifos.agentzero.memory.constitutional_memory import ConstitutionalMemoryStore
-from arifos.agentzero.security.prompt_armor import PromptArmor
+from arifosmcp.agentzero.agents.engineer import EngineerAgent
+from arifosmcp.agentzero.agents.validator import ValidatorAgent
+from arifosmcp.agentzero.escalation.hold_state import HoldStateManager
+from arifosmcp.agentzero.memory.constitutional_memory import ConstitutionalMemoryStore
+from arifosmcp.agentzero.security.prompt_armor import PromptArmor
 
 # arifOS runtime models
-from arifos.runtime.models import (
+from arifosmcp.runtime.models import (
     CallerContext,
     RuntimeEnvelope,
     RuntimeStatus,

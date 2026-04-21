@@ -92,7 +92,7 @@ class MockVerdictDetail:
 
 def test_chatgpt_apps_has_tool_field():
     """chatgpt_apps platform must include 'tool' field."""
-    from arifos.runtime.output_formatter import format_output
+    from arifosmcp.runtime.output_formatter import format_output
 
     envelope = MockEnvelope(tool="arifos_init")
     envelope.platform_context = "chatgpt_apps"
@@ -106,7 +106,7 @@ def test_chatgpt_apps_has_tool_field():
 
 def test_chatgpt_apps_has_status_field():
     """chatgpt_apps platform must include 'status' field."""
-    from arifos.runtime.output_formatter import format_output
+    from arifosmcp.runtime.output_formatter import format_output
 
     envelope = MockEnvelope(tool="arifos_init", ok=True)
     envelope.platform_context = "chatgpt_apps"
@@ -119,7 +119,7 @@ def test_chatgpt_apps_has_status_field():
 
 def test_all_required_fields_present():
     """All platforms must emit tool, stage, status, result."""
-    from arifos.runtime.output_formatter import format_output
+    from arifosmcp.runtime.output_formatter import format_output
 
     required = ["tool", "stage", "status", "result"]
 
@@ -137,7 +137,7 @@ def test_all_required_fields_present():
 
 def test_tool_field_fallback():
     """tool field should use canonical_tool_name, then tool, then 'unknown'."""
-    from arifos.runtime.output_formatter import format_output
+    from arifosmcp.runtime.output_formatter import format_output
 
     envelope = MockEnvelope(tool="arifos_init")
     envelope.canonical_tool_name = None

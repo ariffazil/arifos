@@ -11,7 +11,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from arifos.runtime.models import RuntimeEnvelope, RuntimeStatus, Verdict
+from arifosmcp.runtime.models import RuntimeEnvelope, RuntimeStatus, Verdict
 from fastmcp import Context  # Context injected by framework; None if called outside MCP
 
 
@@ -27,7 +27,7 @@ async def apex_judge(
     debug: bool = False,
     ctx: Any | None = None,
 ) -> RuntimeEnvelope:
-    from arifos.runtime.tools_hardened_dispatch import HARDENED_DISPATCH_MAP
+    from arifosmcp.runtime.tools_hardened_dispatch import HARDENED_DISPATCH_MAP
 
     resolved_payload = dict(payload or {})
     if proposal:
@@ -90,7 +90,7 @@ async def apex_judge(
         return res
 
     # Fallback if dispatcher missing
-    from arifos.runtime.tools_internal import apex_judge_dispatch_impl
+    from arifosmcp.runtime.tools_internal import apex_judge_dispatch_impl
 
     return await apex_judge_dispatch_impl(
         mode=mode,

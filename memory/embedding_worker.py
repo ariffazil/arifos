@@ -6,8 +6,8 @@ from .types import EmbeddingStatus
 
 # Placeholder for real clients
 try:
-    from arifos.core.intelligence.ollama import ollama_client
-    from arifos.core.infrastructure.qdrant import qdrant_client
+    from arifosmcp.core.intelligence.ollama import ollama_client
+    from arifosmcp.core.infrastructure.qdrant import qdrant_client
 except ImportError:
     ollama_client = None
     qdrant_client = None

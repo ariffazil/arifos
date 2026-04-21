@@ -12,7 +12,7 @@ import statistics
 from datetime import datetime
 from typing import Any
 
-from arifos.geox.schemas.petrophysics.measurements import (
+from arifosmcp.geox.schemas.petrophysics.measurements import (
     LogBundle, WellLogCurve, QCReport, CurveQC
 )
 
@@ -39,7 +39,7 @@ async def generate_qc_report(well_id: str, bundle: LogBundle | None = None) -> Q
         well_id: Well identifier
         bundle: Optional pre-loaded bundle
     """
-    from arifos.geox.tools.petrophysics.log_bundle_loader import load_bundle_from_store
+    from arifosmcp.geox.tools.petrophysics.log_bundle_loader import load_bundle_from_store
     
     if bundle is None:
         bundle = await load_bundle_from_store(well_id)

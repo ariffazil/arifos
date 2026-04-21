@@ -15,8 +15,8 @@ from abc import ABC, abstractmethod
 
 from pydantic import BaseModel
 
-from arifos.abi.v1_0 import get_request_schema, get_response_schema
-from arifos.runtime.models import RuntimeEnvelope, RuntimeStatus, Verdict
+from arifosmcp.abi.v1_0 import get_request_schema, get_response_schema
+from arifosmcp.runtime.models import RuntimeEnvelope, RuntimeStatus, Verdict
 
 
 class FloorResult:

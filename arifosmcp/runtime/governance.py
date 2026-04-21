@@ -22,7 +22,7 @@ from arifosmcp.runtime.state import IDENTITY_MANAGER, MetabolicState
 _emit_vitality = None
 _VITALITY_LEDGER_DIR: Optional[str] = None
 try:
-    from arifOS_mcp.tools.arifos.tool_vitality import (
+    from arifosmcp_mcp.tools.arifos.tool_vitality import (
         emit_vitality as _emit_vitality_fn,
         GovernanceMetrics as _VitalityGovMetrics,
         PerformanceMetrics as _VitalityPerfMetrics,

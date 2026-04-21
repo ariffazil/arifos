@@ -22,7 +22,7 @@ import logging
 import os
 from typing import Any
 
-from arifos.runtime.memory_policy import enforce_memory_policy
+from arifosmcp.runtime.memory_policy import enforce_memory_policy
 
 logger = logging.getLogger(__name__)
 

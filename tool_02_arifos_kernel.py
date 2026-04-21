@@ -14,7 +14,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from arifos.runtime.models import RuntimeEnvelope
+from arifosmcp.runtime.models import RuntimeEnvelope
 
 
 async def arifos_kernel(
@@ -46,8 +46,8 @@ async def arifos_kernel(
     Maintains backward compatibility with existing call signatures.
     """
     # Use unified KERNEL rCore
-    from arifos.runtime.kernel_core import kernel_execute
-    from arifos.runtime.models import Stage
+    from arifosmcp.runtime.kernel_core import kernel_execute
+    from arifosmcp.runtime.models import Stage
 
     # Normalize inputs for kernel_core
     if raw_input and not query:

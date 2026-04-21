@@ -26,14 +26,14 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import Any, Literal
 
-from arifos.geox.geox_schemas import (
+from arifosmcp.geox.geox_schemas import (
     CoordinatePoint,
     GeoInsight,
     GeoPrediction,
     GeoQuantity,
     ProvenanceRecord,
 )
-from arifos.geox.geox_tools import BaseTool, GeoToolResult
+from arifosmcp.geox.geox_tools import BaseTool, GeoToolResult
 
 # ---------------------------------------------------------------------------
 # ValidationResult

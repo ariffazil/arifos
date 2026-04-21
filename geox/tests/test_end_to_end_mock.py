@@ -21,19 +21,19 @@ from datetime import datetime
 import pytest
 import pytest_asyncio
 
-from arifos.geox.geox_schemas import (
+from arifosmcp.geox.geox_schemas import (
     CoordinatePoint,
     GeoInsight,
     GeoRequest,
     GeoResponse,
 )
-from arifos.geox.geox_agent import GeoXAgent, GeoXConfig
-from arifos.geox.geox_memory import GeoMemoryStore, GeoMemoryEntry
-from arifos.geox.geox_reporter import GeoXReporter
-from arifos.geox.geox_validator import GeoXValidator
-from arifos.geox.geox_tools import ToolRegistry
-from arifos.geox.examples.mock_tools.mock_earthnet import MockEarthNetTool
-from arifos.geox.examples.mock_tools.mock_vlm import MockSeismicVLMTool
+from arifosmcp.geox.geox_agent import GeoXAgent, GeoXConfig
+from arifosmcp.geox.geox_memory import GeoMemoryStore, GeoMemoryEntry
+from arifosmcp.geox.geox_reporter import GeoXReporter
+from arifosmcp.geox.geox_validator import GeoXValidator
+from arifosmcp.geox.geox_tools import ToolRegistry
+from arifosmcp.geox.examples.mock_tools.mock_earthnet import MockEarthNetTool
+from arifosmcp.geox.examples.mock_tools.mock_vlm import MockSeismicVLMTool
 
 
 # ---------------------------------------------------------------------------
@@ -520,7 +520,7 @@ async def test_void_verdict_triggers_human_hold():
     A response with VOID verdict must have human_signoff_required=True
     and hold='888 HOLD' in telemetry.
     """
-    from arifos.geox.geox_schemas import GeoInsight, GeoResponse
+    from arifosmcp.geox.geox_schemas import GeoInsight, GeoResponse
 
     # Build a mock VOID response manually
     insight = GeoInsight(

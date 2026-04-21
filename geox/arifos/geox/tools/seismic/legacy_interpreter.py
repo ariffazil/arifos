@@ -36,8 +36,8 @@ from typing import Any, Literal
 
 import numpy as np
 
-from arifos.geox.base_tool import BaseTool, GeoToolResult, _make_provenance
-from arifos.geox.geox_schemas import (
+from arifosmcp.geox.base_tool import BaseTool, GeoToolResult, _make_provenance
+from arifosmcp.geox.geox_schemas import (
     AttributeStack,
     AttributeVolume,
     ContrastMetadata,

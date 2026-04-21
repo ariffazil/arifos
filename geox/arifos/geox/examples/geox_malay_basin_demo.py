@@ -51,12 +51,12 @@ if _pkg_root not in sys.path:
 
 from datetime import datetime, timezone
 
-from arifos.geox.geox_agent import GeoXAgent, GeoXConfig
-from arifos.geox.geox_memory import GeoMemoryStore
-from arifos.geox.geox_reporter import GeoXReporter
-from arifos.geox.geox_schemas import CoordinatePoint, GeoRequest
-from arifos.geox.geox_tools import ToolRegistry
-from arifos.geox.geox_validator import GeoXValidator
+from arifosmcp.geox.geox_agent import GeoXAgent, GeoXConfig
+from arifosmcp.geox.geox_memory import GeoMemoryStore
+from arifosmcp.geox.geox_reporter import GeoXReporter
+from arifosmcp.geox.geox_schemas import CoordinatePoint, GeoRequest
+from arifosmcp.geox.geox_tools import ToolRegistry
+from arifosmcp.geox.geox_validator import GeoXValidator
 
 # Import mock tools
 sys.path.insert(0, os.path.join(_demo_dir, "mock_tools"))

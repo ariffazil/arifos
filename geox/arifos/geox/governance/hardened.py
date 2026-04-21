@@ -16,8 +16,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from arifos.geox.geox_tools import GeoToolResult, ToolRegistry
-from arifos.geox.governance import calculate_indices, get_verdict_advice
+from arifosmcp.geox.geox_tools import GeoToolResult, ToolRegistry
+from arifosmcp.geox.governance import calculate_indices, get_verdict_advice
 
 
 def _candidate_arifos_paths() -> list[Path]:

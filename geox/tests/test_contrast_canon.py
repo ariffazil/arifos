@@ -13,19 +13,19 @@ import pytest
 import asyncio
 from datetime import datetime, timezone
 
-from arifos.geox.geox_schemas import (
+from arifosmcp.geox.geox_schemas import (
     ContrastMetadata,
     AttributeVolume,
     AttributeStack,
     ProvenanceRecord,
     CoordinatePoint,
 )
-from arifos.geox.contrast_wrapper import (
+from arifosmcp.geox.contrast_wrapper import (
     contrast_governed,
     compute_contrast_verdict,
     _generate_anomalous_risk,
 )
-from arifos.geox.geox_tools import SeismicAttributesTool, ToolRegistry
+from arifosmcp.geox.geox_tools import SeismicAttributesTool, ToolRegistry
 
 
 # -----------------------------------------------------------------------------

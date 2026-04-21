@@ -11,9 +11,9 @@ import sys
 
 import yaml
 
-from arifos.geox.geox_agent import GeoXAgent, GeoXConfig
-from arifos.geox.geox_init import verify_and_exit_if_void
-from arifos.geox.geox_schemas import CoordinatePoint, GeoRequest
+from arifosmcp.geox.geox_agent import GeoXAgent, GeoXConfig
+from arifosmcp.geox.geox_init import verify_and_exit_if_void
+from arifosmcp.geox.geox_schemas import CoordinatePoint, GeoRequest
 
 
 def main():

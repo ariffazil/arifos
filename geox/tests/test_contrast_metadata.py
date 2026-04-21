@@ -15,7 +15,7 @@ from __future__ import annotations
 
 import pytest
 
-from arifos.geox.tools.contrast_metadata import (
+from arifosmcp.geox.tools.contrast_metadata import (
     ConfidenceClass,
     ContrastMetadata,
     ContrastSourceDomain,

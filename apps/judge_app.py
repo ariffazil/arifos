@@ -37,7 +37,7 @@ from typing import Annotated, Any
 from fastmcp import FastMCP
 from fastmcp.tools import ToolResult
 
-from arifos.apps.surface_utils import envelope_error, normalize_state, safe_get
+from arifosmcp.apps.surface_utils import envelope_error, normalize_state, safe_get
 from prefab_ui.actions import SetState, ShowToast
 from prefab_ui.actions.mcp import CallTool
 from prefab_ui.app import PrefabApp
@@ -193,7 +193,7 @@ async def execute_judge(
     """
     logger.info(f"execute_judge called: session_id={session_id}, state_type={type(STATE).__name__}")
     try:
-        from arifos.runtime.tools import arifos_judge
+        from arifosmcp.runtime.tools import arifos_judge
 
         if not session_id:
             session_id = safe_get(STATE, "session_id")
@@ -248,7 +248,7 @@ async def execute_judge(
         # Philosophy selection — fully wired to unified wisdom registry (from forge-ssct-sync)
         philosophy = _PHILOSOPHY.get(verdict, _PHILOSOPHY["pending"])
         try:
-            from arifos.runtime.philosophy import select_wisdom_quote
+            from arifosmcp.runtime.philosophy import select_wisdom_quote
             _verdict_profile = {
                 "SEAL": {"surface": "judge", "tone": "firm", "shadow_profile": None},
                 "HOLD": {"surface": "hold", "tone": "severe", "shadow_profile": "restraint"},

@@ -16,7 +16,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from arifos.geox.renderers.primitives import (
+from arifosmcp.geox.renderers.primitives import (
     BoundingBox,
     LegendEntry,
     LegendPrimitive,

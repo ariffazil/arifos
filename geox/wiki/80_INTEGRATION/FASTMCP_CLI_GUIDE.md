@@ -95,7 +95,7 @@ fastmcp run arifos.geox.tools.adapters.fastmcp_adapter:create_server \
 **Python API:**
 
 ```python
-from arifos.geox.tools.adapters.fastmcp_adapter import create_server
+from arifosmcp.geox.tools.adapters.fastmcp_adapter import create_server
 
 # Create configured server
 mcp = create_server(

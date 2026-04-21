@@ -30,7 +30,7 @@ import uuid
 from typing import Any, Literal
 
 from pydantic import BaseModel, Field, field_validator, model_validator
-from arifos.geox.THEORY.contrast_taxonomy import ClaimTag
+from arifosmcp.geox.THEORY.contrast_taxonomy import ClaimTag
 
 
 # ─────────────────────────────────────────────────────────────────────────────

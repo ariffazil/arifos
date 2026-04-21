@@ -29,8 +29,8 @@ from __future__ import annotations
 
 from typing import Any
 
-from arifos.runtime.models import RuntimeEnvelope
-from arifos.runtime.tools_internal import physics_reality_dispatch_impl
+from arifosmcp.runtime.models import RuntimeEnvelope
+from arifosmcp.runtime.tools_internal import physics_reality_dispatch_impl
 
 
 async def physics_reality(
@@ -53,7 +53,7 @@ async def physics_reality(
     raw_input: str | None = None,
     ctx: Any | None = None,
 ) -> RuntimeEnvelope:
-    from arifos.runtime.tools_hardened_dispatch import HARDENED_DISPATCH_MAP
+    from arifosmcp.runtime.tools_hardened_dispatch import HARDENED_DISPATCH_MAP
 
     # ═══════════════════════════════════════════════════════════════════════
     # PATCH (2026-04-06): Validate query to prevent empty string collapse
@@ -61,7 +61,7 @@ async def physics_reality(
     # ═══════════════════════════════════════════════════════════════════════
     effective_query = query or raw_input or (payload.get("query") if payload else None)
     if not effective_query or str(effective_query).strip() == "":
-        from arifos.runtime.models import RuntimeEnvelope, RuntimeStatus, Verdict
+        from arifosmcp.runtime.models import RuntimeEnvelope, RuntimeStatus, Verdict
 
         return RuntimeEnvelope(
             tool="arifos_sense",
@@ -102,8 +102,8 @@ async def physics_reality(
         res_dict = await HARDENED_DISPATCH_MAP["physics_reality"](mode=mode, payload=payload)
 
         # ─── V1.0 VERDICT FORGING ───
-        from arifos.runtime.models import CanonicalMetrics
-        from arifos.runtime.verdict_wrapper import forge_verdict
+        from arifosmcp.runtime.models import CanonicalMetrics
+        from arifosmcp.runtime.verdict_wrapper import forge_verdict
 
         metrics = CanonicalMetrics()
         metrics.telemetry.ds = res_dict.get("metrics", {}).get("telemetry", {}).get("ds", 0.0)

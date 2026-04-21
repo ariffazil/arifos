@@ -36,7 +36,7 @@ from typing import Annotated, Any
 
 from fastmcp import FastMCP
 
-from arifos.apps.surface_utils import envelope_error, envelope_pause, normalize_state, safe_get
+from arifosmcp.apps.surface_utils import envelope_error, envelope_pause, normalize_state, safe_get
 
 logger = logging.getLogger(__name__)
 from prefab_ui.actions import SetState, ShowToast
@@ -89,7 +89,7 @@ async def forge_judge_check(
         f"forge_judge_check called: session_id={session_id}, state_type={type(STATE).__name__}"
     )
     try:
-        from arifos.runtime.tools import arifos_judge
+        from arifosmcp.runtime.tools import arifos_judge
 
         if not session_id:
             session_id = safe_get(STATE, "session_id")
@@ -109,7 +109,7 @@ async def forge_judge_check(
 
         # ── Wisdom quote for judge gate ──────────────────────────────────────
         try:
-            from arifos.runtime.philosophy import select_wisdom_quote
+            from arifosmcp.runtime.philosophy import select_wisdom_quote
 
             _wisdom = select_wisdom_quote("judge")
         except Exception:
@@ -152,7 +152,7 @@ async def forge_execute(
     """
     logger.info(f"forge_execute called: session_id={session_id}, state_type={type(STATE).__name__}")
     try:
-        from arifos.runtime.tools import get_tool_handler
+        from arifosmcp.runtime.tools import get_tool_handler
 
         if not session_id:
             session_id = safe_get(STATE, "session_id")
@@ -204,7 +204,7 @@ async def forge_execute(
         if hasattr(verdict, "value"):
             verdict = verdict.value
         try:
-            from arifos.runtime.philosophy import select_wisdom_quote
+            from arifosmcp.runtime.philosophy import select_wisdom_quote
 
             _wisdom = select_wisdom_quote("forge")
         except Exception:
@@ -319,7 +319,7 @@ def forge_surface(
 
         # ── Wisdom strip ─────────────────────────────────────────────────────
         try:
-            from arifos.runtime.philosophy import select_wisdom_quote
+            from arifosmcp.runtime.philosophy import select_wisdom_quote
 
             _wisdom = select_wisdom_quote("forge")
             if _wisdom and _wisdom.get("quote"):

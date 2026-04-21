@@ -253,7 +253,7 @@ python -m arifos.evals.sequential_thinking_runner --set SET-E
 
 # Run specific eval case
 python -c "
-from arifos.evals.sequential_thinking_runner import SequentialThinkingEvaluator
+from arifosmcp.evals.sequential_thinking_runner import SequentialThinkingEvaluator
 import asyncio
 
 evaluator = SequentialThinkingEvaluator()

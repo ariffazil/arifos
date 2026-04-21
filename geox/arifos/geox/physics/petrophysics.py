@@ -20,7 +20,7 @@ from typing import Any, Literal
 
 import numpy as np
 
-from arifos.geox.schemas.petrophysics_schemas import (
+from arifosmcp.geox.schemas.petrophysics_schemas import (
     LogQCFlags,
     SwModelAdmissibility,
     PetrophysicsInput,

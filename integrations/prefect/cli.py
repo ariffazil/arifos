@@ -21,7 +21,7 @@ except ImportError:
     Parameter = None
     ExistingPath = None
 
-from arifos.runtime.megaTools import (
+from arifosmcp.runtime.megaTools import (
     agi_mind,
     apex_soul,
     arifos_kernel,
@@ -31,8 +31,8 @@ from arifos.runtime.megaTools import (
     physics_reality,
     vault_ledger,
 )
-from arifos.runtime.models import Verdict
-from arifos.runtime.public_registry import public_tool_names
+from arifosmcp.runtime.models import Verdict
+from arifosmcp.runtime.public_registry import public_tool_names
 
 logger = logging.getLogger(__name__)
 

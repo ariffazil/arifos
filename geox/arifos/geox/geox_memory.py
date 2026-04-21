@@ -24,7 +24,7 @@ from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
 from typing import Any
 
-from arifos.geox.geox_schemas import CoordinatePoint, GeoRequest, GeoResponse
+from arifosmcp.geox.geox_schemas import CoordinatePoint, GeoRequest, GeoResponse
 
 logger = logging.getLogger("geox.memory")
 
@@ -530,7 +530,7 @@ class DualMemoryStore:
         """Fetch discrete geological facts from Macrostrat."""
         if not self._macrostrat:
             try:
-                from arifos.geox.tools.macrostrat_tool import MacrostratTool
+                from arifosmcp.geox.tools.macrostrat_tool import MacrostratTool
                 self._macrostrat = MacrostratTool()
             except ImportError:
                 return [{"error": "MacrostratTool unavailable", "status": "VOID"}]

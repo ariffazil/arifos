@@ -14,7 +14,7 @@ from datetime import datetime, timezone
 import pytest
 from pydantic import ValidationError
 
-from arifos.geox.geox_schemas import (
+from arifosmcp.geox.geox_schemas import (
     CoordinatePoint,
     GeoPrediction,
     GeoInsight,

@@ -1,0 +1,8 @@
+[project]
+name = "well-mcp"
+version = "1.0.0"
+description = "WELL — Human Substrate Governance Layer MCP Server"
+requires-python = ">=3.12"
+dependencies = [
+    "fastmcp>=2.0",
+]

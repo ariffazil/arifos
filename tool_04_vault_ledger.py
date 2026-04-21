@@ -11,8 +11,8 @@ from __future__ import annotations
 
 from typing import Any
 
-from arifos.runtime.models import RuntimeEnvelope
-from arifos.runtime.tools_internal import vault_ledger_dispatch_impl
+from arifosmcp.runtime.models import RuntimeEnvelope
+from arifosmcp.runtime.tools_internal import vault_ledger_dispatch_impl
 
 
 async def vault_ledger(
@@ -35,7 +35,7 @@ async def vault_ledger(
     raw_input: str | None = None,
     ctx: Any | None = None,
 ) -> RuntimeEnvelope:
-    from arifos.runtime.tools_hardened_dispatch import HARDENED_DISPATCH_MAP
+    from arifosmcp.runtime.tools_hardened_dispatch import HARDENED_DISPATCH_MAP
 
     payload = dict(payload or {})
     if raw_input:
@@ -61,8 +61,8 @@ async def vault_ledger(
         res_dict = await HARDENED_DISPATCH_MAP["vault_ledger"](mode=mode, payload=payload)
 
         # ─── V1.0 VERDICT FORGING ───
-        from arifos.runtime.models import CanonicalMetrics
-        from arifos.runtime.verdict_wrapper import forge_verdict
+        from arifosmcp.runtime.models import CanonicalMetrics
+        from arifosmcp.runtime.verdict_wrapper import forge_verdict
 
         # Normalize: RuntimeEnvelope (pydantic) → dict
         if hasattr(res_dict, "model_dump"):
