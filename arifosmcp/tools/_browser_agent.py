@@ -1,0 +1,73 @@
+"""
+arifos_browser_agent — Browser harness tool for all arifOS agents.
+Wraps browser-harness daemon: http://72.62.71.199:8081/browser-api
+Allows GEOX, WEALTH, and arifOS to browse web, scrape JS-heavy pages, capture screenshots.
+"""
+from __future__ import annotations
+import httpx
+from datetime import datetime
+
+BROWSER_API = "http://72.62.71.199:8081"
+
+async def execute(
+    action: str = "page_info",
+    url: str | None = None,
+    headers: dict | None = None,
+    operator_id: str | None = None,
+    session_id: str | None = None,
+) -> dict:
+    """
+    Browser harness tool — browse URLs, get page content, take screenshots.
+    
+    Actions:
+      page_info    — get current tab title + URL
+      goto         — navigate to URL
+      list_tabs    — list open browser tabs
+      http_get     — simple HTTP GET (no JS rendering)
+      content      — get page body text
+      screenshot   — capture screenshot (returns path)
+    """
+    valid_actions = {"page_info", "goto", "list_tabs", "http_get", "content", "screenshot"}
+    if action not in valid_actions:
+        return {"status": "error", "message": f"Invalid action: {action}"}
+    
+    try:
+        async with httpx.AsyncClient(timeout=30) as client:
+            if action == "page_info":
+                r = await client.get(f"{BROWSER_API}/page_info")
+                data = r.json()
+                return {
+                    "status": "ok",
+                    "title": data.get("title", ""),
+                    "url": data.get("url", ""),
+                    "action": "page_info"
+                }
+            
+            elif action == "goto":
+                if not url:
+                    return {"status": "error", "message": "url required for goto"}
+                r = await client.post(f"{BROWSER_API}/goto", json={"url": url})
+                return {"status": "ok", "navigated_to": url, "action": "goto"}
+            
+            elif action == "list_tabs":
+                r = await client.get(f"{BROWSER_API}/list_tabs")
+                tabs = r.json().get("tabs", [])
+                return {"status": "ok", "tabs": [{"id": t["targetId"], "url": t.get("url", ""), "title": t.get("title", "")} for t in tabs], "count": len(tabs)}
+            
+            elif action == "http_get":
+                if not url:
+                    return {"status": "error", "message": "url required for http_get"}
+                r = await client.post(f"{BROWSER_API}/http_get", json={"url": url, "headers": headers or {}})
+                data = r.json()
+                return {"status": data.get("status", "error"), "content": data.get("content", ""), "url": url, "action": "http_get"}
+            
+            elif action == "content":
+                r = await client.get(f"{BROWSER_API}/content")
+                return {"status": "ok", "content": r.text[:5000], "action": "content"}
+            
+            elif action == "screenshot":
+                r = await client.post(f"{BROWSER_API}/screenshot", json={"full": True})
+                return {"status": "ok", "path": r.json().get("path", "/tmp/screenshot.png"), "action": "screenshot"}
+    
+    except Exception as e:
+        return {"status": "error", "message": str(e), "action": action}

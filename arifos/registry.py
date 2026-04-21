@@ -1,6 +1,6 @@
 from typing import Any
 
-from fastmcp.tools.function_tool import FunctionTool
+from fastmcp.tools import FunctionTool
 
 from arifos.prompts import PROMPTS
 from arifos.resources import RESOURCES
