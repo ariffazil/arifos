@@ -1,4 +1,8 @@
 # ── arifOS MCP Runtime — Lean Multi-Stage Build ──────────────────────────
+# OCI Labels for GitHub Container Registry
+LABEL org.opencontainers.image.source="https://github.com/ariffazil/arifos"
+LABEL org.opencontainers.image.description="arifOS Constitutional AI Kernel"
+LABEL org.opencontainers.image.licenses="AGPL-3.0"
 # Target size: ~300-500MB (vs 6GB with heavy ML deps)
 # Strategy: runtime deps only from requirements.txt (not full pyproject.toml)
 # Code is volume-mounted at /usr/src/app in production — image provides env only.
