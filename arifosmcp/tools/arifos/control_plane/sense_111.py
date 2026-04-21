@@ -1,5 +1,5 @@
 # C:\ariffazil\arifOS\arifosmcp\tools\arifos\control_plane\sense_111.py
-# DISTILLED KERNEL [2026.04.20] + MiniMax Vision Bridge (Token Plan Plus)
+# DISTILLED KERNEL [2026.04.20] + MiniMax Vision Bridge
 # DITEMPA BUKAN DIBERI
 
 import time
@@ -14,7 +14,6 @@ from arifosmcp.integrations.minimax_mcp_bridge import minimax_bridge
 
 
 def _is_public_https(url: str | None) -> bool:
-    """Quick guard: image_url must be a publicly reachable HTTPS URL."""
     if not url:
         return False
     url_lower = url.lower()
@@ -31,7 +30,6 @@ def _is_public_https(url: str | None) -> bool:
         if prefix in url_lower:
             return False
     return True
-
 
 async def execute(
     ctx: Context,
@@ -52,9 +50,6 @@ async def execute(
     bridge regardless of mode. All visual output passes through F9 Anti-Hantu
     governance before returning.
     """
-    report: dict
-    metrics: ThermodynamicMetrics
-
     # ── Visual perception branch (MiniMax bridge) ───────────────
     if image_url or mode == "visual":
         if not image_url:
@@ -169,5 +164,5 @@ async def self_test() -> dict:
         "correctness": {"test_cases": 1, "passed": 1 if passed else 0, "failed": 0 if passed else 1},
         "primary_metric_name": "snr_improvement",
         "primary_metric_value": 0.98 if passed else 0.0,
-        "description": "111_sense: intelligence-distilled perception gate + MiniMax vision"
+        "description": "111_sense: grounded + visual(MiniMax)"
     }

@@ -52,6 +52,7 @@ STAKEHOLDER_SAFETY_FLOOR = 0.90  # F6 hard floor
 F4_ENTROPY_TOLERANCE = 0.02  # Allow small positive ΔS for honest failure recording
 
 
+@dataclass
 class ThermodynamicMetrics:
     truth_score: float = 1.0        # F2: >= 0.99 for SEAL
     delta_s: float = 0.0            # F4: <= 0 for SEAL
@@ -86,6 +87,8 @@ def governed_return(
     stage: str,
     data: Any,
     metrics: ThermodynamicMetrics,
+    operator_id: str | None = None,
+    session_id: str | None = None,
     verdict: Union[Verdict, str] = Verdict.SEAL,
     envelope: Optional[Any] = None,
     human_override: Optional[str] = None,
@@ -199,12 +202,35 @@ def governed_return(
 
     receipt_id = _build_receipt_id(stage)
 
+    # ── PlanReceipt generation (F11 Audit) ────────────────────────────
+    # Ties execution to 888 approval: sha256(epoch + op + verdict + planid + approved)
+    _epoch_str = (envelope.get("epochid") if isinstance(envelope, dict) else getattr(envelope, "epochid", None)) if envelope else "2026.04"
+    _op = operator_id or (envelope.get("operator_id") if isinstance(envelope, dict) else None) or session_id or "anon"
+    _planid = (envelope.get("planid") if isinstance(envelope, dict) else getattr(envelope, "planid", None)) if envelope else None
+    _approved = (envelope.get("approved_for") if isinstance(envelope, dict) else getattr(envelope, "approved_for", [])) if envelope else []
+
+    _nonce_base = "{}_{}_{}_{}_{}".format(
+        _epoch_str, _op or "anon", verdict_str, _planid or "none", ",".join(_approved) if _approved else "none"
+    )
+    _plan_hash = hashlib.sha256(_nonce_base.encode("utf-8")).hexdigest()[:24]
+    _expires_at = time.time() + 300
+
     res = {
         "status": verdict_str,
         "verdict": verdict_str,
         "stage": stage,
         "metrics": asdict(metrics),
         "vault_receipt": receipt_id,
+        "plan_receipt": _plan_hash,
+        "plan_receipt_meta": {
+            "epochid": str(_epoch_str),
+            "planid": _planid,
+            "operator_id": _op,
+            "verdict": str(verdict_str),
+            "approved_for": _approved,
+            "expires_at": _expires_at,
+            "issued_at": time.time(),
+        },
         "data": data,
         "timestamp": time.time()
     }

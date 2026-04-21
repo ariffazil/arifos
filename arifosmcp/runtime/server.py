@@ -11,8 +11,9 @@ from arifosmcp.prompts import PROMPTS
 from arifosmcp.resources import RESOURCES
 from arifosmcp.runtime.verify_arifos_tools import PRIMARY_METRIC_NAME, JSONL_PATH as VITALITY_JSONL, TSV_PATH as VITALITY_TSV
 
-app = FastAPI(title="arifosmcp NEXT HORIZON")
-app.mount("/mcp", mcp.http_app(stateless_http=True))
+mcp_http_app = mcp.http_app(stateless_http=True)
+app = FastAPI(lifespan=mcp_http_app.lifespan, title="arifosmcp NEXT HORIZON")
+app.mount("/mcp", mcp_http_app)
 
 
 def _public_base_url(request: Request) -> str:
