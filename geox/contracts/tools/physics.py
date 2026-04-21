@@ -110,7 +110,7 @@ def register_physics_tools(mcp: FastMCP, profile: str = "full"):
         Compute: Reservoir calculation over physical parameters (Stock Tank Oil Initially In Place).
         """
         try:
-            from arifos.geox.tools.volumetrics_economics_tool import VolumetricsEconomicsTool
+            from arifosmcp.geox.tools.volumetrics_economics_tool import VolumetricsEconomicsTool
             
             tool = VolumetricsEconomicsTool()
             result = await tool.run(inputs)

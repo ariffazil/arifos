@@ -1,7 +1,7 @@
 import asyncio
 from typing import Any
 
-from arifos.geox.geox_hardened import HardenedGeoxAgent
+from arifosmcp.geox.geox_hardened import HardenedGeoxAgent
 
 async def test_hardened_agent():
     agent = HardenedGeoxAgent(session_id="ARIF_GEO_FORGE")
@@ -12,7 +12,7 @@ async def test_hardened_agent():
     
     # Try a mock execution (though I don't have a mock tool yet)
     # Let's try to register a simple test tool now
-    from arifos.geox.base_tool import BaseTool, GeoToolResult
+    from arifosmcp.geox.base_tool import BaseTool, GeoToolResult
     
     class HelloEarthTool(BaseTool):
         name = "hello_earth"

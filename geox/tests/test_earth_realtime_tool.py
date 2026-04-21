@@ -19,8 +19,8 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 import httpx
 
-from arifos.geox.geox_schemas import CoordinatePoint
-from arifos.geox.tools.earth_realtime_tool import EarthRealtimeTool
+from arifosmcp.geox.geox_schemas import CoordinatePoint
+from arifosmcp.geox.tools.earth_realtime_tool import EarthRealtimeTool
 
 
 SABAH_LOCATION = CoordinatePoint(latitude=5.9792, longitude=116.0733)  # Kota Kinabalu
@@ -301,11 +301,11 @@ class TestGracefulDegradation:
 
 class TestToolRegistration:
     def test_earth_realtime_in_default_registry(self):
-        from arifos.geox.geox_tools import ToolRegistry
+        from arifosmcp.geox.geox_tools import ToolRegistry
         registry = ToolRegistry.default_registry()
         assert "EarthRealtimeTool" in registry.list_tools()
 
     def test_macrostrat_still_in_registry(self):
-        from arifos.geox.geox_tools import ToolRegistry
+        from arifosmcp.geox.geox_tools import ToolRegistry
         registry = ToolRegistry.default_registry()
         assert "MacrostratTool" in registry.list_tools()

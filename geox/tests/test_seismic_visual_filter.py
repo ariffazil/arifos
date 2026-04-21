@@ -16,8 +16,8 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from arifos.geox.geox_schemas import CoordinatePoint
-from arifos.geox.tools.seismic_visual_filter import (
+from arifosmcp.geox.geox_schemas import CoordinatePoint
+from arifosmcp.geox.tools.seismic_visual_filter import (
     FilterResult,
     SeismicVisualFilterTool,
     _compute_contrast,

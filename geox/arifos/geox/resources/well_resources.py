@@ -18,12 +18,12 @@ from __future__ import annotations
 from typing import Any
 from datetime import datetime
 
-from arifos.geox.tools.petrophysics.log_bundle_loader import (
+from arifosmcp.geox.tools.petrophysics.log_bundle_loader import (
     load_bundle_from_store,
     store_bundle,
     apply_environmental_corrections,
 )
-from arifos.geox.tools.petrophysics.qc_engine import (
+from arifosmcp.geox.tools.petrophysics.qc_engine import (
     generate_qc_report,
     load_qc_report,
 )
@@ -135,7 +135,7 @@ class IntervalRockStateResource(Resource):
     async def read(self, well_id: str, top: float, base: float) -> dict[str, Any]:
         """Return rock state for interval."""
         # Import here to avoid circular dependency
-        from arifos.geox.tools.petrophysics.property_calculator import load_rock_state
+        from arifosmcp.geox.tools.petrophysics.property_calculator import load_rock_state
         
         state = await load_rock_state(well_id, top, base)
         
@@ -198,7 +198,7 @@ class CutoffPolicyResource(Resource):
     
     async def read(self, well_id: str, policy_id: str) -> dict[str, Any]:
         """Return cutoff policy."""
-        from arifos.geox.tools.petrophysics.cutoff_validator import load_cutoff_policy
+        from arifosmcp.geox.tools.petrophysics.cutoff_validator import load_cutoff_policy
         
         policy = await load_cutoff_policy(policy_id)
         

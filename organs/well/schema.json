@@ -1,0 +1,57 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "WELL State Schema",
+  "description": "Biological telemetry for the Human Substrate Governance Layer.",
+  "type": "object",
+  "properties": {
+    "timestamp": { "type": "string", "format": "date-time" },
+    "operator_id": { "type": "string", "default": "arif" },
+    "metrics": {
+      "type": "object",
+      "properties": {
+        "sleep": {
+          "type": "object",
+          "properties": {
+            "last_night_hours": { "type": "number", "minimum": 0 },
+            "sleep_debt_days": { "type": "number", "minimum": 0 },
+            "quality_score": { "type": "number", "minimum": 0, "maximum": 10 }
+          }
+        },
+        "stress": {
+          "type": "object",
+          "properties": {
+            "hrv_proxy": { "type": "number" },
+            "subjective_load": { "type": "number", "minimum": 0, "maximum": 10 },
+            "restlessness": { "type": "number", "minimum": 0, "maximum": 10 }
+          }
+        },
+        "metabolic": {
+          "type": "object",
+          "properties": {
+            "fasting_window_hours": { "type": "number" },
+            "perceived_stability": { "type": "number", "minimum": 0, "maximum": 10 },
+            "hydration_status": { "type": "string", "enum": ["DEHYDRATED", "STABLE", "HYDRATED"] }
+          }
+        },
+        "cognitive": {
+          "type": "object",
+          "properties": {
+            "clarity": { "type": "number", "minimum": 0, "maximum": 10 },
+            "decision_fatigue": { "type": "number", "minimum": 0, "maximum": 10 },
+            "focus_durability": { "type": "number", "minimum": 0, "maximum": 10 }
+          }
+        },
+        "structural": {
+          "type": "object",
+          "properties": {
+            "pain_map": { "type": "array", "items": { "type": "string" } },
+            "movement_frequency_daily": { "type": "number" }
+          }
+        }
+      }
+    },
+    "well_score": { "type": "number", "minimum": 0, "maximum": 100 },
+    "floors_violated": { "type": "array", "items": { "type": "string" } }
+  },
+  "required": ["timestamp", "metrics", "well_score"]
+}

@@ -18,7 +18,7 @@ import uuid
 from dataclasses import dataclass
 from typing import Any
 
-from arifos.runtime.models import (
+from arifosmcp.runtime.models import (
     AuthorityLevel,
     CanonicalAuthority,
     ClaimStatus,
@@ -250,7 +250,7 @@ async def init_anchor(
     _intent = intent or query or resolved_payload.get("query") or f"Init {_dn}"
     _session_id = session_id or resolved_payload.get("session_id") or f"sess-{secrets.token_hex(8)}"
 
-    from arifos.runtime.sessions import bind_session_identity, get_session_identity
+    from arifosmcp.runtime.sessions import bind_session_identity, get_session_identity
 
     if mode in {"state", "status", "probe", "refresh"}:
         if mode == "refresh":
@@ -280,7 +280,7 @@ async def init_anchor(
     _injection_score = min(1.0, round(_hits / max(len(_INJECTION_PATTERNS), 1), 3))
 
     # ── Gem 2: Philosophy Injection ──
-    from arifos.runtime.philosophy import AtlasScores, select_atlas_philosophy
+    from arifosmcp.runtime.philosophy import AtlasScores, select_atlas_philosophy
 
     init_scores = AtlasScores(
         delta_s=0.0,

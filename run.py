@@ -17,7 +17,7 @@ import os
 # Add parent to path for imports
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from arifos.mcp_tools import (
+from arifosmcp.mcp_tools import (
     create_perception_mcp,
     create_transformation_mcp,
     create_valuation_mcp,

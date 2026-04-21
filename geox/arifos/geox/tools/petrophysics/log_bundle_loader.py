@@ -13,7 +13,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-from arifos.geox.schemas.petrophysics.measurements import WellLogCurve, LogBundle
+from arifosmcp.geox.schemas.petrophysics.measurements import WellLogCurve, LogBundle
 
 
 # In-memory store (replace with persistent storage in production)

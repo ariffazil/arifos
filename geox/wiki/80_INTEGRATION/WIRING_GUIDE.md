@@ -54,7 +54,7 @@ cd /opt/arifos/geox
 pip install -e ".[dev]"
 
 # Verify install
-python3 -c "from arifos.geox import GeoXAgent, GeoXConfig; print('GEOX OK')"
+python3 -c "from arifosmcp.geox import GeoXAgent, GeoXConfig; print('GEOX OK')"
 ```
 
 ---
@@ -138,10 +138,10 @@ In production, wire arifOS's `agi_mind` and `vault_ledger` into the agent:
 # production_bootstrap.py
 import httpx
 import asyncio
-from arifos.geox.geox_agent import GeoXAgent, GeoXConfig
-from arifos.geox.geox_validator import GeoXValidator
-from arifos.geox.geox_memory import GeoMemoryStore
-from arifos.geox.geox_tools import ToolRegistry
+from arifosmcp.geox.geox_agent import GeoXAgent, GeoXConfig
+from arifosmcp.geox.geox_validator import GeoXValidator
+from arifosmcp.geox.geox_memory import GeoMemoryStore
+from arifosmcp.geox.geox_tools import ToolRegistry
 
 ARIFOS_MCP_URL = "http://arifosmcp_server:8000/mcp"
 
@@ -230,7 +230,7 @@ async def create_production_agent() -> GeoXAgent:
 ```python
 import asyncio
 from datetime import datetime, timezone
-from arifos.geox.geox_schemas import CoordinatePoint, GeoRequest
+from arifosmcp.geox.geox_schemas import CoordinatePoint, GeoRequest
 
 async def main():
     agent = await create_production_agent()

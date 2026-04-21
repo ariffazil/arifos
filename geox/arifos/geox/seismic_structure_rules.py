@@ -35,8 +35,8 @@ from __future__ import annotations
 import hashlib
 from typing import Any
 
-from arifos.geox.base_tool import _make_provenance
-from arifos.geox.geox_mcp_schemas import (
+from arifosmcp.geox.base_tool import _make_provenance
+from arifosmcp.geox.geox_mcp_schemas import (
     GEOXStructuralCandidate,
     GEOXStructuralCandidateSet,
     StructuralCandidateType,

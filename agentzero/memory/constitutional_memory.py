@@ -11,7 +11,7 @@ from enum import Enum
 from typing import Any
 
 # Import the real Qdrant backend
-from arifos.memory.vector_memory_qdrant import (
+from arifosmcp.memory.vector_memory_qdrant import (
     _QDRANT_COLLECTION,
     _ensure_collection,
     _generate_embedding,

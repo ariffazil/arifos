@@ -31,7 +31,7 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import Any
 
-from arifos.geox.geox_schemas import (
+from arifosmcp.geox.geox_schemas import (
     GeoInsight,
     GeoPrediction,
     GeoQuantity,
@@ -39,12 +39,12 @@ from arifos.geox.geox_schemas import (
     GeoResponse,
     ProvenanceRecord,
 )
-from arifos.geox.geox_tools import (
+from arifosmcp.geox.geox_tools import (
     BaseTool,
     GeoToolResult,
     ToolRegistry,
 )
-from arifos.geox.geox_validator import AggregateVerdict, GeoXValidator
+from arifosmcp.geox.geox_validator import AggregateVerdict, GeoXValidator
 
 logger = logging.getLogger("geox.agent")
 

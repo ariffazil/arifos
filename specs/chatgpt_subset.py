@@ -18,12 +18,12 @@ from __future__ import annotations
 
 from typing import Any
 
-from arifos.specs.contracts import (
+from arifosmcp.specs.contracts import (
     ConstitutionalHealthView,
     VerdictCode,
 )
-from arifos.specs.resource_specs import get_resource_spec
-from arifos.specs.tool_specs import get_tool_spec
+from arifosmcp.specs.resource_specs import get_resource_spec
+from arifosmcp.specs.tool_specs import get_tool_spec
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # CHATGPT-SAFE SUBSETS

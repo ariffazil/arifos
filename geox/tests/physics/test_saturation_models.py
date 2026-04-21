@@ -4,7 +4,7 @@ Verify against textbook cases (Crain's Petrophysical Handbook).
 """
 
 import pytest
-from arifos.geox.physics.saturation_models import (
+from arifosmcp.geox.physics.saturation_models import (
     ArchieModel,
     SimandouxModel,
     select_model_for_rock,

@@ -189,7 +189,7 @@ def get_vault_data() -> ToolResult:
     # ── Seal card ───────────────────────────────────────────────────────────
     seal_card: dict[str, Any] = {}
     try:
-        from arifos.runtime.chatgpt_integration.apps_sdk_tools import (
+        from arifosmcp.runtime.chatgpt_integration.apps_sdk_tools import (
             _build_vault_seal_structured_content,
         )
         seal_card = _build_vault_seal_structured_content()

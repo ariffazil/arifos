@@ -9,7 +9,7 @@ stdio JSON-RPC. This script runs inside the Docker container via:
 
 DITEMPA BUKAN DIBERI
 """
-from arifos.mcp_server import mcp
+from arifosmcp.mcp_server import mcp
 
 if __name__ == "__main__":
     mcp.run(transport="stdio", show_banner=False, log_level="CRITICAL")

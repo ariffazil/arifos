@@ -19,8 +19,8 @@ except ImportError:
     pass
 CurrentContext = None  # Always defined — ctx injected by FastMCP framework at runtime
 
-from arifos.runtime.models import RuntimeEnvelope, VerdictCode
-from arifos.runtime.tools_internal import agi_mind_dispatch_impl
+from arifosmcp.runtime.models import RuntimeEnvelope, VerdictCode
+from arifosmcp.runtime.tools_internal import agi_mind_dispatch_impl
 
 
 async def agi_mind(
@@ -47,7 +47,7 @@ async def agi_mind(
     raw_input: str | None = None,
     ctx: Any | None = None,
 ) -> RuntimeEnvelope:
-    from arifos.runtime.tools_hardened_dispatch import HARDENED_DISPATCH_MAP
+    from arifosmcp.runtime.tools_hardened_dispatch import HARDENED_DISPATCH_MAP
 
     if context is not None and not isinstance(context, str):
         try:
@@ -86,8 +86,8 @@ async def agi_mind(
         res_dict = await HARDENED_DISPATCH_MAP["agi_mind"](mode=mode, payload=payload)
 
         # ─── V1.0 VERDICT FORGING ───
-        from arifos.runtime.models import CanonicalMetrics
-        from arifos.runtime.verdict_wrapper import forge_verdict
+        from arifosmcp.runtime.models import CanonicalMetrics
+        from arifosmcp.runtime.verdict_wrapper import forge_verdict
 
         # Extract metrics from hardened result
         metrics = CanonicalMetrics()
@@ -117,7 +117,7 @@ async def agi_mind(
 
     # ─── V1.0 VERDICT FORGING (FALLBACK) ───
     if not hasattr(res, "verdict_detail") or not res.verdict_detail:
-        from arifos.runtime.verdict_wrapper import forge_verdict
+        from arifosmcp.runtime.verdict_wrapper import forge_verdict
 
         return forge_verdict(
             tool_id="arifos_mind",

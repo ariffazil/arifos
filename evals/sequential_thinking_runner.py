@@ -28,7 +28,7 @@ from typing import Any
 import yaml
 
 # arifOS MCP Bridge integration
-from arifos.integrations.sequential_mcp_bridge import (
+from arifosmcp.integrations.sequential_mcp_bridge import (
     run_external_sequence,
 )
 
@@ -248,7 +248,7 @@ class SequentialThinkingEvaluator:
     
     async def _run_arifos_mind(self, case: dict) -> EvalResult:
         """Run evaluation through arifOS MIND (sequential mode)"""
-        from arifos.runtime.tools import arifos_mind
+        from arifosmcp.runtime.tools import arifos_mind
         
         prompt = case['prompt']
         start_time = datetime.utcnow()
@@ -363,7 +363,7 @@ class SequentialThinkingEvaluator:
             return self._create_error_result(case, "sequential_mcp", str(e), start_time)
     
     def _extract_arifos_steps(self, response: dict) -> list[ThinkingStep]:
-        """Extract thinking steps from arifOS response"""
+        """Extract thinking steps from arifosmcp response"""
         steps = []
         
         for i, step_data in enumerate(response.get('steps', [])):
@@ -785,7 +785,7 @@ class SequentialThinkingEvaluator:
     async def seal_to_vault(self, report: dict):
         """Seal evaluation results to arifOS vault"""
         try:
-            from arifos.runtime.tools import arifos_vault
+            from arifosmcp.runtime.tools import arifos_vault
             
             verdict = "SEAL" if all(
                 r == "✅" or "AUTHORIZED" in r
@@ -943,7 +943,7 @@ class MemoryBridgeEvaluator:
     
     async def _test_create_entity(self, test_id: str) -> MemoryEvalResult:
         """Test entity creation with F2 truth enforcement"""
-        from arifos.integrations.memory_bridge import kg_upsert_entity
+        from arifosmcp.integrations.memory_bridge import kg_upsert_entity
         
         start_time = time.time()
         
@@ -968,7 +968,7 @@ class MemoryBridgeEvaluator:
     
     async def _test_f2_low_confidence(self, test_id: str) -> MemoryEvalResult:
         """Test F2 violation: low confidence entity should be rejected or flagged"""
-        from arifos.integrations.memory_bridge import kg_upsert_entity
+        from arifosmcp.integrations.memory_bridge import kg_upsert_entity
         
         start_time = time.time()
         
@@ -996,7 +996,7 @@ class MemoryBridgeEvaluator:
     
     async def _test_f1_irreversible(self, test_id: str) -> MemoryEvalResult:
         """Test F1 violation: irreversible deletion requires approval"""
-        from arifos.integrations.memory_bridge import kg_delete_entity
+        from arifosmcp.integrations.memory_bridge import kg_delete_entity
         
         start_time = time.time()
         
@@ -1021,12 +1021,12 @@ class MemoryBridgeEvaluator:
     
     async def _test_link_entities(self, test_id: str) -> MemoryEvalResult:
         """Test entity linking with validation"""
-        from arifos.integrations.memory_bridge import kg_link_entities
+        from arifosmcp.integrations.memory_bridge import kg_link_entities
         
         start_time = time.time()
         
         # Create two test entities first
-        from arifos.integrations.memory_bridge import kg_upsert_entity
+        from arifosmcp.integrations.memory_bridge import kg_upsert_entity
         await kg_upsert_entity("entity_a", "TestType", ["Entity A"], 0.9, "eval")
         await kg_upsert_entity("entity_b", "TestType", ["Entity B"], 0.9, "eval")
         
@@ -1051,7 +1051,7 @@ class MemoryBridgeEvaluator:
     
     async def _test_semantic_search(self, test_id: str) -> MemoryEvalResult:
         """Test semantic search with context budget (F4 empathy)"""
-        from arifos.integrations.memory_bridge import kg_search
+        from arifosmcp.integrations.memory_bridge import kg_search
         
         start_time = time.time()
         
@@ -1252,7 +1252,7 @@ async def main():
         # Seal to vault
         if not args.no_vault:
             try:
-                from arifos.runtime.tools import arifos_vault
+                from arifosmcp.runtime.tools import arifos_vault
                 await arifos_vault(
                     verdict="SEAL",
                     evidence=json.dumps(all_results, indent=2, default=str),

@@ -36,7 +36,7 @@ from enum import Enum
 from pathlib import Path
 from typing import Any
 
-from arifos.runtime.models import Verdict
+from arifosmcp.runtime.models import Verdict
 
 logger = logging.getLogger(__name__)
 
@@ -211,7 +211,7 @@ class DeployGateRunner:
         print("[Gate A] Boot check...")
         
         try:
-            from arifos.integrations.substrate_bridge import bridge
+            from arifosmcp.integrations.substrate_bridge import bridge
             
             # Check bridge initialization
             bridge_ok = bridge is not None
@@ -253,7 +253,7 @@ class DeployGateRunner:
         print("[Gate B] Capability discovery...")
         
         try:
-            from arifos.integrations.substrate_bridge import bridge
+            from arifosmcp.integrations.substrate_bridge import bridge
             
             # Check global health (implies discovery worked)
             health = await bridge.get_global_health()
@@ -292,7 +292,7 @@ class DeployGateRunner:
         
         try:
             # Run breach tests
-            from arifos.evals.breach_test_runner import BreachTestRunner
+            from arifosmcp.evals.breach_test_runner import BreachTestRunner
             
             runner = BreachTestRunner("arifos/evals/constitutional_breach_tests.yaml")
             await runner.run_all_tests()
@@ -333,7 +333,7 @@ class DeployGateRunner:
         print("[Gate D] Substrate health...")
         
         try:
-            from arifos.integrations.substrate_bridge import bridge
+            from arifosmcp.integrations.substrate_bridge import bridge
             
             health = await bridge.get_global_health()
             substrates = health.get("substrate", {})
@@ -373,7 +373,7 @@ class DeployGateRunner:
         print("[Gate E] End-to-end golden paths...")
         
         try:
-            from arifos.evals.e2e_golden_paths import E2EGoldenPathRunner
+            from arifosmcp.evals.e2e_golden_paths import E2EGoldenPathRunner
             
             runner = E2EGoldenPathRunner()
             report = await runner.run_all_paths()
@@ -570,7 +570,7 @@ class DeployGateRunner:
     async def seal_to_vault(self, report: DeployGateReport):
         """Seal deployment gate report to VAULT999"""
         try:
-            from arifos.runtime.tools import arifos_vault
+            from arifosmcp.runtime.tools import arifos_vault
             
             evidence = {
                 "timestamp": report.timestamp,

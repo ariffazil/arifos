@@ -14,21 +14,21 @@ from datetime import datetime, timezone
 import pytest
 import pytest_asyncio
 
-from arifos.geox.geox_schemas import (
+from arifosmcp.geox.geox_schemas import (
     CoordinatePoint,
     GeoPrediction,
     GeoInsight,
     GeoQuantity,
     ProvenanceRecord,
 )
-from arifos.geox.geox_validator import (
+from arifosmcp.geox.geox_validator import (
     AggregateVerdict,
     GeoXValidator,
     ValidationResult,
     _parse_range,
 )
-from arifos.geox.examples.mock_tools.mock_earthnet import MockEarthNetTool
-from arifos.geox.examples.mock_tools.mock_vlm import MockSeismicVLMTool
+from arifosmcp.geox.examples.mock_tools.mock_earthnet import MockEarthNetTool
+from arifosmcp.geox.examples.mock_tools.mock_vlm import MockSeismicVLMTool
 
 
 # ---------------------------------------------------------------------------

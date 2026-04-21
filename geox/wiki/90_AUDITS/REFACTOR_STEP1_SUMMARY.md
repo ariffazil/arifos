@@ -117,8 +117,8 @@ All tools now have:
 from geox_mcp_server import mcp, geox_evaluate_prospect
 
 # New code preferred:
-from arifos.geox.tools.adapters.fastmcp_adapter import mcp
-from arifos.geox.tools.core import geox_evaluate_prospect
+from arifosmcp.geox.tools.adapters.fastmcp_adapter import mcp
+from arifosmcp.geox.tools.core import geox_evaluate_prospect
 ```
 
 **Deprecation:** `geox_mcp_server.py` emits `DeprecationWarning`.
@@ -147,7 +147,7 @@ from geox_mcp_server import geox_evaluate_prospect
 result = await geox_evaluate_prospect("P-101", "INT-001")
 
 # AFTER (recommended):
-from arifos.geox.tools.core import geox_evaluate_prospect
+from arifosmcp.geox.tools.core import geox_evaluate_prospect
 result = await geox_evaluate_prospect("P-101", "INT-001")
 # result is now ProspectEvaluationResult (typed)
 ```
@@ -161,7 +161,7 @@ result = await geox_evaluate_prospect("P-101", "INT-001")
 # AFTER (recommended):
 # python -m arifos.geox.tools.adapters.fastmcp_adapter
 # OR
-from arifos.geox.tools.adapters.fastmcp_adapter import main
+from arifosmcp.geox.tools.adapters.fastmcp_adapter import main
 main()
 ```
 

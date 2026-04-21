@@ -11,8 +11,8 @@ from __future__ import annotations
 
 from typing import Any
 
-from arifos.runtime.models import RuntimeEnvelope, RuntimeStatus, Verdict
-from arifos.runtime.tools_internal import asi_heart_dispatch_impl
+from arifosmcp.runtime.models import RuntimeEnvelope, RuntimeStatus, Verdict
+from arifosmcp.runtime.tools_internal import asi_heart_dispatch_impl
 
 
 async def asi_heart(
@@ -36,7 +36,7 @@ async def asi_heart(
     raw_input: str | None = None,
     ctx: Any | None = None,
 ) -> RuntimeEnvelope:
-    from arifos.runtime.tools_hardened_dispatch import HARDENED_DISPATCH_MAP
+    from arifosmcp.runtime.tools_hardened_dispatch import HARDENED_DISPATCH_MAP
 
     payload = dict(payload or {})
     if content:

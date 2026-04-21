@@ -13,7 +13,7 @@ import logging
 from typing import Annotated, Any
 
 from pydantic import Field
-from arifos.runtime.models import (
+from arifosmcp.runtime.models import (
     AuthorityLevel,
     CanonicalAuthority,
     CanonicalError,

@@ -17,7 +17,7 @@ from __future__ import annotations
 import numpy as np
 import pytest
 
-from arifos.geox.tools.attributes import (
+from arifosmcp.geox.tools.attributes import (
     SeismicAttributeTool,
     compute_attributes,
     compute_coherence,

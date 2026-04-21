@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import pytest
 
-from arifos.geox.geox_schemas import CoordinatePoint
-from arifos.geox.geox_tools import (
+from arifosmcp.geox.geox_schemas import CoordinatePoint
+from arifosmcp.geox.geox_tools import (
     EOFoundationModelTool,
     EarthModelTool,
     GeoRAGTool,

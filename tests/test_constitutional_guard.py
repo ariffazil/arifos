@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import pytest
 
-from arifos.runtime.middleware.constitutional_guard import constitutional_guard
+from arifosmcp.runtime.middleware.constitutional_guard import constitutional_guard
 
 
 def test_guard_downgrades_shell_seal_when_floors_fail() -> None:

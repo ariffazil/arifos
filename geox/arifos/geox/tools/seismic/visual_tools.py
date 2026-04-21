@@ -13,7 +13,7 @@ from typing import List, Dict, Any, Tuple
 import numpy as np
 from PIL import Image, ImageOps, ImageFilter
 
-from arifos.geox.ENGINE.contrast_wrapper import contrast_governed_tool
+from arifosmcp.geox.ENGINE.contrast_wrapper import contrast_governed_tool
 
 def encode_image_to_base64(img: Image.Image) -> str:
     """Helper to convert PIL Image to base64 PNG."""

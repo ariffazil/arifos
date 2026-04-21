@@ -15,9 +15,9 @@ import logging
 from dataclasses import dataclass
 from datetime import datetime, timezone
 
-from arifos.integrations.substrate_bridge import bridge
-from arifos.runtime.models import RuntimeEnvelope as _RE
-from arifos.runtime.models import Verdict
+from arifosmcp.integrations.substrate_bridge import bridge
+from arifosmcp.runtime.models import RuntimeEnvelope as _RE
+from arifosmcp.runtime.models import Verdict
 
 logger = logging.getLogger(__name__)
 

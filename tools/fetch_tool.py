@@ -11,9 +11,9 @@ import logging
 
 from core.floors import evaluate_tool_call
 
-from arifos.integrations.substrate_bridge import bridge
-from arifos.runtime.models import RiskClass
-from arifos.runtime.models import RuntimeEnvelope as _RE
+from arifosmcp.integrations.substrate_bridge import bridge
+from arifosmcp.runtime.models import RiskClass
+from arifosmcp.runtime.models import RuntimeEnvelope as _RE
 
 logger = logging.getLogger(__name__)
 

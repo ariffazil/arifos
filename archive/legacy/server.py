@@ -538,7 +538,7 @@ else:
 # This runs regardless of whether arifosmcp.runtime loaded successfully,
 # ensuring the 13 canonical tools are always available.
 try:
-    from arifOS_mcp.tools.arifos.registry import (
+    from arifosmcp_mcp.tools.arifos.registry import (
         register_arifos_tools,
         register_arifos_prompts,
         register_arifos_resources,
@@ -547,7 +547,7 @@ try:
     register_arifos_tools(mcp)
     register_arifos_prompts(mcp)
     register_arifos_resources(mcp)
-    logger.info("13-tool canonical registry wired from arifOS_mcp/tools/arifos/")
+    logger.info("13-tool canonical registry wired from arifosmcp_mcp/tools/arifos/")
     print("13-tool canonical registry: arifOS_mcp/tools/arifos/ — wired")
 except Exception as _e:
     logger.warning(f"arifOS_mcp/tools/arifos registry unavailable: {_e}")

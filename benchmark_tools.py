@@ -61,7 +61,7 @@ def score_tool(result: ToolResult) -> dict:
 async def test_arifos_init():
     """Test arifos_init tool"""
     try:
-        from arifos.runtime.tools import arifos_init
+        from arifosmcp.runtime.tools import arifos_init
 
         start = time.perf_counter()
         result = await arifos_init(
@@ -113,7 +113,7 @@ async def test_arifos_init():
 async def test_arifos_sense():
     """Test arifos_sense tool"""
     try:
-        from arifos.runtime.tools import arifos_sense
+        from arifosmcp.runtime.tools import arifos_sense
 
         start = time.perf_counter()
         result = await arifos_sense(
@@ -152,7 +152,7 @@ async def test_arifos_sense():
 async def test_arifos_mind():
     """Test arifos_mind tool"""
     try:
-        from arifos.runtime.tools import arifos_mind
+        from arifosmcp.runtime.tools import arifos_mind
 
         start = time.perf_counter()
         result = await arifos_mind(
@@ -190,7 +190,7 @@ async def test_arifos_mind():
 async def test_arifos_kernel():
     """Test arifos_kernel tool"""
     try:
-        from arifos.runtime.tools import arifos_kernel
+        from arifosmcp.runtime.tools import arifos_kernel
 
         start = time.perf_counter()
         result = await arifos_kernel(
@@ -226,7 +226,7 @@ async def test_arifos_kernel():
 async def test_arifos_heart():
     """Test arifos_heart tool"""
     try:
-        from arifos.runtime.tools import arifos_heart
+        from arifosmcp.runtime.tools import arifos_heart
 
         start = time.perf_counter()
         result = await arifos_heart(
@@ -264,7 +264,7 @@ async def test_arifos_heart():
 async def test_arifos_ops():
     """Test arifos_ops tool"""
     try:
-        from arifos.runtime.tools import arifos_ops
+        from arifosmcp.runtime.tools import arifos_ops
 
         start = time.perf_counter()
         result = await arifos_ops(action="cost", session_id="bench-006")
@@ -298,7 +298,7 @@ async def test_arifos_ops():
 async def test_arifos_judge():
     """Test arifos_judge tool"""
     try:
-        from arifos.runtime.tools import arifos_judge
+        from arifosmcp.runtime.tools import arifos_judge
 
         start = time.perf_counter()
         result = await arifos_judge(
@@ -334,7 +334,7 @@ async def test_arifos_judge():
 async def test_arifos_memory():
     """Test arifos_memory tool"""
     try:
-        from arifos.runtime.tools import arifos_memory
+        from arifosmcp.runtime.tools import arifos_memory
 
         start = time.perf_counter()
         result = await arifos_memory(
@@ -370,7 +370,7 @@ async def test_arifos_memory():
 async def test_arifos_vault():
     """Test arifos_vault tool"""
     try:
-        from arifos.runtime.tools import arifos_vault
+        from arifosmcp.runtime.tools import arifos_vault
 
         start = time.perf_counter()
         result = await arifos_vault(
@@ -409,7 +409,7 @@ async def test_arifos_vault():
 async def test_arifos_health():
     """Test arifos_health tool"""
     try:
-        from arifos.runtime.tools import arifos_health
+        from arifosmcp.runtime.tools import arifos_health
 
         start = time.perf_counter()
         result = await arifos_health(action="get_telemetry", session_id="bench-010")
@@ -443,7 +443,7 @@ async def test_arifos_health():
 async def test_arifos_probe():
     """Test arifos_probe tool"""
     try:
-        from arifos.runtime.tools import arifos_probe
+        from arifosmcp.runtime.tools import arifos_probe
 
         start = time.perf_counter()
         result = await arifos_probe(target="system", probe_type="status", timeout_ms=5000)

@@ -32,7 +32,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from arifos.geox.renderers.base import (
+from arifosmcp.geox.renderers.base import (
     RendererAdapter,
     RenderResult,
     RenderSession,
@@ -151,7 +151,7 @@ class CigvisAdapter(RendererAdapter):
             logger.warning("CIGVis not available, returning empty scene")
             return {"nodes": [], "camera": None}
 
-        from arifos.geox.renderers.scene_compiler import SceneCompiler
+        from arifosmcp.geox.renderers.scene_compiler import SceneCompiler
 
         compiler = SceneCompiler()
         scene = compiler.compile(canonical_state)

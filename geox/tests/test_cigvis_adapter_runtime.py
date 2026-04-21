@@ -4,8 +4,8 @@ from datetime import datetime, timedelta, timezone
 
 import pytest
 
-from arifos.geox.renderers.base import RenderSession
-from arifos.geox.renderers.cigvis_adapter import (
+from arifosmcp.geox.renderers.base import RenderSession
+from arifosmcp.geox.renderers.cigvis_adapter import (
     CigvisAdapter,
     InteractiveCigvisRenderer,
     StaticCigvisRenderer,

@@ -22,9 +22,9 @@ from core.kernel.planner import Planner
 from core.kernel.role_registry import AgentRoleRegistry
 from core.kernel.tool_registry import ToolContractRegistry
 
-from arifos.shadow_defense import ShadowDefense
-from arifos.models.verdicts import SealType, PipelineStage
-from arifos.sessions import get_session_continuity_state
+from arifosmcp.shadow_defense import ShadowDefense
+from arifosmcp.models.verdicts import SealType, PipelineStage
+from arifosmcp.sessions import get_session_continuity_state
 
 logger = logging.getLogger(__name__)
 
@@ -78,7 +78,7 @@ class KernelCore:
         effective_query = payload.get("query") or query or ""
         
         # ── Identity Resolution (F11 Hardening) ──
-        from arifos.sessions import get_session_identity
+        from arifosmcp.sessions import get_session_identity
         from usr.lib.arifOS.kernel.schemas import KernelRouterInput, Session, RiskTier, KernelTaskMode
         
         _bound_actor = None
@@ -161,7 +161,7 @@ class KernelCore:
     def _get_session_state(self, session_id: str | None) -> dict[str, Any]:
         """Fetch session continuity state for G02 RouteContext population."""
         try:
-            from arifos.sessions import get_session_continuity_state
+            from arifosmcp.sessions import get_session_continuity_state
 
             return get_session_continuity_state(session_id) or {}
         except Exception:
@@ -174,7 +174,7 @@ class KernelCore:
         if not session_id:
             return
         try:
-            from arifos.sessions import (
+            from arifosmcp.sessions import (
                 set_session_continuity_state,
                 get_session_continuity_state,
             )
@@ -216,8 +216,8 @@ class KernelCore:
         return True, "OK"
 
     async def orchestrate_stage(self, context: dict[str, Any]) -> dict[str, Any]:
-        from arifos.governance_enforcer import classify_and_route
-        from arifos.tools_hardened_dispatch import get_tool_handler
+        from arifosmcp.governance_enforcer import classify_and_route
+        from arifosmcp.tools_hardened_dispatch import get_tool_handler
 
         query = context.get("query", "")
         actor_id = context.get("actor_id", "anonymous")
@@ -270,8 +270,8 @@ class KernelCore:
         # Layer 3 constitutional enforcement: axis classification, call graph,
         # and E-axis SEAL precondition. Every tool call passes through here.
         try:
-            from arifos.agent_registry import RouteContext, RiskTier, Axis
-            from arifos.g02_router import get_router
+            from arifosmcp.agent_registry import RouteContext, RiskTier, Axis
+            from arifosmcp.g02_router import get_router
 
             router = get_router()
             session_state = self._get_session_state(session_id)
@@ -369,7 +369,7 @@ class KernelCore:
 
         # ── WELL Cognitive Pressure Signal ───────────────────────────
         try:
-            from arifos.well_bridge import signal_cognitive_pressure
+            from arifosmcp.well_bridge import signal_cognitive_pressure
 
             signal_cognitive_pressure(load_delta=0.1, source=tool_name)
         except Exception:
@@ -450,7 +450,7 @@ class KernelCore:
                 )
                 kwargs["judge_state_hash"] = session_state.get("judge_state_hash")
 
-            from arifos.tools_hardened_dispatch import dispatch_with_fail_closed
+            from arifosmcp.tools_hardened_dispatch import dispatch_with_fail_closed
 
             return await dispatch_with_fail_closed(tool_name, kwargs)
         except Exception as e:
@@ -463,8 +463,8 @@ class KernelCore:
         context: dict[str, Any],
         routing_result: dict[str, Any],
     ) -> dict[str, Any]:
-        from arifos.continuity_contract import seal_runtime_envelope
-        from arifos.models import RuntimeEnvelope
+        from arifosmcp.continuity_contract import seal_runtime_envelope
+        from arifosmcp.models import RuntimeEnvelope
 
         session_id = context.get("session_id")
 
@@ -496,7 +496,7 @@ class KernelCore:
 
         # ── Philosophy Injection (Horizon Atlas) ──
         try:
-            from arifos.philosophy import AtlasScores, select_atlas_philosophy
+            from arifosmcp.philosophy import AtlasScores, select_atlas_philosophy
             
             # Extract metrics from envelope/payload
             metrics = getattr(envelope, "metrics", None)
@@ -540,7 +540,7 @@ class KernelCore:
 
         # ── Health Band Injection ──
         if isinstance(sealed, RuntimeEnvelope):
-            from arifos.telemetry_bands import TelemetryBands
+            from arifosmcp.telemetry_bands import TelemetryBands
 
             metrics_dict = {
                 "ds": getattr(sealed.metrics.telemetry, "ds", 0.0),
@@ -582,7 +582,7 @@ class KernelCore:
 
         # ── WELL Biological Context Injection ────────────────────────
         try:
-            from arifos.well_bridge import inject_biological_context
+            from arifosmcp.well_bridge import inject_biological_context
 
             final_result = inject_biological_context(final_result)
         except Exception:

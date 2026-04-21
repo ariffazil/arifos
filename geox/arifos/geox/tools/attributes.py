@@ -36,14 +36,14 @@ from typing import Any
 
 import numpy as np
 
-from arifos.geox.base_tool import (
+from arifosmcp.geox.base_tool import (
     BaseTool,
     GeoToolResult,
     _make_provenance,
     _make_quantity,
 )
-from arifos.geox.geox_schemas import CoordinatePoint
-from arifos.geox.tools.contrast_metadata import (
+from arifosmcp.geox.geox_schemas import CoordinatePoint
+from arifosmcp.geox.tools.contrast_metadata import (
     ConfidenceClass,
     ContrastMetadata,
     ContrastSourceDomain,

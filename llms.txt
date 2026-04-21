@@ -1,0 +1,16 @@
+# arifOS Knowledge Index
+
+This file provides a map to the core documentation governing this organism.
+
+## Protocol Standards
+- [MCP Specification](/docs/knowledge/mcp_llms.txt) — Official Model Context Protocol definition.
+- [FastMCP Implementation](/docs/knowledge/fastmcp_llms.txt) — Python-specific FastMCP documentation.
+
+## Organ Contexts
+- [/organs/geox/llms.txt](/organs/geox/llms.txt) — Geoscience intelligence capabilities. (Create if missing)
+- [/organs/wealth/llms.txt](/organs/wealth/llms.txt) — Capital intelligence capabilities.
+
+## Usage Rule
+All agents working within this VPS must refer to these knowledge sources before implementing or modifying MCP tools to ensure strict adherence to the arifOS Horizon architecture.
+
+*DITEMPA BUKAN DIBERI — 999 SEAL ALIVE*

@@ -71,7 +71,7 @@ jobs:
 ```bash
 cd C:\ariffazil\GEOX
 pip install -e ".[dev]"
-python -c "from arifos.geox import GeoXAgent, GeoXConfig; print('✓ Import OK')"
+python -c "from arifosmcp.geox import GeoXAgent, GeoXConfig; print('✓ Import OK')"
 python arifos/geox/examples/geox_malay_basin_demo.py
 ```
 
@@ -92,8 +92,8 @@ import httpx
 from typing import Any
 from datetime import datetime, timezone
 
-from arifos.geox.geox_tools import BaseTool, GeoToolResult
-from arifos.geox.geox_schemas import GeoQuantity, ProvenanceRecord, CoordinatePoint
+from arifosmcp.geox.geox_tools import BaseTool, GeoToolResult
+from arifosmcp.geox.geox_schemas import GeoQuantity, ProvenanceRecord, CoordinatePoint
 
 
 class MacrostratTool(BaseTool):
@@ -229,7 +229,7 @@ class MacrostratTool(BaseTool):
 **Modify:** `arifos/geox/geox_tools.py`
 
 ```python
-from arifos.geox.tools.macrostrat_tool import MacrostratTool
+from arifosmcp.geox.tools.macrostrat_tool import MacrostratTool
 
 class ToolRegistry:
     @classmethod
@@ -260,8 +260,8 @@ def _add_macrostrat_attribution(self, report: list[str], metadata: dict):
 
 ```python
 import pytest
-from arifos.geox.tools.macrostrat_tool import MacrostratTool
-from arifos.geox.geox_schemas import CoordinatePoint
+from arifosmcp.geox.tools.macrostrat_tool import MacrostratTool
+from arifosmcp.geox.geox_schemas import CoordinatePoint
 
 @pytest.mark.asyncio
 async def test_macrostrat_tool_malay_basin():
@@ -312,8 +312,8 @@ from abc import ABC, abstractmethod
 from typing import Any
 import httpx
 
-from arifos.geox.geox_tools import BaseTool, GeoToolResult
-from arifos.geox.geox_schemas import GeoQuantity, ProvenanceRecord
+from arifosmcp.geox.geox_tools import BaseTool, GeoToolResult
+from arifosmcp.geox.geox_schemas import GeoQuantity, ProvenanceRecord
 
 
 class LEMBackend(ABC):
@@ -731,8 +731,8 @@ Adds contrast_metadata, provenance, and uncertainty to all outputs.
 DITEMPA BUKAN DIBERI — forged, not hallucinated.
 """
 
-from arifos.geox.contrast_wrapper import contrast_governed_tool
-from arifos.geox.tools.contrast_metadata import create_filter_contrast_metadata
+from arifosmcp.geox.contrast_wrapper import contrast_governed_tool
+from arifosmcp.geox.tools.contrast_metadata import create_filter_contrast_metadata
 
 @contrast_governed_tool("compute_seismic_attributes")
 def compute_seismic_attributes(segy_data, attribute_list):

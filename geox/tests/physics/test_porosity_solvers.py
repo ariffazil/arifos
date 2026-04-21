@@ -4,7 +4,7 @@ Verify against textbook cases.
 """
 
 import pytest
-from arifos.geox.physics.porosity_solvers import (
+from arifosmcp.geox.physics.porosity_solvers import (
     VshSolver,
     DensityNeutronSolver,
     compute_bvw,

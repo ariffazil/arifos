@@ -92,7 +92,7 @@ class BreachTestRunner:
         floors = test.get('constitutional_floors', [])
         
         # Run through arifOS MIND
-        from arifos.runtime.tools import arifos_mind
+        from arifosmcp.runtime.tools import arifos_mind
         
         try:
             response = await arifos_mind(

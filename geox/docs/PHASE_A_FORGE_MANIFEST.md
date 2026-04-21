@@ -150,13 +150,13 @@ geox://well/{well_id}/qc/report
 
 ```bash
 # Verify schemas
-python -c "from arifos.geox.schemas.petrophysics import RockFluidState; print('✅ Schemas OK')"
+python -c "from arifosmcp.geox.schemas.petrophysics import RockFluidState; print('✅ Schemas OK')"
 
 # Verify resources
-python -c "from arifos.geox.resources import WellLogBundleResource; print('✅ Resources OK')"
+python -c "from arifosmcp.geox.resources import WellLogBundleResource; print('✅ Resources OK')"
 
 # Verify tools
-python -c "from arifos.geox.tools.petrophysics import LogBundleLoader, QCEngine; print('✅ Tools OK')"
+python -c "from arifosmcp.geox.tools.petrophysics import LogBundleLoader, QCEngine; print('✅ Tools OK')"
 
 # Run MCP server
 python arifos/geox/mcp_petrophysics_server.py --transport stdio

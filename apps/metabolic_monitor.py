@@ -210,7 +210,7 @@ def _unknown_floors() -> list[dict[str, Any]]:
 def _live_metabolics(session_id: str) -> dict[str, Any]:
     """Pull live metabolic metrics from session continuity."""
     try:
-        from arifos.runtime.sessions import get_session_runtime_state
+        from arifosmcp.runtime.sessions import get_session_runtime_state
         state = get_session_runtime_state(session_id)
         if not state:
             return {"status": "LIVE", "delta_s": 0.5}
@@ -224,7 +224,7 @@ def _live_metabolics(session_id: str) -> dict[str, Any]:
 def _live_floor_status(session_id: str) -> list[dict[str, Any]]:
     """Pull live floor status from session continuity; return UNKNOWN when no session state exists."""
     try:
-        from arifos.runtime.sessions import get_session_runtime_state
+        from arifosmcp.runtime.sessions import get_session_runtime_state
         state = get_session_runtime_state(session_id)
         if not state:
             return _unknown_floors()
@@ -653,7 +653,7 @@ def _register(mcp: FastMCP) -> None:
 
         # ── WELL biological context (optional local state) ─────────────────────
         try:
-            from arifos.runtime.well_bridge import get_biological_readiness
+            from arifosmcp.runtime.well_bridge import get_biological_readiness
             well = get_biological_readiness()
         except ImportError:
             well = {"ok": False, "verdict": "UNKNOWN", "well_score": 0.0}

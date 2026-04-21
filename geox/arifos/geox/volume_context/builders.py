@@ -11,7 +11,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from arifos.geox.renderers.scene_compiler import SceneCompiler
+from arifosmcp.geox.renderers.scene_compiler import SceneCompiler
 
 
 class VolumeSceneBuilder:

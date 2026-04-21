@@ -39,7 +39,7 @@ class ValidatorAgent(ConstitutionalAgent):
     - Issue final SEAL or VOID verdicts
     - Enforce F13 sovereign veto
     
-    It is the only agent that can invoke apex_judge from arifOS.
+    It is the only agent that can invoke apex_judge from arifosmcp.
     """
     
     # Floors enforced by Validator (Ψ axis)

@@ -12,7 +12,7 @@ from __future__ import annotations
 
 import logging
 
-from arifos.integrations.substrate_bridge import bridge
+from arifosmcp.integrations.substrate_bridge import bridge
 
 logger = logging.getLogger(__name__)
 

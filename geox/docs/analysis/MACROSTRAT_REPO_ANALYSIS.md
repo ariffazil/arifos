@@ -161,7 +161,7 @@ pip search macrostrat  # or check PyPI
 
 ```python
 # arifos/geox/tools/macrostrat_tool.py
-from arifos.geox.geox_tools import BaseTool, GeoToolResult
+from arifosmcp.geox.geox_tools import BaseTool, GeoToolResult
 import httpx
 
 class MacrostratTool(BaseTool):

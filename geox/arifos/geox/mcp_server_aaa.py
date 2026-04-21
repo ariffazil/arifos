@@ -86,7 +86,7 @@ mcp = FastMCP(
 # ═══════════════════════════════════════════════════════════════════════════════
 
 try:
-    from arifos.geox.tool_registry import (
+    from arifosmcp.geox.tool_registry import (
         ToolRegistry, ToolStatus, ErrorCode, create_standardized_error,
         GEOX_TOOLS
     )
@@ -101,7 +101,7 @@ except ImportError as e:
 # ═══════════════════════════════════════════════════════════════════════════════
 
 try:
-    from arifos.geox.apps.prefab_views import (
+    from arifosmcp.geox.apps.prefab_views import (
         seismic_section_view,
         structural_candidates_view,
         feasibility_check_view,
@@ -118,7 +118,7 @@ except ImportError:
 # ═══════════════════════════════════════════════════════════════════════════════
 
 try:
-    from arifos.geox.geox_memory import GeoMemoryStore
+    from arifosmcp.geox.geox_memory import GeoMemoryStore
     _memory_store = GeoMemoryStore()
     _HAS_MEMORY = True
 except Exception as e:
@@ -127,8 +127,8 @@ except Exception as e:
     logger.info("ℹ️ Memory store unavailable: %s", e)
 
 try:
-    from arifos.geox.tools.macrostrat_tool import MacrostratTool
-    from arifos.geox.geox_schemas import CoordinatePoint
+    from arifosmcp.geox.tools.macrostrat_tool import MacrostratTool
+    from arifosmcp.geox.geox_schemas import CoordinatePoint
     _macrostrat = MacrostratTool()
     _HAS_MACROSTRAT = True
 except Exception as e:
@@ -137,7 +137,7 @@ except Exception as e:
     logger.info("ℹ️ Macrostrat unavailable: %s", e)
 
 try:
-    from arifos.geox.tools.seismic.seismic_single_line_tool import SeismicSingleLineTool
+    from arifosmcp.geox.tools.seismic.seismic_single_line_tool import SeismicSingleLineTool
     _HAS_SEISMIC = True
 except ImportError:
     _HAS_SEISMIC = False
@@ -821,7 +821,7 @@ async def geox_malay_basin_pilot(
     All data includes F11 Authority audit trail.
     """
     try:
-        from arifos.geox.resources.malay_basin_pilot import MalayBasinPilotResource
+        from arifosmcp.geox.resources.malay_basin_pilot import MalayBasinPilotResource
         resource = MalayBasinPilotResource()
         data = await resource.read()
     except Exception as e:

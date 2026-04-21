@@ -54,7 +54,7 @@ class PromptArmor:
     4. Ontology detection (F10 consciousness claims)
     """
     
-    # F12 threshold from arifOS
+    # F12 threshold from arifosmcp
     INJECTION_THRESHOLD = 0.85
     
     def __init__(self, use_llm_detection: bool = True):

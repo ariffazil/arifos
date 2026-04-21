@@ -4,8 +4,8 @@ from pathlib import Path
 
 import numpy as np
 
-from arifos.geox.renderers.cigvis_adapter import CigvisAdapter
-from arifos.geox.renderers.primitives import (
+from arifosmcp.geox.renderers.cigvis_adapter import CigvisAdapter
+from arifosmcp.geox.renderers.primitives import (
     FaultPrimitive,
     RenderColor,
     SliceDirection,

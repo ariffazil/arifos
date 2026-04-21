@@ -5,7 +5,7 @@ DITEMPA BUKAN DIBERI
 Full implementation in Phase B: geox_validate_cutoffs tool.
 """
 
-from arifos.geox.schemas.petrophysics.cutoffs import CutoffPolicy
+from arifosmcp.geox.schemas.petrophysics.cutoffs import CutoffPolicy
 
 # In-memory store
 _policy_store: dict[str, CutoffPolicy] = {}

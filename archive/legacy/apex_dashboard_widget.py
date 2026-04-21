@@ -12,7 +12,7 @@ from fastmcp import FastMCP
 
 mcp = FastMCP("arifOS")
 
-# Dashboard data (normally fetched from arifOS backend)
+# Dashboard data (normally fetched from arifosmcp backend)
 SAMPLE_DATA = {
     "system_name": "arifOS APEX",
     "updated_at": "2026-04-02 01:44 UTC",

@@ -18,7 +18,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from arifos.geox.apps.volume_app.app import VolumeApp
+from arifosmcp.geox.apps.volume_app.app import VolumeApp
 
 
 _volume_app_instance: VolumeApp | None = None
@@ -196,7 +196,7 @@ async def _geox_renderer_cigvis_build_nodes(
 
     NOT exposed to model - implementation detail.
     """
-    from arifos.geox.renderers import CigvisAdapter
+    from arifosmcp.geox.renderers import CigvisAdapter
 
     adapter = CigvisAdapter()
     return adapter.compile_scene(scene)
@@ -213,7 +213,7 @@ async def _geox_renderer_cigvis_render_png(
 
     NOT exposed to model - implementation detail.
     """
-    from arifos.geox.renderers import CigvisAdapter
+    from arifosmcp.geox.renderers import CigvisAdapter
 
     adapter = CigvisAdapter()
     result = adapter.render_snapshot(scene, output_path, width, height)
@@ -234,7 +234,7 @@ async def _geox_renderer_cigvis_launch_server(
 
     NOT exposed to model - implementation detail.
     """
-    from arifos.geox.renderers import CigvisAdapter
+    from arifosmcp.geox.renderers import CigvisAdapter
 
     adapter = CigvisAdapter()
     result = adapter.launch_interactive(scene, port, ttl_seconds)
