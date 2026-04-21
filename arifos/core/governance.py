@@ -171,7 +171,13 @@ def governed_return(
     invariant_failures: List[str] = []
     if isinstance(raw_output, dict) and enforce_invariants is not None:
         try:
-            invariant_failures = enforce_invariants(tool_name, raw_output)
+            enriched_output = enforce_invariants(tool_name, raw_output)
+            if isinstance(enriched_output, dict):
+                raw_output = enriched_output
+                failures = enriched_output.get("invariant_failures", [])
+                invariant_failures = failures if isinstance(failures, list) else []
+            elif isinstance(enriched_output, list):
+                invariant_failures = enriched_output
         except Exception:
             invariant_failures = []
 

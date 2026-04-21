@@ -12,7 +12,11 @@ from arifos.core.governance import (
     append_vault999_event,
     governed_return,
 )
-from arifos.tools._tool_support import probe_tcp_endpoint, resolve_tcp_endpoint
+from arifos.tools._tool_support import (
+    invariant_fields,
+    probe_tcp_endpoint,
+    resolve_tcp_endpoint,
+)
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -197,7 +201,7 @@ def _compute_confidence(call: dict) -> float:
     # bonus for well-formed calls with parameters
     if "params" in call or "args" in call:
         base = min(1.0, base + 0.1)
-    return round(base, 4)
+    return round(min(0.97, base), 4)
 
 
 def _compute_source_integrity(receipt: dict) -> float:
@@ -233,6 +237,58 @@ def simulate_execution(call: dict, organ: str) -> dict:
         "confidence_score_omega0": confidence,
         "projected_outcome": "SUCCESS" if confidence >= 0.8 else "UNCERTAIN",
     }
+
+
+def _forge_report(
+    *,
+    execution: str,
+    organ: str,
+    call: dict,
+    dry_run: bool,
+    operator_id: str | None,
+    session_id: str | None,
+    confidence_score: float,
+    metabolic_metadata: dict,
+    probe: dict,
+    sabar: dict,
+    receipt: dict | None,
+    extra: dict | None = None,
+) -> dict:
+    report = {
+        "execution": execution,
+        "organ": organ,
+        "call": call,
+        "dry_run": dry_run,
+        "metabolic_metadata": metabolic_metadata,
+    }
+    if extra:
+        report.update(extra)
+    report.update(
+        invariant_fields(
+            tool_name="arifos_forge",
+            input_payload={
+                "receipt_verdict": receipt.get("verdict") if receipt else None,
+                "organ": organ,
+                "call": call,
+                "dry_run": dry_run,
+                "operator_id": operator_id,
+                "session_id": session_id,
+            },
+            assumptions=[
+                "Forge enforces SABAR, readiness, and SEAL before irreversible execution.",
+                "Dry-run mode simulates side effects without mutating state.",
+                "Execution confidence is bounded by declared call completeness, not human intent alone.",
+            ],
+            floors_evaluated=["F5", "F13"],
+            confidence=confidence_score,
+            extra_meta={
+                "probe_overall": probe["overall"],
+                "sabar_state": sabar["verdict"],
+                "dry_run": dry_run,
+            },
+        )
+    )
+    return report
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -329,17 +385,25 @@ async def execute(
         )
         return governed_return(
             "arifos_forge",
-            {
-                "execution": "BLOCKED",
-                "reason": "SABAR_COOLING",
-                "sabar": sabar,
-                "organ": organ,
-                "call": call,
-                "dry_run": dry_run,
-                "metabolic_metadata": metabolic_metadata,
-                "simulated_outcome": None,
-                "side_effects": [],
-            },
+            _forge_report(
+                execution="BLOCKED",
+                organ=organ,
+                call=call,
+                dry_run=dry_run,
+                operator_id=operator_id,
+                session_id=session_id,
+                confidence_score=confidence_score,
+                metabolic_metadata=metabolic_metadata,
+                probe=probe,
+                sabar=sabar,
+                receipt=receipt,
+                extra={
+                    "reason": "SABAR_COOLING",
+                    "sabar": sabar,
+                    "simulated_outcome": None,
+                    "side_effects": [],
+                },
+            ),
             metrics,
             operator_id,
             session_id,
@@ -359,15 +423,23 @@ async def execute(
         metabolic_metadata["verdict"] = Verdict.HOLD_888
         return governed_return(
             "arifos_forge",
-            {
-                "execution": "HOLD_888",
-                "reason": "READINESS_PROBE_FAILED",
-                "probe": probe,
-                "organ": organ,
-                "call": call,
-                "dry_run": dry_run,
-                "metabolic_metadata": metabolic_metadata,
-            },
+            _forge_report(
+                execution="HOLD_888",
+                organ=organ,
+                call=call,
+                dry_run=dry_run,
+                operator_id=operator_id,
+                session_id=session_id,
+                confidence_score=confidence_score,
+                metabolic_metadata=metabolic_metadata,
+                probe=probe,
+                sabar=sabar,
+                receipt=receipt,
+                extra={
+                    "reason": "READINESS_PROBE_FAILED",
+                    "probe": probe,
+                },
+            ),
             metrics,
             operator_id,
             session_id,
@@ -388,16 +460,24 @@ async def execute(
         metabolic_metadata["verdict"] = Verdict.HOLD_888
         return governed_return(
             "arifos_forge",
-            {
-                "execution": "HOLD_888",
-                "reason": "SEAL_REQUIRED",
-                "seal_check": seal,
-                "organ": organ,
-                "call": call,
-                "dry_run": dry_run,
-                "metabolic_metadata": metabolic_metadata,
-                "message": "SEAL required before execution. Escalating to 888.",
-            },
+            _forge_report(
+                execution="HOLD_888",
+                organ=organ,
+                call=call,
+                dry_run=dry_run,
+                operator_id=operator_id,
+                session_id=session_id,
+                confidence_score=confidence_score,
+                metabolic_metadata=metabolic_metadata,
+                probe=probe,
+                sabar=sabar,
+                receipt=receipt,
+                extra={
+                    "reason": "SEAL_REQUIRED",
+                    "seal_check": seal,
+                    "message": "SEAL required before execution. Escalating to 888.",
+                },
+            ),
             metrics,
             operator_id,
             session_id,
@@ -419,18 +499,26 @@ async def execute(
         )
         return governed_return(
             "arifos_forge",
-            {
-                "execution": "SIMULATED",
-                "mode": "DRY_RUN",
-                "organ": organ,
-                "call": call,
-                "dry_run": True,
-                "simulated_outcome": simulation,
-                "metabolic_metadata": metabolic_metadata,
-                "delta_s_projected": delta_s,
-                "side_effects": simulation["side_effects"],
-                "message": "Dry-run complete. No state mutated.",
-            },
+            _forge_report(
+                execution="SIMULATED",
+                organ=organ,
+                call=call,
+                dry_run=True,
+                operator_id=operator_id,
+                session_id=session_id,
+                confidence_score=confidence_score,
+                metabolic_metadata=metabolic_metadata,
+                probe=probe,
+                sabar=sabar,
+                receipt=receipt,
+                extra={
+                    "mode": "DRY_RUN",
+                    "simulated_outcome": simulation,
+                    "delta_s_projected": delta_s,
+                    "side_effects": simulation["side_effects"],
+                    "message": "Dry-run complete. No state mutated.",
+                },
+            ),
             metrics,
             operator_id,
             session_id,
@@ -466,19 +554,27 @@ async def execute(
 
     return governed_return(
         "arifos_forge",
-        {
-            "execution": "EXECUTED",
-            "mode": "LIVE",
-            "organ": organ,
-            "call": call,
-            "dry_run": False,
-            "simulated_outcome": simulation,
-            "metabolic_metadata": metabolic_metadata,
-            "delta_s_projected": delta_s,
-            "side_effects": simulation["side_effects"],
-            "state_mutated": True,
-            "message": "Execution complete. State mutated.",
-        },
+        _forge_report(
+            execution="EXECUTED",
+            organ=organ,
+            call=call,
+            dry_run=False,
+            operator_id=operator_id,
+            session_id=session_id,
+            confidence_score=confidence_score,
+            metabolic_metadata=metabolic_metadata,
+            probe=probe,
+            sabar=sabar,
+            receipt=receipt,
+            extra={
+                "mode": "LIVE",
+                "simulated_outcome": simulation,
+                "delta_s_projected": delta_s,
+                "side_effects": simulation["side_effects"],
+                "state_mutated": True,
+                "message": "Execution complete. State mutated.",
+            },
+        ),
         metrics,
         operator_id,
         session_id,

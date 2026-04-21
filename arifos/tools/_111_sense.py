@@ -377,7 +377,7 @@ async def execute(
                     "input_hash": input_hash,
                     "reasoning_hash": hashlib.sha256(b"visual_missing_image_url").hexdigest(),
                     "timestamp": datetime.now(timezone.utc).isoformat(),
-                    "floors_evaluated": ["F9"],
+                    "floors_evaluated": ["F8", "F9"],
                     "floors_deferred": ["F2", "F3", "F4"],
                     "meta_intelligence": _build_meta_intelligence("visual", domain_evidence is not None, snr_threshold, intent_class),
                     # EMD Stack — Encoder output (null on error)
@@ -427,7 +427,7 @@ async def execute(
                     "input_hash": input_hash,
                     "reasoning_hash": hashlib.sha256(b"visual_non_public_url").hexdigest(),
                     "timestamp": datetime.now(timezone.utc).isoformat(),
-                    "floors_evaluated": ["F9", "F12"],
+                    "floors_evaluated": ["F8", "F9", "F12"],
                     "floors_deferred": ["F2", "F3", "F4"],
                     "meta_intelligence": _build_meta_intelligence("visual", domain_evidence is not None, snr_threshold, intent_class),
                     # EMD Stack — Encoder output (null on error)
@@ -482,7 +482,7 @@ async def execute(
                     "input_hash": input_hash,
                     "reasoning_hash": hashlib.sha256(b"visual_bridge_failure").hexdigest(),
                     "timestamp": datetime.now(timezone.utc).isoformat(),
-                    "floors_evaluated": ["F9"],
+                    "floors_evaluated": ["F8", "F9"],
                     "floors_deferred": ["F2", "F3", "F4"],
                     "meta_intelligence": _build_meta_intelligence("visual", domain_evidence is not None, snr_threshold, intent_class),
                     # EMD Stack — Encoder output (null on error)
@@ -542,7 +542,7 @@ async def execute(
                     json.dumps(bridge_result["metrics"], sort_keys=True, default=str).encode()
                 ).hexdigest(),
                 "timestamp": datetime.now(timezone.utc).isoformat(),
-                "floors_evaluated": ["F2", "F3", "F9"],
+                "floors_evaluated": ["F2", "F3", "F8", "F9"],
                 "floors_deferred": ["F4", "F10"],
                 "meta_intelligence": _build_meta_intelligence("visual", domain_evidence is not None, snr_threshold, intent_class),
                 # EMD Stack — Encoder output
@@ -599,7 +599,7 @@ async def execute(
             "input_hash": input_hash,
             "reasoning_hash": hashlib.sha256(query.encode()).hexdigest(),
             "timestamp": datetime.now(timezone.utc).isoformat(),
-            "floors_evaluated": ["F2", "F4", "F10"],
+            "floors_evaluated": ["F2", "F4", "F8", "F10"],
             "floors_deferred": ["F3", "F9"],
             "meta_intelligence": _build_meta_intelligence("grounded", domain_evidence is not None, snr_threshold, intent_class),
             # EMD Stack — Encoder output (textual entropy)
@@ -664,7 +664,7 @@ async def execute(
             ).hexdigest(),
             "reasoning_hash": hashlib.sha256(str(exc).encode()).hexdigest(),
             "timestamp": datetime.now(timezone.utc).isoformat(),
-            "floors_evaluated": [floor],
+            "floors_evaluated": sorted({floor, "F8"}),
             "floors_deferred": ["F2", "F3", "F9"],
             "meta_intelligence": _build_meta_intelligence(mode, False, snr_threshold, intent_class),
             "raw_vision_data": None,

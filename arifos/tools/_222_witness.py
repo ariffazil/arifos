@@ -158,6 +158,24 @@ def _build_consensus_rationale(
     return rationale
 
 
+def _build_divergence_points(organs: dict[str, dict], tri_witness_score: float) -> list[str]:
+    if tri_witness_score >= 0.95:
+        return []
+
+    divergence_points = []
+    for name, organ in organs.items():
+        confidence = organ.get("confidence")
+        if confidence is None:
+            divergence_points.append(f"{name}:confidence_unknown")
+            continue
+        if confidence < 0.95:
+            divergence_points.append(f"{name}:confidence_below_harmony({confidence})")
+        if not organ.get("grounded", False):
+            divergence_points.append(f"{name}:ungrounded")
+
+    return divergence_points or ["consensus_below_harmony_threshold"]
+
+
 def _build_judge_signal(
     well_readiness: float,
 ) -> dict:
@@ -385,9 +403,10 @@ async def execute(
         ).hexdigest()
 
         claim_bundle = _build_claim_bundle(focus_claim, organs)
-        consensus_rationale = _build_consensus_rationale(
+        consensus_rationale_detail = _build_consensus_rationale(
             tri_witness_tag, organs, tri_witness_score
         )
+        divergence_points = _build_divergence_points(organs, tri_witness_score)
         judge_signal = _build_judge_signal(well_readiness)
 
         # ── EMD Stack: Decoder signals ────────────────────────────────────────
@@ -438,7 +457,9 @@ async def execute(
             "tri_witness_score": tri_witness_score,
             "tri_witness_tag": tri_witness_tag,
             "claim_bundle": claim_bundle,
-            "consensus_rationale": consensus_rationale,
+            "consensus_rationale": consensus_rationale_detail["explanation"],
+            "consensus_rationale_detail": consensus_rationale_detail,
+            "divergence_points": divergence_points,
             "judge_signal": judge_signal,
             "assumptions": assumptions,
             "confidence": tri_witness_score,  # Derived from evidence, not hardcoded
@@ -447,7 +468,7 @@ async def execute(
             "input_hash": input_hash,
             "reasoning_hash": reasoning_hash,
             "timestamp": datetime.now(timezone.utc).isoformat(),
-            "floors_evaluated": ["F2", "F3", "F5"],
+            "floors_evaluated": ["F2", "F3", "F5", "F8"],
             "floors_deferred": ["F11", "F13"],
             "meta_intelligence": _build_meta_intelligence(bool(session_id), mode, witness_required, depth),
             # EMD Stack — Metabolizer output
@@ -495,9 +516,11 @@ async def execute(
             ).hexdigest(),
             "reasoning_hash": hashlib.sha256(str(exc).encode()).hexdigest(),
             "timestamp": datetime.now(timezone.utc).isoformat(),
-            "floors_evaluated": ["F3"],
+            "floors_evaluated": ["F3", "F8"],
             "floors_deferred": ["F2", "F5", "F11", "F13"],
             "meta_intelligence": _build_meta_intelligence(bool(session_id), mode, witness_required, depth),
+            "consensus_rationale": "Witness degraded by exception path.",
+            "divergence_points": [f"exception:{type(exc).__name__}"],
             "external_evidence": [],
             "tri_witness_report": {
                 "human_witness": {"aligned": False, "note": "Error path — no human alignment data."},
