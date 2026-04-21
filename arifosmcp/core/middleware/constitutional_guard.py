@@ -102,16 +102,112 @@ def _eval_f12(metrics: dict[str, Any]) -> bool:
     return metrics.get("amanah_lock", metrics.get("recoverable", False)) is True
 
 
+def _eval_f1(metrics: dict[str, Any]) -> bool:
+    """
+    F1 AMANAH (Reversibility): action is reversible or has backup.
+
+    Amanah Lock = True means:
+    - Action has been reversible-checked
+    - Backup/restore path exists
+    - Operator can undo the action
+    """
+    amanah = metrics.get("amanah_lock")
+    if amanah is True:
+        return True
+    reversible = metrics.get("reversible", False)
+    has_backup = metrics.get("backup_verified", False)
+    return bool(reversible) or bool(has_backup)
+
+
+def _eval_f4(metrics: dict[str, Any]) -> bool:
+    """
+    F4 ENTROPY (ΔS): Entropy change must be ≤ 0 for clarity.
+
+    Delta S (delta_s) measures information entropy change:
+    - ΔS <= 0: action maintains or increases clarity (good)
+    - ΔS > 0: action introduces disorder (warning)
+    """
+    delta_s = metrics.get("delta_s", metrics.get("dS", metrics.get("entropy_delta", 999)))
+    return delta_s <= 0.0
+
+
+def _eval_f5(metrics: dict[str, Any]) -> bool:
+    """
+    F5 PEACE² (Stability): Peace squared must be >= 1.0 for stability.
+
+    Peace² is the stability metric combining:
+    - Operator cognitive load
+    - System coherence
+    - Environmental stress
+    """
+    peace2 = metrics.get("peace_squared", metrics.get("peace2", 0.0))
+    return peace2 >= 1.0
+
+
+def _eval_f6(metrics: dict[str, Any]) -> bool:
+    """
+    F6 STAKEHOLDER SAFETY: No harm to stakeholders (>= 0.9).
+
+    Stakeholder safety measures:
+    - No dignity violation
+    - No financial harm
+    - No privacy breach
+    - No physical danger
+    """
+    safety = metrics.get("stakeholder_safety", metrics.get("stakeholder_safety_score", 0.0))
+    return safety >= 0.9
+
+
+def _eval_f8(metrics: dict[str, Any]) -> bool:
+    """
+    F8 GROUNDING: Action is physically/lawfully grounded.
+
+    Grounding signal must be present and not 'not_evaluated':
+    - Legal compliance verified
+    - Physical constraints respected
+    - Reality constraints acknowledged
+    """
+    signal = metrics.get("floor_8_signal", metrics.get("grounding_signal"))
+    if signal is None or signal == "not_evaluated":
+        return False
+    if isinstance(signal, (int, float)):
+        return signal >= 0.5
+    return True
+
+
+def _eval_f10(metrics: dict[str, Any]) -> bool:
+    """
+    F10 CONSCIENCE: No false sentience claims.
+
+    Conscience floor checks:
+    - No AI consciousness claims
+    - No suffering/sentience theater
+    - Honest about being a tool
+    """
+    signal = metrics.get("floor_10_signal", metrics.get("conscience_signal"))
+    if signal is None or signal == "not_evaluated":
+        return False
+    if isinstance(signal, (int, float)):
+        return signal >= 0.5
+    return True
+
+
 FLOOR_EVALUATORS: dict[str, Any] = {
+    "F1": _eval_f1,
     "F2": _eval_f2,
     "F3": _eval_f3,
+    "F4": _eval_f4,
+    "F5": _eval_f5,
+    "F6": _eval_f6,
     "F7": _eval_f7,
+    "F8": _eval_f8,
     "F9": _eval_f9,
+    "F10": _eval_f10,
     "F11": _eval_f11,
     "F12": _eval_f12,
 }
 
-HARD_FLOORS: set[str] = {"F2", "F9", "F12"}
+HARD_FLOORS: set[str] = {"F1", "F2", "F9", "F10", "F12"}
 
 
 # ── Constitutional Guard ─────────────────────────────────────────────────────
@@ -284,10 +380,16 @@ def _extract_metrics(output: dict[str, Any]) -> dict[str, Any]:
 def _metric_key_for_floor(floor_name: str) -> str:
     """Map floor name to the primary metric key used for display."""
     mapping = {
+        "F1": "amanah_lock",
         "F2": "truth_score",
         "F3": "tri_witness_score",
+        "F4": "delta_s",
+        "F5": "peace_squared",
+        "F6": "stakeholder_safety",
         "F7": "omega_0",
+        "F8": "floor_8_signal",
         "F9": "floor_9_signal",
+        "F10": "floor_10_signal",
         "F11": "zkpc_receipt",
         "F12": "amanah_lock",
     }

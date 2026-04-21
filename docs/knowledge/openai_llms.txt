@@ -1,0 +1,30 @@
+# OpenAI Libraries & SDKs Context
+
+This document provides context for agents to utilize OpenAI libraries on this VPS.
+
+## 1. Available Official SDKs
+- **Python (Installed: v2.32.0)**: Use `import openai`. Standard for arifOS organs.
+- **Node.js**: Use `@openai/openai`.
+- **Agents SDK**: Code-first orchestration for tools and handoffs.
+
+## 2. Key Configuration
+- **API Key**: Ensure `OPENAI_API_KEY` is set in `.env`.
+- **Base URL**: Default is `https://api.openai.com/v1`.
+- **Organization/Project**: Optionally set `OPENAI_ORG_ID` and `OPENAI_PROJECT_ID`.
+
+## 3. Usage Pattern (Python v1+)
+```python
+from openai import AsyncOpenAI
+client = AsyncOpenAI()
+
+response = await client.chat.completions.create(
+    model="gpt-4o",
+    messages=[{"role": "user", "content": "Hello!"}]
+)
+```
+
+## 4. Utilities
+- **tiktoken**: For token counting (check installation before use).
+- **Azure Compatibility**: Use `AzureOpenAI` client if needed.
+
+*DITEMPA BUKAN DIBERI — 999 SEAL ALIVE*
