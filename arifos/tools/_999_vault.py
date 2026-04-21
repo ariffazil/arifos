@@ -4,6 +4,7 @@ import hashlib
 import json
 import os
 import time
+from pathlib import Path
 from typing import Any, Optional
 
 from arifos.core.governance import (
@@ -13,7 +14,12 @@ from arifos.core.governance import (
     append_vault999_event,
 )
 
-VAULT999_DIR = "/usr/src/app/VAULT999"
+VAULT999_DIR = os.path.dirname(
+    os.getenv(
+        "ARIFOS_VAULT999_LEDGER",
+        str(Path(os.getenv("ARIFOS_WORKDIR", Path(__file__).resolve().parents[2])) / "VAULT999" / "SEALED_EVENTS.jsonl"),
+    )
+)
 VAULT999_FILE = os.path.join(VAULT999_DIR, "SEEDED_EVENTS.jsonl")
 LEDGER_LOCK_PATH = os.path.join(VAULT999_DIR, ".write.lock")
 POSTGRES_REQUIRED = False  # flip to True if DB check is mandatory

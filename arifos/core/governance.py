@@ -13,6 +13,7 @@ import json
 import os
 import time
 from dataclasses import dataclass, asdict
+from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
 
 try:
@@ -70,10 +71,12 @@ class ThermodynamicMetrics:
 # Vault-999: Cryptographic Immutability (Cooling Ledger)
 # ──────────────────────────────────────────────────────────────────────────────
 
-VAULT999_LEDGER_PATH = os.getenv(
-    "ARIFOS_VAULT999_LEDGER",
-    "/usr/src/app/VAULT999/SEALED_EVENTS.jsonl"
-)
+def _default_vault999_ledger_path() -> str:
+    repo_root = Path(os.getenv("ARIFOS_WORKDIR", Path(__file__).resolve().parents[2]))
+    return str(repo_root / "VAULT999" / "SEALED_EVENTS.jsonl")
+
+
+VAULT999_LEDGER_PATH = os.getenv("ARIFOS_VAULT999_LEDGER", _default_vault999_ledger_path())
 
 
 def seal_to_vault999(

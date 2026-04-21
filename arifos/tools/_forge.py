@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import os
 import time
+from pathlib import Path
 from typing import Any, Optional
 
 from arifos.core.governance import (
@@ -20,7 +21,7 @@ from arifos.core.governance import (
 SABAR_LOCK_PATH = "/tmp/arifos_sabar.lock"
 VAULT999_LEDGER_PATH = os.getenv(
     "ARIFOS_VAULT999_LEDGER",
-    "/usr/src/app/VAULT999/SEALED_EVENTS.jsonl"
+    str(Path(os.getenv("ARIFOS_WORKDIR", Path(__file__).resolve().parents[2])) / "VAULT999" / "SEALED_EVENTS.jsonl"),
 )
 POSTGRES_DEFAULT_HOST = os.getenv("ARIFOS_PG_HOST", "localhost")
 POSTGRES_DEFAULT_PORT = os.getenv("ARIFOS_PG_PORT", "5432")
