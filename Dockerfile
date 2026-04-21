@@ -13,6 +13,9 @@ LABEL org.opencontainers.image.licenses="AGPL-3.0"
 
 # ── Stage 1: dependency installer ────────────────────────────────────────
 FROM python:3.12-slim AS deps
+LABEL org.opencontainers.image.source="https://github.com/ariffazil/arifos"
+LABEL org.opencontainers.image.description="arifOS Constitutional AI Kernel"
+LABEL org.opencontainers.image.licenses="AGPL-3.0"
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
@@ -41,6 +44,9 @@ RUN uv pip install --system --no-cache -r requirements.txt
 
 # ── Stage 2: runtime image ────────────────────────────────────────────────
 FROM python:3.12-slim AS runtime
+LABEL org.opencontainers.image.source="https://github.com/ariffazil/arifos"
+LABEL org.opencontainers.image.description="arifOS Constitutional AI Kernel"
+LABEL org.opencontainers.image.licenses="AGPL-3.0"
 
 ARG GIT_SHA=unknown
 ARG BUILD_TIME=unknown

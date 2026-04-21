@@ -157,6 +157,10 @@ dependencies = [
     "aiofiles>=23.2.1",  # Async file operations for Vault999 logging
     "openai>=1.6.0",  # Primary cloud LLM client (forged into runtime)
     "anthropic>=0.30.0",  # Claude SDK (forged into runtime)
+    "pydantic-ai>=0.0.14", # Agentic framework
+    "structlog>=24.1.0", # Structured logging
+    "python-jose[cryptography]>=3.3.0", # JWT handling
+    "whitenoise>=6.6.0", # Static asset serving
 ]
 
 [project.optional-dependencies]

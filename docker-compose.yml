@@ -106,7 +106,7 @@ services:
   # --- LLM Engine ---
   ollama:
     image: ollama/ollama:latest
-    container_name: ollama_engine
+    container_name: ollama-engine-prod
     init: true
     environment:
       - OLLAMA_KEEP_ALIVE=24h
@@ -177,14 +177,14 @@ services:
       - /opt/arifos/data/openclaw/bin-wrappers:/host/clis:ro
     environment:
       - HF_TOKEN=${HF_TOKEN}
-      - OLLAMA_URL=http://ollama:11434
+      - OLLAMA_URL=http://ollama-engine-prod:11434
       - REDIS_URL=redis://redis:6379
       - NODE_OPTIONS=--max-old-space-size=4096
       - OPENCLAW_GATEWAY_TOKEN=${OPENCLAW_GATEWAY_TOKEN}
       - PATH=/usr/local/sbin:/usr/local/bin:/root/.local/bin:/root/.npm-global/bin:/host/clis:/host/bin:/usr/sbin:/usr/bin:/sbin:/bin
       - GH_TOKEN=${GITHUB_TOKEN:-}
       - BROWSERLESS_URL=http://headless_browser:3000
-      - OLLAMA_API_BASE=http://ollama:11434
+      - OLLAMA_API_BASE=http://ollama-engine-prod:11434
       - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
     networks:
       - arifos
@@ -257,7 +257,7 @@ services:
       DATABASE_URL: postgresql://${POSTGRES_USER:-arifos_admin}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-arifos_vault}
       REDIS_URL: redis://redis:6379/0
       QDRANT_URL: http://qdrant:6333
-      OLLAMA_URL: http://ollama_engine:11434
+      OLLAMA_URL: http://ollama-engine-prod:11434
       BROWSERLESS_URL: http://headless_browser:3000
       OPENCLAW_URL: http://openclaw:18789
       # MiniMax credentials now sourced from .env.docker (F1 Amanah — persistent secrets)

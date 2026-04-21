@@ -1,0 +1,35 @@
+# AGI & Agent Frameworks Context
+
+This document provides architectural patterns for missing but recommended libraries on this VPS.
+
+## 1. PydanticAI (Deterministic Agents)
+- **Role**: Type-safe production agents.
+- **Key Pattern**: Use `Agent(model, deps_type=MyDeps, result_type=MyResult)` for validated output.
+- **Installation**: `pip install pydantic-ai`
+
+## 2. CrewAI (Role Orchestration)
+- **Role**: Multi-agent collaborative crews.
+- **Key Pattern**: Define `Agent` (role/goal) + `Task` (description/expected_output) + `Crew`.
+- **Installation**: `pip install crewai`
+
+## 3. LangChain (Integrations)
+- **Role**: Broad ecosystem of tools and RAG components.
+- **Key Pattern**: Use `LangGraph` for complex stateful workflows.
+- **Installation**: `pip install langchain langgraph`
+
+## 4. LlamaIndex (Data Intelligence)
+- **Role**: RAG and data connectors for private knowledge.
+- **Key Pattern**: `VectorStoreIndex.from_documents(documents).as_query_engine()`.
+- **Installation**: `pip install llama-index`
+
+## 5. AutoGen (Agent Conversation)
+- **Role**: Multi-agent conversation and code-execution loops.
+- **Key Pattern**: `ConversableAgent` for autonomous peer-to-peer interaction.
+- **Installation**: `pip install pyautogen`
+
+## 6. SQLAlchemy 2.0 (Data Persistence)
+- **Role**: Enterprise-grade SQL toolkit and ORM.
+- **Key Pattern**: Use `Mapped` and `mapped_column` with `AsyncSession`.
+- **Installation**: `pip install sqlalchemy`
+
+*DITEMPA BUKAN DIBERI — 999 SEAL ALIVE*

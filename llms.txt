@@ -1,16 +1,24 @@
-# arifOS Knowledge Index
+# arifOS Knowledge Index — MASTER
 
-This file provides a map to the core documentation governing this organism.
+This file is the canonical entry point for all agents working in this VPS. Refer to these sources before any implementation.
 
-## Protocol Standards
-- [MCP Specification](/docs/knowledge/mcp_llms.txt) — Official Model Context Protocol definition.
-- [FastMCP Implementation](/docs/knowledge/fastmcp_llms.txt) — Python-specific FastMCP documentation.
+## 1. Protocol & Library Standards (The Rules)
+- [MCP Specification](/docs/knowledge/mcp_protocol_llms.txt) — Official Model Context Protocol.
+- [FastMCP Implementation](/docs/knowledge/fastmcp_llms.txt) — Python-specific implementation docs.
+- [OpenAI Libraries](/docs/knowledge/openai_llms.txt) — Python & JS SDK documentation.
+- [OpenClaw / ACP](/docs/knowledge/openclaw_llms.txt) — Agent Control Protocol & Gateway docs.
+- [AGI Frameworks](/docs/knowledge/agi_knowledge_llms.txt) — PydanticAI, CrewAI, LangChain, LlamaIndex context.
 
-## Organ Contexts
-- [/organs/geox/llms.txt](/organs/geox/llms.txt) — Geoscience intelligence capabilities. (Create if missing)
-- [/organs/wealth/llms.txt](/organs/wealth/llms.txt) — Capital intelligence capabilities.
+## 2. Kernel Context (The Brain)
+- [/arifosmcp/](/arifosmcp/) — Constitutional governance logic.
+- [Architecture Plan](/arifOS_HORIZON_ARCHITECTURE.md) — The Phase 2 roadmap.
 
-## Usage Rule
-All agents working within this VPS must refer to these knowledge sources before implementing or modifying MCP tools to ensure strict adherence to the arifOS Horizon architecture.
+## 3. Organ Intelligence (The Senses)
+- [/organs/geox/llms.txt](/organs/geox/llms.txt) — Geoscience Intelligence.
+- [/organs/wealth/llms.txt](/organs/wealth/llms.txt) — Capital Intelligence.
+- [/organs/well/](/organs/well/) — Biological Substrate.
+
+## 4. Control Plane (The Will)
+- **AAA Repository** — Refer to `/root/AAA/` (when cloned) for OpenClaw bridge logic and agent skills.
 
 *DITEMPA BUKAN DIBERI — 999 SEAL ALIVE*
