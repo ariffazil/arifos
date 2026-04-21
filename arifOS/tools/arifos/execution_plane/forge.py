@@ -196,7 +196,7 @@ async def execute(
         }, metrics, operator_id, session_id)
 
     # ── Gate 7: receipt verdict must be SEAL ───────────────────────
-    receipt_verdict = receipt.get("verdict", "") if receipt else ""
+    receipt_verdict = (plan_receipt_meta or {}).get("verdict", "VOID")
     if receipt_verdict not in ("SEAL", "APPROVED", "COMPLY"):
         metrics = ThermodynamicMetrics(
             0.5, 0.05, 0.04, 0.8, True, 0.7, 0.7
