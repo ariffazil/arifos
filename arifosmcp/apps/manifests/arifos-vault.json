@@ -1,0 +1,28 @@
+{
+  "app_id": "arifos-vault",
+  "title": "arifOS Vault",
+  "description": "Immutable ledger surface — append-only verdict logging with Merkle hashing and BLS seals.",
+  "version": "2.0.0",
+  "icon": "shield",
+  "categories": ["governance", "security", "audit"],
+  "entry_point": {
+    "type": "embedded_resource",
+    "uri": "https://mcp.af-forge.io/widget/vault-seal"
+  },
+  "resources": [
+    "arifos://vault/{session_id}",
+    "arifos://ledger/{seal_id}"
+  ],
+  "tools": [
+    "arifos_vault"
+  ],
+  "permissions": [
+    "read:ledger",
+    "write:seal"
+  ],
+  "host_requirements": {
+    "embedded_ui": true,
+    "min_width": 400,
+    "min_height": 300
+  }
+}

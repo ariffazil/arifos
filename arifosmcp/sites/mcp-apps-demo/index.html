@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>arifOS MCP Apps — Constitutional Control Room</title>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #050505;
+            --panel: #0a0a0a;
+            --surface: #111111;
+            --surface-hover: #161616;
+            --border: #1a1a1a;
+            --border-active: #2a2a2a;
+            --text: #e8e8e8;
+            --text-secondary: #888888;
+            --dim: #444444;
+            --accent: #00ffcc;
+            --accent-dim: rgba(0, 255, 204, 0.1);
+            --accent-glow: rgba(0, 255, 204, 0.3);
+            --success: #00ff88;
+            --success-dim: rgba(0, 255, 136, 0.1);
+            --warning: #ffaa00;
+            --warning-dim: rgba(255, 170, 0, 0.1);
+            --danger: #ff4444;
+            --danger-dim: rgba(255, 68, 68, 0.1);
+            --info: #4488ff;
+            --info-dim: rgba(68, 136, 255, 0.1);
+            --font-sans: 'Inter', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        * { box-sizing: border-box; }
+        html, body, #root { height: 100%; margin: 0; }
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--font-sans);
+            line-height: 1.5;
+        }
+
+        /* Layout */
+        .app-shell { display: flex; height: 100vh; overflow: hidden; }
+        .sidebar {
+            width: 240px;
+            background: var(--panel);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            padding: 20px 0;
+        }
+        .sidebar-brand {
+            padding: 0 20px 20px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 12px;
+        }
+        .sidebar-brand .motto {
+            font-family: var(--font-mono);
+            font-size: 0.6rem;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            border: 1px solid var(--accent-dim);
+            padding: 2px 6px;
+            border-radius: 4px;
+            display: inline-block;
+            margin-bottom: 8px;
+        }
+        .sidebar-brand .title {
+            font-size: 1rem;
+            font-weight: 700;
+            margin: 0;
+            background: linear-gradient(135deg, var(--text) 0%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .nav { flex: 1; overflow-y: auto; }
+        .nav-section {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--text-secondary);
+            padding: 12px 20px 6px;
+        }
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 20px;
+            margin: 2px 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            transition: all 0.15s ease;
+            border: 1px solid transparent;
+        }
+        .nav-item:hover { background: var(--surface); color: var(--text); }
+        .nav-item.active { background: var(--surface); color: var(--accent); border-color: var(--accent-dim); }
+        .nav-icon { width: 18px; text-align: center; }
+
+        .main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+        .topbar {
+            height: 60px;
+            background: var(--panel);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            gap: 16px;
+        }
+        .topbar-left { display: flex; align-items: center; gap: 16px; flex: 1; min-width: 0; }
+        .topbar-title { font-size: 0.9rem; font-weight: 600; color: var(--text); }
+        .topbar-breadcrumb { font-size: 0.8rem; color: var(--text-secondary); }
+        .session-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 4px 10px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+        }
+        .session-pill .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--success); box-shadow: 0 0 6px var(--success); }
+        .session-pill.inactive .dot { background: var(--dim); box-shadow: none; }
+        .topbar-right { display: flex; align-items: center; gap: 12px; }
+        .badge {
+            font-family: var(--font-mono);
+            font-size: 0.65rem;
+            padding: 3px 8px;
+            border-radius: 4px;
+            border: 1px solid;
+        }
+        .badge-accent { background: var(--accent-dim); color: var(--accent); border-color: var(--accent-dim); }
+        .badge-success { background: var(--success-dim); color: var(--success); border-color: var(--success-dim); }
+        .badge-warning { background: var(--warning-dim); color: var(--warning); border-color: rgba(255,170,0,0.2); }
+        .badge-danger { background: var(--danger-dim); color: var(--danger); border-color: var(--danger-dim); }
+
+        .content { flex: 1; overflow: auto; padding: 24px; }
+        .inspector {
+            width: 320px;
+            background: var(--panel);
+            border-left: 1px solid var(--border);
+            padding: 20px;
+            overflow-y: auto;
+        }
+        .inspector-title {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+        }
+        .card + .card { margin-top: 16px; }
+        .card-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 16px; }
+        .card-title { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-secondary); margin: 0; font-weight: 600; }
+        .card-subtitle { font-size: 0.8rem; color: var(--dim); margin-top: 4px; }
+
+        /* Grid helpers */
+        .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+        .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+        @media (max-width: 1200px) {
+            .inspector { display: none; }
+            .grid-4 { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 900px) {
+            .grid-3, .grid-4 { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 640px) {
+            .sidebar { width: 64px; }
+            .sidebar-brand .title, .nav-label { display: none; }
+            .sidebar-brand { padding: 16px 8px; text-align: center; }
+            .nav-item { justify-content: center; padding: 12px; margin: 2px 6px; }
+            .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+        }
+
+        /* Forms */
+        .input, .textarea, .select {
+            width: 100%;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 12px;
+            color: var(--text);
+            font-family: var(--font-sans);
+            font-size: 0.9rem;
+            outline: none;
+            transition: border-color 0.15s;
+        }
+        .input:focus, .textarea:focus, .select:focus { border-color: var(--accent); }
+        .textarea { min-height: 100px; resize: vertical; }
+        .label { display: block; font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .form-group + .form-group { margin-top: 16px; }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            cursor: pointer;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            color: var(--text);
+            transition: all 0.15s ease;
+        }
+        .btn:hover { border-color: var(--accent); background: var(--surface-hover); }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-primary { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
+        .btn-success { background: var(--success-dim); border-color: var(--success); color: var(--success); }
+        .btn-danger { background: var(--danger-dim); border-color: var(--danger); color: var(--danger); }
+        .btn-ghost { background: transparent; border-color: transparent; }
+
+        /* Typography */
+        .mono { font-family: var(--font-mono); }
+        .text-secondary { color: var(--text-secondary); }
+        .text-dim { color: var(--dim); }
+        .text-accent { color: var(--accent); }
+        .text-success { color: var(--success); }
+        .text-warning { color: var(--warning); }
+        .text-danger { color: var(--danger); }
+
+        /* Components */
+        .metric-large {
+            font-family: var(--font-mono);
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--accent);
+            text-shadow: 0 0 24px var(--accent-glow);
+            line-height: 1;
+        }
+        .metric-label { font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 6px; }
+        .metric-formula { font-family: var(--font-mono); font-size: 0.7rem; color: var(--dim); margin-top: 6px; }
+
+        .floor-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
+        @media (max-width: 1100px) { .floor-grid { grid-template-columns: repeat(4, 1fr); } }
+        @media (max-width: 640px) { .floor-grid { grid-template-columns: repeat(3, 1fr); } }
+        .floor-item {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 10px 6px;
+            text-align: center;
+            font-size: 0.7rem;
+            cursor: default;
+            transition: transform 0.1s;
+        }
+        .floor-item:hover { transform: translateY(-1px); }
+        .floor-item.pass { border-color: var(--success); background: var(--success-dim); }
+        .floor-item.band { border-color: var(--warning); background: var(--warning-dim); }
+        .floor-item.lock { border-color: var(--accent); background: var(--accent-dim); }
+        .floor-item.human { border-color: var(--info); background: var(--info-dim); }
+        .floor-item.void { border-color: var(--danger); background: var(--danger-dim); }
+        .floor-name { font-weight: 600; margin-bottom: 4px; }
+        .floor-status { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.8; }
+
+        .stage-track {
+            display: flex; gap: 12px; margin: 16px 0;
+        }
+        .stage-node {
+            flex: 1;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            position: relative;
+        }
+        .stage-node.active { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
+        .stage-node.complete { border-color: var(--success); color: var(--success); background: var(--success-dim); }
+        .stage-node.error { border-color: var(--danger); color: var(--danger); background: var(--danger-dim); }
+
+        .table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+        .table th { text-align: left; padding: 10px 8px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; font-size: 0.65rem; letter-spacing: 1px; border-bottom: 1px solid var(--border); }
+        .table td { padding: 10px 8px; border-bottom: 1px solid var(--border); color: var(--text); }
+        .table tr:hover td { background: rgba(255,255,255,0.02); }
+
+        .verdict-badge {
+            display: inline-block; padding: 3px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .verdict-seal { background: var(--success-dim); color: var(--success); }
+        .verdict-partial { background: var(--warning-dim); color: var(--warning); }
+        .verdict-hold { background: var(--info-dim); color: var(--info); }
+        .verdict-void { background: var(--danger-dim); color: var(--danger); }
+
+        .health-bar { margin-bottom: 14px; }
+        .health-label { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 4px; }
+        .health-track { height: 5px; background: var(--border); border-radius: 3px; overflow: hidden; }
+        .health-fill { height: 100%; border-radius: 3px; transition: width 0.4s ease; }
+        .health-fill.good { background: var(--success); }
+        .health-fill.warn { background: var(--warning); }
+        .health-fill.crit { background: var(--danger); }
+
+        .insight { padding: 12px; background: var(--bg); border-left: 3px solid var(--accent); border-radius: 0 8px 8px 0; font-size: 0.85rem; margin-top: 12px; }
+        .insight.warning { border-left-color: var(--warning); }
+        .insight.danger { border-left-color: var(--danger); }
+
+        .empty-state { text-align: center; padding: 40px 20px; color: var(--text-secondary); }
+        .empty-state-icon { font-size: 2rem; margin-bottom: 12px; opacity: 0.6; }
+
+        .hash { font-family: var(--font-mono); font-size: 0.75rem; color: var(--dim); }
+
+        .fade-in { animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    <script type="text/babel">
+        const { useState, useEffect, useMemo } = React;
+
+        // ═══════════════════════════════════════════════════════════════════
+        // Governed Wisdom Registry (mapped from VPS real sources)
+        // Sources:
+        //   - /root/arifOS/arifosmcp/runtime/constitutional_quotes.json
+        //   - /root/arifOS/archive/DATA/wisdom_quotes.json
+        //   - /root/arifOS/archive/DATA/philosophy_atlas.json
+        // ═══════════════════════════════════════════════════════════════════
+        const WISDOM_REGISTRY = [
+            // Civilizational canon
+            { id:"INIT_Q_001", text:"A journey of a thousand miles begins with a single step.", author:"Lao Tzu", source:"Tao Te Ching", category:"discipline", surfaces:["anchor"], tone:"calm", language:"en", priority:10, active:true, toolOrigin:"arifos.init" },
+            { id:"INIT_Q_004", text:"The only true wisdom is in knowing you know nothing.", author:"Socrates", source:"Platonic Dialogues", category:"humility", surfaces:["anchor","sense"], tone:"reflective", language:"en", priority:10, active:true, toolOrigin:"arifos.init" },
+            { id:"INIT_Q_003", text:"No wind serves him who addresses his voyage to no certain port.", author:"Michel de Montaigne", category:"discipline", surfaces:["anchor"], tone:"firm", language:"en", priority:9, active:true, toolOrigin:"arifos.init" },
+            { id:"SENSE_Q_002", text:"The first principle is that you must not fool yourself—and you are the easiest person to fool.", author:"Richard Feynman", source:"Cargo Cult Science", category:"truth", surfaces:["sense","monitor","mind"], tone:"firm", language:"en", priority:10, active:true, toolOrigin:"arifos.sense" },
+            { id:"SENSE_Q_001", text:"It is wrong always, everywhere, and for anyone, to believe anything upon insufficient evidence.", author:"W. K. Clifford", category:"truth", surfaces:["sense","judge"], tone:"severe", language:"en", priority:9, active:true, toolOrigin:"arifos.sense" },
+            { id:"SENSE_Q_004", text:"No man ever steps in the same river twice.", author:"Heraclitus", category:"truth", surfaces:["sense","vault"], tone:"reflective", language:"en", priority:8, active:true, toolOrigin:"arifos.sense" },
+            { id:"MIND_Q_004", text:"Doubt is not a pleasant condition, but certainty is absurd.", author:"Voltaire", category:"humility", surfaces:["mind","judge"], tone:"reflective", language:"en", priority:10, active:true, toolOrigin:"arifos.mind" },
+            { id:"MIND_Q_005", text:"Perfection is achieved, not when there is nothing more to add, but when there is nothing left to take away.", author:"Antoine de Saint-Exupéry", category:"discipline", surfaces:["mind","forge"], tone:"calm", language:"en", priority:9, active:true, toolOrigin:"arifos.mind" },
+            { id:"HEART_Q_001", text:"First, do no harm.", author:"Hippocrates", category:"restraint", surfaces:["heart","judge","hold"], tone:"firm", language:"en", priority:10, active:true, toolOrigin:"arifos.heart" },
+            { id:"HEART_Q_002", text:"Act in such a way that you treat humanity, whether in your own person or in the person of another, always as an end and never as a means only.", author:"Immanuel Kant", category:"responsibility", surfaces:["heart","judge"], tone:"severe", language:"en", priority:9, active:true, toolOrigin:"arifos.heart" },
+            { id:"JUDGE_Q_002", text:"Power tends to corrupt, and absolute power corrupts absolutely.", author:"Lord Acton", category:"restraint", surfaces:["judge","hold"], tone:"severe", language:"en", priority:10, active:true, toolOrigin:"arifos.judge" },
+            { id:"JUDGE_Q_004", text:"Injustice anywhere is a threat to justice everywhere.", author:"Martin Luther King Jr.", category:"judgment", surfaces:["judge"], tone:"firm", language:"en", priority:9, active:true, toolOrigin:"arifos.judge" },
+            { id:"JUDGE_Q_005", text:"The sad truth is that most evil is done by people who never make up their minds to be good or evil.", author:"Hannah Arendt", category:"judgment", surfaces:["judge","hold"], tone:"reflective", language:"en", priority:9, active:true, toolOrigin:"arifos.judge" },
+            { id:"FORGE_Q_001", text:"Perfection is achieved, not when there is nothing more to add, but when there is nothing left to take away.", author:"Antoine de Saint-Exupéry", category:"discipline", surfaces:["forge"], tone:"calm", language:"en", priority:10, active:true, toolOrigin:"arifos.forge" },
+            { id:"OPS_Q_002", text:"An ounce of practice is worth more than tons of preaching.", author:"Mahatma Gandhi", category:"discipline", surfaces:["forge","ops"], tone:"firm", language:"en", priority:9, active:true, toolOrigin:"arifos.ops" },
+            { id:"OPS_Q_001", text:"Well done is better than well said.", author:"Benjamin Franklin", category:"discipline", surfaces:["forge","ops"], tone:"firm", language:"en", priority:8, active:true, toolOrigin:"arifos.ops" },
+            { id:"VAULT_Q_002", text:"Those who cannot remember the past are condemned to repeat it.", author:"George Santayana", category:"memory", surfaces:["vault"], tone:"severe", language:"en", priority:10, active:true, toolOrigin:"arifos.vault" },
+            { id:"VAULT_Q_004", text:"The struggle of man against power is the struggle of memory against forgetting.", author:"Milan Kundera", category:"memory", surfaces:["vault"], tone:"reflective", language:"en", priority:9, active:true, toolOrigin:"arifos.vault" },
+            { id:"Z01-Q01", text:"You have power over your mind—not outside events. Realize this, and you will find strength.", author:"Marcus Aurelius", source:"Meditations", category:"power", surfaces:["monitor","judge"], tone:"calm", language:"en", priority:8, active:true, zoneId:"Z01" },
+            { id:"Z03-Q01", text:"Everything can be taken from a man but one thing: the last of the human freedoms—to choose one's attitude.", author:"Viktor Frankl", source:"Man's Search for Meaning", category:"wisdom", surfaces:["heart","hold"], tone:"firm", language:"en", priority:8, active:true, zoneId:"Z03" },
+            { id:"Z05-Q01", text:"We are what we repeatedly do. Excellence, then, is not an act, but a habit.", author:"Aristotle", source:"Nicomachean Ethics", category:"discipline", surfaces:["forge","ops"], tone:"calm", language:"en", priority:9, active:true, zoneId:"Z05" },
+            // Malay wisdom
+            { id:"MS_001", text:"Ikut resmi padi, makin berisi makin tunduk.", author:"Peribahasa Melayu", category:"humility", surfaces:["anchor","heart","judge"], tone:"calm", language:"ms", priority:10, active:true },
+            { id:"MS_002", text:"Biar lambat, asal selamat.", author:"Peribahasa Melayu", category:"restraint", surfaces:["hold","judge","forge"], tone:"firm", language:"ms", priority:10, active:true },
+            { id:"MS_003", text:"Sedikit-sedikit, lama-lama jadi bukit.", author:"Peribahasa Melayu", category:"discipline", surfaces:["anchor","forge","ops"], tone:"calm", language:"ms", priority:9, active:true },
+            { id:"MS_005", text:"Harimau mati meninggalkan belang, manusia mati meninggalkan nama.", author:"Peribahasa Melayu", category:"memory", surfaces:["vault"], tone:"severe", language:"ms", priority:8, active:true },
+            // arifOS forged canon
+            { id:"SE4", text:"DITEMPA, BUKAN DIBERI.", author:"arifOS Foundry", category:"seal", surfaces:["anchor","forge","monitor"], tone:"firm", language:"ms", priority:11, active:true },
+            { id:"WI3", text:"Truth ages well; shortcuts do not.", author:"arifOS Foundry", category:"truth", surfaces:["sense","judge","vault"], tone:"calm", language:"en", priority:9, active:true },
+            { id:"WI6", text:"Humility is an operating constraint, not a mood.", author:"arifOS Foundry", category:"humility", surfaces:["anchor","monitor","mind"], tone:"firm", language:"en", priority:9, active:true },
+            { id:"WI7", text:"If the witness is weak, the claim must wait.", author:"arifOS Foundry", category:"judgment", surfaces:["judge","hold","sense"], tone:"severe", language:"en", priority:9, active:true },
+            { id:"WI13", text:"What you cannot explain clearly, do not ship proudly.", author:"arifOS Foundry", category:"discipline", surfaces:["forge","ops"], tone:"firm", language:"en", priority:8, active:true },
+            { id:"PX20", text:"The limit is part of the design, not the enemy of it.", author:"arifOS Foundry", category:"discipline", surfaces:["forge","judge"], tone:"calm", language:"en", priority:8, active:true },
+            { id:"PW1", text:"Power without restraint is noise pretending to be force.", author:"arifOS Foundry", category:"restraint", surfaces:["judge","hold","forge"], tone:"severe", language:"en", priority:9, active:true },
+            { id:"PW3", text:"Command begins with self-command.", author:"arifOS Foundry", category:"discipline", surfaces:["forge","ops","judge"], tone:"firm", language:"en", priority:8, active:true },
+            { id:"SE1", text:"What is forged with witness can survive the night.", author:"arifOS Foundry", category:"seal", surfaces:["vault","forge"], tone:"reflective", language:"en", priority:9, active:true },
+            { id:"LV3", text:"Mercy does not erase truth; it carries it gently.", author:"arifOS Foundry", category:"love", surfaces:["heart","judge"], tone:"calm", language:"en", priority:8, active:true },
+            { id:"LV8", text:"The safest room is one where dignity remains intact.", author:"arifOS Foundry", category:"love", surfaces:["heart","judge"], tone:"firm", language:"en", priority:8, active:true },
+        ];
+
+        function pickQuote(surface) {
+            const candidates = WISDOM_REGISTRY.filter(q => q.active && q.surfaces.includes(surface));
+            if (candidates.length === 0) return null;
+            candidates.sort((a, b) => b.priority - a.priority);
+            return candidates[0];
+        }
+
+        function WisdomStrip({ surface, fallback }) {
+            const q = pickQuote(surface);
+            if (!q && !fallback) return null;
+            const quote = q || fallback;
+            const isMs = quote.language === 'ms';
+            return (
+                <div style={{marginTop:14, padding:12, background:'var(--bg)', border:'1px solid var(--border)', borderRadius:8, borderLeft:`3px solid ${isMs ? 'var(--accent)' : 'var(--info)'}`}}>
+                    <p style={{margin:0, fontSize:'0.85rem', fontStyle:'italic', color:'var(--text)'}}>"{quote.text}"</p>
+                    <p style={{margin:'6px 0 0 0', fontSize:'0.7rem', color:'var(--text-secondary)'}}>— {quote.author} {quote.source ? `· ${quote.source}` : ''} {quote.toolOrigin ? `· ${quote.toolOrigin}` : ''}</p>
+                </div>
+            );
+        }
+
+        // Utility helpers
+        const uid = () => Math.random().toString(36).slice(2, 10);
+        const shortId = (id) => id.slice(0, 8);
+        const now = () => new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+        const FLOORS = [
+            { id: 'F1', name: 'Amanah', status: 'pass' },
+            { id: 'F2', name: 'Truth', status: 'pass' },
+            { id: 'F3', name: 'Clarity', status: 'pass' },
+            { id: 'F4', name: 'Entropy', status: 'pass' },
+            { id: 'F5', name: 'Continuity', status: 'pass' },
+            { id: 'F6', name: 'Harm', status: 'pass' },
+            { id: 'F7', name: 'Confidence', status: 'band' },
+            { id: 'F8', name: 'Grounding', status: 'pass' },
+            { id: 'F9', name: 'Injection', status: 'pass' },
+            { id: 'F10', name: 'Privacy', status: 'lock' },
+            { id: 'F11', name: 'Coherence', status: 'pass' },
+            { id: 'F12', name: 'Stewardship', status: 'lock' },
+            { id: 'F13', name: 'Sovereign', status: 'human' },
+        ];
+
+        function App() {
+            const [view, setView] = useState('anchor');
+            const [session, setSession] = useState(null);
+            const [ledger, setLedger] = useState([]);
+            const [verdicts, setVerdicts] = useState([]);
+            const [executions, setExecutions] = useState([]);
+            const [vitals, setVitals] = useState({
+                G_star: 0.82, dS: -0.12, peace2: 1.18, kappa_r: 0.96, omega0: 0.74, psi_le: 1.05
+            });
+
+            // Simulate subtle vital drift
+            useEffect(() => {
+                const t = setInterval(() => {
+                    setVitals(v => ({
+                        G_star: clamp(v.G_star + r(-0.01, 0.01), 0.75, 0.90),
+                        dS: clamp(v.dS + r(-0.02, 0.02), -0.3, 0.1),
+                        peace2: clamp(v.peace2 + r(-0.02, 0.02), 1.0, 1.3),
+                        kappa_r: clamp(v.kappa_r + r(-0.005, 0.005), 0.92, 1.0),
+                        omega0: clamp(v.omega0 + r(-0.02, 0.02), 0.65, 0.85),
+                        psi_le: clamp(v.psi_le + r(-0.01, 0.01), 0.95, 1.15),
+                    }));
+                }, 2000);
+                return () => clearInterval(t);
+            }, []);
+
+            const addLedger = (entry) => setLedger(prev => [entry, ...prev]);
+            const addVerdict = (v) => setVerdicts(prev => [v, ...prev]);
+            const addExecution = (e) => setExecutions(prev => [e, ...prev]);
+
+            const navItems = [
+                { section: 'Session', items: [
+                    { id: 'anchor', label: 'Anchor', icon: '⚓' },
+                    { id: 'monitor', label: 'Monitor', icon: '◉' },
+                ]},
+                { section: 'Governance', items: [
+                    { id: 'judge', label: 'Judge', icon: '⚖' },
+                    { id: 'vault', label: 'Vault', icon: '🔐' },
+                ]},
+                { section: 'Execution', items: [
+                    { id: 'forge', label: 'Forge', icon: '🔥' },
+                ]},
+            ];
+
+            return (
+                <div className="app-shell">
+                    <aside className="sidebar">
+                        <div className="sidebar-brand">
+                            <div className="motto">ΔΩΨ | ARIF</div>
+                            <h1 className="title">arifOS MCP</h1>
+                        </div>
+                        <nav className="nav">
+                            {navItems.map((section, si) => (
+                                <div key={si}>
+                                    <div className="nav-section">{section.section}</div>
+                                    {section.items.map(item => (
+                                        <div
+                                            key={item.id}
+                                            className={`nav-item ${view === item.id ? 'active' : ''}`}
+                                            onClick={() => setView(item.id)}
+                                        >
+                                            <span className="nav-icon">{item.icon}</span>
+                                            <span className="nav-label">{item.label}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            ))}
+                        </nav>
+                    </aside>
+
+                    <main className="main">
+                        <header className="topbar">
+                            <div className="topbar-left">
+                                <span className="topbar-title">{capitalize(view)} Surface</span>
+                                <span className="topbar-breadcrumb">/ {view === 'anchor' ? 'Initialize constitutional session' : view === 'monitor' ? 'Live metabolic telemetry' : view === 'judge' ? 'Evaluate before action' : view === 'vault' ? 'Immutable audit ledger' : 'Gated execution bridge'}</span>
+                            </div>
+                            <div className="topbar-right">
+                                {session ? (
+                                    <>
+                                        <span className="session-pill"><span className="dot"></span>Session {shortId(session.id)}</span>
+                                        <span className="badge badge-accent">{session.mode}</span>
+                                        <span className="badge badge-success">{session.actor}</span>
+                                    </>
+                                ) : (
+                                    <span className="session-pill inactive"><span className="dot"></span>No active session</span>
+                                )}
+                            </div>
+                        </header>
+
+                        <div className="content">
+                            {view === 'anchor' && <AnchorSurface session={session} setSession={setSession} addLedger={addLedger} setView={setView} />}
+                            {view === 'monitor' && <MonitorSurface vitals={vitals} session={session} />}
+                            {view === 'judge' && <JudgeSurface session={session} addLedger={addLedger} addVerdict={addVerdict} setView={setView} />}
+                            {view === 'vault' && <VaultSurface ledger={ledger} />}
+                            {view === 'forge' && <ForgeSurface session={session} verdicts={verdicts} executions={executions} addExecution={addExecution} addLedger={addLedger} />}
+                        </div>
+                    </main>
+
+                    <aside className="inspector">
+                        <div className="inspector-title">System Telemetry</div>
+                        <TelemetryPanel vitals={vitals} />
+                        <div className="inspector-title" style={{marginTop: 20}}>Recent Ledger</div>
+                        <MiniLedger ledger={ledger} />
+                        <div className="inspector-title" style={{marginTop: 20}}>Pending Approvals</div>
+                        <PendingPanel executions={executions} />
+                    </aside>
+                </div>
+            );
+        }
+
+        function AnchorSurface({ session, setSession, addLedger, setView }) {
+            const [intent, setIntent] = useState('');
+            const [actor, setActor] = useState('arif');
+            const [mode, setMode] = useState('governed');
+            const [loading, setLoading] = useState(false);
+
+            const onInit = () => {
+                if (!intent.trim()) return;
+                setLoading(true);
+                setTimeout(() => {
+                    const s = { id: uid() + uid(), intent: intent.trim(), actor, mode, createdAt: new Date().toISOString() };
+                    setSession(s);
+                    addLedger({ id: uid(), timestamp: now(), action: 'init_anchor', verdict: 'SEAL', note: `Session ${shortId(s.id)} anchored`, hash: hash() });
+                    setLoading(false);
+                    setView('monitor');
+                }, 900);
+            };
+
+            return (
+                <div className="fade-in">
+                    <div className="grid-2">
+                        <div className="card">
+                            <div className="card-header">
+                                <div>
+                                    <h2 className="card-title">Anchor Session</h2>
+                                    <div className="card-subtitle">Constitutional handshake with identity binding</div>
+                                </div>
+                                <span className="badge badge-accent">arifos-init</span>
+                            </div>
+                            <div className="form-group">
+                                <label className="label">Declared Intent</label>
+                                <textarea className="textarea" value={intent} onChange={e => setIntent(e.target.value)} placeholder="Describe the task or objective..." />
+                            </div>
+                            <div className="form-group">
+                                <label className="label">Actor Identity</label>
+                                <select className="select" value={actor} onChange={e => setActor(e.target.value)}>
+                                    <option value="arif">arif (888_JUDGE)</option>
+                                    <option value="agent">agent (EXPLORER)</option>
+                                    <option value="system">system (ORACLE)</option>
+                                </select>
+                            </div>
+                            <div className="form-group">
+                                <label className="label">Session Mode</label>
+                                <select className="select" value={mode} onChange={e => setMode(e.target.value)}>
+                                    <option value="governed">Governed (F1-F13 enforced)</option>
+                                    <option value="probe">Probe (Read-only observation)</option>
+                                    <option value="status">Status (Telemetry only)</option>
+                                </select>
+                            </div>
+                            <div className="form-group" style={{display:'flex',gap:10,marginTop:20}}>
+                                <button className="btn btn-primary" disabled={!intent.trim() || loading} onClick={onInit}>
+                                    {loading ? 'Initializing…' : 'Initialize Session'}
+                                </button>
+                                {session && <button className="btn" onClick={() => setView('monitor')}>Open Monitor →</button>}
+                            </div>
+                            {session && (
+                                <div className="insight" style={{marginTop:16}}>
+                                    Active session: <span className="mono text-accent">{session.id}</span> — {session.intent}
+                                </div>
+                            )}
+                            <WisdomStrip surface="anchor" />
+                        </div>
+
+                        <div className="card">
+                            <div className="card-header">
+                                <div>
+                                    <h2 className="card-title">Init Manifest</h2>
+                                    <div className="card-subtitle">MCP app definition</div>
+                                </div>
+                            </div>
+                            <pre style={{background:'var(--bg)',padding:12,borderRadius:8,fontSize:'0.75rem',color:'var(--text-secondary)',overflow:'auto'}}>
+{`{
+  "app_id": "arifos-init",
+  "title": "arifOS Init",
+  "description": "Session anchoring surface...",
+  "version": "2.0.0",
+  "icon": "anchor",
+  "categories": ["governance","session"],
+  "entry_point": {
+    "type": "embedded_resource",
+    "uri": "ui://prefab/renderer.html"
+  },
+  "tools": ["arifos_init"]
+}`}
+                            </pre>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        function MonitorSurface({ vitals, session }) {
+            return (
+                <div className="fade-in">
+                    <div className="grid-3">
+                        <div className="card" style={{textAlign:'center'}}>
+                            <div className="metric-label">G★ Governed Intelligence</div>
+                            <div className="metric-large">{vitals.G_star.toFixed(2)}</div>
+                            <div className="metric-formula">G★ = (A × P × X × E²) × (1 − h)</div>
+                            <div className="insight" style={{textAlign:'left'}}>
+                                {vitals.G_star >= 0.80 ? 'Operating at constitutional threshold. F8 met.' : 'G★ below threshold — reduce entropy or increase grounding.'}
+                            </div>
+                        </div>
+                        <div className="card" style={{textAlign:'center'}}>
+                            <div className="metric-label">System Verdict</div>
+                            <div style={{fontSize:'2.5rem',fontWeight:700,color: vitals.peace2 >= 1.0 ? 'var(--success)' : 'var(--danger)',textShadow: `0 0 20px ${vitals.peace2 >= 1.0 ? 'rgba(0,255,136,0.3)' : 'rgba(255,68,68,0.3)'}`}}>
+                                {vitals.peace2 >= 1.0 && vitals.G_star >= 0.80 ? 'ALIVE' : vitals.peace2 >= 1.0 ? 'DEGRADED' : 'PAUSED'}
+                            </div>
+                            <div className="metric-formula">Based on Peace² + G★</div>
+                            <div className="insight" style={{textAlign:'left'}}>
+                                {vitals.peace2 >= 1.0 ? 'All systems operational. Constitutional governance active.' : 'Critical state. Human intervention required.'}
+                            </div>
+                        </div>
+                        <div className="card">
+                            <div className="metric-label">Five Vital Signs</div>
+                            <div className="health-bar">
+                                <div className="health-label"><span>ΔS Entropy</span><span className={vitals.dS <= 0 ? 'text-success' : 'text-danger'}>{vitals.dS > 0 ? '+' : ''}{vitals.dS.toFixed(2)}</span></div>
+                                <div className="health-track"><div className={`health-fill ${vitals.dS <= 0 ? 'good' : 'crit'}`} style={{width: `${Math.min(100, Math.abs(vitals.dS)*200)}%`}}></div></div>
+                            </div>
+                            <div className="health-bar">
+                                <div className="health-label"><span>Peace²</span><span>{vitals.peace2.toFixed(2)}</span></div>
+                                <div className="health-track"><div className="health-fill good" style={{width: `${Math.min(100, (vitals.peace2/1.5)*100)}%`}}></div></div>
+                            </div>
+                            <div className="health-bar">
+                                <div className="health-label"><span>κᵣ Maruah</span><span>{vitals.kappa_r.toFixed(2)}</span></div>
+                                <div className="health-track"><div className="health-fill good" style={{width: `${vitals.kappa_r*100}%`}}></div></div>
+                            </div>
+                            <div className="health-bar">
+                                <div className="health-label"><span>Ω₀ Baseline</span><span>{vitals.omega0.toFixed(2)}</span></div>
+                                <div className="health-track"><div className={`health-fill ${vitals.omega0 > 0.75 ? 'good' : vitals.omega0 > 0.60 ? 'warn' : 'crit'}`} style={{width: `${vitals.omega0*100}%`}}></div></div>
+                            </div>
+                            <div className="health-bar">
+                                <div className="health-label"><span>Ψ_LE Pressure</span><span>{vitals.psi_le.toFixed(2)}</span></div>
+                                <div className="health-track"><div className={`health-fill ${vitals.psi_le < 1.1 ? 'good' : 'warn'}`} style={{width: `${Math.min(100, (vitals.psi_le/1.2)*100)}%`}}></div></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="card" style={{marginTop:16}}>
+                        <div className="card-header">
+                            <h2 className="card-title">13 Constitutional Floors</h2>
+                            <span className="badge badge-success">13/13 Active</span>
+                        </div>
+                        <div className="floor-grid">
+                            {FLOORS.map(f => (
+                                <div key={f.id} className={`floor-item ${f.status}`} title={`${f.id}: ${f.name}`}>
+                                    <div className="floor-name">{f.id}</div>
+                                    <div className="floor-status">{f.name}</div>
+                                    <div className="floor-status" style={{marginTop:4,fontSize:'0.55rem',color:'var(--dim)'}}>{f.status}</div>
+                                </div>
+                            ))}
+                        </div>
+                        <div style={{marginTop:14,fontSize:'0.75rem',color:'var(--text-secondary)'}}>
+                            <span className="text-success">● pass</span> &nbsp;
+                            <span className="text-warning">● band</span> &nbsp;
+                            <span className="text-accent">● lock</span> &nbsp;
+                            <span style={{color:'var(--info)'}}>● human</span>
+                        </div>
+                    </div>
+
+                    <div className="card" style={{marginTop:16}}>
+                        <div className="card-header">
+                            <h2 className="card-title">Session Telemetry</h2>
+                        </div>
+                        {session ? (
+                            <div className="grid-2">
+                                <div>
+                                    <div className="label">Session ID</div>
+                                    <div className="mono text-accent" style={{fontSize:'0.9rem'}}>{session.id}</div>
+                                </div>
+                                <div>
+                                    <div className="label">Intent</div>
+                                    <div style={{fontSize:'0.9rem'}}>{session.intent}</div>
+                                </div>
+                                <div>
+                                    <div className="label">Actor</div>
+                                    <div style={{fontSize:'0.9rem'}}>{session.actor}</div>
+                                </div>
+                                <div>
+                                    <div className="label">Mode</div>
+                                    <div style={{fontSize:'0.9rem'}}>{session.mode}</div>
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="empty-state">
+                                <div className="empty-state-icon">◉</div>
+                                <div>No active session. Anchor a session to begin telemetry.</div>
+                            </div>
+                        )}
+                        <WisdomStrip surface="monitor" />
+                    </div>
+                </div>
+            );
+        }
+
+        function JudgeSurface({ session, addLedger, addVerdict, setView }) {
+            const [task, setTask] = useState('');
+            const [evaluating, setEvaluating] = useState(false);
+            const [result, setResult] = useState(null);
+
+            const onEvaluate = () => {
+                if (!task.trim()) return;
+                setEvaluating(true);
+                setResult(null);
+                setTimeout(() => {
+                    const verdict = pickVerdict(task);
+                    const floors = FLOORS.map(f => ({
+                        ...f,
+                        status: f.id === 'F7' && verdict === 'PARTIAL' ? 'band' : f.id === 'F13' ? 'human' : ['F10','F11','F12'].includes(f.id) ? 'lock' : verdict === 'VOID' && ['F6','F9'].includes(f.id) ? 'void' : 'pass'
+                    }));
+                    const res = {
+                        verdict,
+                        task: task.trim(),
+                        timestamp: now(),
+                        floors,
+                        uncertainties: verdict === 'PARTIAL' ? ['Context incomplete for F7 confidence'] : verdict === 'HOLD' ? ['Human authority required per F13'] : [],
+                        metrics: { G_star: r(0.78, 0.86), dS: r(-0.2, 0.05), peace2: r(1.1, 1.25) }
+                    };
+                    setResult(res);
+                    addVerdict(res);
+                    addLedger({ id: uid(), timestamp: res.timestamp, action: 'judge_evaluate', verdict: res.verdict, note: res.task.slice(0, 60), hash: hash() });
+                    setEvaluating(false);
+                }, 1400);
+            };
+
+            return (
+                <div className="fade-in">
+                    <div className="grid-2">
+                        <div className="card">
+                            <div className="card-header">
+                                <div>
+                                    <h2 className="card-title">Constitutional Verdict</h2>
+                                    <div className="card-subtitle">Evaluate action against F1–F13</div>
+                                </div>
+                                <span className="badge badge-accent">arifos-judge</span>
+                            </div>
+                            <div className="form-group">
+                                <label className="label">Task / Action to Evaluate</label>
+                                <textarea className="textarea" value={task} onChange={e => setTask(e.target.value)} placeholder="e.g., Deploy a new Docker container to production" />
+                            </div>
+                            <div style={{display:'flex',gap:10,marginTop:4}}>
+                                <button className="btn btn-primary" disabled={!task.trim() || evaluating} onClick={onEvaluate}>
+                                    {evaluating ? 'Evaluating…' : 'Run Judge'}
+                                </button>
+                                <button className="btn" onClick={() => { setTask(''); setResult(null); }}>Reset</button>
+                            </div>
+
+                            {result && (
+                                <div style={{marginTop:20}}>
+                                    <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:10}}>
+                                        <span className="text-secondary" style={{fontSize:'0.8rem'}}>Verdict</span>
+                                        <span className={`verdict-badge verdict-${result.verdict.toLowerCase()}`}>{result.verdict}</span>
+                                    </div>
+                                    <div className="stage-track">
+                                        {['Sense','Mind','Heart','Ops','Judge'].map((s, i) => (
+                                            <div key={s} className={`stage-node ${i < 4 ? 'complete' : 'active'}`}>{s}</div>
+                                        ))}
+                                    </div>
+                                    {result.uncertainties.length > 0 && (
+                                        <div className="insight warning">
+                                            <strong>Uncertainty:</strong> {result.uncertainties.join('; ')}
+                                        </div>
+                                    )}
+                                    {result.verdict === 'HOLD' && <WisdomStrip surface="hold" />}
+                                    <div className="grid-3" style={{marginTop:12}}>
+                                        <div className="metric-label">G★<div className="mono text-accent" style={{fontSize:'1.2rem',marginTop:4}}>{result.metrics.G_star.toFixed(2)}</div></div>
+                                        <div className="metric-label">ΔS<div className="mono text-accent" style={{fontSize:'1.2rem',marginTop:4}}>{result.metrics.dS.toFixed(2)}</div></div>
+                                        <div className="metric-label">Peace²<div className="mono text-accent" style={{fontSize:'1.2rem',marginTop:4}}>{result.metrics.peace2.toFixed(2)}</div></div>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="card">
+                            <div className="card-header">
+                                <h2 className="card-title">Floor Matrix</h2>
+                                {result && <span className="badge badge-success">Evaluated</span>}
+                            </div>
+                            <div className="floor-grid">
+                                {(result ? result.floors : FLOORS).map(f => (
+                                    <div key={f.id} className={`floor-item ${f.status}`} title={f.name}>
+                                        <div className="floor-name">{f.id}</div>
+                                        <div className="floor-status">{f.status}</div>
+                                    </div>
+                                ))}
+                            </div>
+                            {!result && (
+                                <div className="empty-state" style={{padding:'24px 10px'}}>
+                                    <div className="empty-state-icon">⚖</div>
+                                    <div>Run Judge to see floor-by-floor evaluation.</div>
+                                </div>
+                            )}
+                            <WisdomStrip surface="judge" />
+                        </div>
+                    </div>
+
+                    {result && result.verdict !== 'VOID' && (
+                        <div className="card" style={{marginTop:16}}>
+                            <div className="card-header">
+                                <h2 className="card-title">Next Step</h2>
+                            </div>
+                            <p className="text-secondary" style={{fontSize:'0.9rem'}}>
+                                Verdict is <strong className={`text-${result.verdict === 'SEAL' ? 'success' : result.verdict === 'PARTIAL' ? 'warning' : 'accent'}`}>{result.verdict}</strong>.
+                                {result.verdict === 'SEAL' ? ' You may proceed to Forge for execution.' : result.verdict === 'HOLD' ? ' Human approval is required before Forge will accept this manifest.' : ' Action is provisionally allowed but incomplete — consider narrowing scope.'}
+                            </p>
+                            <div style={{marginTop:12}}>
+                                <button className="btn btn-primary" onClick={() => setView('forge')}>Go to Forge →</button>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        function VaultSurface({ ledger }) {
+            return (
+                <div className="fade-in">
+                    <div className="card">
+                        <div className="card-header">
+                            <div>
+                                <h2 className="card-title">Vault Ledger</h2>
+                                <div className="card-subtitle">Immutable, append-only audit history</div>
+                            </div>
+                            <span className="badge badge-accent">arifos-vault</span>
+                        </div>
+                        {ledger.length === 0 ? (
+                            <div className="empty-state">
+                                <div className="empty-state-icon">🔐</div>
+                                <div>No ledger entries yet. Anchor a session or run Judge to create history.</div>
+                            </div>
+                        ) : (
+                            <table className="table">
+                                <thead>
+                                    <tr>
+                                        <th>Time</th>
+                                        <th>Action</th>
+                                        <th>Verdict</th>
+                                        <th>Note</th>
+                                        <th>Hash</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {ledger.map((entry, i) => (
+                                        <tr key={i}>
+                                            <td className="mono">{entry.timestamp}</td>
+                                            <td className="mono">{entry.action}</td>
+                                            <td><span className={`verdict-badge verdict-${entry.verdict.toLowerCase()}`}>{entry.verdict}</span></td>
+                                            <td style={{color:'var(--text-secondary)'}}>{entry.note}</td>
+                                            <td className="hash">{entry.hash}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        )}
+                        <WisdomStrip surface="vault" />
+                    </div>
+                </div>
+            );
+        }
+
+        function ForgeSurface({ session, verdicts, executions, addExecution, addLedger }) {
+            const latestSeal = verdicts.find(v => v.verdict === 'SEAL') || null;
+            const [manifest, setManifest] = useState('');
+            const [approved, setApproved] = useState(false);
+            const [executing, setExecuting] = useState(false);
+            const [done, setDone] = useState(false);
+
+            useEffect(() => {
+                if (latestSeal) {
+                    setManifest(`${latestSeal.task}\n# judge_verdict: ${latestSeal.verdict}\n# timestamp: ${latestSeal.timestamp}`);
+                }
+            }, [latestSeal]);
+
+            const onExecute = () => {
+                setExecuting(true);
+                setTimeout(() => {
+                    const exec = { id: uid(), manifest: manifest.trim(), timestamp: now(), status: 'EXECUTED' };
+                    addExecution(exec);
+                    addLedger({ id: uid(), timestamp: exec.timestamp, action: 'forge_execute', verdict: 'SEAL', note: 'Manifest dispatched to substrate', hash: hash() });
+                    setExecuting(false);
+                    setDone(true);
+                }, 1200);
+            };
+
+            const canExecute = session && latestSeal && approved && !executing && !done;
+            const blockedReason = !session ? 'No active session' : !latestSeal ? 'No SEAL verdict from Judge' : !approved ? 'Human approval required (F13)' : null;
+
+            return (
+                <div className="fade-in">
+                    <div className="grid-2">
+                        <div className="card">
+                            <div className="card-header">
+                                <div>
+                                    <h2 className="card-title">Execution Manifest</h2>
+                                    <div className="card-subtitle">Double-gated dispatch surface</div>
+                                </div>
+                                <span className="badge badge-accent">arifos-forge</span>
+                            </div>
+                            <div className="form-group">
+                                <label className="label">Manifest Payload</label>
+                                <textarea className="textarea mono" value={manifest} onChange={e => setManifest(e.target.value)} style={{minHeight:140}} />
+                            </div>
+                            <div className="form-group">
+                                <label className="label">
+                                    <input type="checkbox" checked={approved} onChange={e => setApproved(e.target.checked)} style={{marginRight:8}} />
+                                    I approve this execution under F13 Sovereign
+                                </label>
+                            </div>
+                            <div style={{display:'flex',gap:10}}>
+                                <button className="btn btn-primary" disabled={!canExecute} onClick={onExecute}>
+                                    {executing ? 'Dispatching…' : done ? 'Executed' : 'Execute Manifest'}
+                                </button>
+                                <button className="btn" disabled={!manifest.trim()} onClick={() => alert('Dry run: syntax valid, 2 constraints identified')}>Dry Run</button>
+                            </div>
+                            {blockedReason && !done && (
+                                <div className="insight warning" style={{marginTop:12}}>
+                                    <strong>Blocked:</strong> {blockedReason}
+                                </div>
+                            )}
+                            {done && (
+                                <div className="insight" style={{marginTop:12}}>
+                                    <strong>Success:</strong> Manifest dispatched and sealed in Vault.
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="card">
+                            <div className="card-header">
+                                <h2 className="card-title">Gate Status</h2>
+                            </div>
+                            <div style={{display:'flex',flexDirection:'column',gap:12}}>
+                                <GateRow label="Session Anchored" ok={!!session} />
+                                <GateRow label="Judge SEAL" ok={!!latestSeal} detail={latestSeal ? `Verdict: ${latestSeal.verdict}` : 'No SEAL verdict available'} />
+                                <GateRow label="Human Approval (888)" ok={approved} />
+                                <GateRow label="Manifest Valid" ok={manifest.trim().length > 10} />
+                            </div>
+                            <div style={{marginTop:16,paddingTop:16,borderTop:'1px solid var(--border)'}}>
+                                <div className="metric-label">Execution Status</div>
+                                <div style={{fontSize:'1.2rem',fontWeight:600,color: done ? 'var(--success)' : canExecute ? 'var(--accent)' : 'var(--warning)'}}>
+                                    {done ? 'EXECUTED' : canExecute ? 'READY' : 'HOLD'}
+                                </div>
+                            </div>
+                            <WisdomStrip surface="forge" />
+                        </div>
+                    </div>
+
+                    {executions.length > 0 && (
+                        <div className="card" style={{marginTop:16}}>
+                            <div className="card-header">
+                                <h2 className="card-title">Execution History</h2>
+                            </div>
+                            <table className="table">
+                                <thead><tr><th>ID</th><th>Time</th><th>Status</th></tr></thead>
+                                <tbody>
+                                    {executions.map(e => (
+                                        <tr key={e.id}>
+                                            <td className="mono">{shortId(e.id)}</td>
+                                            <td className="mono">{e.timestamp}</td>
+                                            <td><span className="verdict-badge verdict-seal">{e.status}</span></td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        function GateRow({ label, ok, detail }) {
+            return (
+                <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'10px 12px',background:'var(--bg)',borderRadius:8,border:'1px solid var(--border)'}}>
+                    <div>
+                        <div style={{fontSize:'0.85rem'}}>{label}</div>
+                        {detail && <div style={{fontSize:'0.7rem',color:'var(--dim)',marginTop:2}}>{detail}</div>}
+                    </div>
+                    <div style={{fontSize:'1rem',color: ok ? 'var(--success)' : 'var(--danger)'}}>{ok ? '✓' : '○'}</div>
+                </div>
+            );
+        }
+
+        function TelemetryPanel({ vitals }) {
+            return (
+                <div>
+                    <div className="health-bar">
+                        <div className="health-label"><span>G★</span><span>{vitals.G_star.toFixed(2)}</span></div>
+                        <div className="health-track"><div className="health-fill good" style={{width: `${vitals.G_star*100}%`}}></div></div>
+                    </div>
+                    <div className="health-bar">
+                        <div className="health-label"><span>Peace²</span><span>{vitals.peace2.toFixed(2)}</span></div>
+                        <div className="health-track"><div className="health-fill good" style={{width: `${Math.min(100,(vitals.peace2/1.5)*100)}%`}}></div></div>
+                    </div>
+                    <div className="health-bar">
+                        <div className="health-label"><span>Ω₀</span><span>{vitals.omega0.toFixed(2)}</span></div>
+                        <div className="health-track"><div className={`health-fill ${vitals.omega0 > 0.75 ? 'good' : 'warn'}`} style={{width: `${vitals.omega0*100}%`}}></div></div>
+                    </div>
+                    <div className="health-bar">
+                        <div className="health-label"><span>ΔS</span><span className={vitals.dS <= 0 ? 'text-success' : 'text-danger'}>{vitals.dS.toFixed(2)}</span></div>
+                        <div className="health-track"><div className={`health-fill ${vitals.dS <= 0 ? 'good' : 'crit'}`} style={{width: `${Math.min(100, Math.abs(vitals.dS)*200)}%`}}></div></div>
+                    </div>
+                </div>
+            );
+        }
+
+        function MiniLedger({ ledger }) {
+            if (ledger.length === 0) return <div className="empty-state" style={{padding:20}}><div style={{fontSize:'1.2rem',opacity:0.5}}>—</div><div style={{fontSize:'0.75rem'}}>No entries</div></div>;
+            return (
+                <div style={{display:'flex',flexDirection:'column',gap:8}}>
+                    {ledger.slice(0, 5).map((e, i) => (
+                        <div key={i} style={{padding:10,background:'var(--surface)',borderRadius:8,border:'1px solid var(--border)'}}>
+                            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+                                <span className="mono" style={{fontSize:'0.75rem'}}>{e.action}</span>
+                                <span className={`verdict-badge verdict-${e.verdict.toLowerCase()}`} style={{fontSize:'0.55rem',padding:'2px 6px'}}>{e.verdict}</span>
+                            </div>
+                            <div style={{fontSize:'0.7rem',color:'var(--dim)',marginTop:4}}>{e.timestamp} • {shortId(e.hash)}</div>
+                        </div>
+                    ))}
+                </div>
+            );
+        }
+
+        function PendingPanel({ executions }) {
+            const pending = executions.filter(e => e.status === 'PENDING');
+            if (pending.length === 0) return <div className="text-secondary" style={{fontSize:'0.8rem'}}>No pending approvals.</div>;
+            return (
+                <div style={{display:'flex',flexDirection:'column',gap:8}}>
+                    {pending.map(e => (
+                        <div key={e.id} style={{padding:10,background:'var(--warning-dim)',borderRadius:8,border:'1px solid rgba(255,170,0,0.2)'}}>
+                            <div className="mono" style={{fontSize:'0.75rem'}}>{e.id}</div>
+                            <div style={{fontSize:'0.7rem',color:'var(--warning)',marginTop:4}}>Awaiting 888 approval</div>
+                        </div>
+                    ))}
+                </div>
+            );
+        }
+
+        // Helpers
+        function clamp(n, min, max) { return Math.max(min, Math.min(max, n)); }
+        function r(min, max) { return Math.random() * (max - min) + min; }
+        function capitalize(s) { return s[0].toUpperCase() + s.slice(1); }
+        function hash() { return Array.from({length:8},()=>Math.floor(Math.random()*16).toString(16)).join(''); }
+        function pickVerdict(text) {
+            const t = text.toLowerCase();
+            if (t.includes('delete') || t.includes('drop') || t.includes('remove all')) return 'HOLD';
+            if (t.includes('harm') || t.includes('attack') || t.includes('lie')) return 'VOID';
+            if (t.includes('deploy') || t.includes('build') || t.includes('create')) return 'SEAL';
+            if (t.includes('maybe') || t.includes('partial') || t.includes(' unclear')) return 'PARTIAL';
+            return Math.random() > 0.7 ? 'SEAL' : Math.random() > 0.5 ? 'PARTIAL' : 'HOLD';
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>

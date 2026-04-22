@@ -1,5 +1,12 @@
-# arifOS Pre-commit Hooks
-# DITEMPA BUKAN DIBERI
+# Pre-commit hooks configuration for arifOS
+# Enforces constitutional code quality before commits reach repository
+#
+# Setup:
+#   pip install pre-commit
+#   pre-commit install
+#   pre-commit run --all-files  # Test on all files
+#
+# DITEMPA BUKAN DIBERI - Code quality is forged, not assumed!
 
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
@@ -8,24 +15,48 @@ repos:
       - id: trailing-whitespace
       - id: end-of-file-fixer
       - id: check-yaml
+      - id: check-json
+      - id: check-toml
       - id: check-added-large-files
-        args: ['--maxkb=5000']
-        exclude: '\.git/|\.txt$'
+        args: ['--maxkb=10000']
+      - id: check-merge-conflict
+      - id: detect-private-key
+
+  - repo: https://github.com/charliermarsh/ruff-pre-commit
+    rev: v0.8.0
+    hooks:
+      - id: ruff
+        args: [--fix, --exit-non-zero-on-fix]
+
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.5.0
+    hooks:
+      - id: detect-secrets
+        args: ['--baseline', '.secrets.baseline']
+        exclude: 'package-lock.json|.secrets.baseline'
 
   - repo: local
     hooks:
       - id: test-constitutional-guard
-        name: Constitutional Guard Tests
+        name: Constitutional Guard Tests (F1-F13)
         entry: python3 -m pytest tests/test_constitutional_guard.py -v
         language: system
         pass_filenames: false
         always_run: true
         stages: [push]
 
-      - id: secrets-scan
-        name: Secrets Scan
-        entry: python3 scripts/secrets_scan.py
+      - id: no-hallucination-claims
+        name: F9 Anti-Hantu Check
+        entry: python -c "import sys, re; pattern = re.compile(r'(I feel|I am conscious|I have emotions|soul|suffering)', re.I); sys.exit(1 if any(pattern.search(open(p).read()) for p in sys.argv[1:]) else 0)"
         language: system
-        pass_filenames: false
-        files: '\.py$|\.env$|secrets|SECRET'
-        stages: [pre-commit, push]
+        types: [python]
+        stages: [commit]
+
+      - id: amanah-check
+        name: F1 Amanah Check (Irreversible ops)
+        entry: python -c "import sys; dangerous = ['shutil.rmtree', 'os.remove', 'DROP TABLE', 'DELETE FROM']; sys.exit(1 if any(any(d in open(p).read() for d in dangerous) for p in sys.argv[1:]) else 0)"
+        language: system
+        types: [python, sql]
+        stages: [commit]
+
+fail_fast: false
