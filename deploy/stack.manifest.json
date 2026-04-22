@@ -31,5 +31,11 @@
     "Wire constitutional_guard into arifos/adapters/mcp/mcp_server.py",
     "Verify F2/F9/F5/F6 enforcement via AMANAH re-test",
     "Rebuild arifos-mcp-prod container with fixed pipeline"
-  ]
+  ],
+  "wealth": {
+    "repo": "git@github.com:ariffazil/wealth.git",
+    "ref": "89615a899d3a532253e751715f6ff805abf3775b",
+    "deploy_ref": "master",
+    "note": "WEALTH capital intelligence organ, MCP endpoint only, NOT a submodule"
+  }
 }
