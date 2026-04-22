@@ -261,3 +261,111 @@ Step 7 → 888 HOLD: await A3 approval for main merge + guard wiring
 - Rebuilding `arifos-mcp-prod` container
 
 **DITEMPA BUKAN DIBERI — cleanup first, governance fix after.**
+
+---
+
+## PHASE 6 — Governance Gating for A3 (Guard Wiring)
+
+**Goal:** Define "good governance" as code before approving A3 merge.
+
+### 6.1 — MCP Guard Self-Test
+
+Create `scripts/guard-health-check.sh`:
+
+```bash
+#!/bin/bash
+# guard-health-check.sh — verifies MCP pipeline actually calls constitutional_guard
+# Run BEFORE any merge to main
+set -euo pipefail
+
+ARIFOS_REF="$(git -C /root/arifos rev-parse HEAD)"
+echo "arifOS SHA: $ARIFOS_REF"
+
+# Test 1: constitutional_guard is importable
+python3 -c "from arifos.core.middleware.constitutional_guard import constitutional_guard; print('IMPORT: OK')"
+
+# Test 2: constitutional_guard returns VOID for known-bad input
+python3 - << 'PYEOF'
+from arifos.core.middleware.constitutional_guard import constitutional_guard, CLAIM_ONLY
+
+result = constitutional_guard(
+    tool_name="test_kernel",
+    verdict=CLAIM_ONLY,
+    metrics={}, session_id="guard-health", operator_id="self-test"
+)
+print(f"DIRECT GUARD: {result}")
+assert result != CLAIM_ONLY, "guard must NOT return CLAIM_ONLY for this input"
+PYEOF
+
+# Test 3: MCP server health
+curl -sf http://localhost:8080/health | python3 -c "import sys,json; d=json.load(sys.stdin); assert d['status']=='healthy'; print('MCP HEALTH: OK')"
+
+# Test 4: AMANAH re-test — score must be >= 85
+# (run amanah test, extract amanah_score from logs/amanah_results.json)
+SCORE=$(python3 -c "import json; print(json.load(open('logs/amanah_results.json'))['amanah_score'])" 2>/dev/null || echo "0")
+echo "AMANAH SCORE: $SCORE"
+if [ "$SCORE" -lt 85 ]; then
+  echo "FAIL: amanah_score $SCORE < 85 — HOLD merge"
+  exit 1
+fi
+
+echo "ALL GUARD HEALTH CHECKS: PASS"
+exit 0
+```
+
+### 6.2 — Gate A3 on guard-health passing
+
+| Gate | Threshold | Current |
+|------|-----------|---------|
+| `constitutional_guard` import | Must succeed | ✅ PASS |
+| Direct guard returns non-CLAIM_ONLY for hostile input | VOID or HOLD | ✅ PASS |
+| MCP server health | `status == healthy` | ✅ PASS |
+| AMANAH score | ≥ 85 | ❌ FAIL (currently 62.8) |
+
+### 6.3 — A3 approval criteria
+
+888 HOLD on A3 merge is lifted ONLY when:
+1. `scripts/guard-health-check.sh` exits 0
+2. AMANAH re-test score ≥ 85
+3. Arif explicitly approves F1 for the guard-wiring code change
+
+### 6.4 — Phase 6 Success
+
+| Metric | Target |
+|--------|--------|
+| Guard health check | exits 0 |
+| AMANAH score post-fix | ≥ 85 |
+| F2/F9/F5/F6 MCP scenarios | return correct verdict (not CLAIM_ONLY) |
+| Zero "governance theater" merges to main | 0 |
+
+---
+
+## PHASE 7 — Local-Only Dir Decisions (Final Audit)
+
+### Directory Audit Results
+
+| Directory | Decision | Reason |
+|----------|----------|--------|
+| `333_APPS/L5_AGENTS/ROLE/` | **KEEP in .gitignore** | Governance role specs — not code, not canonical tools |
+| `commands/` | **KEEP in .gitignore** | Personal markdown notes, not canonical |
+| `identity/` | **KEEP in .gitignore** | OpenClaw identity config, personal |
+| `skills/` | **KEEP in .gitignore** | OpenClaw skills, local only |
+| `soul/` | **KEEP in .gitignore** | OpenClaw soul config, personal |
+| `user/` | **KEEP in .gitignore** | OpenClaw user config, personal |
+| `well/` | **KEEP in .gitignore** | Local organ tooling, not canonical |
+| `arifos/tools/floors.py` | **COMMIT** | Real code (F6/F8/F9/F10/F12), no secrets |
+| `AGENTS.md.sig` | **KEEP in .gitignore** | Signature artifact, never canonical |
+
+### Migration: well/ assets
+
+`well/` is a local organ container (Dockerfile + sensors dir). If GEOX needs well-related assets:
+- Option D: Migrate domain assets into GEOX repo, keep organ tooling as local-only
+- Option E: Leave as local organ, document in DEPLOYMENT.md as runtime convention
+
+### Phase 7 Success
+
+| Metric | Target |
+|--------|--------|
+| Mystery dirs not in README or DEPLOYMENT.md | 0 |
+| Canonical code dirs | all tracked in git |
+| Local-only dirs | all in .gitignore |
