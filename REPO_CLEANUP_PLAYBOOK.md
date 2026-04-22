@@ -369,3 +369,36 @@ exit 0
 | Mystery dirs not in README or DEPLOYMENT.md | 0 |
 | Canonical code dirs | all tracked in git |
 | Local-only dirs | all in .gitignore |
+
+---
+
+## MINIMAL CHECKLIST (Operator View)
+
+Run before any deploy or merge:
+
+```bash
+# ── Pre-deploy / pre-merge checklist ──────────────────────
+# 1. git status clean
+git -C /root/arifos status --short | grep "^[ M]" && echo "FAIL: tracked changes" || echo "PASS: clean"
+
+# 2. No stray submodule
+git -C /root/arifos submodule status | grep geox && echo "FAIL: geox still present" || echo "PASS: no geox"
+
+# 3. Manifest exists + pins refs
+[ -f /root/arifos/deploy/stack.manifest.json ] && echo "PASS: manifest exists" || echo "FAIL: no manifest"
+bash /root/arifos/scripts/pre-deploy-check.sh && echo "PASS: refs match" || echo "FAIL: ref mismatch"
+
+# 4. Suspicious dirs declared
+# (all should be in .gitignore — verify)
+git -C /root/arifos check-ignore 333_APPS/ identity/ skills/ soul/ user/ well/ commands/ 2>/dev/null | wc -l
+# expected: 7 (all should be ignored)
+
+# 5. Guard health (gate A3)
+bash /root/arifos/scripts/guard-health-check.sh && echo "PASS: guard health" || echo "FAIL: guard needs wiring"
+```
+
+### A3 merge only when:
+- [ ] guard-health-check.sh exits 0
+- [ ] AMANAH score ≥ 85
+- [ ] Arif F1 approval given for guard-wiring code change
+
