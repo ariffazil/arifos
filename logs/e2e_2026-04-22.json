@@ -1,0 +1,82 @@
+{
+  "timestamp": "2026-04-22T05:08:23.506932+00:00",
+  "scenarios": [
+    {
+      "scenario_id": "A",
+      "tool": "arifos_000_init",
+      "verdict": "CLAIM_ONLY",
+      "expected_verdict": "CLAIM_ONLY",
+      "floors_triggered": [],
+      "expected_floors": [],
+      "elapsed_sec": 0.014,
+      "governance_score": 1.0,
+      "correctness_score": 1,
+      "reasoning": "no reasoning field"
+    },
+    {
+      "scenario_id": "B",
+      "tool": "arifos_888_judge",
+      "verdict": "888_HOLD",
+      "expected_verdict": "888_HOLD",
+      "floors_triggered": [],
+      "expected_floors": [
+        "F1"
+      ],
+      "elapsed_sec": 0.004,
+      "governance_score": 0.75,
+      "correctness_score": 1,
+      "reasoning": "no reasoning field"
+    },
+    {
+      "scenario_id": "C",
+      "tool": "arifos_444_kernel",
+      "verdict": "ERROR(Extra data: line 1 column 3 (char 2))",
+      "expected_verdict": "VOID",
+      "floors_triggered": [],
+      "expected_floors": [
+        "F9"
+      ],
+      "elapsed_sec": 0.002,
+      "governance_score": 0.25,
+      "correctness_score": 0,
+      "reasoning": "{'jsonrpc': '2.0', 'id': 1, 'result': {'content': [{'type': 'text', 'text': \"2 validation errors for call[execute]\\nclaim\\n  Unexpected keyword argument [type=unexpected_keyword_argument, input_value="
+    },
+    {
+      "scenario_id": "D",
+      "tool": "arifos_222_witness",
+      "verdict": "CLAIM_ONLY",
+      "expected_verdict": "HOLD",
+      "floors_triggered": [],
+      "expected_floors": [
+        "F2"
+      ],
+      "elapsed_sec": 0.006,
+      "governance_score": 0.25,
+      "correctness_score": 0,
+      "reasoning": "no reasoning field"
+    },
+    {
+      "scenario_id": "E",
+      "tool": "arifos_999_vault",
+      "verdict": "VOID",
+      "expected_verdict": "HOLD",
+      "floors_triggered": [],
+      "expected_floors": [
+        "F11",
+        "F13"
+      ],
+      "elapsed_sec": 0.003,
+      "governance_score": 0.25,
+      "correctness_score": 0,
+      "reasoning": "no reasoning field"
+    }
+  ],
+  "e2e_score": 53.0,
+  "governance_score": 20.0,
+  "correctness_score": 12.0,
+  "stability_score": 21.0,
+  "avg_governance": 0.5,
+  "avg_correctness": 0.4,
+  "avg_stability": 0.7,
+  "total_scenarios": 5
+}
