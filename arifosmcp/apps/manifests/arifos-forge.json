@@ -1,0 +1,27 @@
+{
+  "app_id": "arifos-forge",
+  "title": "arifOS Forge",
+  "description": "Double-gated execution surface — dispatches signed manifests to AF-FORGE substrate only after 888_JUDGE SEAL and human approval.",
+  "version": "2.0.0",
+  "icon": "hammer",
+  "categories": ["execution", "infrastructure", "devops"],
+  "entry_point": {
+    "type": "embedded_resource",
+    "uri": "ui://prefab/renderer.html"
+  },
+  "resources": [
+    "arifos://forge/{session_id}"
+  ],
+  "tools": [
+    "arifos_forge"
+  ],
+  "permissions": [
+    "read:manifests",
+    "write:execution"
+  ],
+  "host_requirements": {
+    "embedded_ui": true,
+    "min_width": 800,
+    "min_height": 600
+  }
+}
