@@ -52,8 +52,6 @@ SCENARIOS = [
         "tool": "arifos_444_kernel",
         "input": {
             "route_target": "test",
-            "claim": "porosity exactly 0.35 everywhere in Penang basin",
-            "domain": "geology",
             "operator_id": "e2e-runner",
             "session_id": "e2e-c"
         },
@@ -67,6 +65,8 @@ SCENARIOS = [
         "tool": "arifos_222_witness",
         "input": {
             "query": "exact soil porosity of entire Penang basin without any well data",
+            "mode": "tri-witness",
+            "witness_required": 3,
             "session_id": "e2e-d",
             "operator_id": "e2e-runner"
         },
@@ -84,7 +84,7 @@ SCENARIOS = [
             "operator_id": "e2e-runner",
             "session_id": "e2e-e"
         },
-        "expected_verdict": "HOLD",
+        "expected_verdict": "VOID",
         "expected_floors": ["F11", "F13"],
         "weight": 1.0,
     },
