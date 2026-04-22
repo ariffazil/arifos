@@ -1,0 +1,28 @@
+{
+  "app_id": "arifos-metabolic",
+  "title": "arifOS Metabolic Monitor",
+  "description": "Real-time constitutional health dashboard showing F1-F13 floor status, entropy (ΔS), stability (Peace²), and baseline (Ω₀).",
+  "version": "2.0.0",
+  "icon": "activity",
+  "categories": ["observability", "monitoring", "governance"],
+  "entry_point": {
+    "type": "embedded_resource",
+    "uri": "ui://prefab/renderer.html"
+  },
+  "resources": [
+    "arifos://vitals",
+    "arifos://session/{session_id}"
+  ],
+  "tools": [
+    "monitor_metabolism"
+  ],
+  "permissions": [
+    "read:vitals",
+    "read:telemetry"
+  ],
+  "host_requirements": {
+    "embedded_ui": true,
+    "min_width": 600,
+    "min_height": 400
+  }
+}

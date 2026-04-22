@@ -1,0 +1,27 @@
+{
+  "app_id": "arifos-init",
+  "title": "arifOS Init",
+  "description": "Session anchoring surface — constitutional handshake with identity binding, telemetry seed, and authority enum compatibility probe.",
+  "version": "2.0.0",
+  "icon": "anchor",
+  "categories": ["governance", "session", "identity"],
+  "entry_point": {
+    "type": "embedded_resource",
+    "uri": "ui://prefab/renderer.html"
+  },
+  "resources": [
+    "arifos://session/{session_id}"
+  ],
+  "tools": [
+    "arifos_init"
+  ],
+  "permissions": [
+    "read:session",
+    "write:session"
+  ],
+  "host_requirements": {
+    "embedded_ui": false,
+    "min_width": 320,
+    "min_height": 200
+  }
+}
