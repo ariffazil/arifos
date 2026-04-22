@@ -7,3 +7,13 @@ __pycache__/
 *.egg-info/
 .pytest_cache/
 results.tsv
+
+# Sovereign standalone MCPs — not submodules of arifOS
+GEOX/
+WEALTH/
+
+# Environment noise
+.venv/
+dist/
+build/
+*.log
