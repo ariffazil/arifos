@@ -1,0 +1,28 @@
+{
+  "app_id": "arifos-judge",
+  "title": "arifOS Judge",
+  "description": "Constitutional governance verdict engine — evaluates actions against F1-F13 floors and renders SEAL, HOLD, VOID, or PARTIAL.",
+  "version": "2.0.0",
+  "icon": "scale",
+  "categories": ["governance", "audit", "ai-safety"],
+  "entry_point": {
+    "type": "embedded_resource",
+    "uri": "ui://prefab/renderer.html"
+  },
+  "resources": [
+    "arifos://verdict/{session_id}",
+    "arifos://audit/{session_id}"
+  ],
+  "tools": [
+    "arifos_judge"
+  ],
+  "permissions": [
+    "read:verdicts",
+    "read:audit"
+  ],
+  "host_requirements": {
+    "embedded_ui": true,
+    "min_width": 600,
+    "min_height": 400
+  }
+}

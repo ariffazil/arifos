@@ -1,0 +1,8 @@
+src/GeoxCore.tsx
+src/AppForge.tsx
+src/adapters/
+src/domains/
+src/forge/
+src/components/Layout/MainLayoutForge.tsx
+src/components/WellContextDesk/
+src/hooks/useMcpTool.ts
