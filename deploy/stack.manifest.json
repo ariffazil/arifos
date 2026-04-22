@@ -1,0 +1,35 @@
+{
+  "schema": 1,
+  "epoch": "2026-04-22",
+  "arifos": {
+    "repo": "git@github.com:ariffazil/arifos.git",
+    "ref": "autoresearch/2026-04-22@0d2058a04",
+    "deploy_ref": "main",
+    "note": "Hold merge until constitutional_guard wired in MCP pipeline"
+  },
+  "geox": {
+    "repo": "git@github.com:ariffazil/GEOX.git",
+    "ref": "main@fe03bcb",
+    "deploy_ref": "main",
+    "note": "Separate canonical repo; container consumes via pinned image or sibling build"
+  },
+  "images": {
+    "arifos_mcp": "ghcr.io/ariffazil/arifos-mcp:2026.04.22",
+    "geox": "ghcr.io/ariffazil/geox:2026.04.22"
+  },
+  "stack": {
+    "postgres": "postgres:16-alpine",
+    "redis": "redis:7-alpine",
+    "qdrant": "qdrant/qdrant:latest",
+    "ollama": "ollama/ollama:latest",
+    "traefik": "traefik:v3.6.9"
+  },
+  "verdict": "888_HOLD",
+  "hold_reason": "P1: constitutional_guard NOT wired — arifOS MCP tools emit CLAIM_ONLY, no floor enforcement at transport layer",
+  "amanah_score_pre": 62.8,
+  "888_HOLD_items": [
+    "Wire constitutional_guard into arifos/adapters/mcp/mcp_server.py",
+    "Verify F2/F9/F5/F6 enforcement via AMANAH re-test",
+    "Rebuild arifos-mcp-prod container with fixed pipeline"
+  ]
+}
