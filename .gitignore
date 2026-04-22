@@ -1,9 +1,32 @@
+# Local runtime & OpenClaw config — never commit
+identity/
+soul/
+user/
+skills/
+commands/
+
+# App experiments — never commit
+333_APPS/
+
+# Local organ tooling
+well/
+
+# Signature artifacts
+*.sig
+
+# Editor & system noise
+.DS_Store
+*.swp
 __pycache__/
 *.pyc
-*.pyo
-.archived/
-.git/
+
+# Environment files — NEVER commit secrets
 .env
-*.egg-info/
-.pytest_cache/
-results.tsv
+.env.local
+.env.production
+
+# Test results (generated)
+tests/autoresearch/results.tsv
+tests/autoresearch/*.jsonl
+logs/*.jsonl
+logs/*.tsv
