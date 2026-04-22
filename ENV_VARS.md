@@ -62,3 +62,55 @@ _axis_enabled = lambda axis: os.getenv(f"ARIFOS_ENABLE_{axis}_AXIS", "true").low
 ---
 
 *DITEMPA BUKAN DIBERI — Forged, Not Given*
+
+---
+
+## Ops Stack — API Keys & Secrets
+
+**Principle (F1 Amanah + F11 Audit):** No live secrets in git. No secrets in environment variables that get exported to shell or logged. Agents read secrets from the vault path at container startup only.
+
+### Canonical Secrets Path
+
+```
+/mnt/arifos/secrets/   ← bind-mounted into containers at runtime
+```
+
+| Secret | Source | Purpose |
+|--------|--------|---------|
+| `ARIFOS_API_KEY` | Vault (not git) | Master bearer token for Grafana, OpenClaw restart, webhook deploy |
+
+### Reading Secrets at Runtime
+
+```python
+# In container startup (docker-compose env_file or entrypoint script)
+# DO NOT: export ARIFOS_API_KEY=...
+# DO:    read from vault and pass as file or secrets manager
+
+import os
+
+def load_secret(path: str) -> str:
+    with open(path) as f:
+        return f.read().strip()
+```
+
+### Agent Integration Contract
+
+```
+A-FORGE runtime injects:  ARIFOS_API_KEY (from vault → container env at startup)
+arifOS agents read from:  os.environ["ARIFOS_API_KEY"]
+Grafana auth:             Bearer token via Authorization header
+OpenClaw restart hook:    POST /api/restart with Bearer token
+```
+
+### Docker Compose Reference (VPS infrastructure — NOT in git)
+
+```yaml
+# /root/compose/docker-compose.yml — VPS infrastructure
+services:
+  arifosmcp:
+    env_file: /mnt/arifos/secrets/arifos.env
+    volumes:
+      - /mnt/arifos/secrets:/secrets:ro
+```
+
+*Vault-locked. F1 Amanah. F13 Sovereign — human holds the key.*
