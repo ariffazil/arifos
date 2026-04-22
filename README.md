@@ -135,3 +135,44 @@ curl https://arifOS.arif-fazil.com/health
 ## License
 
 AGPL-3.0 | CC0 (theory/doctrine)
+
+---
+
+## Canonical Tool Registry (33 Tool LOCK — 2026-04-21)
+
+| Stage | Tool | Floor | Purpose |
+|-------|------|-------|---------|
+| 000 | `arifos_000_init` | F1,F13 | Session init, human anchor, sovereignty confirm |
+| 111 | `arifos_111_sense` | F4,F10 | Image perception, Earth signal ingestion |
+| 222 | `arifos_222_witness` | F2,F4 | Live web search, evidence extraction |
+| 333 | `arifos_333_mind` | F3,F7 | Reasoning, hypothesis, confidence scoring |
+| 444 | `arifos_444_kernel` | F9,F11 | Anti-hallucination, policy enforcement |
+| 555 | `arifos_555_memory` | F1,F11 | Session + long-term memory read/write |
+| 666 | `arifos_666_heart` | F6,F13 | Stakeholder dignity, human welfare |
+| 777 | `arifos_777_ops` | F8,F12 | Cost, resource, operational safety |
+| 888 | `arifos_888_judge` | ALL | Verdict: SEAL/HOLD/VOID with floor audit |
+| 999 | `arifos_999_vault` | F11,F13 | Immutable audit ledger, MerkleV3 chain |
+| — | `arifos_forge` | F1,F9 | Code execution, file mutation |
+| — | `arifos_gateway` | F4,F11 | MCP registry, tool routing |
+| — | `arifos_sabar` | ALL | Resilience, graceful degradation |
+
+**Sealed:** `v2026.04.21-UNIFIED` · 33 tools locked · 24 containers running
+
+## Governance Floors (F1–F13)
+
+| Floor | Name | Enforces |
+|-------|------|---------|
+| F1 | AMANAH | Reversibility — irreversible → 888_HOLD |
+| F2 | TRUTH | τ≥0.99 for CLAIM, or declare UNKNOWN |
+| F3 | TRI-WITNESS | human + AI + earth signal corroboration |
+| F4 | CLARITY | Scale, CRS, provenance explicit |
+| F5 | CONSISTENCY | Internal model consistency |
+| F6 | MARUAH | Stakeholder dignity protected |
+| F7 | HUMILITY | Confidence ∈ [0.03, 0.15] |
+| F8 | SAFETY | Law + safety compliance verified |
+| F9 | ANTI-HANTU | Zero hallucination — physics or VOID |
+| F10 | ONTOLOGY | AI=tool, Model≠Reality |
+| F11 | AUDIT | Every decision logged, full provenance |
+| F12 | RESILIENCE | Graceful degradation, no single point of failure |
+| F13 | SOVEREIGN | Human holds final veto — supreme |
+

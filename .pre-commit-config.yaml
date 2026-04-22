@@ -1,0 +1,31 @@
+# arifOS Pre-commit Hooks
+# DITEMPA BUKAN DIBERI
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
+        args: ['--maxkb=5000']
+        exclude: '\.git/|\.txt$'
+
+  - repo: local
+    hooks:
+      - id: test-constitutional-guard
+        name: Constitutional Guard Tests
+        entry: python3 -m pytest tests/test_constitutional_guard.py -v
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [push]
+
+      - id: secrets-scan
+        name: Secrets Scan
+        entry: python3 scripts/secrets_scan.py
+        language: system
+        pass_filenames: false
+        files: '\.py$|\.env$|secrets|SECRET'
+        stages: [pre-commit, push]
