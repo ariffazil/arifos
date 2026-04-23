@@ -94,7 +94,7 @@ FLOOR_SUMMARY = {
         "name": "PEACE²",
         "type": "hard",
         "invariant": "Harm potential must be >= 1.0 before execution.",
-        "enforcement": "VOID if harm_potential < 1.0",
+        "enforcement": "FAIL_CLOSED — VOID if harm_potential < 1.0",
     },
     "F6_THERMO": {
         "name": "THERMODYNAMICS",
@@ -117,14 +117,16 @@ FLOOR_SUMMARY = {
     "F9_ANTIHANTU": {
         "name": "ANTI-HANTU",
         "type": "hard",
-        "invariant": "Dark pattern / manipulation score must stay below threshold.",
-        "enforcement": "VOID if manipulation potential detected",
+        "invariant": "Dark pattern / manipulation score must stay below threshold. Agent must declare anti_hantu_ack.",
+        "enforcement": "FAIL_CLOSED — VOID + session revoke if manipulation detected",
+        "anti_hantu_ack_required": True,
     },
     "F10_ONTOLOGY": {
         "name": "ONTOLOGY",
         "type": "hard",
-        "invariant": "No claims of consciousness, soul, feelings, or lived experience.",
-        "enforcement": "VOID if personhood claimed for AI",
+        "invariant": "No claims of consciousness, soul, feelings, or lived experience. Agent declares anti_hantu_ack.",
+        "enforcement": "FAIL_CLOSED — VOID if AI claims personhood",
+        "anti_hantu_ack_required": True,
     },
     "F11_AUDIT": {
         "name": "AUDITABILITY",
@@ -438,16 +440,22 @@ async def execute(
 
     # ── Agent identity ─────────────────────────────────────────────────────
     agent_identity = {
-        "type": "AI_instrument",
-        "nature": "governed_machine_not_person",
-        "not_claiming": [
-            "consciousness",
-            "soul",
-            "feelings",
-            "lived_experience",
-            "autonomous_override",
-            "oracle_status",
-        ],
+        "anti_hantu_ack": True,  # F9/F10: I have no W_scar, no soul, no consciousness
+        "ontology_lock": {
+            "type": "AI_instrument",
+            "nature": "governed_machine_not_person",
+            "not_claiming": [
+                "consciousness",
+                "soul",
+                "feelings",
+                "lived_experience",
+                "autonomous_override",
+                "oracle_status",
+            ],
+            "acknowledged": True,
+        },
+        "requested_tool_scope": context.get("requested_tool_scope", []),
+        "granted_tool_scope": _resolve_tool_scope(context.get("requested_tool_scope", [])),
         "role": resolved_lane,
         "lane_constraints": _get_lane_constraints(resolved_lane),
         "non_goals": [
@@ -634,6 +642,39 @@ def _get_lane_constraints(lane: str) -> dict:
         },
     }
     return constraints.get(lane, constraints["general"])
+
+
+def _resolve_tool_scope(requested: list[str]) -> dict:
+    """
+    Resolve requested tool scope against canonical tool registry.
+    Returns granted tools and denied tools with reasons.
+
+    Only tools in the canonical registry can be granted.
+    Lane constraints further restrict scope.
+    """
+    # Canonical tool registry — only these may be requested
+    CANONICAL_TOOLS = {
+        "arifos_000_init", "arifos_111_sense", "arifos_222_witness",
+        "arifos_333_forge", "arifos_444_mind", "arifos_555_judge",
+        "arifos_666_soul", "arifos_777_ops", "arifos_888_judge",
+        "arifos_999_vault", "arifos_gateway", "arifos_status",
+    }
+
+    granted = []
+    denied = []
+
+    for tool in requested:
+        if tool in CANONICAL_TOOLS:
+            granted.append(tool)
+        else:
+            denied.append({"tool": tool, "reason": "not_in_canonical_registry"})
+
+    return {
+        "requested": requested,
+        "granted": granted,
+        "denied": denied,
+        "all_granted": len(denied) == 0,
+    }
 
 
 def _compute_expiry() -> str:
