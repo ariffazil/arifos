@@ -1,5 +1,6 @@
 from ._000_init import execute as init_000
 from ._111_sense import execute as sense_111
+from ._112_search import execute as search_112
 from ._222_witness import execute as witness_222
 from ._333_mind import execute as mind_333
 from ._444_kernel import execute as kernel_444
@@ -24,6 +25,7 @@ __all__ = [
     "ops_777",
     "sabar",
     "sense_111",
+    "search_112",
     "vault_999",
     "witness_222",
 ]

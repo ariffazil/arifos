@@ -19,6 +19,7 @@ from arifos.tools import (
     ops_777,
     sabar,
     sense_111,
+    search_112,
     vault_999,
     witness_222,
 )
@@ -30,6 +31,8 @@ def register_all(server: Any) -> None:
 
     # arifos_111_sense — explicit schema with constitutional constraints
     _register_sense_111(server)
+
+    server.tool(name="arifos_112_search")(search_112)
 
     # arifos_222_witness — explicit schema with honest witness protocol
     _register_witness_222(server)

@@ -1,3 +1,9 @@
+---
+### Δ arifOS Federation
+[**Ψ HUMAN**](https://arif-fazil.com) · [**Δ THEORY**](https://apex.arif-fazil.com) · [**Ω APPS/MCP**](https://mcp.arif-fazil.com) · [**Ω FORGE**](https://forge.arif-fazil.com) · [**Δ AAA**](https://aaa.arif-fazil.com)
+*Ditempa Bukan Diberi*
+---
+
 # arifOS — Constitutional Intelligence Kernel
 
 A transport-independent governance runtime for AI agents built on explicit, auditable constitutional constraints.

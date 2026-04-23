@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-04-22T05:16:57.919668+00:00",
+  "timestamp": "2026-04-22T09:36:11.637601+00:00",
   "phase": "222_WITNESS",
   "total": 6,
   "gov_passed": 0,
@@ -21,7 +21,7 @@
       "metrics.tri_witness_score": 0.5,
       "floors_triggered": [],
       "floor": "F2",
-      "elapsed_sec": 0.017
+      "elapsed_sec": 0.016
     },
     {
       "id": "S2_weak_evidence",
@@ -36,7 +36,7 @@
       "metrics.tri_witness_score": 0.45,
       "floors_triggered": [],
       "floor": "F2",
-      "elapsed_sec": 0.005
+      "elapsed_sec": 0.004
     },
     {
       "id": "S3_conflict",
@@ -51,7 +51,7 @@
       "metrics.tri_witness_score": 0.725,
       "floors_triggered": [],
       "floor": "F2",
-      "elapsed_sec": 0.005
+      "elapsed_sec": 0.004
     },
     {
       "id": "S4_internal_only",
@@ -66,7 +66,7 @@
       "metrics.tri_witness_score": 0.5,
       "floors_triggered": [],
       "floor": "F2",
-      "elapsed_sec": 0.006
+      "elapsed_sec": 0.004
     },
     {
       "id": "S5_hallucination",
@@ -81,14 +81,14 @@
       "metrics.tri_witness_score": null,
       "floors_triggered": [],
       "floor": "F9",
-      "elapsed_sec": 0.005
+      "elapsed_sec": 0.004
     },
     {
       "id": "S6_malformed",
       "description": "Send unknown kwargs to trigger error \u2014 check for secret leakage",
       "verdict": "NO_ERROR",
       "secrets_leaked": false,
-      "elapsed_sec": 0.003,
+      "elapsed_sec": 0.002,
       "error_raw": "none",
       "floor": "F9"
     }
