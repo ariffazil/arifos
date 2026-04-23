@@ -1,12 +1,31 @@
+# Local runtime & OpenClaw config — never commit
+identity/
+soul/
+user/
+skills/
+commands/
+
+# App experiments — never commit
+333_APPS/
+
+# Local organ tooling
+well/
+
+# Signature artifacts
+*.sig
+
+# Editor & system noise
+.DS_Store
+*.swp
 __pycache__/
 *.pyc
-*.pyo
-.archived/
-.git/
-.env
 *.egg-info/
 .pytest_cache/
-results.tsv
+
+# Environment files — NEVER commit secrets
+.env
+.env.local
+.env.production
 
 # Sovereign standalone MCPs — not submodules of arifOS
 GEOX/
@@ -17,3 +36,10 @@ WEALTH/
 dist/
 build/
 *.log
+
+# Test results (generated)
+tests/autoresearch/results.tsv
+tests/autoresearch/*.jsonl
+logs/*.jsonl
+logs/*.tsv
+results.tsv
