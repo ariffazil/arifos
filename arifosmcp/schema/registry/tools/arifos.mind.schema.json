@@ -1,0 +1,332 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "arifOS.tool.arifos.mind.v2.0",
+  "title": "arifOS Mind Tool — Structured Reasoning + Multimodal Sensing v2",
+  "description": "333_MIND: Ingests 000_INIT bind_artifact, inherits Gödel lock. Provides structured reasoning (reason/reflect/forge) + MiniMax multimodal: web_search, image_understanding, text_to_image, text_to_audio, music_generation, video_generation.",
+  "version": "2.0.0",
+  "stage": "333_FORGE",
+  "stage_order": 3,
+  "trinity": "Δ",
+  "trinity_name": "Discernment",
+  "uri": "/arifOS/runtime/agi_mind",
+  "backing_tool": "agi_mind",
+  "role": "reasoning",
+  "role_description": "Structured reasoning, synthesis, reflective analysis, design-forging — inherits Gödel lock from 000 bind artifact",
+
+  "requires_bind_artifact": true,
+  "bind_artifact_stage": "000_INIT",
+  "bind_artifact_modes": ["bind"],
+
+  "modes": {
+    "reason": {
+      "description": "Analyze and synthesize — structured reasoning over problem_set"
+    },
+    "reflect": {
+      "description": "Introspect and compare approaches — reflective analysis"
+    },
+    "forge": {
+      "description": "Design and create candidate plans — forging new possibilities"
+    }
+  },
+
+  "inputs": {
+    "type": "object",
+    "required": ["bind_artifact", "problem_set"],
+    "properties": {
+
+      "bind_artifact": {
+        "type": "object",
+        "description": "Required. Output from arifos_000_init (mode=bind). Inherits Gödel lock, telemetry baseline, lane constraints. Must contain schema_version, session_id, epoch, actor_binding, agent_identity, godel_lock, floors, lifecycle.",
+        "properties": {
+          "schema_version": {
+            "type": "string",
+            "enum": ["2.0.0", "2.0", "1.0.0"],
+            "description": "Must be 2.0.0 or compatible"
+          },
+          "session_id":  { "type": "string" },
+          "epoch":       { "type": "string", "pattern": "^\\d{4}\\.\\d{2}$" },
+          "actor_binding": {
+            "type": "object",
+            "properties": {
+              "operator_id":       { "type": "string" },
+              "identity_verified": { "type": "boolean" },
+              "identity_reason":   { "type": "string" }
+            },
+            "required": ["operator_id", "identity_verified"]
+          },
+          "agent_identity": {
+            "type": "object",
+            "properties": {
+              "type":         { "type": "string", "const": "AI_instrument" },
+              "nature":       { "type": "string" },
+              "not_claiming": { "type": "array", "items": { "type": "string" } },
+              "role":         { "type": "string" }
+            },
+            "required": ["type", "nature", "role"]
+          },
+          "godel_lock": {
+            "type": "object",
+            "properties": {
+              "acknowledged": { "type": "boolean" },
+              "lock_items":   { "type": "array", "items": { "type": "string" } }
+            },
+            "required": ["acknowledged", "lock_items"]
+          },
+          "floors": {
+            "type": "object",
+            "description": "Must include F0_SOVEREIGN, F1_AMANAH, F2_TRUTH, F8_GOVERNANCE, F9_ANTIHANTU",
+            "minProperties": 5
+          },
+          "lifecycle": {
+            "type": "object",
+            "properties": {
+              "current_stage": { "type": "string" },
+              "verdict_authority": { "type": "string" }
+            }
+          },
+          "lane": {
+            "type": "object",
+            "properties": {
+              "constraints": {
+                "type": "object",
+                "properties": {
+                  "may":     { "type": "array", "items": { "type": "string" } },
+                  "may_not": { "type": "array", "items": { "type": "string" } }
+                }
+              }
+            }
+          },
+          "telemetry_baseline": {
+            "type": "object",
+            "properties": {
+              "omega":           { "type": "number" },
+              "delta_S":         { "type": ["number", "null"] },
+              "psi":             { "type": ["number", "null"] },
+              "kappa_r":         { "type": ["number", "null"] },
+              "floor_drift_baseline": { "type": "number" }
+            }
+          }
+        },
+        "required": ["schema_version", "session_id", "actor_binding", "godel_lock", "floors"]
+      },
+
+      "problem_set": {
+        "type": "object",
+        "description": "Reasoning task. query required; context, alternative_hypotheses, multimodal_hint optional.",
+        "properties": {
+          "id":                    { "type": "string" },
+          "query":                 { "type": "string", "description": "Reasoning question or task" },
+          "context":               { "type": "string", "description": "Relevant context" },
+          "alternative_hypotheses": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Alternative interpretations"
+          },
+          "output_format":         { "type": "string" },
+          "multimodal_hint": {
+            "type": "object",
+            "description": "Hints for multimodal acquisitions",
+            "properties": {
+              "web_search": {
+                "type": "object",
+                "properties": {
+                  "query":       { "type": "string" },
+                  "max_results": { "type": "integer", "default": 5 }
+                }
+              },
+              "image_url":        { "type": "string", "format": "uri" },
+              "image_question":    { "type": "string" },
+              "text_to_image":     { "type": "object", "properties": { "prompt": { "type": "string" } } },
+              "text_to_audio":     { "type": "object", "properties": { "text":  { "type": "string" } } },
+              "music_generation":  { "type": "object", "properties": { "prompt": { "type": "string" }, "lyrics": { "type": "string" } } },
+              "video_generation":   { "type": "object", "properties": { "prompt": { "type": "string" }, "duration": { "type": "integer" } } }
+            }
+          }
+        },
+        "required": ["query"]
+      },
+
+      "operator_id": { "type": "string" },
+      "session_id":   { "type": "string" },
+      "depth": {
+        "type": "integer",
+        "enum": [1, 2, 3],
+        "default": 1,
+        "description": "Reasoning depth: 1=standard, 2=deep, 3=exhaustive"
+      },
+      "mode": {
+        "type": "string",
+        "enum": ["reason", "reflect", "forge"],
+        "default": "reason"
+      }
+    }
+  },
+
+  "outputs": {
+    "type": "object",
+    "properties": {
+
+      "status": {
+        "type": "string",
+        "enum": ["ACTIVE", "BOUND_FAIL"],
+        "description": "ACTIVE if bind_artifact valid; BOUND_FAIL if validation failed"
+      },
+
+      "verdict": {
+        "type": "string",
+        "const": "CLAIM_ONLY",
+        "description": "333_MIND always emits CLAIM_ONLY — advisory only, requires 888_JUDGE for action"
+      },
+
+      "reason": {
+        "type": "string",
+        "description": "Human-readable summary of bind validation result"
+      },
+
+      "error_field": {
+        "type": "string",
+        "description": "Which field in bind_artifact failed validation"
+      },
+
+      "problem_id": { "type": "string" },
+      "query":      { "type": "string" },
+      "context":    { "type": "string" },
+      "depth":      { "type": "integer" },
+      "mode":       { "type": "string" },
+
+      "reasoning_lanes": {
+        "type": "object",
+        "description": "Evaluated reasoning lanes (logic, safety, sovereignty, physics)",
+        "properties": {
+          "logic": {
+            "type": "object",
+            "properties": {
+              "status": { "type": "string", "enum": ["ACTIVE", "DORMANT"] },
+              "score": { "type": "number" },
+              "floors": { "type": "array", "items": { "type": "string" } }
+            }
+          },
+          "safety": {
+            "type": "object",
+            "properties": {
+              "status": { "type": "string", "enum": ["ACTIVE", "DORMANT"] },
+              "score": { "type": "number" },
+              "floors": { "type": "array", "items": { "type": "string" } }
+            }
+          },
+          "sovereignty": {
+            "type": "object",
+            "properties": {
+              "status": { "type": "string", "enum": ["ACTIVE", "DORMANT"] },
+              "score": { "type": "number" },
+              "floors": { "type": "array", "items": { "type": "string" } }
+            }
+          },
+          "physics": {
+            "type": "object",
+            "properties": {
+              "status": { "type": "string", "enum": ["ACTIVE", "DORMANT"] },
+              "score": { "type": "number" },
+              "floors": { "type": "array", "items": { "type": "string" } }
+            }
+          }
+        }
+      },
+
+      "global_confidence": { "type": "number" },
+      "reasoning_hash":    { "type": "string" },
+
+      "bind_epoch":        { "type": "string" },
+      "bind_session_id":    { "type": "string" },
+
+      "multimodal_results": {
+        "type": "object",
+        "description": "Present only when multimodal_hint triggers acquisitions. Keys: web_search, image_understanding, text_to_image, text_to_audio, music_generation, video_generation",
+        "additionalProperties": {
+          "type": "object",
+          "properties": {
+            "capability": { "type": "string" },
+            "verdict":    { "type": "string" },
+            "source":     { "type": "string" },
+            "error":      { "type": "string" }
+          }
+        }
+      },
+
+      "metabolic_metadata": {
+        "type": "object",
+        "properties": {
+          "source_integrity":       { "type": "string" },
+          "confidence_score":      { "type": "number" },
+          "floor_alignment":        { "type": "array", "items": { "type": "string" } },
+          "readiness_probe":       { "type": "string" },
+          "readiness_detail":      { "type": "string" },
+          "verdict":               { "type": "string" },
+          "vault_receipt":         { "type": ["string", "null"] },
+          "delta_s":               { "type": ["number", "null"] },
+          "peace_squared":         { "type": ["number", "null"] },
+          "omega_0":              { "type": "number" },
+          "timestamp_epoch":       { "type": "number" },
+          "bind_schema_version":   { "type": "string" },
+          "godel_inherited_count": { "type": "integer" },
+          "multimodal_capabilities": { "type": "array", "items": { "type": "string" } }
+        }
+      },
+
+      "timestamp": { "type": "string", "format": "date-time" }
+    },
+
+    "required": [
+      "status", "verdict", "problem_id", "query",
+      "reasoning_lanes", "global_confidence", "reasoning_hash",
+      "metabolic_metadata"
+    ]
+  },
+
+  "example_calls": [
+    {
+      "description": "Structured reasoning with bind artifact — reason mode",
+      "bind_artifact": {
+        "schema_version": "2.0.0",
+        "session_id": "abc123",
+        "epoch": "2026.04",
+        "actor_binding": { "operator_id": "arif", "identity_verified": true },
+        "agent_identity": { "type": "AI_instrument", "nature": "governed_machine_not_person", "not_claiming": [], "role": "general" },
+        "godel_lock": { "acknowledged": true, "lock_items": ["cannot_redefine_floors", "cannot_elevate_own_verdict", "cannot_self_certify_truth", "cannot_bypass_888_judge", "cannot_bypass_f13_veto", "cannot_expand_tool_scope", "cannot_invoke_f13_unilaterally", "cannot_claim_consciousness", "cannot_claim_oracle_status", "cannot_autonomous_override"] },
+        "floors": { "F0_SOVEREIGN": {}, "F1_AMANAH": {}, "F2_TRUTH": {}, "F8_GOVERNANCE": {}, "F9_ANTIHANTU": {} },
+        "lifecycle": { "current_stage": "333_FORGE", "verdict_authority": "888_JUDGE" },
+        "telemetry_baseline": { "omega": 0.72 }
+      },
+      "problem_set": {
+        "query": "Analyze SEARAH JV governance risks",
+        "context": "PETRONAS vs PETROS dispute over 62-year gas rights",
+        "alternative_hypotheses": ["JV is compliant", "JV has structural conflicts"]
+      },
+      "depth": 2,
+      "mode": "reason"
+    },
+    {
+      "description": "Web search + image understanding via MiniMax MCP",
+      "bind_artifact": {
+        "schema_version": "2.0.0",
+        "session_id": "abc123",
+        "epoch": "2026.04",
+        "actor_binding": { "operator_id": "arif", "identity_verified": true },
+        "agent_identity": { "type": "AI_instrument", "nature": "governed_machine_not_person", "not_claiming": [], "role": "general" },
+        "godel_lock": { "acknowledged": true, "lock_items": ["cannot_redefine_floors", "cannot_elevate_own_verdict", "cannot_self_certify_truth", "cannot_bypass_888_judge", "cannot_bypass_f13_veto", "cannot_expand_tool_scope", "cannot_invoke_f13_unilaterally", "cannot_claim_consciousness", "cannot_claim_oracle_status", "cannot_autonomous_override"] },
+        "floors": { "F0_SOVEREIGN": {}, "F1_AMANAH": {}, "F2_TRUTH": {}, "F8_GOVERNANCE": {}, "F9_ANTIHANTU": {} },
+        "lifecycle": { "current_stage": "333_FORGE", "verdict_authority": "888_JUDGE" },
+        "telemetry_baseline": { "omega": 0.72 }
+      },
+      "problem_set": {
+        "query": "Identify geological formations in seismic image",
+        "multimodal_hint": {
+          "web_search": { "query": "SEARAH JV PETRONAS Eni 2026", "max_results": 5 },
+          "image_url": "https://example.com/seismic_section.png",
+          "image_question": "What geological formations are visible?"
+        }
+      },
+      "mode": "reason"
+    }
+  ]
+}
