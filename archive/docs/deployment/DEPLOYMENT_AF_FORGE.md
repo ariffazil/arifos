@@ -1,7 +1,7 @@
-# 🚀 AF-FORGE Deployment Guide
+# 🚀 A-FORGE Deployment Guide
 
 ## Overview
-Deploying arifOS MCP v2 with 10 canonical tools to AF-FORGE execution substrate.
+Deploying arifOS MCP v2 with 10 canonical tools to A-FORGE execution substrate.
 
 ## Pre-Deployment Checklist
 
@@ -20,7 +20,7 @@ docker build -t arifos/arifosmcp:v2.0.0 .
 docker tag arifos/arifosmcp:v2.0.0 arifos/arifosmcp:latest
 ```
 
-### 3. Configuration Updates Needed on AF-FORGE
+### 3. Configuration Updates Needed on A-FORGE
 
 #### Environment Variables
 ```bash
@@ -46,7 +46,7 @@ PHILOSOPHY_REGISTRY_PATH=/app/data/philosophy_registry_v1.json
 
 ### Step 1: Backup Current State
 ```bash
-# On AF-FORGE machine
+# On A-FORGE machine
 docker-compose exec arifosmcp python3 -c "
 from arifosmcp.runtime.philosophy_registry import get_registry_stats
 import json
