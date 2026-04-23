@@ -17,4 +17,4 @@ psutil>=5.9.0
 requests>=2.31.0
 beautifulsoup4>=4.14.3
 rich>=13.7.0
-asyncpg>=0.29.0
+asyncpg>=0.31.0
