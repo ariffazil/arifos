@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://geox.arif-fazil.com/sitemap.xml
