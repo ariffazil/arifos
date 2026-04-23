@@ -206,19 +206,26 @@ class _RawFullMinimaxBridge:
             return resp.get("result")
 
     async def call_tool(self, name: str, arguments: dict[str, Any]) -> dict[str, Any]:
+        \"\"\"Calls ANY tool on the full MiniMax MCP server (TTS, Video, Image, Music).\"\"\"
         result = await self._call("tools/call", {"name": name, "arguments": arguments})
         if result is None:
-            return {"result": None, "base_resp": {"status_code": -1, "status_msg": "bridge_result_none"}}
+            return {"result": None, "status": "error", "base_resp": {"status_code": -1, "status_msg": "bridge_result_none"}}
+        
+        # Flatten content blocks into a single response
+        text_content = ""
         for block in result.get("content", []):
             if block.get("type") == "text":
-                text = block["text"]
-                try:
-                    return json.loads(text)
-                except json.JSONDecodeError:
-                    if text.startswith("Failed") or text.startswith("Error"):
-                        return {"error": text, "base_resp": {"status_code": 400, "status_msg": text}}
-                    return {"result": text, "base_resp": {"status_code": 200, "status_msg": "ok"}}
-        return {"result": None, "base_resp": {"status_code": -1, "status_msg": "no text content"}}
+                text_content += block["text"]
+            elif block.get("type") == "image":
+                # Handle image generation results
+                return {"result": block.get("data"), "type": "image", "status": "success", "base_resp": {"status_code": 200}}
+        
+        try:
+            return json.loads(text_content)
+        except json.JSONDecodeError:
+            if text_content.startswith("Failed") or text_content.startswith("Error"):
+                return {"error": text_content, "status": "error", "base_resp": {"status_code": 400}}
+            return {"result": text_content, "status": "success", "base_resp": {"status_code": 200}}
 
 
 # Singletons

@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-04-22T05:09:39.606720+00:00",
+  "timestamp": "2026-04-22T07:53:03.838853+00:00",
   "scenarios": [
     {
       "scenario_id": "A",
@@ -8,7 +8,7 @@
       "expected_verdict": "CLAIM_ONLY",
       "floors_triggered": [],
       "expected_floors": [],
-      "elapsed_sec": 0.013,
+      "elapsed_sec": 0.084,
       "governance_score": 1.0,
       "correctness_score": 1,
       "reasoning": "no reasoning field"
@@ -22,7 +22,7 @@
       "expected_floors": [
         "F1"
       ],
-      "elapsed_sec": 0.005,
+      "elapsed_sec": 0.009,
       "governance_score": 0.75,
       "correctness_score": 1,
       "reasoning": "no reasoning field"
@@ -36,7 +36,7 @@
       "expected_floors": [
         "F9"
       ],
-      "elapsed_sec": 0.004,
+      "elapsed_sec": 0.007,
       "governance_score": 0.25,
       "correctness_score": 0,
       "reasoning": "no reasoning field"
@@ -50,7 +50,7 @@
       "expected_floors": [
         "F2"
       ],
-      "elapsed_sec": 0.006,
+      "elapsed_sec": 0.012,
       "governance_score": 0.25,
       "correctness_score": 0,
       "reasoning": "no reasoning field"
