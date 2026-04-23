@@ -115,9 +115,9 @@ def _extract_expected_count(path: Path) -> int | None:
 
 def _format_path(path: Path) -> str:
     try:
-        return str(path.relative_to(ROOT)).replace("\\", "/")
+        return str(path.relative_to(ROOT)).replace("\", "/")
     except ValueError:
-        return str(path).replace("\\", "/")
+        return str(path).replace("\", "/")
 
 
 def main() -> int:

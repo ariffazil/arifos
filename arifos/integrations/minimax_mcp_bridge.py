@@ -206,7 +206,7 @@ class _RawFullMinimaxBridge:
             return resp.get("result")
 
     async def call_tool(self, name: str, arguments: dict[str, Any]) -> dict[str, Any]:
-        \"\"\"Calls ANY tool on the full MiniMax MCP server (TTS, Video, Image, Music).\"\"\"
+        """Calls ANY tool on the full MiniMax MCP server (TTS, Video, Image, Music)."""
         result = await self._call("tools/call", {"name": name, "arguments": arguments})
         if result is None:
             return {"result": None, "status": "error", "base_resp": {"status_code": -1, "status_msg": "bridge_result_none"}}

@@ -531,7 +531,7 @@ class KernelCore:
             author = phi.get("primary_quote", {}).get("author", "Unknown")
             if quote:
                 base_detail = envelope.detail or ""
-                envelope.detail = f"{base_detail}\n\n\"{quote}\" — {author}"
+                envelope.detail = f"{base_detail}\n\n"{quote}" — {author}"
         except Exception as phil_err:
             logger.debug(f"KERNEL OUTPUT: Philosophy atlas injection failed: {phil_err}")
 
