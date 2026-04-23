@@ -16,9 +16,8 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 # ─────────────────────────────────────────────────────────────────────────────
 
 class _MockThermodynamicMetrics:
-    def __init__(self, energy, entropy_change, temperature, coherence,
-                 is_reversible, omega, kappa_r):
-        pass
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
 
 class _MockAppendVault999Event:
     _events = []

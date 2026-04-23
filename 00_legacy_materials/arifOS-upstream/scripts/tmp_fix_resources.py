@@ -2,10 +2,10 @@ with open('arifosmcp/runtime/resources.py', encoding='utf-8') as f:
     content = f.read()
 
 old = """def register_resources(mcp: FastMCP) -> None:
-    \"\"\"Alias for register_v2_resources — backward compat.\"\"\"\n    register_v2_resources(mcp)"""
+    """Alias for register_v2_resources — backward compat."""\n    register_v2_resources(mcp)"""
 
 new = """def register_resources(mcp: FastMCP) -> list[str]:
-    \"\"\"Alias for register_v2_resources — backward compat.\"\"\"\n    return register_v2_resources(mcp)"""
+    """Alias for register_v2_resources — backward compat."""\n    return register_v2_resources(mcp)"""
 
 if old in content:
     content = content.replace(old, new)

@@ -345,7 +345,7 @@ def _f13_token() -> str:
         import logging as _logging
         _logging.getLogger(__name__).warning(
             "F13_SOVEREIGNTY: ARIFOS_F13_SALT not set — using default. "
-            "Run: python3 -c \"import secrets,hashlib; s=secrets.token_hex(16); print(s, hashlib.sha256(f'ARIF_F13_OVERRIDE_{s}'.encode()).hexdigest()[:16])\""
+            "Run: python3 -c "import secrets,hashlib; s=secrets.token_hex(16); print(s, hashlib.sha256(f'ARIF_F13_OVERRIDE_{s}'.encode()).hexdigest()[:16])""
         )
         salt = "DEFAULT_SALT_V2026_04"
     return hashlib.sha256(f"ARIF_F13_OVERRIDE_{salt}".encode("utf-8")).hexdigest()[:16]

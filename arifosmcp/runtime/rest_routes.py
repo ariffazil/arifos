@@ -1948,7 +1948,7 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
                 task = await a2a.task_manager.get_task(task_id)
                 if task:
                     yield f"data: {task.status.value if hasattr(task.status, 'value') else 'running'}\n\n"
-                yield "data: {\"status\":\"subscribed\"}\n\n"
+                yield "data: {"status":"subscribed"}\n\n"
             from starlette.responses import StreamingResponse
             return StreamingResponse(event_generator(), media_type="text/event-stream")
         except Exception as e:
@@ -1991,8 +1991,8 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
 {{.ok{{color:#3DBE8A}} .err{{color:#E05252}}</style></head><body>
 <h1>🔱 arifOS WebMCP Console</h1>
 <p>Governed browser interface for arifOS MCP. Tool calls enforced against 13 constitutional floors.</p>
-<div><strong>Tools:</strong> <span id=\"tool-count\">loading...</span></div>
-<div id=\"tools\"></div>
+<div><strong>Tools:</strong> <span id="tool-count">loading...</span></div>
+<div id="tools"></div>
 <script>
 const API = '{base}';
 async function init() {{
@@ -2001,7 +2001,7 @@ async function init() {{
   document.getElementById('tool-count').textContent = d.tools?.length + ' tools' || 'unavailable';
   const container = document.getElementById('tools');
   (d.tools||[]).forEach(t => {{
-    container.innerHTML += '<div class=\"tool\"><strong>'+t.name+'</strong>: '+t.description+'</div>';
+    container.innerHTML += '<div class="tool"><strong>'+t.name+'</strong>: '+t.description+'</div>';
   }});
 }}
 init();

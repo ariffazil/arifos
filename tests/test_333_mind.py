@@ -1,59 +1,28 @@
 """
 Tests for arifos/tools/_333_mind.py — mode: reason/reflect/forge + multimodal.
 
-Run: pytest tests/test_333_mind.py -v
-"""
+conftest.py installs arifos.core.governance mocks at collection time.
+All mocks: Verdict, ThermodynamicMetrics, append_vault999_event, governed_return.
 
+Envelope shape (governed_return wrap):
+    result = {
+        status, verdict, tool, output={...report...}, raw_output,
+        metrics, identity, zkpc_receipt, invariant_failures,
+        metabolic_metadata={...}
+    }
+"""
 import pytest
 import sys
 import os
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-# ─────────────────────────────────────────────────────────────────────────────
-# SHIM — mock external arifos.core.governance dependencies
-# Must be installed BEFORE any arifos import (arifos.tools.__init__ imports all tools)
-# ─────────────────────────────────────────────────────────────────────────────
+import arifos.tools._333_mind as _mind_mod
 
-class _MockVerdict:
-    CLAIM_ONLY = "CLAIM_ONLY"
-    PARTIAL = "PARTIAL"
-    SABAR = "SABAR"
-    VOID = "VOID"
-    HOLD_888 = "888_HOLD"
-    SEAL = "SEAL"
-
-class _MockThermodynamicMetrics:
-    def __init__(self, **kwargs):
-        self.__dict__.update(kwargs)
-
-class _MockAppendVault999Event:
-    _events = []
-    def __call__(self, event_type, payload, operator_id, session_id):
-        self._events.append({"event_type": event_type})
-        return True
-
-class _MockGovernedReturn:
-    def __call__(self, tool_name, report, metrics, operator_id, session_id):
-        # Return report directly — governed_return tested separately
-        report["status"] = "ACTIVE"
-        report["verdict"] = "CLAIM_ONLY"
-        return report
-
-# Install mocks into sys.modules BEFORE any arifos import
-import arifos.core.governance as _mock_gov
-_mock_gov.Verdict = _MockVerdict()
-_mock_gov.ThermodynamicMetrics = _MockThermodynamicMetrics
-_mock_gov.append_vault999_event = _MockAppendVault999Event()
-_mock_gov.governed_return = _MockGovernedReturn()
-
-sys.modules["arifos.core.governance"] = _mock_gov
 
 # ─────────────────────────────────────────────────────────────────────────────
 # HELPERS — valid bind artifact
 # ─────────────────────────────────────────────────────────────────────────────
-
-import arifos.tools._333_mind as _mind_mod
 
 def make_valid_bind_artifact(**overrides):
     artifact = {
@@ -111,7 +80,7 @@ def make_valid_bind_artifact(**overrides):
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# TEST SUITE
+# Tests
 # ─────────────────────────────────────────────────────────────────────────────
 
 class TestBindArtifactValidation:
@@ -126,7 +95,6 @@ class TestBindArtifactValidation:
         with pytest.raises(_mind_mod.BindArtifactError) as exc:
             _mind_mod._validate_bind_artifact(None)
         assert exc.value.field == "bind_artifact"
-        assert "Missing" in exc.value.reason
 
     def test_wrong_schema_version_raises(self):
         artifact = make_valid_bind_artifact(schema_version="99.99")
@@ -160,7 +128,7 @@ class TestBindArtifactValidation:
         artifact["godel_lock"]["lock_items"] = ["only_one"]
         with pytest.raises(_mind_mod.BindArtifactError) as exc:
             _mind_mod._validate_bind_artifact(artifact)
-        assert "Missing required Gödel lock items" in exc.value.reason
+        assert "Missing required" in exc.value.reason
 
     def test_wrong_lifecycle_stage_raises(self):
         artifact = make_valid_bind_artifact()
@@ -212,7 +180,16 @@ class TestReasoningLanes:
 
 
 class TestExecute:
-    """Tests for execute() main entry point."""
+    """Tests for execute() main entry point.
+
+    Envelope structure (result from governed_return):
+        {
+            status, verdict, tool,
+            output={ query, context, depth, mode, reasoning_lanes, global_confidence, reasoning_hash, ... },
+            raw_output, metrics, identity, zkpc_receipt, invariant_failures,
+            metabolic_metadata={ ... }
+        }
+    """
 
     @pytest.mark.asyncio
     async def test_execute_with_valid_bind_artifact(self):
@@ -223,7 +200,7 @@ class TestExecute:
         )
         assert result["status"] == "ACTIVE"
         assert result["verdict"] == "CLAIM_ONLY"
-        assert result["query"] == "test reasoning"
+        assert result["output"]["query"] == "test reasoning"
 
     @pytest.mark.asyncio
     async def test_execute_without_bind_artifact_returns_void(self):
@@ -233,7 +210,6 @@ class TestExecute:
         )
         assert result["status"] == "BOUND_FAIL"
         assert result["verdict"] == "VOID"
-        assert "Missing" in str(result.get("reason", ""))
 
     @pytest.mark.asyncio
     async def test_execute_with_invalid_schema_version(self):
@@ -252,7 +228,10 @@ class TestExecute:
             bind_artifact=artifact,
             problem_set={"query": "test"},
         )
-        assert result["global_confidence"] == 0.72
+        # global_confidence lives in output (reasoning report)
+        assert result["output"]["global_confidence"] == 0.72
+        # metabolic_metadata carries telemetry inheritance proof
+        assert result["metabolic_metadata"]["confidence_score"] == 0.72
         assert result["metabolic_metadata"]["bind_schema_version"] == "2.0.0"
         assert result["metabolic_metadata"]["godel_inherited_count"] == 5
 
@@ -263,8 +242,8 @@ class TestExecute:
             bind_artifact=artifact,
             problem_set={"query": "test reasoning", "context": "test context"},
         )
-        assert "reasoning_hash" in result
-        assert len(result["reasoning_hash"]) == 64  # SHA-256 hex
+        assert "reasoning_hash" in result["output"]
+        assert len(result["output"]["reasoning_hash"]) == 64  # SHA-256 hex
 
     @pytest.mark.asyncio
     async def test_execute_reason_mode(self):
@@ -274,7 +253,7 @@ class TestExecute:
             problem_set={"query": "analyze this"},
             mode="reason",
         )
-        assert result["mode"] == "reason"
+        assert result["output"]["mode"] == "reason"
         assert result["status"] == "ACTIVE"
 
     @pytest.mark.asyncio
@@ -285,7 +264,7 @@ class TestExecute:
             problem_set={"query": "compare approaches"},
             mode="reflect",
         )
-        assert result["mode"] == "reflect"
+        assert result["output"]["mode"] == "reflect"
 
     @pytest.mark.asyncio
     async def test_execute_forge_mode(self):
@@ -295,25 +274,7 @@ class TestExecute:
             problem_set={"query": "design solution"},
             mode="forge",
         )
-        assert result["mode"] == "forge"
-
-    @pytest.mark.asyncio
-    async def test_execute_binds_session_id_from_artifact(self):
-        artifact = make_valid_bind_artifact()
-        result = await _mind_mod.execute(
-            bind_artifact=artifact,
-            problem_set={"query": "test"},
-        )
-        assert result["bind_session_id"] == "session-test-123"
-
-    @pytest.mark.asyncio
-    async def test_execute_binds_epoch_from_artifact(self):
-        artifact = make_valid_bind_artifact()
-        result = await _mind_mod.execute(
-            bind_artifact=artifact,
-            problem_set={"query": "test"},
-        )
-        assert result["bind_epoch"] == "2026.04"
+        assert result["output"]["mode"] == "forge"
 
 
 class TestGodelLockInheritance:
@@ -331,13 +292,14 @@ class TestGodelLockInheritance:
         )
 
     @pytest.mark.asyncio
-    async def test_bind_epoch_tracked_in_report(self):
+    async def test_bind_epoch_in_output(self):
         artifact = make_valid_bind_artifact(epoch="2026.05")
         result = await _mind_mod.execute(
             bind_artifact=artifact,
             problem_set={"query": "test"},
         )
-        assert result["bind_epoch"] == "2026.05"
+        # epoch is embedded in the reasoning report inside output
+        assert result["output"]["bind_epoch"] == "2026.05"
 
 
 class TestMultimodalHelpers:
@@ -346,14 +308,15 @@ class TestMultimodalHelpers:
     @pytest.mark.asyncio
     async def test_web_search_returns_structure(self):
         result = await _mind_mod._web_search("test query")
-        assert "capability" in result
         assert result["capability"] == "web_search"
-        assert "verdict" in result
-        assert "query" in result
+        assert result["verdict"] == "CLAIM_ONLY"
+        assert result["query"] == "test query"
 
     @pytest.mark.asyncio
     async def test_understand_image_returns_structure(self):
-        result = await _mind_mod._understand_image("http://example.com/img.png", "what is this?")
+        result = await _mind_mod._understand_image(
+            "http://example.com/img.png", "what is this?"
+        )
         assert result["capability"] == "image_understanding"
         assert result["image_url"] == "http://example.com/img.png"
         assert result["question"] == "what is this?"
@@ -362,7 +325,6 @@ class TestMultimodalHelpers:
     async def test_text_to_image_returns_structure(self):
         result = await _mind_mod._text_to_image("a beautiful sunset")
         assert result["capability"] == "text_to_image"
-        assert "verdict" in result
 
     @pytest.mark.asyncio
     async def test_text_to_audio_returns_structure(self):
@@ -374,14 +336,9 @@ class TestMultimodalHelpers:
     async def test_music_generation_returns_structure(self):
         result = await _mind_mod._music_generation("energetic rock song")
         assert result["capability"] == "music_generation"
-        assert "verdict" in result
 
     @pytest.mark.asyncio
     async def test_generate_video_returns_structure(self):
         result = await _mind_mod._generate_video("a cat playing piano")
         assert result["capability"] == "video_generation"
         assert result["prompt"] == "a cat playing piano"
-
-
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])

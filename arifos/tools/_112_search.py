@@ -31,11 +31,11 @@ async def execute(
     session_id: str | None = None,
     max_results: int = 5,
 ) -> dict:
-    \"\"\"
+    """
     arifos_112_search — Web Intelligence & Grounding
 
     Performs a live web search using the MiniMax MCP bridge.
-    \"\"\"
+    """
     try:
         search_result = await minimax_bridge.web_search(query, max_results=max_results)
 
