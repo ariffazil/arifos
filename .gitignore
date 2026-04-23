@@ -19,14 +19,27 @@ well/
 *.swp
 __pycache__/
 *.pyc
+*.egg-info/
+.pytest_cache/
 
 # Environment files — NEVER commit secrets
 .env
 .env.local
 .env.production
 
+# Sovereign standalone MCPs — not submodules of arifOS
+GEOX/
+WEALTH/
+
+# Environment noise
+.venv/
+dist/
+build/
+*.log
+
 # Test results (generated)
 tests/autoresearch/results.tsv
 tests/autoresearch/*.jsonl
 logs/*.jsonl
 logs/*.tsv
+results.tsv
