@@ -1,6 +1,7 @@
-"""Compatibility shim for the package resource authority."""
-from __future__ import annotations
-
-from arifosmcp.resources import CANONICAL_RESOURCES, register_resources
-
-__all__ = ["CANONICAL_RESOURCES", "register_resources"]
+"""
+Compatibility shim — resources.py renamed to resource.py
+This file will be removed after one sprint.
+"""
+import warnings
+warnings.warn("resources.py is deprecated — use resource.py instead", DeprecationWarning, stacklevel=2)
+from arifosmcp.runtime.resource import *  # noqa: F401,F403

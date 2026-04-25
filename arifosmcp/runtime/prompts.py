@@ -1,6 +1,7 @@
-"""Compatibility shim for the package prompt authority."""
-from __future__ import annotations
-
-from arifosmcp.prompts import CANONICAL_PROMPTS, register_prompts
-
-__all__ = ["CANONICAL_PROMPTS", "register_prompts"]
+"""
+Compatibility shim — prompts.py renamed to prompt.py
+This file will be removed after one sprint.
+"""
+import warnings
+warnings.warn("prompts.py is deprecated — use prompt.py instead", DeprecationWarning, stacklevel=2)
+from arifosmcp.runtime.prompt import *  # noqa: F401,F403
