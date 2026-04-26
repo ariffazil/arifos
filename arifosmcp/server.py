@@ -279,10 +279,19 @@ try:
             try:
                 # Iterate over all providers (LocalProvider, AppProvider, etc.)
                 for provider in mcp.providers:
-                    # Access the internal _components map of each provider
-                    # Note: LocalProvider and AppProvider both have _components
+                    # Access the internal _components map
+                    # Some providers have it at the top level, others (like FastMCPApp) have it in _local
+                    raw_components = getattr(provider, "_components", None)
+                    if raw_components is None:
+                        local = getattr(provider, "_local", None)
+                        if local:
+                            raw_components = getattr(local, "_components", None)
+
+                    if not raw_components:
+                        continue
+
                     raw_tools = {
-                        k: v for k, v in provider._components.items() if k.startswith("tool:")
+                        k: v for k, v in raw_components.items() if k.startswith("tool:")
                     }
 
                     for name, tool in raw_tools.items():
