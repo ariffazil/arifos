@@ -645,14 +645,10 @@ def command_center() -> PrefabApp:
 
 
 # Patch widget domain for ChatGPT MCP Apps sandbox compliance
-import asyncio
-
-_try_loop = asyncio.new_event_loop()
-for _tool in _try_loop.run_until_complete(command_center_app.list_tools()):
-    if _tool.name == "command_center":
-        _tool.meta.setdefault("ui", {})["domain"] = "https://arifosmcp.arif-fazil.com"
+for _key, _comp in command_center_app._local._components.items():
+    if _key.startswith("tool:") and getattr(_comp, "name", None) == "command_center":
+        _comp.meta.setdefault("ui", {})["domain"] = "https://arifosmcp.arif-fazil.com"
         break
-_try_loop.close()
 
 
 def _register(mcp: FastMCP) -> None:
