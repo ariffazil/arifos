@@ -644,6 +644,17 @@ def command_center() -> PrefabApp:
     )
 
 
+# Patch widget domain for ChatGPT MCP Apps sandbox compliance
+import asyncio
+
+_try_loop = asyncio.new_event_loop()
+for _tool in _try_loop.run_until_complete(command_center_app.list_tools()):
+    if _tool.name == "command_center":
+        _tool.meta.setdefault("ui", {})["domain"] = "https://arifosmcp.arif-fazil.com"
+        break
+_try_loop.close()
+
+
 def _register(mcp: FastMCP) -> None:
     """Mount arifOS Command Center onto the platform FastMCP server."""
     mcp.add_provider(command_center_app)
