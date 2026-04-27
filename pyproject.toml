@@ -37,7 +37,7 @@ dependencies = [
     "prometheus-client>=0.19.0",
     "rich>=13.7.0",
     "psutil>=5.9.0",
-    "numpy>=1.20.0",
+    "numpy>=2.4.4",
 ]
 
 [project.optional-dependencies]
