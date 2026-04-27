@@ -21,7 +21,7 @@ jobs:
 
     steps:
       - name: 🔥 Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: 📦 Install uv (Rust-based package manager)
         uses: astral-sh/setup-uv@v3
@@ -119,7 +119,7 @@ jobs:
     
     steps:
       - name: 🔥 Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: 📦 Install uv
         uses: astral-sh/setup-uv@v3
@@ -157,7 +157,7 @@ jobs:
     
     steps:
       - name: 🔥 Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: 📦 Install uv
         uses: astral-sh/setup-uv@v3
