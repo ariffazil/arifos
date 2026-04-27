@@ -75,5 +75,5 @@ warn_unused_configs = true
 strict_optional = true
 
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=82.0.1"]
 build-backend = "setuptools.build_meta"
