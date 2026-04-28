@@ -179,6 +179,14 @@ wealth.arif-fazil.com {
     redir https://arifos.arif-fazil.com/wealth{uri} permanent
 }
 
+
+# ─── APEX: Personal Landing Page ──────────────────────────────────────────────
+apex.arif-fazil.com {
+    import tls_origin
+    root * /var/www/html/apex
+    file_server
+}
+
 # ─── INFRASTRUCTURE ────────────────────────────────────────────────────────────
 dozzle.arif-fazil.com {
     import tls_origin
