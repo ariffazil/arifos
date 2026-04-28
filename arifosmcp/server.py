@@ -105,24 +105,27 @@ def create_arifos_mcp_server() -> FastMCP:
     return mcp
 
 
+# CC tool names — registered via mcp.tool(name=...) in server.py, NOT via _register_tools()
+_CC_TOOL_NAMES: frozenset[str] = frozenset({
+    "session_status", "ops_vitals", "judge_action", "forge_dry_run",
+    "gateway_handshake", "vault_list", "vault_dry_seal",
+})
+
 def _assert_registered_surface(registered_names: list[str]) -> None:
     registered_set = set(registered_names)
-    expected_set = set(CANONICAL_TOOLS)
+    # _register_tools() registers only the 13 non-CC canonical handlers.
+    # The 7 CC tools are registered separately via mcp.tool(name=...) below.
+    expected_non_cc = {name for name in CANONICAL_TOOLS if name not in _CC_TOOL_NAMES}
 
-    if len(registered_names) != len(expected_set):
+    if registered_set != expected_non_cc:
+        missing = sorted(expected_non_cc - registered_set)
+        extra = sorted(registered_set - expected_non_cc)
         raise RuntimeError(
-            f"Surface drift detected: expected {len(expected_set)} tools, got {len(registered_names)}"
+            f"Ontology mismatch: missing={missing} extra={extra}"
         )
 
     if any(name.startswith("arifos_") for name in registered_names):
         raise RuntimeError("Legacy surface detected in registered MCP tools")
-
-    if registered_set != expected_set:
-        missing = sorted(expected_set - registered_set)
-        extra = sorted(registered_set - expected_set)
-        raise RuntimeError(
-            f"Ontology mismatch detected: missing={missing or '[]'} extra={extra or '[]'}"
-        )
 
 
 v2_tools_registered: list[str] = []

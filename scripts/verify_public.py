@@ -296,41 +296,35 @@ def compare_status(local_payload: dict, public_payload: dict) -> ComparisonResul
 
 # ─── Tool Count Consistency ───────────────────────────────────────────────────
 
-# arifOS MCP has TWO tool surfaces:
-#   canonical (13) — constitutional law tools, the 13-floor surface
-#   runtime (20)   — canonical + governance surface tools (forge_dry_run,
-#                     vault_*, judge_surface, command_center)
-# These are intentionally different. The check verifies both are tracked.
+# arifOS MCP has ONE unified tool surface — all 20 tools in constitutional_map.py.
+# canonical=13 constitutional floor-enforcement tools + 7 governance tools
+# (session_status, ops_vitals, judge_action, forge_dry_run, gateway_handshake,
+# vault_list, vault_dry_seal).
+# Both status.json and MCP tools/list report the same 20.
+# No separate canonical/runtime split.
 
-CANONICAL_TOOL_COUNT = 13   # arifOS constitutional surface — single MCP surface
-RUNTIME_TOOL_COUNT  = 13   # same as canonical: governance tools refactored back
+CANONICAL_TOOL_COUNT = 20   # unified MCP surface — 13 constitutional + 7 governance
 
 def check_tool_consistency(status_tools: int, mcp_tools_count: int) -> tuple[str, str]:
     """
     Returns (verdict, detail).
-    APPROVED if both counts are exactly 13 (single canonical surface).
-    HOLD if counts are wrong or unexpected.
+    APPROVED if both status.json and MCP tools/list report exactly 20 tools.
+    HOLD if counts don't match or are unexpected.
 
-    Post-refactor: governance tools (forge_dry_run, vault_surface, judge_surface,
-    arif_vault_audit, arif_vault_chain_verify, init_surface) were removed from
-    the MCP surface. Both status.json and MCP tools/list now report canonical=13.
+    Single unified surface since DITEMPA BUKAN DIBERI.
     """
-    # status.json should always report canonical count (13)
     if status_tools == CANONICAL_TOOL_COUNT:
-        status_ok = f"canonical={status_tools} ✅"
-    elif status_tools == mcp_tools_count:
-        status_ok = f"runtime={status_tools} ✅ (matches MCP — single surface)"
+        status_ok = f"status.json={status_tools} ✅"
     else:
-        status_ok = f"unexpected={status_tools} ⚠️"
+        status_ok = f"status.json={status_tools} ⚠️"
 
-    # MCP tools/list should report canonical count (13) — single surface post-refactor
     if mcp_tools_count == CANONICAL_TOOL_COUNT:
-        mcp_ok = f"canonical={mcp_tools_count} ✅"
+        mcp_ok = f"MCP={mcp_tools_count} ✅"
     else:
-        mcp_ok = f"unexpected={mcp_tools_count} ⚠️"
+        mcp_ok = f"MCP={mcp_tools_count} ⚠️"
 
     if status_tools == CANONICAL_TOOL_COUNT and mcp_tools_count == CANONICAL_TOOL_COUNT:
-        return "PASS", f"canonical={CANONICAL_TOOL_COUNT} ✅ (single surface — governance tools refactored)"
+        return "PASS", f"unified surface={CANONICAL_TOOL_COUNT} ✅ (single surface — DITEMPA BUKAN DIBERI)"
     return "HOLD", f"status.json:{status_ok} | mcp:{mcp_ok}"
 
 

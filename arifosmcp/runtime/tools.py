@@ -4144,17 +4144,34 @@ _CANONICAL_HANDLERS: dict[str, Any] = {
     "arif_judge_deliberate": _arif_judge_deliberate_tool,
     "arif_vault_seal": _arif_vault_seal_tool,
     "arif_forge_execute": _arif_forge_execute_tool,
+    # NOTE: CC tools (session_status, ops_vitals, judge_action, forge_dry_run,
+    # gateway_handshake, vault_list, vault_dry_seal) are NOT registered here.
+    # They are registered via mcp.tool(name=...) in server.py directly.
+    # _CANONICAL_HANDLERS covers only the 13 non-CC canonical handlers.
+    # The guard in server.py (_assert_registered_surface) validates this split.
 }
+
 
 _RUNTIME_DIAGNOSTIC_HANDLERS: dict[str, Any] = {
     "arif_ping": _runtime_ping,
     "arif_selftest": _runtime_selftest,
 }
 
-if len(_CANONICAL_HANDLERS) != 13:
-    raise RuntimeError(f"Expected 13 canonical handlers, found {len(_CANONICAL_HANDLERS)}")
+# CC tool names — NOT in _CANONICAL_HANDLERS; registered via mcp.tool(name=...) in server.py
+_CC_TOOL_NAMES: frozenset[str] = frozenset({
+    "session_status", "ops_vitals", "judge_action", "forge_dry_run",
+    "gateway_handshake", "vault_list", "vault_dry_seal",
+})
 
-if set(_CANONICAL_HANDLERS) != set(CANONICAL_TOOLS):
+if len(_CANONICAL_HANDLERS) != 13:
+    raise RuntimeError(f"Expected 13 non-CC canonical handlers, found {len(_CANONICAL_HANDLERS)}")
+
+# NOTE: CC tools (session_status, ops_vitals, judge_action, forge_dry_run,
+# gateway_handshake, vault_list, vault_dry_seal) are registered via
+# mcp.tool(name=...) in server.py, NOT via _CANONICAL_HANDLERS.
+# They are defined in CANONICAL_TOOLS and CONSTITUTIONAL_TOOLS (20 total).
+# _assert_registered_surface() in server.py validates the split.
+if set(_CANONICAL_HANDLERS) != {name for name in CANONICAL_TOOLS if name not in _CC_TOOL_NAMES}:
     raise RuntimeError("Canonical handler registry does not match constitutional_map.py")
 
 
