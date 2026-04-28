@@ -302,34 +302,35 @@ def compare_status(local_payload: dict, public_payload: dict) -> ComparisonResul
 #                     vault_*, judge_surface, command_center)
 # These are intentionally different. The check verifies both are tracked.
 
-CANONICAL_TOOL_COUNT = 13   # arifOS constitutional surface (F1–F13 governed)
-RUNTIME_TOOL_COUNT    = 20   # full MCP runtime surface exposed to clients
+CANONICAL_TOOL_COUNT = 13   # arifOS constitutional surface — single MCP surface
+RUNTIME_TOOL_COUNT  = 13   # same as canonical: governance tools refactored back
 
 def check_tool_consistency(status_tools: int, mcp_tools_count: int) -> tuple[str, str]:
     """
     Returns (verdict, detail).
-    APPROVED if both counts are exactly right (13 canonical, 20 runtime).
+    APPROVED if both counts are exactly 13 (single canonical surface).
     HOLD if counts are wrong or unexpected.
+
+    Post-refactor: governance tools (forge_dry_run, vault_surface, judge_surface,
+    arif_vault_audit, arif_vault_chain_verify, init_surface) were removed from
+    the MCP surface. Both status.json and MCP tools/list now report canonical=13.
     """
-    # status.json should always report canonical count
+    # status.json should always report canonical count (13)
     if status_tools == CANONICAL_TOOL_COUNT:
         status_ok = f"canonical={status_tools} ✅"
     elif status_tools == mcp_tools_count:
-        status_ok = f"runtime={status_tools} ⚠️ (expected canonical={CANONICAL_TOOL_COUNT})"
+        status_ok = f"runtime={status_tools} ✅ (matches MCP — single surface)"
     else:
         status_ok = f"unexpected={status_tools} ⚠️"
 
-    # mcp tools/list should report runtime count
-    if mcp_tools_count == RUNTIME_TOOL_COUNT:
-        mcp_ok = f"runtime={mcp_tools_count} ✅"
-    elif mcp_tools_count == CANONICAL_TOOL_COUNT:
-        mcp_ok = f"canonical={mcp_tools_count} ⚠️ (expected runtime={RUNTIME_TOOL_COUNT})"
+    # MCP tools/list should report canonical count (13) — single surface post-refactor
+    if mcp_tools_count == CANONICAL_TOOL_COUNT:
+        mcp_ok = f"canonical={mcp_tools_count} ✅"
     else:
         mcp_ok = f"unexpected={mcp_tools_count} ⚠️"
 
-    if (status_tools == CANONICAL_TOOL_COUNT and
-            mcp_tools_count == RUNTIME_TOOL_COUNT):
-        return "PASS", f"canonical={CANONICAL_TOOL_COUNT}, runtime={RUNTIME_TOOL_COUNT} ✅"
+    if status_tools == CANONICAL_TOOL_COUNT and mcp_tools_count == CANONICAL_TOOL_COUNT:
+        return "PASS", f"canonical={CANONICAL_TOOL_COUNT} ✅ (single surface — governance tools refactored)"
     return "HOLD", f"status.json:{status_ok} | mcp:{mcp_ok}"
 
 
