@@ -1,15 +1,8 @@
 # ═══════════════════════════════════════════════════════════════════════════
-# arifOS PyPI Publish — Trusted Publisher (OIDC, no token required)
+# arifOS PyPI Publish — API Token auth (PYPI_API_TOKEN secret)
 #
 # Triggers on push to main when arifosmcp/pyproject.toml version changes,
 # or manually via workflow_dispatch.
-#
-# Setup required (one-time, on pypi.org):
-#   Project: arifos → Settings → Publishing → Add trusted publisher
-#   Owner:      ariffazil
-#   Repo:       arifOS
-#   Workflow:   07-publish-pypi.yml
-#   Environment: pypi
 # ═══════════════════════════════════════════════════════════════════════════
 
 name: Publish to PyPI
@@ -25,9 +18,6 @@ jobs:
   publish:
     name: Build and publish arifos
     runs-on: ubuntu-latest
-    environment: pypi
-    permissions:
-      id-token: write  # Required for OIDC Trusted Publisher
 
     steps:
       - uses: actions/checkout@v4
@@ -47,3 +37,4 @@ jobs:
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           packages-dir: arifosmcp/dist/
+          password: ${{ secrets.PYPI_API_TOKEN }}
