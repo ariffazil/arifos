@@ -271,6 +271,7 @@ class ConstitutionKernel:
         return {
             "passed": verdict.verdict in ("SEAL", "OK"),
             "failed_floors": verdict.floors.failed_floors if verdict.floors else [],
+            "threat_score": verdict.threat.confidence if verdict.threat else 0.0,
         }
 
     def evaluate(self, context: ActionContext) -> ConstitutionalVerdict:
