@@ -198,10 +198,16 @@ arifos.arif-fazil.com {
     handle /tools {
         reverse_proxy arifosmcp:8080
     }
-    @mcp-well-known {
-        path /.well-known/mcp/server-card.json
+    @mcp-server-card {
+        path /mcp-server-card.json
     }
-    handle @mcp-well-known {
+    handle @mcp-server-card {
+        file_server
+    }
+    @mcp-tools {
+        path /mcp-tools.json
+    }
+    handle @mcp-tools {
         file_server
     }
     handle /observatory* {
@@ -253,6 +259,20 @@ arifos.arif-fazil.com {
     handle {
         try_files {path} /index.html
         file_server
+    }
+}
+
+# ─── WELL MCP ──────────────────────────────────────────────────────────────
+# well.arif-fazil.com — Human Substrate Governance Layer
+well.arif-fazil.com {
+    import tls_origin
+    encode zstd gzip
+
+    handle /mcp* {
+        reverse_proxy well:8083
+    }
+    handle /health {
+        reverse_proxy well:8083
     }
 }
 

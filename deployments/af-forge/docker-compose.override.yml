@@ -1,0 +1,6 @@
+# arifOS MCP JWT auth — observe mode (verify before enforce)
+services:
+  arifosmcp:
+    environment:
+      ARIFOS_INTERNAL_SECRET_HERMES: "${ARIFOS_INTERNAL_SECRET_HERMES:-}"
+      JWT_ENFORCE_MODE: "observe"
