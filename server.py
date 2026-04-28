@@ -635,9 +635,15 @@ if "HARDENED_HANDLERS" in globals():
 import asyncio
 
 try:
-    asyncio.get_event_loop().run_until_complete(_constitutional_startup())
+    loop = asyncio.get_event_loop()
 except RuntimeError:
-    asyncio.get_event_loop().create_task(_constitutional_startup())
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+
+if loop.is_running():
+    loop.create_task(_constitutional_startup())
+else:
+    loop.run_until_complete(_constitutional_startup())
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # EXPORT
