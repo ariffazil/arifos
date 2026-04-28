@@ -7,16 +7,17 @@ Interprets ThreatAssessment and ActionContext into formal floor decisions.
 
 DITEMPA BUKAN DIBERI — Forged, Not Given
 """
+
 from __future__ import annotations
 
 from typing import Any
-from pydantic import BaseModel, Field
 
 from arifosmcp.core.threat_engine import (
+    IrreversibilityLevel,
     ThreatAssessment,
     ThreatCategory,
-    IrreversibilityLevel,
 )
+from pydantic import BaseModel, Field
 
 # Import all 13 floor classes from canonical shared implementation.
 # These live at repo-root /core/shared/ (mapped to sys.path parent).
@@ -31,6 +32,8 @@ from core.shared.floors import (
     F8_Genius,
     F9_AntiHantu,
     F10_Ontology,
+)
+from core.shared.floors import (
     FloorResult as SharedFloorResult,
 )
 
@@ -42,7 +45,7 @@ class FloorResult(BaseModel):
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @classmethod
-    def from_shared(cls, result: SharedFloorResult) -> "FloorResult":
+    def from_shared(cls, result: SharedFloorResult) -> FloorResult:
         """Adapt a core/shared/floors FloorResult to the runtime FloorResult."""
         return cls(
             verdict="VOID" if not result.passed else "SEAL",
@@ -107,22 +110,33 @@ class FloorEvaluator:
 
         # F9: Dark cleverness — flag if threat contains impersonation/social-engineering.
         # Uses FEDERATION_IMPERSONATION and SESSION_IMPERSONATION as proxies.
-        security_risk = 1.0 if threat.threats & {
-            ThreatCategory.FEDERATION_IMPERSONATION,
-            ThreatCategory.SESSION_IMPERSONATION,
-        } else 0.0
+        security_risk = (
+            1.0
+            if threat.threats
+            & {
+                ThreatCategory.FEDERATION_IMPERSONATION,
+                ThreatCategory.SESSION_IMPERSONATION,
+            }
+            else 0.0
+        )
 
         return {
             # Fields from ActionContext
             "tool_name": context.tool_name,
             "mode": context.mode,
-            "query": context.payload_text() if hasattr(context, "payload_text") else (context.query or ""),
+            "query": (
+                context.payload_text()
+                if hasattr(context, "payload_text")
+                else (context.query or "")
+            ),
             "action": context.mode,
             "actor_id": context.actor_id or "",
             "session_id": context.session_id or "",
             "authority_token": getattr(context, "auth_token", "") or "",
             "auth_token": getattr(context, "auth_token", "") or "",
-            "human_authority": 1.0 if context.witness_type and "human" in str(context.witness_type) else 0.0,
+            "human_authority": (
+                1.0 if context.witness_type and "human" in str(context.witness_type) else 0.0
+            ),
             "witness_type": str(context.witness_type) if context.witness_type else "ai",
             # Derived from threat
             "confidence": confidence,
@@ -213,7 +227,9 @@ class FloorEvaluator:
             if not getattr(context, "ack_irreversible", False):
                 if "F01" not in failed:
                     failed.append("F01")
-                    reasons["F01"] = f"High irreversibility (level={effective_irreversibility.name}) requires ack_irreversible=True"
+                    reasons["F01"] = (
+                        f"High irreversibility (level={effective_irreversibility.name}) requires ack_irreversible=True"
+                    )
 
         # ── F02 TRUTH — Information Fidelity (≥ 0.99) ───────────────────────────
         f2 = cls._lazy_floor(F2_Truth, {"F2_Truth": None})
@@ -333,12 +349,16 @@ class FloorEvaluator:
                 pass
 
         # ── F11 AUTH — Verify identity ─────────────────────────────────────────
-        if getattr(context, "session_id", None) and context.session_id not in getattr(context, "session_registry", set()):
+        if getattr(context, "session_id", None) and context.session_id not in getattr(
+            context, "session_registry", set()
+        ):
             if "F11" not in failed:
                 failed.append("F11")
                 reasons["F11"] = "Session ID not found or expired"
 
-        if getattr(context, "target_agent", None) and context.target_agent not in getattr(context, "federation_registry", set()):
+        if getattr(context, "target_agent", None) and context.target_agent not in getattr(
+            context, "federation_registry", set()
+        ):
             if "F11" not in failed:
                 failed.append("F11")
                 reasons["F11"] = f"Agent '{context.target_agent}' not in federation registry"
@@ -358,14 +378,20 @@ class FloorEvaluator:
 
         # ── F13 SOVEREIGN — Human veto is absolute ───────────────────────────────
         if cls._requires_human_witness(context, threat):
-            if getattr(context, "witness_type", "ai") != "human":
+            wt = getattr(context, "witness_type", "ai")
+            wt_str = getattr(wt, "value", str(wt))
+            if wt_str != "human":
                 if context.tool_name == "arif_mind_reason" and context.mode == "plan_approve":
                     failed.append("F13_VIOLATION")
-                    reasons["F13_VIOLATION"] = "F13 SOVEREIGN: AI self-approval is constitutionally forbidden"
+                    reasons["F13_VIOLATION"] = (
+                        "F13 SOVEREIGN: AI self-approval is constitutionally forbidden"
+                    )
                 else:
                     if "F13" not in failed:
                         failed.append("F13")
-                        reasons["F13"] = f"Action requires human witness. witness_type='{getattr(context, 'witness_type', 'ai')}' is insufficient."
+                        reasons["F13"] = (
+                            f"Action requires human witness. witness_type='{wt}' is insufficient."
+                        )
 
         # ── Determine verdict ───────────────────────────────────────────────────
         if failed:
@@ -401,7 +427,10 @@ class FloorEvaluator:
             "arif_vault_seal": {"seal", "commit"},
             "arif_forge_execute": {"engineer", "write", "generate"},
         }
-        if context.tool_name in human_required_tools_modes and context.mode in human_required_tools_modes[context.tool_name]:
+        if (
+            context.tool_name in human_required_tools_modes
+            and context.mode in human_required_tools_modes[context.tool_name]
+        ):
             return True
         if (context.tool_name, context.mode) == ("arif_mind_reason", "plan_approve"):
             return True

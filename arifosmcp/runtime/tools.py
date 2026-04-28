@@ -8,17 +8,15 @@ DITEMPA BUKAN DIBERI — Forged, Not Given
 
 from __future__ import annotations
 
+import fcntl
 import hashlib
-import ipaddress
 import json
 import logging
+import os
 import random
-import re
 import time
 import uuid
-from enum import Enum
 from typing import Any
-import urllib.parse
 
 from arifosmcp.constitutional_map import CANONICAL_TOOLS, get_tool_spec
 from arifosmcp.runtime.floors import check_floors
@@ -66,9 +64,14 @@ from pydantic import BaseModel, Field
 
 logger = logging.getLogger(__name__)
 
-from arifosmcp.core.constitution_kernel import ConstitutionKernel, ActionContext, get_kernel, WitnessType
+from arifosmcp.core.constitution_kernel import (
+    ActionContext,
+    WitnessType,
+    get_kernel,
+)
+
 _CORE = get_kernel()
-_KERNEL = _CORE # Maintain compatibility if needed
+_KERNEL = _CORE  # Maintain compatibility if needed
 
 
 def _constitutional_gate(
@@ -92,6 +95,14 @@ def _constitutional_gate(
     the tool must return the constitutional HOLD/VOID response immediately.
     Returns None if the action is authorized (SEAL).
     """
+    # H2: Build unified session registry from ephemeral + persistent stores
+    _unified_session_registry = set(_SESSIONS.keys())
+    try:
+        from arifosmcp.runtime.session import get_all_session_ids
+
+        _unified_session_registry.update(get_all_session_ids())
+    except Exception:
+        pass
     try:
         ctx = ActionContext(
             tool_name=tool_name,
@@ -104,15 +115,21 @@ def _constitutional_gate(
             url=url,
             target_agent=target_agent,
             ack_irreversible=ack_irreversible,
-            witness_type=WitnessType(witness_type) if witness_type in ("ai", "human", "multi") else WitnessType.AI,
+            witness_type=(
+                WitnessType(witness_type)
+                if witness_type in ("ai", "human", "multi")
+                else WitnessType.AI
+            ),
             plan_id=plan_id,
-            session_registry=set(_SESSIONS.keys()),
+            session_registry=_unified_session_registry,
             federation_registry={"kimi", "claude", "gemini"},
             plan_registry=set(_PLAN_REGISTRY.keys()),
         )
     except ValueError as exc:
         # Pydantic validation failure (e.g., invalid URL)
-        return _hold(tool_name, f"Constitutional gate blocked: {exc}", ["F12"], session_id=session_id)
+        return _hold(
+            tool_name, f"Constitutional gate blocked: {exc}", ["F12"], session_id=session_id
+        )
 
     verdict = _CORE.evaluate(ctx)
     if verdict.verdict == "SEAL":
@@ -256,10 +273,92 @@ def get_public_surface_state() -> dict[str, Any]:
     return public_surface_state()
 
 
-# ─── Tool Implementations ─────────────────────────────────────────────────────
+# ═══════════════════════════════════════════════════════════════════════════════
+# SESSION STORE — File-backed with fcntl locking (survives process restarts)
+# ═══════════════════════════════════════════════════════════════════════════════
 
-# In-memory session store (replace with Redis/Postgres in production)
-_SESSIONS: dict[str, dict[str, Any]] = {}
+
+class _FileSessionStore:
+    """Persistent session store backed by JSON on disk.
+
+    Replaces the in-memory _SESSIONS dict so stdio transport and server
+    restarts do not wipe governed sessions. Uses fcntl flock for
+    cross-process concurrency safety.
+    """
+
+    def __init__(self, path: str = "/app/data/sessions.json") -> None:
+        self._path = path
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+
+    def _load(self) -> dict[str, dict[str, Any]]:
+        try:
+            with open(self._path, encoding="utf-8") as f:
+                fcntl.flock(f, fcntl.LOCK_SH)
+                try:
+                    data = json.load(f)
+                    if isinstance(data, dict):
+                        return data
+                finally:
+                    fcntl.flock(f, fcntl.LOCK_UN)
+        except (FileNotFoundError, json.JSONDecodeError):
+            pass
+        return {}
+
+    def _save(self, data: dict[str, dict[str, Any]]) -> None:
+        with open(self._path, "w", encoding="utf-8") as f:
+            fcntl.flock(f, fcntl.LOCK_EX)
+            try:
+                json.dump(data, f, ensure_ascii=True, separators=(",", ":"))
+                f.flush()
+                os.fsync(f.fileno())
+            finally:
+                fcntl.flock(f, fcntl.LOCK_UN)
+
+    def get(self, key: str) -> dict[str, Any] | None:
+        return self._load().get(key)
+
+    def set(self, key: str, value: dict[str, Any]) -> None:
+        data = self._load()
+        data[key] = value
+        self._save(data)
+
+    def delete(self, key: str) -> None:
+        data = self._load()
+        if key in data:
+            del data[key]
+            self._save(data)
+
+    def keys(self) -> set[str]:
+        return set(self._load().keys())
+
+    def values(self) -> list[dict[str, Any]]:
+        return list(self._load().values())
+
+    def pop(self, key: str, default: Any = None) -> Any:
+        data = self._load()
+        value = data.pop(key, default)
+        self._save(data)
+        return value
+
+    def __contains__(self, key: str) -> bool:
+        return key in self._load()
+
+    def __getitem__(self, key: str) -> dict[str, Any]:
+        val = self._load().get(key)
+        if val is None:
+            raise KeyError(key)
+        return val
+
+    def __setitem__(self, key: str, value: dict[str, Any]) -> None:
+        self.set(key, value)
+
+    def __len__(self) -> int:
+        return len(self._load())
+
+
+# In-memory registries (session store is now persistent)
+_SESSION_STORE = _FileSessionStore()
+_SESSIONS = _SESSION_STORE  # backward-compat alias for code that does _SESSIONS.get()
 _VAULT_LEDGER: list[dict[str, Any]] = []
 _JUDGE_STATE_REGISTRY: dict[str, dict[str, Any]] = {}
 _JUDGE_CHAIN_REGISTRY: dict[str, dict[str, Any]] = {}
@@ -338,6 +437,22 @@ def _new_session(actor_id: str | None = None, epoch_id: str | None = None) -> di
         "epoch_id": epoch_id,
     }
     _SESSIONS[sid] = sess
+    # H2: Persist to identity store for cross-process/cross-call continuity
+    try:
+        from arifosmcp.runtime.session import bind_session_identity
+
+        bind_session_identity(
+            session_id=sid,
+            actor_id=actor_id or "anonymous",
+            authority_level=(
+                "sovereign" if actor_id == "arif" else ("operator" if actor_id else "anonymous")
+            ),
+            auth_context={"source": "arif_session_init", "mode": "init"},
+            stage="000",
+            governance={"verdict": "SEAL"},
+        )
+    except Exception as exc:
+        logger.warning("Failed to persist session to identity store: %s", exc)
     if epoch_id:
         _EPOCH_REGISTRY[epoch_id] = {
             "epoch_id": epoch_id,
@@ -438,6 +553,64 @@ def _hold(
         "meta": meta,
         "timestamp": _now(),
     }
+
+
+def _require_session(
+    tool: str,
+    session_id: str | None,
+    required: bool = True,
+    allow_anonymous: bool = False,
+) -> tuple[dict[str, Any] | None, dict[str, Any] | None]:
+    """Unified session validation middleware.
+
+    Returns (session_dict, None) on success.
+    Returns (None, hold_response) on failure.
+    """
+    if not session_id:
+        if required and not allow_anonymous:
+            return None, _hold(
+                tool,
+                "F11 AUTH: session_id is required for this tool",
+                ["F11"],
+                extra_meta={
+                    "detail": "Provide a valid session_id from arif_session_init (mode=init)"
+                },
+            )
+        return None, None
+
+    sess = _SESSIONS.get(session_id)
+    if sess is None:
+        return None, _hold(
+            tool,
+            "F11 AUTH: session_id not found or expired",
+            ["F11"],
+            extra_meta={
+                "detail": "Session may have been cleared by a server restart. Re-init with arif_session_init.",
+                "session_id": session_id,
+            },
+            session_id=session_id,
+        )
+
+    # F1 Amanah: soft session expiry after 24h (configurable)
+    from datetime import datetime, timedelta, timezone
+
+    created_at = sess.get("created_at")
+    if created_at:
+        try:
+            parsed = datetime.fromisoformat(created_at)
+            if datetime.now(timezone.utc) - parsed > timedelta(hours=24):
+                _SESSIONS.delete(session_id)
+                return None, _hold(
+                    tool,
+                    "F11 AUTH: session expired (24h limit)",
+                    ["F11"],
+                    extra_meta={"detail": "Re-init with arif_session_init"},
+                    session_id=session_id,
+                )
+        except Exception:
+            pass
+
+    return sess, None
 
 
 def _build_judge_contract(
@@ -657,6 +830,7 @@ def _arif_session_init(
     ack_irreversible: bool = False,
     session_id: str | None = None,
     epoch_id: str | None = None,
+    previous_session_hash: str | None = None,
 ) -> dict[str, Any]:
     """
     000_INIT: Constitutional session bootstrap and identity binding.
@@ -729,6 +903,20 @@ def _arif_session_init(
 
     if normalized_mode == "init":
         sess = _new_session(actor_id, epoch_id=epoch_id)
+        sid = sess["session_id"]
+        if previous_session_hash:
+            sess["previous_session_hash"] = previous_session_hash
+            _SESSIONS[sid] = sess
+        # H2: Store write acknowledgment
+        store_ack = {"_SESSIONS": False, "_SESSION_IDENTITY": False}
+        if sid in _SESSIONS:
+            store_ack["_SESSIONS"] = True
+        try:
+            from arifosmcp.runtime.session import session_exists
+
+            store_ack["_SESSION_IDENTITY"] = session_exists(sid)
+        except Exception:
+            pass
         return _ok(
             "arif_session_init",
             {
@@ -737,9 +925,16 @@ def _arif_session_init(
                 "binding": binding,
                 "governance": governance,
                 "next_allowed_tools": next_allowed_tools,
+                "store_ack": store_ack,
+                "lineage": {
+                    "previous_session_hash": previous_session_hash,
+                    "session_genesis_hash": hashlib.sha256(
+                        json.dumps(sess, sort_keys=True, separators=(",", ":")).encode()
+                    ).hexdigest()[:16],
+                },
             },
             delta_S=0.001,
-            session_id=sess["session_id"],
+            session_id=sid,
         )
 
     if normalized_mode == "resume":
@@ -938,7 +1133,18 @@ def _arif_sense_observe(
       Observation payload with results, source tag, and omega_0 (uncertainty).
     """
     # F11 AUTH: validate session before processing observational data
-    if session_id and session_id not in _SESSIONS:
+    _session_valid = False
+    if session_id:
+        if session_id in _SESSIONS:
+            _session_valid = True
+        else:
+            try:
+                from arifosmcp.runtime.session import session_exists
+
+                _session_valid = session_exists(session_id)
+            except Exception:
+                pass
+    if session_id and not _session_valid:
         return _hold(
             "arif_sense_observe",
             "F11 AUTH: session_id not found or expired",
@@ -946,7 +1152,9 @@ def _arif_sense_observe(
             session_id=session_id,
         )
 
-    gate = _constitutional_gate("arif_sense_observe", mode, actor_id, session_id=session_id, query=query)
+    gate = _constitutional_gate(
+        "arif_sense_observe", mode, actor_id, session_id=session_id, query=query
+    )
     if gate is not None:
         return gate
 
@@ -1003,7 +1211,9 @@ def _arif_evidence_fetch(
 
     When thinking_depth > 0, output includes ThinkingSequence + ResourceMetrics.
     """
-    gate = _constitutional_gate("arif_evidence_fetch", mode, actor_id, session_id=session_id, url=url, query=query)
+    gate = _constitutional_gate(
+        "arif_evidence_fetch", mode, actor_id, session_id=session_id, url=url, query=query
+    )
     if gate is not None:
         return gate
 
@@ -1326,7 +1536,15 @@ def _arif_mind_reason(
       and epistemic_snapshot. Plan mode returns a PlanReceipt with
       plan_id, task_graph, and reversibility_map.
     """
-    gate = _constitutional_gate("arif_mind_reason", mode, actor_id, session_id=session_id, query=query, witness_type=witness_type, plan_id=plan_id)
+    gate = _constitutional_gate(
+        "arif_mind_reason",
+        mode,
+        actor_id,
+        session_id=session_id,
+        query=query,
+        witness_type=witness_type,
+        plan_id=plan_id,
+    )
     if gate is not None:
         return gate
 
@@ -1457,7 +1675,10 @@ def _arif_mind_reason(
         if witness_type != "human":
             return _hold(
                 "arif_mind_reason",
-                "F13 SOVEREIGN: plan_approve requires witness_type='human'. AI self-approval is forbidden.",
+                (
+                    "F13 SOVEREIGN: plan_approve requires witness_type='human'. "
+                    "AI self-approval is constitutionally forbidden."
+                ),
                 ["F13"],
                 session_id=session_id,
             )
@@ -1918,7 +2139,9 @@ def _arif_kernel_route(
     Returns:
       Routing decision with path, hops, stage, and allowed_next_tools.
     """
-    gate = _constitutional_gate("arif_kernel_route", mode, actor_id, session_id=session_id, target_agent=target)
+    gate = _constitutional_gate(
+        "arif_kernel_route", mode, actor_id, session_id=session_id, target_agent=target
+    )
     if gate is not None:
         return gate
 
@@ -2004,7 +2227,9 @@ def _arif_reply_compose(
     Returns:
       Composed message with formatted text, tone tag, and delta_S.
     """
-    gate = _constitutional_gate("arif_reply_compose", mode, actor_id, session_id=session_id, query=message)
+    gate = _constitutional_gate(
+        "arif_reply_compose", mode, actor_id, session_id=session_id, query=message
+    )
     if gate is not None:
         return gate
 
@@ -2079,7 +2304,9 @@ def _arif_memory_recall(
     Returns:
       Memory payload with entries, confidence scores, and source tags.
     """
-    gate = _constitutional_gate("arif_memory_recall", mode, actor_id, session_id=session_id, query=query)
+    gate = _constitutional_gate(
+        "arif_memory_recall", mode, actor_id, session_id=session_id, query=query
+    )
     if gate is not None:
         return gate
 
@@ -2183,7 +2410,9 @@ def _arif_heart_critique(
       RiskReport with risks_found, risk_tier, human_decision_required,
       and empathy_score (κᵣ).
     """
-    gate = _constitutional_gate("arif_heart_critique", mode, actor_id, session_id=session_id, query=target)
+    gate = _constitutional_gate(
+        "arif_heart_critique", mode, actor_id, session_id=session_id, query=target
+    )
     if gate is not None:
         return gate
 
@@ -2494,7 +2723,9 @@ def _arif_gateway_connect(
     Returns:
       Gateway status with protocol, routing path, and agent capability map.
     """
-    gate = _constitutional_gate("arif_gateway_connect", mode, actor_id, session_id=session_id, target_agent=target_agent)
+    gate = _constitutional_gate(
+        "arif_gateway_connect", mode, actor_id, session_id=session_id, target_agent=target_agent
+    )
     if gate is not None:
         return gate
 
@@ -2670,6 +2901,7 @@ def _arif_judge_deliberate(
     _parse_failed = False
     if _audit_entropy is None and candidate:
         import json as _json
+
         try:
             cand_obj = _json.loads(candidate)
             if isinstance(cand_obj, dict):
@@ -2689,22 +2921,30 @@ def _arif_judge_deliberate(
         actor_id=actor_id,
         session_id=session_id,
         candidate=candidate,
-        witness_type=WitnessType.HUMAN if proof and proof.get("witness_type") == "human" else WitnessType.AI,
+        witness_type=(
+            WitnessType.HUMAN if proof and proof.get("witness_type") == "human" else WitnessType.AI
+        ),
         constitutional_chain_id=constitutional_chain_id,
         session_registry=set(_SESSIONS.keys()),
         audit_entropy=_audit_entropy,
         wealth_score=_wealth_score,
         verification_surface=_verification_surface,
     )
-    
+
     verdict = _CORE.evaluate(ctx)
 
     if verdict.status != "OK":
         meta_state = {"reason": "Constitutional breach detected by kernel"}
         if _audit_entropy:
-            meta_state["verification_state"] = {"delta_m": _audit_entropy.get("delta_m"), "svs": _audit_entropy.get("svs"), "entropy_band": _audit_entropy.get("entropy_band")}
+            meta_state["verification_state"] = {
+                "delta_m": _audit_entropy.get("delta_m"),
+                "svs": _audit_entropy.get("svs"),
+                "entropy_band": _audit_entropy.get("entropy_band"),
+            }
         if _parse_failed:
-            meta_state["parse_warning"] = "candidate JSON unparseable — verification state not extracted",
+            meta_state["parse_warning"] = (
+                "candidate JSON unparseable — verification state not extracted",
+            )
         output = VerdictOutput(
             status=verdict.status,
             verdict=VerdictCode.HOLD if verdict.verdict == "HOLD" else VerdictCode.VOID,
@@ -2713,7 +2953,7 @@ def _arif_judge_deliberate(
                 "candidate": candidate,
                 "reason": verdict.floors.floor_reasons,
                 "failed_floors": verdict.floors.failed_floors,
-                "threat_score": verdict.threat.confidence
+                "threat_score": verdict.threat.confidence,
             },
             floor_compliance=FloorComplianceProof(
                 floors_invoked=verdict.floors.failed_floors,
@@ -2725,7 +2965,8 @@ def _arif_judge_deliberate(
                 genius_score=0.0,
             ),
             truth_band=truth_band or "UNKNOWN",
-            confidence_note=confidence_note or "Verification state present; band derived from entropy/gap analysis",
+            confidence_note=confidence_note
+            or "Verification state present; band derived from entropy/gap analysis",
             meta=meta_state,
             timestamp=verdict.timestamp,
         )
@@ -2734,7 +2975,11 @@ def _arif_judge_deliberate(
     # Success / SEAL logic
     meta_state = {"mode": mode, "state_hash": verdict.state_hash}
     if _audit_entropy:
-        meta_state["verification_state"] = {"delta_m": _audit_entropy.get("delta_m"), "svs": _audit_entropy.get("svs"), "entropy_band": _audit_entropy.get("entropy_band")}
+        meta_state["verification_state"] = {
+            "delta_m": _audit_entropy.get("delta_m"),
+            "svs": _audit_entropy.get("svs"),
+            "entropy_band": _audit_entropy.get("entropy_band"),
+        }
     # Success / SEAL logic
     output = VerdictOutput(
         status="OK",
@@ -2755,16 +3000,20 @@ def _arif_judge_deliberate(
             genius_score=0.98,
         ),
         truth_band=truth_band or "CERTAIN",
-        confidence_note=confidence_note or "Full constitutional floors passed; verification state clean",
+        confidence_note=confidence_note
+        or "Full constitutional floors passed; verification state clean",
         meta=meta_state,
         timestamp=verdict.timestamp,
     )
 
     return output.model_dump(mode="json")
 
+
 def _old_deliberate_unused():
-    verdict_code = VerdictCode.VOID if c_verdict.verdict == "VOID" else (
-        VerdictCode.HOLD if c_verdict.verdict == "HOLD" else VerdictCode.SEAL
+    verdict_code = (
+        VerdictCode.VOID
+        if c_verdict.verdict == "VOID"
+        else (VerdictCode.HOLD if c_verdict.verdict == "HOLD" else VerdictCode.SEAL)
     )
 
     floor_results = {f: "PASS" for f in ["F01", "F02", "F08", "F11", "F12", "F13"]}
@@ -2907,7 +3156,7 @@ def _arif_vault_seal(
         k_verdict = _KERNEL.evaluate_intent(
             tool_name="arif_vault_seal",
             params={"mode": mode, "ack_irreversible": ack_irreversible},
-            session_id=session_id
+            session_id=session_id,
         )
         if not k_verdict["passed"]:
             output = SealOutput(
@@ -3130,7 +3379,9 @@ def _arif_vault_seal(
             status="OK",
             result={"entries": _VAULT_LEDGER},
             ledger_size=len(_VAULT_LEDGER),
-            irreversibility_bond=IrreversibilityBond(level=IrreversibilityLevel.REVERSIBLE, delta_S=0.0),
+            irreversibility_bond=IrreversibilityBond(
+                level=IrreversibilityLevel.REVERSIBLE, delta_S=0.0
+            ),
             entropy_delta=EntropyDelta(delta_S=0.0, entropy_direction="stable"),
             meta={},
             actor_id=actor_id,
@@ -3139,9 +3390,14 @@ def _arif_vault_seal(
     if mode == "chain":
         return SealOutput(
             status="OK",
-            result={"tip": _VAULT_LEDGER[-1] if _VAULT_LEDGER else None, "depth": len(_VAULT_LEDGER)},
+            result={
+                "tip": _VAULT_LEDGER[-1] if _VAULT_LEDGER else None,
+                "depth": len(_VAULT_LEDGER),
+            },
             ledger_size=len(_VAULT_LEDGER),
-            irreversibility_bond=IrreversibilityBond(level=IrreversibilityLevel.REVERSIBLE, delta_S=0.0),
+            irreversibility_bond=IrreversibilityBond(
+                level=IrreversibilityLevel.REVERSIBLE, delta_S=0.0
+            ),
             entropy_delta=EntropyDelta(delta_S=0.0, entropy_direction="stable"),
             meta={},
             actor_id=actor_id,
@@ -3240,15 +3496,13 @@ def _arif_forge_execute(
         k_verdict = _KERNEL.evaluate_intent(
             tool_name="arif_forge_execute",
             params={"mode": mode, "manifest": manifest},
-            session_id=session_id
+            session_id=session_id,
         )
         return {
             "status": "OK" if k_verdict["passed"] else "HOLD",
             "tool": "arif_forge_execute",
             "result": {
-                "forge_dry_run": (
-                    "PASS" if k_verdict["passed"] else "FAIL"
-                ),
+                "forge_dry_run": ("PASS" if k_verdict["passed"] else "FAIL"),
                 "would_execute_steps": [
                     "parse_query",
                     "resolve_dependencies",
@@ -3316,7 +3570,7 @@ def _arif_forge_execute(
     k_verdict = _KERNEL.evaluate_intent(
         tool_name="arif_forge_execute",
         params={"mode": mode, "ack_irreversible": ack_irreversible, "manifest": manifest},
-        session_id=session_id
+        session_id=session_id,
     )
     if not k_verdict["passed"]:
         if plan_id:
@@ -4067,6 +4321,7 @@ def _runtime_selftest(
     # 14. Data governance health check (F1–F13 enforcement layer)
     try:
         from arifosmcp.runtime.data_governance import DataGovernanceEnforcer
+
         enforcer = DataGovernanceEnforcer()
         summary = enforcer.get_governance_summary()
         all_ok = all(v == "ok" for v in summary.values())
