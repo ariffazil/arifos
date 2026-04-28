@@ -181,43 +181,201 @@ def _safe_register(mcp, module_path: str, name: str) -> None:
         logger.warning(f"  Skipped app {name} ({module_path}): {e}")
 
 
-# ── MCP Apps registration — DISABLED ──────────────────────────────────────
-# The 5 apps below registered 7 extra tools on top of the canonical 13,
-# creating duplicate MCP surfaces (e.g. forge_app.arif_forge_execute vs
-# canonical tools.py arif_forge_execute, stub judge_surface, stub vault_surface,
-# extra arif_vault_audit, arif_vault_chain_verify, init_surface).
+# ── MCP Apps registration ───────────────────────────────────────────────────
+# command_center FastMCPApp (UI layer) is DISABLED — its tools have
+# visibility=["app"] and do NOT appear in MCP tools/list for clients.
 #
-# The canonical register_tools() in tools.py already provides the full
-# constitutional surface. All app-level stubs are redundant wrappers that
-# either duplicate canonical tools or provide non-constitutional responses.
+# The 7 command_center tools are wired HERE as direct MCP tool handlers
+# pointing to real canonical backends. This makes them proper MCP tools
+# visible to all clients, while keeping command_center as the logical owner.
 #
-# Governance tools refactored back to canonical 13:
-#   forge_app.arif_forge_execute  → canonical arif_forge_execute (already registered)
-#   forge_app.forge_dry_run       → arif_forge_execute(mode="dry_run")
-#   vault_app.vault_surface       → arif_vault_seal(mode="list")
-#   judge_app.arif_judge_deliberate → canonical arif_judge_deliberate (already registered)
-#   judge_app.judge_surface       → arif_judge_deliberate (stub, removed)
-#   vault_audit.arif_vault_audit  → internal only (VAULT999 read via arif_vault_seal)
-#   vault_audit.arif_vault_chain_verify → internal only
-#   init_app.init_surface         → internal only (000_INIT handled by session init)
+# Tool wiring:
+#   session_status      → internal session state panel
+#   ops_vitals          → arif_ops_measure(mode="vitals")
+#   judge_action        → arif_judge_deliberate via governed wrapper
+#   forge_dry_run       → arif_forge_execute(mode="dry_run") via governed wrapper
+#   vault_list          → VAULT999 ledger read
+#   vault_dry_seal      → arif_vault_seal(mode="dry_run") via governed wrapper
+#   gateway_handshake   → arif_gateway_connect
 # ─────────────────────────────────────────────────────────────────────────────
 try:
-    # _safe_register(mcp, "arifosmcp.apps.forge_app",    "forge")
-    # _safe_register(mcp, "arifosmcp.apps.vault_app",    "vault")
-    # _safe_register(mcp, "arifosmcp.apps.judge_app",     "judge")
-    # _safe_register(mcp, "arifosmcp.apps.vault_audit",  "vault_audit")
-    # _safe_register(mcp, "arifosmcp.apps.command_center","command_center")
-    print("[arif-register] App registration disabled — canonical 13-tool surface only", flush=True)
-    v2_apps_registered = []
-    print(
-        f"[arif-register] Total apps registered: {len(v2_apps_registered)} — {v2_apps_registered}",
-        flush=True,
-    )
-    logger.info(
-        f"ARIFOS MCP KANON Phase 2: app registration disabled — canonical 13-tool surface only"
-    )
+    from arifosmcp.apps.command_center.governance import classify_risk
+    from arifosmcp.apps.command_center.interceptor import governance_guard
+    from arifosmcp.apps.command_center.judge_app import governed_judge_deliberate
+    from arifosmcp.apps.command_center.forge_app import governed_forge_execute
+    from arifosmcp.apps.command_center.state import get_state
+    from arifosmcp.apps.command_center.vault_audit import get_vault_audit
+    from arifosmcp.apps.command_center.vault_chain import append_vault_record
+    from arifosmcp.tools.forge import arif_forge_execute as _cc_forge
+    from arifosmcp.tools.gateway import arif_gateway_connect as _cc_gateway
+    from arifosmcp.tools.ops import arif_ops_measure as _cc_ops
+    from arifosmcp.schemas.forge import ForgeOutput
+    from arifosmcp.schemas.verdict import VerdictOutput
+    _CC_WIRING_OK = True
 except Exception as e:
-    logger.error(f"App registration failed: {e}")
+    logger.warning(f"command_center wiring incomplete: {e}")
+    _CC_WIRING_OK = False
+
+
+def _cc_session_status() -> dict:
+    """UI panel: live constitutional session state. Read-only diagnostic."""
+    if not _CC_WIRING_OK:
+        return {"error": "command_center not fully wired"}
+    state = get_state()
+    local = state.get_session()
+    if not local:
+        return {"session_id": None, "status": "no_session"}
+    from arifosmcp.apps.command_center.models import SessionStatus
+    return SessionStatus(
+        session_id=local.session_id,
+        actor_id=local.actor_id,
+        constitution_id="arifos-constitution-v2026.04.26",
+        stage="000",
+        lane="AGI",
+        sealed=False,
+        authority="human_judge_required",
+        plan_state="draft",
+        token=getattr(local, "token", None),
+        floor_audit=getattr(local, "floor_audit", {}),
+        created_at=getattr(local, "created_at", None),
+        expires_at=getattr(local, "expires_at", None),
+    ).model_dump()
+
+
+def _cc_ops_vitals() -> dict:
+    """UI panel: thermodynamic health vitals. Read-only."""
+    if not _CC_WIRING_OK:
+        return {"error": "command_center not fully wired"}
+    result = _cc_ops(mode="vitals")
+    from arifosmcp.apps.command_center.models import OpsVitals
+    return OpsVitals(
+        g_score=result.g_score,
+        delta_S=result.delta_S,
+        omega=result.omega,
+        psi_le=result.psi_le,
+        status=result.meta.get("status", "OK"),
+    ).model_dump()
+
+
+def _cc_judge_action(candidate: str) -> dict:
+    """Submit a candidate action for constitutional verdict."""
+    if not _CC_WIRING_OK:
+        return {"error": "command_center not fully wired"}
+    if not isinstance(candidate, str):
+        candidate = str(candidate) if candidate is not None else ""
+    live = get_state().get_session()
+    session_id = live.get("session_id", "uninitialized") if live else "uninitialized"
+    plan_id = live.get("plan_id") if live else None
+    plan_state = live.get("caller_state", "draft") if live else "draft"
+    return governed_judge_deliberate(
+        candidate=candidate,
+        actor_id="arif",
+        session_id=session_id,
+        plan_id=plan_id,
+        plan_state=plan_state,
+    )
+
+
+def _cc_forge_dry_run(manifest: str) -> dict:
+    """Simulate a forge execution. No gates checked, no vault written."""
+    if not _CC_WIRING_OK:
+        return {"error": "command_center not fully wired"}
+    if not isinstance(manifest, str):
+        manifest = str(manifest) if manifest is not None else ""
+    risk = classify_risk(manifest)
+    reversibility = "uncertain" if risk in {"high", "critical"} else "reversible"
+    result = _cc_forge(mode="dry_run", manifest=manifest)
+    forge_result = result.result if hasattr(result, "result") else {}
+    from arifosmcp.apps.command_center.models import ForgeDryRun
+    return ForgeDryRun(
+        routing_path=["init", "sense", "mind"],
+        mode="dry_run",
+        would_execute=False,
+        manifest_summary=manifest[:120] + ("..." if len(manifest) > 120 else ""),
+        reversibility=reversibility,
+        required_verdict="SEAL",
+        status="simulated",
+        plan_state="draft",
+    ).model_dump()
+
+
+def _cc_gateway_handshake(target_agent: str) -> dict:
+    """Initiate cross-agent A2A handshake with federation agent."""
+    if not _CC_WIRING_OK:
+        return {"error": "command_center not fully wired"}
+    if not isinstance(target_agent, str):
+        target_agent = str(target_agent) if target_agent is not None else ""
+    result = _cc_gateway(mode="connect", target=target_agent)
+    from arifosmcp.apps.command_center.models import GatewayHandshake
+    return GatewayHandshake(
+        target_agent=target_agent,
+        handshake="connected" if result.get("status") == "ok" else "failed",
+        constitution_hash_required=True,
+        rogue_agent_protection=True,
+    ).model_dump()
+
+
+def _cc_vault_list() -> dict:
+    """Read last 20 entries from VAULT999 ledger. Read-only."""
+    if not _CC_WIRING_OK:
+        return {"error": "command_center not fully wired"}
+    audit = get_vault_audit(limit=20)
+    from arifosmcp.apps.command_center.models import VaultEntry, VaultList
+    entries = [
+        VaultEntry(
+            id=e.get("entry_id", "unknown"),
+            type=e.get("type", "seal"),
+            permanent=e.get("permanent", False),
+            note=e.get("note", "")[:80],
+            timestamp=e.get("timestamp", ""),
+            prev_hash=e.get("prev_hash", ""),
+        )
+        for e in audit.get("entries", [])
+    ]
+    return VaultList(
+        entries=entries,
+        total_count=audit.get("total", 0),
+        chain_valid=audit.get("chain_valid", False),
+    ).model_dump()
+
+
+def _cc_vault_dry_seal(payload: str) -> dict:
+    """Preview a vault seal without writing to ledger."""
+    if not _CC_WIRING_OK:
+        return {"error": "command_center not fully wired"}
+    if not isinstance(payload, str):
+        payload = str(payload) if payload is not None else ""
+    result = governed_forge_execute(
+        manifest=payload,
+        actor_id="arif",
+        session_id="cc_dry_seal",
+        plan_id=None,
+        mode="dry_run",
+    )
+    from arifosmcp.apps.command_center.models import VaultDrySeal
+    return VaultDrySeal(
+        routing_path=["init", "sense", "vault"],
+        mode="dry_seal",
+        permanent=False,
+        payload_preview=payload[:120],
+        seal_result=result,
+    ).model_dump()
+
+
+# Register the 7 command_center tools on the main MCP server
+if _CC_WIRING_OK:
+    mcp.tool(name="session_status")(_cc_session_status)
+    mcp.tool(name="ops_vitals")(_cc_ops_vitals)
+    mcp.tool(name="judge_action")(_cc_judge_action)
+    mcp.tool(name="forge_dry_run")(_cc_forge_dry_run)
+    mcp.tool(name="gateway_handshake")(_cc_gateway_handshake)
+    mcp.tool(name="vault_list")(_cc_vault_list)
+    mcp.tool(name="vault_dry_seal")(_cc_vault_dry_seal)
+    print("[arif-register] command_center 7 tools wired to canonical backends ✅", flush=True)
+    logger.info("ARIFOS MCP KANON Phase 2: command_center 7 tools wired to canonical backends")
+else:
+    print("[arif-register] command_center wiring FAILED — see warnings above", flush=True)
+    logger.warning("ARIFOS MCP KANON Phase 2: command_center wiring incomplete")
 
 PUBLIC_TOOLS = list_public_tools()
 AUTHENTICATED_TOOLS = list_authenticated_tools()
