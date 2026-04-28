@@ -99,6 +99,16 @@ arif-fazil.com, www.arif-fazil.com {
         file_server
     }
 
+
+    # Observability page
+    @pg-observability path /observability /observability/*
+
+    handle @pg-observability {
+        root * /var/www/html/arif/observability
+        try_files {path} /index.html
+        file_server
+    }
+
     # .well-known — serve JSON files from .well-known subdir
     @well-known {
         path /.well-known/*
