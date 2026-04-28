@@ -198,6 +198,27 @@ arifos.arif-fazil.com {
     handle /tools {
         reverse_proxy arifosmcp:8080
     }
+    @mcp-well-known {
+        path /.well-known/mcp/server-card.json
+    }
+    handle @mcp-well-known {
+        file_server
+    }
+    handle /observatory* {
+        root * /var/www/html/arifos/observatory
+        try_files {path} /index.html
+        file_server
+    }
+    handle /webmcp* {
+        root * /var/www/html/arifos/webmcp
+        file_server
+    }
+    @api-mcp {
+        path /api/mcp/tools.json /api/mcp/resources.json /api/mcp/prompts.json /api/mcp/capabilities.json /api/mcp/validator-report.json
+    }
+    handle @api-mcp {
+        file_server
+    }
 
     handle /geox* {
         uri strip_prefix /geox
@@ -235,10 +256,25 @@ arifos.arif-fazil.com {
     }
 }
 
-# ─── REDIRECT MATRIX ──────────────────────────────────────────────────────────
+# ─── A2A AGENT GATEWAY ─────────────────────────────────────────────────────────
+# aaa.arif-fazil.com — Arif Agent Authority: A2A endpoint, agent card, skills
 aaa.arif-fazil.com {
     import tls_origin
-    redir https://arifos.arif-fazil.com/aaa{uri} permanent
+    encode zstd gzip
+    root * /var/www/html/aaa
+
+    handle /.well-known/agent-card.json {
+        file_server
+    }
+
+    handle /a2a* {
+        reverse_proxy arifosmcp:8080
+    }
+
+    handle {
+        try_files {path} /index.html
+        file_server
+    }
 }
 
 wiki.arif-fazil.com {
@@ -273,4 +309,14 @@ dozzle.arif-fazil.com {
 ollama.arif-fazil.com {
     import tls_origin
     reverse_proxy ollama:11434
+}
+
+# ─── Observatory: arifOS MCP Public Observatory ────────────────────────────────
+observatory.arif-fazil.com {
+    import tls_origin
+    root * /var/www/html/observatory
+    file_server
+    handle_path /.well-known/mcp/* {
+        reverse_proxy arifosmcp:8080
+    }
 }
