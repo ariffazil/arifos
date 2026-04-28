@@ -73,6 +73,7 @@ class VerifyReport:
     layers: list[LayerResult]
     comparison: ComparisonResult
     mcp: McpResult
+    tool_consistency: tuple[str, str]   # (verdict, detail)
     verdict: str
     hold_reason: str = ""
     approved_checks: int = 0
@@ -293,8 +294,48 @@ def compare_status(local_payload: dict, public_payload: dict) -> ComparisonResul
 
 # ─── Verdict Logic ─────────────────────────────────────────────────────────────
 
+# ─── Tool Count Consistency ───────────────────────────────────────────────────
+
+# arifOS MCP has TWO tool surfaces:
+#   canonical (13) — constitutional law tools, the 13-floor surface
+#   runtime (20)   — canonical + governance surface tools (forge_dry_run,
+#                     vault_*, judge_surface, command_center)
+# These are intentionally different. The check verifies both are tracked.
+
+CANONICAL_TOOL_COUNT = 13   # arifOS constitutional surface (F1–F13 governed)
+RUNTIME_TOOL_COUNT    = 20   # full MCP runtime surface exposed to clients
+
+def check_tool_consistency(status_tools: int, mcp_tools_count: int) -> tuple[str, str]:
+    """
+    Returns (verdict, detail).
+    APPROVED if both counts are exactly right (13 canonical, 20 runtime).
+    HOLD if counts are wrong or unexpected.
+    """
+    # status.json should always report canonical count
+    if status_tools == CANONICAL_TOOL_COUNT:
+        status_ok = f"canonical={status_tools} ✅"
+    elif status_tools == mcp_tools_count:
+        status_ok = f"runtime={status_tools} ⚠️ (expected canonical={CANONICAL_TOOL_COUNT})"
+    else:
+        status_ok = f"unexpected={status_tools} ⚠️"
+
+    # mcp tools/list should report runtime count
+    if mcp_tools_count == RUNTIME_TOOL_COUNT:
+        mcp_ok = f"runtime={mcp_tools_count} ✅"
+    elif mcp_tools_count == CANONICAL_TOOL_COUNT:
+        mcp_ok = f"canonical={mcp_tools_count} ⚠️ (expected runtime={RUNTIME_TOOL_COUNT})"
+    else:
+        mcp_ok = f"unexpected={mcp_tools_count} ⚠️"
+
+    if (status_tools == CANONICAL_TOOL_COUNT and
+            mcp_tools_count == RUNTIME_TOOL_COUNT):
+        return "PASS", f"canonical={CANONICAL_TOOL_COUNT}, runtime={RUNTIME_TOOL_COUNT} ✅"
+    return "HOLD", f"status.json:{status_ok} | mcp:{mcp_ok}"
+
+
 def compute_verdict(results: list[LayerResult], mcp: McpResult,
-                    comparison: ComparisonResult) -> tuple[str, str]:
+                    comparison: ComparisonResult,
+                    tool_consistency: tuple[str, str]) -> tuple[str, str]:
     """
     Returns (verdict, hold_reason).
     verdict: APPROVED | HOLD | VOID
@@ -312,39 +353,38 @@ def compute_verdict(results: list[LayerResult], mcp: McpResult,
     if not public_health or public_health.http_status == 0:
         return "VOID", "public /health unreachable"
 
-    # HOLD: /ready is partial, or comparison diffs, or MCP issues
-    public_ready = next((r for r in results
-                          if r.layer == "PUBLIC" and r.endpoint == "/ready"), None)
-
+    # HOLD: /ready is partial, comparison diffs, MCP issues, tool count drift
     hold_reasons = []
 
-    # /ready check
+    public_ready = next((r for r in results
+                          if r.layer == "PUBLIC" and r.endpoint == "/ready"), None)
     if public_ready and public_ready.payload:
         ready_status = public_ready.payload.get("status", "unknown")
         if ready_status != "pass":
-            hold_reasons.append(f"public /ready status={ready_status} (not pass)")
+            hold_reasons.append(f"public /ready status={ready_status}")
         failures = public_ready.payload.get("failures", [])
         if failures:
             hold_reasons.append(f"public /ready failures: {failures}")
 
-    # Version/status comparison
     diffs = []
     for attr in ["version", "commit", "status", "tools_count", "arifos", "geox", "wealth"]:
         val = getattr(comparison, attr)
         if val:
             diffs.append(f"{attr}: {val}")
-
     if diffs:
         hold_reasons.append(f"parity drift: {'; '.join(diffs)}")
 
-    # MCP check
     if mcp.initialize == "FAIL" or mcp.tools_list == "FAIL":
         hold_reasons.append(f"MCP initialize={mcp.initialize}, tools_list={mcp.tools_list}")
+
+    tool_verdict, tool_detail = tool_consistency
+    if tool_verdict != "PASS":
+        hold_reasons.append(f"tool count: {tool_detail}")
 
     if hold_reasons:
         return "HOLD", " | ".join(hold_reasons)
 
-    return "APPROVED", "all layers consistent, /ready=pass, MCP responsive"
+    return "APPROVED", "all layers consistent, /ready=pass, MCP responsive, tool counts correct"
 
 # ─── Main Verification ─────────────────────────────────────────────────────────
 
@@ -396,8 +436,15 @@ def verify_all() -> VerifyReport:
     if local_payload and public_payload:
         comparison = compare_status(local_payload, public_payload)
 
+    # ── Tool count consistency ─────────────────────────────────────────────────
+    status_tools = (public_payload.get("services", {})
+                     .get("arifos", {}).get("tools", 0) if public_payload else -1)
+    mcp_tools    = mcp_result.tools_count
+    tool_consistency = check_tool_consistency(status_tools, mcp_tools)
+
     # ── Verdict ────────────────────────────────────────────────────────────────
-    verdict, hold_reason = compute_verdict(all_results, mcp_result, comparison)
+    verdict, hold_reason = compute_verdict(all_results, mcp_result, comparison,
+                                           tool_consistency)
 
     # Count checks
     approved_checks = sum(1 for r in all_results if r.verdict == "PASS")
@@ -408,6 +455,7 @@ def verify_all() -> VerifyReport:
         layers=all_results,
         comparison=comparison,
         mcp=mcp_result,
+        tool_consistency=tool_consistency,
         verdict=verdict,
         hold_reason=hold_reason,
         approved_checks=approved_checks,
@@ -473,14 +521,23 @@ def render_table(report: VerifyReport) -> str:
         if verdict == "PASS":
             mcp_ok.append(label)
 
-    lines.append(divider)
+    # ── Tool count consistency ─────────────────────────────────────────────────
+    tc_verdict, tc_detail = report.tool_consistency
+    tc_icon = {"PASS": "✅", "HOLD": "⚠️"}.get(tc_verdict, "❌")
+    lines.append(f"\nTOOL COUNT CONSISTENCY:")
+    lines.append(f"  {tc_icon} tool_count: {tc_detail}")
 
-    # ── Verdict ───────────────────────────────────────────────────────────────
+    # ── Verdict ────────────────────────────────────────────────────────────────
     verdict_icon = {"APPROVED": "✅", "HOLD": "⚠️", "VOID": "🛑"}.get(report.verdict, "?")
+    total = len(report.layers) + 1   # layers + tool count
+    passed = sum(1 for r in report.layers if r.verdict == "PASS")
+    if tc_verdict == "PASS":
+        passed += 1
+    lines.append(divider)
     lines.append(f"\n  {verdict_icon} VERDICT: {report.verdict}")
     if report.hold_reason:
         lines.append(f"     Reason: {report.hold_reason}")
-    lines.append(f"  Checks : {report.approved_checks}/{report.total_checks} passed")
+    lines.append(f"  Checks : {passed}/{total} passed")
     lines.append(f"{'═' * 80}\n")
 
     return "\n".join(lines)

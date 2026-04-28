@@ -181,18 +181,40 @@ def _safe_register(mcp, module_path: str, name: str) -> None:
         logger.warning(f"  Skipped app {name} ({module_path}): {e}")
 
 
+# ── MCP Apps registration — DISABLED ──────────────────────────────────────
+# The 5 apps below registered 7 extra tools on top of the canonical 13,
+# creating duplicate MCP surfaces (e.g. forge_app.arif_forge_execute vs
+# canonical tools.py arif_forge_execute, stub judge_surface, stub vault_surface,
+# extra arif_vault_audit, arif_vault_chain_verify, init_surface).
+#
+# The canonical register_tools() in tools.py already provides the full
+# constitutional surface. All app-level stubs are redundant wrappers that
+# either duplicate canonical tools or provide non-constitutional responses.
+#
+# Governance tools refactored back to canonical 13:
+#   forge_app.arif_forge_execute  → canonical arif_forge_execute (already registered)
+#   forge_app.forge_dry_run       → arif_forge_execute(mode="dry_run")
+#   vault_app.vault_surface       → arif_vault_seal(mode="list")
+#   judge_app.arif_judge_deliberate → canonical arif_judge_deliberate (already registered)
+#   judge_app.judge_surface       → arif_judge_deliberate (stub, removed)
+#   vault_audit.arif_vault_audit  → internal only (VAULT999 read via arif_vault_seal)
+#   vault_audit.arif_vault_chain_verify → internal only
+#   init_app.init_surface         → internal only (000_INIT handled by session init)
+# ─────────────────────────────────────────────────────────────────────────────
 try:
-    _safe_register(mcp, "arifosmcp.apps.forge_app", "forge")
-    _safe_register(mcp, "arifosmcp.apps.vault_app", "vault")
-    _safe_register(mcp, "arifosmcp.apps.judge_app", "judge")
-    _safe_register(mcp, "arifosmcp.apps.vault_audit", "vault_audit")
-    _safe_register(mcp, "arifosmcp.apps.command_center", "command_center")
+    # _safe_register(mcp, "arifosmcp.apps.forge_app",    "forge")
+    # _safe_register(mcp, "arifosmcp.apps.vault_app",    "vault")
+    # _safe_register(mcp, "arifosmcp.apps.judge_app",     "judge")
+    # _safe_register(mcp, "arifosmcp.apps.vault_audit",  "vault_audit")
+    # _safe_register(mcp, "arifosmcp.apps.command_center","command_center")
+    print("[arif-register] App registration disabled — canonical 13-tool surface only", flush=True)
+    v2_apps_registered = []
     print(
         f"[arif-register] Total apps registered: {len(v2_apps_registered)} — {v2_apps_registered}",
         flush=True,
     )
     logger.info(
-        f"ARIFOS MCP KANON Phase 2: {len(v2_apps_registered)} apps registered — {v2_apps_registered}"
+        f"ARIFOS MCP KANON Phase 2: app registration disabled — canonical 13-tool surface only"
     )
 except Exception as e:
     logger.error(f"App registration failed: {e}")
