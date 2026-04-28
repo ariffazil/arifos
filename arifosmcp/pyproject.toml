@@ -1,7 +1,12 @@
 [project]
 name = "arifos"
-version = "2026.04.16"
+version = "2026.04.28"
 # T000 Versioning: YYYY.MM.DD — see T000_VERSIONING.md and CHANGELOG.md for full history
+# 2026.04.28 — ConstitutionKernel + FloorEvaluator (v2026.04.28-HORIZON)
+#   13 canonical tools (arif_verb_noun), dynamic F1-F13 enforcement via FloorEvaluator
+#   ConstitutionKernel: replaces static check_floors() with parametric evaluation engine
+#   AuthorityGate + ThreatEngine + SessionRegistry — full governance stack upgrade
+#   Horizon Audit completed: topology cleaned, split-brain resolved, canonical surface confirmed
 # 2026.03.24 — AAA MCP Induction (v2026.03.24-UNIFIED)
 #   Repo unification: collapsed AAA/ shadow mirror into root arifOS/ repo
 #   Kernel: moved core/runtime logic exclusively into arifosmcp/ package
@@ -53,7 +58,7 @@ version = "2026.04.16"
 # 2026.1.26 — Live constitutional metrics; 13/13 floors passing
 # 2026.1.24 — Unified core: arifosmcp.transport pure transport, all logic in core/
 # 2026.1.18 — Constitutional Forge: 13 floors F1-F13, Trinity ΔΩΨ, VAULT999, 9-tool MCP
-description = "arifOS v2026.04.16 — Constitutional AI Governance System. 11 canonical tools (arifos.init through arifos.forge), 13 constitutional floors (F1-F13), streamable-http MCP transport. CANONICAL SOURCE OF TRUTH: arifOS repository. Runtime truth: /health and /tools on deployed server. https://arifos.arif-fazil.com/"
+description = "arifOS v2026.04.28 — Constitutional AI Governance System. 13 canonical tools (arif_verb_noun), dynamic F1-F13 enforcement via ConstitutionKernel + FloorEvaluator, Trinity ΔΩΨ (AGI/ASI/APEX), VAULT999 immutable ledger, streamable-http MCP transport. CANONICAL SOURCE OF TRUTH: arifOS repository. https://arifos.arif-fazil.com/"
 readme = "README.md"
 requires-python = ">=3.12"
 license = "AGPL-3.0-only"
