@@ -32,6 +32,39 @@ arif-fazil.com, www.arif-fazil.com {
     encode zstd gzip
     root * /var/www/html/arif
 
+    # .well-known
+    # New public pages
+    @pg-start-here path /start-here /start-here/*
+    @pg-architect path /architect /architect/*
+    @pg-constitution path /constitution /constitution/*
+    @pg-glossary path /glossary /glossary/*
+    @pg-use-cases path /use-cases /use-cases/*
+
+    handle @pg-start-here {
+        root * /var/www/html/arif/start-here
+        try_files {path} /index.html
+        file_server
+    }
+    handle @pg-architect {
+        root * /var/www/html/arif/architect
+        try_files {path} /index.html
+        file_server
+    }
+    handle @pg-constitution {
+        root * /var/www/html/arif/constitution
+        try_files {path} /index.html
+        file_server
+    }
+    handle @pg-glossary {
+        root * /var/www/html/arif/glossary
+        try_files {path} /index.html
+        file_server
+    }
+    handle @pg-use-cases {
+        root * /var/www/html/arif/use-cases
+        try_files {path} /index.html
+        file_server
+    }
     # .well-known — serve JSON files from .well-known subdir
     @well-known {
         path /.well-known/*
