@@ -13,6 +13,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     ca-certificates \
     git \
+    tesseract-ocr \
+    tesseract-ocr-eng \
     && rm -rf /var/lib/apt/lists/*
 
 # Create non-root user
@@ -20,7 +22,8 @@ RUN groupadd -r arifos && useradd -r -g arifos arifos
 
 # Copy and install Python dependencies
 COPY pyproject.toml ./
-RUN pip install --no-cache-dir -e . 2>/dev/null || pip install --no-cache-dir fastmcp fastapi uvicorn starlette pydantic httpx
+RUN pip install --no-cache-dir -e . 2>/dev/null || pip install --no-cache-dir fastmcp fastapi uvicorn starlette pydantic httpx && \
+    pip install --no-cache-dir pytesseract Pillow
 
 # Copy application code
 COPY --chown=arifos:arifos arifosmcp/ ./arifosmcp/

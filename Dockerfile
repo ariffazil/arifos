@@ -74,6 +74,8 @@ ENV BUILD_TIME=${BUILD_TIME}
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     ca-certificates \
+    tesseract-ocr \
+    tesseract-ocr-eng \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy artifacts from build stage

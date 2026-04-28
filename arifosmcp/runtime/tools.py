@@ -4064,6 +4064,22 @@ def _runtime_selftest(
         checks["forge_dry_run_check"] = {"verdict": "FAIL", "error": str(e)}
         failed_checks.append("forge_dry_run_check")
 
+    # 14. Data governance health check (F1–F13 enforcement layer)
+    try:
+        from arifosmcp.runtime.data_governance import DataGovernanceEnforcer
+        enforcer = DataGovernanceEnforcer()
+        summary = enforcer.get_governance_summary()
+        all_ok = all(v == "ok" for v in summary.values())
+        checks["governance_check"] = {
+            "verdict": "PASS" if all_ok else "FAIL",
+            "floors": summary,
+        }
+        if not all_ok:
+            failed_checks.append("governance_check")
+    except Exception as e:
+        checks["governance_check"] = {"verdict": "FAIL", "error": str(e)}
+        failed_checks.append("governance_check")
+
     # Overall verdict
     if not failed_checks:
         overall_verdict = "PASS"
