@@ -296,19 +296,16 @@ def compare_status(local_payload: dict, public_payload: dict) -> ComparisonResul
 
 # ─── Tool Count Consistency ───────────────────────────────────────────────────
 
-# arifOS MCP has ONE unified tool surface — all 20 tools in constitutional_map.py.
-# canonical=13 constitutional floor-enforcement tools + 7 governance tools
-# (session_status, ops_vitals, judge_action, forge_dry_run, gateway_handshake,
-# vault_list, vault_dry_seal).
-# Both status.json and MCP tools/list report the same 20.
-# No separate canonical/runtime split.
+# arifOS MCP has ONE unified tool surface — 13 canonical tools (arif_verb_noun).
+# No separate governance or CC surface. All 13 are in CANONICAL_TOOLS.
+# status.json reports the same count. No canonical/runtime split.
 
-CANONICAL_TOOL_COUNT = 20   # unified MCP surface — 13 constitutional + 7 governance
+CANONICAL_TOOL_COUNT = 13   # unified MCP surface — 13 canonical tools
 
 def check_tool_consistency(status_tools: int, mcp_tools_count: int) -> tuple[str, str]:
     """
     Returns (verdict, detail).
-    APPROVED if both status.json and MCP tools/list report exactly 20 tools.
+    APPROVED if both status.json and MCP tools/list report exactly 13 tools.
     HOLD if counts don't match or are unexpected.
 
     Single unified surface since DITEMPA BUKAN DIBERI.
