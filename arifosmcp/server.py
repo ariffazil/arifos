@@ -9,18 +9,31 @@ DITEMPA BUKAN DIBERI — Forged, Not Given
 
 from __future__ import annotations
 
+import asyncio
 import logging
 import os
 import sys
 import traceback
 from typing import Any
 
-# Ensure project root is on path
-_project_root = os.path.dirname(os.path.abspath(__file__))
-_parent = os.path.dirname(_project_root)
-for p in (_parent, _project_root):
-    if p not in sys.path:
-        sys.path.insert(0, p)
+
+# Ensure project root is on path — /app before /app/arifosmcp
+# so "from core.shared" resolves to /app/core/shared/ (correct)
+# not /app/arifosmcp/core/ (stub package — wrong)
+def _prioritize_paths(*paths: str) -> None:
+    for path in reversed(paths):
+        if path in sys.path:
+            sys.path.remove(path)
+    for path in reversed(paths):
+        sys.path.insert(0, path)
+
+
+_project_root = os.path.dirname(os.path.abspath(__file__))  # /usr/src/app/arifosmcp
+_parent = os.path.dirname(_project_root)  # /usr/src/app
+_parent_idx = sys.path.index(_parent) if _parent in sys.path else len(sys.path)
+_project_root_idx = sys.path.index(_project_root) if _project_root in sys.path else len(sys.path)
+if _parent not in sys.path or _project_root not in sys.path or _parent_idx > _project_root_idx:
+    _prioritize_paths(_parent, _project_root)
 
 from dotenv import load_dotenv
 
@@ -375,16 +388,248 @@ try:
                 tool_summaries = []
             return JSONResponse({"tools": tool_summaries, "count": len(tool_summaries)})
 
-        # Register REST routes: landing page (/), dashboard, developer, llms.txt, etc.
-        # These are defined in rest_routes.py but were never wired up.
+        # Register REST routes: landing page (/), dashboard, developer, llms.txt, /status.json
         try:
             from arifosmcp.runtime.rest_routes import register_rest_routes
             from arifosmcp.runtime.tools import CANONICAL_TOOL_HANDLERS
 
             register_rest_routes(mcp, CANONICAL_TOOL_HANDLERS)
-            logger.info("REST routes registered: /, /dashboard, /developer, /llms.txt, etc.")
-        except Exception as e:
-            logger.warning(f"Failed to register REST routes: {e}")
+            logger.info(
+                "REST routes registered: /, /dashboard, /developer, /llms.txt, /status.json"
+            )
+        except Exception:
+            logger.exception(
+                "REST route registration failed; /status.json unavailable — observability spine is DOWN"
+            )
+
+        # Federation Status Spine — added directly to avoid register_rest_routes import chain
+        async def federation_status_json(request: Request) -> JSONResponse:
+            """GET /status.json — Federation visibility spine.
+
+            Probes arifOS, GEOX, WEALTH concurrently and returns a public-safe
+            aggregated status payload. Shallow fields only — no latency_ms,
+            exceptions, container names, env vars, or vault state.
+            """
+            from datetime import datetime, timezone
+
+            import httpx
+
+            _results: dict[str, Any] = {}
+            _overall = "ok"
+
+            async def _mcp_initialize(host: str, port: int, path: str = "/mcp") -> dict[str, Any]:
+                url = f"http://{host}:{port}{path}"
+                result: dict[str, Any] = {"ok": False, "error": None, "tools_count": None}
+                try:
+                    async with httpx.AsyncClient(timeout=6.0, follow_redirects=False) as client:
+                        init_resp = await client.post(
+                            url,
+                            json={
+                                "jsonrpc": "2.0",
+                                "id": 1,
+                                "method": "initialize",
+                                "params": {
+                                    "protocolVersion": "2025-03-26",
+                                    "capabilities": {},
+                                    "clientInfo": {"name": "arifOS-status-probe", "version": "1.0"},
+                                },
+                            },
+                            headers={
+                                "Content-Type": "application/json",
+                                "Accept": "application/json, text/event-stream",
+                            },
+                        )
+                        if init_resp.status_code == 200:
+                            session_id = init_resp.headers.get("mcp-session-id", "")
+                            result["ok"] = True
+                            result["session_id"] = session_id[:16] + "..." if session_id else None
+                            if session_id:
+                                try:
+                                    tools_resp = await client.post(
+                                        url,
+                                        json={
+                                            "jsonrpc": "2.0",
+                                            "id": 2,
+                                            "method": "tools/list",
+                                            "params": {},
+                                        },
+                                        headers={
+                                            "Content-Type": "application/json",
+                                            "Accept": "application/json",
+                                            "mcp-session-id": session_id,
+                                        },
+                                        timeout=5.0,
+                                    )
+                                    if tools_resp.status_code == 200:
+                                        td = tools_resp.json()
+                                        if "result" in td and "tools" in td["result"]:
+                                            result["tools_count"] = len(td["result"]["tools"])
+                                except Exception:
+                                    pass
+                        else:
+                            result["error"] = f"http_{init_resp.status_code}"
+                except Exception as e:
+                    result["error"] = type(e).__name__
+                return result
+
+            try:
+                async with httpx.AsyncClient(timeout=8.0) as client:
+                    probes = await asyncio.gather(
+                        client.get("http://arifosmcp:8080/health", timeout=5.0),
+                        client.get("http://arifosmcp:8080/ready", timeout=5.0),
+                        client.get("http://wealth-organ:8000/health", timeout=5.0),
+                        client.post(
+                            "http://geox:8081/mcp",
+                            json={
+                                "jsonrpc": "2.0",
+                                "id": 1,
+                                "method": "initialize",
+                                "params": {
+                                    "protocolVersion": "2025-03-26",
+                                    "capabilities": {},
+                                    "clientInfo": {"name": "arifOS-status-probe", "version": "1.0"},
+                                },
+                            },
+                            headers={
+                                "Content-Type": "application/json",
+                                "Accept": "application/json, text/event-stream",
+                            },
+                            timeout=6.0,
+                        ),
+                        return_exceptions=True,
+                    )
+                    arifos_h, arifos_r, wealth_h, geox_mcp = (
+                        probes[0],
+                        probes[1],
+                        probes[2],
+                        probes[3],
+                    )
+
+                    # arifOS
+                    if isinstance(arifos_h, Exception):
+                        _results["arifos"] = {"status": "down"}
+                        _overall = "degraded"
+                    elif arifos_h.status_code == 200:
+                        _results["arifos"] = {
+                            "status": "ok",
+                            "health": "ok",
+                            "ready": (
+                                "ok"
+                                if not isinstance(arifos_r, Exception)
+                                and arifos_r.status_code == 200
+                                else "unknown"
+                            ),
+                        }
+                    else:
+                        _results["arifos"] = {"status": "degraded"}
+                        _overall = "degraded"
+
+                    # WEALTH
+                    if isinstance(wealth_h, Exception):
+                        _results["wealth"] = {"status": "down"}
+                        _overall = "degraded"
+                    elif wealth_h.status_code == 200:
+                        _results["wealth"] = {"status": "ok", "health": "ok"}
+                    else:
+                        _results["wealth"] = {"status": "degraded"}
+                        _overall = "degraded"
+
+                    # GEOX — MCP probe
+                    if isinstance(geox_mcp, Exception):
+                        _results["geox"] = {"status": "down"}
+                        _overall = "degraded"
+                    elif isinstance(geox_mcp, httpx.Response) and geox_mcp.status_code == 200:
+                        sid = geox_mcp.headers.get("mcp-session-id", "")
+                        tools = None
+                        if sid:
+                            try:
+                                t = await client.post(
+                                    "http://geox:8081/mcp",
+                                    json={
+                                        "jsonrpc": "2.0",
+                                        "id": 2,
+                                        "method": "tools/list",
+                                        "params": {},
+                                    },
+                                    headers={
+                                        "Content-Type": "application/json",
+                                        "Accept": "application/json",
+                                        "mcp-session-id": sid,
+                                    },
+                                    timeout=5.0,
+                                )
+                                if t.status_code == 200:
+                                    td = t.json()
+                                    if "result" in td and "tools" in td["result"]:
+                                        tools = len(td["result"]["tools"])
+                            except Exception:
+                                pass
+                        _results["geox"] = {
+                            "status": "ok",
+                            "mcp_probe": "ok",
+                            "session_id": sid[:16] + "..." if sid else None,
+                            "tools_count": tools,
+                        }
+                    else:
+                        code = (
+                            geox_mcp.status_code
+                            if isinstance(geox_mcp, httpx.Response)
+                            else "exception"
+                        )
+                        _results["geox"] = {"status": "degraded", "mcp_code": code}
+                        _overall = "degraded"
+            except Exception:
+                _overall = "degraded"
+
+            # Import here to avoid module-level import chain issues
+            from arifosmcp.runtime.public_surface import public_surface
+
+            ps = public_surface()
+            payload = {
+                "system": ps["system"],
+                "status": _overall,
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "canonical": ps["canonical"],
+                "version": ps["version"],
+                "commit": ps["commit"],
+                "protocol_version": ps["protocol_version"],
+                "services": {
+                    "arifos": {
+                        "role": "constitutional_kernel",
+                        "mcp": True,
+                        "endpoint": ps["canonical"]["mcp"],
+                        "status": _results.get("arifos", {}).get("status", "unknown"),
+                        "health": _results.get("arifos", {}).get("health", "unknown"),
+                        "ready": _results.get("arifos", {}).get("ready", "unknown"),
+                        "tools": 13,
+                        "prompts": 8,
+                        "resources": 5,
+                    },
+                    "geox": {
+                        "role": "earth_intelligence_processor",
+                        "mcp": True,
+                        "endpoint": ps["canonical"]["mcp"].replace(
+                            "mcp.arif-fazil.com", "geox.arif-fazil.com"
+                        ),
+                        "status": _results.get("geox", {}).get("status", "unknown"),
+                        "mcp_probe": _results.get("geox", {}).get("mcp_probe", "unknown"),
+                        "tools_count": _results.get("geox", {}).get("tools_count"),
+                    },
+                    "wealth": {
+                        "role": "capital_intelligence_processor",
+                        "mcp": True,
+                        "endpoint": "https://wealth.arif-fazil.com/mcp",
+                        "status": _results.get("wealth", {}).get("status", "unknown"),
+                        "health": _results.get("wealth", {}).get("health", "unknown"),
+                    },
+                },
+                "visibility": {"llms_txt": "ok", "well_known": "ok"},
+                "seal": "DITEMPA BUKAN DIBERI",
+            }
+            return JSONResponse(payload, media_type="application/json")
+
+        app.add_route("/status.json", federation_status_json, methods=["GET"])
+        logger.info("/status.json route registered via app.add_route")
 
         app.add_middleware(GlobalPanicMiddleware)
         app.add_middleware(

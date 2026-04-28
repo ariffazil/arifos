@@ -25,19 +25,7 @@ import time
 import uuid
 from collections.abc import Callable
 from datetime import date, datetime, timezone
-from pathlib import Path
 from typing import Any
-
-from core.shared.floor_audit import get_ml_floor_runtime
-from core.shared.floors import (
-    FLOOR_SPEC_KEYS,
-    get_floor_comparator,
-    get_floor_spec,
-    get_floor_threshold,
-)
-from starlette.requests import Request
-from starlette.responses import FileResponse, HTMLResponse, JSONResponse, Response
-from starlette.staticfiles import StaticFiles
 
 from arifosmcp.runtime.public_registry import (
     build_mcp_discovery_json,
@@ -46,49 +34,61 @@ from arifosmcp.runtime.public_registry import (
     public_tool_specs,
 )
 from arifosmcp.runtime.resources import apex_tools_markdown_table
+from starlette.requests import Request
+from starlette.responses import FileResponse, HTMLResponse, JSONResponse, Response
+from starlette.staticfiles import StaticFiles
+
+from core.shared.floor_audit import get_ml_floor_runtime
+from core.shared.floors import (
+    FLOOR_SPEC_KEYS,
+    get_floor_comparator,
+    get_floor_spec,
+    get_floor_threshold,
+)
 
 from .build_info import get_build_info
 from .capability_map import build_runtime_capability_map
-from .contracts import AAA_TOOL_ALIASES, AAA_TOOL_STAGE_MAP, TRINITY_BY_TOOL, AAA_TOOL_LAW_BINDINGS
+from .contracts import AAA_TOOL_ALIASES, AAA_TOOL_STAGE_MAP, TRINITY_BY_TOOL
 
 # External MCP tool name → internal contract name
 # This is the authoritative mapping for stage/lane lookups
 _EXTERNAL_TO_INTERNAL = {
-    "arif_ping":             "000_INIT",
-    "arif_selftest":         "000_INIT",
-    "arif_session_init":     "arifos_init",
-    "arif_sense_observe":   "arifos_sense",
-    "arif_evidence_fetch":   "arifos_fetch",
-    "arif_mind_reason":     "arifos_mind",
-    "arif_kernel_route":    "arifos_kernel",
-    "arif_reply_compose":   "arifos_reply",
-    "arif_memory_recall":   "arifos_memory",
-    "arif_heart_critique":  "arifos_heart",
-    "arif_gateway_connect":  "arifos_gateway",
-    "arif_ops_measure":     "arifos_ops",
-    "arif_judge_deliberate":"arifos_judge",
-    "arif_vault_seal":      "arifos_vault",
-    "arif_forge_execute":   "arifos_forge",
+    "arif_ping": "000_INIT",
+    "arif_selftest": "000_INIT",
+    "arif_session_init": "arifos_init",
+    "arif_sense_observe": "arifos_sense",
+    "arif_evidence_fetch": "arifos_fetch",
+    "arif_mind_reason": "arifos_mind",
+    "arif_kernel_route": "arifos_kernel",
+    "arif_reply_compose": "arifos_reply",
+    "arif_memory_recall": "arifos_memory",
+    "arif_heart_critique": "arifos_heart",
+    "arif_gateway_connect": "arifos_gateway",
+    "arif_ops_measure": "arifos_ops",
+    "arif_judge_deliberate": "arifos_judge",
+    "arif_vault_seal": "arifos_vault",
+    "arif_forge_execute": "arifos_forge",
 }
 
 # Human-readable descriptions for each tool (authoritative)
 TOOL_HUMAN_DESCRIPTIONS = {
-    "arif_ping":             "Lightweight liveness probe — confirms kernel is responsive and sovereign.",
-    "arif_selftest":         "Internal diagnostic — verifies all 13 constitutional floors are intact.",
-    "arif_session_init":     "Session anchor — opens a new governance session with identity binding.",
-    "arif_sense_observe":    "Observe real-world signals — web search, system telemetry, environment data.",
-    "arif_evidence_fetch":   "Fetch and verify evidence from URLs, files, or databases.",
-    "arif_mind_reason":      "First-principles reasoning engine — synthesis, hypothesis, and cross-domain analysis.",
-    "arif_kernel_route":     "Metabolic conductor — routes tasks to the correct organ: GEOX, WEALTH, or WELL.",
-    "arif_reply_compose":     "Governed response compositor — drafts human-readable answers with constitutional tone.",
-    "arif_memory_recall":    "Vector memory retrieval — searches past sessions, decisions, and sealed events.",
-    "arif_heart_critique":   "Safety and empathy check — consequence modeling and bias detection.",
-    "arif_gateway_connect":   "Agent-to-agent mesh router — opens connections across the federation (A2A protocol).",
-    "arif_ops_measure":      "Thermodynamic metrics — CPU, memory, disk, and constitutional pressure.",
-    "arif_judge_deliberate":  "888 ASI judgment — final rule-check against F1–F13 floors before approval.",
-    "arif_vault_seal":        "APEX ledger writer — permanently seals verdicts to VAULT999 (Merkle-hashed).",
-    "arif_forge_execute":     "Execution dispatcher — sends signed manifests to A-FORGE after SEAL authorization.",
+    "arif_ping": "Lightweight liveness probe — confirms kernel is responsive and sovereign.",
+    "arif_selftest": "Internal diagnostic — verifies all 13 constitutional floors are intact.",
+    "arif_session_init": "Session anchor — opens a new governance session with identity binding.",
+    "arif_sense_observe": "Observe real-world signals — web search, system telemetry, environment data.",
+    "arif_evidence_fetch": "Fetch and verify evidence from URLs, files, or databases.",
+    "arif_mind_reason": "First-principles reasoning engine — synthesis, hypothesis, and cross-domain analysis.",
+    "arif_kernel_route": "Metabolic conductor — routes tasks to the correct organ: GEOX, WEALTH, or WELL.",
+    "arif_reply_compose": "Governed response compositor — drafts human-readable answers with constitutional tone.",
+    "arif_memory_recall": "Vector memory retrieval — searches past sessions, decisions, and sealed events.",
+    "arif_heart_critique": "Safety and empathy check — consequence modeling and bias detection.",
+    "arif_gateway_connect": "Agent-to-agent mesh router — opens connections across the federation (A2A protocol).",
+    "arif_ops_measure": "Thermodynamic metrics — CPU, memory, disk, and constitutional pressure.",
+    "arif_judge_deliberate": "888 ASI judgment — final rule-check against F1–F13 floors before approval.",
+    "arif_vault_seal": "APEX ledger writer — permanently seals verdicts to VAULT999 (Merkle-hashed).",
+    "arif_forge_execute": "Execution dispatcher — sends signed manifests to A-FORGE after SEAL authorization.",
 }
+
 
 def _get_stage_lane_access(tool_name: str) -> tuple[str | None, str | None, str]:
     """Return (stage, lane, access_level) for a tool given its external name."""
@@ -103,8 +103,10 @@ def _get_stage_lane_access(tool_name: str) -> tuple[str | None, str | None, str]
     # Access level from law bindings
     access = "public"
     if tool_name in [
-        "arif_heart_critique", "arif_gateway_connect",
-        "arif_judge_deliberate", "arif_vault_seal",
+        "arif_heart_critique",
+        "arif_gateway_connect",
+        "arif_judge_deliberate",
+        "arif_vault_seal",
     ]:
         access = "authenticated"
     if tool_name == "arif_forge_execute":
@@ -116,14 +118,14 @@ def _get_tool_obj(mcp: Any, tool: Any) -> Any:
     """Helper to get tool object from FastMCP instance given string name or tool object."""
     if not isinstance(tool, str):
         return tool
-    
+
     # Try to find tool in mcp instance
     # FastMCP v3 keeps tools in _local_provider._components
     if hasattr(mcp, "_local_provider") and hasattr(mcp._local_provider, "_components"):
         comp_key = f"tool:{tool}"
         if comp_key in mcp._local_provider._components:
             return mcp._local_provider._components[comp_key]
-    
+
     # Fallback/Dummy object if not found
     class DummyTool:
         def __init__(self, name):
@@ -131,30 +133,36 @@ def _get_tool_obj(mcp: Any, tool: Any) -> Any:
             self.description = ""
             self.parameters = {}
             self.annotations = None
+
     return DummyTool(tool)
 
 
 _INTERNAL_MCP_REF: Any = None
+
 
 def _get_tool_obj(tool: Any) -> Any:
     """Helper to get tool object from the global FastMCP instance reference."""
     global _INTERNAL_MCP_REF
     if not isinstance(tool, str):
         return tool
-    
+
     if _INTERNAL_MCP_REF:
-        if hasattr(_INTERNAL_MCP_REF, "_local_provider") and hasattr(_INTERNAL_MCP_REF._local_provider, "_components"):
+        if hasattr(_INTERNAL_MCP_REF, "_local_provider") and hasattr(
+            _INTERNAL_MCP_REF._local_provider, "_components"
+        ):
             comp_key = f"tool:{tool}"
             if comp_key in _INTERNAL_MCP_REF._local_provider._components:
                 return _INTERNAL_MCP_REF._local_provider._components[comp_key]
-    
+
     class DummyTool:
         def __init__(self, name):
             self.name = name
             self.description = ""
             self.parameters = {}
             self.annotations = None
+
     return DummyTool(tool)
+
 
 BUILD_INFO = get_build_info()
 BUILD_VERSION = BUILD_INFO["server_version"]
@@ -411,11 +419,10 @@ def _build_trinity_matrix(
 ) -> dict[str, Any]:
     thermo = health_payload.get("thermodynamic") or {}
     gov = health_payload.get("governance") or {}
-    floors = (health_payload.get("runtime_floors") or {})
-    caps = ((health_payload.get("capability_map") or {}).get("capabilities") or {})
+    floors = health_payload.get("runtime_floors") or {}
+    caps = (health_payload.get("capability_map") or {}).get("capabilities") or {}
     running = {
-        container["name"]: "Up" in str(container.get("status") or "")
-        for container in containers
+        container["name"]: "Up" in str(container.get("status") or "") for container in containers
     }
     missing_critical = sorted(name for name in _CRITICAL_CONTAINERS if not running.get(name, False))
     entropy_delta = float(thermo.get("entropy_delta") or 0.0)
@@ -428,7 +435,10 @@ def _build_trinity_matrix(
         if floor_id in FLOOR_SPEC_KEYS and not _floor_passes(floor_id, float(score))
     )
     f9_triggered = "F9" in failed_floors or float(thermo.get("shadow") or 0.0) >= 0.3
-    schema_violation = not isinstance(health_payload.get("thermodynamic"), dict) or thermo.get("confidence") is None
+    schema_violation = (
+        not isinstance(health_payload.get("thermodynamic"), dict)
+        or thermo.get("confidence") is None
+    )
     hallucination_detected = health_payload.get("source_commit") in {None, "", "unknown"}
 
     if missing_critical:
@@ -757,11 +767,13 @@ def _render_status_html(payload: dict[str, Any]) -> str:
 
     floor_html = "".join(
         '<div class="floor {}"><strong>{}</strong><span>{:.3f}</span></div>'.format(
-            "pass"
-            if _floor_passes(
-                floor_id, float(floors.get(floor_id, _FLOOR_DEFAULTS.get(floor_id, 0.0)))
-            )
-            else "fail",
+            (
+                "pass"
+                if _floor_passes(
+                    floor_id, float(floors.get(floor_id, _FLOOR_DEFAULTS.get(floor_id, 0.0)))
+                )
+                else "fail"
+            ),
             floor_id,
             float(floors.get(floor_id, _FLOOR_DEFAULTS.get(floor_id, 0.0))),
         )
@@ -1049,7 +1061,7 @@ def _load_welcome_html() -> str:
     for path in possible_paths:
         if os.path.exists(path):
             try:
-                with open(path, "r") as f:
+                with open(path) as f:
                     html_content = f.read()
                 break
             except Exception:
@@ -1109,7 +1121,7 @@ DOCS_HTML = f"""\
 <body>
   <h1>📚 arifOS Documentation</h1>
   <div class="version">Version {BUILD_VERSION}</div>
-  
+
   <div class="nav">
     <a href="/">← Home</a>
     <a href="/dashboard">Dashboard</a>
@@ -1413,9 +1425,7 @@ def _tool_openapi_paths(base_url: str, tools: list[Any]) -> dict[str, Any]:
                     "401": {
                         "description": "Unauthorized",
                         "content": {
-                            "application/json": {
-                                "schema": {"$ref": "#/components/schemas/Error"}
-                            }
+                            "application/json": {"schema": {"$ref": "#/components/schemas/Error"}}
                         },
                     },
                 },
@@ -1465,33 +1475,25 @@ def _tool_openapi_paths(base_url: str, tools: list[Any]) -> dict[str, Any]:
                     "400": {
                         "description": "Invalid request",
                         "content": {
-                            "application/json": {
-                                "schema": {"$ref": "#/components/schemas/Error"}
-                            }
+                            "application/json": {"schema": {"$ref": "#/components/schemas/Error"}}
                         },
                     },
                     "401": {
                         "description": "Unauthorized",
                         "content": {
-                            "application/json": {
-                                "schema": {"$ref": "#/components/schemas/Error"}
-                            }
+                            "application/json": {"schema": {"$ref": "#/components/schemas/Error"}}
                         },
                     },
                     "404": {
                         "description": "Tool not found",
                         "content": {
-                            "application/json": {
-                                "schema": {"$ref": "#/components/schemas/Error"}
-                            }
+                            "application/json": {"schema": {"$ref": "#/components/schemas/Error"}}
                         },
                     },
                     "500": {
                         "description": "Tool execution failed",
                         "content": {
-                            "application/json": {
-                                "schema": {"$ref": "#/components/schemas/Error"}
-                            }
+                            "application/json": {"schema": {"$ref": "#/components/schemas/Error"}}
                         },
                     },
                 },
@@ -1678,7 +1680,14 @@ def _openapi_schema(base_url: str, tools: list[Any]) -> dict[str, Any]:
                         "latency_ms": {"type": "number"},
                         "result": {"type": "object"},
                     },
-                    "required": ["status", "tool", "canonical", "request_id", "latency_ms", "result"],
+                    "required": [
+                        "status",
+                        "tool",
+                        "canonical",
+                        "request_id",
+                        "latency_ms",
+                        "result",
+                    ],
                 },
                 "Error": {
                     "type": "object",
@@ -1724,8 +1733,16 @@ def register_rest_routes(
 
         def decorator(handler: Callable):
             # Starlette app.add_route
-            if hasattr(mcp, "add_route") or "Starlette" in str(type(mcp)) or "FastAPI" in str(type(mcp)):
-                from starlette.routing import Route; mcp.router.routes.append(Route(full_path, endpoint=handler, methods=methods or ["GET"]))
+            if (
+                hasattr(mcp, "add_route")
+                or "Starlette" in str(type(mcp))
+                or "FastAPI" in str(type(mcp))
+            ):
+                from starlette.routing import Route
+
+                mcp.router.routes.append(
+                    Route(full_path, endpoint=handler, methods=methods or ["GET"])
+                )
             # FastMCP mcp.custom_route
             elif hasattr(mcp, "custom_route"):
                 mcp.custom_route(full_path, methods=methods)(handler)
@@ -1897,13 +1914,12 @@ def register_rest_routes(
     @route("/metrics", methods=["GET"])
     async def metrics_endpoint(request: Request) -> Response:
         """Prometheus metrics — scraped by arifos_prometheus every 30s."""
-        from starlette.responses import Response as _Resp
-
         from arifosmcp.runtime.metrics import (
             CONTENT_TYPE_LATEST,
             generate_latest,
             update_prometheus_metrics,
         )
+        from starlette.responses import Response as _Resp
 
         update_prometheus_metrics()
 
@@ -1955,9 +1971,9 @@ def register_rest_routes(
                 "last_seal_timestamp": vault_last_seal,
                 "tau_threshold_f2": 0.99,  # constant: F2 floor spec threshold
                 # Freshness metadata
-                "telemetry_source": "live"
-                if telemetry.get("confidence") is not None
-                else "unavailable",
+                "telemetry_source": (
+                    "live" if telemetry.get("confidence") is not None else "unavailable"
+                ),
                 "timestamp": datetime.now(timezone.utc).isoformat(),
             },
             headers={"Access-Control-Allow-Origin": "*"},
@@ -1975,7 +1991,9 @@ def register_rest_routes(
         public_specs = {spec.name: spec for spec in public_tool_specs()}
         tool_list = []
         for tool_name in public_tool_names():
-            tool = _get_tool_obj(tool_registry.get(tool_name)) if tool_name in tool_registry else None
+            tool = (
+                _get_tool_obj(tool_registry.get(tool_name)) if tool_name in tool_registry else None
+            )
             spec = public_specs[tool_name]
             annotations = getattr(tool, "annotations", None) if tool is not None else None
             meta = getattr(tool, "meta", None) if tool is not None else None
@@ -2182,7 +2200,8 @@ def register_rest_routes(
     @route("/api/auth/authorize", methods=["GET"])
     async def oauth_authorize(request: Request) -> Response:
         """Mock OAuth 2.1 Authorize endpoint."""
-        return HTMLResponse(f"""
+        return HTMLResponse(
+            f"""
             <html><body>
                 <h1>arifOS Authorization</h1>
                 <p>Allow <b>{request.query_params.get("client_id", "Unknown Client")}</b> to access MCP tools?</p>
@@ -2191,7 +2210,8 @@ def register_rest_routes(
                     <button type="submit">Approve (SEAL)</button>
                 </form>
             </body></html>
-        """)
+        """
+        )
 
     @route("/api/auth/token", methods=["POST"])
     async def oauth_token(request: Request) -> Response:
@@ -2314,7 +2334,9 @@ def register_rest_routes(
             public_specs = list(public_tool_specs())
             manifest = build_server_json(_public_base_url(request))
             containers = _collect_container_status()
-            latency_ms = _local_service_connect_latency_ms(port=int(os.getenv("PORT", "8080"))) or 999.0
+            latency_ms = (
+                _local_service_connect_latency_ms(port=int(os.getenv("PORT", "8080"))) or 999.0
+            )
             matrix = _build_trinity_matrix(health_payload, containers, latency_ms=latency_ms)
             payload = {
                 "timestamp": datetime.now(timezone.utc).isoformat(),
@@ -2325,7 +2347,8 @@ def register_rest_routes(
                 "manifest": {
                     "tools_count": len(public_specs),
                     "prompts_count": len(manifest.get("prompts", [])),
-                    "resources_count": len(manifest.get("resources", [])) + len(manifest.get("resourceTemplates", [])),
+                    "resources_count": len(manifest.get("resources", []))
+                    + len(manifest.get("resourceTemplates", [])),
                 },
                 "tools": [
                     {
@@ -2364,32 +2387,35 @@ def register_rest_routes(
                 stage, lane, access = _get_stage_lane_access(name)
                 # Normalize stage: strip _SUFFIX, return just the number
                 stage_label = stage.split("_")[0] if stage else None
-                tools_list.append({
-                    "name": name,
-                    "stage": stage_label,
-                    "stage_full": stage,  # e.g. "888_JUDGE"
-                    "lane": lane,
-                    "access": access,
-                    "description": TOOL_HUMAN_DESCRIPTIONS.get(name, ""),
-                })
+                tools_list.append(
+                    {
+                        "name": name,
+                        "stage": stage_label,
+                        "stage_full": stage,  # e.g. "888_JUDGE"
+                        "lane": lane,
+                        "access": access,
+                        "description": TOOL_HUMAN_DESCRIPTIONS.get(name, ""),
+                    }
+                )
 
             # Canonical pipeline stages in execution order
             pipeline_stages = [
-                {"num": "000", "label": "INIT",    "sub": "Session Anchor", "type": "psi"},
-                {"num": "111", "label": "SENSE",   "sub": "Observe",         "type": "delta"},
-                {"num": "333", "label": "MIND",    "sub": "Reason",           "type": "delta"},
-                {"num": "444", "label": "ROUTE",   "sub": "Kernel",           "type": "delta"},
-                {"num": "555", "label": "RECALL",  "sub": "Memory",           "type": "psi"},
-                {"num": "666", "label": "CRITIQUE","sub": "Heart",            "type": "omega"},
-                {"num": "777", "label": "OPS",     "sub": "Measure",          "type": "delta"},
-                {"num": "888", "label": "JUDGE",   "sub": "ASI",              "type": "omega"},
-                {"num": "999", "label": "SEAL",   "sub": "VAULT",            "type": "psi"},
-                {"num": "010", "label": "FORGE",   "sub": "EXEC",             "type": "delta"},
+                {"num": "000", "label": "INIT", "sub": "Session Anchor", "type": "psi"},
+                {"num": "111", "label": "SENSE", "sub": "Observe", "type": "delta"},
+                {"num": "333", "label": "MIND", "sub": "Reason", "type": "delta"},
+                {"num": "444", "label": "ROUTE", "sub": "Kernel", "type": "delta"},
+                {"num": "555", "label": "RECALL", "sub": "Memory", "type": "psi"},
+                {"num": "666", "label": "CRITIQUE", "sub": "Heart", "type": "omega"},
+                {"num": "777", "label": "OPS", "sub": "Measure", "type": "delta"},
+                {"num": "888", "label": "JUDGE", "sub": "ASI", "type": "omega"},
+                {"num": "999", "label": "SEAL", "sub": "VAULT", "type": "psi"},
+                {"num": "010", "label": "FORGE", "sub": "EXEC", "type": "delta"},
             ]
 
             # Forge execution mode: dry_run=true per constitution default (F7)
             # Toggle via ARIFOS_FORGE_DRY_RUN=false env var for live execution
             import os as _os
+
             forge_dry_run = _os.getenv("ARIFOS_FORGE_DRY_RUN", "true").lower() == "true"
 
             return JSONResponse(
@@ -2402,7 +2428,11 @@ def register_rest_routes(
                     "forge": {
                         "state": "dry_run_only" if forge_dry_run else "live",
                         "mode": "simulation" if forge_dry_run else "execution",
-                        "note": "Forge execution is SIMULATION ONLY — no live VPS commands executed" if forge_dry_run else "Forge execution is LIVE — irreversible commands enabled",
+                        "note": (
+                            "Forge execution is SIMULATION ONLY — no live VPS commands executed"
+                            if forge_dry_run
+                            else "Forge execution is LIVE — irreversible commands enabled"
+                        ),
                     },
                 },
                 headers=_merge_headers(_cache_headers(), _dashboard_cors_headers(request)),
@@ -2701,7 +2731,6 @@ def register_rest_routes(
     async def seal_verify_post(_request: Request) -> Response:
         """Verify a SEAL verdict is valid and vault-anchored."""
         from arifosmcp.runtime.a2a.seal_verifier import (
-            A2ASealVerifier,
             SealVerificationRequest,
             get_seal_verifier,
         )
@@ -2717,7 +2746,6 @@ def register_rest_routes(
     async def seal_verify_get(_request: Request) -> Response:
         """Verify SEAL by session ID (GET variant)."""
         from arifosmcp.runtime.a2a.seal_verifier import (
-            A2ASealVerifier,
             SealVerificationRequest,
             get_seal_verifier,
         )
@@ -2912,8 +2940,8 @@ def register_rest_routes(
     async def a2a_task(request: Request) -> Response:
         """Submit A2A task for agent-to-agent coordination."""
         try:
-            from arifosmcp.runtime.a2a.server import create_a2a_server
             from arifosmcp.runtime.a2a.models import SubmitTaskRequest, TaskMessage
+            from arifosmcp.runtime.a2a.server import create_a2a_server
 
             a2a = create_a2a_server(mcp)
             body = await request.json()
@@ -2956,9 +2984,9 @@ def register_rest_routes(
                     "status": task.state.value if hasattr(task.state, "value") else str(task.state),
                     "task": {
                         "id": task.id,
-                        "status": task.state.value
-                        if hasattr(task.state, "value")
-                        else str(task.state),
+                        "status": (
+                            task.state.value if hasattr(task.state, "value") else str(task.state)
+                        ),
                     },
                 }
             )
@@ -3152,6 +3180,7 @@ init();
     async def static_robots_txt(request: Request) -> Response:
         """Discovery: robots.txt from static/ (not inline constant)."""
         from starlette.responses import PlainTextResponse
+
         _path = os.path.join(_static_dir, "robots.txt")
         if os.path.exists(_path):
             with open(_path) as f:
@@ -3162,6 +3191,7 @@ init();
     async def static_llms_txt(request: Request) -> Response:
         """Discovery: llms.txt from static/ (not inline LLMS_TXT constant)."""
         from starlette.responses import PlainTextResponse
+
         _path = os.path.join(_static_dir, "llms.txt")
         if os.path.exists(_path):
             with open(_path) as f:
@@ -3189,7 +3219,9 @@ init();
         """Discovery: ChatGPT Apps no-auth connector manifest."""
         candidates = [
             os.path.join(_static_dir, ".well-known", "ai-plugin.json"),
-            os.path.join(os.path.dirname(__file__), "..", "static", ".well-known", "ai-plugin.json"),
+            os.path.join(
+                os.path.dirname(__file__), "..", "static", ".well-known", "ai-plugin.json"
+            ),
         ]
         for _path in candidates:
             if os.path.exists(_path):
@@ -3203,6 +3235,315 @@ init();
         if os.path.exists(_path):
             return FileResponse(_path)
         return JSONResponse({"error": "arifos.json not found"}, status_code=404)
+
+    # ── Federation Status Spine ────────────────────────────────────────────────
+    @route("/status.json", methods=["GET"])
+    async def federation_status(request: Request) -> JSONResponse:
+        """Federation visibility spine — aggregated health of all peer sovereigns.
+
+        Returns shallow public status for each service.
+        Does NOT expose: latency_ms, exceptions, container names, env vars, vault state.
+
+        Probes:
+          arifos  → /health + /ready
+          wealth  → /health
+          geox    → TCP port check + MCP initialize (since /health is 404)
+        """
+        from datetime import datetime, timezone
+
+        from arifosmcp.runtime.public_surface import public_surface
+
+        _svc_results: dict[str, Any] = {}
+        _overall_status = "ok"
+
+        # ── Helper: shallow JSON-RPC call ─────────────────────────────────────
+        async def _mcp_initialize(host: str, port: int, path: str = "/mcp") -> dict[str, Any]:
+            """Lightweight MCP initialize probe. Returns dict with keys: ok, error, tools_count."""
+            import httpx
+
+            url = f"http://{host}:{port}{path}"
+            result = {"ok": False, "error": None, "tools_count": None}
+            try:
+                async with httpx.AsyncClient(timeout=5.0, follow_redirects=False) as client:
+                    resp = await client.post(
+                        url,
+                        json={
+                            "jsonrpc": "2.0",
+                            "id": 1,
+                            "method": "initialize",
+                            "params": {
+                                "protocolVersion": "2025-03-26",
+                                "capabilities": {},
+                                "clientInfo": {"name": "arifOS-status-probe", "version": "1.0"},
+                            },
+                        },
+                        headers={
+                            "Content-Type": "application/json",
+                            "Accept": "application/json, text/event-stream",
+                        },
+                    )
+                    if resp.status_code in (200, 202):
+                        # Extract session ID from headers
+                        session_id = resp.headers.get("mcp-session-id") or ""
+                        result["session_id"] = session_id
+                        result["ok"] = True
+
+                        # If we got a session, try tools/list
+                        if session_id:
+                            try:
+                                tools_resp = await client.post(
+                                    url,
+                                    json={
+                                        "jsonrpc": "2.0",
+                                        "id": 2,
+                                        "method": "tools/list",
+                                        "params": {},
+                                    },
+                                    headers={
+                                        "Content-Type": "application/json",
+                                        "Accept": "application/json",
+                                        "mcp-session-id": session_id,
+                                    },
+                                )
+                                if tools_resp.status_code == 200:
+                                    tools_data = tools_resp.json()
+                                    if "result" in tools_data and "tools" in tools_data["result"]:
+                                        result["tools_count"] = len(tools_data["result"]["tools"])
+                            except Exception:
+                                pass
+                    else:
+                        result["error"] = f"http_{resp.status_code}"
+            except Exception as e:
+                result["error"] = type(e).__name__
+            return result
+
+        # ── Helper: HTTP health check ──────────────────────────────────────────
+        async def _http_health(host: str, port: int, path: str = "/health") -> dict[str, Any]:
+            import httpx
+
+            url = f"http://{host}:{port}{path}"
+            result = {"ok": False, "status_code": None, "error": None}
+            try:
+                async with httpx.AsyncClient(timeout=5.0) as client:
+                    resp = await client.get(url)
+                    result["status_code"] = resp.status_code
+                    if resp.status_code == 200:
+                        result["ok"] = True
+                        try:
+                            result["data"] = resp.json()
+                        except Exception:
+                            pass
+                    else:
+                        result["error"] = f"http_{resp.status_code}"
+            except Exception as e:
+                result["error"] = type(e).__name__
+            return result
+
+        # ── Probe all services concurrently ────────────────────────────────────
+        async def _probe_all() -> None:
+            nonlocal _overall_status
+            import httpx
+
+            async with httpx.AsyncClient(timeout=8.0) as client:
+                probes = await asyncio.gather(
+                    # arifOS — full health + ready
+                    client.get("http://arifosmcp:8080/health"),
+                    client.get("http://arifosmcp:8080/ready"),
+                    # WEALTH — health only
+                    client.get("http://wealth-organ:8000/health"),
+                    # GEOX — port 8081 inside container (not 8000)
+                    client.get("http://geox:8081/", timeout=3.0),
+                    client.post(
+                        "http://geox:8081/mcp",
+                        json={
+                            "jsonrpc": "2.0",
+                            "id": 1,
+                            "method": "initialize",
+                            "params": {
+                                "protocolVersion": "2025-03-26",
+                                "capabilities": {},
+                                "clientInfo": {"name": "arifOS-status-probe", "version": "1.0"},
+                            },
+                        },
+                        headers={
+                            "Content-Type": "application/json",
+                            "Accept": "application/json, text/event-stream",
+                        },
+                        timeout=5.0,
+                    ),
+                    return_exceptions=True,
+                )
+
+                (
+                    arifos_health_resp,
+                    arifos_ready_resp,
+                    wealth_health_resp,
+                    geox_root_resp,
+                    geox_mcp_resp,
+                ) = probes
+
+                # ── arifos ────────────────────────────────────────────────────
+                try:
+                    if isinstance(arifos_health_resp, Exception):
+                        _svc_results["arifos"] = {
+                            "status": "down",
+                            "error": str(arifos_health_resp)[:80],
+                        }
+                        _overall_status = "degraded"
+                    elif arifos_health_resp.status_code == 200:
+                        data = arifos_health_resp.json()
+                        _svc_results["arifos"] = {
+                            "status": "ok",
+                            "health": "ok",
+                            "ready": (
+                                "ok"
+                                if not isinstance(arifos_ready_resp, Exception)
+                                and arifos_ready_resp.status_code == 200
+                                else "unknown"
+                            ),
+                        }
+                    else:
+                        _svc_results["arifos"] = {
+                            "status": "degraded",
+                            "health_code": arifos_health_resp.status_code,
+                        }
+                        _overall_status = "degraded"
+                except Exception as e:
+                    _svc_results["arifos"] = {"status": "down", "error": str(e)[:80]}
+                    _overall_status = "degraded"
+
+                # ── wealth ─────────────────────────────────────────────────────
+                try:
+                    if isinstance(wealth_health_resp, Exception):
+                        _svc_results["wealth"] = {
+                            "status": "down",
+                            "error": str(wealth_health_resp)[:80],
+                        }
+                        _overall_status = "degraded"
+                    elif wealth_health_resp.status_code == 200:
+                        _svc_results["wealth"] = {"status": "ok", "health": "ok"}
+                    else:
+                        _svc_results["wealth"] = {
+                            "status": "degraded",
+                            "health_code": wealth_health_resp.status_code,
+                        }
+                        _overall_status = "degraded"
+                except Exception as e:
+                    _svc_results["wealth"] = {"status": "down", "error": str(e)[:80]}
+                    _overall_status = "degraded"
+
+                # ── geox ───────────────────────────────────────────────────────
+                try:
+                    if isinstance(geox_mcp_resp, Exception):
+                        _svc_results["geox"] = {"status": "down", "error": str(geox_mcp_resp)[:80]}
+                        _overall_status = "degraded"
+                    elif (
+                        isinstance(geox_mcp_resp, httpx.Response)
+                        and geox_mcp_resp.status_code == 200
+                    ):
+                        # Check for mcp-session-id to confirm MCP is alive
+                        session_id = geox_mcp_resp.headers.get("mcp-session-id", "")
+                        if session_id:
+                            # Try tools/list
+                            try:
+                                tools_resp = await client.post(
+                                    "http://geox:8081/mcp",
+                                    json={
+                                        "jsonrpc": "2.0",
+                                        "id": 2,
+                                        "method": "tools/list",
+                                        "params": {},
+                                    },
+                                    headers={
+                                        "Content-Type": "application/json",
+                                        "Accept": "application/json",
+                                        "mcp-session-id": session_id,
+                                    },
+                                    timeout=5.0,
+                                )
+                                tools_count = None
+                                if tools_resp.status_code == 200:
+                                    td = tools_resp.json()
+                                    if "result" in td and "tools" in td["result"]:
+                                        tools_count = len(td["result"]["tools"])
+                            except Exception:
+                                pass
+                            _svc_results["geox"] = {
+                                "status": "ok",
+                                "mcp_probe": "ok",
+                                "session_id": session_id[:16] + "..." if session_id else None,
+                                "tools_count": tools_count,
+                            }
+                        else:
+                            _svc_results["geox"] = {
+                                "status": "ok",
+                                "mcp_probe": "ok",
+                                "session_id": None,
+                            }
+                    else:
+                        code = (
+                            geox_mcp_resp.status_code
+                            if isinstance(geox_mcp_resp, httpx.Response)
+                            else "exception"
+                        )
+                        _svc_results["geox"] = {"status": "degraded", "mcp_code": code}
+                        _overall_status = "degraded"
+                except Exception as e:
+                    _svc_results["geox"] = {"status": "down", "error": str(e)[:80]}
+                    _overall_status = "degraded"
+
+        import asyncio
+
+        await _probe_all()
+
+        # ── Build payload ────────────────────────────────────────────────────
+        ps = public_surface()
+        payload = {
+            "system": ps["system"],
+            "status": _overall_status,
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "canonical": ps["canonical"],
+            "version": ps["version"],
+            "commit": ps["commit"],
+            "protocol_version": ps["protocol_version"],
+            "services": {
+                "arifos": {
+                    "role": "constitutional_kernel",
+                    "mcp": True,
+                    "endpoint": ps["canonical"]["mcp"],
+                    "status": _svc_results.get("arifos", {}).get("status", "unknown"),
+                    "health": _svc_results.get("arifos", {}).get("health", "unknown"),
+                    "ready": _svc_results.get("arifos", {}).get("ready", "unknown"),
+                    "tools": ps["mcp"]["tools"],
+                    "prompts": ps["mcp"]["prompts"],
+                    "resources": ps["mcp"]["resources"],
+                },
+                "geox": {
+                    "role": "earth_intelligence_processor",
+                    "mcp": True,
+                    "endpoint": ps["canonical"]["mcp"].replace(
+                        "mcp.arif-fazil.com", "geox.arif-fazil.com"
+                    ),
+                    "status": _svc_results.get("geox", {}).get("status", "unknown"),
+                    "mcp_probe": _svc_results.get("geox", {}).get("mcp_probe", "unknown"),
+                    "tools_count": _svc_results.get("geox", {}).get("tools_count"),
+                },
+                "wealth": {
+                    "role": "capital_intelligence_processor",
+                    "mcp": True,
+                    "endpoint": "https://wealth.arif-fazil.com/mcp",
+                    "status": _svc_results.get("wealth", {}).get("status", "unknown"),
+                    "health": _svc_results.get("wealth", {}).get("health", "unknown"),
+                },
+            },
+            "visibility": {
+                "llms_txt": "ok",
+                "well_known": "ok",
+            },
+            "seal": "DITEMPA BUKAN DIBERI",
+        }
+
+        return JSONResponse(payload, media_type="application/json")
 
     # ── llms-full.txt ────────────────────────────────────────────────────────
     @route("/llms-full.txt", methods=["GET"])

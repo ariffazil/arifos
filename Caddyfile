@@ -78,6 +78,15 @@ mcp.arif-fazil.com {
     handle /mcp* {
         reverse_proxy arifosmcp:8080
     }
+    handle /status.json {
+        reverse_proxy arifosmcp:8080
+    }
+    handle /health {
+        reverse_proxy arifosmcp:8080
+    }
+    handle /ready {
+        reverse_proxy arifosmcp:8080
+    }
     handle {
         redir https://arifos.arif-fazil.com/mcp{uri} permanent
     }
@@ -86,6 +95,9 @@ mcp.arif-fazil.com {
 arifosmcp.arif-fazil.com {
     import tls_origin
     handle /mcp* {
+        reverse_proxy arifosmcp:8080
+    }
+    handle /status.json {
         reverse_proxy arifosmcp:8080
     }
     handle {
