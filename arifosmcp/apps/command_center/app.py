@@ -242,7 +242,7 @@ command_center_app = FastMCPApp("arifOS Command Center")
 
 
 @command_center_app.tool()
-def session_status() -> dict:
+def arif_cc_session_status() -> dict:
     """Use this when refreshing the constitutional session panel.
 
     Returns live governance state from the arifOS kernel: session ID, actor ID,
@@ -344,7 +344,7 @@ def session_status() -> dict:
 
 
 @command_center_app.tool()
-def ops_vitals() -> dict:
+def arif_cc_ops_vitals() -> dict:
     """Use this when refreshing the thermodynamic health panel.
 
     Returns genius score (G), entropy delta (ΔS), human impact load (Ω),
@@ -368,7 +368,7 @@ def ops_vitals() -> dict:
 
 
 @command_center_app.tool()
-def judge_action(candidate: str) -> dict:
+def arif_cc_judge_action(candidate: str) -> dict:
     """Use this when the user submits an action for constitutional review.
 
     Routes through 444_KERNEL, then calls governed_judge_deliberate which:
@@ -439,7 +439,7 @@ def judge_action(candidate: str) -> dict:
 
 
 @command_center_app.tool()
-def forge_dry_run(manifest: str) -> dict:
+def arif_cc_forge_dry_run(manifest: str) -> dict:
     """Use this when the user wants to simulate a forge execution.
 
     Routes through 444_KERNEL, then calls the real 010_FORGE backend in dry_run mode.
@@ -523,7 +523,7 @@ def forge_dry_run(manifest: str) -> dict:
 
 
 @command_center_app.tool()
-def gateway_handshake(target_agent: str) -> dict:
+def arif_cc_gateway_handshake(target_agent: str) -> dict:
     """Use this when the user wants to initiate a cross-agent A2A handshake.
 
     Calls the real 666_GATEWAY backend to perform a constitutional handshake
@@ -569,7 +569,7 @@ def gateway_handshake(target_agent: str) -> dict:
 
 
 @command_center_app.tool()
-def vault_list() -> dict:
+def arif_cc_vault_list() -> dict:
     """Use this when refreshing the vault audit panel.
 
     Reads the real VAULT999 ledger. Returns the last 10 entries with hash-chain
@@ -602,7 +602,7 @@ def vault_list() -> dict:
 
 
 @command_center_app.tool()
-def vault_dry_seal(payload: str) -> dict:
+def arif_cc_vault_dry_seal(payload: str) -> dict:
     """Use this when the user wants to preview a vault seal.
 
     Routes through 444_KERNEL, then calls the real 999_VAULT backend in dry_run mode.
@@ -697,13 +697,13 @@ _READ_ONLY = ToolAnnotations(readOnlyHint=True, destructiveHint=False, openWorld
 _DRY_RUN = ToolAnnotations(readOnlyHint=True, destructiveHint=False, openWorldHint=False)
 
 _TOOL_ANNOTATIONS = {
-    "session_status": _READ_ONLY,
-    "ops_vitals": _READ_ONLY,
-    "judge_action": _READ_ONLY,
-    "forge_dry_run": _DRY_RUN,
-    "gateway_handshake": _DRY_RUN,
-    "vault_list": _READ_ONLY,
-    "vault_dry_seal": _DRY_RUN,
+    "arif_cc_session_status": _READ_ONLY,
+    "arif_cc_ops_vitals": _READ_ONLY,
+    "arif_cc_judge_action": _READ_ONLY,
+    "arif_cc_forge_dry_run": _DRY_RUN,
+    "arif_cc_gateway_handshake": _DRY_RUN,
+    "arif_cc_vault_list": _READ_ONLY,
+    "arif_cc_vault_dry_seal": _DRY_RUN,
 }
 
 for _key, _comp in command_center_app._local._components.items():

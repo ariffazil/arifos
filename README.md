@@ -1,3 +1,5 @@
+[![MseeP.ai Security Assessment Badge](https://mseep.net/pr/ariffazil-arifos-badge.png)](https://mseep.ai/app/ariffazil-arifos)
+
 # arifOS - Sovereign Constitutional Intelligence Kernel
 
 > DITEMPA BUKAN DIBERI - Intelligence is forged, not given.

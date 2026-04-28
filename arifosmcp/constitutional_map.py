@@ -145,7 +145,7 @@ CANONICAL_TOOLS: dict[str, dict[str, Any]] = {
     "arif_judge_deliberate": {
         "name": "arif_judge_deliberate",
         "description": "888_JUDGE: < arbitrate — Final constitutional arbitration.",
-        "access": "public",
+        "access": "authenticated",
         "stage": ToolStage.JUDGE,
         "lane": TrinityLane.ASI,
         "floors": [Floor.F11_AUTH, Floor.F13_SOVEREIGN],
@@ -155,7 +155,7 @@ CANONICAL_TOOLS: dict[str, dict[str, Any]] = {
     "arif_vault_seal": {
         "name": "arif_vault_seal",
         "description": "999_VAULT: + seal finally — Immutable ledger anchoring.",
-        "access": "public",
+        "access": "authenticated",
         "stage": ToolStage.VAULT,
         "lane": TrinityLane.APEX,
         "floors": [Floor.F01_AMANAH, Floor.F11_AUTH],
