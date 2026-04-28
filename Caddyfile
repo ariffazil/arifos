@@ -65,6 +65,40 @@ arif-fazil.com, www.arif-fazil.com {
         try_files {path} /index.html
         file_server
     }
+
+    # New public pages
+    @pg-demo path /demo /demo/*
+    @pg-roadmap path /roadmap /roadmap/*
+    @pg-case-studies path /case-studies /case-studies/*
+    @pg-trust path /trust /trust/*
+    @pg-floors path /governance-floors /governance-floors/*
+
+    handle @pg-demo {
+        root * /var/www/html/arif/demo
+        try_files {path} /index.html
+        file_server
+    }
+    handle @pg-roadmap {
+        root * /var/www/html/arif/roadmap
+        try_files {path} /index.html
+        file_server
+    }
+    handle @pg-case-studies {
+        root * /var/www/html/arif/case-studies
+        try_files {path} /index.html
+        file_server
+    }
+    handle @pg-trust {
+        root * /var/www/html/arif/trust
+        try_files {path} /index.html
+        file_server
+    }
+    handle @pg-floors {
+        root * /var/www/html/arif/governance-floors
+        try_files {path} /index.html
+        file_server
+    }
+
     # .well-known — serve JSON files from .well-known subdir
     @well-known {
         path /.well-known/*
