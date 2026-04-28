@@ -4,9 +4,6 @@ networks:
 
 services:
   well:
-    build:
-      context: /root/well
-      dockerfile: Dockerfile
     image: ghcr.io/ariffazil/well:latest
     container_name: well
     ports:
