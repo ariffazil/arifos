@@ -17,8 +17,10 @@ from typing import Any
 
 # Ensure project root is on path
 _project_root = os.path.dirname(os.path.abspath(__file__))
-if _project_root not in sys.path:
-    sys.path.insert(0, _project_root)
+_parent = os.path.dirname(_project_root)
+for p in (_parent, _project_root):
+    if p not in sys.path:
+        sys.path.insert(0, p)
 
 from dotenv import load_dotenv
 
@@ -148,8 +150,10 @@ except Exception as e:
 # Each app in its own try block so one failure doesn't cascade
 def _safe_register(mcp, module_path: str, name: str) -> None:
     import sys
+
     try:
         import importlib
+
         mod = importlib.import_module(module_path)
         print(f"[arif-register] Importing {module_path}...", flush=True)
         mod._register(mcp)
@@ -158,9 +162,11 @@ def _safe_register(mcp, module_path: str, name: str) -> None:
         logger.info(f"  Registered app: {name}")
     except Exception as e:
         import traceback
+
         print(f"[arif-register] FAILED {name}: {e}", flush=True)
         traceback.print_exc(file=sys.stdout)
         logger.warning(f"  Skipped app {name} ({module_path}): {e}")
+
 
 try:
     _safe_register(mcp, "arifosmcp.apps.forge_app", "forge")
@@ -168,8 +174,13 @@ try:
     _safe_register(mcp, "arifosmcp.apps.judge_app", "judge")
     _safe_register(mcp, "arifosmcp.apps.vault_audit", "vault_audit")
     _safe_register(mcp, "arifosmcp.apps.command_center", "command_center")
-    print(f"[arif-register] Total apps registered: {len(v2_apps_registered)} — {v2_apps_registered}", flush=True)
-    logger.info(f"ARIFOS MCP KANON Phase 2: {len(v2_apps_registered)} apps registered — {v2_apps_registered}")
+    print(
+        f"[arif-register] Total apps registered: {len(v2_apps_registered)} — {v2_apps_registered}",
+        flush=True,
+    )
+    logger.info(
+        f"ARIFOS MCP KANON Phase 2: {len(v2_apps_registered)} apps registered — {v2_apps_registered}"
+    )
 except Exception as e:
     logger.error(f"App registration failed: {e}")
 
@@ -309,9 +320,7 @@ try:
                     if not raw_components:
                         continue
 
-                    raw_tools = {
-                        k: v for k, v in raw_components.items() if k.startswith("tool:")
-                    }
+                    raw_tools = {k: v for k, v in raw_components.items() if k.startswith("tool:")}
 
                     for name, tool in raw_tools.items():
                         tool_name = name.replace("tool:", "").rstrip("@")
@@ -365,6 +374,17 @@ try:
                 logger.warning(f"Failed to build meta-enriched tools response: {e}")
                 tool_summaries = []
             return JSONResponse({"tools": tool_summaries, "count": len(tool_summaries)})
+
+        # Register REST routes: landing page (/), dashboard, developer, llms.txt, etc.
+        # These are defined in rest_routes.py but were never wired up.
+        try:
+            from arifosmcp.runtime.rest_routes import register_rest_routes
+            from arifosmcp.runtime.tools import CANONICAL_TOOL_HANDLERS
+
+            register_rest_routes(mcp, CANONICAL_TOOL_HANDLERS)
+            logger.info("REST routes registered: /, /dashboard, /developer, /llms.txt, etc.")
+        except Exception as e:
+            logger.warning(f"Failed to register REST routes: {e}")
 
         app.add_middleware(GlobalPanicMiddleware)
         app.add_middleware(
