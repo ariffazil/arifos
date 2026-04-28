@@ -3,7 +3,7 @@
 
 PYTHON = uv run python
 
-.PHONY: status forge seal health sync sot-check publish-check publish-pypi publish-ghcr publish-law publish-all
+.PHONY: status forge seal health sync sot-check publish-check publish-pypi publish-ghcr publish-law publish-all verify-public
 
 status:
 	@echo "--- arifOS Status (ΔΩΨ) ---"
@@ -80,3 +80,11 @@ publish-all: publish-check publish-pypi publish-ghcr publish-law
 	@echo "🔱 All surfaces published. DITEMPA BUKAN DIBERI — 999 SEAL ALIVE"
 	@git tag -s v$(shell date +%Y.%m.%d) -m "Sovereign release $(shell date +%Y.%m.%d)"
 	@git push origin --tags
+
+## ─── Public Parity Verification ───────────────────────────────────────────────
+## Verify that public HTTPS surface matches local/container truth.
+## Prevents deployment drift from hiding real failures.
+verify-public:
+	@echo "🔍 Verifying public parity..."
+	@$(PYTHON) scripts/verify_public.py
+	@echo "📄 Full report: tmp/verify_public_report.json"
