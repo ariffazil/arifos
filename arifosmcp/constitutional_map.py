@@ -2,8 +2,8 @@
 ARIFOS CONSTITUTIONAL MAP (v2026.04.26-KANON)
 ═══════════════════════════════════════════════
 
-Single source of truth for the active MCP surface.
-All 20 tools live here — no separate runtime/canonical split.
+Single source of truth for the active MCP surface: 13 canonical tools.
+All arif_verb_noun. No governance surface, no CC modes as separate tools.
 
 Ditempa Bukan Diberi.
 """
@@ -181,80 +181,6 @@ CANONICAL_TOOLS: dict[str, dict[str, Any]] = {
         "lane": TrinityLane.AGI,
         "floors": [Floor.F04_CLARITY],
         "risk_tier": "low",
-        "irreversible": False,
-    },
-    # ── Command Center governance tools (DITEMPA BUKAN DIBERI) ──────────────
-    # The ONE authorized MCP app — wired as canonical handlers in server.py.
-    # These wrap canonical backends with command-center UI semantics.
-    # Total MCP surface: 20 tools. No separate runtime surface.
-    "session_status": {
-        "name": "session_status",
-        "description": "000_STATUS: live constitutional session state panel.",
-        "access": "public",
-        "stage": ToolStage.INIT,
-        "lane": TrinityLane.AGI,
-        "floors": [Floor.F04_CLARITY],
-        "risk_tier": "low",
-        "irreversible": False,
-    },
-    "ops_vitals": {
-        "name": "ops_vitals",
-        "description": "777_VITALS: thermodynamic health vitals dashboard.",
-        "access": "public",
-        "stage": ToolStage.OPS,
-        "lane": TrinityLane.AGI,
-        "floors": [Floor.F04_CLARITY, Floor.F07_HUMILITY],
-        "risk_tier": "low",
-        "irreversible": False,
-    },
-    "judge_action": {
-        "name": "judge_action",
-        "description": "888_JUDGE: submit candidate action for constitutional verdict.",
-        "access": "public",
-        "stage": ToolStage.JUDGE,
-        "lane": TrinityLane.ASI,
-        "floors": [Floor.F11_AUTH, Floor.F13_SOVEREIGN],
-        "risk_tier": "high",
-        "irreversible": False,
-    },
-    "forge_dry_run": {
-        "name": "forge_dry_run",
-        "description": "010_DRYRUN: simulate forge execution without gates or vault writes.",
-        "access": "public",
-        "stage": ToolStage.FORGE,
-        "lane": TrinityLane.AGI,
-        "floors": [Floor.F01_AMANAH, Floor.F04_CLARITY],
-        "risk_tier": "low",
-        "irreversible": False,
-    },
-    "gateway_handshake": {
-        "name": "gateway_handshake",
-        "description": "666_HANDSHAKE: initiate A2A federation handshake with agent.",
-        "access": "public",
-        "stage": ToolStage.GATEWAY,
-        "lane": TrinityLane.ASI,
-        "floors": [Floor.F01_AMANAH, Floor.F03_WITNESS],
-        "risk_tier": "medium",
-        "irreversible": False,
-    },
-    "vault_list": {
-        "name": "vault_list",
-        "description": "999_LIST: read last N entries from VAULT999 ledger.",
-        "access": "public",
-        "stage": ToolStage.VAULT,
-        "lane": TrinityLane.APEX,
-        "floors": [Floor.F04_CLARITY],
-        "risk_tier": "low",
-        "irreversible": False,
-    },
-    "vault_dry_seal": {
-        "name": "vault_dry_seal",
-        "description": "999_DRYSEAL: preview a vault seal without writing to ledger.",
-        "access": "public",
-        "stage": ToolStage.VAULT,
-        "lane": TrinityLane.APEX,
-        "floors": [Floor.F01_AMANAH],
-        "risk_tier": "medium",
         "irreversible": False,
     },
 }
