@@ -3704,7 +3704,8 @@ init();
                 "security": {
                     "origin_validation": True,
                     "auth_required_for_writes": True,
-                    "irreversible_requires_human_ack": True,
+                    "human_ack_required_for_irreversible": True,
+                    "irreversible_requires_human_ack": True,  # alias
                     "risk_legend": {
                         "low": "READ_ONLY — cannot change state",
                         "medium": "ADDITIVE — writes new records only",
