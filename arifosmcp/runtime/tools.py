@@ -2637,6 +2637,56 @@ def _arif_reply_compose(
     return _hold("arif_reply_compose", f"Unknown mode: {mode}")
 
 
+async def _arif_reply_compose_tool(
+    mode: str = "compose",
+    message: str | None = None,
+    style: str | None = None,
+    citations: list[str] | None = None,
+    session_id: str | None = None,
+    actor_id: str | None = None,
+) -> dict[str, Any]:
+    """
+    444r_REPLY async tool — routes all modes through LLM-aware reply_compose module.
+
+    SEA-LION → Ollama → deterministic fallback (same pattern as 333_MIND / 666_HEART).
+    The LLM actually composes/rewrites the message rather than echoing it back.
+    """
+    gate = _constitutional_gate(
+        "arif_reply_compose", mode, actor_id, session_id=session_id, query=message
+    )
+    if gate is not None:
+        return gate
+
+    try:
+        from arifosmcp.runtime.reply_compose import arif_reply_compose as _llm_reply
+
+        result = await _llm_reply(
+            mode=mode,
+            message=message,
+            style=style,
+            citations=citations,
+            actor_id=actor_id,
+            session_id=session_id,
+        )
+        result["tool"] = "arif_reply_compose"
+        result["nine_signal"] = _nine_signal_from_status(result.get("status", "OK"))
+        return result
+    except Exception as _exc:
+        logger.warning(
+            "444r_REPLY module unavailable (%s); rule fallback active",
+            type(_exc).__name__,
+        )
+
+    return _arif_reply_compose(
+        mode=mode,
+        message=message,
+        style=style,
+        citations=citations,
+        session_id=session_id,
+        actor_id=actor_id,
+    )
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # 555_MEMORY  →  arif_memory_recall
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -4655,7 +4705,7 @@ _CANONICAL_HANDLERS: dict[str, Any] = {
     "arif_evidence_fetch": _arif_evidence_fetch,
     "arif_mind_reason": _arif_mind_reason_tool,
     "arif_kernel_route": _arif_kernel_route,
-    "arif_reply_compose": _arif_reply_compose,
+    "arif_reply_compose": _arif_reply_compose_tool,
     "arif_memory_recall": _arif_memory_recall,
     "arif_heart_critique": _arif_heart_critique,
     "arif_gateway_connect": _arif_gateway_connect,
