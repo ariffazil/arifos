@@ -14,11 +14,36 @@ DITEMPA BUKAN DIBERI — Forged, Not Given
 
 from __future__ import annotations
 
+import asyncio
+import inspect
+import threading
 from typing import Any
 
 from arifosmcp.apps.command_center.interceptor import governance_guard
 from arifosmcp.apps.command_center.session_state import get_or_create_lifecycle
 from arifosmcp.apps.command_center.vault_chain import append_vault_record
+
+
+def _await_sync(awaitable):
+    try:
+        asyncio.get_running_loop()
+    except RuntimeError:
+        return asyncio.run(awaitable)
+
+    box: dict[str, Any] = {}
+
+    def runner() -> None:
+        try:
+            box["result"] = asyncio.run(awaitable)
+        except BaseException as exc:  # pragma: no cover
+            box["error"] = exc
+
+    thread = threading.Thread(target=runner, daemon=True)
+    thread.start()
+    thread.join()
+    if "error" in box:
+        raise box["error"]
+    return box.get("result")
 
 
 def governed_forge_execute(
@@ -84,6 +109,8 @@ def governed_forge_execute(
             manifest=manifest,
             actor_id=actor_id,
         )
+        if inspect.isawaitable(result):
+            result = _await_sync(result)
         forge_result = result.get("result", {})
     except Exception as e:
         return {

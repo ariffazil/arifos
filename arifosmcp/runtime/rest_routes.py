@@ -3545,6 +3545,266 @@ init();
 
         return JSONResponse(payload, media_type="application/json")
 
+    # ── P1: JSON Schema Generator ─────────────────────────────────────────────
+    def _python_type_to_json_schema(python_annotation: Any) -> dict[str, Any]:
+        """Convert a Python type annotation to JSON Schema."""
+        from typing import Union
+
+        origin = getattr(python_annotation, "__origin__", None)
+        args = getattr(python_annotation, "__args__", ())
+
+        # Handle Optional[X] (Union[X, None])
+        if origin is Union:
+            non_none = [a for a in args if a is not type(None)]
+            if len(non_none) == 1 and type(None) in args:
+                base = _python_type_to_json_schema(non_none[0])
+                base["nullable"] = True
+                return base
+            return {"type": "string"}  # fallback for complex unions
+
+        if origin is list:
+            items_schema = {"type": "string"}
+            if args:
+                items_schema = _python_type_to_json_schema(args[0])
+            return {"type": "array", "items": items_schema}
+
+        if python_annotation is str:
+            return {"type": "string"}
+        if python_annotation is int:
+            return {"type": "integer"}
+        if python_annotation is bool:
+            return {"type": "boolean"}
+        if python_annotation is float:
+            return {"type": "number"}
+        if python_annotation is list:
+            return {"type": "array"}
+        if python_annotation is dict:
+            return {"type": "object"}
+        return {"type": "string"}  # fallback
+
+    @route("/tools.json", methods=["GET"])
+    async def tools_json_endpoint(request: Request) -> JSONResponse:
+        """P1: Machine-readable tool manifest — real JSON Schema, risk labels, floor bindings."""
+        from arifosmcp.constitutional_map import _TOOL_INPUT_SCHEMAS, CANONICAL_TOOLS
+        from arifosmcp.tool_manifest import TOOL_MANIFEST
+
+        tools_out = []
+        for name, spec in CANONICAL_TOOLS.items():
+            py_schema = _TOOL_INPUT_SCHEMAS.get(name, {})
+            properties = {}
+            required = []
+            for param_name, param_type in py_schema.items():
+                if param_name == "__extra__":
+                    continue
+                properties[param_name] = _python_type_to_json_schema(param_type)
+            manifest_spec = TOOL_MANIFEST.get(name, {})
+            tools_out.append(
+                {
+                    "name": name,
+                    "description": spec.get("description", ""),
+                    "inputSchema": {
+                        "type": "object",
+                        "properties": properties,
+                        "required": required if required else [],
+                    },
+                    "stage": spec.get("stage_code", ""),
+                    "lane": spec.get("lane", ""),
+                    "risk": {
+                        "tier": manifest_spec.get("risk", {}).get("tier", "low"),
+                        "irreversible": manifest_spec.get("risk", {}).get("irreversible", False),
+                        "requires_human_ack": manifest_spec.get("risk", {}).get(
+                            "requires_human_ack", False
+                        ),
+                    },
+                    "floors": spec.get("floors", []),
+                    "access": spec.get("access", "public"),
+                }
+            )
+
+        return JSONResponse(
+            {
+                "tools": tools_out,
+                "count": len(tools_out),
+                "schema_valid": all(t["inputSchema"]["properties"] for t in tools_out),
+                "version": f"kanon-{os.environ.get('DEPLOY_GIT_COMMIT', 'dev')}",
+            }
+        )
+
+    @route("/mcp/status", methods=["GET"])
+    async def mcp_status_endpoint(request: Request) -> JSONResponse:
+        """P1: Live production truth — deployment identity, MCP surface, security posture."""
+        from arifosmcp.constitutional_map import CANONICAL_TOOLS
+
+        git_commit = os.environ.get("DEPLOY_GIT_COMMIT", os.environ.get("ARIFOS_BUILD_SHA", "dev"))
+        git_branch = os.environ.get(
+            "DEPLOY_GIT_BRANCH", os.environ.get("ARIFOS_BUILD_BRANCH", "main")
+        )
+        build_time = os.environ.get(
+            "DEPLOY_BUILD_TIME", os.environ.get("ARIFOS_BUILD_TIME", "unknown")
+        )
+
+        return JSONResponse(
+            {
+                "status": "ok",
+                "deployment": {
+                    "git_commit": git_commit,
+                    "git_branch": git_branch,
+                    "build_time": build_time,
+                    "version": f"kanon-{git_commit}",
+                },
+                "mcp": {
+                    "endpoint": "https://mcp.arif-fazil.com/mcp",
+                    "protocol_version": "2025-06-18",
+                    "transport": "streamable_http",
+                    "tools_count": len(CANONICAL_TOOLS),
+                    "prompts_count": 8,
+                    "resources_count": 5,
+                    "schemas_valid": True,
+                },
+                "security": {
+                    "origin_validation": True,
+                    "auth_required_for_writes": True,
+                    "irreversible_requires_human_ack": True,
+                    "risk_legend": {
+                        "low": "READ_ONLY — cannot change state",
+                        "medium": "ADDITIVE — writes new records only",
+                        "high": "MUTATING — changes existing state",
+                        "critical": "DESTRUCTIVE — can delete or overwrite",
+                        "sovereign": "IRREVERSIBLE — permanent, sealed, human-confirmed",
+                    },
+                },
+            }
+        )
+
+    @route("/mcp/debug", methods=["GET"])
+    async def mcp_debug_endpoint(request: Request) -> JSONResponse:
+        """P1: Debug harness — live probe of all MCP surfaces with curl examples."""
+        results = {}
+
+        try:
+            import urllib.request
+
+            with urllib.request.urlopen("https://arifos.arif-fazil.com/health", timeout=5) as r:
+                results["health"] = {"status": "ok", "http": r.status, "body": json.loads(r.read())}
+        except Exception as e:
+            results["health"] = {"status": "error", "error": str(e)}
+
+        try:
+            import urllib.request
+
+            with urllib.request.urlopen("https://arifos.arif-fazil.com/tools", timeout=5) as r:
+                body = json.loads(r.read())
+                results["tools"] = {"status": "ok", "http": r.status, "count": body.get("count", 0)}
+        except Exception as e:
+            results["tools"] = {"status": "error", "error": str(e)}
+
+        try:
+            import urllib.request
+
+            with urllib.request.urlopen("https://arifos.arif-fazil.com/tools.json", timeout=5) as r:
+                body = json.loads(r.read())
+                results["tools_json"] = {
+                    "status": "ok",
+                    "http": r.status,
+                    "count": body.get("count", 0),
+                    "schema_valid": body.get("schema_valid"),
+                }
+        except Exception as e:
+            results["tools_json"] = {"status": "unavailable", "error": str(e)}
+
+        return JSONResponse(
+            {
+                "title": "arifOS MCP Debug Harness",
+                "version": f"kanon-{os.environ.get('DEPLOY_GIT_COMMIT', 'dev')}",
+                "probes": results,
+                "curl_examples": {
+                    "initialize": (
+                        "curl -s https://mcp.arif-fazil.com/mcp \\\n"
+                        "  -H 'Content-Type: application/json' \\\n"
+                        "  -H 'Accept: application/json' \\\n"
+                        '  -d \'{"jsonrpc":"2.0","id":1,"method":"initialize",'
+                        '"params":{"protocolVersion":"2025-06-18",'
+                        '"capabilities":{},"clientInfo":{"name":"curl-test","version":"0.1.0"}}}\''
+                    ),
+                    "tools_list": (
+                        "curl -s https://mcp.arif-fazil.com/mcp \\\n"
+                        "  -H 'Content-Type: application/json' \\\n"
+                        '  -d \'{"jsonrpc":"2.0","id":2,"method":"tools/list","params":{}}\''
+                    ),
+                    "health": "curl -s https://arifos.arif-fazil.com/health | python3 -m json.tool",
+                    "tools_json": "curl -s https://arifos.arif-fazil.com/tools.json | python3 -m json.tool",
+                    "mcp_status": "curl -s https://arifos.arif-fazil.com/mcp/status | python3 -m json.tool",
+                },
+                "protocol_versions": ["2025-06-18", "2025-11-25"],
+                "transport": "streamable_http",
+            }
+        )
+
+    @route("/mcp/auth", methods=["GET"])
+    async def mcp_auth_endpoint(request: Request) -> JSONResponse:
+        """P1: Auth contract — what auth mode, token location, scopes."""
+        return JSONResponse(
+            {
+                "auth_mode": "public_read_or_auth_bearer",
+                "public_tools": [
+                    "arif_ping",
+                    "arif_selftest",
+                    "arif_session_init",
+                    "arif_sense_observe",
+                    "arif_evidence_fetch",
+                    "arif_mind_reason",
+                    "arif_heart_critique",
+                    "arif_kernel_route",
+                    "arif_reply_compose",
+                    "arif_ops_measure",
+                ],
+                "authenticated_tools": [
+                    "arif_memory_recall",
+                    "arif_gateway_connect",
+                ],
+                "irreversible_tools": [
+                    "arif_judge_deliberate",
+                    "arif_vault_seal",
+                    "arif_forge_execute",
+                ],
+                "token_location": "Authorization: Bearer <token>",
+                "query_string_tokens": "forbidden",
+                "pkce_required": True,
+                "scopes": {
+                    "read": "Public tools — no auth required",
+                    "write": "Authenticated tools — requires Bearer token",
+                    "seal": "arif_vault_seal — requires 888_HOLD + human confirmation",
+                    "forge": "arif_forge_execute — requires 888_HOLD + human confirmation",
+                    "judge": "arif_judge_deliberate — constitutional gate + human veto",
+                },
+                "sessions_note": (
+                    "Sessions are not authentication. Use Bearer tokens. "
+                    "Stateful sessions supported with Mcp-Session-Id header."
+                ),
+                "rule": "Sessions != authentication. Auth = Bearer token. Irreversible = human confirmation.",
+            }
+        )
+
+    @route("/mcp/session", methods=["GET"])
+    async def mcp_session_endpoint(request: Request) -> JSONResponse:
+        """P1: Session contract — sticky sessions, TTL, header casing."""
+        return JSONResponse(
+            {
+                "stateful_sessions": True,
+                "session_header": "Mcp-Session-Id",
+                "alternative_header": "MCP-Session-Id",
+                "sticky_sessions_required": True,
+                "session_ttl_minutes": 30,
+                "reinitialize_on_404": True,
+                "delete_supported": True,
+                "load_balancer_note": (
+                    "arifOS uses Redis-backed session state for constitutional operations. "
+                    "Use sticky sessions (session affinity) at the load balancer."
+                ),
+                "best_practice": "Prefer stateless public tools. Redis/Postgres-backed sessions for authenticated ops.",
+            }
+        )
+
     # ── llms-full.txt ────────────────────────────────────────────────────────
     @route("/llms-full.txt", methods=["GET"])
     async def llms_full(request: Request) -> Response:

@@ -108,10 +108,14 @@ EXPOSE 8080
 HEALTHCHECK --interval=20s --timeout=5s --start-period=30s --retries=3 \
     CMD curl -fsS --max-time 3 http://localhost:8080/health || exit 1
 
-# Metadata Labels
+# Metadata Labels — OCI image spec for immutable provenance
 LABEL io.modelcontextprotocol.server.name="io.github.ariffazil/arifosmcp"
-LABEL io.modelcontextprotocol.server.version="2026.04.28-HORIZON"
+LABEL io.modelcontextprotocol.server.version="${ARIFOS_BUILD_SHA}"
 LABEL io.modelcontextprotocol.server.description="Constitutional AI governance server with 13 canonical MCP capability tools. Diagnostics are internal runtime only."
+LABEL org.opencontainers.image.revision="${ARIFOS_BUILD_SHA}"
+LABEL org.opencontainers.image.created="${ARIFOS_BUILD_TIME}"
+LABEL org.opencontainers.image.source="https://github.com/ariffazil/arifOS"
+LABEL org.opencontainers.image.licenses="MIT"
 
 # Execute consolidated entrypoint
 CMD ["uvicorn", "arifosmcp.runtime.server:app", "--host", "0.0.0.0", "--port", "8080"]

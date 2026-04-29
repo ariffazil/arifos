@@ -12,15 +12,15 @@ version: "3.8"
 
 services:
   # ─── arifOS MCP Server ─────────────────────────────────────────────────────
+  # PRODUCTION: Build once → push immutable tag → VPS pulls by commit hash.
+  #   export IMAGE_TAG=$(git rev-parse --short HEAD)
+  #   docker buildx build -t ghcr.io/ariffazil/arifos:${IMAGE_TAG} \
+  #       -t ghcr.io/ariffazil/arifos:a-forge --push .
+  #   docker compose pull arifosmcp  # uses image: below + IMAGE_TAG
+  #   docker compose up -d --force-recreate arifosmcp
   arifosmcp:
-    build:
-      context: ../..
-      dockerfile: deployments/af-forge/Dockerfile
-      args:
-        ARIFOS_BUILD_SHA: ${ARIFOS_BUILD_SHA:-dev}
-        ARIFOS_BUILD_BRANCH: ${ARIFOS_BUILD_BRANCH:-$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo main)}
-        ARIFOS_BUILD_TIME: ${ARIFOS_BUILD_TIME:-unknown}
-    image: ghcr.io/ariffazil/arifos:a-forge
+    image: ghcr.io/ariffazil/arifos:${IMAGE_TAG}
+    pull_policy: always  # always pull from registry; never use local cache
     container_name: arifosmcp
     restart: unless-stopped
 
@@ -38,14 +38,13 @@ services:
       # Python path (include /tmp/pylibs for runtime packages)
       PYTHONPATH: /tmp/pylibs:/app
 
-      # Build info (also passed as --build-arg at image build time)
-      ARIFOS_BUILD_SHA: ${ARIFOS_BUILD_SHA:-dev}
-      ARIFOS_BUILD_BRANCH: ${ARIFOS_BUILD_BRANCH:-main}
-      ARIFOS_BUILD_TIME: ${ARIFOS_BUILD_TIME:-unknown}
-      # Deployment identity — set by docker build, passed through to server.py
-      DEPLOY_GIT_COMMIT: ${ARIFOS_BUILD_SHA:-dev}
+      # Build info (baked into image at build time; available at runtime)
+      # DEPLOY_GIT_COMMIT is the canonical identity — used by /health
+      DEPLOY_GIT_COMMIT: ${IMAGE_TAG:-dev}
       DEPLOY_GIT_BRANCH: ${ARIFOS_BUILD_BRANCH:-main}
       DEPLOY_BUILD_TIME: ${ARIFOS_BUILD_TIME:-unknown}
+      # Human-readable version string shown in /health and /version
+      ARIFOS_VERSION: kanon-${IMAGE_TAG:-dev}
 
       # Federation endpoint (for reference)
       ARIFOS_VPS_URL: ${ARIFOS_VPS_URL:-https://arifos.federation}

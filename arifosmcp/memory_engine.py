@@ -171,6 +171,21 @@ class MemoryEngine:
                     {"text": text, "pg_id": pg_id, "tier": tier, "metadata": metadata},
                 )
             )
+            # Dual-write to federation_shared so ASI_arifos_bot can read it
+            asyncio.create_task(
+                self._upsert_federation(
+                    qdrant_id,
+                    vector,
+                    {
+                        "text": text,
+                        "pg_id": pg_id,
+                        "original_tier": tier,
+                        "writer_bot": "arifOS_MCP",
+                        "session_id": session_id,
+                        "metadata": metadata,
+                    },
+                )
+            )
 
         asyncio.create_task(
             self._write_supabase_memory(
@@ -193,6 +208,20 @@ class MemoryEngine:
             )
         except Exception as e:
             logger.warning(f"Qdrant upsert failed for tier {tier}: {e}")
+
+    async def _upsert_federation(
+        self, qdrant_id: str, vector: list[float], payload: dict[str, Any]
+    ):
+        """Write to the shared federation collection — visible to both bots."""
+        if not self._qdrant_client:
+            return
+        try:
+            self._qdrant_client.upsert(
+                collection_name="federation_shared",
+                points=[qmodels.PointStruct(id=qdrant_id, vector=vector, payload=payload)],
+            )
+        except Exception as e:
+            logger.warning(f"Federation shared upsert failed: {e}")
 
     async def retrieve(self, query: str, tier: str | None = None, limit: int = 5) -> dict[str, Any]:
         """Retrieve memories via semantic search (Qdrant primary, Postgres fallback)."""
@@ -229,6 +258,25 @@ class MemoryEngine:
                         )
                 except Exception as e:
                     logger.warning(f"Qdrant search failed for tier {t}: {e}")
+
+            # Also search the shared federation collection for cross-bot memory
+            try:
+                search_result = self._qdrant_client.query_points(
+                    collection_name="federation_shared", query=vector, limit=limit
+                )
+                for res in search_result.points:
+                    all_results.append(
+                        {
+                            "qdrant_id": res.id,
+                            "score": res.score,
+                            "pg_id": res.payload.get("pg_id"),
+                            "tier": res.payload.get("original_tier", "shared"),
+                            "writer_bot": res.payload.get("writer_bot", "unknown"),
+                            "source": "federation_shared",
+                        }
+                    )
+            except Exception as e:
+                logger.warning(f"Federation shared search failed: {e}")
 
         if not all_results:
             pool = await self._get_pg_pool()

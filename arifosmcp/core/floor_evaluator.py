@@ -431,10 +431,13 @@ class FloorEvaluator:
             context.tool_name in human_required_tools_modes
             and context.mode in human_required_tools_modes[context.tool_name]
         ):
-            # Explicit sovereign ack via ack_irreversible counts as human witness
-            # for vault seal — the ack itself is the sovereign authorization signal.
-            if context.tool_name == "arif_vault_seal" and getattr(
-                context, "ack_irreversible", False
+            # Explicit ack only completes F13 when it is attached to a human witness.
+            wt = getattr(context, "witness_type", "ai")
+            wt_str = getattr(wt, "value", str(wt))
+            if (
+                context.tool_name == "arif_vault_seal"
+                and getattr(context, "ack_irreversible", False)
+                and wt_str == "human"
             ):
                 return False
             return True
