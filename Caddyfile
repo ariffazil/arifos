@@ -180,19 +180,25 @@ arifos.arif-fazil.com {
     encode zstd gzip
     root * /var/www/html/arifos
 
-    # ── WELL-KNOWN: serve discovery files statically (no proxy dependency) ──
-    # handle_path strips matched prefix before inner handlers run
-    handle_path /.well-known/mcp/* {
-        root * /var/www/html/arifos/.well-known/mcp
-        file_server
-        header Content-Type application/json
+    # ── WELL-KNOWN: proxy to arifosmcp (Cloudflare may block .well-known on this vhost) ──
+    handle /.well-known/mcp/* {
+        reverse_proxy arifosmcp:8080
         header Cache-Control "no-store, no-cache, must-revalidate"
     }
 
-    handle_path /.well-known/arifos-federation.json {
-        root * /var/www/html/arifos/.well-known
-        file_server
-        header Content-Type application/json
+    handle /.well-known/arifos-federation.json {
+        reverse_proxy arifosmcp:8080
+        header Cache-Control "no-store, no-cache, must-revalidate"
+    }
+
+    # ── PUBLIC DISCOVERY: non-.well-known paths Cloudflare doesn't block ──
+    handle /discovery/mcp-server.json {
+        reverse_proxy arifosmcp:8080
+        header Cache-Control "no-store, no-cache, must-revalidate"
+    }
+
+    handle /discovery/federation.json {
+        reverse_proxy arifosmcp:8080
         header Cache-Control "no-store, no-cache, must-revalidate"
     }
 
