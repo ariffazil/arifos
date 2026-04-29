@@ -169,19 +169,6 @@ mcp.arif-fazil.com {
     }
 }
 
-arifosmcp.arif-fazil.com {
-    import tls_origin
-    handle /mcp* {
-        reverse_proxy arifosmcp:8080
-    }
-    handle /status.json {
-        reverse_proxy arifosmcp:8080
-    }
-    handle {
-        redir https://arifos.arif-fazil.com/mcp{uri} permanent
-    }
-}
-
 # ─── Ω INTELLIGENCE SURFACE ────────────────────────────────────────────────────
 arifos.arif-fazil.com {
     import tls_origin

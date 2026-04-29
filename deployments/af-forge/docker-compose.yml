@@ -18,8 +18,8 @@ services:
       dockerfile: deployments/af-forge/Dockerfile
       args:
         ARIFOS_BUILD_SHA: ${ARIFOS_BUILD_SHA:-dev}
+        ARIFOS_BUILD_BRANCH: ${ARIFOS_BUILD_BRANCH:-$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo main)}
         ARIFOS_BUILD_TIME: ${ARIFOS_BUILD_TIME:-unknown}
-        ARIFOS_APP_VERSION: ${ARIFOS_APP_VERSION:-2026.04.26}
     image: ghcr.io/ariffazil/arifos:a-forge
     container_name: arifosmcp
     restart: unless-stopped
@@ -38,11 +38,14 @@ services:
       # Python path (include /tmp/pylibs for runtime packages)
       PYTHONPATH: /tmp/pylibs:/app
 
-      # Build info
+      # Build info (also passed as --build-arg at image build time)
       ARIFOS_BUILD_SHA: ${ARIFOS_BUILD_SHA:-dev}
+      ARIFOS_BUILD_BRANCH: ${ARIFOS_BUILD_BRANCH:-main}
       ARIFOS_BUILD_TIME: ${ARIFOS_BUILD_TIME:-unknown}
-      ARIFOS_APP_VERSION: ${ARIFOS_APP_VERSION:-2026.04.26}
-      GIT_COMMIT: ${ARIFOS_BUILD_SHA:-dev}
+      # Deployment identity — set by docker build, passed through to server.py
+      DEPLOY_GIT_COMMIT: ${ARIFOS_BUILD_SHA:-dev}
+      DEPLOY_GIT_BRANCH: ${ARIFOS_BUILD_BRANCH:-main}
+      DEPLOY_BUILD_TIME: ${ARIFOS_BUILD_TIME:-unknown}
 
       # Federation endpoint (for reference)
       ARIFOS_VPS_URL: ${ARIFOS_VPS_URL:-https://arifos.federation}

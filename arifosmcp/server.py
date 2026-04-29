@@ -18,9 +18,9 @@ import traceback
 from typing import Any
 
 
-# Ensure project root is on path — /app before /app/arifosmcp
-# so "from core.shared" resolves to /app/core/shared/ (correct)
-# not /app/arifosmcp/core/ (stub package — wrong)
+# ─── Path prioritization (runs before arifOS imports below) ─────────────────
+# Defined at module level so ruff sees it as top-level; executed inside the
+# _apply_path_priority() helper which is called after all stdlib imports.
 def _prioritize_paths(*paths: str) -> None:
     for path in reversed(paths):
         if path in sys.path:
@@ -29,21 +29,27 @@ def _prioritize_paths(*paths: str) -> None:
         sys.path.insert(0, path)
 
 
-_project_root = os.path.dirname(os.path.abspath(__file__))  # /usr/src/app/arifosmcp
-_parent = os.path.dirname(_project_root)  # /usr/src/app
-_parent_idx = sys.path.index(_parent) if _parent in sys.path else len(sys.path)
-_project_root_idx = sys.path.index(_project_root) if _project_root in sys.path else len(sys.path)
-if _parent not in sys.path or _project_root not in sys.path or _parent_idx > _project_root_idx:
-    _prioritize_paths(_parent, _project_root)
+def _apply_path_priority() -> None:
+    """Run path prioritization before arifOS package imports."""
+    project_root = os.path.dirname(os.path.abspath(__file__))
+    parent = os.path.dirname(project_root)
+    parent_idx = sys.path.index(parent) if parent in sys.path else len(sys.path)
+    project_root_idx = sys.path.index(project_root) if project_root in sys.path else len(sys.path)
+    if parent not in sys.path or project_root not in sys.path or parent_idx > project_root_idx:
+        _prioritize_paths(parent, project_root)
 
-from dotenv import load_dotenv
 
-_env_path = os.path.join(os.path.dirname(_project_root), ".env")
+from dotenv import load_dotenv  # noqa: E402
+
+_env_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), ".env")
 if os.path.exists(_env_path):
     load_dotenv(_env_path, override=True)
 
-import fastmcp
-from arifosmcp.constitutional_map import (
+# Fix sys.path so arifOS packages resolve correctly inside Docker
+_apply_path_priority()
+
+import fastmcp  # noqa: E402
+from arifosmcp.constitutional_map import (  # noqa: E402
     CANONICAL_TOOLS,
     list_authenticated_tools,
     list_canonical_tools,
@@ -52,11 +58,11 @@ from arifosmcp.constitutional_map import (
     list_public_tools,
     list_sovereign_tools,
 )
-from fastmcp import FastMCP
-from starlette.middleware.base import BaseHTTPMiddleware
-from starlette.middleware.cors import CORSMiddleware
-from starlette.requests import Request
-from starlette.responses import JSONResponse, Response
+from fastmcp import FastMCP  # noqa: E402
+from starlette.middleware.base import BaseHTTPMiddleware  # noqa: E402
+from starlette.middleware.cors import CORSMiddleware  # noqa: E402
+from starlette.requests import Request  # noqa: E402
+from starlette.responses import JSONResponse, Response  # noqa: E402
 
 logger = logging.getLogger(__name__)
 
@@ -84,9 +90,63 @@ class GlobalPanicMiddleware(BaseHTTPMiddleware):
             )
 
 
+# ─── Deployment Identity ─────────────────────────────────────────────────────
+# Resolved at import time:
+#   1. From environment variables (set at docker build via --build-arg)
+#   2. Fallback to git commands (host/developer)
+# These are the single source of truth for what code is actually running.
+# All /health responses MUST agree.
+def _get_git_info() -> tuple[str, str, str]:
+    import subprocess
+
+    # 1. Try env vars first (container runtime — set by docker build)
+    commit = os.environ.get("DEPLOY_GIT_COMMIT", "").strip()
+    branch = os.environ.get("DEPLOY_GIT_BRANCH", "").strip()
+    build_time = os.environ.get("DEPLOY_BUILD_TIME", "").strip()
+    if commit:
+        return commit, branch, build_time
+    # 2. Fallback: run git commands (host/developer)
+    try:
+        cwd = os.path.dirname(os.path.abspath(__file__))
+        commit = (
+            subprocess.check_output(  # nosec: B603 -- git is intentional, no user input
+                ["git", "describe", "--always", "--long"],
+                stderr=subprocess.DEVNULL,
+                cwd=cwd,
+            )
+            .decode()
+            .strip()
+        )
+        branch = (
+            subprocess.check_output(  # nosec: B603 -- git is intentional, no user input
+                ["git", "rev-parse", "--abbrev-ref", "HEAD"],
+                stderr=subprocess.DEVNULL,
+                cwd=cwd,
+            )
+            .decode()
+            .strip()
+        )
+        build_time = (
+            subprocess.check_output(  # nosec: B603 -- git is intentional, no user input
+                ["git", "log", "-1", "--format=%ci"],
+                stderr=subprocess.DEVNULL,
+                cwd=cwd,
+            )
+            .decode()
+            .strip()
+        )
+        return commit, branch, build_time
+    except Exception:
+        return "unknown", "unknown", "unknown"
+
+
+_DEPLOY_GIT_COMMIT, _DEPLOY_GIT_BRANCH, _DEPLOY_BUILD_TIME = _get_git_info()
+_DEPLOY_VERSION = f"kanon-{_DEPLOY_GIT_COMMIT}"
+
+
 mcp = FastMCP(
     "ARIFOS MCP",
-    version="2026.04.26-KANON",
+    version=f"kanon-{_DEPLOY_GIT_COMMIT}",
     website_url="https://arifosmcp.arif-fazil.com",
     instructions=(
         "Constitutional AI orchestration kernel — arifOS.\n\n"
@@ -97,7 +157,9 @@ mcp = FastMCP(
     ),
 )
 
-_engineering_lock_path = os.path.join(os.path.dirname(_project_root), ".ENGINEERING_LOCK")
+_engineering_lock_path = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))), ".ENGINEERING_LOCK"
+)
 if not os.path.exists(_engineering_lock_path):
     logger.warning("Engineering lock missing at startup: %s", _engineering_lock_path)
 
@@ -112,7 +174,7 @@ def _assert_registered_surface(registered_names: list[str]) -> None:
 
     if len(registered_names) != len(expected_set):
         raise RuntimeError(
-            f"Surface drift detected: expected {len(expected_set)} tools, got {len(registered_names)}"
+            f"Surface drift: expected {len(expected_set)} tools, got {len(registered_names)}"
         )
 
     if any(name.startswith("arifos_") for name in registered_names):
@@ -133,6 +195,7 @@ v2_apps_registered: list[str] = []
 
 IS_FASTMCP_3 = fastmcp.__version__.startswith("3")
 
+
 # ── FAIL-CLOSED HARDENED DISPATCH ───────────────────────────────────────────
 def _wrap_hardened_dispatch(tool_name: str, original_handler: Any) -> Any:
     """Wrap a tool handler with transport-level floor enforcement."""
@@ -149,8 +212,10 @@ def _wrap_hardened_dispatch(tool_name: str, original_handler: Any) -> Any:
     try:
         sig = inspect.signature(original_handler)
     except Exception:
+
         async def fallback_handler(req: dict[str, Any]):
             return await _invoke_original(req)
+
         return fallback_handler
 
     @functools.wraps(original_handler)
@@ -161,7 +226,7 @@ def _wrap_hardened_dispatch(tool_name: str, original_handler: Any) -> Any:
         bound.apply_defaults()
         args = dict(bound.arguments)
 
-        session_id = args.get("session_id") or os.environ.get("ARIFOS_SESSION_ID")
+        session_id = args.get("session_id") or os.environ.get("ARIFOS_SESSION_ID")  # noqa: F841
         actor_id = args.get("actor_id") or os.environ.get("ARIFOS_ACTOR_ID")
 
         floor_result = check_floors(
@@ -200,7 +265,7 @@ try:
     v2_prompts_registered = register_prompts(mcp)
     if tuple(v2_prompts_registered) != CANONICAL_PROMPTS:
         raise RuntimeError(
-            f"Prompt drift detected: expected {list(CANONICAL_PROMPTS)}, got {v2_prompts_registered}"
+            f"Prompt drift: expected {list(CANONICAL_PROMPTS)}, got {v2_prompts_registered}"
         )
     v2_resources_registered = register_resources(mcp)
     if tuple(v2_resources_registered) != CANONICAL_RESOURCES:
@@ -253,19 +318,28 @@ async def horizon_health(request: Request) -> JSONResponse:
         {
             "status": "healthy",
             "service": "arifos-mcp-kanon",
-            "version": "2026.04.26-KANON",
+            "version": _DEPLOY_VERSION,
+            "git_commit": _DEPLOY_GIT_COMMIT,
+            "git_branch": _DEPLOY_GIT_BRANCH,
+            "build_time": _DEPLOY_BUILD_TIME,
             "gateway": "unified",
-            "tools": len(v2_tools_registered),
+            "tools": len(_constitutional_tool_names),  # canonical pipeline only
             "prompts": len(v2_prompts_registered),
             "resources": len(v2_resources_registered),
             "apps": len(v2_apps_registered),
             "canonical_surface": len(_constitutional_tool_names),
             "probe_surface": len(_probe_tool_names),
-            "registered_surface": len(v2_tools_registered),
+            "registered_surface": len(v2_tools_registered),  # includes infra
+            "infra_tools": [t for t in v2_tools_registered if t not in _constitutional_tool_names],
             "timestamp": __import__("datetime")
             .datetime.now(__import__("datetime").timezone.utc)
             .isoformat(),
-        }
+        },
+        headers={
+            "X-Deployment-Hash": _DEPLOY_GIT_COMMIT,
+            "X-Build-Time": _DEPLOY_BUILD_TIME,
+            "X-Git-Branch": _DEPLOY_GIT_BRANCH,
+        },
     )
 
 
@@ -290,7 +364,7 @@ async def horizon_metadata(request: Request) -> JSONResponse:
     return JSONResponse(
         {
             "name": "ARIFOS MCP",
-            "version": "2026.04.26-KANON",
+            "version": f"kanon-{_DEPLOY_GIT_COMMIT}",
             "protocol": "MCP 2025-03-26",
             "gateway": {
                 "type": "unified",
@@ -323,7 +397,7 @@ async def webmcp_discovery(request: Request) -> JSONResponse:
     return JSONResponse(
         {
             "name": "arifOS WebMCP Gateway",
-            "version": "v2026.04.26",
+            "version": f"kanon-{_DEPLOY_GIT_COMMIT}",
             "endpoints": {
                 "health": "/health",
                 "tools": "/tools",
@@ -362,15 +436,14 @@ try:
     if app is not None:
         # Define tools_with_meta before registration
         async def tools_with_meta(request: Request) -> JSONResponse:
-            from arifosmcp.tool_manifest import TOOL_MANIFEST
             from arifosmcp.constitutional_map import CANONICAL_TOOLS
+            from arifosmcp.tool_manifest import TOOL_MANIFEST
 
             tool_summaries = []
             try:
                 # Iterate over all providers (LocalProvider, AppProvider, etc.)
                 for provider in mcp.providers:
-                    # Access the internal _components map
-                    # Some providers have it at the top level, others (like FastMCPApp) have it in _local
+                    # Access internal _components map — top-level or _local depending on provider
                     raw_components = getattr(provider, "_components", None)
                     if raw_components is None:
                         local = getattr(provider, "_local", None)
@@ -453,7 +526,7 @@ try:
             )
         except Exception:
             logger.exception(
-                "REST route registration failed; /status.json unavailable — observability spine is DOWN"
+                "REST route reg failed; /status.json unavailable — observability spine DOWN"
             )
 
         # Federation Status Spine — added directly to avoid register_rest_routes import chain
@@ -734,7 +807,7 @@ def main() -> None:
 
     async def run_server():
         print("=" * 60)
-        print("ARIFOS MCP v2026.04.26-KANON — CANONICAL SURFACE")
+        print(f"ARIFOS MCP kanon-{_DEPLOY_GIT_COMMIT} — CANONICAL SURFACE")
         print("=" * 60)
         print(f"   Server: {mcp.name}")
         print(f"   Version: {mcp.version}")
@@ -751,7 +824,7 @@ def main() -> None:
 
         config = uvicorn.Config(
             app,
-            host="0.0.0.0",
+            host="0.0.0.0",  # noqa: B104 — intentional: Docker service must bind all interfaces
             port=int(os.getenv("ARIFOS_PORT", "8080")),
             timeout_graceful_shutdown=2,
             lifespan="on",
