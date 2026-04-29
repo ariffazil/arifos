@@ -154,6 +154,9 @@ mcp.arif-fazil.com {
     import tls_origin
     encode zstd gzip
 
+    handle /.well-known/mcp/* {
+        reverse_proxy http://arifosmcp:8080
+    }
     handle /mcp* {
         reverse_proxy http://arifosmcp:8080 {
             flush_interval -1
@@ -252,10 +255,10 @@ wealth.arif-fazil.com {
     encode zstd gzip
 
     handle /mcp* {
-        reverse_proxy wealth-organ:8000
+        reverse_proxy wealth-organ:8082
     }
     handle /health {
-        reverse_proxy wealth-organ:8000
+        reverse_proxy wealth-organ:8082
     }
     handle {
         root * /var/www/html/wealth

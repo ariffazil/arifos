@@ -1075,7 +1075,7 @@ def _load_welcome_html() -> str:
         html_content = """<!DOCTYPE html>
 <html><head><title>arifOS MCP</title></head>
 <body><h1>arifOS MCP Server 2.0.0</h1>
-<p>Endpoint: <code>https://arifos.arif-fazil.com/mcp</code></p>
+<p>Endpoint: <code>https://mcp.arif-fazil.com/mcp</code></p>
 <p><strong>DITEMPA BUKAN DIBERI</strong> — Forged, not given.</p>
 </body></html>"""
 
@@ -3459,7 +3459,7 @@ init();
                     client.get("http://arifosmcp:8080/health"),
                     client.get("http://arifosmcp:8080/ready"),
                     # WEALTH — health only
-                    client.get("http://wealth-organ:8000/health"),
+                    client.get("http://wealth-organ:8082/health"),
                     # GEOX — port 8081 inside container (not 8000)
                     client.get("http://geox:8081/", timeout=3.0),
                     client.post(
@@ -3845,7 +3845,7 @@ init();
                     ),
                     "health": "curl -s https://arifos.arif-fazil.com/health | python3 -m json.tool",
                     "tools_json": "curl -s https://arifos.arif-fazil.com/tools.json | python3 -m json.tool",
-                    "mcp_status": "curl -s https://arifos.arif-fazil.com/mcp/status | python3 -m json.tool",
+                    "mcp_status": "curl -s https://mcp.arif-fazil.com/health | python3 -m json.tool",
                 },
                 "protocol_versions": ["2025-06-18", "2025-11-25"],
                 "transport": "streamable_http",

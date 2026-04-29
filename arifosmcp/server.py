@@ -48,6 +48,25 @@ if os.path.exists(_env_path):
 # Fix sys.path so arifOS packages resolve correctly inside Docker
 _apply_path_priority()
 
+# ─── Provider env precedence audit (F1 Amanah / F4 Clarity) ─────────────────
+def _log_llm_provider_health() -> None:
+    """Log redacted LLM provider source at startup — never the secret value."""
+    _logger = logging.getLogger("arifosmcp")
+    providers = {
+        "SEA_LION_API_KEY": os.getenv("SEA_LION_API_KEY"),
+        "OLLAMA_BASE_URL": os.getenv("OLLAMA_BASE_URL"),
+    }
+    for name, val in providers.items():
+        if val is None:
+            _logger.info("%s=missing", name)
+        elif name.endswith("_KEY") and len(val) > 8:
+            _logger.info("%s=present_from_env", name)
+        else:
+            _logger.info("%s=%s", name, val)
+
+
+_log_llm_provider_health()
+
 import fastmcp  # noqa: E402
 from arifosmcp.constitutional_map import (  # noqa: E402
     CANONICAL_TOOLS,
@@ -626,7 +645,7 @@ try:
                     probes = await asyncio.gather(
                         client.get("http://arifosmcp:8080/health", timeout=5.0),
                         client.get("http://arifosmcp:8080/ready", timeout=5.0),
-                        client.get("http://wealth-organ:8000/health", timeout=5.0),
+                        client.get("http://wealth-organ:8082/health", timeout=5.0),
                         client.post(
                             "http://geox:8081/mcp",
                             json={

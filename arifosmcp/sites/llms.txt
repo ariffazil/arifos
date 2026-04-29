@@ -2,8 +2,8 @@
 ## Source of Truth for arifOS Trinity System
 
 **Version:** 2026.04.26-KANON
-**Gateway:** https://arifos.arif-fazil.com/mcp
-**Health:** https://arifos.arif-fazil.com/health
+**Gateway:** https://mcp.arif-fazil.com/mcp
+**Health:** https://mcp.arif-fazil.com/health
 **MCP Protocol:** 2024-11-05 (streamable-http primary)
 **Doctrine:** DITEMPA BUKAN DIBERI — Forged, Not Given
 
@@ -40,26 +40,26 @@ This gateway is the **constitutional membrane** for ΔΩΨ operations. It govern
 arifOS MCP serves three orthogonal AI organs. Every tool call passes through the same 13-floor governance membrane. **Only arifOS may emit final verdict classes.** GEOX and WEALTH are downstream jurisdictions.
 
 ### Δ arifOS — Constitutional Core (Governance)
-- **Endpoint:** https://arifos.arif-fazil.com/mcp
+- **Endpoint:** https://mcp.arif-fazil.com/mcp
 - **Namespace:** arifos_*
 - **Role:** Decision authority, VAULT999 audit ledger, 13-floor enforcement, 888_HOLD human veto
 - **Loaded tools:** 13 canonical arifos_* tools — use /tools to enumerate
 - **Can emit:** SEAL / CAUTION / HOLD / VOID verdicts
 
 ### Φ GEOX — Earth Intelligence (Physics Grounding)
-- **Endpoint:** https://arifos.arif-fazil.com/geox/mcp
+- **Endpoint:** https://geox.arif-fazil.com/mcp
 - **Namespace:** geox_*
 - **Role:** Petrophysics, stratigraphy, play risk, physics constraints, well data, seismic interpretation
 - **Epistemic rule:** OBS from pixels (direct measurement), DER from computation, INT from interpretation — never conflate the three
 - **Status:** Separate deployment. GEOX acts as a client jurisdiction calling upstream constitutional tools.
 
 ### Ψ WEALTH — Capital Engine (Financial Intelligence)
-- **Endpoint:** Not yet deployed to public URL
+- **Endpoint:** https://wealth.arif-fazil.com/mcp
 - **Namespace:** wealth_*
 - **Role:** Brent crude analysis, NPV/IRR, DSCR, portfolio construction, capital efficiency
-- **Status:** PLANNED — source ready, not yet live on VPS
+- **Status:** Separate deployment. WEALTH operates as a downstream jurisdiction with its own MCP surface.
 
-**Important note on namespaces:** Main public tool exposure on this host is the arifos_* namespace. GEOX and WEALTH operate as routed jurisdictions or planned organs, not as equally exposed peer toolsets on this host.
+**Important note on namespaces:** The canonical machine endpoint for arifOS is `mcp.arif-fazil.com`. GEOX and WEALTH expose their own public MCP surfaces and remain downstream jurisdictions rather than peer toolsets on the arifOS endpoint itself.
 
 ---
 
@@ -142,10 +142,10 @@ Every AI action is tested against all 13 floors in real-time. A single floor fai
 
 ```bash
 # Claude Desktop / MCP-compatible hosts
-npx @anthropic/mcp install arifos --url https://arifos.arif-fazil.com/mcp
+npx @anthropic/mcp install arifos --url https://mcp.arif-fazil.com/mcp
 
 # Direct HTTP (MCP JSON-RPC)
-curl -X POST https://arifos.arif-fazil.com/mcp \
+curl -X POST https://mcp.arif-fazil.com/mcp \
   -H "Content-Type: application/json" \
   -H "Accept: application/json, text/event-stream" \
   -d '{"jsonrpc":"2.0","method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"client","version":"1.0"}},"id":0}'
