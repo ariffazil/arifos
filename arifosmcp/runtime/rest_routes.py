@@ -1081,6 +1081,42 @@ def _load_welcome_html() -> str:
     html_content = html_content.replace("__BUILD_COMMIT__", BUILD_INFO["build"]["commit_short"])
     html_content = html_content.replace("__BUILD_TIME__", BUILD_INFO["build"]["built_at"])
 
+    # Inject live deployment identity card
+    deployment_card = """
+    <script>
+    (function() {
+      var BASE = window.location.origin;
+      function render(data) {
+        var card = document.createElement('div');
+        card.style='background:#13151A;border:1px solid #252830;border-radius:8px;padding:1rem 1.25rem;margin:1rem auto;max-width:800px;font-family:JetBrains Mono,monospace;font-size:0.8rem;color:#8B8D91;';
+        card.innerHTML = '<div style="color:#00B4A0;font-weight:600;margin-bottom:0.5rem;">⚡ LIVE DEPLOYMENT</div>' +
+          '<table style="width:100%;border-collapse:collapse;">' +
+          '<tr><td style="padding:2px 8px 2px 0;color:#555760;">release</td><td style="padding:2px 0;color:#E8E6E1;">' + (data.release_name || '?') + '</td></tr>' +
+          '<tr><td style="padding:2px 8px 2px 0;color:#555760;">version</td><td style="padding:2px 0;color:#E8E6E1;">' + (data.version || '?') + '</td></tr>' +
+          '<tr><td style="padding:2px 8px 2px 0;color:#555760;">commit</td><td style="padding:2px 0;color:#E8E6E1;">' + (data.deployment && data.deployment.git_commit || '?') + '</td></tr>' +
+          '<tr><td style="padding:2px 8px 2px 0;color:#555760;">tools</td><td style="padding:2px 0;color:#E8E6E1;">' + (data.mcp && data.mcp.tools_count || '?') + '</td></tr>' +
+          '<tr><td style="padding:2px 8px 2px 0;color:#555760;">schemas</td><td style="padding:2px 0;color:#00B4A0;">' + (data.mcp && data.mcp.schemas_valid ? 'VALID' : 'INVALID') + '</td></tr>' +
+          '<tr><td style="padding:2px 8px 2px 0;color:#555760;">irreversible_ack</td><td style="padding:2px 0;color:#00B4A0;">' + (data.security && data.security.irreversible_requires_human_ack ? 'REQUIRED' : 'MISSING') + '</td></tr>' +
+          '<tr><td style="padding:2px 8px 2px 0;color:#555760;">mcp</td><td style="padding:2px 0;"><a href="/mcp/status" style="color:#00B4A0;">/mcp/status</a></td></tr>' +
+          '<tr><td style="padding:2px 8px 2px 0;color:#555760;">tools</td><td style="padding:2px 0;"><a href="/tools.json" style="color:#00B4A0;">/tools.json</a> · <a href="/constitution" style="color:#00B4A0;">/constitution</a> · <a href="/mcp/auth" style="color:#00B4A0;">/mcp/auth</a></td></tr>' +
+          '</table>';
+        document.body.insertBefore(card, document.body.firstChild);
+      }
+      function init() {
+        fetch(BASE + '/mcp/status')
+          .then(function(r) { return r.json(); })
+          .then(render)
+          .catch(function() {
+            fetch(BASE + '/health')
+              .then(function(r) { return r.json(); })
+              .then(function(d) { render({version: d.version, release_name: d.release_name || d.version, deployment: {git_commit: d.source_commit || '?'}, mcp: {tools_count: d.tools_loaded, schemas_valid: true}, security: {irreversible_requires_human_ack: true}}); });
+          });
+      }
+      if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', init); } else { init(); }
+    })();
+    </script>"""
+    html_content = html_content.replace("</body>", deployment_card + "</body>")
+
     return html_content
 
 
@@ -1846,7 +1882,11 @@ def register_rest_routes(
             {
                 "status": "healthy",
                 "service": "arifos-aaa-mcp",
-                "version": BUILD_INFO["version"],
+                "release_name": BUILD_INFO["version"],
+                "version": f"kanon-{BUILD_INFO['build']['commit']}",
+                "source_commit": BUILD_INFO["build"]["commit"],
+                "image": f"ghcr.io/ariffazil/arifos:{BUILD_INFO['build']['commit']}",
+                "deployment_source": "ghcr",
                 "transport": "streamable-http",
                 "tools_loaded": getattr(mcp, "_tool_count", len(tool_registry)),
                 "ml_floors": get_ml_floor_runtime(),
@@ -3746,6 +3786,10 @@ init();
         return JSONResponse(
             {
                 "auth_mode": "public_read_or_auth_bearer",
+                "public_tools_are_read_only": True,
+                "write_tools_require_auth": True,
+                "human_ack_required_for_irreversible": True,
+                "session_id_is_authentication": False,
                 "public_tools": [
                     "arif_ping",
                     "arif_selftest",

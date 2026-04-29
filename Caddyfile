@@ -185,6 +185,15 @@ arifos.arif-fazil.com {
     handle /tools {
         reverse_proxy arifosmcp:8080
     }
+    handle /tools.json {
+        reverse_proxy arifosmcp:8080
+    }
+    handle /constitution {
+        reverse_proxy arifosmcp:8080
+    }
+    handle /api/constitution {
+        reverse_proxy arifosmcp:8080
+    }
     @mcp-server-card {
         path /mcp-server-card.json
     }
