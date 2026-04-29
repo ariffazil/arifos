@@ -21,6 +21,7 @@ from typing import Any
 
 from arifosmcp.constitutional_map import CANONICAL_TOOLS, get_tool_spec
 from arifosmcp.core.physics.thermodynamics_hardened import init_thermodynamic_budget
+from arifosmcp.core.threat_engine import ThreatTier
 from arifosmcp.runtime.floors import check_floors
 from arifosmcp.schemas.forge import (
     ConstitutionalCompliance,
@@ -666,7 +667,7 @@ def _irreversibility_rank(level: str) -> int:
 
 def _infer_irreversibility_level(candidate: str | None) -> IrreversibilityLevel:
     text = (candidate or "").lower()
-    verdict = _KERNEL.threat_engine.scan(text)
+    verdict = _KERNEL.threat_engine.classify(text)
 
     if verdict.score >= 1.0:
         return IrreversibilityLevel.CATASTROPHIC
@@ -2349,7 +2350,7 @@ def _arif_mind_reason(
             session_id=session_id,
         )
     if mode == "verify":
-        v = _KERNEL.threat_engine.scan(query or "")
+        v = _KERNEL.threat_engine.classify(query or "")
         return _ok(
             "arif_mind_reason",
             {
@@ -2362,7 +2363,7 @@ def _arif_mind_reason(
             session_id=session_id,
         )
     if mode == "critique":
-        v = _KERNEL.threat_engine.scan(query or "")
+        v = _KERNEL.threat_engine.classify(query or "")
         return _ok(
             "arif_mind_reason",
             {
@@ -2872,18 +2873,33 @@ async def _arif_heart_critique(
     if gate is not None:
         return gate
 
-    from arifosmcp.tools.heart import arif_heart_critique as _heart_llm
+    try:
+        from arifosmcp.tools.heart import arif_heart_critique as _heart_llm
 
-    result = await _heart_llm(
-        mode=mode,
-        target=target,
-        session_id=session_id,
-        actor_id=actor_id,
-    )
+        result = await _heart_llm(
+            mode=mode,
+            target=target,
+            session_id=session_id,
+            actor_id=actor_id,
+        )
+        result["tool"] = "arif_heart_critique"
+        result["status"] = result.get("status", "OK")
+        return result
+    except Exception as _exc:
+        logger.warning(
+            "666_HEART module unavailable (%s); returning safe HOLD",
+            type(_exc).__name__,
+        )
 
-    result["tool"] = "arif_heart_critique"
-    result["status"] = result.get("status", "OK")
-    return result
+    return {
+        "tool": "arif_heart_critique",
+        "status": "HOLD",
+        "risk_tier": "AMBER",
+        "verdict": "HOLD",
+        "human_decision_required": True,
+        "risks_found": [],
+        "error": f"666_HEART unavailable: {type(_exc).__name__}",
+    }
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -3229,52 +3245,6 @@ def _arif_judge_deliberate(
     seal_output = output.model_dump(mode="json")
     seal_output["nine_signal"] = _nine_signal_from_status("OK")
     return seal_output
-
-
-def _old_deliberate_unused():
-    verdict_code = (
-        VerdictCode.VOID
-        if c_verdict.verdict == "VOID"
-        else (VerdictCode.HOLD if c_verdict.verdict == "HOLD" else VerdictCode.SEAL)
-    )
-
-    floor_results = {f: "PASS" for f in ["F01", "F02", "F08", "F11", "F12", "F13"]}
-    for f in c_verdict.floors.failed_floors:
-        floor_results[f.replace("_VIOLATION", "")] = "FAIL"
-
-    floor_compliance = FloorComplianceProof(
-        floors_invoked=["F01", "F02", "F08", "F11", "F12", "F13"],
-        floor_results=floor_results,
-        failed_floors=[f.replace("_VIOLATION", "") for f in c_verdict.floors.failed_floors],
-        failed_floor_reasons=c_verdict.floors.floor_reasons,
-    )
-    output = VerdictOutput(
-        status="OK" if c_verdict.verdict == "SEAL" else "HOLD",
-        verdict=verdict_code,
-        candidate=candidate,
-        result={
-            "candidate": candidate,
-            "verdict": c_verdict.verdict,
-            "omega_ortho": epistemic.omega_ortho,
-            "floors_checked": floor_compliance.floors_invoked,
-            "threats_detected": [t.name for t in c_verdict.threat.threats],
-        },
-        thermodynamic_state=thermo,
-        floor_compliance=floor_compliance,
-        amanah_proof=amanah,
-        judge_contract=contract,
-        meta={
-            "constitutional_chain_id": contract.constitutional_chain_id,
-            "state_hash": contract.state_hash,
-            "irreversibility_level": contract.irreversibility_level,
-            "delta_s": contract.delta_s,
-            "g_score": contract.g_score,
-            "kernel_verdict": c_verdict.verdict,
-            "kernel_state_hash": c_verdict.state_hash,
-        },
-        timestamp=_now(),
-    )
-    return output.model_dump(mode="json")
 
 
 async def _arif_judge_deliberate_tool(
@@ -4263,16 +4233,6 @@ async def _arif_forge_execute_tool(
     )
 
 
-def get_public_surface_state() -> dict[str, Any]:
-    """Canonical source of truth for public MCP surface."""
-    return {
-        "mode": "canonical13",
-        "tools_registered": 13,
-        "kernel_tools": 13,
-        "diagnostic_tools": [],
-    }
-
-
 # ═══════════════════════════════════════════════════════════════════════════════
 # arif_ping — lightweight health probe
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -4475,7 +4435,7 @@ def _runtime_selftest(
         checks["mind_check"] = {
             "verdict": "PASS" if mind_ok else "FAIL",
             "status": mind_status,
-            "verdict": mind_verdict,
+            "mind_verdict": mind_verdict,
         }
         if not mind_ok:
             failed_checks.append("mind_check")
@@ -4485,7 +4445,7 @@ def _runtime_selftest(
 
     # 7. Heart check — verify no stub
     try:
-        heart = _arif_heart_critique(target="test critique", actor_id="selftest")
+        heart = asyncio.run(_arif_heart_critique(target="test critique", actor_id="selftest"))
         heart_result = heart.get("result", {})
         risks = heart_result.get("risks", [])
         # Check it's not the stub
