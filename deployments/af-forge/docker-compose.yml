@@ -35,6 +35,9 @@ services:
       VAULT999_PATH: /app/VAULT999/outcomes.jsonl
       TELEMETRY_PATH: /app/telemetry
 
+      # Python path (include /tmp/pylibs for runtime packages)
+      PYTHONPATH: /tmp/pylibs:/app
+
       # Build info
       ARIFOS_BUILD_SHA: ${ARIFOS_BUILD_SHA:-dev}
       ARIFOS_BUILD_TIME: ${ARIFOS_BUILD_TIME:-unknown}
@@ -45,10 +48,15 @@ services:
       ARIFOS_VPS_URL: ${ARIFOS_VPS_URL:-https://arifos.federation}
       MINIMAX_API_KEY: ${MINIMAX_API_KEY:-}
 
-      # Secrets (mount via .env or Docker secrets - NOT in compose)
-      # ARIFOS_GOVERNANCE_SECRET: ${ARIFOS_GOVERNANCE_SECRET:-}
+      # Memory engine (Postgres + Qdrant + Ollama)
+      DATABASE_URL: postgresql://arifos_admin:ArifPostgresVault2026!@postgres:5432/vault999
+      QDRANT_URL: http://qdrant:6333
+      OLLAMA_URL: http://ollama:11434
+      EMBEDDING_MODEL: bge-m3
 
     volumes:
+      # Code mount for live updates
+      - ../../:/app:rw
       # Widget files for CSP-served content
       - ../../static/widgets:/app/static/widgets:ro
       # Vault999 persistence
