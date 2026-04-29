@@ -19,6 +19,7 @@ import time
 import uuid
 from typing import Any
 
+from arifosmcp.core.physics.thermodynamics_hardened import init_thermodynamic_budget
 from arifosmcp.constitutional_map import CANONICAL_TOOLS, get_tool_spec
 from arifosmcp.runtime.floors import check_floors
 from arifosmcp.schemas.forge import (
@@ -217,6 +218,13 @@ def _nine_signal_from_status(status: str) -> dict[str, str]:
         "omega": "BIJAK",
         "overall": "SELAMAT",
     }
+
+
+def _inject_nine_signal(model_dump_json: dict, status: str) -> dict:
+    """Inject nine_signal block into a raw model_dump(mode='json') dict."""
+    out = dict(model_dump_json)
+    out["nine_signal"] = _nine_signal_from_status(status)
+    return out
 
 
 def _run_async(coro):
@@ -1163,6 +1171,13 @@ def _arif_session_init(
     if normalized_mode == "init":
         sess = _new_session(actor_id, epoch_id=epoch_id)
         sid = sess["session_id"]
+
+        # P3 Fix: Initialize thermodynamic budget for the new session
+        try:
+            init_thermodynamic_budget(sid, initial_budget=1.0)
+        except Exception as exc:
+            logger.warning("Failed to initialize thermodynamic budget: %s", exc)
+
         if previous_session_hash:
             sess["previous_session_hash"] = previous_session_hash
             _SESSIONS[sid] = sess
@@ -3341,7 +3356,9 @@ def _arif_judge_deliberate(
             meta=meta_state,
             timestamp=verdict.timestamp,
         )
-        return output.model_dump(mode="json")
+        breach_output = output.model_dump(mode="json")
+        breach_output["nine_signal"] = _nine_signal_from_status(verdict.status)
+        return breach_output
 
     # Success / SEAL logic
     meta_state = {"mode": mode, "state_hash": verdict.state_hash}
@@ -3399,8 +3416,9 @@ def _arif_judge_deliberate(
         meta=meta_state,
         timestamp=verdict.timestamp,
     )
-
-    return output.model_dump(mode="json")
+    seal_output = output.model_dump(mode="json")
+    seal_output["nine_signal"] = _nine_signal_from_status("OK")
+    return seal_output
 
 
 def _old_deliberate_unused():
@@ -3543,6 +3561,7 @@ def _arif_vault_seal(
             },
             "meta": {},
             "timestamp": _now(),
+            "nine_signal": _nine_signal_from_status("OK"),
         }
 
     # Only enforce F01 on actual write modes; read-only audit modes are safe
@@ -3567,7 +3586,7 @@ def _arif_vault_seal(
                 actor_id=actor_id,
                 timestamp=_now(),
             )
-            return output.model_dump(mode="json")
+            return _inject_nine_signal(output.model_dump(mode="json"), "HOLD")
 
     if mode == "seal":
         judge_contract, hold = _resolve_judge_contract(
@@ -3584,19 +3603,22 @@ def _arif_vault_seal(
                 actor_id=actor_id,
                 timestamp=_now(),
             )
-            return output.model_dump(mode="json")
+            return _inject_nine_signal(output.model_dump(mode="json"), "HOLD")
         if judge_contract is None:
-            return SealOutput(
-                status="HOLD",
-                result={},
-                constitutional_compliance=ConstitutionalCompliance(),
-                meta={
-                    "reason": "judge contract required — irreversible execution requires a prior judge packet via constitutional_chain_id and judge_state_hash",
-                    "failed_floors": ["F11"],
-                },
-                actor_id=actor_id,
-                timestamp=_now(),
-            ).model_dump(mode="json")
+            return _inject_nine_signal(
+                SealOutput(
+                    status="HOLD",
+                    result={},
+                    constitutional_compliance=ConstitutionalCompliance(),
+                    meta={
+                        "reason": "judge contract required — irreversible execution requires a prior judge packet via constitutional_chain_id and judge_state_hash",
+                        "failed_floors": ["F11"],
+                    },
+                    actor_id=actor_id,
+                    timestamp=_now(),
+                ).model_dump(mode="json"),
+                "HOLD",
+            )
 
         entry_id = uuid.uuid4().hex[:16]
         required_level = IrreversibilityLevel.IRREVERSIBLE
@@ -3616,7 +3638,7 @@ def _arif_vault_seal(
                 actor_id=actor_id,
                 timestamp=_now(),
             )
-            return output.model_dump(mode="json")
+            return _inject_nine_signal(output.model_dump(mode="json"), "HOLD")
         bond = IrreversibilityBond(
             level=IrreversibilityLevel.IRREVERSIBLE,
             delta_S=0.003 + max(judge_contract.delta_s, 0.0),
@@ -3691,22 +3713,25 @@ def _arif_vault_seal(
             meta={"verification_state": verification_state or {}},
             timestamp=_now(),
         )
-        return output.model_dump(mode="json")
+        return _inject_nine_signal(output.model_dump(mode="json"), "OK")
     if mode == "verify":
-        return SealOutput(
-            status="OK",
-            result={"ledger_size": len(_VAULT_LEDGER), "integrity": "OK"},
-            ledger_size=len(_VAULT_LEDGER),
-            irreversibility_bond=IrreversibilityBond(
-                level=IrreversibilityLevel.REVERSIBLE,
-                delta_S=0.0,
-                rollback_possible=True,
-            ),
-            entropy_delta=EntropyDelta(delta_S=0.0, entropy_direction="stable"),
-            meta={},
-            actor_id=actor_id,
-            timestamp=_now(),
-        ).model_dump(mode="json")
+        return _inject_nine_signal(
+            SealOutput(
+                status="OK",
+                result={"ledger_size": len(_VAULT_LEDGER), "integrity": "OK"},
+                ledger_size=len(_VAULT_LEDGER),
+                irreversibility_bond=IrreversibilityBond(
+                    level=IrreversibilityLevel.REVERSIBLE,
+                    delta_S=0.0,
+                    rollback_possible=True,
+                ),
+                entropy_delta=EntropyDelta(delta_S=0.0, entropy_direction="stable"),
+                meta={},
+                actor_id=actor_id,
+                timestamp=_now(),
+            ).model_dump(mode="json"),
+            "OK",
+        )
     if mode == "ledger":
         return SealOutput(
             status="OK",
@@ -3723,37 +3748,43 @@ def _arif_vault_seal(
             timestamp=_now(),
         ).model_dump(mode="json")
     if mode == "changelog":
-        return SealOutput(
-            status="OK",
-            result={"changes": [], "version": "2026.04.26-KANON"},
-            ledger_size=len(_VAULT_LEDGER),
-            irreversibility_bond=IrreversibilityBond(
-                level=IrreversibilityLevel.REVERSIBLE, delta_S=0.0
-            ),
-            entropy_delta=EntropyDelta(delta_S=0.0, entropy_direction="stable"),
-            meta={},
-            actor_id=actor_id,
-            timestamp=_now(),
-        ).model_dump(mode="json")
+        return _inject_nine_signal(
+            SealOutput(
+                status="OK",
+                result={"changes": [], "version": "2026.04.26-KANON"},
+                ledger_size=len(_VAULT_LEDGER),
+                irreversibility_bond=IrreversibilityBond(
+                    level=IrreversibilityLevel.REVERSIBLE, delta_S=0.0
+                ),
+                entropy_delta=EntropyDelta(delta_S=0.0, entropy_direction="stable"),
+                meta={},
+                actor_id=actor_id,
+                timestamp=_now(),
+            ).model_dump(mode="json"),
+            "OK",
+        )
     if mode == "audit":
-        return SealOutput(
-            status="OK",
-            result={"entries": len(_VAULT_LEDGER), "last_audit": _now()},
-            ledger_size=len(_VAULT_LEDGER),
-            irreversibility_bond=IrreversibilityBond(
-                level=IrreversibilityLevel.REVERSIBLE,
-                delta_S=0.0,
-                rollback_possible=False,
-            ),
-            entropy_delta=EntropyDelta(delta_S=0.001, entropy_direction="stable"),
-            constitutional_compliance=ConstitutionalCompliance(
-                floors_invoked=["F01", "F02", "F11", "F13"],
-                floor_results={"F01": "PASS", "F02": "PASS", "F11": "PASS", "F13": "PASS"},
-            ),
-            meta={},
-            actor_id=actor_id,
-            timestamp=_now(),
-        ).model_dump(mode="json")
+        return _inject_nine_signal(
+            SealOutput(
+                status="OK",
+                result={"entries": len(_VAULT_LEDGER), "last_audit": _now()},
+                ledger_size=len(_VAULT_LEDGER),
+                irreversibility_bond=IrreversibilityBond(
+                    level=IrreversibilityLevel.REVERSIBLE,
+                    delta_S=0.0,
+                    rollback_possible=False,
+                ),
+                entropy_delta=EntropyDelta(delta_S=0.001, entropy_direction="stable"),
+                constitutional_compliance=ConstitutionalCompliance(
+                    floors_invoked=["F01", "F02", "F11", "F13"],
+                    floor_results={"F01": "PASS", "F02": "PASS", "F11": "PASS", "F13": "PASS"},
+                ),
+                meta={},
+                actor_id=actor_id,
+                timestamp=_now(),
+            ).model_dump(mode="json"),
+            "OK",
+        )
     if mode == "dry_run":
         import hashlib as _hashlib
 
@@ -3774,45 +3805,55 @@ def _arif_vault_seal(
             },
             "meta": {},
             "timestamp": _now(),
+            "nine_signal": _nine_signal_from_status("OK"),
         }
 
     if mode == "list":
-        return SealOutput(
-            status="OK",
-            result={"entries": _VAULT_LEDGER},
-            ledger_size=len(_VAULT_LEDGER),
-            irreversibility_bond=IrreversibilityBond(
-                level=IrreversibilityLevel.REVERSIBLE, delta_S=0.0
-            ),
-            entropy_delta=EntropyDelta(delta_S=0.0, entropy_direction="stable"),
-            meta={},
-            actor_id=actor_id,
-            timestamp=_now(),
-        ).model_dump(mode="json")
+        return _inject_nine_signal(
+            SealOutput(
+                status="OK",
+                result={"entries": _VAULT_LEDGER},
+                ledger_size=len(_VAULT_LEDGER),
+                irreversibility_bond=IrreversibilityBond(
+                    level=IrreversibilityLevel.REVERSIBLE, delta_S=0.0
+                ),
+                entropy_delta=EntropyDelta(delta_S=0.0, entropy_direction="stable"),
+                meta={},
+                actor_id=actor_id,
+                timestamp=_now(),
+            ).model_dump(mode="json"),
+            "OK",
+        )
     if mode == "chain":
-        return SealOutput(
-            status="OK",
-            result={
-                "tip": _VAULT_LEDGER[-1] if _VAULT_LEDGER else None,
-                "depth": len(_VAULT_LEDGER),
-            },
-            ledger_size=len(_VAULT_LEDGER),
-            irreversibility_bond=IrreversibilityBond(
-                level=IrreversibilityLevel.REVERSIBLE, delta_S=0.0
-            ),
-            entropy_delta=EntropyDelta(delta_S=0.0, entropy_direction="stable"),
-            meta={},
+        return _inject_nine_signal(
+            SealOutput(
+                status="OK",
+                result={
+                    "tip": _VAULT_LEDGER[-1] if _VAULT_LEDGER else None,
+                    "depth": len(_VAULT_LEDGER),
+                },
+                ledger_size=len(_VAULT_LEDGER),
+                irreversibility_bond=IrreversibilityBond(
+                    level=IrreversibilityLevel.REVERSIBLE, delta_S=0.0
+                ),
+                entropy_delta=EntropyDelta(delta_S=0.0, entropy_direction="stable"),
+                meta={},
+                actor_id=actor_id,
+                timestamp=_now(),
+            ).model_dump(mode="json"),
+            "OK",
+        )
+
+    return _inject_nine_signal(
+        SealOutput(
+            status="HOLD",
+            result={},
+            meta={"reason": f"Unknown mode: {mode}"},
             actor_id=actor_id,
             timestamp=_now(),
-        ).model_dump(mode="json")
-
-    return SealOutput(
-        status="HOLD",
-        result={},
-        meta={"reason": f"Unknown mode: {mode}"},
-        actor_id=actor_id,
-        timestamp=_now(),
-    ).model_dump(mode="json")
+        ).model_dump(mode="json"),
+        "HOLD",
+    )
 
 
 async def _arif_vault_seal_tool(
@@ -3927,6 +3968,7 @@ def _arif_forge_execute(
             },
             "meta": {},
             "timestamp": _now(),
+            "nine_signal": _nine_signal_from_status("OK" if k_verdict["passed"] else "HOLD"),
         }
 
     # H2 hard-gate: artifact-producing modes require an approved plan
@@ -3945,27 +3987,33 @@ def _arif_forge_execute(
             ).model_dump(mode="json")
         plan = _PLAN_REGISTRY.get(plan_id)
         if plan is None:
-            return ForgeOutput(
-                status="HOLD",
-                result={},
-                manifest=ForgeManifest(status=ManifestStatus.HOLD),
-                meta={
-                    "reason": f"plan_id '{plan_id}' not found in plan registry.",
-                    "failed_floors": ["F01_AMANAH"],
-                },
-                timestamp=_now(),
-            ).model_dump(mode="json")
+            return _inject_nine_signal(
+                ForgeOutput(
+                    status="HOLD",
+                    result={},
+                    manifest=ForgeManifest(status=ManifestStatus.HOLD),
+                    meta={
+                        "reason": f"plan_id '{plan_id}' not found in plan registry.",
+                        "failed_floors": ["F01_AMANAH"],
+                    },
+                    timestamp=_now(),
+                ).model_dump(mode="json"),
+                "HOLD",
+            )
         if plan.get("status") != "approved":
-            return ForgeOutput(
-                status="HOLD",
-                result={},
-                manifest=ForgeManifest(status=ManifestStatus.HOLD),
-                meta={
-                    "reason": f"plan_id '{plan_id}' exists but is not approved (status='{plan.get('status')}'). Await 888_JUDGE SEAL or manual approval.",
-                    "failed_floors": ["F01_AMANAH", "F11_AUTH"],
-                },
-                timestamp=_now(),
-            ).model_dump(mode="json")
+            return _inject_nine_signal(
+                ForgeOutput(
+                    status="HOLD",
+                    result={},
+                    manifest=ForgeManifest(status=ManifestStatus.HOLD),
+                    meta={
+                        "reason": f"plan_id '{plan_id}' exists but is not approved (status='{plan.get('status')}'). Await 888_JUDGE SEAL or manual approval.",
+                        "failed_floors": ["F01_AMANAH", "F11_AUTH"],
+                    },
+                    timestamp=_now(),
+                ).model_dump(mode="json"),
+                "HOLD",
+            )
         _transition_plan_state(
             plan_id, "in_execution", {"tool": "arif_forge_execute", "mode": mode}
         )
@@ -4017,13 +4065,16 @@ def _arif_forge_execute(
                 _transition_plan_state(
                     plan_id, "aborted", {"reason": "judge_contract_hold", "meta": hold["meta"]}
                 )
-            return ForgeOutput(
-                status="HOLD",
-                result={},
-                manifest=ForgeManifest(status=ManifestStatus.HOLD),
-                meta=hold["meta"],
-                timestamp=_now(),
-            ).model_dump(mode="json")
+            return _inject_nine_signal(
+                ForgeOutput(
+                    status="HOLD",
+                    result={},
+                    manifest=ForgeManifest(status=ManifestStatus.HOLD),
+                    meta=hold["meta"],
+                    timestamp=_now(),
+                ).model_dump(mode="json"),
+                "HOLD",
+            )
         if lineage_contract is not None:
             constitutional_chain_id = lineage_contract.constitutional_chain_id
             judge_state_hash = lineage_contract.state_hash
@@ -4095,7 +4146,7 @@ def _arif_forge_execute(
             _transition_plan_state(
                 plan_id, "completed", {"mode": "engineer", "artifact_id": artifact_id_out}
             )
-        return output.model_dump(mode="json")
+        return _inject_nine_signal(output.model_dump(mode="json"), "OK")
 
     if mode == "query":
         bond = IrreversibilityBond(level=IrreversibilityLevel.REVERSIBLE, delta_S=0.0)
@@ -4115,7 +4166,7 @@ def _arif_forge_execute(
             judge_contract=lineage_contract,
             timestamp=_now(),
         )
-        return output.model_dump(mode="json")
+        return _inject_nine_signal(output.model_dump(mode="json"), "OK")
 
     if mode == "recall":
         bond = IrreversibilityBond(
@@ -4146,7 +4197,7 @@ def _arif_forge_execute(
             judge_contract=lineage_contract,
             timestamp=_now(),
         )
-        return output.model_dump(mode="json")
+        return _inject_nine_signal(output.model_dump(mode="json"), "OK")
 
     if mode == "write":
         artifact_id_out = uuid.uuid4().hex[:8]
@@ -4182,7 +4233,7 @@ def _arif_forge_execute(
             _transition_plan_state(
                 plan_id, "completed", {"mode": "write", "artifact_id": artifact_id_out}
             )
-        return output.model_dump(mode="json")
+        return _inject_nine_signal(output.model_dump(mode="json"), "OK")
 
     if mode == "generate":
         artifact_id_out = uuid.uuid4().hex[:16]
@@ -4218,7 +4269,7 @@ def _arif_forge_execute(
             _transition_plan_state(
                 plan_id, "completed", {"mode": "generate", "artifact_id": artifact_id_out}
             )
-        return output.model_dump(mode="json")
+        return _inject_nine_signal(output.model_dump(mode="json"), "OK")
 
     if mode == "commit":
         vault_entry, hold = _resolve_vault_entry(
@@ -4231,13 +4282,16 @@ def _arif_forge_execute(
                 _transition_plan_state(
                     plan_id, "aborted", {"reason": "vault_entry_hold", "meta": hold["meta"]}
                 )
-            return ForgeOutput(
-                status="HOLD",
-                result={},
-                manifest=ForgeManifest(status=ManifestStatus.HOLD),
-                meta=hold["meta"],
-                timestamp=_now(),
-            ).model_dump(mode="json")
+            return _inject_nine_signal(
+                ForgeOutput(
+                    status="HOLD",
+                    result={},
+                    manifest=ForgeManifest(status=ManifestStatus.HOLD),
+                    meta=hold["meta"],
+                    timestamp=_now(),
+                ).model_dump(mode="json"),
+                "HOLD",
+            )
         if vault_entry is not None and lineage_contract is None:
             contract_packet = vault_entry.get("judge_contract")
             if contract_packet:
@@ -4919,7 +4973,6 @@ def register_tools(
 
 __all__ = [
     "_CANONICAL_HANDLERS",
-    "FINAL_TOOL_IMPLEMENTATIONS",
     "IrreversibleConfirmation",
     "JudgeCandidateInput",
     "_arif_ping",
@@ -4939,6 +4992,6 @@ CANONICAL_TOOL_HANDLERS = _CANONICAL_HANDLERS
 FINAL_TOOL_IMPLEMENTATIONS = _CANONICAL_HANDLERS
 
 
-def register_v2_tools(mcp, **kwargs):
+def register_v2_tools(mcp: FastMCP, **kwargs: Any) -> list[str]:
     """Compatibility shim — delegates to register_tools."""
     return register_tools(mcp, **kwargs)

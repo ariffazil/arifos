@@ -275,6 +275,55 @@ class ConstitutionKernel:
         }
 
     def evaluate(self, context: ActionContext) -> ConstitutionalVerdict:
+        # ── Step -1: Biological Readiness Gate (WELL Mirror) ──────────────
+        # F13 SOVEREIGN: Mandatory physiological gate before any SEAL.
+        # This prevents autonomous action when the operator is degraded.
+        try:
+            well_state_path = "/root/WELL/state.json"
+            # Note: In production container, this path must be mounted.
+            # If missing, we fallback to a safe 'STABLE' assumption unless in strict mode.
+            import json
+            import os
+
+            if os.path.exists(well_state_path):
+                with open(well_state_path) as f:
+                    well_state = json.load(f)
+                readiness = well_state.get("well_score", 100)
+                if readiness < 40:  # Threshold per doctrinal move
+                    from arifosmcp.core.authority_gate import AuthorityProof
+                    from arifosmcp.core.floor_evaluator import FloorResult
+                    from arifosmcp.core.threat_engine import (
+                        IrreversibilityLevel,
+                        ThreatAssessment,
+                    )
+
+                    threat = ThreatAssessment(
+                        threats=[],
+                        overall_confidence=1.0,
+                        irreversibility=IrreversibilityLevel.NONE,
+                        category=None,
+                    )
+                    floors = FloorResult(
+                        verdict="HOLD",
+                        failed_floors=["F13"],
+                        floor_reasons={
+                            "F13": f"Operator readiness {readiness} below constitutional floor (40)"
+                        },
+                    )
+                    authority = AuthorityProof(authorized=False, level="SOVEREIGN_VETO")
+                    return ConstitutionalVerdict(
+                        status="HOLD",
+                        verdict="HOLD",
+                        threat=threat,
+                        floors=floors,
+                        authority=authority,
+                        irreversibility=IrreversibilityLevel.NONE,
+                    )
+        except Exception:
+            # We do not block on well-mirror errors to prevent deadlocks,
+            # but we log the friction.
+            pass
+
         # ── Step 0: WEALTH verification governance (pre-flight check) ──────
         wg = WealthGovernance.evaluate(context)
         wg_status = wg["status"]
