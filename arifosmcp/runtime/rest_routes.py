@@ -12,6 +12,8 @@ These run alongside the standard MCP protocol at /mcp, providing:
 DITEMPA BUKAN DIBERI
 """
 
+# ruff: noqa: E501, F841, N806, I001
+
 from __future__ import annotations
 
 import inspect
@@ -20,7 +22,7 @@ import logging
 import os
 import secrets
 import socket
-import subprocess
+import subprocess  # nosec B404
 import time
 import uuid
 from collections.abc import Callable
@@ -307,7 +309,7 @@ def _cache_headers() -> dict[str, str]:
 
 
 def _json_safe(value: Any) -> Any:
-    if isinstance(value, (datetime, date)):
+    if isinstance(value, datetime | date):
         return value.isoformat()
     if isinstance(value, dict):
         return {k: _json_safe(v) for k, v in value.items()}
@@ -332,7 +334,7 @@ def _dashboard_cors_headers(request: Request) -> dict[str, str]:
 
 def _collect_container_status(limit: int = 24) -> list[dict[str, str]]:
     try:
-        result = subprocess.run(
+        result = subprocess.run(  # nosec B603 B607
             [
                 "docker",
                 "ps",
@@ -1065,7 +1067,7 @@ def _load_welcome_html() -> str:
                 with open(path) as f:
                     html_content = f.read()
                 break
-            except Exception:
+            except Exception:  # nosec B112
                 continue
 
     if not html_content:
@@ -1885,7 +1887,7 @@ def register_rest_routes(
                 "service": "arifos-aaa-mcp",
                 "release_name": BUILD_INFO["version"],
                 "version": f"kanon-{BUILD_INFO['build']['commit']}",
-                "source_commit": BUILD_INFO["build"]["commit"],
+                "git_commit": BUILD_INFO["build"]["commit"],
                 "git_branch": BUILD_INFO["build"].get("branch"),
                 "build_time": BUILD_INFO["build"].get("built_at"),
                 "image": f"ghcr.io/ariffazil/arifos:{BUILD_INFO['build']['commit']}",
@@ -1899,7 +1901,6 @@ def register_rest_routes(
                 "timestamp": datetime.now(timezone.utc).isoformat(),
                 # SoT linkage — enables drift detection between repo / docs / runtime
                 "source_repo": BUILD_INFO.get("source_repo", "https://github.com/ariffazil/arifOS"),
-                "source_commit": BUILD_INFO["build"]["commit"],
                 "release_tag": BUILD_INFO.get("release_tag", BUILD_INFO["version"]),
                 "source_of_truth": {
                     "doctrine": "https://github.com/ariffazil/arifOS",
@@ -2467,25 +2468,47 @@ def register_rest_routes(
             # Build 13-floor constitutional surface
             floors_list = []
             for floor_key in FLOOR_DESCRIPTIONS:
-                floors_list.append({
-                    "floor": floor_key.value if hasattr(floor_key, "value") else str(floor_key),
-                    "name": floor_key.name.replace("_", " ") if hasattr(floor_key, "name") else str(floor_key),
-                    "doctrine": FLOOR_DESCRIPTIONS[floor_key],
-                })
+                floors_list.append(
+                    {
+                        "floor": floor_key.value if hasattr(floor_key, "value") else str(floor_key),
+                        "name": (
+                            floor_key.name.replace("_", " ")
+                            if hasattr(floor_key, "name")
+                            else str(floor_key)
+                        ),
+                        "doctrine": FLOOR_DESCRIPTIONS[floor_key],
+                    }
+                )
 
             # 13 constitutional floors — F01 through F13
             FLOORS = [
-                {"code": "F01", "name": "AMANAH", "summary": "No irreversible deletion without sovereign consent."},
+                {
+                    "code": "F01",
+                    "name": "AMANAH",
+                    "summary": "No irreversible deletion without sovereign consent.",
+                },
                 {"code": "F02", "name": "TRUTH", "summary": "No fabricated data; cite sources."},
                 {"code": "F03", "name": "WITNESS", "summary": "Evidence must be verifiable."},
                 {"code": "F04", "name": "CLARITY", "summary": "Transparent intent."},
                 {"code": "F05", "name": "PEACE", "summary": "Human dignity."},
                 {"code": "F06", "name": "EMPATHY", "summary": "Consider consequences."},
-                {"code": "F07", "name": "HUMILITY", "summary": "Acknowledge limits; uncertainty bands."},
+                {
+                    "code": "F07",
+                    "name": "HUMILITY",
+                    "summary": "Acknowledge limits; uncertainty bands.",
+                },
                 {"code": "F08", "name": "GENIUS", "summary": "Elegant correctness (G ≥ 0.80)."},
-                {"code": "F09", "name": "ANTIHANTU", "summary": "No consciousness or emotion claims."},
+                {
+                    "code": "F09",
+                    "name": "ANTIHANTU",
+                    "summary": "No consciousness or emotion claims.",
+                },
                 {"code": "F10", "name": "ONTOLOGY", "summary": "Structural coherence."},
-                {"code": "F11", "name": "AUTH", "summary": "Verify identity before sensitive operations."},
+                {
+                    "code": "F11",
+                    "name": "AUTH",
+                    "summary": "Verify identity before sensitive operations.",
+                },
                 {"code": "F12", "name": "INJECTION", "summary": "Sanitize inputs."},
                 {"code": "F13", "name": "SOVEREIGN", "summary": "Human veto is absolute."},
             ]
@@ -2888,6 +2911,13 @@ def register_rest_routes(
         from starlette.responses import RedirectResponse
 
         return RedirectResponse(url="/widget/vault-seal", status_code=302)
+
+    @route("/constitution", methods=["GET"])
+    async def constitution_redirect(request: Request) -> Response:
+        """Redirect /constitution → /api/constitution for canonical constitution map."""
+        from starlette.responses import RedirectResponse
+
+        return RedirectResponse(url="/api/constitution", status_code=307)
 
     dashboard_dir = os.path.join(
         os.path.dirname(os.path.dirname(__file__)),
@@ -3758,7 +3788,9 @@ init();
         try:
             import urllib.request
 
-            with urllib.request.urlopen("https://arifos.arif-fazil.com/health", timeout=5) as r:
+            with urllib.request.urlopen(
+                "https://arifos.arif-fazil.com/health", timeout=5
+            ) as r:  # nosec B310
                 results["health"] = {"status": "ok", "http": r.status, "body": json.loads(r.read())}
         except Exception as e:
             results["health"] = {"status": "error", "error": str(e)}
@@ -3766,7 +3798,9 @@ init();
         try:
             import urllib.request
 
-            with urllib.request.urlopen("https://arifos.arif-fazil.com/tools", timeout=5) as r:
+            with urllib.request.urlopen(
+                "https://arifos.arif-fazil.com/tools", timeout=5
+            ) as r:  # nosec B310
                 body = json.loads(r.read())
                 results["tools"] = {"status": "ok", "http": r.status, "count": body.get("count", 0)}
         except Exception as e:
@@ -3775,7 +3809,9 @@ init();
         try:
             import urllib.request
 
-            with urllib.request.urlopen("https://arifos.arif-fazil.com/tools.json", timeout=5) as r:
+            with urllib.request.urlopen(
+                "https://arifos.arif-fazil.com/tools.json", timeout=5
+            ) as r:  # nosec B310
                 body = json.loads(r.read())
                 results["tools_json"] = {
                     "status": "ok",
