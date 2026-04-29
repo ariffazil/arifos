@@ -48,6 +48,10 @@ services:
       ARIFOS_VPS_URL: ${ARIFOS_VPS_URL:-https://arifos.federation}
       MINIMAX_API_KEY: ${MINIMAX_API_KEY:-}
 
+      # Supabase VAULT999 — cloud canonical ledger
+      SUPABASE_URL: https://utbmmjmbolmuahwixjqc.supabase.co
+      SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY:-}
+
       # Memory engine (Postgres + Qdrant + Ollama)
       DATABASE_URL: postgresql://arifos_admin:ArifPostgresVault2026!@postgres:5432/vault999
       QDRANT_URL: http://qdrant:6333
