@@ -62,10 +62,10 @@ RUN groupadd -g 1000 arifos && \
 
 WORKDIR /usr/src/app
 
-# Build arguments for metadata
-ARG ARIFOS_VERSION=2026.04.28-HORIZON
-ARG GIT_SHA=unknown
-ARG BUILD_TIME=unknown
+# Build arguments for OCI labels (passed via --build-arg from build stage)
+ARG ARIFOS_BUILD_SHA=unknown
+ARG ARIFOS_BUILD_BRANCH=unknown
+ARG ARIFOS_BUILD_TIME=unknown
 
 # Environment configuration
 ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
@@ -74,9 +74,10 @@ ENV PYTHONDONTWRITEBYTECODE=1
 ENV PORT=8080
 ENV HOST=0.0.0.0
 ENV AAA_MCP_TRANSPORT=http
-ENV ARIFOS_VERSION=${ARIFOS_VERSION}
-ENV GIT_SHA=${GIT_SHA}
-ENV BUILD_TIME=${BUILD_TIME}
+# DEPLOY_GIT_COMMIT/BRANCH/TIME are what server.py reads — wire them from build-arg
+ENV DEPLOY_GIT_COMMIT=${ARIFOS_BUILD_SHA}
+ENV DEPLOY_GIT_BRANCH=${ARIFOS_BUILD_BRANCH}
+ENV DEPLOY_BUILD_TIME=${ARIFOS_BUILD_TIME}
 
 # Install runtime dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
