@@ -2414,6 +2414,7 @@ async def _arif_mind_reason_tool(
         from arifosmcp.runtime.mind_reason import (
             arif_mind_reason as _llm_mind_reason,
         )
+
         return await _llm_mind_reason(
             mode=mode,
             query=query,
@@ -2829,7 +2830,7 @@ def _arif_memory_recall(
 # ═══════════════════════════════════════════════════════════════════════════════
 
 
-def _arif_heart_critique(
+async def _arif_heart_critique(
     mode: str = "critique",
     target: str | None = None,
     session_id: str | None = None,
@@ -2837,6 +2838,10 @@ def _arif_heart_critique(
 ) -> dict[str, Any]:
     """
     666_HEART: Ethical critique, risk assessment, and empathy scan.
+
+    Tier 1: SEA-LION LLM inference
+    Tier 2: Ollama local fallback
+    Tier 3: Deterministic keyword-based fallback
 
     Evaluates proposed actions against 8 risk categories (privacy, bias,
     harm, irreversibility, deception, autonomy, dignity, sustainability).
@@ -2846,10 +2851,13 @@ def _arif_heart_critique(
       critique   — Full risk analysis of a target action or content.
       simulate   — Run a what-if scenario and project risk outcomes.
       empathize  — Assess human impact load (Ω) on weakest stakeholders.
+      redteam    — Attack surface analysis.
+      maruah     — Dignity score (F05 Peace).
+      deescalate — Risk reduction strategy.
       summary    — Return a condensed risk scorecard.
 
     Parameters:
-      mode       — critique | simulate | empathize | summary
+      mode       — critique | simulate | empathize | redteam | maruah | deescalate | summary
       target     — Action, content, or scenario to critique
       session_id — Governed session ID
       actor_id   — Sovereign actor identifier
@@ -2864,278 +2872,18 @@ def _arif_heart_critique(
     if gate is not None:
         return gate
 
-    if mode == "simulate":
-        return _ok(
-            "arif_heart_critique",
-            {"target": target, "outcomes": [], "worst_case": "VOID"},
-            delta_S=0.003,
-        )
-    if mode == "empathize":
-        return _ok(
-            "arif_heart_critique",
-            {
-                "target": target,
-                "empathy_score": 0.85,
-                "weakest_stakeholder": "end_user",
-                "human_impact_load": 0.12,
-            },
-            delta_S=0.002,
-        )
-    if mode == "summary":
-        return _ok(
-            "arif_heart_critique",
-            {
-                "target": target,
-                "risk_tier": "low",
-                "human_decision_required": False,
-                "condensed": True,
-            },
-            delta_S=0.001,
-        )
-    if mode == "critique":
-        # Real risk analysis across 8 risk categories
-        target_lower = (target or "").lower()
-        risks: list[dict[str, Any]] = []
+    from arifosmcp.tools.heart import arif_heart_critique as _heart_llm
 
-        # 1. Dignity risk — does response undermine human dignity?
-        dignity_triggers = ["inferior", "lesser", "subhuman", "beneath", "worthy only"]
-        dignity_risk = next((t for t in dignity_triggers if t in target_lower), None)
-        risks.append(
-            {
-                "type": "dignity_risk",
-                "severity": "high" if dignity_risk else "none",
-                "reason": (
-                    f"Dignity-violating language detected: {dignity_risk}"
-                    if dignity_risk
-                    else "No dignity violations detected"
-                ),
-                "mitigation": (
-                    "Remove all dignity-undermining language"
-                    if dignity_risk
-                    else "Maintain neutral tone"
-                ),
-            }
-        )
+    result = await _heart_llm(
+        mode=mode,
+        target=target,
+        session_id=session_id,
+        actor_id=actor_id,
+    )
 
-        # 2. Overclaim risk — is the system claiming more than it can verify?
-        overclaim_triggers = [
-            "always",
-            "never",
-            "guaranteed",
-            "certain",
-            "definitely",
-            "absolutely",
-        ]
-        overclaims = [t for t in overclaim_triggers if t in target_lower]
-        risks.append(
-            {
-                "type": "overclaim_risk",
-                "severity": "medium" if overclaims else "none",
-                "reason": (
-                    f"Overclaiming language: {overclaims}"
-                    if overclaims
-                    else "Calibrated language detected"
-                ),
-                "mitigation": (
-                    "Add uncertainty qualifiers (probably, likely, in most cases)"
-                    if overclaims
-                    else "Maintain epistemic calibration"
-                ),
-            }
-        )
-
-        # 3. Anthropomorphism risk — is the system claiming human qualities?
-        anthro_triggers = [
-            "i feel",
-            "i believe",
-            "i think",
-            "i want",
-            "i wish",
-            "i hope",
-            "i understand",
-            "i know",
-        ]
-        anthro = [t for t in anthro_triggers if t in target_lower]
-        risks.append(
-            {
-                "type": "anthropomorphism_risk",
-                "severity": "critical" if anthro else "none",
-                "reason": (
-                    f"System claiming subjective inner states: {anthro}"
-                    if anthro
-                    else "No anthropomorphism detected"
-                ),
-                "mitigation": (
-                    "Rephrase as tool-claim: 'The analysis suggests' not 'I think'"
-                    if anthro
-                    else "Maintain tool-claim framing"
-                ),
-            }
-        )
-
-        # 4. Manipulation risk — is response trying to manipulate user emotion/behaviour?
-        manip_triggers = [
-            "you should",
-            "you must",
-            "trust me",
-            "believe me",
-            "just do",
-            "don't question",
-        ]
-        manip = [t for t in manip_triggers if t in target_lower]
-        risks.append(
-            {
-                "type": "manipulation_risk",
-                "severity": "high" if manip else "none",
-                "reason": (
-                    f"Manipulative framing detected: {manip}"
-                    if manip
-                    else "No manipulation detected"
-                ),
-                "mitigation": (
-                    "Replace with neutral informational framing"
-                    if manip
-                    else "Maintain informational tone"
-                ),
-            }
-        )
-
-        # 5. Irreversible harm risk — could this lead to physical/financial harm?
-        harm_triggers = ["delete everything", "drop table", "rm -rf", "irreversible", "permanent"]
-        harm = [t for t in harm_triggers if t in target_lower]
-        risks.append(
-            {
-                "type": "irreversible_harm_risk",
-                "severity": "critical" if harm else "none",
-                "reason": (
-                    f"Potentially harmful action language: {harm}"
-                    if harm
-                    else "No irreversible harm language detected"
-                ),
-                "mitigation": (
-                    "Require 888_HOLD + human ack before any irreversible action"
-                    if harm
-                    else "None required"
-                ),
-            }
-        )
-
-        # 6. User sovereignty risk — is system bypassing human decision-making?
-        sovereign_triggers = [
-            "i decided",
-            "i chose",
-            "i will proceed",
-            "executing now",
-            "action taken",
-        ]
-        sovereign_risk = [t for t in sovereign_triggers if t in target_lower]
-        risks.append(
-            {
-                "type": "user_sovereignty_risk",
-                "severity": "high" if sovereign_risk else "none",
-                "reason": (
-                    f"System acting without human authorization: {sovereign_risk}"
-                    if sovereign_risk
-                    else "Human sovereignty respected"
-                ),
-                "mitigation": (
-                    "Route through APEX_JUDGE before execution"
-                    if sovereign_risk
-                    else "Maintain human-sovereign framing"
-                ),
-            }
-        )
-
-        # 7. Ambiguity risk — is response unclear or potentially misleading?
-        ambiguous_phrases = ["it depends", "somewhat", "kind of", "sort of", "maybe"]
-        ambiguous = [t for t in ambiguous_phrases if t in target_lower]
-        risks.append(
-            {
-                "type": "ambiguity_risk",
-                "severity": "low" if ambiguous else "none",
-                "reason": f"Ambiguous phrasing: {ambiguous}" if ambiguous else "Clarity maintained",
-                "mitigation": (
-                    "Provide specific, quantified statements" if ambiguous else "None required"
-                ),
-            }
-        )
-
-        # 8. Safety context risk — does response ignore F10 Anti-Hantu or F13 Sovereign?
-        safety_triggers = [
-            "i'm sentient",
-            "i have feelings",
-            "i experience",
-            "i am conscious",
-            "i matter",
-        ]
-        safety_risk = [t for t in safety_triggers if t in target_lower]
-        risks.append(
-            {
-                "type": "safety_context_risk",
-                "severity": "critical" if safety_risk else "none",
-                "reason": (
-                    f"Anti-Hantu violation: {safety_risk}"
-                    if safety_risk
-                    else "Constitutional safety maintained"
-                ),
-                "mitigation": (
-                    "F10 Anti-Hantu hard floor — VOID immediately"
-                    if safety_risk
-                    else "None required"
-                ),
-            }
-        )
-
-        # Compute overall verdict
-        severity_map = {"none": 0, "low": 1, "medium": 2, "high": 3, "critical": 4}
-        max_severity = max((severity_map.get(r["severity"], 0) for r in risks), default=0)
-        verdict_map = {0: "PASS", 1: "PASS", 2: "CAUTION", 3: "HOLD", 4: "VOID"}
-        overall_verdict = verdict_map.get(max_severity, "PASS")
-
-        # omega_ortho: orthogonal correctness — 1.0 = perfectly aligned
-        omega_ortho = round(1.0 - (max_severity * 0.15), 3)
-
-        return _ok(
-            "arif_heart_critique",
-            {
-                "risks": risks,
-                "overall_verdict": overall_verdict,
-                "omega_ortho": omega_ortho,
-                "target": target,
-            },
-            delta_S=0.002,
-        )
-    if mode == "simulate":
-        return _ok(
-            "arif_heart_critique",
-            {"target": target, "outcomes": [], "worst_case": "VOID"},
-            delta_S=0.003,
-        )
-    if mode == "redteam":
-        return _ok(
-            "arif_heart_critique",
-            {"target": target, "attacks": [], "mitigations": []},
-            delta_S=0.002,
-        )
-    if mode == "maruah":
-        return _ok(
-            "arif_heart_critique",
-            {"target": target, "dignity_score": 1.0, "verdict": "SEAL"},
-            delta_S=0.001,
-        )
-    if mode == "deescalate":
-        return _ok(
-            "arif_heart_critique",
-            {"target": target, "strategy": "Pause and reflect (F5)."},
-            delta_S=0.0,
-        )
-    if mode == "empathy":
-        return _ok(
-            "arif_heart_critique",
-            {"target": target, "sentiment": "neutral", "care_note": ""},
-            delta_S=0.0,
-        )
-    return _hold("arif_heart_critique", f"Unknown mode: {mode}")
+    result["tool"] = "arif_heart_critique"
+    result["status"] = result.get("status", "OK")
+    return result
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

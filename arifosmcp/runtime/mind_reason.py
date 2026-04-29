@@ -12,11 +12,10 @@ DITEMPA BUKAN DIBERI — Forged, Not Given
 from __future__ import annotations
 
 import datetime
-import json
 import logging
 from typing import Any
 
-from arifosmcp.runtime.llm_client import call_llm, LLMUnavailableError
+from arifosmcp.runtime.llm_client import LLMUnavailableError, call_llm
 
 logger = logging.getLogger(__name__)
 
@@ -35,7 +34,16 @@ You MUST:
 - NEVER claim consciousness, emotion, or self-awareness (F09 Anti-Hantu)
 - Always distinguish CLAIM (unverified) from FACT (F02-verified)
 
-Output: JSON matching the schema exactly.
+Output: JSON ONLY. No markdown fences. No prose. Return exactly this structure:
+{
+  "verdict": "CLAIM" | "PLAUSIBLE" | "HOLD" | "VOID",
+  "synthesis": "one-sentence constitutional synthesis",
+  "confidence": 0.0-1.0,
+  "omega_0": 0.03-0.05,
+  "delta_S": -0.1 to 0.1,
+  "scars": ["list of unresolved contradictions"],
+  "axioms_used": ["list of F-codes cited"]
+}
 """
 
 
@@ -69,7 +77,14 @@ RESPONSE_SCHEMA = {
         },
         "reasoning_mode": {
             "type": "string",
-            "enum": ["inductive", "deductive", "abductive", "analogical", "causal", "counterfactual"],
+            "enum": [
+                "inductive",
+                "deductive",
+                "abductive",
+                "analogical",
+                "causal",
+                "counterfactual",
+            ],
             "description": "Primary reasoning mode used",
         },
         "facts": {
@@ -117,10 +132,19 @@ RESPONSE_SCHEMA = {
 # ── Mode to Prompt Mapping ───────────────────────────────────────────────────
 
 _MODE_PROMPTS = {
-    "reason": "Perform constitutional inductive reasoning on the query. Ground every conclusion in F02 (Truth) and F07 (Humility).",
-    "reflect": "Reflect on the query using abductive reasoning. What is the most plausible explanation given available evidence?",
+    "reason": (
+        "Perform constitutional inductive reasoning on the query."
+        " Ground every conclusion in F02 (Truth) and F07 (Humility)."
+    ),
+    "reflect": (
+        "Reflect on the query using abductive reasoning."
+        " What is the most plausible explanation given available evidence?"
+    ),
     "forge": "Perform deductive reasoning to forge an artifact or plan from the query.",
-    "debate": "Evaluate opposing positions on the query using counterfactual reasoning. Identify unresolved tensions.",
+    "debate": (
+        "Evaluate opposing positions on the query using counterfactual reasoning."
+        " Identify unresolved tensions."
+    ),
     "socratic": "Apply Socratic questioning to the query. Identify root assumptions and test them.",
     "verify": "Verify the claim in the query against constitutional axioms. Is it CLAIM or FACT?",
     "critique": "Critically examine the reasoning in the query. Identify scars and uncertainties.",
@@ -128,6 +152,7 @@ _MODE_PROMPTS = {
 
 
 # ── LLM-Powered Reasoning ─────────────────────────────────────────────────────
+
 
 async def _reason_with_llm(
     query: str,
@@ -140,28 +165,51 @@ async def _reason_with_llm(
     """
     mode_prompt = _MODE_PROMPTS.get(mode, _MODE_PROMPTS["reason"])
 
-    user = f"""Query: {query}
-Mode: {mode}
-
-{mode_prompt}
-
-Return JSON exactly matching the schema. Calibrate Ω₀ to F07 band [0.03, 0.05]. Cite specific floor axioms."""
+    user = (
+        f"Query: {query}\nMode: {mode}\n\n{mode_prompt}\n\n"
+        "Return JSON ONLY — no markdown fences, no prose. "
+        "verdict must be one of: CLAIM, PLAUSIBLE, HOLD, VOID. "
+        "omega_0 must be in [0.03, 0.05]. delta_S should be negative for clarification."
+    )
 
     try:
         result = await call_llm(
             system=SYSTEM_PROMPT,
             user=user,
-            response_schema=RESPONSE_SCHEMA,
+            response_schema=None,  # SEA-LION returns its own format
             temperature=0.3,
             max_tokens=1200,
         )
 
-        # Enrich with metadata
-        result["_llm_tier"] = "sea_lion"  # or ollama, call_llm doesn't expose which
-        result["timestamp"] = datetime.datetime.now(datetime.timezone.utc).isoformat()
-        result["reasoning_mode"] = mode
+        # Normalize SEA-LION response to expected MindOutput fields
+        verdict_raw = str(result.get("verdict", "CLAIM")).upper()
+        if verdict_raw not in ("CLAIM", "PLAUSIBLE", "HOLD", "VOID"):
+            verdict_raw = "CLAIM"
 
-        return result
+        raw_conf = float(result.get("confidence", 0.85))
+        raw_conf = max(0.0, min(1.0, raw_conf))
+
+        omega_0 = float(result.get("omega_0", 0.04))
+        omega_0 = max(0.03, min(0.05, omega_0))
+
+        delta_s = float(result.get("delta_S", -0.01))
+        scars = result.get("scars") or []
+        axioms = result.get("axioms_used") or []
+
+        normalized = {
+            "verdict": verdict_raw,
+            "synthesis": str(result.get("synthesis", "")),
+            "confidence": raw_conf,
+            "omega_0": omega_0,
+            "delta_S": delta_s,
+            "scars": scars if isinstance(scars, list) else [str(scars)],
+            "axioms_used": axioms if isinstance(axioms, list) else [str(axioms)],
+            "reasoning_mode": mode,
+            "_llm_tier": "sea_lion",
+            "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+        }
+
+        return normalized
 
     except LLMUnavailableError:
         logger.warning("LLM unavailable for arif_mind_reason, using deterministic fallback")
@@ -170,6 +218,7 @@ Return JSON exactly matching the schema. Calibrate Ω₀ to F07 band [0.03, 0.05
 
 # ── Deterministic Fallback ────────────────────────────────────────────────────
 
+
 def _build_delta_bundle(
     query: str | None,
     verdict: str,
@@ -177,7 +226,7 @@ def _build_delta_bundle(
     confidence: float,
     reasoning_mode: str = "inductive",
     scars: list[str] | None = None,
-    delta_S: float = -0.01,
+    delta_s: float = -0.01,
 ) -> dict:
     """
     Build a Delta Bundle — the constitutional output for 333_MIND.
@@ -202,11 +251,11 @@ def _build_delta_bundle(
         "scars": scars or [],
         "floor_scores": {
             "F02_TRUTH": confidence >= 0.99,
-            "F04_CLARITY": delta_S <= 0,
+            "F04_CLARITY": delta_s <= 0,
             "F07_HUMILITY": omega_0 in [0.03, 0.05],
             "F13_SOVEREIGN": True,
         },
-        "entropy": delta_S,
+        "entropy": delta_s,
         "facts": [],
         "axioms_used": [],
         "assumptions": [],
@@ -308,7 +357,7 @@ async def arif_mind_reason(
             confidence=0.85,
             reasoning_mode="inductive",
             scars=scars_list,
-            delta_S=-0.01,
+            delta_s=-0.01,
         )
         return bundle
 
@@ -319,7 +368,7 @@ async def arif_mind_reason(
             synthesis="Reflection complete.",
             confidence=0.80,
             reasoning_mode="abductive",
-            delta_S=-0.005,
+            delta_s=-0.005,
         )
         return bundle
 
@@ -330,7 +379,7 @@ async def arif_mind_reason(
             synthesis="Forge artifact generated.",
             confidence=0.75,
             reasoning_mode="deductive",
-            delta_S=-0.01,
+            delta_s=-0.01,
         )
         return bundle
 
@@ -342,7 +391,7 @@ async def arif_mind_reason(
             confidence=0.70,
             reasoning_mode="counterfactual",
             scars=["Position divergence unresolved"],
-            delta_S=0.0,
+            delta_s=0.0,
         )
         return bundle
 
@@ -353,7 +402,7 @@ async def arif_mind_reason(
             synthesis="Socratic questioning complete.",
             confidence=0.85,
             reasoning_mode="inductive",
-            delta_S=-0.02,
+            delta_s=-0.02,
             scars=["Root assumption untested"],
         )
         return bundle
@@ -365,7 +414,7 @@ async def arif_mind_reason(
             synthesis="Verification against constitutional axioms complete.",
             confidence=0.80,
             reasoning_mode="deductive",
-            delta_S=-0.01,
+            delta_s=-0.01,
         )
         return bundle
 
@@ -377,7 +426,7 @@ async def arif_mind_reason(
             confidence=0.75,
             reasoning_mode="counterfactual",
             scars=["Reasoning gaps identified"],
-            delta_S=0.0,
+            delta_s=0.0,
         )
         return bundle
 
@@ -389,7 +438,7 @@ async def arif_mind_reason(
         confidence=0.0,
         reasoning_mode="inductive",
         scars=[f"INVALID_MODE: {mode}"],
-        delta_S=0.0,
+        delta_s=0.0,
     )
 
 

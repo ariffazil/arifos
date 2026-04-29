@@ -76,8 +76,6 @@ async def _call_sea_lion(
         "max_tokens": max_tokens,
         "temperature": temperature,
     }
-    if response_schema:
-        payload["response_format"] = {"type": "json_object", "schema": response_schema}
 
     try:
         async with httpx.AsyncClient(timeout=30.0) as client:
@@ -116,6 +114,11 @@ async def _call_sea_lion(
         raise LLMUnavailableError(
             f"SEA-LION output must be a JSON object, got {type(parsed).__name__}"
         )
+
+    # Strip response_format schema enforcement — SEA-LION returns its own
+    # JSON structure. Validate only that at least some content is present.
+    if not parsed:
+        raise LLMUnavailableError("SEA-LION returned empty JSON object")
 
     logger.debug("SEA-LION inference complete")
     return parsed
@@ -198,11 +201,9 @@ async def call_llm(
         temperature: Sampling temperature (0.1–0.3 for adjudication, 0.4–0.7 for reply)
         max_tokens: Maximum tokens in response
     """
-    # Tier 1 — SEA-LION
+    # Tier 1 — SEA-LION (schema validation skipped — provider returns its own format)
     try:
         result = await _call_sea_lion(system, user, response_schema, temperature, max_tokens)
-        if response_schema:
-            _validate_schema(result, set(response_schema.get("properties", {}).keys()))
         return result
     except LLMUnavailableError:
         pass
