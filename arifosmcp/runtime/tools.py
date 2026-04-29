@@ -2447,12 +2447,15 @@ async def _arif_mind_reason_tool(
             arif_mind_reason as _llm_mind_reason,
         )
 
-        return await _llm_mind_reason(
+        result = await _llm_mind_reason(
             mode=mode,
             query=query,
             actor_id=actor_id,
             session_id=session_id,
         )
+        result["tool"] = "arif_mind_reason"
+        result["nine_signal"] = _nine_signal_from_status(result.get("status", "OK"))
+        return result
     except Exception as _exc:
         logger.warning(
             "333_MIND cognitive module unavailable (%s); rule fallback active",
