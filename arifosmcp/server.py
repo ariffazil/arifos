@@ -443,12 +443,14 @@ try:
             raise RuntimeError("FastMCP ASGI app unavailable and _mcp_server.app is None.")
 
     # Register custom REST routes onto the ASGI app — always, not conditionally
+    # mcp.http_app() returns a separate StarletteWithLifespan instance (the Uvicorn app).
+    # Routes must be registered on THAT app, not on the mcp object.
     try:
         from arifosmcp.runtime.rest_routes import register_rest_routes
         from arifosmcp.runtime.tools import CANONICAL_TOOL_HANDLERS
 
-        register_rest_routes(mcp, CANONICAL_TOOL_HANDLERS)
-        logger.info("REST routes registered: /, /dashboard, /developer, /tools.json, /mcp/*")
+        register_rest_routes(app, CANONICAL_TOOL_HANDLERS)
+        logger.info("REST routes registered on ASGI app: /, /dashboard, /tools, /tools.json, /mcp/*")
     except Exception:
         logger.exception("REST route registration failed — observability spine DOWN")
         raise  # fail closed — do not silently continue
