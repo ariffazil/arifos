@@ -450,7 +450,18 @@ try:
         from arifosmcp.runtime.tools import CANONICAL_TOOL_HANDLERS
 
         register_rest_routes(app, CANONICAL_TOOL_HANDLERS)
-        logger.info("REST routes registered on ASGI app: /, /dashboard, /tools, /tools.json, /mcp/*")
+        logger.info(
+            "REST routes registered on ASGI app: /, /dashboard, /tools, /tools.json, "
+            "/constitution -> /api/constitution, /mcp/*"
+        )
+
+        # Mount /constitution as public path (redirect to /api/constitution)
+        from starlette.responses import RedirectResponse as _ConstitutionRedirect
+
+        @app.route("/constitution", methods=["GET"])
+        async def constitution_public(_request: Request) -> _ConstitutionRedirect:
+            return _ConstitutionRedirect(url="/api/constitution", status_code=307)
+
     except Exception:
         logger.exception("REST route registration failed — observability spine DOWN")
         raise  # fail closed — do not silently continue
@@ -535,20 +546,6 @@ try:
                 logger.warning(f"Failed to build meta-enriched tools response: {e}")
                 tool_summaries = []
             return JSONResponse({"tools": tool_summaries, "count": len(tool_summaries)})
-
-        # Register REST routes: landing page (/), dashboard, developer, llms.txt, /status.json
-        try:
-            from arifosmcp.runtime.rest_routes import register_rest_routes
-            from arifosmcp.runtime.tools import CANONICAL_TOOL_HANDLERS
-
-            register_rest_routes(mcp, CANONICAL_TOOL_HANDLERS)
-            logger.info(
-                "REST routes registered: /, /dashboard, /developer, /llms.txt, /status.json"
-            )
-        except Exception:
-            logger.exception(
-                "REST route reg failed; /status.json unavailable — observability spine DOWN"
-            )
 
         # Federation Status Spine — added directly to avoid register_rest_routes import chain
         async def federation_status_json(request: Request) -> JSONResponse:
