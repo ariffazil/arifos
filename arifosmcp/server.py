@@ -429,8 +429,12 @@ try:
                                 "ui": meta_dict.get("ui", {}),
                             },
                         }
-                        # ── Surface lock: only 13 canonical tools exposed ──
-                        if tool_name not in CANONICAL_TOOLS:
+                        # ── Surface lock: only 13 canonical tools + command_center app ──
+                        # arif_cc_* aliases are internal CC compat tools — exclude entirely
+                        # command_center is the app surface — include
+                        if tool_name.startswith("arif_cc_"):
+                            continue
+                        if tool_name not in CANONICAL_TOOLS and tool_name != "command_center":
                             continue
                         tool_summaries.append(entry)
             except Exception as e:

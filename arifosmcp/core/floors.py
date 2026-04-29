@@ -148,9 +148,19 @@ def check_floors(
                         logger.warning(f"F12 INJECTION: pattern in {key}")
 
         elif floor_value == "F13":
+            # F13 fires when sovereign override is BYPASSED (not when used).
+            # sovereign_veto=True means Arif exercised his override — operation halts
+            # but this is F13 WORKING, not F13 BREACHING.
+            # We log it and return VOID so execution stops, but do NOT add to failed.
             if params.get("sovereign_veto"):
-                failed.append("F13")
-                logger.critical("F13 SOVEREIGN VETO activated")
+                logger.critical("F13 SOVEREIGN VETO exercised by Arif — operation halted")
+                # Return VOID but do NOT append F13 to failed — veto usage is not a breach
+                return {
+                    "verdict": "VOID",
+                    "failed_floors": [],
+                    "reason": "Sovereign veto exercised — operation halted by Arif",
+                    "sovereign_veto_used": True,
+                }
 
     if failed:
         if "F13" in failed:
