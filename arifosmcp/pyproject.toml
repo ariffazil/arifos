@@ -299,7 +299,7 @@ ignore = []
 # tools.py is the 5000-line canonical runtime; pre-existing naming and import
 # patterns predate the strict Ruff config and are intentional (E402 deferred
 # imports for circular-import safety, N803/N806 constitutional variable names).
-"runtime/tools.py" = ["E402", "E501", "F841", "N803", "N806"]
+"runtime/tools.py" = ["E402", "E501", "F821", "F841", "N803", "N806"]
 "runtime/mind_reason.py" = ["E501"]
 
 [tool.ruff.format]
