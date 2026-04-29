@@ -547,7 +547,13 @@ class _FileSessionStore:
 
     def __init__(self, path: str | None = None) -> None:
         self._path = path or os.getenv("ARIFOS_SESSION_STORE_PATH", "/app/data/sessions.json")
-        os.makedirs(os.path.dirname(self._path), exist_ok=True)
+        try:
+            os.makedirs(os.path.dirname(self._path), exist_ok=True)
+        except OSError:
+            import tempfile
+
+            self._path = os.path.join(tempfile.gettempdir(), "arifos", "sessions.json")
+            os.makedirs(os.path.dirname(self._path), exist_ok=True)
 
     def _load(self) -> dict[str, dict[str, Any]]:
         try:
@@ -1496,8 +1502,12 @@ def _arif_evidence_fetch(
         return gate
 
     # Check for evidence backend configuration
+    # QDRANT_URL env var is the configured evidence store for this deployment
+    import os as _os
+
+    _qdrant_url = _os.environ.get("QDRANT_URL", "").strip()
     _has_fetch_backend = bool(url)  # URL presence implies fetch is possible
-    _has_search_backend = False  # No search backend configured in this deployment
+    _has_search_backend = bool(_qdrant_url)  # Qdrant configured = search backend available
     _has_local_index = False  # No local evidence corpus configured
 
     _backend_status = (
@@ -1529,6 +1539,27 @@ def _arif_evidence_fetch(
                 "meta": {
                     "reason": "No evidence backend configured and no URL provided",
                     "failed_floors": [],
+                    "nine_signal": _nine_signal_from_status("HOLD"),
+                },
+                "timestamp": _now(),
+            }
+        # Qdrant is configured but fetch mode needs a URL — guide user to search
+        if not url and _backend_status == "configured" and _has_search_backend:
+            return {
+                "status": "HOLD",
+                "tool": "arif_evidence_fetch",
+                "result": {
+                    "status": "QDRANT_AVAILABLE",
+                    "content": "",
+                    "confidence": 0.0,
+                    "recommendation": "Qdrant evidence store is configured. Use mode=search to query stored evidence, or provide a URL for web fetch.",
+                },
+                "meta": {
+                    "reason": "Qdrant backend available but no URL provided for fetch",
+                    "backend": "qdrant",
+                    "backend_url": _qdrant_url,
+                    "failed_floors": [],
+                    "nine_signal": _nine_signal_from_status("HOLD"),
                 },
                 "timestamp": _now(),
             }
@@ -2884,6 +2915,7 @@ async def _arif_heart_critique(
         )
         result["tool"] = "arif_heart_critique"
         result["status"] = result.get("status", "OK")
+        result["nine_signal"] = _nine_signal_from_status(result["status"])
         return result
     except Exception as _exc:
         logger.warning(
@@ -2899,6 +2931,7 @@ async def _arif_heart_critique(
         "human_decision_required": True,
         "risks_found": [],
         "error": f"666_HEART unavailable: {type(_exc).__name__}",
+        "nine_signal": _nine_signal_from_status("HOLD"),
     }
 
 

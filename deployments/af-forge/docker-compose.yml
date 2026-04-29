@@ -36,14 +36,16 @@ services:
       TELEMETRY_PATH: /app/telemetry
 
       # Python path (include /tmp/pylibs for runtime packages)
-      PYTHONPATH: /tmp/pylibs:/app
+      # /app must be first so volume-mounted code overrides image's editable install
+      PYTHONPATH: /app:/tmp/pylibs
 
       # Build info (baked into image at build time; available at runtime)
       # DEPLOY_GIT_COMMIT is the canonical identity — already set in image via Dockerfile ENV
       # DEPLOY_GIT_BRANCH is already set in image via Dockerfile ENV
       # DEPLOY_BUILD_TIME is already set in image via Dockerfile ENV
       # ARIFOS_VERSION is the human-readable version — pre-set in Dockerfile
-      # Only override here if you need runtime-specific values (e.g., canary routing)
+      # GIT_SHA env override: forces _git_sha_short() to use image SHA not worktree git
+      ARIFOS_BUILD_SHA: "8608cfef"
 
       # Build info (runtime overrides — use only for canary/staging)
       # DEPLOY_GIT_COMMIT: ${DEPLOY_GIT_COMMIT:-}   # leave empty; image ENV is authoritative
