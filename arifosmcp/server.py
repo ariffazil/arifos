@@ -429,11 +429,30 @@ app: Any = None
 
 try:
     if IS_FASTMCP_3:
-        app = mcp.http_app(stateless_http=True)
+        # stateless_http=True causes FastMCP 3.2 to return None here.
+        # mcp.http_app() (no args) correctly returns StarletteWithLifespan.
+        app = mcp.http_app()
+        if app is None:
+            raise RuntimeError(
+                "FastMCP HTTP app unavailable — refusing mcp.run() fallback "
+                "because custom REST routes would be bypassed."
+            )
     else:
         app = mcp._mcp_server.app
+        if app is None:
+            raise RuntimeError("FastMCP ASGI app unavailable and _mcp_server.app is None.")
 
-    if app is not None:
+    # Register custom REST routes onto the ASGI app — always, not conditionally
+    try:
+        from arifosmcp.runtime.rest_routes import register_rest_routes
+        from arifosmcp.runtime.tools import CANONICAL_TOOL_HANDLERS
+
+        register_rest_routes(mcp, CANONICAL_TOOL_HANDLERS)
+        logger.info("REST routes registered: /, /dashboard, /developer, /tools.json, /mcp/*")
+    except Exception:
+        logger.exception("REST route registration failed — observability spine DOWN")
+        raise  # fail closed — do not silently continue
+
         # Define tools_with_meta before registration
         async def tools_with_meta(request: Request) -> JSONResponse:
             from arifosmcp.constitutional_map import CANONICAL_TOOLS
