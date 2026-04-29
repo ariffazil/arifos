@@ -10,6 +10,7 @@ DITEMPA BUKAN DIBERI — Forged, Not Given
 from __future__ import annotations
 
 import asyncio
+import inspect
 import logging
 import os
 import sys
@@ -132,10 +133,67 @@ v2_apps_registered: list[str] = []
 
 IS_FASTMCP_3 = fastmcp.__version__.startswith("3")
 
+# ── FAIL-CLOSED HARDENED DISPATCH ───────────────────────────────────────────
+def _wrap_hardened_dispatch(tool_name: str, original_handler: Any) -> Any:
+    """Wrap a tool handler with transport-level floor enforcement."""
+    import functools
+
+    async def _invoke_original(arguments: dict[str, Any]) -> Any:
+        result = original_handler(**arguments)
+        if inspect.isawaitable(result):
+            result = await result
+        if hasattr(result, "model_dump"):
+            return result.model_dump(mode="json")
+        return result
+
+    try:
+        sig = inspect.signature(original_handler)
+    except Exception:
+        async def fallback_handler(req: dict[str, Any]):
+            return await _invoke_original(req)
+        return fallback_handler
+
+    @functools.wraps(original_handler)
+    async def wrapper(**kwargs):
+        from arifosmcp.core.floors import check_floors
+
+        bound = sig.bind(**kwargs)
+        bound.apply_defaults()
+        args = dict(bound.arguments)
+
+        session_id = args.get("session_id") or os.environ.get("ARIFOS_SESSION_ID")
+        actor_id = args.get("actor_id") or os.environ.get("ARIFOS_ACTOR_ID")
+
+        floor_result = check_floors(
+            tool_name=tool_name,
+            params=args,
+            actor_id=actor_id,
+        )
+        if floor_result["verdict"] != "SEAL":
+            return {
+                "verdict": floor_result["verdict"],
+                "tool": tool_name,
+                "failed_floors": floor_result.get("failed_floors", []),
+                "reason": floor_result.get("reason", "Floor breach"),
+                "action": "HOLD" if floor_result["verdict"] == "HOLD" else "VOID",
+            }
+
+        return await _invoke_original(args)
+
+    return wrapper
+
+
 try:
     from arifosmcp.prompts import CANONICAL_PROMPTS, register_prompts
     from arifosmcp.resources import CANONICAL_RESOURCES, register_resources
-    from arifosmcp.runtime.tools import register_tools
+    from arifosmcp.runtime.tools import _CANONICAL_HANDLERS, register_tools
+
+    HARDENED_HANDLERS = {
+        name: _wrap_hardened_dispatch(name, handler)
+        for name, handler in _CANONICAL_HANDLERS.items()
+    }
+    _CANONICAL_HANDLERS.clear()
+    _CANONICAL_HANDLERS.update(HARDENED_HANDLERS)
 
     v2_tools_registered = register_tools(mcp)
     _assert_registered_surface(v2_tools_registered)
@@ -181,11 +239,8 @@ def _safe_register(mcp, module_path: str, name: str) -> None:
         logger.warning(f"  Skipped app {name} ({module_path}): {e}")
 
 
-# ── MCP Apps registration — DISABLED ──────────────────────────────────────
-# All 5 apps are archived in _archived/apps/. arifOS has ONE MCP surface:
-# 13 canonical tools (arif_verb_noun). No separate governance or CC surface.
-# The 7 CC dashboard tools (session_status, judge_action, etc.) are modes
-# of existing canonical tools and do NOT appear as separate MCP endpoints.
+# ── MCP Apps registration — STABILIZED ──────────────────────────────────────
+_safe_register(mcp, "arifosmcp.apps.command_center.app", "command_center")
 # ─────────────────────────────────────────────────────────────────────────────
 
 PUBLIC_TOOLS = list_public_tools()

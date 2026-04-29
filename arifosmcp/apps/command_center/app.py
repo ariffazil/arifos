@@ -30,11 +30,11 @@ from arifosmcp.apps.command_center.models import (
     VaultList,
 )
 from arifosmcp.apps.command_center.state import get_state
-from arifosmcp.apps.command_center.vault_audit import get_vault_audit
 from arifosmcp.apps.command_center.vault_chain import append_vault_record
-from arifosmcp.tools.gateway import arif_gateway_connect
-from arifosmcp.tools.kernel import arif_kernel_route
-from arifosmcp.tools.ops import arif_ops_measure
+from arifosmcp.runtime.tools import (
+    _CANONICAL_HANDLERS,
+    _SESSION_STORE,
+)
 from fastmcp import FastMCP
 from fastmcp.apps import FastMCPApp
 from mcp.types import ToolAnnotations
@@ -121,22 +121,28 @@ def _get_live_session() -> dict:
             "expires_at": local.expires_at,
         }
 
-    # Priority 2: arifOS runtime session store (legacy fallback)
+    # Priority 2: arifOS canonical persistent session store
     try:
-        from arifosmcp.runtime.session import _ACTIVE_SESSION_ID, _SESSION_IDENTITY
-
-        active_id = _ACTIVE_SESSION_ID
-        if active_id and active_id in _SESSION_IDENTITY:
-            return dict(_SESSION_IDENTITY[active_id])
-    except Exception:  # nosec: governance guard handles failures gracefully
+        # Get the most recently created session as a heuristic if no active ID
+        sessions = _SESSION_STORE.values()
+        if sessions:
+            # Sort by created_at desc
+            sorted_sessions = sorted(
+                sessions, key=lambda x: x.get("created_at", ""), reverse=True
+            )
+            return sorted_sessions[0]
+    except Exception:
         pass
+
     return {}
+
 
 
 def _kernel_status() -> dict:
     """Get kernel routing status."""
     try:
-        return arif_kernel_route(mode="status", actor_id="arif")
+        handler = _CANONICAL_HANDLERS.get("arif_kernel_route")
+        return handler(mode="status", actor_id="arif")
     except Exception:
         return {}
 
@@ -144,7 +150,8 @@ def _kernel_status() -> dict:
 def _kernel_telemetry() -> dict:
     """Get kernel thermodynamic telemetry."""
     try:
-        return arif_kernel_route(mode="telemetry", actor_id="arif")
+        handler = _CANONICAL_HANDLERS.get("arif_kernel_route")
+        return handler(mode="telemetry", actor_id="arif")
     except Exception:
         return {}
 
@@ -152,65 +159,8 @@ def _kernel_telemetry() -> dict:
 def _route_action(target: str, task: str) -> dict:
     """Route an action intent through 444_KERNEL. Returns routing decision."""
     try:
-        return arif_kernel_route(mode="route", target=target, task=task, actor_id="arif")
-    except Exception as e:
-        return {"result": {}, "status": "HOLD", "meta": {"reason": str(e)}}
-
-
-# ---------------------------------------------------------------------------
-# Governance helpers
-# ---------------------------------------------------------------------------
-
-
-def _get_live_session() -> dict:
-    """Pull live session state from the Command Center registry or arifOS runtime."""
-    # Priority 1: Command Center local session registry (v0.2+ session continuity)
-    state = get_state()
-    local = state.get_session()
-    if local:
-        return {
-            "session_id": local.session_id,
-            "actor_id": local.actor_id,
-            "declared_name": local.declared_name,
-            "intent": local.intent,
-            "token": local.token,
-            "floor_audit": local.floor_audit,
-            "created_at": local.created_at,
-            "expires_at": local.expires_at,
-        }
-
-    # Priority 2: arifOS runtime session store (legacy fallback)
-    try:
-        from arifosmcp.runtime.session import _ACTIVE_SESSION_ID, _SESSION_IDENTITY
-
-        active_id = _ACTIVE_SESSION_ID
-        if active_id and active_id in _SESSION_IDENTITY:
-            return dict(_SESSION_IDENTITY[active_id])
-    except Exception:  # nosec: governance guard handles failures gracefully
-        pass
-    return {}
-
-
-def _kernel_status() -> dict:
-    """Get kernel routing status."""
-    try:
-        return arif_kernel_route(mode="status", actor_id="arif")
-    except Exception:
-        return {}
-
-
-def _kernel_telemetry() -> dict:
-    """Get kernel thermodynamic telemetry."""
-    try:
-        return arif_kernel_route(mode="telemetry", actor_id="arif")
-    except Exception:
-        return {}
-
-
-def _route_action(target: str, task: str) -> dict:
-    """Route an action intent through 444_KERNEL. Returns routing decision."""
-    try:
-        return arif_kernel_route(mode="route", target=target, task=task, actor_id="arif")
+        handler = _CANONICAL_HANDLERS.get("arif_kernel_route")
+        return handler(mode="route", target=target, task=task, actor_id="arif")
     except Exception as e:
         return {"result": {}, "status": "HOLD", "meta": {"reason": str(e)}}
 
@@ -357,7 +307,7 @@ def arif_cc_ops_vitals() -> dict:
         state.ops_reads += 1
         return OpsVitals().model_dump()
 
-    result = arif_ops_measure(mode="vitals")
+    result = _CANONICAL_HANDLERS["arif_ops_measure"](mode="vitals")
     return OpsVitals(
         g_score=result.g_score,
         delta_S=result.delta_S,
@@ -556,7 +506,9 @@ def arif_cc_gateway_handshake(target_agent: str) -> dict:
             routing_path=routing_path,
         ).model_dump()
 
-    result = arif_gateway_connect(mode="handshake", target_agent=target_agent, actor_id="arif")
+    result = _CANONICAL_HANDLERS["arif_gateway_connect"](
+        mode="handshake", target_agent=target_agent, actor_id="arif"
+    )
     handshake_ok = result.get("result", {}).get("handshake", "unknown")
     return GatewayHandshake(
         target_agent=target_agent,
@@ -1215,6 +1167,16 @@ for _key, _comp in command_center_app._local._components.items():
     if _key.startswith("tool:") and getattr(_comp, "name", None) == "command_center":
         _comp.meta.setdefault("ui", {})["domain"] = "https://arifosmcp.arif-fazil.com"
         break
+
+
+# Backward-compatibility aliases for tests and external callers
+session_status = arif_cc_session_status
+ops_vitals = arif_cc_ops_vitals
+judge_action = arif_cc_judge_action
+forge_dry_run = arif_cc_forge_dry_run
+gateway_handshake = arif_cc_gateway_handshake
+vault_list = arif_cc_vault_list
+vault_dry_seal = arif_cc_vault_dry_seal
 
 
 def _register(mcp: FastMCP) -> None:

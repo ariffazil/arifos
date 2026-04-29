@@ -63,6 +63,8 @@ services:
       - vault999-data:/app/VAULT999
       # Telemetry
       - telemetry-data:/app/telemetry
+      # Session / runtime data
+      - session-data:/app/data
 
     healthcheck:
       test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8080/health')"]
@@ -88,6 +90,8 @@ volumes:
   vault999-data:
     driver: local
   telemetry-data:
+    driver: local
+  session-data:
     driver: local
   certbot-webroot:
     driver: local

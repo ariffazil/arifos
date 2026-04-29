@@ -287,9 +287,9 @@ class _FileSessionStore:
     cross-process concurrency safety.
     """
 
-    def __init__(self, path: str = "/app/data/sessions.json") -> None:
-        self._path = path
-        os.makedirs(os.path.dirname(path), exist_ok=True)
+    def __init__(self, path: str | None = None) -> None:
+        self._path = path or os.getenv("ARIFOS_SESSION_STORE_PATH", "/app/data/sessions.json")
+        os.makedirs(os.path.dirname(self._path), exist_ok=True)
 
     def _load(self) -> dict[str, dict[str, Any]]:
         try:

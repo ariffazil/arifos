@@ -28,6 +28,7 @@ def _git_sha_short() -> str:
     """
     # 1. Try reading .git/HEAD from known bind-mount paths
     _possible_git_dirs = [
+        "/app/.git",
         "/usr/src/app/.git",
         "/usr/src/app/arifOS/.git",
         "/usr/src/project/.git",
@@ -52,9 +53,10 @@ def _git_sha_short() -> str:
             pass
 
     # 2. Env var fallback
-    env_sha = os.environ.get("GIT_SHA", "").strip()
-    if env_sha and env_sha != "unknown":
-        return env_sha[:7]
+    for env_key in ("GIT_SHA", "GIT_COMMIT", "ARIFOS_BUILD_SHA"):
+        env_sha = os.environ.get(env_key, "").strip()
+        if env_sha and env_sha != "unknown":
+            return env_sha[:7]
 
     # 3. Truthful final fallback
     return "unknown"

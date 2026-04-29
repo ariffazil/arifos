@@ -76,14 +76,15 @@ def governed_forge_execute(
 
     # ── Call real Forge backend ────────────────────────────────────────────
     try:
-        from arifosmcp.tools.forge import arif_forge_execute
+        from arifosmcp.runtime.tools import _CANONICAL_HANDLERS
 
-        result = arif_forge_execute(
+        handler = _CANONICAL_HANDLERS.get("arif_forge_execute")
+        result = handler(
             mode=mode,
             manifest=manifest,
             actor_id=actor_id,
         )
-        forge_result = result.result if hasattr(result, "result") else {}
+        forge_result = result.get("result", {})
     except Exception as e:
         return {
             "status": "hold",

@@ -191,7 +191,8 @@ def _wrap_hardened_dispatch(tool_name: str, original_handler: Any) -> Any:
     async def wrapper(**kwargs):
         # ── Constitutional floor enforcement (F1–F13) ──
         # Run BEFORE the handler executes — fail-closed on floor breach.
-        from arifosmcp.core.floors import check_floors, record_tool_call
+        from arifosmcp.apps.session_state import record_tool_call
+        from arifosmcp.core.floors import check_floors
 
         bound = sig.bind(**kwargs)
         bound.apply_defaults()
@@ -387,6 +388,9 @@ try:
 
     # Override the library's handlers with our hardened ones for this server instance
     import arifosmcp.runtime.tools as _tools_mod
+    # Hardened dispatch must update BOTH aliases because register_tools uses
+    # the underscore-prefixed internal name (_CANONICAL_HANDLERS).
+    _tools_mod._CANONICAL_HANDLERS = HARDENED_HANDLERS
     _tools_mod.CANONICAL_TOOL_HANDLERS = HARDENED_HANDLERS
 
     public_surface_mode = current_public_surface_mode()
