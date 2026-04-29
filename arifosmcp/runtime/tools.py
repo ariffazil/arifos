@@ -19,8 +19,8 @@ import time
 import uuid
 from typing import Any
 
-from arifosmcp.core.physics.thermodynamics_hardened import init_thermodynamic_budget
 from arifosmcp.constitutional_map import CANONICAL_TOOLS, get_tool_spec
+from arifosmcp.core.physics.thermodynamics_hardened import init_thermodynamic_budget
 from arifosmcp.runtime.floors import check_floors
 from arifosmcp.schemas.forge import (
     ConstitutionalCompliance,
@@ -289,8 +289,11 @@ class NineSignalOutput:
         """Enforce Nine-Signal contract. Mutates self.violations."""
         global _SESAT_COUNTER
 
-        # 1. nine_signal block must be present
-        if "nine_signal" not in self.payload:
+        # 1. nine_signal block must be present (top-level or nested in meta)
+        nine_signal = self.payload.get("nine_signal") or self.payload.get("meta", {}).get(
+            "nine_signal"
+        )
+        if not nine_signal:
             self.violations.append(f"[{self.tool_name}] nine_signal block absent [KERNEL_EVALS P0]")
 
         # 2. Non-SEAL verdicts MUST have reasons[]
@@ -4917,7 +4920,12 @@ def _wrap_handler(handler: Any, tool_name: str) -> Any:
 def _dict_from_response(response: Any) -> dict[str, Any]:
     """Normalise a tool response to a plain dict for Nine-Signal enforcement."""
     if isinstance(response, dict):
-        return response
+        d = dict(response)
+        if "meta" in d and isinstance(d["meta"], dict):
+            meta_nine = d["meta"].get("nine_signal")
+            if meta_nine and "nine_signal" not in d:
+                d["nine_signal"] = meta_nine
+        return d
     if hasattr(response, "model_dump"):  # Pydantic model
         return response.model_dump()
     if hasattr(response, "payload") and hasattr(response, "verdict"):
