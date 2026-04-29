@@ -2378,6 +2378,65 @@ def _arif_mind_reason(
     return _hold("arif_mind_reason", f"Unknown mode: {mode}", session_id=session_id)
 
 
+async def _arif_mind_reason_tool(
+    mode: str = "reason",
+    query: str | None = None,
+    session_id: str | None = None,
+    actor_id: str | None = None,
+    plan_id: str | None = None,
+    witness_type: str = "ai",
+    ctx: Context | None = None,
+) -> dict[str, Any]:
+    """
+    333_MIND async tool — routes cognitive modes through LLM inference.
+
+    Structural modes (plan, plan_review, plan_approve, axioms) are
+    deterministic and go directly to _arif_mind_reason. Cognitive modes
+    (reason, reflect, verify, critique, debate, socratic) route through
+    runtime.mind_reason which provides SEA-LION → Ollama → rule fallback.
+
+    F13 SOVEREIGN: plan_approve remains deterministic — LLM must never
+    adjudicate sovereign approval.
+    """
+    # Structural/deterministic modes — bypass LLM entirely
+    if mode not in ("reason", "reflect", "verify", "critique", "debate", "socratic"):
+        return _arif_mind_reason(
+            mode=mode,
+            query=query,
+            session_id=session_id,
+            actor_id=actor_id,
+            plan_id=plan_id,
+            witness_type=witness_type,
+        )
+
+    # Cognitive modes: delegate to LLM-aware module (SEA-LION → Ollama → rule)
+    try:
+        from arifosmcp.runtime.mind_reason import (
+            arif_mind_reason as _llm_mind_reason,
+        )
+        return await _llm_mind_reason(
+            mode=mode,
+            query=query,
+            actor_id=actor_id,
+            session_id=session_id,
+        )
+    except Exception as _exc:
+        logger.warning(
+            "333_MIND cognitive module unavailable (%s); rule fallback active",
+            type(_exc).__name__,
+        )
+
+    # Final fallback: rule-based — no regression
+    return _arif_mind_reason(
+        mode=mode,
+        query=query,
+        session_id=session_id,
+        actor_id=actor_id,
+        plan_id=plan_id,
+        witness_type=witness_type,
+    )
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # 444_KERNEL  →  arif_kernel_route
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -4853,7 +4912,7 @@ _CANONICAL_HANDLERS: dict[str, Any] = {
     "arif_session_init": _arif_session_init,
     "arif_sense_observe": _arif_sense_observe,
     "arif_evidence_fetch": _arif_evidence_fetch,
-    "arif_mind_reason": _arif_mind_reason,
+    "arif_mind_reason": _arif_mind_reason_tool,
     "arif_kernel_route": _arif_kernel_route,
     "arif_reply_compose": _arif_reply_compose,
     "arif_memory_recall": _arif_memory_recall,

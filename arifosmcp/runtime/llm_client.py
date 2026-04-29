@@ -21,14 +21,10 @@ logger = logging.getLogger(__name__)
 
 # ── Configuration ─────────────────────────────────────────────────────────────
 SEA_LION_API_KEY = os.getenv("SEA_LION_API_KEY")
-SEA_LION_BASE_URL = os.getenv(
-    "SEA_LION_BASE_URL", "https://api.sea-lion.ai/v1"
-)
-SEA_LION_MODEL = os.getenv(
-    "SEA_LION_MEANING_MODEL", "aisingapore/Qwen-SEA-LION-v4-32B-IT"
-)
+SEA_LION_BASE_URL = os.getenv("SEA_LION_BASE_URL", "https://api.sea-lion.ai/v1")
+SEA_LION_MODEL = os.getenv("SEA_LION_MEANING_MODEL", "aisingapore/Qwen-SEA-LION-v4-32B-IT")
 
-OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
+OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL") or os.getenv("OLLAMA_URL", "http://ollama:11434")
 OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "qwen2.5:7b")
 
 
@@ -204,9 +200,7 @@ async def call_llm(
     """
     # Tier 1 — SEA-LION
     try:
-        result = await _call_sea_lion(
-            system, user, response_schema, temperature, max_tokens
-        )
+        result = await _call_sea_lion(system, user, response_schema, temperature, max_tokens)
         if response_schema:
             _validate_schema(result, set(response_schema.get("properties", {}).keys()))
         return result
@@ -215,9 +209,7 @@ async def call_llm(
 
     # Tier 2 — Ollama fallback
     try:
-        result = await _call_ollama(
-            system, user, response_schema, temperature, max_tokens
-        )
+        result = await _call_ollama(system, user, response_schema, temperature, max_tokens)
         if response_schema:
             _validate_schema(result, set(response_schema.get("properties", {}).keys()))
         return result
