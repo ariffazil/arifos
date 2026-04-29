@@ -1073,7 +1073,7 @@ def _load_welcome_html() -> str:
         html_content = """<!DOCTYPE html>
 <html><head><title>arifOS MCP</title></head>
 <body><h1>arifOS MCP Server 2.0.0</h1>
-<p>Endpoint: <code>https://mcp.arif-fazil.com/mcp</code></p>
+<p>Endpoint: <code>https://arifos.arif-fazil.com/mcp</code></p>
 <p><strong>DITEMPA BUKAN DIBERI</strong> — Forged, not given.</p>
 </body></html>"""
 
@@ -1318,7 +1318,7 @@ Domain: MCP / Constitutional Tool Gateway
 ## Live Endpoints
 
 - MCP: https://mcp.arif-fazil.com/mcp
-- Health: https://mcp.arif-fazil.com/health
+- Health: https://arifos.arif-fazil.com/health
 - Tools JSON: https://mcp.arif-fazil.com/tools
 - Server Info: https://mcp.arif-fazil.com/.well-known/mcp/server.json
 - WebMCP Console: https://mcp.arif-fazil.com/webmcp/
@@ -1886,6 +1886,8 @@ def register_rest_routes(
                 "release_name": BUILD_INFO["version"],
                 "version": f"kanon-{BUILD_INFO['build']['commit']}",
                 "source_commit": BUILD_INFO["build"]["commit"],
+                "git_branch": BUILD_INFO["build"].get("branch"),
+                "build_time": BUILD_INFO["build"].get("built_at"),
                 "image": f"ghcr.io/ariffazil/arifos:{BUILD_INFO['build']['commit']}",
                 "deployment_source": "ghcr",
                 "transport": "streamable-http",
@@ -3710,13 +3712,9 @@ init();
         """P1: Live production truth — deployment identity, MCP surface, security posture."""
         from arifosmcp.constitutional_map import CANONICAL_TOOLS
 
-        git_commit = os.environ.get("DEPLOY_GIT_COMMIT", os.environ.get("ARIFOS_BUILD_SHA", "dev"))
-        git_branch = os.environ.get(
-            "DEPLOY_GIT_BRANCH", os.environ.get("ARIFOS_BUILD_BRANCH", "main")
-        )
-        build_time = os.environ.get(
-            "DEPLOY_BUILD_TIME", os.environ.get("ARIFOS_BUILD_TIME", "unknown")
-        )
+        git_commit = BUILD_INFO["build"]["commit"]
+        git_branch = BUILD_INFO["build"].get("branch")
+        build_time = BUILD_INFO["build"].get("built_at")
 
         return JSONResponse(
             {
