@@ -180,10 +180,22 @@ arifos.arif-fazil.com {
     encode zstd gzip
     root * /var/www/html/arifos
 
-    # ── WELL-KNOWN: proxy directly to arifosmcp (which serves it from /static) ──
-    handle /.well-known/mcp/* {
-        reverse_proxy arifosmcp:8080
+    # ── WELL-KNOWN: serve discovery files statically (no proxy dependency) ──
+    # handle_path strips matched prefix before inner handlers run
+    handle_path /.well-known/mcp/* {
+        root * /var/www/html/arifos/.well-known/mcp
+        file_server
+        header Content-Type application/json
+        header Cache-Control "no-store, no-cache, must-revalidate"
     }
+
+    handle_path /.well-known/arifos-federation.json {
+        root * /var/www/html/arifos/.well-known
+        file_server
+        header Content-Type application/json
+        header Cache-Control "no-store, no-cache, must-revalidate"
+    }
+
 
     # ── LIVE MCP PROXY ROUTES ──
     handle /health {
