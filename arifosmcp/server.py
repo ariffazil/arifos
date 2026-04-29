@@ -455,12 +455,16 @@ try:
             "/constitution -> /api/constitution, /mcp/*"
         )
 
-        # Mount /constitution as public path (redirect to /api/constitution)
+        # Mount /constitution as public path — StarletteWithLifespan has no .route() decorator
         from starlette.responses import RedirectResponse as _ConstitutionRedirect
+        from starlette.routing import Route as _Route
 
-        @app.route("/constitution", methods=["GET"])
-        async def constitution_public(_request: Request) -> _ConstitutionRedirect:
+        async def _constitution_redirect(_request: Request) -> _ConstitutionRedirect:
             return _ConstitutionRedirect(url="/api/constitution", status_code=307)
+
+        app.router.routes.append(
+            _Route("/constitution", endpoint=_constitution_redirect, methods=["GET"])
+        )
 
     except Exception:
         logger.exception("REST route registration failed — observability spine DOWN")
