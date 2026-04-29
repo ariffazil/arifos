@@ -60,7 +60,7 @@ FROM python:3.12-slim AS runtime
 RUN groupadd -g 1000 arifos && \
     useradd -u 1000 -g arifos -m -s /bin/bash arifos
 
-WORKDIR /usr/src/app
+WORKDIR /app
 
 # Build arguments for OCI labels (passed via --build-arg from build stage)
 ARG ARIFOS_BUILD_SHA=unknown
@@ -93,7 +93,7 @@ COPY . .
 
 # Setup dirs, fix ownership
 RUN mkdir -p telemetry data memory static/dashboard && rm -rf VAULT999 && mkdir -p VAULT999
-RUN mkdir -p /ms-playwright && chown -R arifos:arifos /usr/src/app /ms-playwright
+RUN mkdir -p /ms-playwright && chown -R arifos:arifos /app /ms-playwright
 
 # Install Playwright browser deterministically
 #RUN python -m playwright install --with-deps chromium && \

@@ -2912,12 +2912,14 @@ def register_rest_routes(
 
         return RedirectResponse(url="/widget/vault-seal", status_code=302)
 
-    @route("/constitution", methods=["GET"])
     async def constitution_redirect(request: Request) -> Response:
         """Redirect /constitution → /api/constitution for canonical constitution map."""
         from starlette.responses import RedirectResponse
 
         return RedirectResponse(url="/api/constitution", status_code=307)
+
+    # Register imperatively — function is defined after register_rest_routes() was called
+    route("/constitution", methods=["GET"])(constitution_redirect)
 
     dashboard_dir = os.path.join(
         os.path.dirname(os.path.dirname(__file__)),
