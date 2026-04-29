@@ -40,6 +40,7 @@ from starlette.staticfiles import StaticFiles
 
 from core.shared.floor_audit import get_ml_floor_runtime
 from core.shared.floors import (
+    FLOOR_DESCRIPTIONS,
     FLOOR_SPEC_KEYS,
     get_floor_comparator,
     get_floor_spec,
@@ -1948,7 +1949,10 @@ def register_rest_routes(
                     )("subject"),
                 },
             },
-            headers={"Access-Control-Allow-Origin": "*"},
+            headers={
+                "Access-Control-Allow-Origin": "*",
+                "X-Deployment-Hash": BUILD_INFO["build"]["commit_short"],
+            },
         )
 
     @route("/metrics", methods=["GET"])
@@ -2458,9 +2462,36 @@ def register_rest_routes(
 
             forge_dry_run = _os.getenv("ARIFOS_FORGE_DRY_RUN", "true").lower() == "true"
 
+            # Build 13-floor constitutional surface
+            floors_list = []
+            for floor_key in FLOOR_DESCRIPTIONS:
+                floors_list.append({
+                    "floor": floor_key.value if hasattr(floor_key, "value") else str(floor_key),
+                    "name": floor_key.name.replace("_", " ") if hasattr(floor_key, "name") else str(floor_key),
+                    "doctrine": FLOOR_DESCRIPTIONS[floor_key],
+                })
+
+            # 13 constitutional floors — F01 through F13
+            FLOORS = [
+                {"code": "F01", "name": "AMANAH", "summary": "No irreversible deletion without sovereign consent."},
+                {"code": "F02", "name": "TRUTH", "summary": "No fabricated data; cite sources."},
+                {"code": "F03", "name": "WITNESS", "summary": "Evidence must be verifiable."},
+                {"code": "F04", "name": "CLARITY", "summary": "Transparent intent."},
+                {"code": "F05", "name": "PEACE", "summary": "Human dignity."},
+                {"code": "F06", "name": "EMPATHY", "summary": "Consider consequences."},
+                {"code": "F07", "name": "HUMILITY", "summary": "Acknowledge limits; uncertainty bands."},
+                {"code": "F08", "name": "GENIUS", "summary": "Elegant correctness (G ≥ 0.80)."},
+                {"code": "F09", "name": "ANTIHANTU", "summary": "No consciousness or emotion claims."},
+                {"code": "F10", "name": "ONTOLOGY", "summary": "Structural coherence."},
+                {"code": "F11", "name": "AUTH", "summary": "Verify identity before sensitive operations."},
+                {"code": "F12", "name": "INJECTION", "summary": "Sanitize inputs."},
+                {"code": "F13", "name": "SOVEREIGN", "summary": "Human veto is absolute."},
+            ]
+
             return JSONResponse(
                 {
                     "timestamp": datetime.now(timezone.utc).isoformat(),
+                    "floors": FLOORS,
                     "tools": tools_list,
                     "pipeline": pipeline_stages,
                     "lanes": ["PSI Ψ", "DELTA Δ", "OMEGA Ω"],
@@ -2475,7 +2506,11 @@ def register_rest_routes(
                         ),
                     },
                 },
-                headers=_merge_headers(_cache_headers(), _dashboard_cors_headers(request)),
+                headers=_merge_headers(
+                    _cache_headers(),
+                    _dashboard_cors_headers(request),
+                    {"X-Deployment-Hash": BUILD_INFO["build"]["commit_short"]},
+                ),
             )
         except Exception:
             logger.exception("api_constitution endpoint failed")
