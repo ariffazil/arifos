@@ -64,6 +64,9 @@ services:
       SUPABASE_URL: https://utbmmjmbolmuahwixjqc.supabase.co
       SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY:-}
 
+      # LLM providers
+      SEA_LION_API_KEY: sk-znzfOJH_Yc7LKewfrfsl2A
+
       # Memory engine (Postgres + Qdrant + Ollama)
       DATABASE_URL: postgresql://arifos_admin:ArifPostgresVault2026!@postgres:5432/vault999
       QDRANT_URL: http://qdrant:6333

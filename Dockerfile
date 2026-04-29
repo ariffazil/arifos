@@ -95,6 +95,15 @@ COPY . .
 RUN mkdir -p telemetry data memory static/dashboard && rm -rf VAULT999 && mkdir -p VAULT999
 RUN mkdir -p /ms-playwright && chown -R arifos:arifos /app /ms-playwright
 
+# ── Volume-mount override ──────────────────────────────────────────────
+# A .pth file that inserts /app (volume mount) at sys.path position 0.
+# This lets local dev / host-mounted code override the image-baked
+# site-packages without requiring a rebuild.  The image ships with
+# stale site-packages (from the build stage pip install); the volume
+# mount at /app always has HEAD.  By prepending /app we guarantee the
+# volume-mounted code is preferred over the image's built packages.
+RUN echo -e "import sys, os\\n\\n# /app is the canonical volume mount\\napp_pth = '/app'\\nif app_pth not in sys.path:\\n    sys.path.insert(0, app_pth)" > "/usr/local/lib/python3.12/site-packages/arifos-app-override.pth"
+
 # Install Playwright browser deterministically
 #RUN python -m playwright install --with-deps chromium && \
 #    chown -R arifos:arifos /ms-playwright
