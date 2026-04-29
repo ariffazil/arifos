@@ -152,20 +152,21 @@ arif-fazil.com, www.arif-fazil.com {
 # ─── Δ MACHINE SURFACE ─────────────────────────────────────────────────────────
 mcp.arif-fazil.com {
     import tls_origin
+    encode zstd gzip
+
     handle /mcp* {
-        reverse_proxy arifosmcp:8080
-    }
-    handle /status.json {
-        reverse_proxy arifosmcp:8080
+        reverse_proxy http://arifosmcp:8080 {
+            flush_interval -1
+        }
     }
     handle /health {
-        reverse_proxy arifosmcp:8080
+        reverse_proxy http://arifosmcp:8080
     }
-    handle /ready {
-        reverse_proxy arifosmcp:8080
+    handle /tools.json {
+        reverse_proxy http://arifosmcp:8080
     }
     handle {
-        redir https://arifos.arif-fazil.com/mcp{uri} permanent
+        respond "arifOS MCP API — use /mcp" 200
     }
 }
 
@@ -176,24 +177,23 @@ arifos.arif-fazil.com {
     encode zstd gzip
     root * /var/www/html/arifos
 
-    handle /mcp* {
+    # ── WELL-KNOWN: proxy directly to arifosmcp (which serves it from /static) ──
+    handle /.well-known/mcp/* {
         reverse_proxy arifosmcp:8080
     }
+
+    # ── LIVE MCP PROXY ROUTES ──
     handle /health {
-        reverse_proxy arifosmcp:8080
-    }
-    handle /tools {
-        reverse_proxy arifosmcp:8080
+        reverse_proxy http://arifosmcp:8080
     }
     handle /tools.json {
-        reverse_proxy arifosmcp:8080
+        reverse_proxy http://arifosmcp:8080
     }
-    handle /constitution {
-        reverse_proxy arifosmcp:8080
+    handle /mcp* {
+        reverse_proxy http://arifosmcp:8080
     }
-    handle /api/constitution {
-        reverse_proxy arifosmcp:8080
-    }
+
+    # ── STATIC OVERLAYS ──
     @mcp-server-card {
         path /mcp-server-card.json
     }
@@ -222,37 +222,43 @@ arifos.arif-fazil.com {
         file_server
     }
 
-    handle /geox* {
-        uri strip_prefix /geox
-        handle /mcp* {
-            reverse_proxy geox:8081
-        }
-        handle /health {
-            reverse_proxy geox:8081
-        }
-        handle {
-            root * /var/www/html/geox
-            try_files {path} /index.html
-            file_server
-        }
-    }
-
-    handle /wealth* {
-        uri strip_prefix /wealth
-        handle /mcp* {
-            reverse_proxy wealth-organ:8000
-        }
-        handle /health {
-            reverse_proxy wealth-organ:8000
-        }
-        handle {
-            root * /var/www/html/wealth
-            try_files {path} /index.html
-            file_server
-        }
-    }
-
+    # ── SPA FALLBACK LAST ──
     handle {
+        root * /var/www/html/arifos
+        try_files {path} /index.html
+        file_server
+    }
+}
+
+geox.arif-fazil.com {
+    import tls_origin
+    encode zstd gzip
+
+    handle /mcp* {
+        reverse_proxy geox:8081
+    }
+    handle /health {
+        reverse_proxy geox:8081
+    }
+    handle {
+        root * /var/www/html/geox
+        try_files {path} /index.html
+        file_server
+    }
+}
+
+wealth.arif-fazil.com {
+    import tls_origin
+    encode zstd gzip
+
+    handle /mcp* {
+        reverse_proxy wealth-organ:8000
+    }
+    handle /health {
+        reverse_proxy wealth-organ:8000
+    }
+    handle {
+        root * /var/www/html/wealth
         try_files {path} /index.html
         file_server
     }
@@ -298,16 +304,6 @@ wiki.arif-fazil.com {
     redir https://arifos.arif-fazil.com/wiki{uri} permanent
 }
 
-geox.arif-fazil.com {
-    import tls_origin
-    redir https://arifos.arif-fazil.com/geox{uri} permanent
-}
-
-wealth.arif-fazil.com {
-    import tls_origin
-    redir https://arifos.arif-fazil.com/wealth{uri} permanent
-}
-
 
 # ─── APEX: Personal Landing Page ──────────────────────────────────────────────
 apex.arif-fazil.com {
@@ -330,9 +326,11 @@ ollama.arif-fazil.com {
 # ─── Observatory: arifOS MCP Public Observatory ────────────────────────────────
 observatory.arif-fazil.com {
     import tls_origin
+    encode zstd gzip
     root * /var/www/html/observatory
     file_server
-    handle_path /.well-known/mcp/* {
-        reverse_proxy arifosmcp:8080
+
+    handle /.well-known/mcp/* {
+        reverse_proxy http://arifosmcp:8080
     }
 }

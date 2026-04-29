@@ -43,7 +43,7 @@ from dotenv import load_dotenv  # noqa: E402
 
 _env_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), ".env")
 if os.path.exists(_env_path):
-    load_dotenv(_env_path, override=True)
+    load_dotenv(_env_path)
 
 # Fix sys.path so arifOS packages resolve correctly inside Docker
 _apply_path_priority()
