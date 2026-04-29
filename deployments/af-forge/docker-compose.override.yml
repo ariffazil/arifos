@@ -1,6 +1,8 @@
-# arifOS MCP JWT auth — observe mode (verify before enforce)
+# arifOS MCP — memory engine env vars + JWT auth
 services:
   arifosmcp:
+    env_file:
+      - /root/arifOS/.env
     environment:
       ARIFOS_INTERNAL_SECRET_HERMES: "${ARIFOS_INTERNAL_SECRET_HERMES:-}"
       JWT_ENFORCE_MODE: "observe"
