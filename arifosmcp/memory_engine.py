@@ -134,11 +134,14 @@ class MemoryEngine:
         memory_id = str(uuid.uuid4())
         qdrant_id = str(uuid.uuid4())
 
+        import json as _json
         vector = None
         try:
             vector = await self.get_embedding(text)
         except Exception as e:
             logger.warning(f"Embedding generation failed: {e}")
+
+        _metadata = _json.dumps(metadata) if isinstance(metadata, dict) else metadata
 
         pool = await self._get_pg_pool()
         async with pool.acquire() as conn:
@@ -151,7 +154,7 @@ class MemoryEngine:
                 uuid.UUID(memory_id),
                 tier,
                 text,
-                metadata,
+                _metadata,
                 uuid.UUID(qdrant_id) if vector else None,
                 session_id,
             )
@@ -235,7 +238,7 @@ class MemoryEngine:
                 if tier:
                     query_text += " AND tier = $1"
                     args.append(tier)
-                query_text += " ORDER BY created_at DESC LIMIT $%d" % (len(args) + 1)
+                query_text += f" ORDER BY created_at DESC LIMIT {len(args) + 1}"
                 rows = await conn.fetch(query_text, *args)
                 return {
                     "memories": [
@@ -256,21 +259,46 @@ class MemoryEngine:
         all_results.sort(key=lambda x: x["score"], reverse=True)
         top_results = all_results[:limit]
 
-        pg_ids = [uuid.UUID(res["pg_id"]) for res in top_results if res.get("pg_id")]
-        if not pg_ids:
-            return {"memories": []}
+        # pg_id should be a valid UUID. Non-UUID pg_ids are tolerated but skip
+        # Postgres enrichment (F4 clarity, F9 anti-hantu: no crash on malformed data).
+        valid_pg_ids = []
+        for res in top_results:
+            raw_pid = res.get("pg_id")
+            if not raw_pid:
+                logger.warning(f"Qdrant point {res.get('qdrant_id')} has no pg_id — skipping Postgres enrichment")
+                continue
+            try:
+                valid_pg_ids.append(uuid.UUID(str(raw_pid)))
+            except (ValueError, AttributeError):
+                logger.warning(f"Qdrant point {res.get('qdrant_id')} has malformed pg_id '{raw_pid}' — skipping Postgres enrichment")
+
+        if not valid_pg_ids:
+            # No valid Postgres IDs — return Qdrant-only results with a warning
+            return {
+                "memories": [
+                    {"qdrant_id": res["qdrant_id"], "score": res["score"], "tier": res.get("tier")}
+                    for res in top_results
+                ],
+                "warning": "No valid pg_ids found; returning Qdrant-only results without Postgres enrichment",
+            }
 
         pool = await self._get_pg_pool()
         async with pool.acquire() as conn:
             rows = await conn.fetch(
                 "SELECT id, tier, text, metadata, epoch, created_at FROM memory_store WHERE id = ANY($1) AND deleted_at IS NULL",
-                pg_ids,
+                valid_pg_ids,
             )
             pg_records = {str(row["id"]): dict(row) for row in rows}
 
             final_memories = []
             for res in top_results:
-                pid = res["pg_id"]
+                raw_pid = res.get("pg_id")
+                if not raw_pid:
+                    continue
+                try:
+                    pid = str(uuid.UUID(str(raw_pid)))
+                except (ValueError, AttributeError):
+                    continue  # already warned above
                 if pid in pg_records:
                     record = pg_records[pid]
                     record["created_at"] = record["created_at"].isoformat()
