@@ -258,6 +258,9 @@ geox.arif-fazil.com {
     handle /mcp* {
         reverse_proxy geox:8081
     }
+    handle /messages* {
+        reverse_proxy geox:8081
+    }
     handle /health {
         reverse_proxy geox:8081
     }
@@ -273,6 +276,9 @@ wealth.arif-fazil.com {
     encode zstd gzip
 
     handle /mcp* {
+        reverse_proxy wealth-organ:8082
+    }
+    handle /messages* {
         reverse_proxy wealth-organ:8082
     }
     handle /health {
