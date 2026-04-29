@@ -2,7 +2,7 @@ import asyncio
 import logging
 import os
 import uuid
-from typing import Any
+from typing import Any, cast
 
 import asyncpg
 import httpx
@@ -10,7 +10,7 @@ import httpx
 logger = logging.getLogger("memory_engine")
 
 try:
-    from supabase import create_client as supabase_create_client
+    from supabase import create_client as supabase_create_client  # type: ignore[attr-defined]
 
     SUPABASE_AVAILABLE = True
 except ImportError:
@@ -73,7 +73,7 @@ class MemoryEngine:
             )
             response.raise_for_status()
             data = response.json()
-            return data["embedding"]
+            return cast(list[float], data["embedding"])
         except Exception as e:
             logger.error(f"Ollama embedding failed: {e}")
             raise
@@ -194,9 +194,7 @@ class MemoryEngine:
         except Exception as e:
             logger.warning(f"Qdrant upsert failed for tier {tier}: {e}")
 
-    async def retrieve(
-        self, query: str, tier: str | None = None, limit: int = 5
-    ) -> dict[str, Any]:
+    async def retrieve(self, query: str, tier: str | None = None, limit: int = 5) -> dict[str, Any]:
         """Retrieve memories via semantic search (Qdrant primary, Postgres fallback)."""
         if not query:
             return {"memories": []}
@@ -235,7 +233,10 @@ class MemoryEngine:
         if not all_results:
             pool = await self._get_pg_pool()
             async with pool.acquire() as conn:
-                query_text = "SELECT id, tier, text, metadata, epoch, created_at FROM memory_store WHERE deleted_at IS NULL"
+                query_text = (
+                    "SELECT id, tier, text, metadata, epoch, created_at "
+                    "FROM memory_store WHERE deleted_at IS NULL"
+                )
                 args = []
                 if tier:
                     query_text += " AND tier = $1"
@@ -268,14 +269,16 @@ class MemoryEngine:
             raw_pid = res.get("pg_id")
             if not raw_pid:
                 logger.warning(
-                    f"Qdrant point {res.get('qdrant_id')} has no pg_id — skipping Postgres enrichment"
+                    f"Qdrant point {res.get('qdrant_id')} has no pg_id "
+                    "— skipping Postgres enrichment"
                 )
                 continue
             try:
                 valid_pg_ids.append(uuid.UUID(str(raw_pid)))
             except (ValueError, AttributeError):
                 logger.warning(
-                    f"Qdrant point {res.get('qdrant_id')} has malformed pg_id '{raw_pid}' — skipping Postgres enrichment"
+                    f"Qdrant point {res.get('qdrant_id')} has malformed pg_id "
+                    f"'{raw_pid}' — skipping Postgres enrichment"
                 )
 
         if not valid_pg_ids:
@@ -285,13 +288,17 @@ class MemoryEngine:
                     {"qdrant_id": res["qdrant_id"], "score": res["score"], "tier": res.get("tier")}
                     for res in top_results
                 ],
-                "warning": "No valid pg_ids found; returning Qdrant-only results without Postgres enrichment",
+                "warning": (
+                    "No valid pg_ids found; "
+                    "returning Qdrant-only results without Postgres enrichment"
+                ),
             }
 
         pool = await self._get_pg_pool()
         async with pool.acquire() as conn:
             rows = await conn.fetch(
-                "SELECT id, tier, text, metadata, epoch, created_at FROM memory_store WHERE id = ANY($1) AND deleted_at IS NULL",
+                "SELECT id, tier, text, metadata, epoch, created_at "
+                "FROM memory_store WHERE id = ANY($1) AND deleted_at IS NULL",
                 valid_pg_ids,
             )
             pg_records = {str(row["id"]): dict(row) for row in rows}
