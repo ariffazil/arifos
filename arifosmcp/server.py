@@ -363,6 +363,7 @@ try:
         # Define tools_with_meta before registration
         async def tools_with_meta(request: Request) -> JSONResponse:
             from arifosmcp.tool_manifest import TOOL_MANIFEST
+            from arifosmcp.constitutional_map import CANONICAL_TOOLS
 
             tool_summaries = []
             try:
@@ -428,6 +429,9 @@ try:
                                 "ui": meta_dict.get("ui", {}),
                             },
                         }
+                        # ── Surface lock: only 13 canonical tools exposed ──
+                        if tool_name not in CANONICAL_TOOLS:
+                            continue
                         tool_summaries.append(entry)
             except Exception as e:
                 logger.warning(f"Failed to build meta-enriched tools response: {e}")

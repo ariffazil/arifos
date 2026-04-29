@@ -7,6 +7,7 @@ All arif_verb_noun. No governance surface, no CC modes as separate tools.
 
 Ditempa Bukan Diberi.
 """
+
 from enum import Enum
 from typing import Any
 
@@ -90,7 +91,16 @@ CANONICAL_TOOLS: dict[str, dict[str, Any]] = {
         "floors": [Floor.F02_TRUTH, Floor.F07_HUMILITY, Floor.F08_GENIUS],
         "risk_tier": "medium",
         "irreversible": False,
-        "modes": ["reason", "reflect", "verify", "critique", "axioms", "plan", "plan_review", "plan_approve"],
+        "modes": [
+            "reason",
+            "reflect",
+            "verify",
+            "critique",
+            "axioms",
+            "plan",
+            "plan_review",
+            "plan_approve",
+        ],
     },
     "arif_heart_critique": {
         "name": "arif_heart_critique",
@@ -188,6 +198,7 @@ CANONICAL_TOOLS: dict[str, dict[str, Any]] = {
 PROBE_TOOLS: tuple[str, ...] = ()
 CONSTITUTIONAL_TOOLS: tuple[str, ...] = tuple(CANONICAL_TOOLS.keys())
 
+
 def get_tool_spec(name: str) -> dict[str, Any] | None:
     return CANONICAL_TOOLS.get(name)
 
@@ -225,7 +236,7 @@ def get_floor_bindings() -> dict[str, list[Floor]]:
 
 
 def build_tool_registry_manifest() -> dict[str, Any]:
-    from arifosmcp.tool_manifest import TOOL_MANIFEST, CANONICAL_ORDER
+    from arifosmcp.tool_manifest import CANONICAL_ORDER, TOOL_MANIFEST
 
     return {
         "_schema": "arifos-ssct-v2026.04.26-kanon-phase2",
@@ -381,7 +392,6 @@ def generate_pydantic_models() -> dict[str, Any]:
     Codegen validation failures increment omega.schema_violations
     and flip OMEGA → SESAT per KERNEL_EVALS.md §Schema.
     """
-    import textwrap
     from pydantic import BaseModel, ConfigDict, Field
 
     models: dict[str, dict[str, Any]] = {}
@@ -413,9 +423,7 @@ def generate_pydantic_models() -> dict[str, Any]:
         # F11: authenticated tools must include actor_id
         if spec["access"] == "authenticated":
             if "actor_id" not in annotations:
-                violations.append(
-                    f"{tool_name}: authenticated tool missing actor_id field [F11]"
-                )
+                violations.append(f"{tool_name}: authenticated tool missing actor_id field [F11]")
 
         model_name = _to_model_name(tool_name) + "Input"
         model_dict = {"model_config": ConfigDict(arbitrary_types_allowed=True)}
@@ -470,9 +478,7 @@ def validate_tool_response_schema(tool_name: str, response: dict) -> tuple[bool,
 
     # output_policy check
     if response.get("domain_payload_present") and not response.get("output_policy"):
-        violations.append(
-            f"{tool_name}: domain payload without output_policy [F2 addendum]"
-        )
+        violations.append(f"{tool_name}: domain payload without output_policy [F2 addendum]")
 
     return len(violations) == 0, violations
 
@@ -482,7 +488,7 @@ def _to_model_name(tool_name: str) -> str:
     parts = tool_name.split("_")
     # Capitalise each part, strip arif_ prefix
     parts = [p.capitalize() for p in parts if p != "arif"]
-    return "" .join(parts) + "Input"
+    return "".join(parts) + "Input"
 
 
 def check_schema_coverage() -> dict[str, Any]:
@@ -508,8 +514,7 @@ def check_schema_coverage() -> dict[str, Any]:
 # ─── Irreversibility Enforcer ────────────────────────────────────────────────
 
 _IRREVERSIBLE_TOOLS = {
-    name for name, spec in CANONICAL_TOOLS.items()
-    if spec.get("irreversible", False)
+    name for name, spec in CANONICAL_TOOLS.items() if spec.get("irreversible", False)
 }
 
 

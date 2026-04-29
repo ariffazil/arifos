@@ -216,17 +216,11 @@ class NineSignalOutput:
 
         # 1. nine_signal block must be present
         if "nine_signal" not in self.payload:
-            self.violations.append(
-                f"[{self.tool_name}] nine_signal block absent [KERNEL_EVALS P0]"
-            )
+            self.violations.append(f"[{self.tool_name}] nine_signal block absent [KERNEL_EVALS P0]")
 
         # 2. Non-SEAL verdicts MUST have reasons[]
         if self.verdict in ("HOLD", "VOID", "SABAR", "SESAT"):
-            reasons_field = (
-                self.payload.get("reasons")
-                or self.payload.get("reason")
-                or []
-            )
+            reasons_field = self.payload.get("reasons") or self.payload.get("reason") or []
             if not reasons_field:
                 self.violations.append(
                     f"[{self.tool_name}] {self.verdict} without reasons[] "
@@ -259,9 +253,9 @@ class NineSignalOutput:
         if not nine:
             # Auto-generate from verdict
             overall = (
-                "RETAK" if self.verdict in ("VOID", "HOLD", "SESAT")
-                else "SELAMAT" if self.verdict == "SEAL"
-                else "SABAR"
+                "RETAK"
+                if self.verdict in ("VOID", "HOLD", "SESAT")
+                else "SELAMAT" if self.verdict == "SEAL" else "SABAR"
             )
             nine = {
                 "delta": "KUKUH" if self.verdict == "SEAL" else "GANTUNG",
@@ -297,7 +291,11 @@ def _enforce_nine_signal(
     verdict = response.get("verdict", "SEAL")
     reasons = (
         response.get("reasons")
-        or ([response.get("reason")] if isinstance(response.get("reason"), str) else response.get("reason"))
+        or (
+            [response.get("reason")]
+            if isinstance(response.get("reason"), str)
+            else response.get("reason")
+        )
         or []
     )
     ns = NineSignalOutput(
@@ -313,6 +311,7 @@ def _enforce_nine_signal(
     if not ns.is_compliant:
         # Log violations but still return the enforced output
         import logging
+
         logger = logging.getLogger("arifosmcp.nine_signal")
         for v in ns.violations:
             logger.warning(f"Nine-Signal violation: {v}")
@@ -3884,7 +3883,10 @@ def _arif_forge_execute(
             status="HOLD",
             result={},
             manifest=ForgeManifest(status=ManifestStatus.HOLD),
-            meta={"reason": k_verdict.get("reason", "Floor breach"), "failed_floors": k_verdict.get("failed_floors", [])},
+            meta={
+                "reason": k_verdict.get("reason", "Floor breach"),
+                "failed_floors": k_verdict.get("failed_floors", []),
+            },
             timestamp=_now(),
         ).model_dump(mode="json")
 
