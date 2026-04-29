@@ -8,8 +8,11 @@ DITEMPA BUKAN DIBERI — Forged, Not Given
 """
 from __future__ import annotations
 
+from datetime import datetime, timezone
+
+from arifosmcp.runtime.floors import check_floors
 from arifosmcp.runtime.tools import _arif_forge_execute
-from arifosmcp.schemas.forge import ForgeOutput
+from arifosmcp.schemas.forge import ForgeManifest, ForgeOutput, ManifestStatus
 
 
 def arif_forge_execute(
@@ -24,6 +27,27 @@ def arif_forge_execute(
     judge_state_hash: str | None = None,
     vault_entry_id: str | None = None,
 ) -> ForgeOutput:
+    floor_check = check_floors(
+        "arif_forge_execute",
+        {
+            "mode": mode,
+            "ack_irreversible": ack_irreversible,
+            "manifest": manifest,
+            "session_id": session_id,
+        },
+        actor_id,
+    )
+    if floor_check["verdict"] != "SEAL":
+        return ForgeOutput(
+            status="HOLD",
+            result={},
+            manifest=ForgeManifest(status=ManifestStatus.HOLD),
+            meta={
+                "reason": floor_check["reason"],
+                "failed_floors": floor_check["failed_floors"],
+            },
+            timestamp=datetime.now(timezone.utc).isoformat(),
+        )
     return ForgeOutput(
         **_arif_forge_execute(
             mode=mode,

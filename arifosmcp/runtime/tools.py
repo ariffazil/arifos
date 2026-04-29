@@ -174,6 +174,157 @@ def _kernel_eval(
     }
 
 
+# ─── Nine-Signal Enforcement Middleware ───────────────────────────────────────
+# F2 addendum: Every tool response MUST carry nine_signal + reasons[] on non-SEAL.
+# This is not optional — without it, the Nine-Signal contract is a doc, not a guarantee.
+# ─────────────────────────────────────────────────────────────────────────────
+
+_SESAT_COUNTER = 0  # Per-process SESAT count — exported to OPS telemetry
+
+
+class NineSignalOutput:
+    """Nine-Signal output envelope — wraps every tool response."""
+
+    def __init__(
+        self,
+        tool_name: str,
+        verdict: str,
+        payload: dict[str, Any],
+        reasons: list[str] | None = None,
+        output_policy: str | None = None,
+        session_id: str | None = None,
+        actor_id: str | None = None,
+    ):
+        global _SESAT_COUNTER
+
+        self.tool_name = tool_name
+        self.verdict = verdict
+        self.payload = payload
+        self.reasons = reasons or []
+        self.output_policy = output_policy or (
+            "SIMULATION_ONLY" if verdict == "DRY_RUN" else "DOMAIN_SEAL"
+        )
+        self.session_id = session_id
+        self.actor_id = actor_id
+        self.violations: list[str] = []
+
+        self._enforce()
+
+    def _enforce(self) -> None:
+        """Enforce Nine-Signal contract. Mutates self.violations."""
+        global _SESAT_COUNTER
+
+        # 1. nine_signal block must be present
+        if "nine_signal" not in self.payload:
+            self.violations.append(
+                f"[{self.tool_name}] nine_signal block absent [KERNEL_EVALS P0]"
+            )
+
+        # 2. Non-SEAL verdicts MUST have reasons[]
+        if self.verdict in ("HOLD", "VOID", "SABAR", "SESAT"):
+            reasons_field = (
+                self.payload.get("reasons")
+                or self.payload.get("reason")
+                or []
+            )
+            if not reasons_field:
+                self.violations.append(
+                    f"[{self.tool_name}] {self.verdict} without reasons[] "
+                    "[F2 addendum / Nine-Signal contract]"
+                )
+                _SESAT_COUNTER += 1
+
+        # 3. F2 addendum: domain payload requires output_policy
+        if self.payload.get("domain_payload_present") and not self.output_policy:
+            self.violations.append(
+                f"[{self.tool_name}] domain payload without output_policy "
+                "[F2 addendum: VerdictScope.DOMAIN_VOID required]"
+            )
+            _SESAT_COUNTER += 1
+
+        # 4. DRY_RUN must be labeled SIMULATION_ONLY
+        if self.verdict == "DRY_RUN" and self.output_policy != "SIMULATION_ONLY":
+            self.violations.append(
+                f"[{self.tool_name}] DRY_RUN verdict without SIMULATION_ONLY "
+                "[F2 addendum: output_policy=SIMULATION_ONLY required]"
+            )
+
+    @property
+    def is_compliant(self) -> bool:
+        return len(self.violations) == 0
+
+    def to_dict(self) -> dict[str, Any]:
+        """Return the nine_signal-enforced response."""
+        nine = self.payload.get("nine_signal", {})
+        if not nine:
+            # Auto-generate from verdict
+            overall = (
+                "RETAK" if self.verdict in ("VOID", "HOLD", "SESAT")
+                else "SELAMAT" if self.verdict == "SEAL"
+                else "SABAR"
+            )
+            nine = {
+                "delta": "KUKUH" if self.verdict == "SEAL" else "GANTUNG",
+                "psi": "DITERIMA" if self.verdict == "SEAL" else "GANTUNG",
+                "omega": "BIJAK" if self.verdict == "SEAL" else "SESAT",
+                "overall": overall,
+            }
+
+        out = dict(self.payload)
+        out["nine_signal"] = nine
+        out["reasons"] = self.reasons or self.payload.get("reasons", [])
+        out["output_policy"] = self.output_policy
+        out["_nine_signal_compliant"] = self.is_compliant
+        out["_violations"] = self.violations
+        return out
+
+
+def _enforce_nine_signal(
+    tool_name: str,
+    response: dict[str, Any],
+    session_id: str | None = None,
+    actor_id: str | None = None,
+) -> dict[str, Any]:
+    """
+    Wrapper: take a raw tool response dict, enforce Nine-Signal contract.
+
+    Call this on every tool output before returning to the caller.
+
+    Usage:
+        raw = _tool_implementation(...)
+        return _enforce_nine_signal("arif_mind_reason", raw, session_id=session_id)
+    """
+    verdict = response.get("verdict", "SEAL")
+    reasons = (
+        response.get("reasons")
+        or ([response.get("reason")] if isinstance(response.get("reason"), str) else response.get("reason"))
+        or []
+    )
+    ns = NineSignalOutput(
+        tool_name=tool_name,
+        verdict=verdict,
+        payload=response,
+        reasons=reasons if reasons else None,
+        output_policy=response.get("output_policy"),
+        session_id=session_id,
+        actor_id=actor_id,
+    )
+
+    if not ns.is_compliant:
+        # Log violations but still return the enforced output
+        import logging
+        logger = logging.getLogger("arifosmcp.nine_signal")
+        for v in ns.violations:
+            logger.warning(f"Nine-Signal violation: {v}")
+
+    return ns.to_dict()
+
+
+def get_sesat_counter() -> int:
+    """Return the process-local SESAT count. Wired to arif_ops_measure."""
+    return _SESAT_COUNTER
+
+
 # ─── MIND Synthesis Helpers ───────────────────────────────────────────────────
 
 
@@ -3094,7 +3245,32 @@ def _arif_judge_deliberate(
             "svs": _audit_entropy.get("svs"),
             "entropy_band": _audit_entropy.get("entropy_band"),
         }
-    # Success / SEAL logic
+
+    # Build judge contract for downstream vault/forge lineage
+    floor_compliance = FloorComplianceProof(
+        floors_invoked=["F01", "F11", "F12", "F13"],
+        floor_results={f: "PASS" for f in ["F01", "F11", "F12", "F13"]},
+    )
+    epistemic = EpistemicSnapshot(
+        omega_ortho=0.98,
+        confidence_sources=["constitutional_kernel"],
+    )
+    contract = _build_judge_contract(
+        candidate=candidate,
+        verdict=VerdictCode.SEAL,
+        session_id=session_id,
+        actor_id=actor_id,
+        constitutional_chain_id=constitutional_chain_id,
+        irreversibility_level=IrreversibilityLevel.IRREVERSIBLE,
+        delta_s=0.003,
+        g_score=0.98,
+        epistemic_snapshot=epistemic,
+        floor_compliance=floor_compliance,
+    )
+    meta_state["constitutional_chain_id"] = contract.constitutional_chain_id
+    meta_state["state_hash"] = contract.state_hash
+    meta_state["irreversibility_level"] = contract.irreversibility_level
+
     output = VerdictOutput(
         status="OK",
         verdict=VerdictCode.SEAL,
@@ -3104,10 +3280,7 @@ def _arif_judge_deliberate(
             "verdict": "SEAL",
             "omega_ortho": 0.98,
         },
-        floor_compliance=FloorComplianceProof(
-            floors_invoked=["F01", "F11", "F12", "F13"],
-            floor_results={f: "PASS" for f in ["F01", "F11", "F12", "F13"]},
-        ),
+        floor_compliance=floor_compliance,
         amanah_proof=AmanahProof(
             floors_checked=["F01", "F12"],
             floors_passed=["F01", "F12"],
@@ -3116,6 +3289,7 @@ def _arif_judge_deliberate(
         truth_band=truth_band or "CERTAIN",
         confidence_note=confidence_note
         or "Full constitutional floors passed; verification state clean",
+        judge_contract=contract,
         meta=meta_state,
         timestamp=verdict.timestamp,
     )
@@ -3307,7 +3481,15 @@ def _arif_vault_seal(
             return output.model_dump(mode="json")
         if judge_contract is None:
             return SealOutput(
-                status="HOLD", result={}, actor_id=actor_id, timestamp=_now()
+                status="HOLD",
+                result={},
+                constitutional_compliance=ConstitutionalCompliance(),
+                meta={
+                    "reason": "judge contract required — irreversible execution requires a prior judge packet via constitutional_chain_id and judge_state_hash",
+                    "failed_floors": ["F11"],
+                },
+                actor_id=actor_id,
+                timestamp=_now(),
             ).model_dump(mode="json")
 
         entry_id = uuid.uuid4().hex[:16]
@@ -3611,6 +3793,7 @@ def _arif_forge_execute(
             tool_name="arif_forge_execute",
             params={"mode": mode, "manifest": manifest},
             session_id=session_id,
+            actor_id=actor_id,
         )
         return {
             "status": "OK" if k_verdict["passed"] else "HOLD",
@@ -3685,6 +3868,7 @@ def _arif_forge_execute(
         tool_name="arif_forge_execute",
         params={"mode": mode, "ack_irreversible": ack_irreversible, "manifest": manifest},
         session_id=session_id,
+        actor_id=actor_id,
     )
     if not k_verdict["passed"]:
         if plan_id:
@@ -4531,33 +4715,57 @@ import inspect
 
 
 def _wrap_handler(handler: Any, tool_name: str) -> Any:
-    """Wrap a handler so Pydantic validation errors expose the public tool name."""
+    """
+    Wrap a handler so:
+    1. Pydantic validation errors expose the public tool name
+    2. Every response passes through Nine-Signal enforcement (F2 addendum)
+    """
 
-    # Sync wrapper — functools.wraps copies __annotations__ so FastMCP's
-    # get_type_hints() finds the handler's parameter types (KeyError 'mode' fix)
+    # Sync wrapper
     def wrapper(*args: Any, **kwargs: Any) -> Any:
         try:
-            return handler(*args, **kwargs)
+            response = handler(*args, **kwargs)
         except Exception as exc:
             msg = str(exc)
             if handler.__name__ in msg:
                 msg = msg.replace(handler.__name__, tool_name)
             raise type(exc)(msg) from exc.__cause__
+        # Nine-Signal enforcement on every response
+        return _enforce_nine_signal(tool_name, _dict_from_response(response))
 
-    # Async wrapper — same fix
+    # Async wrapper
     async def async_wrapper(*args: Any, **kwargs: Any) -> Any:
         try:
-            return await handler(*args, **kwargs)
+            response = await handler(*args, **kwargs)
         except Exception as exc:
             msg = str(exc)
             if handler.__name__ in msg:
                 msg = msg.replace(handler.__name__, tool_name)
             raise type(exc)(msg) from exc.__cause__
+        # Nine-Signal enforcement on every response
+        return _enforce_nine_signal(tool_name, _dict_from_response(response))
 
     _wrapped = async_wrapper if inspect.iscoroutinefunction(handler) else wrapper
     functools.wraps(handler)(_wrapped)  # copies __annotations__, __name__, __doc__, __wrapped__
     _wrapped.__name__ = tool_name
     return _wrapped
+
+
+def _dict_from_response(response: Any) -> dict[str, Any]:
+    """Normalise a tool response to a plain dict for Nine-Signal enforcement."""
+    if isinstance(response, dict):
+        return response
+    if hasattr(response, "model_dump"):  # Pydantic model
+        return response.model_dump()
+    if hasattr(response, "payload") and hasattr(response, "verdict"):
+        # Structured verdict object — flatten
+        return {
+            "verdict": response.verdict,
+            **getattr(response, "payload", {}),
+        }
+    if hasattr(response, "__dict__"):
+        return dict(response.__dict__)
+    return {"raw_response": str(response)}
 
 
 def register_tools(

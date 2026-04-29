@@ -9,11 +9,12 @@ services:
     ports:
       - "127.0.0.1:8091:8083"
     volumes:
+      - /root/arifOS:/app:rw
       - /root/WELL:/root/WELL
       - /root/arifOS/core/vault999:/root/arifOS/core/vault999
     environment:
       FASTMCP_HOST: 0.0.0.0
-      FASTMCP_PORT: 8083
+      PORT: 8083
       WELL_STATE_PATH: /root/WELL/state.json
       WELL_EVENTS_PATH: /root/WELL/events.jsonl
       WELL_VAULT_PATH: /root/arifOS/core/vault999/well_ledger.jsonl

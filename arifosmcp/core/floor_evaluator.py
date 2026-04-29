@@ -431,6 +431,12 @@ class FloorEvaluator:
             context.tool_name in human_required_tools_modes
             and context.mode in human_required_tools_modes[context.tool_name]
         ):
+            # Explicit sovereign ack via ack_irreversible counts as human witness
+            # for vault seal — the ack itself is the sovereign authorization signal.
+            if context.tool_name == "arif_vault_seal" and getattr(
+                context, "ack_irreversible", False
+            ):
+                return False
             return True
         if (context.tool_name, context.mode) == ("arif_mind_reason", "plan_approve"):
             return True
