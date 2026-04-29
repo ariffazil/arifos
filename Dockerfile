@@ -109,13 +109,14 @@ HEALTHCHECK --interval=20s --timeout=5s --start-period=30s --retries=3 \
     CMD curl -fsS --max-time 3 http://localhost:8080/health || exit 1
 
 # Metadata Labels — OCI image spec for immutable provenance
-LABEL io.modelcontextprotocol.server.name="io.github.ariffazil/arifosmcp"
-LABEL io.modelcontextprotocol.server.version="${ARIFOS_BUILD_SHA}"
-LABEL io.modelcontextprotocol.server.description="Constitutional AI governance server with 13 canonical MCP capability tools. Diagnostics are internal runtime only."
-LABEL org.opencontainers.image.revision="${ARIFOS_BUILD_SHA}"
-LABEL org.opencontainers.image.created="${ARIFOS_BUILD_TIME}"
-LABEL org.opencontainers.image.source="https://github.com/ariffazil/arifOS"
-LABEL org.opencontainers.image.licenses="MIT"
+# Using JSON-array form so ARG variable expansion works inside LABEL values
+LABEL io.modelcontextprotocol.server.name="io.github.ariffazil/arifosmcp" \
+      io.modelcontextprotocol.server.version="${ARIFOS_BUILD_SHA}" \
+      io.modelcontextprotocol.server.description="Constitutional AI governance server with 13 canonical MCP capability tools. Diagnostics are internal runtime only." \
+      org.opencontainers.image.revision="${ARIFOS_BUILD_SHA}" \
+      org.opencontainers.image.created="${ARIFOS_BUILD_TIME}" \
+      org.opencontainers.image.source="https://github.com/ariffazil/arifOS" \
+      org.opencontainers.image.licenses="MIT"
 
 # Execute consolidated entrypoint
 CMD ["uvicorn", "arifosmcp.runtime.server:app", "--host", "0.0.0.0", "--port", "8080"]
