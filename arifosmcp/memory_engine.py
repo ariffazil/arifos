@@ -1,10 +1,11 @@
+import asyncio
+import logging
 import os
 import uuid
-import logging
-import asyncio
-from typing import Any, List, Optional
-import httpx
+from typing import Any
+
 import asyncpg
+import httpx
 
 logger = logging.getLogger("memory_engine")
 
@@ -63,7 +64,7 @@ class MemoryEngine:
             self._pg_pool = await asyncpg.create_pool(self.postgres_url)
         return self._pg_pool
 
-    async def get_embedding(self, text: str) -> List[float]:
+    async def get_embedding(self, text: str) -> list[float]:
         """Call Ollama BGE-M3 to get embedding vector."""
         try:
             response = await self._http_client.post(
@@ -85,7 +86,7 @@ class MemoryEngine:
         metadata: dict[str, Any],
         session_id: str | None,
         qdrant_id: str,
-        vector: List[float] | None,
+        vector: list[float] | None,
     ) -> None:
         """Write memory record to Supabase arifosmcp_memory_records.
 
@@ -135,6 +136,7 @@ class MemoryEngine:
         qdrant_id = str(uuid.uuid4())
 
         import json as _json
+
         vector = None
         try:
             vector = await self.get_embedding(text)
@@ -179,7 +181,7 @@ class MemoryEngine:
         return {"status": "success", "postgres_id": pg_id, "qdrant_id": qdrant_id, "tier": tier}
 
     async def _upsert_qdrant(
-        self, tier: str, qdrant_id: str, vector: List[float], payload: dict[str, Any]
+        self, tier: str, qdrant_id: str, vector: list[float], payload: dict[str, Any]
     ):
         if not self._qdrant_client:
             return
@@ -193,7 +195,7 @@ class MemoryEngine:
             logger.warning(f"Qdrant upsert failed for tier {tier}: {e}")
 
     async def retrieve(
-        self, query: str, tier: Optional[str] = None, limit: int = 5
+        self, query: str, tier: str | None = None, limit: int = 5
     ) -> dict[str, Any]:
         """Retrieve memories via semantic search (Qdrant primary, Postgres fallback)."""
         if not query:
@@ -248,9 +250,9 @@ class MemoryEngine:
                             "text": row["text"],
                             "metadata": row["metadata"],
                             "epoch": row["epoch"],
-                            "created_at": row["created_at"].isoformat()
-                            if row["created_at"]
-                            else None,
+                            "created_at": (
+                                row["created_at"].isoformat() if row["created_at"] else None
+                            ),
                         }
                         for row in rows[:limit]
                     ]
@@ -265,12 +267,16 @@ class MemoryEngine:
         for res in top_results:
             raw_pid = res.get("pg_id")
             if not raw_pid:
-                logger.warning(f"Qdrant point {res.get('qdrant_id')} has no pg_id — skipping Postgres enrichment")
+                logger.warning(
+                    f"Qdrant point {res.get('qdrant_id')} has no pg_id — skipping Postgres enrichment"
+                )
                 continue
             try:
                 valid_pg_ids.append(uuid.UUID(str(raw_pid)))
             except (ValueError, AttributeError):
-                logger.warning(f"Qdrant point {res.get('qdrant_id')} has malformed pg_id '{raw_pid}' — skipping Postgres enrichment")
+                logger.warning(
+                    f"Qdrant point {res.get('qdrant_id')} has malformed pg_id '{raw_pid}' — skipping Postgres enrichment"
+                )
 
         if not valid_pg_ids:
             # No valid Postgres IDs — return Qdrant-only results with a warning
