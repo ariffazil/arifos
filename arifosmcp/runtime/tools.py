@@ -2304,12 +2304,11 @@ def _arif_memory_recall(
         return gate
 
     # Lazy MemoryEngine singleton
+    global _memory_engine
     if _memory_engine is None:
         import os
-
         from arifosmcp.memory_engine import MemoryEngine
-
-                _memory_engine = MemoryEngine(
+        _memory_engine = MemoryEngine(
             postgres_url=os.getenv("POSTGRES_URL"),
             qdrant_url=os.getenv("QDRANT_URL", "http://qdrant:6333"),
             ollama_url=os.getenv("OLLAMA_URL", "http://ollama:11434"),
@@ -2320,143 +2319,87 @@ def _arif_memory_recall(
         result = asyncio.run(_memory_engine.retrieve(query or "", tier=None, limit=10))
         memories = result.get("memories", [])
         confidence = 0.85 if memories else 0.0
-        return _ok(
-            "arif_memory_recall",
-            {"query": query, "memories": memories, "confidence": confidence},
-            delta_S=0.001,
-        )
+        return _ok("arif_memory_recall", {"query": query, "memories": memories, "confidence": confidence}, delta_S=0.001)
 
     # ── store ────────────────────────────────────────────────
     if mode == "store":
         text = (metadata or {}).get("text", "")
         if not text:
             return _hold("arif_memory_recall", "store mode requires metadata.text")
-        result = asyncio.run(
-            _memory_engine.store(
-                {"text": text, "session_id": session_id, "metadata": metadata or {}},
-                tier=(metadata or {}).get("tier", "working"),
-            )
-        )
+        result = asyncio.run(_memory_engine.store({
+            "text": text,
+            "session_id": session_id,
+            "metadata": metadata or {}
+        }, tier=(metadata or {}).get("tier", "working")))
         return _ok("arif_memory_recall", {"stored": True, **result}, delta_S=0.002)
 
     # ── get ──────────────────────────────────────────────────
     if mode == "get":
-
         async def _do_get():
             pool = await _memory_engine._get_pg_pool()
             async with pool.acquire() as conn:
                 row = await conn.fetchrow(
                     "SELECT id, tier, text, metadata, epoch, created_at FROM memory_store WHERE id = $1 AND deleted_at IS NULL",
-                    (
-                        uuid.UUID(memory_id)
-                        if memory_id
-                        else uuid.UUID("00000000-0000-0000-0000-000000000000")
-                    ),
+                    uuid.UUID(memory_id) if memory_id else uuid.UUID("00000000-0000-0000-0000-000000000000")
                 )
                 return dict(row) if row else None
-
         row = asyncio.run(_do_get())
         if row:
             row["created_at"] = row["created_at"].isoformat() if row.get("created_at") else None
-            return _ok(
-                "arif_memory_recall",
-                {"memory_id": memory_id, "entry": row, "found": True},
-                delta_S=0.0,
-            )
-        return _ok(
-            "arif_memory_recall",
-            {"memory_id": memory_id, "entry": None, "found": False},
-            delta_S=0.0,
-        )
+            return _ok("arif_memory_recall", {"memory_id": memory_id, "entry": row, "found": True}, delta_S=0.0)
+        return _ok("arif_memory_recall", {"memory_id": memory_id, "entry": None, "found": False}, delta_S=0.0)
 
     # ── list ────────────────────────────────────────────────
     if mode == "list":
-
         async def _do_list():
             pool = await _memory_engine._get_pg_pool()
             async with pool.acquire() as conn:
                 if session_id:
                     rows = await conn.fetch(
                         "SELECT id, tier, text, metadata, epoch, created_at FROM memory_store WHERE session_id = $1 AND deleted_at IS NULL ORDER BY created_at DESC LIMIT 50",
-                        session_id,
+                        session_id
                     )
                 else:
                     rows = await conn.fetch(
                         "SELECT id, tier, text, metadata, epoch, created_at FROM memory_store WHERE deleted_at IS NULL ORDER BY created_at DESC LIMIT 50"
                     )
                 return [dict(r) for r in rows]
-
         rows = asyncio.run(_do_list())
         for r in rows:
             r["created_at"] = r["created_at"].isoformat() if r.get("created_at") else None
-        return _ok(
-            "arif_memory_recall",
-            {"session_id": session_id, "entries": rows, "count": len(rows)},
-            delta_S=0.0,
-        )
+        return _ok("arif_memory_recall", {"session_id": session_id, "entries": rows, "count": len(rows)}, delta_S=0.0)
 
     # ── search ──────────────────────────────────────────────
     if mode == "search":
-        return _arif_memory_recall(
-            mode="recall",
-            query=query,
-            memory_id=memory_id,
-            session_id=session_id,
-            actor_id=actor_id,
-            metadata=metadata,
-        )
+        return _arif_memory_recall(mode="recall", query=query, memory_id=memory_id, session_id=session_id, actor_id=actor_id, metadata=metadata)
 
     # ── prune ────────────────────────────────────────────────
     if mode == "prune":
-
         async def _do_prune():
             pool = await _memory_engine._get_pg_pool()
             async with pool.acquire() as conn:
                 row = await conn.fetchrow(
                     "SELECT tier FROM memory_store WHERE id = $1",
-                    (
-                        uuid.UUID(memory_id)
-                        if memory_id
-                        else uuid.UUID("00000000-0000-0000-0000-000000000000")
-                    ),
+                    uuid.UUID(memory_id) if memory_id else uuid.UUID("00000000-0000-0000-0000-000000000000")
                 )
                 if not row:
                     return {"status": "error", "message": "Memory not found"}
                 if row["tier"] == "sacred":
-                    return {
-                        "status": "888_HOLD",
-                        "reason": "Sacred memories require human confirmation for deletion",
-                        "memory_id": memory_id,
-                    }
-                await conn.execute(
-                    "UPDATE memory_store SET deleted_at = NOW() WHERE id = $1", uuid.UUID(memory_id)
-                )
+                    return {"status": "888_HOLD", "reason": "Sacred memories require human confirmation for deletion", "memory_id": memory_id}
+                await conn.execute("UPDATE memory_store SET deleted_at = NOW() WHERE id = $1", uuid.UUID(memory_id))
                 return {"status": "success", "pruned": memory_id}
-
         result = asyncio.run(_do_prune())
         if result.get("status") == "888_HOLD":
             return _hold("arif_memory_recall", result["reason"])
-        return _ok(
-            "arif_memory_recall",
-            {"pruned": memory_id, "reason": result.get("reason", "entropy")},
-            delta_S=0.001,
-        )
+        return _ok("arif_memory_recall", {"pruned": memory_id, "reason": result.get("reason", "entropy")}, delta_S=0.001)
 
     # ── context ──────────────────────────────────────────────
     if mode == "context":
-        return _arif_memory_recall(
-            mode="list",
-            query=query,
-            memory_id=memory_id,
-            session_id=session_id,
-            actor_id=actor_id,
-            metadata=metadata,
-        )
+        return _arif_memory_recall(mode="list", query=query, memory_id=memory_id, session_id=session_id, actor_id=actor_id, metadata=metadata)
 
     # ── dry_run ──────────────────────────────────────────────
     if mode == "dry_run":
         import datetime as _dt
-
         marker_id = f"DRYRUN-{uuid.uuid4().hex[:12]}"
         marker_payload = {
             "marker_id": marker_id,
@@ -2471,19 +2414,15 @@ def _arif_memory_recall(
         recall_ok = recalled is not None
         _SESSIONS.pop(f"marker:{marker_id}", None)
         cleanup_ok = f"marker:{marker_id}" not in _SESSIONS
-        return _ok(
-            "arif_memory_recall",
-            {
-                "memory_dry_run": "PASS" if (recall_ok and cleanup_ok) else "FAIL",
-                "write_ok": recall_ok,
-                "recall_ok": recall_ok,
-                "cleanup_ok": cleanup_ok,
-                "marker_id": marker_id,
-                "irreversible": False,
-                "permanent_write": False,
-            },
-            delta_S=0.001,
-        )
+        return _ok("arif_memory_recall", {
+            "memory_dry_run": "PASS" if (recall_ok and cleanup_ok) else "FAIL",
+            "write_ok": recall_ok,
+            "recall_ok": recall_ok,
+            "cleanup_ok": cleanup_ok,
+            "marker_id": marker_id,
+            "irreversible": False,
+            "permanent_write": False,
+        }, delta_S=0.001)
 
     return _hold("arif_memory_recall", f"Unknown mode: {mode}")
 
