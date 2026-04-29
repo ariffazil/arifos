@@ -3281,8 +3281,8 @@ def _arif_vault_seal(
                     floor_results={floor: "FAIL" for floor in k_verdict["failed_floors"]},
                 ),
                 meta={
-                    "reason": k_verdict["reason"],
-                    "failed_floors": k_verdict["failed_floors"],
+                    "reason": k_verdict.get("reason", "Floor breach"),
+                    "failed_floors": k_verdict.get("failed_floors", []),
                 },
                 actor_id=actor_id,
                 timestamp=_now(),
@@ -3700,7 +3700,7 @@ def _arif_forge_execute(
             status="HOLD",
             result={},
             manifest=ForgeManifest(status=ManifestStatus.HOLD),
-            meta={"reason": k_verdict["reason"], "failed_floors": k_verdict["failed_floors"]},
+            meta={"reason": k_verdict.get("reason", "Floor breach"), "failed_floors": k_verdict.get("failed_floors", [])},
             timestamp=_now(),
         ).model_dump(mode="json")
 

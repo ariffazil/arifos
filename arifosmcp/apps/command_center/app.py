@@ -192,6 +192,80 @@ command_center_app = FastMCPApp("arifOS Command Center")
 
 
 @command_center_app.tool()
+def arif_cc_sense_observe(mode: str = "vitals", query: str | None = None) -> dict:
+    """Use this when refreshing the reality sensing panel.
+
+    Proxies to 111_SENSE backend for reality grounding and observation.
+    """
+    state = get_state()
+    state.reality_checks += 1
+    
+    handler = _CANONICAL_HANDLERS.get("arif_sense_observe")
+    result = handler(mode=mode, query=query, actor_id="arif")
+    return result
+
+
+@command_center_app.tool()
+def arif_cc_evidence_fetch(url: str, query: str | None = None) -> dict:
+    """Use this when the user wants to fetch evidence from a URL.
+
+    Proxies to 222_FETCH backend for evidence-preserving ingestion.
+    """
+    state = get_state()
+    state.fetch_calls += 1
+    handler = _CANONICAL_HANDLERS.get("arif_evidence_fetch")
+    return handler(url=url, query=query, actor_id="arif")
+
+
+@command_center_app.tool()
+def arif_cc_mind_reason(query: str, mode: str = "reason") -> dict:
+    """Use this when the user wants to perform constitutional reasoning.
+
+    Proxies to 333_MIND backend for symbolic reasoning.
+    """
+    state = get_state()
+    state.reason_calls += 1
+    handler = _CANONICAL_HANDLERS.get("arif_mind_reason")
+    return handler(query=query, mode=mode, actor_id="arif")
+
+
+@command_center_app.tool()
+def arif_cc_heart_critique(target: str, mode: str = "critique") -> dict:
+    """Use this when the user wants an ethical risk assessment.
+
+    Proxies to 666_HEART backend for ethical critique.
+    """
+    state = get_state()
+    state.critique_calls += 1
+    handler = _CANONICAL_HANDLERS.get("arif_heart_critique")
+    return handler(target=target, mode=mode, actor_id="arif")
+
+
+@command_center_app.tool()
+def arif_cc_reply_compose(message: str, style: str = "formal") -> dict:
+    """Use this when the user wants to compose a governed response.
+
+    Proxies to 444_REPLY backend for response composition.
+    """
+    state = get_state()
+    state.reply_compositions += 1
+    handler = _CANONICAL_HANDLERS.get("arif_reply_compose")
+    return handler(message=message, style=style, actor_id="arif")
+
+
+@command_center_app.tool()
+def arif_cc_memory_recall(query: str, mode: str = "recall") -> dict:
+    """Use this when the user wants to access associative memory.
+
+    Proxies to 555_MEMORY backend for context retrieval.
+    """
+    state = get_state()
+    state.memory_recalls += 1
+    handler = _CANONICAL_HANDLERS.get("arif_memory_recall")
+    return handler(query=query, mode=mode, actor_id="arif")
+
+
+@command_center_app.tool()
 def arif_cc_session_status() -> dict:
     """Use this when refreshing the constitutional session panel.
 
@@ -786,6 +860,125 @@ def command_center() -> PrefabApp:
         ],
     )
 
+    sense_tab = Tab(
+        title="Sense",
+        value="sense",
+        children=[
+            Card(
+                children=[
+                    CardHeader(children=[CardTitle(content="111_SENSE: Reality Grounding")]),
+                    CardContent(children=[
+                        Column(children=[
+                            Text(content="Live reality observation results:"),
+                            Text(content="{{ sense_result }}", italic=True),
+                            Button(label="Refresh Sense", variant="outline", on_click=CallTool(
+                                "arif_cc_sense_observe",
+                                args={"mode": "vitals"},
+                                on_success=[SetState("sense_result", "{{ $result }}")]
+                            )),
+                        ], gap=2)
+                    ])
+                ]
+            )
+        ]
+    )
+
+    mind_tab = Tab(
+        title="Mind",
+        value="mind",
+        children=[
+            Card(
+                children=[
+                    CardHeader(children=[CardTitle(content="333_MIND: Symbolic Reasoning")]),
+                    CardContent(children=[
+                        Column(children=[
+                            Text(content="Reasoning trace:"),
+                            Text(content="{{ mind_result }}", italic=True),
+                            Input(label="Query", on_change=SetState("mind_query", "{{ $value }}")),
+                            Button(label="Reason", variant="outline", on_click=CallTool(
+                                "arif_cc_mind_reason",
+                                args={"query": "{{ mind_query }}"},
+                                on_success=[SetState("mind_result", "{{ $result }}")]
+                            )),
+                        ], gap=2)
+                    ])
+                ]
+            )
+        ]
+    )
+
+    heart_tab = Tab(
+        title="Heart",
+        value="heart",
+        children=[
+            Card(
+                children=[
+                    CardHeader(children=[CardTitle(content="666_HEART: Ethical Critique")]),
+                    CardContent(children=[
+                        Column(children=[
+                            Text(content="Ethical risk scorecard:"),
+                            Text(content="{{ heart_result }}", italic=True),
+                            Input(label="Target", on_change=SetState("heart_target", "{{ $value }}")),
+                            Button(label="Critique", variant="outline", on_click=CallTool(
+                                "arif_cc_heart_critique",
+                                args={"target": "{{ heart_target }}"},
+                                on_success=[SetState("heart_result", "{{ $result }}")]
+                            )),
+                        ], gap=2)
+                    ])
+                ]
+            )
+        ]
+    )
+
+    memory_tab = Tab(
+        title="Memory",
+        value="memory",
+        children=[
+            Card(
+                children=[
+                    CardHeader(children=[CardTitle(content="555_MEMORY: Associative Recall")]),
+                    CardContent(children=[
+                        Column(children=[
+                            Text(content="Retrieved context:"),
+                            Text(content="{{ memory_result }}", italic=True),
+                            Input(label="Search", on_change=SetState("memory_query", "{{ $value }}")),
+                            Button(label="Recall", variant="outline", on_click=CallTool(
+                                "arif_cc_memory_recall",
+                                args={"query": "{{ memory_query }}"},
+                                on_success=[SetState("memory_result", "{{ $result }}")]
+                            )),
+                        ], gap=2)
+                    ])
+                ]
+            )
+        ]
+    )
+
+    fetch_tab = Tab(
+        title="Fetch",
+        value="fetch",
+        children=[
+            Card(
+                children=[
+                    CardHeader(children=[CardTitle(content="222_FETCH: Evidence Ingestion")]),
+                    CardContent(children=[
+                        Column(children=[
+                            Text(content="Last fetch result:"),
+                            Text(content="{{ fetch_result }}", italic=True),
+                            Input(label="URL", value="https://arif-fazil.com", on_change=SetState("fetch_url", "{{ $value }}")),
+                            Button(label="Fetch Evidence", variant="outline", on_click=CallTool(
+                                "arif_cc_evidence_fetch",
+                                args={"url": "{{ fetch_url }}"},
+                                on_success=[SetState("fetch_result", "{{ $result }}")]
+                            )),
+                        ], gap=2)
+                    ])
+                ]
+            )
+        ]
+    )
+
     # ---------- Ops Tab ----------
     ops_tab = Tab(
         title="Ops",
@@ -1119,7 +1312,19 @@ def command_center() -> PrefabApp:
     # Main tabs container
     chambers = Tabs(
         value="session",
-        children=[session_tab, ops_tab, judge_tab, forge_tab, gateway_tab, vault_tab],
+        children=[
+            session_tab,
+            sense_tab,
+            fetch_tab,
+            mind_tab,
+            heart_tab,
+            memory_tab,
+            ops_tab,
+            judge_tab,
+            forge_tab,
+            gateway_tab,
+            vault_tab,
+        ],
     )
 
     return PrefabApp(
@@ -1158,6 +1363,13 @@ def command_center() -> PrefabApp:
             "seal_hash": "—",
             "seal_permanent": "false",
             "seal_status": "—",
+            # New tool states
+            "sense_result": "—",
+            "fetch_result": "—",
+            "mind_result": "—",
+            "heart_result": "—",
+            "reply_result": "—",
+            "memory_result": "—",
         },
     )
 
