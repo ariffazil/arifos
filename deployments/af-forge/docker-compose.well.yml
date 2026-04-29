@@ -22,7 +22,7 @@ services:
     networks:
       - arifos_core_network
     healthcheck:
-      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8083/mcp')"]
+      test: ["CMD", "python3", "-c", "import socket; s=socket.socket(); s.connect(('127.0.0.1', 8083)); s.close(); print('ok')"]
       interval: 30s
       timeout: 10s
       retries: 3
