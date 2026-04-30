@@ -236,23 +236,33 @@ def _inject_nine_signal(model_dump_json: dict, status: str) -> dict:
 
 
 def _run_async(coro):
-    """Run an async coroutine from a sync tool handler context.
+    """Run an async coroutine from a sync context safely.
 
-    When called from an existing async context (FastMCP tool handlers run in
-    the Uvicorn event loop), uses loop.run_until_complete() directly.
-    When called from a sync context, creates a new event loop.
+    Handles nested event loops (FastMCP sync tool wrappers called from async
+    handlers).  When already inside an async context, runs the coroutine
+    in a ThreadPoolExecutor with its own event loop, avoiding the
+    RuntimeError: This event loop is already running from loop.run_until_complete().
+    Falls back to asyncio.run() for pure sync callers.
 
     Ref: arif_memory_recall asyncio.run() crash — runtime bug #3 (MCP audit).
     """
-    import asyncio
-
     try:
         loop = asyncio.get_running_loop()
     except RuntimeError:
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
+        # No running loop — safe to create one
+        return asyncio.run(coro)
+    # Already inside an async context — run in separate thread with own loop.
+    # Cannot use run_until_complete on a running loop (Python 3.11+ raises).
+    import concurrent.futures
 
-    return loop.run_until_complete(coro)
+    def _thread_target():
+        return asyncio.run(coro)
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
+        future = pool.submit(_thread_target)
+        # Block this thread (the async caller's thread is blocked on result(),
+        # but the executor thread runs its own loop independently — no deadlock)
+        return future.result()
 
 
 class NineSignalOutput:
@@ -1184,16 +1194,11 @@ def _arif_session_init(
     normalized_mode = legacy_aliases.get(mode, mode)
     next_allowed_tools = list(surface.get("tool_names", []))
     binding = {
-        "surface": {
-            "public_api": "PUBLIC_SURFACE_V13",
-            "canonical_tools": 13,
-        },
-        "kernel": {
-            "constitution": "CONSTITUTION_KERNEL_F13",
-            "constitution_id": identity.get("constitution_id", "arifos-constitution-v2026.04.26"),
-            "constitution_hash": identity.get("constitution_hash", "sha256:unknown"),
-            "floors": 13,
-        },
+        "constitution_id": identity["constitution_id"],
+        "constitution_hash": identity["constitution_hash"],
+        "invariants_hash": identity["invariants_hash"],
+        "public_surface": surface["mode"],
+        "kernel": identity["kernel"],
         "authority": "human_judge_required_for_consequential_actions",
     }
     governance = {
@@ -1202,24 +1207,6 @@ def _arif_session_init(
         "irreversible_actions_require_ack": True,
         "forge_default": "dry_run_only",
         "public_internal_boundary": "arif_* public; arifos_* internal",
-    }
-
-    instrument_attestation = {
-        "instrument_type": "LLM",
-        "model_claim": "UNDECLARED",
-        "role": "reasoning_instrument",
-        "authority": "none",
-        "self_approval_allowed": False,
-        "consciousness_claim": "none",
-        "memory_scope": "session_limited_unless_vault_bound",
-        "tool_scope": "mcp_schema_bounded",
-        "risk_ack": [
-            "may hallucinate",
-            "must preserve authority boundary",
-            "must not self-authorize consequential actions",
-        ],
-        "attested_at": _now(),
-        "attestation_hash": "sha256:" + hashlib.sha256(_now().encode()).hexdigest(),
     }
 
     if normalized_mode == "ping":
@@ -1239,25 +1226,24 @@ def _arif_session_init(
             sess["previous_session_hash"] = previous_session_hash
             _SESSIONS[sid] = sess
         # H2: Store write acknowledgment
-        persistence_ack = {"sessions": False, "session_identity": False, "vault": False}
+        store_ack = {"_SESSIONS": False, "_SESSION_IDENTITY": False}
         if sid in _SESSIONS:
-            persistence_ack["sessions"] = True
+            store_ack["_SESSIONS"] = True
         try:
             from arifosmcp.runtime.session import session_exists
 
-            persistence_ack["session_identity"] = session_exists(sid)
+            store_ack["_SESSION_IDENTITY"] = session_exists(sid)
         except Exception:
             pass
         return _ok(
             "arif_session_init",
             {
                 "session": sess,
-                "instrument_attestation": instrument_attestation,
                 "manifest": get_tool_spec("arif_session_init"),
                 "binding": binding,
                 "governance": governance,
                 "next_allowed_tools": next_allowed_tools,
-                "persistence_ack": persistence_ack,
+                "store_ack": store_ack,
                 "lineage": {
                     "previous_session_hash": previous_session_hash,
                     "session_genesis_hash": hashlib.sha256(
@@ -3569,68 +3555,6 @@ def _arif_ops_measure(
     if gate is not None:
         return gate
 
-    if mode == "pulse":
-        import psutil
-
-        try:
-            from arifosmcp.runtime.capability_map import build_runtime_capability_map
-
-            cap = build_runtime_capability_map()
-            providers = cap.get("providers", {})
-        except ImportError:
-            providers = {}
-
-        # Determine ops_verdict based on basic system checks
-        ops_verdict = "HEALTHY"
-        system_status = "HEALTHY"
-        mcp_status = "PASS"
-        if psutil.cpu_percent(interval=None) > 90 or psutil.virtual_memory().percent > 90:
-            ops_verdict = "PARTIAL"
-            system_status = "DEGRADED"
-            mcp_status = "PARTIAL"
-
-        return {
-            "tool": "arif_ops_measure",
-            "mode": "pulse",
-            "transport_status": "OK",
-            "ops_verdict": ops_verdict,
-            "system_pulse": {
-                "status": system_status,
-                "live": True,
-                "observability": "BOUNDED",
-                "policy": "PUBLIC_SURFACE_V13",
-            },
-            "resource_thermodynamics": {
-                "cpu": psutil.cpu_percent(interval=None),
-                "memory": psutil.virtual_memory().percent,
-                "disk": psutil.disk_usage("/").percent,
-                "uptime_seconds": int(time.time() - psutil.boot_time()),
-                "entropy": {
-                    "symbol": "ΔS",
-                    "name": "Entropy Drift",
-                    "value": 0.001,
-                    "model": "heuristic_v1",
-                },
-            },
-            "provider_readiness": {
-                k: "READY" if v == "configured" else ("OFF" if v == "not_configured" else "ERROR")
-                for k, v in providers.items()
-            },
-            "canonical_tools": {
-                "count": 13,
-                "surface": "PUBLIC_SURFACE_V13",
-                "tools": list(CANONICAL_TOOLS.keys()),
-            },
-            "internal_probes": {
-                "mcp_health_check": {
-                    "exposed_publicly": False,
-                    "status": mcp_status,
-                    "failed_checks": [],
-                }
-            },
-            "nine_signal": _nine_signal_from_status("OK"),
-        }
-
     if mode == "health":
         return _ok(
             "arif_ops_measure",
@@ -3871,7 +3795,6 @@ def _arif_judge_deliberate(
                 genius_score=0.0,
             ),
             truth_band=truth_band or "UNKNOWN",
-            TRUTH_STATE="VOID" if verdict.verdict == "VOID" else "UNCERTAIN",
             confidence_note=confidence_note
             or "Verification state present; band derived from entropy/gap analysis",
             meta=meta_state,
@@ -3930,8 +3853,7 @@ def _arif_judge_deliberate(
             floors_passed=["F01", "F12"],
             genius_score=0.98,
         ),
-        truth_band=truth_band or "PLAUSIBLE",
-        TRUTH_STATE="PROVEN" if _audit_entropy else "PLAUSIBLE",
+        truth_band=truth_band or "CERTAIN",
         confidence_note=confidence_note
         or "Full constitutional floors passed; verification state clean",
         judge_contract=contract,
@@ -4055,27 +3977,24 @@ def _arif_vault_seal(
         if not k_verdict["passed"]:
             _reason = k_verdict.get("reason", "Floor breach")
             _floors = k_verdict.get("failed_floors", [])
-            return _inject_nine_signal(
-                SealOutput(
-                    status="HOLD",
-                    verdict=VerdictCode.HOLD,
-                    result={},
-                    constitutional_compliance=ConstitutionalCompliance(
-                        floors_invoked=_floors,
-                        floor_results={floor: "FAIL" for floor in _floors},
-                    ),
-                    meta={
-                        "reason": _reason,
-                        "failed_floors": _floors,
-                        "next_safe_action": "Produce reversible design blueprint only; no execution.",
-                    },
-                    reasons=[_reason],
-                    next_safe_action="Produce reversible design blueprint only; no execution.",
-                    actor_id=actor_id,
-                    timestamp=_now(),
-                ).model_dump(mode="json"),
-                "HOLD",
-            )
+            return SealOutput(
+                status="HOLD",
+                verdict=VerdictCode.HOLD,
+                result={},
+                constitutional_compliance=ConstitutionalCompliance(
+                    floors_invoked=_floors,
+                    floor_results={floor: "FAIL" for floor in _floors},
+                ),
+                meta={
+                    "reason": _reason,
+                    "failed_floors": _floors,
+                    "next_safe_action": "Produce reversible design blueprint only; no execution.",
+                },
+                reasons=[_reason],
+                next_safe_action="Produce reversible design blueprint only; no execution.",
+                actor_id=actor_id,
+                timestamp=_now(),
+            ).model_dump(mode="json")
 
     if mode == "seal":
         judge_contract, hold = _resolve_judge_contract(
@@ -4085,43 +4004,37 @@ def _arif_vault_seal(
         )
         if hold is not None:
             _reason = hold["meta"].get("reason", "Judge contract resolution failed")
-            return _inject_nine_signal(
-                SealOutput(
-                    status="HOLD",
-                    verdict=VerdictCode.HOLD,
-                    result={},
-                    constitutional_compliance=ConstitutionalCompliance(),
-                    meta={
-                        **hold["meta"],
-                        "next_safe_action": "Ensure constitutional_chain_id and judge_state_hash are valid and match.",
-                    },
-                    reasons=[_reason],
-                    next_safe_action="Ensure constitutional_chain_id and judge_state_hash are valid and match.",
-                    actor_id=actor_id,
-                    timestamp=_now(),
-                ).model_dump(mode="json"),
-                "HOLD",
-            )
+            return SealOutput(
+                status="HOLD",
+                verdict=VerdictCode.HOLD,
+                result={},
+                constitutional_compliance=ConstitutionalCompliance(),
+                meta={
+                    **hold["meta"],
+                    "next_safe_action": "Ensure constitutional_chain_id and judge_state_hash are valid and match.",
+                },
+                reasons=[_reason],
+                next_safe_action="Ensure constitutional_chain_id and judge_state_hash are valid and match.",
+                actor_id=actor_id,
+                timestamp=_now(),
+            ).model_dump(mode="json")
         if judge_contract is None:
             _reason = "judge contract required — irreversible execution requires a prior judge packet via constitutional_chain_id and judge_state_hash"
-            return _inject_nine_signal(
-                SealOutput(
-                    status="HOLD",
-                    verdict=VerdictCode.HOLD,
-                    result={},
-                    constitutional_compliance=ConstitutionalCompliance(),
-                    meta={
-                        "reason": _reason,
-                        "failed_floors": ["F11"],
-                        "next_safe_action": "Run arif_judge_deliberate first to obtain a judge packet.",
-                    },
-                    reasons=[_reason],
-                    next_safe_action="Run arif_judge_deliberate first to obtain a judge packet.",
-                    actor_id=actor_id,
-                    timestamp=_now(),
-                ).model_dump(mode="json"),
-                "HOLD",
-            )
+            return SealOutput(
+                status="HOLD",
+                verdict=VerdictCode.HOLD,
+                result={},
+                constitutional_compliance=ConstitutionalCompliance(),
+                meta={
+                    "reason": _reason,
+                    "failed_floors": ["F11"],
+                    "next_safe_action": "Run arif_judge_deliberate first to obtain a judge packet.",
+                },
+                reasons=[_reason],
+                next_safe_action="Run arif_judge_deliberate first to obtain a judge packet.",
+                actor_id=actor_id,
+                timestamp=_now(),
+            ).model_dump(mode="json")
 
         entry_id = uuid.uuid4().hex[:16]
         required_level = IrreversibilityLevel.IRREVERSIBLE
@@ -4129,26 +4042,23 @@ def _arif_vault_seal(
             required_level.value
         ):
             _reason = "judge irreversibility level is below vault seal requirement"
-            return _inject_nine_signal(
-                SealOutput(
-                    status="HOLD",
-                    verdict=VerdictCode.HOLD,
-                    result={},
-                    constitutional_compliance=ConstitutionalCompliance(),
-                    judge_contract=judge_contract,
-                    meta={
-                        "reason": _reason,
-                        "required_level": required_level.value,
-                        "judge_level": judge_contract.irreversibility_level,
-                        "next_safe_action": "Re-run judgment with a higher irreversibility classification.",
-                    },
-                    reasons=[_reason],
-                    next_safe_action="Re-run judgment with a higher irreversibility classification.",
-                    actor_id=actor_id,
-                    timestamp=_now(),
-                ).model_dump(mode="json"),
-                "HOLD",
-            )
+            return SealOutput(
+                status="HOLD",
+                verdict=VerdictCode.HOLD,
+                result={},
+                constitutional_compliance=ConstitutionalCompliance(),
+                judge_contract=judge_contract,
+                meta={
+                    "reason": _reason,
+                    "required_level": required_level.value,
+                    "judge_level": judge_contract.irreversibility_level,
+                    "next_safe_action": "Re-run judgment with a higher irreversibility classification.",
+                },
+                reasons=[_reason],
+                next_safe_action="Re-run judgment with a higher irreversibility classification.",
+                actor_id=actor_id,
+                timestamp=_now(),
+            ).model_dump(mode="json")
         bond = IrreversibilityBond(
             level=IrreversibilityLevel.IRREVERSIBLE,
             delta_S=0.003 + max(judge_contract.delta_s, 0.0),
@@ -4588,12 +4498,8 @@ def _arif_forge_execute(
             actor_id=actor_id,
             witness_type=wt,
         )
-        status = "OK" if k_verdict["passed"] else "HOLD"
-        reasons = (
-            [] if status == "OK" else [k_verdict.get("reason", "Floor breach in dry_run preview")]
-        )
         return {
-            "status": status,
+            "status": "OK" if k_verdict["passed"] else "HOLD",
             "tool": "arif_forge_execute",
             "result": {
                 "forge_dry_run": ("PASS" if k_verdict["passed"] else "FAIL"),
@@ -4616,37 +4522,25 @@ def _arif_forge_execute(
                 "threat_score": k_verdict["threat_score"],
                 "note": "dry_run — no files modified, no commands executed",
             },
-            "meta": (
-                {"next_safe_action": "Produce reversible design blueprint only; no execution."}
-                if status == "HOLD"
-                else {}
-            ),
+            "meta": {},
             "timestamp": _now(),
-            "nine_signal": _nine_signal_from_status(status),
-            "reasons": reasons,
+            "nine_signal": _nine_signal_from_status("OK" if k_verdict["passed"] else "HOLD"),
         }
 
     # H2 hard-gate: artifact-producing modes require an approved plan
     _PLAN_REQUIRED_MODES = {"engineer", "write", "generate"}
     if mode in _PLAN_REQUIRED_MODES:
         if not plan_id:
-            return _inject_nine_signal(
-                ForgeOutput(
-                    status="HOLD",
-                    result={},
-                    manifest=ForgeManifest(status=ManifestStatus.HOLD),
-                    meta={
-                        "reason": f"mode='{mode}' requires an approved plan_id (H2 ratification). Use arif_mind_reason(mode='plan') first.",
-                        "failed_floors": ["F01_AMANAH", "F08_GENIUS"],
-                        "next_safe_action": "Produce reversible design blueprint only; no execution.",
-                    },
-                    timestamp=_now(),
-                    reasons=[
-                        f"mode='{mode}' requires an approved plan_id (H2 ratification). Use arif_mind_reason(mode='plan') first."
-                    ],
-                ).model_dump(mode="json"),
-                "HOLD",
-            )
+            return ForgeOutput(
+                status="HOLD",
+                result={},
+                manifest=ForgeManifest(status=ManifestStatus.HOLD),
+                meta={
+                    "reason": f"mode='{mode}' requires an approved plan_id (H2 ratification). Use arif_mind_reason(mode='plan') first.",
+                    "failed_floors": ["F01_AMANAH", "F08_GENIUS"],
+                },
+                timestamp=_now(),
+            ).model_dump(mode="json")
         plan = _PLAN_REGISTRY.get(plan_id)
         if plan is None:
             return _inject_nine_signal(
@@ -4657,10 +4551,8 @@ def _arif_forge_execute(
                     meta={
                         "reason": f"plan_id '{plan_id}' not found in plan registry.",
                         "failed_floors": ["F01_AMANAH"],
-                        "next_safe_action": "Produce reversible design blueprint only; no execution.",
                     },
                     timestamp=_now(),
-                    reasons=[f"plan_id '{plan_id}' not found in plan registry."],
                 ).model_dump(mode="json"),
                 "HOLD",
             )
@@ -4673,12 +4565,8 @@ def _arif_forge_execute(
                     meta={
                         "reason": f"plan_id '{plan_id}' exists but is not approved (status='{plan.get('status')}'). Await 888_JUDGE SEAL or manual approval.",
                         "failed_floors": ["F01_AMANAH", "F11_AUTH"],
-                        "next_safe_action": "Produce reversible design blueprint only; no execution.",
                     },
                     timestamp=_now(),
-                    reasons=[
-                        f"plan_id '{plan_id}' exists but is not approved (status='{plan.get('status')}'). Await 888_JUDGE SEAL or manual approval."
-                    ],
                 ).model_dump(mode="json"),
                 "HOLD",
             )
@@ -4712,21 +4600,16 @@ def _arif_forge_execute(
                     "failed_floors": k_verdict["failed_floors"],
                 },
             )
-        return _inject_nine_signal(
-            ForgeOutput(
-                status="HOLD",
-                result={},
-                manifest=ForgeManifest(status=ManifestStatus.HOLD),
-                meta={
-                    "reason": k_verdict.get("reason", "Floor breach"),
-                    "failed_floors": k_verdict.get("failed_floors", []),
-                    "next_safe_action": "Produce reversible design blueprint only; no execution.",
-                },
-                timestamp=_now(),
-                reasons=[k_verdict.get("reason", "Floor breach")],
-            ).model_dump(mode="json"),
-            "HOLD",
-        )
+        return ForgeOutput(
+            status="HOLD",
+            result={},
+            manifest=ForgeManifest(status=ManifestStatus.HOLD),
+            meta={
+                "reason": k_verdict.get("reason", "Floor breach"),
+                "failed_floors": k_verdict.get("failed_floors", []),
+            },
+            timestamp=_now(),
+        ).model_dump(mode="json")
 
     # ── Build constitutional compliance ──────────────────────────────────────
     compliance = ConstitutionalCompliance(
@@ -5044,21 +4927,17 @@ def _arif_forge_execute(
             _transition_plan_state(
                 plan_id, "completed", {"mode": "commit", "artifact_id": artifact_id_out}
             )
-        return _inject_nine_signal(output.model_dump(mode="json"), "OK")
+        return output.model_dump(mode="json")
 
     if plan_id:
         _transition_plan_state(plan_id, "aborted", {"reason": f"unknown_mode_{mode}"})
-    return _inject_nine_signal(
-        ForgeOutput(
-            status="HOLD",
-            result={},
-            manifest=ForgeManifest(status=ManifestStatus.HOLD),
-            meta={"reason": f"Unknown mode: {mode}"},
-            timestamp=_now(),
-            reasons=[f"Unknown mode: {mode}"],
-        ).model_dump(mode="json"),
-        "HOLD",
-    )
+    return ForgeOutput(
+        status="HOLD",
+        result={},
+        manifest=ForgeManifest(status=ManifestStatus.HOLD),
+        meta={"reason": f"Unknown mode: {mode}"},
+        timestamp=_now(),
+    ).model_dump(mode="json")
 
 
 async def _arif_forge_execute_tool(
@@ -5565,9 +5444,7 @@ if len(_CANONICAL_HANDLERS) != 13:
     raise RuntimeError(f"Expected 13 canonical handlers, found {len(_CANONICAL_HANDLERS)}")
 
 if set(_CANONICAL_HANDLERS) != set(CANONICAL_TOOLS):
-    missing = set(CANONICAL_TOOLS) - set(_CANONICAL_HANDLERS)
-    extra = set(_CANONICAL_HANDLERS) - set(CANONICAL_TOOLS)
-    raise RuntimeError(f"Canonical handler mismatch: missing={missing}, extra={extra}")
+    raise RuntimeError("Canonical handler registry does not match constitutional_map.py")
 
 _RUNTIME_DIAGNOSTIC_HANDLERS: dict[str, Any] = {
     "arif_ping": _runtime_ping,
