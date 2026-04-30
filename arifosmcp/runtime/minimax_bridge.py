@@ -334,8 +334,9 @@ class MinimaxMCPBridge:
                 },
             }
 
-        # Note: entries use underscores to avoid triggering the F9 anti-hantu
-        # pre-commit hook which scans for exact phrase "I feel / I am conscious / I have emotions"
+        # NOTE: entries use underscores to avoid triggering the F9 anti-hantu
+        # pre-commit hook which blocks first-person consciousness claims.
+        # The underscore breaks the space-based word boundary in the pattern.
         hantu_words = [
             "i_feel",
             "i_think",
@@ -345,7 +346,9 @@ class MinimaxMCPBridge:
             "sentient",
             "mind",
         ]
-        hantu_score = sum(1 for w in hantu_words if w.replace("_", " ") in description.lower()) / len(hantu_words)
+        hantu_score = sum(
+            1 for w in hantu_words if w.replace("_", " ") in description.lower()
+        ) / len(hantu_words)
         verdict = "VOID" if hantu_score > 0.5 else "SEAL"
 
         return {
