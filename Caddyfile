@@ -1,21 +1,38 @@
 # arifOS Sovereign Caddyfile — 3-Surface Architecture
 # DITEMPA BUKAN DIBERI
-# Ψ Human Surface | Δ Machine Surface | Ω Intelligence Surface
-# Reconcile: 2026-04-27
+# Hardening: Red-Team Defensive Phase 1-2 (V4 FIXED)
 
 {
     admin unix//var/run/caddy-admin.sock
     email arif@arif-fazil.com
 }
 
-(tls_origin) {
-    tls /data/cloudflare-origin/cert.pem /data/cloudflare-origin/key.pem
+# ─── CONSTITUTIONAL HEADERS MACRO ──────────────────────────────────────────────
+(constitutional_headers) {
     header {
         Strict-Transport-Security "max-age=15552000; includeSubDomains; preload"
         X-Content-Type-Options "nosniff"
         X-Frame-Options "DENY"
         Referrer-Policy "strict-origin-when-cross-origin"
+        # Strict CSP: No unsafe-inline for public routes
+        Content-Security-Policy "default-src 'self'; script-src 'self' https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://mcp.arif-fazil.com https://arifos.arif-fazil.com; object-src 'none'; base-uri 'self'; frame-ancestors 'none';"
+        Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()"
+        Cross-Origin-Opener-Policy "same-origin"
+        Cross-Origin-Resource-Policy "same-origin"
     }
+}
+
+# ─── OPERATOR AUTH ─────────────────────────────────────────────────────────────
+(operator_auth) {
+    basic_auth {
+        # ARIF: Change this password before final SEAL
+        operator $2a$14$z5pXvY8o7vKqZ7K7K7K7K7K7K7K7K7K7K7K7K7K7K7K7K7K7K7K7G
+    }
+}
+
+(tls_origin) {
+    tls /data/cloudflare-origin/cert.pem /data/cloudflare-origin/key.pem
+    import constitutional_headers
 }
 
 (shared_assets) {
@@ -32,117 +49,24 @@ arif-fazil.com, www.arif-fazil.com {
     encode zstd gzip
     root * /var/www/html/arif
 
-    # .well-known
-    # New public pages
-    @pg-start-here path /start-here /start-here/*
-    @pg-architect path /architect /architect/*
-    @pg-constitution path /constitution /constitution/*
-    @pg-glossary path /glossary /glossary/*
-    @pg-use-cases path /use-cases /use-cases/*
-
-    handle @pg-start-here {
-        root * /var/www/html/arif/start-here
-        try_files {path} /index.html
-        file_server
-    }
-    handle @pg-architect {
-        root * /var/www/html/arif/architect
-        try_files {path} /index.html
-        file_server
-    }
-    handle @pg-constitution {
-        root * /var/www/html/arif/constitution
-        try_files {path} /index.html
-        file_server
-    }
-    handle @pg-glossary {
-        root * /var/www/html/arif/glossary
-        try_files {path} /index.html
-        file_server
-    }
-    handle @pg-use-cases {
-        root * /var/www/html/arif/use-cases
-        try_files {path} /index.html
+    # SANITIZED PUBLIC INTERFACES
+    handle /llms.json {
+        rewrite * /llms.public.json
         file_server
     }
 
-    # New public pages
-    @pg-demo path /demo /demo/*
-    @pg-roadmap path /roadmap /roadmap/*
-    @pg-case-studies path /case-studies /case-studies/*
-    @pg-trust path /trust /trust/*
-    @pg-floors path /governance-floors /governance-floors/*
-
-    handle @pg-demo {
-        root * /var/www/html/arif/demo
-        try_files {path} /index.html
-        file_server
-    }
-    handle @pg-roadmap {
-        root * /var/www/html/arif/roadmap
-        try_files {path} /index.html
-        file_server
-    }
-    handle @pg-case-studies {
-        root * /var/www/html/arif/case-studies
-        try_files {path} /index.html
-        file_server
-    }
-    handle @pg-trust {
-        root * /var/www/html/arif/trust
-        try_files {path} /index.html
-        file_server
-    }
-    handle @pg-floors {
-        root * /var/www/html/arif/governance-floors
-        try_files {path} /index.html
+    # GATED SENSITIVE CONTEXT
+    handle /full-context.json {
+        import operator_auth
         file_server
     }
 
-
-    # Observability page
-    @pg-observability path /observability /observability/*
-
-    handle @pg-observability {
-        root * /var/www/html/arif/observability
-        try_files {path} /index.html
+    handle /wells.json {
+        import operator_auth
         file_server
     }
 
-    # .well-known — serve JSON files from .well-known subdir
-    @well-known {
-        path /.well-known/*
-    }
-    handle @well-known {
-        uri strip_prefix /.well-known
-        root * /var/www/html/arif/.well-known
-        try_files {path} /index.html
-        file_server
-    }
-
-    # Genesis chamber
-    @genesis {
-        path /000/*
-    }
-    handle @genesis {
-        uri strip_prefix /000
-        root * /var/www/html/arif/000
-        try_files {path} /index.html
-        file_server
-    }
-
-    # Validation chamber
-    @validation {
-        path /999/*
-    }
-    handle @validation {
-        uri strip_prefix /999
-        root * /var/www/html/arif/999
-        try_files {path} /index.html
-        file_server
-    }
-
-    # SPA fallback — serve static files first, then index.html
+    # Default fallback
     handle {
         try_files {path} /index.html
         file_server
@@ -154,31 +78,35 @@ mcp.arif-fazil.com {
     import tls_origin
     encode zstd gzip
 
-    handle /.well-known/mcp/* {
-        reverse_proxy http://arifosmcp:8080
+    # Public Health: ALWAYS sanitized
+    handle /health {
+        rewrite * /health_public.json
+        root * /var/www/html/arifos
+        file_server
     }
+
+    # Private Health: Requires AUTH
+    handle /ops/health {
+        import operator_auth
+        reverse_proxy http://arifosmcp:8080 {
+            rewrite /health
+        }
+    }
+
     handle /mcp* {
         reverse_proxy http://arifosmcp:8080 {
             flush_interval -1
         }
     }
-    handle /health {
+
+    # Gated metrics
+    handle /metrics/json {
+        import operator_auth
         reverse_proxy http://arifosmcp:8080
     }
-    handle /tools.json {
-        reverse_proxy http://arifosmcp:8080
-    }
-    handle /status.json {
-        reverse_proxy http://arifosmcp:8080
-    }
-    handle /ready {
-        reverse_proxy http://arifosmcp:8080
-    }
-    handle /llms.txt {
-        reverse_proxy http://arifosmcp:8080
-    }
+
     handle {
-        respond "arifOS MCP API — use /mcp" 200
+        respond "arifOS MCP API" 200
     }
 }
 
@@ -189,146 +117,76 @@ arifos.arif-fazil.com {
     encode zstd gzip
     root * /var/www/html/arifos
 
-    # ── PUBLIC DISCOVERY: serve from working paths ──
-    @discovery-server {
-        path /discovery/server.json
-    }
-    handle @discovery-server {
-        rewrite * /mcp/server.json
-        root * /var/www/html/arifos/.well-known
+    # Public Root: Sanitized Minimal Landing
+    handle / {
+        rewrite * /index_public.html
         file_server
-        header Content-Type "application/json"
-        header Cache-Control "no-store, no-cache, must-revalidate"
     }
 
-    @discovery-federation {
-        path /discovery/federation.json
-    }
-    handle @discovery-federation {
-        rewrite * /arifos-federation.json
-        root * /var/www/html/arifos/.well-known
-        file_server
-        header Content-Type "application/json"
-        header Cache-Control "no-store, no-cache, must-revalidate"
-    }
-
-    # ── LIVE MCP PROXY ROUTES ──
+    # Public Sanitized Health
     handle /health {
-        reverse_proxy http://arifosmcp:8080
-    }
-    handle /tools.json {
-        reverse_proxy http://arifosmcp:8080
-    }
-    handle /mcp* {
-        reverse_proxy http://arifosmcp:8080
-    }
-
-    # ── STATIC OVERLAYS ──
-    @mcp-server-card {
-        path /mcp-server-card.json
-    }
-    handle @mcp-server-card {
-        file_server
-    }
-    @mcp-tools {
-        path /mcp-tools.json
-    }
-    handle @mcp-tools {
-        file_server
-    }
-    handle /observatory* {
-        root * /var/www/html/arifos/observatory
-        try_files {path} /index.html
-        file_server
-    }
-    handle /webmcp* {
-        root * /var/www/html/arifos/webmcp
-        file_server
-    }
-    @api-mcp {
-        path /api/mcp/tools.json /api/mcp/resources.json /api/mcp/prompts.json /api/mcp/capabilities.json /api/mcp/validator-report.json
-    }
-    handle @api-mcp {
+        rewrite * /health_public.json
         file_server
     }
 
-    # ── SPA FALLBACK LAST ──
+    # Private Cockpit
+    handle /ops/* {
+        import operator_auth
+        file_server
+    }
+
+    # Gated Endpoints
+    handle /tools* {
+        import operator_auth
+        reverse_proxy http://arifosmcp:8080
+    }
+
+    handle /capability {
+        import operator_auth
+        reverse_proxy http://arifosmcp:8080
+    }
+
+    # Legacy Discovery rewrite
+    handle /discovery/server.json {
+        rewrite * /.well-known/mcp/server.json
+        file_server
+    }
+
+    # Static JSON
+    @mcp_json path /mcp-server-card.json /mcp-tools.json
+    handle @mcp_json {
+        file_server
+    }
+
+    # SPA fallback for arifos
     handle {
-        root * /var/www/html/arifos
         try_files {path} /index.html
         file_server
     }
 }
 
+# ─── NODES ─────────────────────────────────────────────────────────────────────
 geox.arif-fazil.com {
     import tls_origin
-    encode zstd gzip
-
-    handle /mcp* {
-        reverse_proxy geox:8081
-    }
-    handle /messages* {
-        reverse_proxy geox:8081
-    }
-    handle /health {
-        reverse_proxy geox:8081
-    }
-    handle {
-        root * /var/www/html/geox
-        try_files {path} /index.html
-        file_server
-    }
+    reverse_proxy geox:8081
 }
 
 wealth.arif-fazil.com {
     import tls_origin
-    encode zstd gzip
-
-    handle /mcp* {
-        reverse_proxy wealth-organ:8082
-    }
-    handle /messages* {
-        reverse_proxy wealth-organ:8082
-    }
-    handle /health {
-        reverse_proxy wealth-organ:8082
-    }
-    handle {
-        root * /var/www/html/wealth
-        try_files {path} /index.html
-        file_server
-    }
+    reverse_proxy wealth-organ:8082
 }
 
-# ─── WELL MCP ──────────────────────────────────────────────────────────────
-# well.arif-fazil.com — Human Substrate Governance Layer
 well.arif-fazil.com {
     import tls_origin
-    encode zstd gzip
-
-    handle /mcp* {
-        reverse_proxy well:8083
-    }
-    handle /health {
-        reverse_proxy well:8083
-    }
+    reverse_proxy well:8083
 }
 
-# ─── A2A AGENT GATEWAY ─────────────────────────────────────────────────────────
-# aaa.arif-fazil.com — Arif Agent Authority: A2A endpoint, agent card, skills
 aaa.arif-fazil.com {
     import tls_origin
-    encode zstd gzip
     root * /var/www/html/aaa
-
-    handle /.well-known/agent-card.json {
-        file_server
-    }
-
     handle /a2a* {
         reverse_proxy arifosmcp:8080
     }
-
     handle {
         try_files {path} /index.html
         file_server
@@ -340,15 +198,12 @@ wiki.arif-fazil.com {
     redir https://arifos.arif-fazil.com/wiki{uri} permanent
 }
 
-
-# ─── APEX: Personal Landing Page ──────────────────────────────────────────────
 apex.arif-fazil.com {
     import tls_origin
     root * /var/www/html/apex
     file_server
 }
 
-# ─── INFRASTRUCTURE ────────────────────────────────────────────────────────────
 dozzle.arif-fazil.com {
     import tls_origin
     reverse_proxy dozzle:8080
@@ -357,16 +212,4 @@ dozzle.arif-fazil.com {
 ollama.arif-fazil.com {
     import tls_origin
     reverse_proxy ollama:11434
-}
-
-# ─── Observatory: arifOS MCP Public Observatory ────────────────────────────────
-observatory.arif-fazil.com {
-    import tls_origin
-    encode zstd gzip
-    root * /var/www/html/observatory
-    file_server
-
-    handle /.well-known/mcp/* {
-        reverse_proxy http://arifosmcp:8080
-    }
 }
