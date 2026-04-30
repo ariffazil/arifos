@@ -28,6 +28,7 @@ from arifosmcp.runtime.mcp_utils import call_mcp_tool
 from arifosmcp.runtime.optional_deps import aiofiles
 from arifosmcp.server import mcp as _FAST_MCP_
 
+from .agent_card_v2 import get_arifOS_agent_card, get_axos_summary
 from .models import (
     AgentCard,
     Artifact,
@@ -39,14 +40,9 @@ from .models import (
     TaskState,
     TaskStatusUpdate,
 )
-from .agent_card_v2 import ArifOSAgentCard, get_arifOS_agent_card, get_axos_summary
 from .seal_verifier import (
-    A2ASealVerifier,
-    get_seal_verifier,
-    OrthogonalityResponse,
     SealVerificationRequest,
-    SealVerificationResponse,
-    WELLStateResponse,
+    get_seal_verifier,
 )
 
 # Cross-protocol 888_HOLD bridge
@@ -72,10 +68,8 @@ class A2ATaskManager:
         task_id = f"a2a-{uuid.uuid4().hex[:12]}"
 
         # Extract query from messages
-        query = ""
         for msg in request.messages:
             if msg.role == "user":
-                query = msg.content
                 break
 
         # Initialize constitutional session via MCP
@@ -159,7 +153,7 @@ class A2ATaskManager:
                 task_id, TaskState.WORKING, "Running constitutional critique..."
             )
 
-            critique_result = await self._call_mcp_tool(
+            _critique_result = await self._call_mcp_tool(
                 "arif_heart_critique",
                 {
                     "mode": "critique",
@@ -259,7 +253,10 @@ class A2ATaskManager:
                     task.messages.append(
                         TaskMessage(
                             role="system",
-                            content="Task requires human ratification (F13 Sovereign). Please approve via arifOS dashboard.",
+                            content=(
+                                "Task requires human ratification (F13 Sovereign). "
+                                "Please approve via arifOS dashboard."
+                            ),
                         )
                     )
 
@@ -532,7 +529,10 @@ class A2AServer:
 
                     # End if terminal state
                     if task.state in [TaskState.COMPLETED, TaskState.FAILED, TaskState.CANCELLED]:
-                        yield f"event: complete\ndata: {json.dumps({'task_id': task_id, 'state': task.state})}\n\n"
+                        yield (
+                            f"event: complete\n"
+                            f"data: {json.dumps({'task_id': task_id, 'state': task.state})}\n\n"
+                        )
                         break
 
                     await asyncio.sleep(1)
