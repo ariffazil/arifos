@@ -6,3 +6,7 @@ services:
     environment:
       ARIFOS_INTERNAL_SECRET_HERMES: "${ARIFOS_INTERNAL_SECRET_HERMES:-}"
       JWT_ENFORCE_MODE: "observe"
+    networks:
+      - arifos_core_network
+      - arifos-network
+      - bridge

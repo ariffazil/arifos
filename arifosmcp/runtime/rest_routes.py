@@ -2121,6 +2121,93 @@ def register_rest_routes(
             },
         )
 
+    @route("/000", methods=["GET"])
+    async def genesis(request: Request) -> Response:
+        """Genesis endpoint — /000 anchors the sovereign session.
+
+        Returns Constitutional floors, canonical tool registry, and session
+        genesis metadata. This is the sovereign entry point: every session
+        starts here for truth-preserving initialization (F1 Amanah, F2 Truth,
+        F7 Humility, F13 Sovereign).
+        """
+        FLOORS_CATALOG = [
+            {"code": "F1", "name": "AMANAH", "category": "HARD", "enforcement": "irreversible_actions"},
+            {"code": "F2", "name": "TRUTH", "category": "HARD", "enforcement": "all_claims"},
+            {"code": "F3", "name": "WITNESS", "category": "SOFT", "enforcement": "evidence_required"},
+            {"code": "F4", "name": "CLARITY", "category": "SOFT", "enforcement": "intent_transparent"},
+            {"code": "F5", "name": "PEACE", "category": "SOFT", "enforcement": "human_dignity"},
+            {"code": "F6", "name": "EMPATHY", "category": "HARD", "enforcement": "consequence_assessment"},
+            {"code": "F7", "name": "HUMILITY", "category": "SOFT", "enforcement": "uncertainty_bands"},
+            {"code": "F8", "name": "GENIUS", "category": "SOFT", "enforcement": "elegance_threshold"},
+            {"code": "F9", "name": "ANTIHANTU", "category": "HARD", "enforcement": "no_consciousness_claims"},
+            {"code": "F10", "name": "ONTOLOGY", "category": "HARD", "enforcement": "structural_coherence"},
+            {"code": "F11", "name": "AUTH", "category": "HARD", "enforcement": "identity_verification"},
+            {"code": "F12", "name": "INJECTION", "category": "SOFT", "enforcement": "input_sanitization"},
+            {"code": "F13", "name": "SOVEREIGN", "category": "HARD", "enforcement": "human_veto_absolute"},
+        ]
+
+        return JSONResponse(
+            {
+                "endpoint": "/000",
+                "role": "genesis",
+                "description": "Sovereign session anchor — Constitutional initialization",
+                "service": "arifOS AAA MCP Server",
+                "version": BUILD_INFO["version"],
+                "protocol_version": MCP_PROTOCOL_VERSION,
+                "floors": FLOORS_CATALOG,
+                "canonical_tools": list(tool_registry.keys()),
+                "tool_count": len(tool_registry),
+                "mcp_endpoint": "/mcp",
+                "source_of_truth": "https://github.com/ariffazil/arifOS",
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+            },
+            headers={"Access-Control-Allow-Origin": "*"},
+        )
+
+    @route("/999", methods=["GET"])
+    async def human_validation(request: Request) -> Response:
+        """Human validation endpoint — /999 is the sovereign approval gate.
+
+        Returns pending human authorizations and vault seal status.
+        This is the irreversible action gate: /999 POST to arif_vault_seal
+        requires human witness before any irreversible operation (F1 Amanah,
+        F13 Sovereign Human Veto).
+        """
+        vault_status = None
+        try:
+            vault_status = _probe_vault999_health()
+        except Exception:
+            vault_status = "unavailable"
+
+        # Best-effort: try to read pending approvals from app.state
+        pending_approvals = []
+        try:
+            sovereign = getattr(request.app.state, "arifos_sovereign_status", {})
+            if sovereign and callable(getattr(sovereign, "get", None)):
+                pending = sovereign.get("pending_approvals")
+                if pending:
+                    pending_approvals = pending if isinstance(pending, list) else [pending]
+        except Exception:
+            pass
+
+        return JSONResponse(
+            {
+                "endpoint": "/999",
+                "role": "human_validation",
+                "description": "Sovereign approval gate — irrevocable action requires human witness",
+                "service": "arifOS AAA MCP Server",
+                "vault999_health": vault_status,
+                "pending_approvals": pending_approvals,
+                "seal_methods": {
+                    "POST /999/seal": "arif_vault_seal — requires operator approval",
+                    "GET /operator/approvals": "list pending human authorizations",
+                },
+                "source_of_truth": "https://github.com/ariffazil/arifOS",
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+            },
+            headers={"Access-Control-Allow-Origin": "*"},
+        )
+
     @route("/capability", methods=["GET"])
     async def capability(request: Request) -> Response:
         """Capability map — what is wired and configured in this kernel instance."""
@@ -2202,6 +2289,32 @@ def register_rest_routes(
     @route("/version", methods=["GET"])
     async def version(request: Request) -> Response:
         return JSONResponse(BUILD_INFO)
+
+    @route("/runtime_fingerprint", methods=["GET"])
+    async def runtime_fingerprint(request: Request) -> Response:
+        """
+        Phase 2: Runtime fingerprint to prevent old-image/new-code drift.
+        Returns verifiable machine truth.
+        """
+        # 1. Image digest (if available in container env)
+        image_digest = os.getenv("IMAGE_DIGEST", "unknown")
+        git_sha = os.getenv("DEPLOY_GIT_COMMIT", "unknown")
+        
+        # 2. Compute tool registry hash for drift detection
+        registry_text = json.dumps(public_tool_names(), sort_keys=True)
+        registry_hash = hashlib.sha256(registry_text.encode()).hexdigest()
+
+        fingerprint = {
+            "service": "arifosmcp",
+            "git_sha": git_sha,
+            "image": os.getenv("DEPLOY_IMAGE", "ghcr.io/ariffazil/arifos:latest"),
+            "image_digest": image_digest,
+            "build_time": os.getenv("DEPLOY_BUILD_TIME", "unknown"),
+            "registry_hash": registry_hash,
+            "started_at": os.getenv("START_TIME", datetime.now(timezone.utc).isoformat()),
+            "runtime_drift": git_sha == "unknown" or image_digest == "unknown"
+        }
+        return JSONResponse(fingerprint)
 
     @route("/tools", methods=["GET"])
     async def list_tools(request: Request) -> Response:
