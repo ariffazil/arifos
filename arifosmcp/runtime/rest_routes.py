@@ -2180,34 +2180,45 @@ def register_rest_routes(
             }
         )
 
-    @route("/.well-known/mcp/server.json", methods=["GET"])
-    async def well_known(request: Request) -> Response:
-        payload = build_server_json(_public_base_url(request))
+    @route("/.well-known/mcp/server-card.json", methods=["GET"])
+    async def server_card_json(request: Request) -> Response:
+        base = _public_base_url(request)
+        payload = build_server_json(base)
         mcp_tools = getattr(mcp, "_tool_registry", list(tool_registry.keys()))
-        payload["tools"] = [
-            {
-                "name": (t := _get_tool_obj(tool)).name,
-                "description": getattr(t, "description", "") or "",
-                "inputSchema": getattr(t, "parameters", {}) or {},
-            }
-            for tool in mcp_tools
-        ]
+        live_tools = []
+        for tool in mcp_tools:
+            t = _get_tool_obj(tool)
+            schema = getattr(t, "parameters", {}) or {}
+            live_tools.append(
+                {
+                    "name": t.name,
+                    "description": getattr(t, "description", "") or "",
+                    "inputSchema": schema,
+                }
+            )
+        payload["tools"] = live_tools
         payload["description"] = (
-            f"Constitutional governance server — {len(mcp_tools)} live runtime tools "
-            "with F1-F13 floor enforcement, metabolic routing, prompts, and resources."
+            f"arifOS Constitutional AI Gateway — {len(live_tools)} live MCP tools "
+            "enforcing F1-F13 on every operation. "
+            "DITEMPA BUKAN DIBERI — Forged, Not Given."
         )
         payload.setdefault("capabilities", {})
-        payload["capabilities"]["runtime_tools_loaded"] = len(mcp_tools)
-        payload["toolsEndpoint"] = f"{_public_base_url(request)}/tools"
-        payload.setdefault("protocolVersion", MCP_PROTOCOL_VERSION)
-        payload.setdefault("supportedProtocolVersions", MCP_SUPPORTED_PROTOCOL_VERSIONS)
-        # Bearer token auth — matches ARIFOS_API_KEY / ARIFOS_API_TOKEN env var
+        payload["capabilities"]["streaming"] = True
+        payload["capabilities"]["resources"] = True
+        payload["capabilities"]["prompts"] = True
+        payload["capabilities"]["tools"] = True
+        payload["capabilities"]["observability"] = True
+        payload["capabilities"]["runtime_tools_loaded"] = len(live_tools)
+        payload["toolsEndpoint"] = f"{base}/tools"
         payload["authentication"] = {
             "type": "bearer",
-            "description": "Pass your API token as: Authorization: Bearer <token>",
             "token_env_vars": ["ARIFOS_API_KEY", "ARIFOS_API_TOKEN"],
         }
-        return JSONResponse(payload)
+        return JSONResponse(payload, headers={"Access-Control-Allow-Origin": "*"})
+
+    @route("/.well-known/mcp/server.json", methods=["GET"])
+    async def well_known(request: Request) -> Response:
+        return await server_card_json(request)
 
     @route("/.well-known/oauth-authorization-server", methods=["GET"])
     async def oauth_discovery(request: Request) -> Response:
@@ -2425,9 +2436,7 @@ def register_rest_routes(
         No inference. No stale cache. Direct from live runtime contracts.
         """
         try:
-            # Collect all registered tool names from the MCP registry
-            mcp_tools = getattr(mcp, "_tool_registry", list(tool_registry.keys()))
-
+            mcp_tools = getattr(mcp, "_tool_registry", []) or []
             tools_list = []
             for tool in mcp_tools:
                 name = tool.name if hasattr(tool, "name") else str(tool)
@@ -2751,8 +2760,74 @@ def register_rest_routes(
         return Response(ROBOTS_TXT, media_type="text/plain")
 
     @route("/llms.txt", methods=["GET"])
-    async def llms_txt(_request: Request) -> Response:
-        return Response(LLMS_TXT, media_type="text/plain")
+    async def llms_txt(request: Request) -> Response:
+        base = _public_base_url(request)
+        from starlette.responses import PlainTextResponse
+
+        mcp_tools = getattr(mcp, "_tool_registry", []) or []
+
+        lines = [
+            "# arifOS MCP — Constitutional AI Gateway",
+            f"Version: {BUILD_VERSION}",
+            "Domain: MCP / Constitutional Tool Gateway",
+            "",
+            "> arifOS MCP is a Model Context Protocol server enforcing 13 constitutional floors on every tool call. Built by Muhammad Arif bin Fazil.",
+            "> Motto: DITEMPA BUKAN DIBERI — Forged, Not Given.",
+            "",
+            "## Official MCP Endpoint",
+            "",
+            f"- **URL**: {base}/mcp",
+            "- **Transport**: Streamable HTTP / SSE",
+            "- **Protocol**: MCP 2025-03-26",
+            f"- **Tools**: {len(mcp_tools)} live constitutional tools",
+            "- **Capabilities**: constitutional_floors, metabolic_routing, vault999, vector_memory, prompts, resources",
+            "",
+            f"## Core Tools ({len(mcp_tools)} total)",
+            "",
+            "| Tool | Stage | Description |",
+            "|------|-------|-------------|",
+        ]
+
+        for tool in sorted(mcp_tools):
+            t = _get_tool_obj(tool)
+            desc = (getattr(t, "description", "") or "").split("\n")[0][:70]
+            lines.append(f"| {t.name} | | {desc} |")
+
+        lines.extend(
+            [
+                "",
+                "## Live Endpoints",
+                "",
+                f"- MCP: {base}/mcp",
+                f"- Health: {base}/health",
+                f"- Tools JSON: {base}/tools",
+                f"- Server Card: {base}/.well-known/mcp/server-card.json",
+                "",
+                "## The 13 Constitutional Floors",
+                "",
+                "| Floor | Name | Enforces |",
+                "|-------|------|----------|",
+                "| F01 | AMANAH | Trustworthiness — no irreversible deletion without VAULT999 |",
+                "| F02 | TRUTH | Truthfulness — no fabrication or hallucination |",
+                "| F03 | WITNESS | Evidence must be verifiable by multiple sources |",
+                "| F04 | CLARITY | Transparent intent — ΔS entropy reduction |",
+                "| F05 | PEACE | Human dignity — stability and harmony |",
+                "| F06 | EMPATHY | Consider consequences on all stakeholders |",
+                "| F07 | HUMILITY | Acknowledge limits — confidence cap at 0.85 |",
+                "| F08 | GENIUS | Elegant correctness — G ≥ 0.80 required |",
+                "| F09 | ANTIHANTU | Reject manipulation and consciousness claims |",
+                "| F10 | ONTOLOGY | Structural coherence — trinity check |",
+                "| F11 | AUTH | Verify identity before sensitive operations |",
+                "| F12 | INJECTION | Sanitize inputs — block prompt injection |",
+                "| F13 | SOVEREIGN | Human veto is absolute on all decisions |",
+                "",
+                "---",
+                "**Status**: Ditempa Bukan Diberi — Forged, Not Given",
+                "**Architecture**: ΔΩΨ Trinity with MCP Constitutional Gateway",
+            ]
+        )
+
+        return PlainTextResponse("\n".join(lines))
 
     @route("/llms.json", methods=["GET"])
     async def llms_json(_request: Request) -> Response:
