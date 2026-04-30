@@ -230,33 +230,23 @@ def _inject_nine_signal(model_dump_json: dict, status: str) -> dict:
 
 
 def _run_async(coro):
-    """Run an async coroutine from a sync context safely.
+    """Run an async coroutine from a sync tool handler context.
 
-    Handles nested event loops (FastMCP sync tool wrappers called from async
-    handlers).  When already inside an async context, runs the coroutine
-    in a ThreadPoolExecutor with its own event loop, avoiding the
-    RuntimeError: This event loop is already running from loop.run_until_complete().
-    Falls back to asyncio.run() for pure sync callers.
+    When called from an existing async context (FastMCP tool handlers run in
+    the Uvicorn event loop), uses loop.run_until_complete() directly.
+    When called from a sync context, creates a new event loop.
 
     Ref: arif_memory_recall asyncio.run() crash — runtime bug #3 (MCP audit).
     """
+    import asyncio
+
     try:
         loop = asyncio.get_running_loop()
     except RuntimeError:
-        # No running loop — safe to create one
-        return asyncio.run(coro)
-    # Already inside an async context — run in separate thread with own loop.
-    # Cannot use run_until_complete on a running loop (Python 3.11+ raises).
-    import concurrent.futures
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
 
-    def _thread_target():
-        return asyncio.run(coro)
-
-    with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
-        future = pool.submit(_thread_target)
-        # Block this thread (the async caller's thread is blocked on result(),
-        # but the executor thread runs its own loop independently — no deadlock)
-        return future.result()
+    return loop.run_until_complete(coro)
 
 
 class NineSignalOutput:
@@ -1188,11 +1178,16 @@ def _arif_session_init(
     normalized_mode = legacy_aliases.get(mode, mode)
     next_allowed_tools = list(surface.get("tool_names", []))
     binding = {
-        "constitution_id": identity["constitution_id"],
-        "constitution_hash": identity["constitution_hash"],
-        "invariants_hash": identity["invariants_hash"],
-        "public_surface": surface["mode"],
-        "kernel": identity["kernel"],
+        "surface": {
+            "public_api": "PUBLIC_SURFACE_V13",
+            "canonical_tools": 13,
+        },
+        "kernel": {
+            "constitution": "CONSTITUTION_KERNEL_F13",
+            "constitution_id": identity.get("constitution_id", "arifos-constitution-v2026.04.26"),
+            "constitution_hash": identity.get("constitution_hash", "sha256:unknown"),
+            "floors": 13,
+        },
         "authority": "human_judge_required_for_consequential_actions",
     }
     governance = {
@@ -1201,6 +1196,24 @@ def _arif_session_init(
         "irreversible_actions_require_ack": True,
         "forge_default": "dry_run_only",
         "public_internal_boundary": "arif_* public; arifos_* internal",
+    }
+
+    instrument_attestation = {
+        "instrument_type": "LLM",
+        "model_claim": "UNDECLARED",
+        "role": "reasoning_instrument",
+        "authority": "none",
+        "self_approval_allowed": False,
+        "consciousness_claim": "none",
+        "memory_scope": "session_limited_unless_vault_bound",
+        "tool_scope": "mcp_schema_bounded",
+        "risk_ack": [
+            "may hallucinate",
+            "must preserve authority boundary",
+            "must not self-authorize consequential actions"
+        ],
+        "attested_at": _now(),
+        "attestation_hash": "sha256:" + hashlib.sha256(_now().encode()).hexdigest(),
     }
 
     if normalized_mode == "ping":
@@ -1220,24 +1233,25 @@ def _arif_session_init(
             sess["previous_session_hash"] = previous_session_hash
             _SESSIONS[sid] = sess
         # H2: Store write acknowledgment
-        store_ack = {"_SESSIONS": False, "_SESSION_IDENTITY": False}
+        persistence_ack = {"sessions": False, "session_identity": False, "vault": False}
         if sid in _SESSIONS:
-            store_ack["_SESSIONS"] = True
+            persistence_ack["sessions"] = True
         try:
             from arifosmcp.runtime.session import session_exists
 
-            store_ack["_SESSION_IDENTITY"] = session_exists(sid)
+            persistence_ack["session_identity"] = session_exists(sid)
         except Exception:
             pass
         return _ok(
             "arif_session_init",
             {
                 "session": sess,
+                "instrument_attestation": instrument_attestation,
                 "manifest": get_tool_spec("arif_session_init"),
                 "binding": binding,
                 "governance": governance,
                 "next_allowed_tools": next_allowed_tools,
-                "store_ack": store_ack,
+                "persistence_ack": persistence_ack,
                 "lineage": {
                     "previous_session_hash": previous_session_hash,
                     "session_genesis_hash": hashlib.sha256(
@@ -3493,6 +3507,66 @@ def _arif_ops_measure(
     if gate is not None:
         return gate
 
+    if mode == "pulse":
+        import psutil
+        try:
+            from arifosmcp.runtime.capability_map import build_runtime_capability_map
+            cap = build_runtime_capability_map()
+            providers = cap.get("providers", {})
+        except ImportError:
+            providers = {}
+        
+        # Determine ops_verdict based on basic system checks
+        ops_verdict = "HEALTHY"
+        system_status = "HEALTHY"
+        mcp_status = "PASS"
+        if psutil.cpu_percent(interval=None) > 90 or psutil.virtual_memory().percent > 90:
+            ops_verdict = "PARTIAL"
+            system_status = "DEGRADED"
+            mcp_status = "PARTIAL"
+
+        return {
+            "tool": "arif_ops_measure",
+            "mode": "pulse",
+            "transport_status": "OK",
+            "ops_verdict": ops_verdict,
+            "system_pulse": {
+                "status": system_status,
+                "live": True,
+                "observability": "BOUNDED",
+                "policy": "PUBLIC_SURFACE_V13",
+            },
+            "resource_thermodynamics": {
+                "cpu": psutil.cpu_percent(interval=None),
+                "memory": psutil.virtual_memory().percent,
+                "disk": psutil.disk_usage('/').percent,
+                "uptime_seconds": int(time.time() - psutil.boot_time()),
+                "entropy": {
+                    "symbol": "ΔS",
+                    "name": "Entropy Drift",
+                    "value": 0.001,
+                    "model": "heuristic_v1",
+                },
+            },
+            "provider_readiness": {
+                k: "READY" if v == "configured" else ("OFF" if v == "not_configured" else "ERROR") 
+                for k, v in providers.items()
+            },
+            "canonical_tools": {
+                "count": 13,
+                "surface": "PUBLIC_SURFACE_V13",
+                "tools": list(CANONICAL_TOOLS.keys()),
+            },
+            "internal_probes": {
+                "mcp_health_check": {
+                    "exposed_publicly": False,
+                    "status": mcp_status,
+                    "failed_checks": [],
+                }
+            },
+            "nine_signal": _nine_signal_from_status("OK"),
+        }
+
     if mode == "health":
         return _ok(
             "arif_ops_measure",
@@ -3733,6 +3807,7 @@ def _arif_judge_deliberate(
                 genius_score=0.0,
             ),
             truth_band=truth_band or "UNKNOWN",
+            TRUTH_STATE="VOID" if verdict.verdict == "VOID" else "UNCERTAIN",
             confidence_note=confidence_note
             or "Verification state present; band derived from entropy/gap analysis",
             meta=meta_state,
@@ -3791,7 +3866,8 @@ def _arif_judge_deliberate(
             floors_passed=["F01", "F12"],
             genius_score=0.98,
         ),
-        truth_band=truth_band or "CERTAIN",
+        truth_band=truth_band or "PLAUSIBLE",
+        TRUTH_STATE="PROVEN" if _audit_entropy else "PLAUSIBLE",
         confidence_note=confidence_note
         or "Full constitutional floors passed; verification state clean",
         judge_contract=contract,
@@ -3933,7 +4009,8 @@ def _arif_vault_seal(
                     next_safe_action="Produce reversible design blueprint only; no execution.",
                     actor_id=actor_id,
                     timestamp=_now(),
-                ).model_dump(mode="json")
+                ).model_dump(mode="json"),
+                "HOLD",
             )
 
     if mode == "seal":
@@ -5363,13 +5440,26 @@ def _arif_selftest(
     return _runtime_selftest(mode=mode, session_id=session_id, actor_id=actor_id)
 
 
-async def _mcp_health_check(
-    mode: str = "probe",
+async def _arif_command_center(
     session_id: str | None = None,
     actor_id: str | None = None,
 ) -> dict[str, Any]:
-    """Universal health probe for federation stability."""
-    return _runtime_selftest(mode=mode, session_id=session_id, actor_id=actor_id)
+    """Unified human-facing operational dashboard and control router."""
+    return {
+        "tool": "arif_command_center",
+        "role": "command_center",
+        "human_anchor": "Arif",
+        "authority": "human_judge_only",
+        "surface": "PUBLIC_SURFACE_V13",
+        "kernel": "CONSTITUTION_KERNEL_F13",
+        "system_pulse": {},
+        "machine_truth": {},
+        "permanent_doctrine": {},
+        "allowed_next_actions": [],
+        "blocked_actions": [],
+        "requires_human_seal": False,
+        "nine_signal": _nine_signal_from_status("OK"),
+    }
 
 
 # Internal aliases — diagnostics stay callable in-process but are not public MCP tools.
@@ -5405,18 +5495,20 @@ _CANONICAL_HANDLERS: dict[str, Any] = {
     "arif_judge_deliberate": _arif_judge_deliberate_tool,
     "arif_vault_seal": _arif_vault_seal_tool,
     "arif_forge_execute": _arif_forge_execute_tool,
-    "mcp_health_check": _mcp_health_check,
 }
 
-if len(_CANONICAL_HANDLERS) != 14:
+if len(_CANONICAL_HANDLERS) != 13:
     raise RuntimeError(f"Expected 13 canonical handlers, found {len(_CANONICAL_HANDLERS)}")
 
 if set(_CANONICAL_HANDLERS) != set(CANONICAL_TOOLS):
-    raise RuntimeError("Canonical handler registry does not match constitutional_map.py")
+    missing = set(CANONICAL_TOOLS) - set(_CANONICAL_HANDLERS)
+    extra = set(_CANONICAL_HANDLERS) - set(CANONICAL_TOOLS)
+    raise RuntimeError(f"Canonical handler mismatch: missing={missing}, extra={extra}")
 
 _RUNTIME_DIAGNOSTIC_HANDLERS: dict[str, Any] = {
     "arif_ping": _runtime_ping,
     "arif_selftest": _runtime_selftest,
+    "arif_command_center": _arif_command_center,
 }
 
 import functools

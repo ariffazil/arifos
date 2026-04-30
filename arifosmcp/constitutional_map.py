@@ -193,19 +193,9 @@ CANONICAL_TOOLS: dict[str, dict[str, Any]] = {
         "risk_tier": "low",
         "irreversible": False,
     },
-    "mcp_health_check": {
-        "name": "mcp_health_check",
-        "description": "Probe: universal health check for federation stability.",
-        "access": "public",
-        "stage": ToolStage.KERNEL,
-        "lane": TrinityLane.AGI,
-        "floors": [Floor.F04_CLARITY],
-        "risk_tier": "low",
-        "irreversible": False,
-    },
 }
 
-PROBE_TOOLS: tuple[str, ...] = ()
+PROBE_TOOLS: tuple[str, ...] = ("arif_command_center",)
 CONSTITUTIONAL_TOOLS: tuple[str, ...] = tuple(CANONICAL_TOOLS.keys())
 
 
@@ -382,10 +372,6 @@ _TOOL_INPUT_SCHEMAS: dict[str, dict[str, Any]] = {
     "arif_ops_measure": {
         "mode": str,
         "estimate": float | None,
-        "session_id": str | None,
-        "actor_id": str | None,
-    },
-    "mcp_health_check": {
         "session_id": str | None,
         "actor_id": str | None,
     },

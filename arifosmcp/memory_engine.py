@@ -113,8 +113,12 @@ class GraphitiClient:
 class LangfuseTrace:
     """Lightweight Langfuse v2 REST ingester using httpx."""
 
-    def __init__(self, base_url: str = "http://langfuse-web:3000"):
-        self.base_url = base_url.rstrip("/")
+    def __init__(self, base_url: str | None = None):
+        # Use env var if provided, else default to Cloud if keys look like cloud keys,
+        # or local if running in the federation.
+        self.base_url = (
+            base_url or os.getenv("LANGFUSE_BASE_URL") or "http://langfuse-web:3000"
+        ).rstrip("/")
         self.public_key = os.getenv("LANGFUSE_PUBLIC_KEY")
         self.secret_key = os.getenv("LANGFUSE_SECRET_KEY")
         self.enabled = bool(self.public_key and self.secret_key)
@@ -124,6 +128,7 @@ class LangfuseTrace:
         if not self.enabled:
             return
         try:
+            # Langfuse expects /api/public/ingestion for batch uploads
             await self._http.post(
                 f"{self.base_url}/api/public/ingestion",
                 json={"batch": batch},
@@ -132,23 +137,36 @@ class LangfuseTrace:
         except Exception as e:
             logger.debug(f"Langfuse ingestion failed (non-fatal): {e}")
 
-    async def trace(self, name: str, metadata: dict[str, Any] | None = None):
+    async def trace(
+        self,
+        name: str,
+        session_id: str | None = None,
+        metadata: dict[str, Any] | None = None,
+        tags: list[str] | None = None,
+    ):
         from datetime import datetime, timezone
 
         ts = datetime.now(timezone.utc).isoformat()
         trace_id = str(uuid.uuid4())
         if self.enabled:
+            body: dict[str, Any] = {
+                "id": trace_id,
+                "name": name,
+                "metadata": metadata or {},
+                "timestamp": ts,
+            }
+            if session_id:
+                # Group traces into a Langfuse Session
+                body["sessionId"] = session_id
+            if tags:
+                body["tags"] = tags
+
             await self._ingest(
                 [
                     {
                         "id": str(uuid.uuid4()),
                         "type": "trace",
-                        "body": {
-                            "id": trace_id,
-                            "name": name,
-                            "metadata": metadata or {},
-                            "timestamp": ts,
-                        },
+                        "body": body,
                         "timestamp": ts,
                     }
                 ]
@@ -160,15 +178,105 @@ class LangfuseTrace:
 
 
 class LangfuseSpan:
-    def __init__(self, tracer: LangfuseTrace, trace_id: str):
+    def __init__(self, tracer: LangfuseTrace, trace_id: str, parent_observation_id: str | None = None):
         self.tracer = tracer
         self.trace_id = trace_id
+        self.parent_observation_id = parent_observation_id
+
+    async def span(self, name: str, input: Any = None, metadata: dict[str, Any] | None = None):
+        from datetime import datetime, timezone
+        ts = datetime.now(timezone.utc).isoformat()
+        span_id = str(uuid.uuid4())
+        
+        if self.tracer.enabled:
+            body: dict[str, Any] = {
+                "id": span_id,
+                "traceId": self.trace_id,
+                "name": name,
+                "startTime": ts,
+                "input": input,
+                "metadata": metadata or {},
+            }
+            if self.parent_observation_id:
+                body["parentObservationId"] = self.parent_observation_id
+
+            await self.tracer._ingest([
+                {
+                    "id": str(uuid.uuid4()),
+                    "type": "span",
+                    "body": body,
+                    "timestamp": ts,
+                }
+            ])
+        return LangfuseSpan(self.tracer, self.trace_id, span_id)
+
+    async def generation(
+        self, 
+        name: str, 
+        model: str | None = None, 
+        input: Any = None, 
+        output: Any = None,
+        usage: dict[str, int] | None = None,
+        metadata: dict[str, Any] | None = None
+    ):
+        from datetime import datetime, timezone
+        ts = datetime.now(timezone.utc).isoformat()
+        gen_id = str(uuid.uuid4())
+        
+        if self.tracer.enabled:
+            body: dict[str, Any] = {
+                "id": gen_id,
+                "traceId": self.trace_id,
+                "name": name,
+                "startTime": ts,
+                "model": model,
+                "input": input,
+                "output": output,
+                "usage": usage or {},
+                "metadata": metadata or {},
+            }
+            if self.parent_observation_id:
+                body["parentObservationId"] = self.parent_observation_id
+
+            await self.tracer._ingest([
+                {
+                    "id": str(uuid.uuid4()),
+                    "type": "generation",
+                    "body": body,
+                    "timestamp": ts,
+                }
+            ])
+        return LangfuseSpan(self.tracer, self.trace_id, gen_id)
+
+    async def update(self, output: Any = None, metadata: dict[str, Any] | None = None):
+        """Update the current span/observation with output and final metadata."""
+        if not self.parent_observation_id:
+            return # Trace updates not handled here yet
+            
+        from datetime import datetime, timezone
+        ts = datetime.now(timezone.utc).isoformat()
+        
+        if self.tracer.enabled:
+            await self.tracer._ingest([
+                {
+                    "id": str(uuid.uuid4()),
+                    "type": "span-patch" if self.parent_observation_id else "trace-patch",
+                    "body": {
+                        "id": self.parent_observation_id,
+                        "endTime": ts,
+                        "output": output,
+                        "metadata": metadata or {},
+                    },
+                    "timestamp": ts,
+                }
+            ])
 
     async def __aenter__(self):
         return self
 
     async def __aexit__(self, exc_type, exc, tb):
-        pass
+        if self.parent_observation_id:
+            await self.update()
 
 
 class MemoryEngine:
@@ -284,6 +392,13 @@ class MemoryEngine:
         memory_id = str(uuid.uuid4())
         qdrant_id = str(uuid.uuid4())
 
+        # ── Langfuse Trace ───────────────────────────────────────────────
+        trace = await self._langfuse.trace(
+            name="memory:store",
+            session_id=session_id,
+            metadata={"tier": tier, "memory_id": memory_id, "text_len": len(text)}
+        )
+
         import json as _json
 
         vector = None
@@ -345,7 +460,24 @@ class MemoryEngine:
             )
         )
 
-        return {"status": "success", "postgres_id": pg_id, "qdrant_id": qdrant_id, "tier": tier}
+        res = {"status": "success", "postgres_id": pg_id, "qdrant_id": qdrant_id, "tier": tier}
+        
+        # Patch trace with result
+        if self._langfuse.enabled:
+            from datetime import datetime, timezone
+            ts = datetime.now(timezone.utc).isoformat()
+            await self._langfuse._ingest([{
+                "id": str(uuid.uuid4()),
+                "type": "trace-patch",
+                "body": {
+                    "id": trace.trace_id,
+                    "output": res,
+                    "endTime": ts
+                },
+                "timestamp": ts
+            }])
+
+        return res
 
     async def _upsert_qdrant(
         self, tier: str, qdrant_id: str, vector: list[float], payload: dict[str, Any]
@@ -401,6 +533,13 @@ class MemoryEngine:
         """Retrieve memories via semantic search (Qdrant) + temporal graph (Graphiti)."""
         if not query:
             return {"memories": []}
+
+        # ── Langfuse Trace ───────────────────────────────────────────────
+        trace = await self._langfuse.trace(
+            name="memory:retrieve",
+            session_id=session_id,
+            metadata={"tier": tier, "limit": limit, "query": query}
+        )
 
         all_results = []
         graph_facts: list[dict[str, Any]] = []
@@ -496,7 +635,8 @@ class MemoryEngine:
                     args.append(tier)
                 query_text += f" ORDER BY created_at DESC LIMIT {len(args) + 1}"
                 rows = await conn.fetch(query_text, *args)
-                return {
+                
+                res = {
                     "memories": [
                         {
                             "id": str(row["id"]),
@@ -512,6 +652,23 @@ class MemoryEngine:
                     ],
                     "graph_facts": graph_facts,
                 }
+                
+                # Patch trace with result
+                if self._langfuse.enabled:
+                    from datetime import datetime, timezone
+                    ts = datetime.now(timezone.utc).isoformat()
+                    await self._langfuse._ingest([{
+                        "id": str(uuid.uuid4()),
+                        "type": "trace-patch",
+                        "body": {
+                            "id": trace.trace_id,
+                            "output": {"memories_count": len(res["memories"]), "graph_facts_count": len(graph_facts)},
+                            "endTime": ts
+                        },
+                        "timestamp": ts
+                    }])
+                    
+                return res
 
         all_results.sort(key=lambda x: x["score"], reverse=True)
         top_results = all_results[:limit]
@@ -537,7 +694,7 @@ class MemoryEngine:
 
         if not valid_pg_ids:
             # No valid Postgres IDs — return Qdrant-only results with a warning
-            return {
+            res = {
                 "memories": [
                     {"qdrant_id": res["qdrant_id"], "score": res["score"], "tier": res.get("tier")}
                     for res in top_results
@@ -548,6 +705,23 @@ class MemoryEngine:
                 ),
                 "graph_facts": graph_facts,
             }
+            
+            # Patch trace with result
+            if self._langfuse.enabled:
+                from datetime import datetime, timezone
+                ts = datetime.now(timezone.utc).isoformat()
+                await self._langfuse._ingest([{
+                    "id": str(uuid.uuid4()),
+                    "type": "trace-patch",
+                    "body": {
+                        "id": trace.trace_id,
+                        "output": {"memories_count": len(res["memories"]), "graph_facts_count": len(graph_facts), "qdrant_only": True},
+                        "endTime": ts
+                    },
+                    "timestamp": ts
+                }])
+                
+            return res
 
         pool = await self._get_pg_pool()
         async with pool.acquire() as conn:
@@ -569,11 +743,29 @@ class MemoryEngine:
                     continue  # already warned above
                 if pid in pg_records:
                     record = pg_records[pid]
-                    record["created_at"] = record["created_at"].isoformat()
+                    ca = record["created_at"]
+                    record["created_at"] = ca.isoformat() if hasattr(ca, "isoformat") else str(ca)
                     record["score"] = res["score"]
                     final_memories.append(record)
 
-        return {"memories": final_memories, "graph_facts": graph_facts}
+        res = {"memories": final_memories, "graph_facts": graph_facts}
+        
+        # Patch trace with result
+        if self._langfuse.enabled:
+            from datetime import datetime, timezone
+            ts = datetime.now(timezone.utc).isoformat()
+            await self._langfuse._ingest([{
+                "id": str(uuid.uuid4()),
+                "type": "trace-patch",
+                "body": {
+                    "id": trace.trace_id,
+                    "output": {"memories_count": len(final_memories), "graph_facts_count": len(graph_facts)},
+                    "endTime": ts
+                },
+                "timestamp": ts
+            }])
+            
+        return res
 
     async def forget(self, memory_id: str, tier: str) -> dict[str, Any]:
         """Soft-delete memory in Postgres, quarantine in Qdrant, update Supabase."""
@@ -644,3 +836,13 @@ class MemoryEngine:
         await self._http_client.aclose()
         await self._graphiti.close()
         await self._langfuse.close()
+
+
+_global_langfuse = None
+
+
+def get_langfuse_tracer() -> LangfuseTrace:
+    global _global_langfuse
+    if _global_langfuse is None:
+        _global_langfuse = LangfuseTrace()
+    return _global_langfuse

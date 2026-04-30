@@ -564,6 +564,29 @@ class VerdictOutput(BaseModel):
         default=None, description="F2 human-readable confidence declaration at judgment time"
     )
 
+    # ── Reversibility State (CRP v1.0) ──────────────────────────────────────
+    reversibility_state: dict[str, Any] = Field(
+        default_factory=lambda: {
+            "state": "REVERSIBLE",
+            "requires_human_seal": False,
+            "external_effect": False,
+            "vault_committed": False,
+        },
+        description="Structured reversibility tracking per CRP v1.0",
+    )
+
+    # ── Seal State ──────────────────────────────────────────────────────────
+    seal_state: dict[str, Any] = Field(
+        default_factory=lambda: {
+            "semantic_seal": False,
+            "procedural_seal": False,
+            "cryptographic_seal": False,
+            "vault_committed": False,
+            "human_approved": False,
+        },
+        description="Explicit seal semantics for the judgment",
+    )
+
     # Metadata
     meta: dict[str, Any] = Field(default_factory=dict)
     timestamp: str | None = None
