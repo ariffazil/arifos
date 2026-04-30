@@ -83,8 +83,8 @@ class A2ATaskManager:
             init_result = await self._call_mcp_tool(
                 "arif_session_init",
                 {
-                    "intent": query or "A2A task submission",
-                    "actor_id": request.client_agent_id,
+                    "mode": "init",
+                    "actor_id": request.client_agent_id
                 },
             )
 
@@ -161,14 +161,9 @@ class A2ATaskManager:
                 "arif_heart_critique",
                 {
                     "mode": "critique",
-                    "query": json.dumps(
-                        {
-                            "action": task.skill_id or "general_execution",
-                            "parameters": task.parameters,
-                            "query": query,
-                        }
-                    ),
+                    "target": f"A2A task [{task.id}]: {query[:200]}",
                     "session_id": task.session_id,
+                    "actor_id": task.client_agent_id,
                 },
             )
 
@@ -178,10 +173,10 @@ class A2ATaskManager:
             judge_result = await self._call_mcp_tool(
                 "arif_judge_deliberate",
                 {
-                    "query": json.dumps(
-                        {"original_query": query, "critique_result": critique_result}
-                    ),
+                    "mode": "judge",
+                    "candidate": f"A2A task execution: {query[:200]}",
                     "session_id": task.session_id,
+                    "actor_id": task.client_agent_id,
                 },
             )
 
@@ -221,7 +216,7 @@ class A2ATaskManager:
                         "task_id": task.id,
                         "client_agent_id": task.client_agent_id,
                         "skill_id": task.skill_id,
-                        "query": query,
+                        "mode": "route", "task": query,
                         "parameters": task.parameters,
                     }
 
@@ -265,9 +260,9 @@ class A2ATaskManager:
                 execution_result = await self._call_mcp_tool(
                     "arif_kernel_route",
                     {
-                        "query": query,
+                        "mode": "route", "task": query,
                         "session_id": task.session_id,
-                        "context": f"A2A task from {task.client_agent_id}",
+                        
                     },
                 )
 
@@ -463,10 +458,10 @@ class A2AServer:
             execution_result = await self.task_manager._call_mcp_tool(
                 "arif_kernel_route",
                 {
-                    "query": query,
+                    "mode": "route", "task": query,
                     "session_id": session_id,
                     "context": f"A2A direct-execution probe (actor={actor_id}, mode={mode})",
-                    "allow_execution": True,
+                    
                 },
             )
 
