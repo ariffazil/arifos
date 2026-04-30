@@ -19,6 +19,15 @@ import time
 import uuid
 from typing import Any
 
+from fastmcp import Context, FastMCP
+from fastmcp.server.elicitation import (
+    AcceptedElicitation,
+    CancelledElicitation,
+    DeclinedElicitation,
+)
+from mcp import McpError
+from pydantic import BaseModel, Field
+
 from arifosmcp.constitutional_map import CANONICAL_TOOLS, get_tool_spec
 from arifosmcp.core.physics.thermodynamics_hardened import init_thermodynamic_budget
 from arifosmcp.core.threat_engine import ThreatTier
@@ -56,14 +65,6 @@ from arifosmcp.schemas.verdict import (
     VerdictCode,
     VerdictOutput,
 )
-from fastmcp import Context, FastMCP
-from fastmcp.server.elicitation import (
-    AcceptedElicitation,
-    CancelledElicitation,
-    DeclinedElicitation,
-)
-from mcp import McpError
-from pydantic import BaseModel, Field
 
 logger = logging.getLogger(__name__)
 

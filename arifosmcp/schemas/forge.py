@@ -13,8 +13,9 @@ from __future__ import annotations
 from enum import Enum
 from typing import Any
 
-from arifosmcp.schemas.lineage import JudgeSealContract
 from pydantic import BaseModel, Field
+
+from arifosmcp.schemas.lineage import JudgeSealContract
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # FORGE ENUMS
