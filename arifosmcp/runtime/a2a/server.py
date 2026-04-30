@@ -158,7 +158,7 @@ class A2ATaskManager:
             )
 
             critique_result = await self._call_mcp_tool(
-                "arifos_heart",
+                "arif_heart_critique",
                 {
                     "mode": "critique",
                     "query": json.dumps(
