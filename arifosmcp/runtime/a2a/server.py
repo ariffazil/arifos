@@ -81,7 +81,7 @@ class A2ATaskManager:
         try:
             # Call arifos_init to establish governed session
             init_result = await self._call_mcp_tool(
-                "arifos_init",
+                "arif_session_init",
                 {
                     "intent": query or "A2A task submission",
                     "actor_id": request.client_agent_id,
@@ -176,7 +176,7 @@ class A2ATaskManager:
             await self._update_task_state(task_id, TaskState.WORKING, "Awaiting APEX judgment...")
 
             judge_result = await self._call_mcp_tool(
-                "arifos_judge",
+                "arif_judge_deliberate",
                 {
                     "query": json.dumps(
                         {"original_query": query, "critique_result": critique_result}
@@ -263,7 +263,7 @@ class A2ATaskManager:
                 await self._update_task_state(task_id, TaskState.WORKING, "Executing with SEAL...")
 
                 execution_result = await self._call_mcp_tool(
-                    "arifos_kernel",
+                    "arif_kernel_route",
                     {
                         "query": query,
                         "session_id": task.session_id,
@@ -450,7 +450,7 @@ class A2AServer:
 
             # Step 1: Initialize constitutional anchor
             init_result = await self.task_manager._call_mcp_tool(
-                "arifos_init",
+                "arif_session_init",
                 {
                     "intent": query,
                     "actor_id": actor_id,
@@ -461,7 +461,7 @@ class A2AServer:
 
             # Step 2: Execute full metabolic loop via arifos_kernel
             execution_result = await self.task_manager._call_mcp_tool(
-                "arifos_kernel",
+                "arif_kernel_route",
                 {
                     "query": query,
                     "session_id": session_id,
