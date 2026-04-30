@@ -18,13 +18,6 @@ from typing import Any
 from pydantic import BaseModel, Field
 
 
-class ThreatTier(Enum):
-    SAFE = 0
-    CAUTION = 1
-    HOLD = 2
-    VOID = 3
-
-
 class ThreatCategory(Enum):
     """Canonical threat taxonomy — used by all tools. No exceptions."""
 
