@@ -109,6 +109,7 @@ arifosmcp/agentzero/memory/constitutional_memory.py
 arifosmcp/agentzero/security/__init__.py
 arifosmcp/agentzero/security/prompt_armor.py
 arifosmcp/apps/__init__.py
+arifosmcp/apps/forge_app.py
 arifosmcp/apps/geox_app.py
 arifosmcp/apps/geox_bridge.py
 arifosmcp/apps/interceptor.py
@@ -144,6 +145,9 @@ arifosmcp/apps/manifests/arifos-init.json
 arifosmcp/apps/manifests/arifos-judge.json
 arifosmcp/apps/manifests/arifos-metabolic.json
 arifosmcp/apps/manifests/arifos-vault.json
+arifosmcp/archive/legacy/fastmcp.json
+arifosmcp/archive/legacy/mcp.json
+arifosmcp/archive/legacy/tool_registry_v2.json
 arifosmcp/audit/adversarial_audit_harness.py
 arifosmcp/contracts/__init__.py
 arifosmcp/contracts/artifacts.py
@@ -161,6 +165,8 @@ arifosmcp/core/governance_kernel.py
 arifosmcp/core/session_registry.py
 arifosmcp/core/threat_engine.py
 arifosmcp/core/witness_type.py
+arifosmcp/core/physics/__init__.py
+arifosmcp/core/physics/thermodynamics_hardened.py
 arifosmcp/data/wisdom_quotes_99.json
 arifosmcp/data/wisdom_quotes_lite.json
 arifosmcp/evals/__init__.py
@@ -278,12 +284,14 @@ arifosmcp/runtime/kernel_core.py
 arifosmcp/runtime/kernel_router.py
 arifosmcp/runtime/kernel_runtime.py
 arifosmcp/runtime/landing_page.html
+arifosmcp/runtime/llm_client.py
 arifosmcp/runtime/m01_correlation_auditor.py
 arifosmcp/runtime/manifest.py
 arifosmcp/runtime/mcp_util.py
 arifosmcp/runtime/mcp_utils.py
 arifosmcp/runtime/memory_policy.py
 arifosmcp/runtime/metrics.py
+arifosmcp/runtime/mind_reason.py
 arifosmcp/runtime/model.py
 arifosmcp/runtime/model_registry_client.py
 arifosmcp/runtime/models.py
@@ -303,6 +311,7 @@ arifosmcp/runtime/reality_dossier.py
 arifosmcp/runtime/reality_handlers.py
 arifosmcp/runtime/reality_models.py
 arifosmcp/runtime/reforge.py
+arifosmcp/runtime/reply_compose.py
 arifosmcp/runtime/resource.py
 arifosmcp/runtime/resources.py
 arifosmcp/runtime/rest_routes.py
@@ -619,8 +628,6 @@ wiki/raw/meta_theory_atoms_and_governed_utility_ingest_2026-04-11.md
 wiki/raw/notebooklm/user_paste_2026_04_08.md
 wiki/scripts/batch_update_frontmatter.py
 wiki/scripts/generate_views.py
-wiki/scripts/__pycache__/batch_update_frontmatter.cpython-313.pyc
-wiki/scripts/__pycache__/generate_views.cpython-313.pyc
 wiki/view/gaps.md
 wiki/view/start-here.md
 wiki/view/audience/all.md

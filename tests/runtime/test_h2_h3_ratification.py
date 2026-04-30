@@ -2,6 +2,7 @@
 Tests for 888 HOLD ratification H2 (Planning Organ) and H3 (Epoch Lifecycle).
 Epoch 2026-04-26 — SOVEREIGN_RATIFICATION
 """
+
 from __future__ import annotations
 
 import pytest
@@ -152,18 +153,28 @@ class TestH2PlanningOrgan:
         assert _PLAN_REGISTRY[pid]["status"] == "approved"
 
     def test_forge_engineer_without_plan_holds(self):
-        result = _arif_forge_execute(mode="engineer", manifest="test", ack_irreversible=True, actor_id="test_actor")
+        result = _arif_forge_execute(
+            mode="engineer", manifest="test", ack_irreversible=True, actor_id="test_actor"
+        )
         assert result["status"] == "HOLD"
         assert "plan_id" in result.get("meta", {}).get("reason", "")
 
     def test_forge_query_does_not_require_plan(self):
-        result = _arif_forge_execute(mode="query", query="status", actor_id="test_actor", ack_irreversible=True)
+        result = _arif_forge_execute(
+            mode="query", query="status", actor_id="test_actor", ack_irreversible=True
+        )
         assert result["status"] == "OK"
 
     def test_forge_engineer_with_unapproved_plan_holds(self):
         plan = _arif_mind_reason(mode="plan", query="Test", actor_id="test_actor")
         pid = plan["result"]["plan_receipt"]["plan_id"]
-        result = _arif_forge_execute(mode="engineer", manifest="test", plan_id=pid, ack_irreversible=True, actor_id="test_actor")
+        result = _arif_forge_execute(
+            mode="engineer",
+            manifest="test",
+            plan_id=pid,
+            ack_irreversible=True,
+            actor_id="test_actor",
+        )
         assert result["status"] == "HOLD"
         assert "not approved" in result.get("meta", {}).get("reason", "")
 
@@ -218,7 +229,9 @@ class TestH2PlanningOrgan:
             witness_type="human",
         )
         # Missing ack_irreversible will trigger floor check HOLD for commit mode
-        result = _arif_forge_execute(mode="commit", manifest="test", plan_id=pid, actor_id="test_actor")
+        result = _arif_forge_execute(
+            mode="commit", manifest="test", plan_id=pid, actor_id="test_actor"
+        )
         assert result["status"] == "HOLD"
         assert _PLAN_REGISTRY[pid]["status"] == "aborted"
         history = _PLAN_REGISTRY[pid]["state_history"]
@@ -228,7 +241,9 @@ class TestH2PlanningOrgan:
         plan = _arif_mind_reason(mode="plan", query="Test", actor_id="test_actor")
         pid = plan["result"]["plan_receipt"]["plan_id"]
         before = len(_VAULT_LEDGER)
-        _arif_mind_reason(mode="plan_approve", plan_id=pid, actor_id="test_actor", witness_type="human")
+        _arif_mind_reason(
+            mode="plan_approve", plan_id=pid, actor_id="test_actor", witness_type="human"
+        )
         after = len(_VAULT_LEDGER)
         assert after > before
         entry = _VAULT_LEDGER[-1]
