@@ -3,7 +3,7 @@
 > **DITEMPA BUKAN DIBERI** — Intelligence is forged, not given.
 
 [![arifOS](https://img.shields.io/badge/arifOS-F1%E2%80%93F13_Governed-FF6B00?style=flat-square)](https://github.com/ariffazil/arifOS)
-[![MCP](https://img.shields.io/badge/MCP-FastMCP_3.2.4-7C3AED?style=flat-square)](https://github.com/ariffazil/arifOS)
+[![MCP](https://img.shields.io/badge/MCP-FastMCP_3.2.0-7C3AED?style=flat-square)](https://github.com/ariffazil/arifOS)
 [![Constitution](https://img.shields.io/badge/Constitution-13_Floors-1a1a1a?style=flat-square)](./arifosmcp/constitutional_map.py)
 [![License](https://img.shields.io/badge/License-AGPL_V3-4EAF0C?style=flat-square)](./LICENSE)
 
@@ -47,13 +47,13 @@ arifOS adjudicates. Domain organs (GEOX, WEALTH) provide evidence. A-FORGE orche
 | Package version | `2026.04.28` |
 | Runtime version | `2026.04.28-KANON` |
 | Python | `>=3.12` |
-| MCP framework | `fastmcp==3.2.4` |
+| MCP framework | `fastmcp==3.2.0` |
 | Default HTTP port | `8080` |
 | Constitutional floors | 13, F01–F13 |
 | Registered MCP tools | 13 canonical tools |
 | Canonical resources | 5 |
 | Canonical prompts | 8 |
-| Latest commit | `e55ade3` — Wire MiniMax bridge into arif_sense_observe |
+| Latest commit | `b31b7792` — Restore arif_command_center + Brave fallback + _run_async fix |
 
 ---
 
