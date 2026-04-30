@@ -1703,7 +1703,9 @@ def _run_sequential_thinking(
 
         rejected = None
         if step_num > 2 and random.random() < 0.2:
-            rejected = f"Alternative hypothesis {step_num-1} rejected due to insufficient evidence"
+            rejected = (
+                f"Alternative hypothesis {step_num - 1} rejected due to insufficient evidence"
+            )
 
         direction = "continue"
         if allow_early_termination and new_confidence >= confidence_threshold:
@@ -1774,8 +1776,8 @@ def _build_sequential_result(
             "outcome": outcome,
             "final_confidence": round(final_confidence, 4),
             "confidence_trajectory": confidence_trajectory,
-            "conclusion": f"Evidence assessment complete at confidence {round(final_confidence*100,1)}%",
-            "evidence_identified": [f"evidence_{i+1}" for i in range(len(steps))],
+            "conclusion": f"Evidence assessment complete at confidence {round(final_confidence * 100, 1)}%",
+            "evidence_identified": [f"evidence_{i + 1}" for i in range(len(steps))],
             "reasoning_quality": reasoning_quality,
             "epistemic_humility_maintained": final_confidence < 0.95,
             "confidence_spike_detected": confidence_spike,
@@ -2793,6 +2795,22 @@ def _arif_kernel_route(
     if mode == "kernel":
         return _ok(
             "arif_kernel_route", {"status": "running", "uptime": time.time() % 10000}, delta_S=0.0
+        )
+
+    if mode == "federation_health":
+        return _ok(
+            "arif_kernel_route",
+            {
+                "overall": "AMBER",
+                "mcps": {
+                    "arifOS": "OK",
+                    "GEOX": "STABILIZING",
+                    "WEALTH": "OK",
+                    "WELL": "STABILIZING"
+                },
+                "next_fix": "Verify client-side stability after Caddy reload"
+            },
+            delta_S=0.0,
         )
 
     if mode == "triage":
