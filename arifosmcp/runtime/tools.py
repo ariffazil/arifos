@@ -3914,24 +3914,27 @@ def _arif_vault_seal(
         if not k_verdict["passed"]:
             _reason = k_verdict.get("reason", "Floor breach")
             _floors = k_verdict.get("failed_floors", [])
-            return SealOutput(
-                status="HOLD",
-                verdict=VerdictCode.HOLD,
-                result={},
-                constitutional_compliance=ConstitutionalCompliance(
-                    floors_invoked=_floors,
-                    floor_results={floor: "FAIL" for floor in _floors},
-                ),
-                meta={
-                    "reason": _reason,
-                    "failed_floors": _floors,
-                    "next_safe_action": "Produce reversible design blueprint only; no execution.",
-                },
-                reasons=[_reason],
-                next_safe_action="Produce reversible design blueprint only; no execution.",
-                actor_id=actor_id,
-                timestamp=_now(),
-            ).model_dump(mode="json")
+            return _inject_nine_signal(
+                SealOutput(
+                    status="HOLD",
+                    verdict=VerdictCode.HOLD,
+                    result={},
+                    constitutional_compliance=ConstitutionalCompliance(
+                        floors_invoked=_floors,
+                        floor_results={floor: "FAIL" for floor in _floors},
+                    ),
+                    meta={
+                        "reason": _reason,
+                        "failed_floors": _floors,
+                        "next_safe_action": "Produce reversible design blueprint only; no execution.",
+                    },
+                    reasons=[_reason],
+                    next_safe_action="Produce reversible design blueprint only; no execution.",
+                    actor_id=actor_id,
+                    timestamp=_now(),
+                ).model_dump(mode="json"),
+                "HOLD",
+            )
 
     if mode == "seal":
         judge_contract, hold = _resolve_judge_contract(
@@ -3941,37 +3944,43 @@ def _arif_vault_seal(
         )
         if hold is not None:
             _reason = hold["meta"].get("reason", "Judge contract resolution failed")
-            return SealOutput(
-                status="HOLD",
-                verdict=VerdictCode.HOLD,
-                result={},
-                constitutional_compliance=ConstitutionalCompliance(),
-                meta={
-                    **hold["meta"],
-                    "next_safe_action": "Ensure constitutional_chain_id and judge_state_hash are valid and match.",
-                },
-                reasons=[_reason],
-                next_safe_action="Ensure constitutional_chain_id and judge_state_hash are valid and match.",
-                actor_id=actor_id,
-                timestamp=_now(),
-            ).model_dump(mode="json")
+            return _inject_nine_signal(
+                SealOutput(
+                    status="HOLD",
+                    verdict=VerdictCode.HOLD,
+                    result={},
+                    constitutional_compliance=ConstitutionalCompliance(),
+                    meta={
+                        **hold["meta"],
+                        "next_safe_action": "Ensure constitutional_chain_id and judge_state_hash are valid and match.",
+                    },
+                    reasons=[_reason],
+                    next_safe_action="Ensure constitutional_chain_id and judge_state_hash are valid and match.",
+                    actor_id=actor_id,
+                    timestamp=_now(),
+                ).model_dump(mode="json"),
+                "HOLD",
+            )
         if judge_contract is None:
             _reason = "judge contract required — irreversible execution requires a prior judge packet via constitutional_chain_id and judge_state_hash"
-            return SealOutput(
-                status="HOLD",
-                verdict=VerdictCode.HOLD,
-                result={},
-                constitutional_compliance=ConstitutionalCompliance(),
-                meta={
-                    "reason": _reason,
-                    "failed_floors": ["F11"],
-                    "next_safe_action": "Run arif_judge_deliberate first to obtain a judge packet.",
-                },
-                reasons=[_reason],
-                next_safe_action="Run arif_judge_deliberate first to obtain a judge packet.",
-                actor_id=actor_id,
-                timestamp=_now(),
-            ).model_dump(mode="json")
+            return _inject_nine_signal(
+                SealOutput(
+                    status="HOLD",
+                    verdict=VerdictCode.HOLD,
+                    result={},
+                    constitutional_compliance=ConstitutionalCompliance(),
+                    meta={
+                        "reason": _reason,
+                        "failed_floors": ["F11"],
+                        "next_safe_action": "Run arif_judge_deliberate first to obtain a judge packet.",
+                    },
+                    reasons=[_reason],
+                    next_safe_action="Run arif_judge_deliberate first to obtain a judge packet.",
+                    actor_id=actor_id,
+                    timestamp=_now(),
+                ).model_dump(mode="json"),
+                "HOLD",
+            )
 
         entry_id = uuid.uuid4().hex[:16]
         required_level = IrreversibilityLevel.IRREVERSIBLE
@@ -3979,23 +3988,26 @@ def _arif_vault_seal(
             required_level.value
         ):
             _reason = "judge irreversibility level is below vault seal requirement"
-            return SealOutput(
-                status="HOLD",
-                verdict=VerdictCode.HOLD,
-                result={},
-                constitutional_compliance=ConstitutionalCompliance(),
-                judge_contract=judge_contract,
-                meta={
-                    "reason": _reason,
-                    "required_level": required_level.value,
-                    "judge_level": judge_contract.irreversibility_level,
-                    "next_safe_action": "Re-run judgment with a higher irreversibility classification.",
-                },
-                reasons=[_reason],
-                next_safe_action="Re-run judgment with a higher irreversibility classification.",
-                actor_id=actor_id,
-                timestamp=_now(),
-            ).model_dump(mode="json")
+            return _inject_nine_signal(
+                SealOutput(
+                    status="HOLD",
+                    verdict=VerdictCode.HOLD,
+                    result={},
+                    constitutional_compliance=ConstitutionalCompliance(),
+                    judge_contract=judge_contract,
+                    meta={
+                        "reason": _reason,
+                        "required_level": required_level.value,
+                        "judge_level": judge_contract.irreversibility_level,
+                        "next_safe_action": "Re-run judgment with a higher irreversibility classification.",
+                    },
+                    reasons=[_reason],
+                    next_safe_action="Re-run judgment with a higher irreversibility classification.",
+                    actor_id=actor_id,
+                    timestamp=_now(),
+                ).model_dump(mode="json"),
+                "HOLD",
+            )
         bond = IrreversibilityBond(
             level=IrreversibilityLevel.IRREVERSIBLE,
             delta_S=0.003 + max(judge_contract.delta_s, 0.0),
