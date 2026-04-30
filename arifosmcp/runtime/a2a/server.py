@@ -182,19 +182,21 @@ class A2ATaskManager:
                 },
             )
 
-            # DEBUG
-            import sys as _sys
-            _sys.stdout.write(f"[DEBUG] judge_result type={type(judge_result)}, keys={list(judge_result.keys()) if isinstance(judge_result, dict) else 'not-dict'}\n")
-            _sys.stdout.write(f"[DEBUG] judge_result content snippet: {str(judge_result)[:500]}\n")
-            _sys.stdout.flush()
-            
-            verdict = judge_result.get("verdict", "VOID")
+            # Parse verdict from the nested MCP result structure
+            # judge_result = {"content": [{"type": "text", "text": "{\"verdict\": \"SEAL\", ...}"}]}
+            import json as _json
+            _raw = judge_result.get("content", [{}])[0].get("text", "{}")
+            try:
+                _judge_payload = _json.loads(_raw)
+            except Exception:
+                _judge_payload = {}
+            verdict = _judge_payload.get("verdict", "VOID")
             task.verdict = verdict
 
             if verdict == "VOID":
                 task.state = TaskState.FAILED
                 task.error_message = "Constitutional violation detected"
-                task.violations = judge_result.get("violations", [])
+                task.violations = _judge_payload.get("violations", [])
 
             elif verdict == "888_HOLD":
                 # ═══════════════════════════════════════════════════════════
