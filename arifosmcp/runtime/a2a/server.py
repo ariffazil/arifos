@@ -60,7 +60,8 @@ class A2ATaskManager:
     """Manages A2A task lifecycle with 888_HOLD cross-protocol broadcast."""
 
     def __init__(self, mcp_server: Any):
-        self.mcp = mcp_server
+        # Use the global FastMCP from server.py, not the Starlette app
+        self.mcp = _FAST_MCP_
         self.tasks: dict[str, Task] = {}
         self._lock = asyncio.Lock()
         self._hold_bridge = None
