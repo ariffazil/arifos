@@ -77,6 +77,12 @@ from arifosmcp.core.constitution_kernel import (
 _CORE = get_kernel()
 _KERNEL = _CORE  # Maintain compatibility if needed
 
+# MiniMax MCP Bridge — web_search + understand_image for 111_SENSE
+try:
+    from arifosmcp.runtime.minimax_bridge import minimax_bridge
+except Exception:
+    minimax_bridge = None  # type: ignore
+
 
 def _constitutional_gate(
     tool_name: str,
@@ -1210,7 +1216,7 @@ def _arif_session_init(
         "risk_ack": [
             "may hallucinate",
             "must preserve authority boundary",
-            "must not self-authorize consequential actions"
+            "must not self-authorize consequential actions",
         ],
         "attested_at": _now(),
         "attestation_hash": "sha256:" + hashlib.sha256(_now().encode()).hexdigest(),
@@ -1486,12 +1492,68 @@ def _arif_sense_observe(
         return gate
 
     if mode == "search":
-        return _ok(
-            "arif_sense_observe",
-            {"query": query, "results": [], "source": "sense", "omega_0": 0.04},
-            delta_S=0.002,
-        )
+        if minimax_bridge is None:
+            return _ok(
+                "arif_sense_observe",
+                {
+                    "query": query,
+                    "results": [],
+                    "source": "minimax",
+                    "omega_0": 0.04,
+                    "note": "bridge_unavailable",
+                },
+                delta_S=0.002,
+            )
+        try:
+            result = asyncio.run(minimax_bridge.web_search(query or ""))
+            hits = result.get("hits", [])
+            return _ok(
+                "arif_sense_observe",
+                {
+                    "query": query,
+                    "results": hits,
+                    "source": "minimax",
+                    "omega_0": 0.04,
+                    "verdict": result.get("verdict", "SEAL"),
+                    "metrics": result.get("metrics", {}),
+                    "witness_debug": result.get("witness_debug", {}),
+                },
+                delta_S=0.002,
+            )
+        except Exception as exc:
+            logger.error("minimax_bridge.web_search failed: %s", exc)
+            return _ok(
+                "arif_sense_observe",
+                {
+                    "query": query,
+                    "results": [],
+                    "source": "minimax",
+                    "omega_0": 0.04,
+                    "note": "search_error",
+                    "error": str(exc),
+                },
+                delta_S=0.01,
+            )
     if mode == "ingest":
+        if url and minimax_bridge is not None:
+            try:
+                img_result = asyncio.run(
+                    minimax_bridge.understand_image(url, "Describe this image concisely")
+                )
+                return _ok(
+                    "arif_sense_observe",
+                    {
+                        "url": url,
+                        "ingested": True,
+                        "source": "minimax_vision",
+                        "description": img_result.get("description", ""),
+                        "verdict": img_result.get("verdict", "SEAL"),
+                        "metrics": img_result.get("metrics", {}),
+                    },
+                    delta_S=0.003,
+                )
+            except Exception as exc:
+                logger.error("minimax_bridge.understand_image failed: %s", exc)
         return _ok(
             "arif_sense_observe", {"url": url, "ingested": False, "note": "stub"}, delta_S=0.003
         )
@@ -3509,13 +3571,15 @@ def _arif_ops_measure(
 
     if mode == "pulse":
         import psutil
+
         try:
             from arifosmcp.runtime.capability_map import build_runtime_capability_map
+
             cap = build_runtime_capability_map()
             providers = cap.get("providers", {})
         except ImportError:
             providers = {}
-        
+
         # Determine ops_verdict based on basic system checks
         ops_verdict = "HEALTHY"
         system_status = "HEALTHY"
@@ -3539,7 +3603,7 @@ def _arif_ops_measure(
             "resource_thermodynamics": {
                 "cpu": psutil.cpu_percent(interval=None),
                 "memory": psutil.virtual_memory().percent,
-                "disk": psutil.disk_usage('/').percent,
+                "disk": psutil.disk_usage("/").percent,
                 "uptime_seconds": int(time.time() - psutil.boot_time()),
                 "entropy": {
                     "symbol": "ΔS",
@@ -3549,7 +3613,7 @@ def _arif_ops_measure(
                 },
             },
             "provider_readiness": {
-                k: "READY" if v == "configured" else ("OFF" if v == "not_configured" else "ERROR") 
+                k: "READY" if v == "configured" else ("OFF" if v == "not_configured" else "ERROR")
                 for k, v in providers.items()
             },
             "canonical_tools": {
