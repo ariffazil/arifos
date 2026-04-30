@@ -10,3 +10,5 @@ httpx>=0.24.0
 blake3==1.0.8
 
 asyncpg>=0.31.0
+langfuse
+jsonschema

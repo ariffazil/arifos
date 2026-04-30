@@ -72,9 +72,12 @@ target-version = "py312"
 [tool.ruff.lint.per-file-ignores]
 # rest_routes.py contains HTML/CSS/JS template strings with inherently long lines
 "arifosmcp/runtime/rest_routes.py" = ["E501", "F841", "N806", "I001"]
+# forge.py uses delta_S naming (thermodynamic convention, not snake_case)
+"arifosmcp/schemas/forge.py" = ["N815"]
 
 [tool.ruff.per-file-ignores]
 "arifosmcp/runtime/rest_routes.py" = ["E501", "F841", "N806", "I001"]
+"arifosmcp/schemas/forge.py" = ["N815"]
 
 [tool.mypy]
 python_version = "3.12"

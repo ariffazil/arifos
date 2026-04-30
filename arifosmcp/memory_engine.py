@@ -1,4 +1,5 @@
 import asyncio
+import json
 import logging
 import os
 import uuid
@@ -25,6 +26,151 @@ except ImportError:
     QDRANT_AVAILABLE = False
 
 
+# ── Graphiti MCP Client ──────────────────────────────────────────────────
+class GraphitiClient:
+    """Minimal MCP SSE client for Graphiti temporal memory."""
+
+    def __init__(self, endpoint: str, host_header: str = "localhost:8000"):
+        self.endpoint = endpoint
+        self.host_header = host_header
+        self.mcp_session_id: str | None = None
+        self._http = httpx.AsyncClient(timeout=30.0)
+        self._initialized = False
+
+    async def initialize(self) -> bool:
+        if self._initialized:
+            return True
+        try:
+            payload = {
+                "jsonrpc": "2.0",
+                "id": 1,
+                "method": "initialize",
+                "params": {
+                    "protocolVersion": "2024-11-05",
+                    "capabilities": {},
+                    "clientInfo": {"name": "arifosmcp-memory-engine", "version": "2026.4.30"},
+                },
+            }
+            resp = await self._http.post(
+                self.endpoint,
+                json=payload,
+                headers={
+                    "Accept": "application/json, text/event-stream",
+                    "Host": self.host_header,
+                },
+            )
+            self.mcp_session_id = resp.headers.get("mcp-session-id")
+            if not self.mcp_session_id:
+                return False
+            for line in resp.text.split("\n"):
+                line = line.strip()
+                if line.startswith("data:"):
+                    data = json.loads(line[5:].strip())
+                    if "result" in data:
+                        self._initialized = True
+                        return True
+            return False
+        except Exception as e:
+            logger.warning(f"Graphiti initialize failed: {e}")
+            return False
+
+    async def call_tool(self, name: str, arguments: dict[str, Any]) -> dict[str, Any]:
+        if not self._initialized:
+            if not await self.initialize():
+                return {"error": "Graphiti not initialized"}
+        try:
+            payload = {
+                "jsonrpc": "2.0",
+                "id": 1,
+                "method": "tools/call",
+                "params": {"name": name, "arguments": arguments},
+            }
+            headers = {
+                "Content-Type": "application/json",
+                "Accept": "application/json, text/event-stream",
+                "mcp-session-id": self.mcp_session_id or "",
+                "Host": self.host_header,
+            }
+            resp = await self._http.post(self.endpoint, json=payload, headers=headers)
+            for line in resp.text.split("\n"):
+                line = line.strip()
+                if line.startswith("data:"):
+                    data = json.loads(line[5:].strip())
+                    if "result" in data:
+                        return data["result"]
+                    elif "error" in data:
+                        return {"error": data["error"]}
+            return {"error": "No data in SSE stream"}
+        except Exception as e:
+            logger.warning(f"Graphiti call_tool {name} failed: {e}")
+            return {"error": str(e)}
+
+    async def close(self):
+        await self._http.aclose()
+
+
+# ── Langfuse REST Trace (lightweight, no SDK dependency) ─────────────────
+class LangfuseTrace:
+    """Lightweight Langfuse v2 REST ingester using httpx."""
+
+    def __init__(self, base_url: str = "http://langfuse-web:3000"):
+        self.base_url = base_url.rstrip("/")
+        self.public_key = os.getenv("LANGFUSE_PUBLIC_KEY")
+        self.secret_key = os.getenv("LANGFUSE_SECRET_KEY")
+        self.enabled = bool(self.public_key and self.secret_key)
+        self._http = httpx.AsyncClient(timeout=15.0)
+
+    async def _ingest(self, batch: list[dict[str, Any]]) -> None:
+        if not self.enabled:
+            return
+        try:
+            await self._http.post(
+                f"{self.base_url}/api/public/ingestion",
+                json={"batch": batch},
+                auth=(self.public_key, self.secret_key),
+            )
+        except Exception as e:
+            logger.debug(f"Langfuse ingestion failed (non-fatal): {e}")
+
+    async def trace(self, name: str, metadata: dict[str, Any] | None = None):
+        from datetime import datetime, timezone
+
+        ts = datetime.now(timezone.utc).isoformat()
+        trace_id = str(uuid.uuid4())
+        if self.enabled:
+            await self._ingest(
+                [
+                    {
+                        "id": str(uuid.uuid4()),
+                        "type": "trace",
+                        "body": {
+                            "id": trace_id,
+                            "name": name,
+                            "metadata": metadata or {},
+                            "timestamp": ts,
+                        },
+                        "timestamp": ts,
+                    }
+                ]
+            )
+        return LangfuseSpan(self, trace_id)
+
+    async def close(self):
+        await self._http.aclose()
+
+
+class LangfuseSpan:
+    def __init__(self, tracer: LangfuseTrace, trace_id: str):
+        self.tracer = tracer
+        self.trace_id = trace_id
+
+    async def __aenter__(self):
+        return self
+
+    async def __aexit__(self, exc_type, exc, tb):
+        pass
+
+
 class MemoryEngine:
     def __init__(
         self,
@@ -34,6 +180,7 @@ class MemoryEngine:
         embedding_model: str = "bge-m3",
         supabase_url: str | None = None,
         supabase_key: str | None = None,
+        graphiti_url: str = "http://graphiti-mcp:8000/mcp",
     ):
         self.postgres_url = postgres_url
         self.qdrant_url = os.getenv("QDRANT_URL", qdrant_url)
@@ -58,6 +205,8 @@ class MemoryEngine:
                 logger.warning(f"Qdrant init failed: {e}")
 
         self._http_client = httpx.AsyncClient(timeout=30.0)
+        self._graphiti = GraphitiClient(os.getenv("GRAPHITI_URL", graphiti_url))
+        self._langfuse = LangfuseTrace()
 
     async def _get_pg_pool(self):
         if self._pg_pool is None:
@@ -162,6 +311,9 @@ class MemoryEngine:
             )
             pg_id = str(row["id"])
 
+        # ── Graphiti Temporal Write (fire-and-forget) ────────────────────
+        asyncio.create_task(self._graphiti_add(memory_id, text, session_id, tier))
+
         if vector and self._qdrant_client:
             asyncio.create_task(
                 self._upsert_qdrant(
@@ -223,12 +375,65 @@ class MemoryEngine:
         except Exception as e:
             logger.warning(f"Federation shared upsert failed: {e}")
 
-    async def retrieve(self, query: str, tier: str | None = None, limit: int = 5) -> dict[str, Any]:
-        """Retrieve memories via semantic search (Qdrant primary, Postgres fallback)."""
+    async def _graphiti_add(
+        self, memory_id: str, text: str, session_id: str | None, tier: str
+    ) -> None:
+        """Best-effort temporal graph write; failures are logged but non-blocking."""
+        try:
+            result = await self._graphiti.call_tool(
+                "add_memory",
+                {
+                    "name": f"memory-{memory_id[:8]}",
+                    "episode_body": text,
+                    "group_id": session_id or "global",
+                    "source": "arifosmcp",
+                    "source_description": f"tier:{tier}",
+                },
+            )
+            if isinstance(result, dict) and "error" in result:
+                logger.warning(f"Graphiti add_memory error: {result['error']}")
+        except Exception as e:
+            logger.warning(f"Graphiti add_memory failed: {e}")
+
+    async def retrieve(
+        self, query: str, tier: str | None = None, limit: int = 5, session_id: str | None = None
+    ) -> dict[str, Any]:
+        """Retrieve memories via semantic search (Qdrant) + temporal graph (Graphiti)."""
         if not query:
             return {"memories": []}
 
         all_results = []
+        graph_facts: list[dict[str, Any]] = []
+
+        # ── Graphiti Temporal Search ─────────────────────────────────────
+        try:
+            graph_resp = await self._graphiti.call_tool(
+                "search_memory_facts",
+                {
+                    "query": query,
+                    "group_ids": [session_id] if session_id else None,
+                    "max_facts": limit,
+                },
+            )
+            if isinstance(graph_resp, dict):
+                sc = graph_resp.get("structuredContent")
+                if isinstance(sc, dict) and "facts" in sc:
+                    graph_facts = sc["facts"]
+                elif isinstance(sc, list):
+                    graph_facts = sc
+                elif "content" in graph_resp:
+                    for item in graph_resp["content"]:
+                        if item.get("type") == "text":
+                            try:
+                                parsed = json.loads(item["text"])
+                                if isinstance(parsed, list):
+                                    graph_facts.extend(parsed)
+                                else:
+                                    graph_facts.append(parsed)
+                            except json.JSONDecodeError:
+                                graph_facts.append({"text": item["text"]})
+        except Exception as e:
+            logger.warning(f"Graphiti search failed: {e}")
 
         if self._qdrant_client:
             try:
@@ -304,7 +509,8 @@ class MemoryEngine:
                             ),
                         }
                         for row in rows[:limit]
-                    ]
+                    ],
+                    "graph_facts": graph_facts,
                 }
 
         all_results.sort(key=lambda x: x["score"], reverse=True)
@@ -340,6 +546,7 @@ class MemoryEngine:
                     "No valid pg_ids found; "
                     "returning Qdrant-only results without Postgres enrichment"
                 ),
+                "graph_facts": graph_facts,
             }
 
         pool = await self._get_pg_pool()
@@ -366,7 +573,7 @@ class MemoryEngine:
                     record["score"] = res["score"]
                     final_memories.append(record)
 
-        return {"memories": final_memories}
+        return {"memories": final_memories, "graph_facts": graph_facts}
 
     async def forget(self, memory_id: str, tier: str) -> dict[str, Any]:
         """Soft-delete memory in Postgres, quarantine in Qdrant, update Supabase."""
@@ -435,3 +642,5 @@ class MemoryEngine:
         if self._pg_pool:
             await self._pg_pool.close()
         await self._http_client.aclose()
+        await self._graphiti.close()
+        await self._langfuse.close()

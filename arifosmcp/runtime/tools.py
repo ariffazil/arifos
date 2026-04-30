@@ -2813,9 +2813,9 @@ def _arif_kernel_route(
                     "arifOS": "OK",
                     "GEOX": "STABILIZING",
                     "WEALTH": "OK",
-                    "WELL": "STABILIZING"
+                    "WELL": "STABILIZING",
                 },
-                "next_fix": "Verify client-side stability after Caddy reload"
+                "next_fix": "Verify client-side stability after Caddy reload",
             },
             delta_S=0.0,
         )
@@ -3932,8 +3932,7 @@ def _arif_vault_seal(
                     next_safe_action="Produce reversible design blueprint only; no execution.",
                     actor_id=actor_id,
                     timestamp=_now(),
-                ).model_dump(mode="json"),
-                "HOLD",
+                ).model_dump(mode="json")
             )
 
     if mode == "seal":
@@ -4447,8 +4446,12 @@ def _arif_forge_execute(
             actor_id=actor_id,
             witness_type=wt,
         )
+        status = "OK" if k_verdict["passed"] else "HOLD"
+        reasons = (
+            [] if status == "OK" else [k_verdict.get("reason", "Floor breach in dry_run preview")]
+        )
         return {
-            "status": "OK" if k_verdict["passed"] else "HOLD",
+            "status": status,
             "tool": "arif_forge_execute",
             "result": {
                 "forge_dry_run": ("PASS" if k_verdict["passed"] else "FAIL"),
@@ -4471,25 +4474,37 @@ def _arif_forge_execute(
                 "threat_score": k_verdict["threat_score"],
                 "note": "dry_run — no files modified, no commands executed",
             },
-            "meta": {},
+            "meta": (
+                {"next_safe_action": "Produce reversible design blueprint only; no execution."}
+                if status == "HOLD"
+                else {}
+            ),
             "timestamp": _now(),
-            "nine_signal": _nine_signal_from_status("OK" if k_verdict["passed"] else "HOLD"),
+            "nine_signal": _nine_signal_from_status(status),
+            "reasons": reasons,
         }
 
     # H2 hard-gate: artifact-producing modes require an approved plan
     _PLAN_REQUIRED_MODES = {"engineer", "write", "generate"}
     if mode in _PLAN_REQUIRED_MODES:
         if not plan_id:
-            return ForgeOutput(
-                status="HOLD",
-                result={},
-                manifest=ForgeManifest(status=ManifestStatus.HOLD),
-                meta={
-                    "reason": f"mode='{mode}' requires an approved plan_id (H2 ratification). Use arif_mind_reason(mode='plan') first.",
-                    "failed_floors": ["F01_AMANAH", "F08_GENIUS"],
-                },
-                timestamp=_now(),
-            ).model_dump(mode="json")
+            return _inject_nine_signal(
+                ForgeOutput(
+                    status="HOLD",
+                    result={},
+                    manifest=ForgeManifest(status=ManifestStatus.HOLD),
+                    meta={
+                        "reason": f"mode='{mode}' requires an approved plan_id (H2 ratification). Use arif_mind_reason(mode='plan') first.",
+                        "failed_floors": ["F01_AMANAH", "F08_GENIUS"],
+                        "next_safe_action": "Produce reversible design blueprint only; no execution.",
+                    },
+                    timestamp=_now(),
+                    reasons=[
+                        f"mode='{mode}' requires an approved plan_id (H2 ratification). Use arif_mind_reason(mode='plan') first."
+                    ],
+                ).model_dump(mode="json"),
+                "HOLD",
+            )
         plan = _PLAN_REGISTRY.get(plan_id)
         if plan is None:
             return _inject_nine_signal(
@@ -4500,8 +4515,10 @@ def _arif_forge_execute(
                     meta={
                         "reason": f"plan_id '{plan_id}' not found in plan registry.",
                         "failed_floors": ["F01_AMANAH"],
+                        "next_safe_action": "Produce reversible design blueprint only; no execution.",
                     },
                     timestamp=_now(),
+                    reasons=[f"plan_id '{plan_id}' not found in plan registry."],
                 ).model_dump(mode="json"),
                 "HOLD",
             )
@@ -4514,8 +4531,12 @@ def _arif_forge_execute(
                     meta={
                         "reason": f"plan_id '{plan_id}' exists but is not approved (status='{plan.get('status')}'). Await 888_JUDGE SEAL or manual approval.",
                         "failed_floors": ["F01_AMANAH", "F11_AUTH"],
+                        "next_safe_action": "Produce reversible design blueprint only; no execution.",
                     },
                     timestamp=_now(),
+                    reasons=[
+                        f"plan_id '{plan_id}' exists but is not approved (status='{plan.get('status')}'). Await 888_JUDGE SEAL or manual approval."
+                    ],
                 ).model_dump(mode="json"),
                 "HOLD",
             )
@@ -4549,16 +4570,21 @@ def _arif_forge_execute(
                     "failed_floors": k_verdict["failed_floors"],
                 },
             )
-        return ForgeOutput(
-            status="HOLD",
-            result={},
-            manifest=ForgeManifest(status=ManifestStatus.HOLD),
-            meta={
-                "reason": k_verdict.get("reason", "Floor breach"),
-                "failed_floors": k_verdict.get("failed_floors", []),
-            },
-            timestamp=_now(),
-        ).model_dump(mode="json")
+        return _inject_nine_signal(
+            ForgeOutput(
+                status="HOLD",
+                result={},
+                manifest=ForgeManifest(status=ManifestStatus.HOLD),
+                meta={
+                    "reason": k_verdict.get("reason", "Floor breach"),
+                    "failed_floors": k_verdict.get("failed_floors", []),
+                    "next_safe_action": "Produce reversible design blueprint only; no execution.",
+                },
+                timestamp=_now(),
+                reasons=[k_verdict.get("reason", "Floor breach")],
+            ).model_dump(mode="json"),
+            "HOLD",
+        )
 
     # ── Build constitutional compliance ──────────────────────────────────────
     compliance = ConstitutionalCompliance(
@@ -4876,17 +4902,21 @@ def _arif_forge_execute(
             _transition_plan_state(
                 plan_id, "completed", {"mode": "commit", "artifact_id": artifact_id_out}
             )
-        return output.model_dump(mode="json")
+        return _inject_nine_signal(output.model_dump(mode="json"), "OK")
 
     if plan_id:
         _transition_plan_state(plan_id, "aborted", {"reason": f"unknown_mode_{mode}"})
-    return ForgeOutput(
-        status="HOLD",
-        result={},
-        manifest=ForgeManifest(status=ManifestStatus.HOLD),
-        meta={"reason": f"Unknown mode: {mode}"},
-        timestamp=_now(),
-    ).model_dump(mode="json")
+    return _inject_nine_signal(
+        ForgeOutput(
+            status="HOLD",
+            result={},
+            manifest=ForgeManifest(status=ManifestStatus.HOLD),
+            meta={"reason": f"Unknown mode: {mode}"},
+            timestamp=_now(),
+            reasons=[f"Unknown mode: {mode}"],
+        ).model_dump(mode="json"),
+        "HOLD",
+    )
 
 
 async def _arif_forge_execute_tool(
@@ -5332,6 +5362,15 @@ def _arif_selftest(
     return _runtime_selftest(mode=mode, session_id=session_id, actor_id=actor_id)
 
 
+async def _mcp_health_check(
+    mode: str = "probe",
+    session_id: str | None = None,
+    actor_id: str | None = None,
+) -> dict[str, Any]:
+    """Universal health probe for federation stability."""
+    return _runtime_selftest(mode=mode, session_id=session_id, actor_id=actor_id)
+
+
 # Internal aliases — diagnostics stay callable in-process but are not public MCP tools.
 def _runtime_ping(
     mode: str = "probe",
@@ -5365,9 +5404,10 @@ _CANONICAL_HANDLERS: dict[str, Any] = {
     "arif_judge_deliberate": _arif_judge_deliberate_tool,
     "arif_vault_seal": _arif_vault_seal_tool,
     "arif_forge_execute": _arif_forge_execute_tool,
+    "mcp_health_check": _mcp_health_check,
 }
 
-if len(_CANONICAL_HANDLERS) != 13:
+if len(_CANONICAL_HANDLERS) != 14:
     raise RuntimeError(f"Expected 13 canonical handlers, found {len(_CANONICAL_HANDLERS)}")
 
 if set(_CANONICAL_HANDLERS) != set(CANONICAL_TOOLS):
