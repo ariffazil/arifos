@@ -168,6 +168,15 @@ mcp.arif-fazil.com {
     handle /tools.json {
         reverse_proxy http://arifosmcp:8080
     }
+    handle /status.json {
+        reverse_proxy http://arifosmcp:8080
+    }
+    handle /ready {
+        reverse_proxy http://arifosmcp:8080
+    }
+    handle /llms.txt {
+        reverse_proxy http://arifosmcp:8080
+    }
     handle {
         respond "arifOS MCP API — use /mcp" 200
     }
