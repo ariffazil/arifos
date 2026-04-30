@@ -253,6 +253,7 @@ class ConstitutionKernel:
         params: dict[str, Any],
         session_id: str | None = None,
         actor_id: str | None = None,
+        witness_type: WitnessType = WitnessType.AI,
     ) -> dict[str, Any]:
         """Bridge for tools.py callers that expect GovernanceEnforcer-style evaluate_intent.
 
@@ -266,6 +267,7 @@ class ConstitutionKernel:
             ack_irreversible=params.get("ack_irreversible", False),
             session_id=session_id,
             actor_id=actor_id,
+            witness_type=witness_type,
         )
         verdict = self.evaluate(context)
         return {
@@ -288,7 +290,44 @@ class ConstitutionKernel:
             if os.path.exists(well_state_path):
                 with open(well_state_path) as f:
                     well_state = json.load(f)
-                readiness = well_state.get("well_score", 100)
+                readiness = well_state.get("well_score")
+                backend_status = well_state.get("backend_status", "UNKNOWN")
+
+                # Fail-closed: null well_score or DEGRADED backend blocks SEAL
+                if readiness is None or backend_status == "DEGRADED":
+                    is_dev = os.environ.get("ARIFOS_DEV_MODE", "").lower() in ("1", "true", "yes")
+                    f13_reason = (
+                        f"WELL telemetry unavailable (well_score={readiness}, "
+                        f"backend_status={backend_status})"
+                    )
+                    from arifosmcp.core.authority_gate import AuthorityProof
+                    from arifosmcp.core.floor_evaluator import FloorResult
+                    from arifosmcp.core.threat_engine import (
+                        IrreversibilityLevel,
+                        ThreatAssessment,
+                    )
+
+                    threat = ThreatAssessment(
+                        threats=[],
+                        overall_confidence=1.0,
+                        irreversibility=IrreversibilityLevel.NONE,
+                        category=None,
+                    )
+                    floors = FloorResult(
+                        verdict="HOLD",
+                        failed_floors=["F13"],
+                        floor_reasons={"F13": f13_reason},
+                    )
+                    authority = AuthorityProof(authorized=False, level="SOVEREIGN_VETO")
+                    return ConstitutionalVerdict(
+                        status="WARN" if is_dev else "HOLD",
+                        verdict="WARN" if is_dev else "HOLD",
+                        threat=threat,
+                        floors=floors,
+                        authority=authority,
+                        irreversibility=IrreversibilityLevel.NONE,
+                    )
+
                 if readiness < 40:  # Threshold per doctrinal move
                     from arifosmcp.core.authority_gate import AuthorityProof
                     from arifosmcp.core.floor_evaluator import FloorResult

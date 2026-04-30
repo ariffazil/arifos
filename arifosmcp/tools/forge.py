@@ -27,6 +27,7 @@ def arif_forge_execute(
     constitutional_chain_id: str | None = None,
     judge_state_hash: str | None = None,
     vault_entry_id: str | None = None,
+    witness_type: str = "ai",
 ) -> ForgeOutput:
     floor_check = check_floors(
         "arif_forge_execute",
@@ -61,5 +62,6 @@ def arif_forge_execute(
             constitutional_chain_id=constitutional_chain_id,
             judge_state_hash=judge_state_hash,
             vault_entry_id=vault_entry_id,
+            witness_type=witness_type,
         )
     )

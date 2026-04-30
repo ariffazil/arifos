@@ -2516,7 +2516,17 @@ def _kernel_depth_select(task: str | None) -> str:
 
 def _kernel_risk_gate(task: str | None) -> tuple[str, int]:
     """Return (risk_tier, risk_score)."""
-    risk_keywords = ["delete", "drop", "remove", "rm -rf", "prune", "destroy", "overwrite", "wipe", "purge"]
+    risk_keywords = [
+        "delete",
+        "drop",
+        "remove",
+        "rm -rf",
+        "prune",
+        "destroy",
+        "overwrite",
+        "wipe",
+        "purge",
+    ]
     tl = (task or "").lower()
     score = sum(1 for k in risk_keywords if k in tl)
     tier = "critical" if score >= 3 else "high" if score >= 2 else "medium" if score >= 1 else "low"
@@ -2535,7 +2545,11 @@ def _kernel_authority_gate(task: str | None, actor_id: str | None) -> dict[str, 
     sovereign_tasks = ["seal", "commit", "approve", "judge", "irreversible", "deploy production"]
     tl = (task or "").lower()
     required = "SOVEREIGN" if any(k in tl for k in sovereign_tasks) else "OPERATOR"
-    actor_tier = "SOVEREIGN" if actor_id and actor_id.lower() in {"arif", "ariffazil", "admin", "sovereign"} else "OPERATOR"
+    actor_tier = (
+        "SOVEREIGN"
+        if actor_id and actor_id.lower() in {"arif", "ariffazil", "admin", "sovereign"}
+        else "OPERATOR"
+    )
     passed = actor_tier == required or actor_tier == "SOVEREIGN"
     return {"required_authority": required, "actor_tier": actor_tier, "passed": passed}
 
@@ -2571,7 +2585,13 @@ def _kernel_workflow(depth: str) -> list[dict[str, Any]]:
             {"step": 4, "tool": "arif_mind_reason", "mode": "reason", "purpose": "cognition"},
             {"step": 5, "tool": "arif_mind_reason", "mode": "verify", "purpose": "cognition"},
             {"step": 6, "tool": "arif_reply_compose", "mode": "compose", "purpose": "output"},
-            {"step": 7, "tool": "arif_vault_seal", "mode": "seal_trace", "purpose": "audit", "optional": True},
+            {
+                "step": 7,
+                "tool": "arif_vault_seal",
+                "mode": "seal_trace",
+                "purpose": "audit",
+                "optional": True,
+            },
         ],
         "T4": [
             {"step": 1, "tool": "arif_sense_observe", "mode": "classify", "purpose": "intake"},
@@ -2590,11 +2610,36 @@ def _kernel_workflow(depth: str) -> list[dict[str, Any]]:
 def _kernel_token_budget(depth: str) -> dict[str, Any]:
     """Return token budget and latency expectations for a T-tier."""
     budgets = {
-        "T0": {"max_steps": 3, "max_tokens": 2000, "compression_required": False, "max_latency_sec": 1.0},
-        "T1": {"max_steps": 5, "max_tokens": 4000, "compression_required": False, "max_latency_sec": 3.0},
-        "T2": {"max_steps": 7, "max_tokens": 8000, "compression_required": False, "max_latency_sec": 6.0},
-        "T3": {"max_steps": 7, "max_tokens": 12000, "compression_required": True, "max_latency_sec": 10.0},
-        "T4": {"max_steps": 10, "max_tokens": 24000, "compression_required": True, "max_latency_sec": 20.0},
+        "T0": {
+            "max_steps": 3,
+            "max_tokens": 2000,
+            "compression_required": False,
+            "max_latency_sec": 1.0,
+        },
+        "T1": {
+            "max_steps": 5,
+            "max_tokens": 4000,
+            "compression_required": False,
+            "max_latency_sec": 3.0,
+        },
+        "T2": {
+            "max_steps": 7,
+            "max_tokens": 8000,
+            "compression_required": False,
+            "max_latency_sec": 6.0,
+        },
+        "T3": {
+            "max_steps": 7,
+            "max_tokens": 12000,
+            "compression_required": True,
+            "max_latency_sec": 10.0,
+        },
+        "T4": {
+            "max_steps": 10,
+            "max_tokens": 24000,
+            "compression_required": True,
+            "max_latency_sec": 20.0,
+        },
     }
     return budgets.get(depth, budgets["T1"])
 
@@ -2604,7 +2649,12 @@ def _kernel_authority_boundary(depth: str, risk_tier: str, is_irreversible: bool
     if depth == "T4" or is_irreversible or risk_tier in ("critical", "high"):
         return {
             "llm_may": ["recommend", "draft", "compare", "analyze", "warn"],
-            "llm_must_not": ["approve", "self-authorize", "execute irreversible action", "override judge"],
+            "llm_must_not": [
+                "approve",
+                "self-authorize",
+                "execute irreversible action",
+                "override judge",
+            ],
             "human_judge": "required",
         }
     if depth == "T2" or risk_tier == "medium":
@@ -2653,7 +2703,10 @@ def _build_orchestration(
         "gating_results": {
             "depth_select": {"tier": depth, "rationale": f"Keyword-classified as {depth}"},
             "risk_gate": {"tier": risk_tier, "score": risk_score},
-            "reversibility_gate": {"is_irreversible": is_irreversible, "requires_ack": is_irreversible},
+            "reversibility_gate": {
+                "is_irreversible": is_irreversible,
+                "requires_ack": is_irreversible,
+            },
             "authority_gate": auth,
         },
         "session_context": {
@@ -2791,7 +2844,11 @@ def _arif_kernel_route(
         risk_tier, risk_score = _kernel_risk_gate(task)
         return _ok(
             "arif_kernel_route",
-            {"risk_tier": risk_tier, "risk_score": risk_score, "task_preview": task[:100] if task else None},
+            {
+                "risk_tier": risk_tier,
+                "risk_score": risk_score,
+                "task_preview": task[:100] if task else None,
+            },
             delta_S=0.001,
         )
 
@@ -2817,7 +2874,11 @@ def _arif_kernel_route(
         is_irreversible = _kernel_reversibility_gate(task)
         return _ok(
             "arif_kernel_route",
-            {"is_irreversible": is_irreversible, "requires_ack": is_irreversible, "task_preview": task[:100] if task else None},
+            {
+                "is_irreversible": is_irreversible,
+                "requires_ack": is_irreversible,
+                "task_preview": task[:100] if task else None,
+            },
             delta_S=0.0,
         )
 
@@ -2826,7 +2887,11 @@ def _arif_kernel_route(
         workflow = _kernel_workflow(depth)
         return _ok(
             "arif_kernel_route",
-            {"depth_tier": depth, "workflow": workflow, "task_preview": task[:100] if task else None},
+            {
+                "depth_tier": depth,
+                "workflow": workflow,
+                "task_preview": task[:100] if task else None,
+            },
             delta_S=0.0,
         )
 
@@ -3434,7 +3499,12 @@ def _arif_ops_measure(
         cost_usd = round(tokens * 0.000002, 6)
         return _ok(
             "arif_ops_measure",
-            {"tokens_estimated": tokens, "cost_usd": cost_usd, "currency": "USD", "model": "sea_lion"},
+            {
+                "tokens_estimated": tokens,
+                "cost_usd": cost_usd,
+                "currency": "USD",
+                "model": "sea_lion",
+            },
             delta_S=0.0,
         )
 
@@ -3444,7 +3514,12 @@ def _arif_ops_measure(
         passed = tokens <= limit
         return _ok(
             "arif_ops_measure",
-            {"tokens_requested": tokens, "limit": limit, "passed": passed, "overage": max(0, tokens - limit)},
+            {
+                "tokens_requested": tokens,
+                "limit": limit,
+                "passed": passed,
+                "overage": max(0, tokens - limit),
+            },
             delta_S=0.0,
         )
 
@@ -3454,7 +3529,11 @@ def _arif_ops_measure(
         estimated = latency_map.get(depth, 1.2)
         return _ok(
             "arif_ops_measure",
-            {"estimated_latency_sec": estimated, "depth_tier": depth, "status": "within_sla" if estimated < 10 else "sla_risk"},
+            {
+                "estimated_latency_sec": estimated,
+                "depth_tier": depth,
+                "status": "within_sla" if estimated < 10 else "sla_risk",
+            },
             delta_S=0.0,
         )
 
@@ -3464,14 +3543,24 @@ def _arif_ops_measure(
         passed = cost <= budget
         return _ok(
             "arif_ops_measure",
-            {"cost_usd": cost, "budget_usd": budget, "passed": passed, "remaining": round(budget - cost, 4)},
+            {
+                "cost_usd": cost,
+                "budget_usd": budget,
+                "passed": passed,
+                "remaining": round(budget - cost, 4),
+            },
             delta_S=0.0,
         )
 
     if mode == "entropy_delta":
         return _ok(
             "arif_ops_measure",
-            {"delta_S": 0.001, "direction": "stable", "session_id": session_id, "note": "Entropy delta from last operation"},
+            {
+                "delta_S": 0.001,
+                "direction": "stable",
+                "session_id": session_id,
+                "note": "Entropy delta from last operation",
+            },
             delta_S=0.001,
         )
 
@@ -3731,6 +3820,7 @@ def _arif_vault_seal(
     constitutional_chain_id: str | None = None,
     judge_state_hash: str | None = None,
     verification_state: dict[str, Any] | None = None,
+    witness_type: str = "ai",
 ) -> dict[str, Any]:
     """
     999_VAULT: Immutable ledger anchoring and cryptographic seal.
@@ -3766,10 +3856,14 @@ def _arif_vault_seal(
 
     # Only enforce F01 on actual write modes; read-only audit modes are safe
     if mode in {"seal", "commit"}:
+        from arifosmcp.core.constitution_kernel import WitnessType
+
+        wt = WitnessType.HUMAN if witness_type == "human" else WitnessType.AI
         k_verdict = _KERNEL.evaluate_intent(
             tool_name="arif_vault_seal",
             params={"mode": mode, "ack_irreversible": ack_irreversible},
             session_id=session_id,
+            witness_type=wt,
         )
         if not k_verdict["passed"]:
             output = SealOutput(
@@ -4146,7 +4240,11 @@ def _arif_vault_seal(
         )
 
     if mode == "retrieve_audit":
-        session_entries = [e for e in _VAULT_LEDGER if e.get("session_id") == session_id] if session_id else _VAULT_LEDGER
+        session_entries = (
+            [e for e in _VAULT_LEDGER if e.get("session_id") == session_id]
+            if session_id
+            else _VAULT_LEDGER
+        )
         return _inject_nine_signal(
             SealOutput(
                 status="OK",
@@ -4256,14 +4354,19 @@ def _arif_forge_execute(
     judge_state_hash: str | None = None,
     vault_entry_id: str | None = None,
     plan_id: str | None = None,
+    witness_type: str = "ai",
 ) -> dict[str, Any]:
     # dry_run mode — simulate but still run floor checks for threat preview
     if mode == "dry_run":
+        from arifosmcp.core.constitution_kernel import WitnessType
+
+        wt = WitnessType.HUMAN if witness_type == "human" else WitnessType.AI
         k_verdict = _KERNEL.evaluate_intent(
             tool_name="arif_forge_execute",
             params={"mode": mode, "manifest": manifest},
             session_id=session_id,
             actor_id=actor_id,
+            witness_type=wt,
         )
         return {
             "status": "OK" if k_verdict["passed"] else "HOLD",
@@ -4341,11 +4444,15 @@ def _arif_forge_execute(
             plan_id, "in_execution", {"tool": "arif_forge_execute", "mode": mode}
         )
 
+    from arifosmcp.core.constitution_kernel import WitnessType
+
+    wt = WitnessType.HUMAN if witness_type == "human" else WitnessType.AI
     k_verdict = _KERNEL.evaluate_intent(
         tool_name="arif_forge_execute",
         params={"mode": mode, "ack_irreversible": ack_irreversible, "manifest": manifest},
         session_id=session_id,
         actor_id=actor_id,
+        witness_type=wt,
     )
     if not k_verdict["passed"]:
         if plan_id:
