@@ -191,6 +191,7 @@ async def _heart_with_llm(
     target: str,
     session_id: str | None = None,
     actor_id: str | None = None,
+    context_type: str | None = None,
 ) -> dict[str, Any]:
     """
     Tier 1/2: Use SEA-LION or Ollama for constitutional risk analysis.
@@ -200,6 +201,7 @@ async def _heart_with_llm(
 
     user = f"""TARGET: {target}
 MODE: {mode}
+CONTEXT_TYPE: {context_type or 'external_action'}
 
 {mode_prompt}
 
@@ -229,6 +231,7 @@ Return JSON exactly matching the schema. Cite specific constitutional floors for
 def _heart_fallback(
     mode: str,
     target: str,
+    context_type: str | None = None,
 ) -> dict[str, Any]:
     """
     Rule-based fallback when no LLM is available.
@@ -487,6 +490,7 @@ async def arif_heart_critique(
     target: str | None = None,
     actor_id: str | None = None,
     session_id: str | None = None,
+    context_type: str | None = None,
 ) -> dict[str, Any]:
     """
     666_HEART: Constitutional ethical critique and risk assessment.
@@ -504,25 +508,45 @@ async def arif_heart_critique(
       deescalate — Risk reduction strategy
       summary    — Condensed risk scorecard
 
-    Returns:
-        dict with status, risks_found[], risk_tier, human_decision_required,
-        empathy_score, verdict, etc.
+    Args:
+        context_type: Controls risk threshold scaling:
+            - "internal_audit" — audit operations, log reviews, session inspection
+              → more permissive: RED = HOLD (not CRITICAL), CRITICAL = VOID
+            - "external_action" — actions affecting outside world
+              → standard thresholds: RED = human required, CRITICAL = VOID
+            - None → standard thresholds (default)
     """
-    # Try LLM first
+    _ct = context_type or "external_action"
+    is_internal = _ct == "internal_audit"
+
     try:
         result = await _heart_with_llm(
             mode=mode,
             target=target,
             session_id=session_id,
             actor_id=actor_id,
+            context_type=_ct,
         )
+        if is_internal:
+            for risk in result.get("risks_found", []):
+                if risk["severity"] == "high":
+                    risk["severity"] = "medium"
+            if result.get("risk_tier") == "RED":
+                result["risk_tier"] = "AMBER"
+                result["human_decision_required"] = False
         return result
     except LLMUnavailableError:
         pass
 
-    # Tier 3: Deterministic fallback
-    logger.info("arif_heart_critique: using deterministic fallback (no LLM)")
-    return _heart_fallback(mode=mode, target=target)
+    result = _heart_fallback(mode=mode, target=target, context_type=_ct)
+    if is_internal:
+        for risk in result.get("risks_found", []):
+            if risk["severity"] == "high":
+                risk["severity"] = "medium"
+        if result.get("risk_tier") == "RED":
+            result["risk_tier"] = "AMBER"
+            result["human_decision_required"] = False
+    return result
 
 
 __all__ = ["arif_heart_critique", "CRITIQUE_SCHEMA"]
