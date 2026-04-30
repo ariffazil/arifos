@@ -182,6 +182,12 @@ class A2ATaskManager:
                 },
             )
 
+            # DEBUG
+            import sys as _sys
+            _sys.stdout.write(f"[DEBUG] judge_result type={type(judge_result)}, keys={list(judge_result.keys()) if isinstance(judge_result, dict) else 'not-dict'}\n")
+            _sys.stdout.write(f"[DEBUG] judge_result content snippet: {str(judge_result)[:500]}\n")
+            _sys.stdout.flush()
+            
             verdict = judge_result.get("verdict", "VOID")
             task.verdict = verdict
 
