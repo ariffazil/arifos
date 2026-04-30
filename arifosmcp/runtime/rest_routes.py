@@ -1958,6 +1958,16 @@ def register_rest_routes(
             },
         )
 
+    @route("/capability", methods=["GET"])
+    async def capability(request: Request) -> Response:
+        """Capability map — what is wired and configured in this kernel instance."""
+        payload = build_runtime_capability_map(
+            ml_model_available=get_ml_floor_runtime().get("ml_model_available", False)
+        )
+        payload["timestamp"] = datetime.now(timezone.utc).isoformat()
+        payload["version"] = BUILD_INFO["version"]
+        return JSONResponse(payload, headers={"Access-Control-Allow-Origin": "*"})
+
     @route("/metrics", methods=["GET"])
     async def metrics_endpoint(request: Request) -> Response:
         """Prometheus metrics — scraped by arifos_prometheus every 30s."""
