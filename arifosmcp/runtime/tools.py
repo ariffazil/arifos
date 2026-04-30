@@ -546,14 +546,18 @@ class _FileSessionStore:
     """
 
     def __init__(self, path: str | None = None) -> None:
+        self._using_explicit_path = bool(path or os.getenv("ARIFOS_SESSION_STORE_PATH"))
         self._path = path or os.getenv("ARIFOS_SESSION_STORE_PATH", "/app/data/sessions.json")
         try:
             os.makedirs(os.path.dirname(self._path), exist_ok=True)
         except OSError:
-            import tempfile
+            self._fallback_to_tmp()
 
-            self._path = os.path.join(tempfile.gettempdir(), "arifos", "sessions.json")
-            os.makedirs(os.path.dirname(self._path), exist_ok=True)
+    def _fallback_to_tmp(self) -> None:
+        import tempfile
+
+        self._path = os.path.join(tempfile.gettempdir(), "arifos", "sessions.json")
+        os.makedirs(os.path.dirname(self._path), exist_ok=True)
 
     def _load(self) -> dict[str, dict[str, Any]]:
         try:
@@ -570,14 +574,27 @@ class _FileSessionStore:
         return {}
 
     def _save(self, data: dict[str, dict[str, Any]]) -> None:
-        with open(self._path, "w", encoding="utf-8") as f:
-            fcntl.flock(f, fcntl.LOCK_EX)
-            try:
-                json.dump(data, f, ensure_ascii=True, separators=(",", ":"))
-                f.flush()
-                os.fsync(f.fileno())
-            finally:
-                fcntl.flock(f, fcntl.LOCK_UN)
+        try:
+            with open(self._path, "w", encoding="utf-8") as f:
+                fcntl.flock(f, fcntl.LOCK_EX)
+                try:
+                    json.dump(data, f, ensure_ascii=True, separators=(",", ":"))
+                    f.flush()
+                    os.fsync(f.fileno())
+                finally:
+                    fcntl.flock(f, fcntl.LOCK_UN)
+        except OSError:
+            if self._using_explicit_path:
+                raise
+            self._fallback_to_tmp()
+            with open(self._path, "w", encoding="utf-8") as f:
+                fcntl.flock(f, fcntl.LOCK_EX)
+                try:
+                    json.dump(data, f, ensure_ascii=True, separators=(",", ":"))
+                    f.flush()
+                    os.fsync(f.fileno())
+                finally:
+                    fcntl.flock(f, fcntl.LOCK_UN)
 
     def get(self, key: str) -> dict[str, Any] | None:
         return self._load().get(key)
@@ -604,6 +621,9 @@ class _FileSessionStore:
         value = data.pop(key, default)
         self._save(data)
         return value
+
+    def clear(self) -> None:
+        self._save({})
 
     def __contains__(self, key: str) -> bool:
         return key in self._load()
@@ -1283,6 +1303,7 @@ def _arif_session_init(
             )
         eid = epoch_id or f"EPOCH-{uuid.uuid4().hex[:16]}"
         sess["epoch_id"] = eid
+        _SESSIONS[session_id] = sess
         _EPOCH_REGISTRY[eid] = {
             "epoch_id": eid,
             "session_id": session_id,
@@ -4449,7 +4470,13 @@ def _arif_forge_execute(
     wt = WitnessType.HUMAN if witness_type == "human" else WitnessType.AI
     k_verdict = _KERNEL.evaluate_intent(
         tool_name="arif_forge_execute",
-        params={"mode": mode, "ack_irreversible": ack_irreversible, "manifest": manifest},
+        params={
+            "mode": mode,
+            "ack_irreversible": ack_irreversible,
+            "manifest": manifest,
+            "plan_id": plan_id,
+            "plan_registry": set(_PLAN_REGISTRY.keys()),
+        },
         session_id=session_id,
         actor_id=actor_id,
         witness_type=wt,

@@ -20,9 +20,27 @@ from arifosmcp.core.floor_evaluator import FloorEvaluator, FloorResult
 from arifosmcp.core.threat_engine import (
     IrreversibilityLevel,
     ThreatAssessment,
+    ThreatCategory,
     ThreatEngine,
 )
 from pydantic import BaseModel, Field, field_validator
+
+__all__ = [
+    "ActionContext",
+    "AuthorityGate",
+    "BootInvariantChecker",
+    "ConstitutionKernel",
+    "ConstitutionalVerdict",
+    "FloorEvaluator",
+    "IrreversibilityLevel",
+    "SchemaContractValidator",
+    "ThreatAssessment",
+    "ThreatCategory",
+    "ThreatEngine",
+    "WitnessType",
+    "get_kernel",
+    "reset_kernel",
+]
 
 
 class IrreversibilityModel:
@@ -268,6 +286,8 @@ class ConstitutionKernel:
             session_id=session_id,
             actor_id=actor_id,
             witness_type=witness_type,
+            plan_id=params.get("plan_id"),
+            plan_registry=params.get("plan_registry", set()),
         )
         verdict = self.evaluate(context)
         return {

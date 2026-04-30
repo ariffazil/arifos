@@ -1,178 +1,209 @@
 # arifOS Sovereign Caddyfile — 3-Surface Architecture
 # DITEMPA BUKAN DIBERI
-# Hardening: Red-Team Defensive (V5 NO-PASSWORD SOVEREIGN)
-
+# Hardening: Red-Team Defensive (V8 NO-PASSWORD SOVEREIGN)
 {
-    admin unix//var/run/caddy-admin.sock
-    email arif@arif-fazil.com
+	admin unix//var/run/caddy-admin.sock
+	email arif@arif-fazil.com
 }
 
 # ─── CONSTITUTIONAL HEADERS MACRO ──────────────────────────────────────────────
 (constitutional_headers) {
-    header {
-        Strict-Transport-Security "max-age=15552000; includeSubDomains; preload"
-        X-Content-Type-Options "nosniff"
-        X-Frame-Options "DENY"
-        Referrer-Policy "strict-origin-when-cross-origin"
-        Content-Security-Policy "default-src 'self'; script-src 'self' https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://mcp.arif-fazil.com https://arifos.arif-fazil.com; object-src 'none'; base-uri 'self'; frame-ancestors 'none';"
-        Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()"
-        Cross-Origin-Opener-Policy "same-origin"
-        Cross-Origin-Resource-Policy "same-origin"
-    }
+	header {
+		Strict-Transport-Security "max-age=15552000; includeSubDomains; preload"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		Content-Security-Policy "default-src 'self'; script-src 'self' https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://mcp.arif-fazil.com https://arifos.arif-fazil.com; object-src 'none'; base-uri 'self'; frame-ancestors 'none';"
+		Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()"
+		Cross-Origin-Opener-Policy "same-origin"
+		Cross-Origin-Resource-Policy "same-origin"
+	}
 }
 
 # ─── SOVEREIGN IP GATE ─────────────────────────────────────────────────────────
-# No Passwords. Only the Sovereign IP is allowed deep access.
+# No passwords. Deep routes are allowed only from sovereign/local addresses.
 (sovereign_gate) {
-    @blocked {
-        not remote_ip 2a02:4780:5e:dbf6::1 127.0.0.1 ::1
-    }
-    respond @blocked "403 Forbidden — Sovereign IP Only" 403
+	@blocked {
+		not remote_ip 2a02:4780:5e:dbf6::1 127.0.0.1 ::1
+	}
+	respond @blocked "403 Forbidden — Sovereign IP Only" 403
 }
 
 (tls_origin) {
-    tls /data/cloudflare-origin/cert.pem /data/cloudflare-origin/key.pem
-    import constitutional_headers
+	tls /data/cloudflare-origin/cert.pem /data/cloudflare-origin/key.pem
+	import constitutional_headers
 }
 
 (shared_assets) {
-    handle /_shared/* {
-        root * /var/www/html/_shared
-        file_server
-    }
+	handle /_shared/* {
+		root * /var/www/html/_shared
+		file_server
+	}
 }
 
 # ─── Ψ HUMAN SURFACE ───────────────────────────────────────────────────────────
 arif-fazil.com, www.arif-fazil.com {
-    import tls_origin
-    import shared_assets
-    encode zstd gzip
-    root * /var/www/html/arif
+	import tls_origin
+	import shared_assets
+	encode zstd gzip
+	root * /var/www/html/arif
 
-    handle /llms.json {
-        @sovereign remote_ip 2a02:4780:5e:dbf6::1 127.0.0.1 ::1
-        handle @sovereign {
-            file_server
-        }
-        rewrite * /llms.public.json
-        file_server
-    }
+	handle /llms.json {
+		@sovereign remote_ip 2a02:4780:5e:dbf6::1 127.0.0.1 ::1
+		handle @sovereign {
+			file_server
+		}
+		rewrite * /llms.public.json
+		file_server
+	}
 
-    handle /full-context.json {
-        import sovereign_gate
-        file_server
-    }
+	handle /full-context.json {
+		import sovereign_gate
+		file_server
+	}
 
-    handle /wells.json {
-        import sovereign_gate
-        file_server
-    }
+	handle /wells.json {
+		import sovereign_gate
+		file_server
+	}
 
-    handle {
-        try_files {path} /index.html
-        file_server
-    }
+	handle {
+		try_files {path} /index.html
+		file_server
+	}
 }
 
 # ─── Δ MACHINE SURFACE ─────────────────────────────────────────────────────────
 mcp.arif-fazil.com {
-    import tls_origin
-    encode zstd gzip
+	import tls_origin
+	encode zstd gzip
 
-    handle /health {
-        @sovereign remote_ip 2a02:4780:5e:dbf6::1 127.0.0.1 ::1
-        handle @sovereign {
-            reverse_proxy http://arifosmcp:8080
-        }
-        rewrite * /health_public.json
-        root * /var/www/html/arifos
-        file_server
-    }
+	handle /health {
+		@sovereign remote_ip 2a02:4780:5e:dbf6::1 127.0.0.1 ::1
+		handle @sovereign {
+			reverse_proxy http://arifosmcp:8080
+		}
+		rewrite * /health_public.json
+		root * /var/www/html/arifos
+		file_server
+	}
 
-    handle /ops/health {
-        import sovereign_gate
-        reverse_proxy http://arifosmcp:8080 {
-            rewrite /health
-        }
-    }
+	handle /ops/health {
+		import sovereign_gate
+		reverse_proxy http://arifosmcp:8080 {
+			rewrite /health
+		}
+	}
 
-    handle /mcp* {
-        reverse_proxy http://arifosmcp:8080 {
-            flush_interval -1
-        }
-    }
+	handle /mcp* {
+		reverse_proxy http://arifosmcp:8080 {
+			flush_interval -1
+		}
+	}
 
-    handle /metrics/json {
-        import sovereign_gate
-        reverse_proxy http://arifosmcp:8080
-    }
+	handle /metrics/json {
+		import sovereign_gate
+		reverse_proxy http://arifosmcp:8080
+	}
 
-    handle {
-        respond "arifOS MCP API" 200
-    }
+	handle {
+		respond "arifOS MCP API" 200
+	}
 }
 
 # ─── Ω INTELLIGENCE SURFACE ────────────────────────────────────────────────────
 arifos.arif-fazil.com {
-    import tls_origin
-    import shared_assets
-    encode zstd gzip
-    root * /var/www/html/arifos
+	import tls_origin
+	import shared_assets
+	encode zstd gzip
+	root * /var/www/html/arifos
 
-    # Public Root vs Private Cockpit
-    handle / {
-        @sovereign remote_ip 2a02:4780:5e:dbf6::1 127.0.0.1 ::1
-        handle @sovereign {
-            rewrite * /ops/index.html
-            file_server
-        }
-        rewrite * /index_public.html
-        file_server
-    }
+	# Public Root vs Private Cockpit
+	handle / {
+		@sovereign remote_ip 2a02:4780:5e:dbf6::1 127.0.0.1 ::1
+		handle @sovereign {
+			rewrite * /ops/index.html
+			file_server
+		}
+		rewrite * /index_public.html
+		file_server
+	}
 
-    handle /ops/* {
-        import sovereign_gate
-        file_server
-    }
+	handle /ops/* {
+		import sovereign_gate
+		file_server
+	}
 
-    handle /tools* {
-        import sovereign_gate
-        reverse_proxy http://arifosmcp:8080
-    }
+	handle /tools* {
+		import sovereign_gate
+		reverse_proxy http://arifosmcp:8080
+	}
 
-    handle /capability {
-        import sovereign_gate
-        reverse_proxy http://arifosmcp:8080
-    }
+	handle /capability {
+		import sovereign_gate
+		reverse_proxy http://arifosmcp:8080
+	}
 
-    handle /health {
-        @sovereign remote_ip 2a02:4780:5e:dbf6::1 127.0.0.1 ::1
-        handle @sovereign {
-            reverse_proxy http://arifosmcp:8080
-        }
-        rewrite * /health_public.json
-        file_server
-    }
+	handle /health {
+		@sovereign remote_ip 2a02:4780:5e:dbf6::1 127.0.0.1 ::1
+		handle @sovereign {
+			reverse_proxy http://arifosmcp:8080
+		}
+		rewrite * /health_public.json
+		file_server
+	}
 
-    handle {
-        try_files {path} /index.html
-        file_server
-    }
+	handle {
+		try_files {path} /index.html
+		file_server
+	}
 }
 
 # ─── NODES ─────────────────────────────────────────────────────────────────────
-geox.arif-fazil.com { import tls_origin; reverse_proxy geox:8081 }
-wealth.arif-fazil.com { import tls_origin; reverse_proxy wealth-organ:8082 }
-well.arif-fazil.com { import tls_origin; reverse_proxy well:8083 }
-
-aaa.arif-fazil.com {
-    import tls_origin
-    root * /var/www/html/aaa
-    handle /a2a* { reverse_proxy arifosmcp:8080 }
-    handle { try_files {path} /index.html; file_server }
+geox.arif-fazil.com {
+	import tls_origin
+	reverse_proxy geox:8081
 }
 
-wiki.arif-fazil.com { import tls_origin; redir https://arifos.arif-fazil.com/wiki{uri} permanent }
-apex.arif-fazil.com { import tls_origin; root * /var/www/html/apex; file_server }
-dozzle.arif-fazil.com { import tls_origin; reverse_proxy dozzle:8080 }
-ollama.arif-fazil.com { import tls_origin; reverse_proxy ollama:11434 }
+wealth.arif-fazil.com {
+	import tls_origin
+	reverse_proxy wealth-organ:8082
+}
+
+well.arif-fazil.com {
+	import tls_origin
+	reverse_proxy well:8083
+}
+
+aaa.arif-fazil.com {
+	import tls_origin
+	root * /var/www/html/aaa
+	handle /a2a* {
+		reverse_proxy arifosmcp:8080
+	}
+	handle {
+		try_files {path} /index.html
+		file_server
+	}
+}
+
+wiki.arif-fazil.com {
+	import tls_origin
+	redir https://arifos.arif-fazil.com/wiki{uri} permanent
+}
+
+apex.arif-fazil.com {
+	import tls_origin
+	root * /var/www/html/apex
+	file_server
+}
+
+dozzle.arif-fazil.com {
+	import tls_origin
+	reverse_proxy dozzle:8080
+}
+
+ollama.arif-fazil.com {
+	import tls_origin
+	reverse_proxy ollama:11434
+}

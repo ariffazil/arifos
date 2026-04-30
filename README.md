@@ -10,18 +10,18 @@ The core guarantee is simple: high-impact or irreversible action must pass const
 
 ## Current SOT
 
-This README reflects the local repository state audited on 2026-04-26.
+This README reflects the local repository state audited on 2026-04-30.
 
 | Surface | Current truth |
 | --- | --- |
 | Canonical repository | `https://github.com/ariffazil/arifOS` |
 | Python package | `arifos` |
-| Package version | `2026.04.26` |
-| Runtime version | `2026.04.26-KANON` |
+| Package version | `2026.04.28` |
+| Runtime version | `2026.04.28-KANON` |
 | Runtime entrypoint | `arifosmcp.runtime.server:app` |
 | CLI entrypoint | `arifos-mcp` |
 | Python | `>=3.12` |
-| MCP framework | `fastmcp==3.1.1` |
+| MCP framework | `fastmcp==3.2.4` |
 | Default HTTP port | `8080` |
 | Constitutional floors | 13, `F01` through `F13` |
 | Registered MCP tools | 13 canonical capability tools |
@@ -77,20 +77,19 @@ The current runtime registers **13 MCP tools**. These are pure capability tools.
 | `444` | `arif_kernel_route` | AGI | public | Route kernel actions and telemetry. |
 | `444r` | `arif_reply_compose` | AGI | public | Compose governed responses. |
 | `555` | `arif_memory_recall` | AGI | public | Recall, store, search, and prune governed memory context. |
-| `666` | `arif_heart_critique` | ASI | authenticated | Critique safety, empathy, consequence, and manipulation risk. |
-| `666g` | `arif_gateway_connect` | ASI | authenticated | Connect and route across A2A/federated gateways. |
+| `666` | `arif_heart_critique` | ASI | public | Critique safety, empathy, consequence, and manipulation risk. |
+| `666g` | `arif_gateway_connect` | ASI | public | Connect and route across A2A/federated gateways. |
 | `777` | `arif_ops_measure` | AGI | public | Measure operations, cost, vitality, and thermodynamics. |
 | `888` | `arif_judge_deliberate` | ASI | authenticated | Produce constitutional verdicts. |
 | `999` | `arif_vault_seal` | APEX | authenticated | Seal audit records and ledger entries. |
-| `010` | `arif_forge_execute` | AGI | sovereign | Dispatch execution to A-FORGE with irreversible-action controls. |
+| `010` | `arif_forge_execute` | AGI | public | Dispatch execution to A-FORGE with irreversible-action controls. |
 
 Access classes:
 
 | Access | Tools |
 | --- | --- |
-| public | `arif_session_init`, `arif_sense_observe`, `arif_mind_reason`, `arif_kernel_route`, `arif_ops_measure`, `arif_memory_recall`, `arif_evidence_fetch`, `arif_reply_compose` |
-| authenticated | `arif_heart_critique`, `arif_judge_deliberate`, `arif_vault_seal`, `arif_gateway_connect` |
-| sovereign | `arif_forge_execute` |
+| public (11) | `arif_session_init`, `arif_sense_observe`, `arif_mind_reason`, `arif_kernel_route`, `arif_ops_measure`, `arif_memory_recall`, `arif_evidence_fetch`, `arif_reply_compose`, `arif_heart_critique`, `arif_gateway_connect`, `arif_forge_execute` |
+| authenticated (2) | `arif_judge_deliberate`, `arif_vault_seal` |
 
 ## Internal Disciplines
 
