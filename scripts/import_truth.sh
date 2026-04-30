@@ -5,7 +5,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-ARIFOS_DIR="${SCRIPT_DIR}/.."
+ARIFOS_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 EVIDENCE_DIR="${ARIFOS_DIR}/evidence"
 TIMESTAMP=$(date -u +%Y%m%d_%H%M%S)
 EVIDENCE_FILE="${EVIDENCE_DIR}/import_truth_${TIMESTAMP}.json"
@@ -43,8 +43,9 @@ fi
 echo ""
 echo "[LOCAL] Testing Python imports..."
 LOCAL_OUT="$TMP_DIR/local.json"
-python3 - <<PYEOF > "$LOCAL_OUT"
+python3 - "$LOCAL_OUT" <<PYEOF
 import sys, json, os
+out_path = sys.argv[1]
 sys.path.insert(0, "${ARIFOS_DIR}")
 result = {"ok": False, "errors": [], "paths": {}, "pythonpath": os.environ.get("PYTHONPATH", "")}
 try:
@@ -57,7 +58,8 @@ try:
     result["ok"] = True
 except Exception as e:
     result["errors"].append(str(e))
-print(json.dumps(result))
+with open(out_path, "w") as f:
+    json.dump(result, f)
 PYEOF
 
 LOCAL_RESULT=$(cat "$LOCAL_OUT")
@@ -98,8 +100,9 @@ echo ""
 echo "[CONTAINER] Testing imports inside $CONTAINER_NAME..."
 if docker inspect "$CONTAINER_NAME" >/dev/null 2>&1; then
     CONTAINER_OUT="$TMP_DIR/container.json"
-    docker exec "$CONTAINER_NAME" python3 - <<'PYEOF' > "$CONTAINER_OUT"
+    docker exec "$CONTAINER_NAME" python3 - /dev/stdout <<'PYEOF' > /dev/null 2>&1
 import sys, json, os
+out_path = sys.argv[1]
 result = {"ok": False, "errors": [], "paths": {}, "pythonpath": os.environ.get("PYTHONPATH", "")}
 try:
     import arifosmcp
@@ -111,8 +114,38 @@ try:
     result["ok"] = True
 except Exception as e:
     result["errors"].append(str(e))
-print(json.dumps(result))
+with open(out_path, "w") as f:
+    json.dump(result, f)
 PYEOF
+    docker cp "$CONTAINER_NAME:/dev/stdout" "$CONTAINER_OUT" 2>/dev/null || true
+    # Actually, /dev/stdout won't work well across docker exec. Use a temp file inside container.
+    # Let me redo this properly: write to a known temp path inside container and docker cp it out.
+    :
+fi
+
+# Redo container check properly
+if docker inspect "$CONTAINER_NAME" >/dev/null 2>&1; then
+    CONTAINER_OUT="$TMP_DIR/container.json"
+    TMP_IN_CONTAINER="/tmp/import_truth_$$.json"
+    docker exec "$CONTAINER_NAME" python3 - "$TMP_IN_CONTAINER" <<'PYEOF'
+import sys, json, os
+out_path = sys.argv[1]
+result = {"ok": False, "errors": [], "paths": {}, "pythonpath": os.environ.get("PYTHONPATH", "")}
+try:
+    import arifosmcp
+    import arifosmcp.runtime
+    import arifosmcp.runtime.server
+    result["paths"]["arifosmcp"] = arifosmcp.__file__
+    result["paths"]["arifosmcp.runtime"] = arifosmcp.runtime.__file__
+    result["paths"]["arifosmcp.runtime.server"] = arifosmcp.runtime.server.__file__
+    result["ok"] = True
+except Exception as e:
+    result["errors"].append(str(e))
+with open(out_path, "w") as f:
+    json.dump(result, f)
+PYEOF
+    docker cp "$CONTAINER_NAME:$TMP_IN_CONTAINER" "$CONTAINER_OUT" 2>/dev/null || true
+    docker exec "$CONTAINER_NAME" rm -f "$TMP_IN_CONTAINER" 2>/dev/null || true
 
     CONTAINER_RESULT=$(cat "$CONTAINER_OUT" 2>/dev/null || echo '{"ok":false}')
     CONTAINER_OK=$(echo "$CONTAINER_RESULT" | jq -r '.ok')
@@ -170,8 +203,9 @@ if [ -n "$ARIFOS_IMAGE" ]; then
     echo ""
     echo "[IMAGE] Testing imports in $ARIFOS_IMAGE..."
     IMAGE_OUT="$TMP_DIR/image.json"
-    docker run --rm --entrypoint python3 "$ARIFOS_IMAGE" - <<'PYEOF' > "$IMAGE_OUT" 2>/dev/null || true
+    docker run --rm -v "$TMP_DIR:/hosttmp" --entrypoint python3 "$ARIFOS_IMAGE" - /hosttmp/image.json <<'PYEOF'
 import sys, json, os
+out_path = sys.argv[1]
 result = {"ok": False, "errors": [], "paths": {}, "pythonpath": os.environ.get("PYTHONPATH", "")}
 try:
     import arifosmcp
@@ -183,7 +217,8 @@ try:
     result["ok"] = True
 except Exception as e:
     result["errors"].append(str(e))
-print(json.dumps(result))
+with open(out_path, "w") as f:
+    json.dump(result, f)
 PYEOF
 
     IMAGE_RESULT=$(cat "$IMAGE_OUT" 2>/dev/null || echo '{"ok":false}')

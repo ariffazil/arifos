@@ -55,7 +55,7 @@ COPY core /app/core
 COPY pyproject.toml /app/
 
 # Install runtime-only deps not in requirements.txt
-RUN pip install blake3==1.0.8 "fastapi>=0.100.0"
+RUN pip install blake3==1.0.8 "fastapi>=0.100.0" "langfuse>=2.0.0"
 
 # Non-root user
 RUN useradd -m -u 1000 arifos && chown -R arifos:arifos /app
