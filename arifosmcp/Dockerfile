@@ -51,6 +51,7 @@ COPY --from=deps /usr/local/bin /usr/local/bin
 
 # Copy package source as /app/arifosmcp (not nested under a subfolder)
 COPY arifosmcp /app/arifosmcp
+COPY core /app/core
 COPY pyproject.toml /app/
 
 # Install runtime-only deps not in requirements.txt
