@@ -1413,6 +1413,72 @@ def _arif_session_init(
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
+# ═══════════════════════════════════════════════════════════════════════════════
+# Brave Search fallback — constitutional cascade (F7 Humility)
+# Path: minimax_bridge → Brave API → SABAR
+# ═══════════════════════════════════════════════════════════════════════════════
+
+
+def _brave_web_search(query: str, max_results: int = 5) -> dict[str, Any]:
+    """
+    Direct Brave Search API call as fallback when minimax_bridge returns 0 hits or is unavailable.
+    Uses stdlib urllib — no external dependencies required.
+    """
+    import urllib.parse
+    import urllib.request
+
+    key = os.getenv("BRAVE_API_KEY", "")
+    if not key:
+        return {
+            "status": "error",
+            "verdict": "SABAR",
+            "error": "BRAVE_API_KEY not set",
+            "hits": [],
+            "result_count": 0,
+            "source": "brave",
+        }
+    try:
+        params = urllib.parse.urlencode({"q": query, "count": max_results})
+        url = f"https://api.search.brave.com/res/v1/web/search?{params}"
+        req = urllib.request.Request(
+            url,
+            headers={
+                "Accept": "application/json",
+                "X-Subscription-Token": key,
+            },
+        )
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+        organic = data.get("web", {}).get("results", [])
+        hits = []
+        for item in organic[:max_results]:
+            hits.append(
+                {
+                    "title": item.get("title", ""),
+                    "link": item.get("url", ""),
+                    "snippet": item.get("description", ""),
+                }
+            )
+        verdict = "SEAL" if hits else "SABAR"
+        return {
+            "status": "success",
+            "verdict": verdict,
+            "hits": hits,
+            "result_count": len(hits),
+            "source": "brave",
+            "cascade": True,
+        }
+    except Exception as exc:
+        return {
+            "status": "error",
+            "verdict": "SABAR",
+            "error": str(exc),
+            "hits": [],
+            "result_count": 0,
+            "source": "brave",
+        }
+
+
 # 111_SENSE  →  arif_sense_observe
 # ═══════════════════════════════════════════════════════════════════════════════
 
@@ -1478,48 +1544,65 @@ def _arif_sense_observe(
         return gate
 
     if mode == "search":
+        # ── Cascade: minimax_bridge → Brave API → SABAR ──
+        mm_hits = []
+        mm_error = None
         if minimax_bridge is None:
+            mm_error = "bridge_unavailable"
+        else:
+            try:
+                result = asyncio.run(minimax_bridge.web_search(query or ""))
+                mm_hits = result.get("hits", [])
+                if mm_hits:
+                    return _ok(
+                        "arif_sense_observe",
+                        {
+                            "query": query,
+                            "results": mm_hits,
+                            "source": "minimax",
+                            "omega_0": 0.04,
+                            "verdict": result.get("verdict", "SEAL"),
+                            "metrics": result.get("metrics", {}),
+                            "witness_debug": result.get("witness_debug", {}),
+                        },
+                        delta_S=0.002,
+                    )
+                mm_error = "zero_hits"
+            except Exception as exc:
+                mm_error = str(exc)
+                logger.error("minimax_bridge.web_search failed: %s", exc)
+
+        # ── Brave cascade (F7 Humility) ──
+        brave = _brave_web_search(query or "", max_results=5)
+        if brave.get("hits"):
             return _ok(
                 "arif_sense_observe",
                 {
                     "query": query,
-                    "results": [],
-                    "source": "minimax",
-                    "omega_0": 0.04,
-                    "note": "bridge_unavailable",
+                    "results": brave["hits"],
+                    "source": "brave",
+                    "omega_0": 0.06,
+                    "verdict": brave.get("verdict", "SEAL"),
+                    "cascade": True,
+                    "minimax_note": mm_error,
                 },
-                delta_S=0.002,
+                delta_S=0.004,
             )
-        try:
-            result = asyncio.run(minimax_bridge.web_search(query or ""))
-            hits = result.get("hits", [])
-            return _ok(
-                "arif_sense_observe",
-                {
-                    "query": query,
-                    "results": hits,
-                    "source": "minimax",
-                    "omega_0": 0.04,
-                    "verdict": result.get("verdict", "SEAL"),
-                    "metrics": result.get("metrics", {}),
-                    "witness_debug": result.get("witness_debug", {}),
-                },
-                delta_S=0.002,
-            )
-        except Exception as exc:
-            logger.error("minimax_bridge.web_search failed: %s", exc)
-            return _ok(
-                "arif_sense_observe",
-                {
-                    "query": query,
-                    "results": [],
-                    "source": "minimax",
-                    "omega_0": 0.04,
-                    "note": "search_error",
-                    "error": str(exc),
-                },
-                delta_S=0.01,
-            )
+
+        # Both failed → SABAR
+        return _ok(
+            "arif_sense_observe",
+            {
+                "query": query,
+                "results": [],
+                "source": "none",
+                "omega_0": 0.08,
+                "note": "cascade_exhausted",
+                "minimax_note": mm_error,
+                "brave_error": brave.get("error", ""),
+            },
+            delta_S=0.02,
+        )
     if mode == "ingest":
         if url and minimax_bridge is not None:
             try:
@@ -5383,28 +5466,6 @@ def _arif_selftest(
     return _runtime_selftest(mode=mode, session_id=session_id, actor_id=actor_id)
 
 
-async def _arif_command_center(
-    session_id: str | None = None,
-    actor_id: str | None = None,
-) -> dict[str, Any]:
-    """Unified human-facing operational dashboard and control router."""
-    return {
-        "tool": "arif_command_center",
-        "role": "command_center",
-        "human_anchor": "Arif",
-        "authority": "human_judge_only",
-        "surface": "PUBLIC_SURFACE_V13",
-        "kernel": "CONSTITUTION_KERNEL_F13",
-        "system_pulse": {},
-        "machine_truth": {},
-        "permanent_doctrine": {},
-        "allowed_next_actions": [],
-        "blocked_actions": [],
-        "requires_human_seal": False,
-        "nine_signal": _nine_signal_from_status("OK"),
-    }
-
-
 # Internal aliases — diagnostics stay callable in-process but are not public MCP tools.
 def _runtime_ping(
     mode: str = "probe",
@@ -5449,7 +5510,6 @@ if set(_CANONICAL_HANDLERS) != set(CANONICAL_TOOLS):
 _RUNTIME_DIAGNOSTIC_HANDLERS: dict[str, Any] = {
     "arif_ping": _runtime_ping,
     "arif_selftest": _runtime_selftest,
-    "arif_command_center": _arif_command_center,
 }
 
 import functools

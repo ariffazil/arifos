@@ -42,10 +42,26 @@ class _RawMinimaxBridge:
         return env
 
     def _spawn_sync(self) -> subprocess.Popen:
-        uvx = shutil.which("uvx") or "/usr/local/bin/uvx"
+        # Find uvx: uv tool install → /home/arifos/.local/bin/uvx (container)
+        for candidate in [
+            "/home/arifos/.local/bin/uvx",
+            "/root/.local/bin/uvx",
+            "/usr/local/bin/uvx",
+            shutil.which("uvx"),
+        ]:
+            if candidate and os.path.exists(candidate):
+                uvx = candidate
+                break
+        else:
+            uvx = "uvx"  # last resort
+
         env = self._env()
         if not env.get("MINIMAX_API_KEY"):
             raise RuntimeError("MINIMAX_API_KEY not set")
+
+        # Merge full environment so MINIMAX_API_HOST etc. are available
+        full_env = dict(os.environ)
+        full_env.update(env)
 
         proc = subprocess.Popen(  # nosec B603
             [uvx, "minimax-coding-plan-mcp", "--transport", "stdio"],
@@ -53,7 +69,7 @@ class _RawMinimaxBridge:
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             text=True,
-            env=env,
+            env=full_env,
         )
         init_req = {
             "jsonrpc": "2.0",
