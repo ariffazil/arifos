@@ -13,7 +13,6 @@ import logging
 import os
 import sys
 import traceback
-from typing import Any
 
 
 # ─── Path prioritization (runs before arifOS imports below) ─────────────────
@@ -44,6 +43,7 @@ if os.path.exists(_env_path):
 # Fix sys.path so arifOS packages resolve correctly inside Docker
 _apply_path_priority()
 
+
 # ─── Provider env precedence audit (F1 Amanah / F4 Clarity) ─────────────────
 def _log_llm_provider_health() -> None:
     """Log redacted LLM provider source at startup — never the secret value."""
@@ -64,20 +64,18 @@ def _log_llm_provider_health() -> None:
 _log_llm_provider_health()
 
 import fastmcp  # noqa: E402
-from arifosmcp.constitutional_map import (  # noqa: E402
-    CANONICAL_TOOLS,
-    list_authenticated_tools,
-    list_canonical_tools,
-    list_constitutional_tools,
-    list_probe_tools,
-    list_public_tools,
-    list_sovereign_tools,
-)
 from fastmcp import FastMCP  # noqa: E402
 from starlette.middleware.base import BaseHTTPMiddleware  # noqa: E402
 from starlette.middleware.cors import CORSMiddleware  # noqa: E402
 from starlette.requests import Request  # noqa: E402
-from starlette.responses import JSONResponse, Response  # noqa: E402
+from starlette.responses import JSONResponse  # noqa: E402
+
+from arifosmcp.constitutional_map import (  # noqa: E402
+    CANONICAL_TOOLS,
+    list_canonical_tools,
+    list_constitutional_tools,
+    list_probe_tools,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -117,16 +115,25 @@ def _get_git_info() -> tuple[str, str, str]:
     try:
         cwd = os.path.dirname(os.path.abspath(__file__))
         commit = (
-            subprocess.check_output(["git", "describe", "--always", "--long"], stderr=subprocess.DEVNULL, cwd=cwd)
-            .decode().strip()
+            subprocess.check_output(
+                ["git", "describe", "--always", "--long"], stderr=subprocess.DEVNULL, cwd=cwd
+            )
+            .decode()
+            .strip()
         )
         branch = (
-            subprocess.check_output(["git", "rev-parse", "--abbrev-ref", "HEAD"], stderr=subprocess.DEVNULL, cwd=cwd)
-            .decode().strip()
+            subprocess.check_output(
+                ["git", "rev-parse", "--abbrev-ref", "HEAD"], stderr=subprocess.DEVNULL, cwd=cwd
+            )
+            .decode()
+            .strip()
         )
         build_time = (
-            subprocess.check_output(["git", "log", "-1", "--format=%ci"], stderr=subprocess.DEVNULL, cwd=cwd)
-            .decode().strip()
+            subprocess.check_output(
+                ["git", "log", "-1", "--format=%ci"], stderr=subprocess.DEVNULL, cwd=cwd
+            )
+            .decode()
+            .strip()
         )
         return commit, branch, build_time
     except Exception:
@@ -156,10 +163,11 @@ def create_arifos_mcp_server() -> FastMCP:
 
 
 def _assert_registered_surface(registered_names: list[str]) -> None:
-    registered_set = set(registered_names)
     expected_set = set(CANONICAL_TOOLS)
     if len(registered_names) != len(expected_set):
-        logger.warning("Surface drift: expected %d tools, got %d", len(expected_set), len(registered_names))
+        logger.warning(
+            "Surface drift: expected %d tools, got %d", len(expected_set), len(registered_names)
+        )
     if any(name.startswith("arifos_") for name in registered_names):
         raise RuntimeError("Legacy surface detected in registered MCP tools")
 
@@ -190,22 +198,33 @@ except Exception as e:
 async def horizon_health(request: Request) -> JSONResponse:
     return JSONResponse({"status": "healthy", "version": _DEPLOY_VERSION})
 
+
 async def horizon_ready(request: Request) -> JSONResponse:
     return JSONResponse({"status": "pass"})
+
 
 async def horizon_metadata(request: Request) -> JSONResponse:
     return JSONResponse({"name": "ARIFOS MCP", "version": _DEPLOY_VERSION})
 
+
 async def webmcp_discovery(request: Request) -> JSONResponse:
-    return JSONResponse({"name": "arifOS WebMCP Gateway", "endpoints": {"health": "/health", "tools": "/tools", "execute": "/mcp"}})
+    return JSONResponse(
+        {
+            "name": "arifOS WebMCP Gateway",
+            "endpoints": {"health": "/health", "tools": "/tools", "execute": "/mcp"},
+        }
+    )
+
 
 async def tools_with_meta(request: Request) -> JSONResponse:
-    # Restore real tool surface — was returning hardcoded empty stub
-    return JSONResponse({
-        "tools": v2_tools_registered,
-        "count": len(v2_tools_registered),
-        "version": _DEPLOY_VERSION,
-    })
+    return JSONResponse(
+        {
+            "tools": v2_tools_registered,
+            "count": len(v2_tools_registered),
+            "version": _DEPLOY_VERSION,
+        }
+    )
+
 
 async def federation_status_json(request: Request) -> JSONResponse:
     return JSONResponse({"status": "ok"})
@@ -222,10 +241,23 @@ if app:
     app.add_route("/status.json", federation_status_json, methods=["GET"])
     app.add_route("/.well-known/mcp", webmcp_discovery, methods=["GET"])
 
+    # Register REST routes from rest_routes.py — /000, /999, /constitution, etc.
+    try:
+        from arifosmcp.runtime.rest_routes import register_rest_routes
+        from arifosmcp.runtime.tools import CANONICAL_TOOL_HANDLERS
+
+        register_rest_routes(app, CANONICAL_TOOL_HANDLERS)
+        logger.info("REST routes registered on ASGI app")
+    except Exception as e:
+        logger.warning(f"REST routes registration failed: {e}")
+
+
 def main() -> None:
     import uvicorn
+
     port = int(os.getenv("ARIFOS_PORT", "8080"))
     uvicorn.run(app, host="0.0.0.0", port=port, log_level="info")
+
 
 if __name__ == "__main__":
     main()
