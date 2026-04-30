@@ -26,6 +26,7 @@ from fastapi.responses import StreamingResponse
 from arifosmcp.runtime.build_info import get_build_info
 from arifosmcp.runtime.mcp_utils import call_mcp_tool
 from arifosmcp.runtime.optional_deps import aiofiles
+from arifosmcp.server import mcp as _FAST_MCP_
 
 from .models import (
     AgentCard,
