@@ -70,25 +70,53 @@ External Agent → A2A Gateway → Governance Adapter
 
 ---
 
-## AGI_ASI_BOT
+## OPENCLAW
+
+> **Name first.** OPENCLAW is the AGI bot. Hermes Agent is the ASI bot. These are distinct agents with distinct roles.
 
 | Field | Value |
 | :--- | :--- |
-| **Agent ID** | `AGI_ASI_bot` |
+| **Agent Name** | `OPENCLAW` |
+| **Role** | AGI Bot — Arif Governed Intelligence |
+| **Telegram Handle** | `@AGI_ASI_bot` |
 | **Type** | arifOS Constitutional Agent |
 | **Status** | 🟢 online |
-| **Platform** | Separate VPS (not MaxClaw) |
-| **Telegram** | Group `-1003753855708` |
-| **A2A** | via arifOS MCP (`arifosmcp.arif-fazl.com`) |
+| **Platform** | A-FORGE VPS |
+| **Telegram Group** | `-1003753855708` (arifOS) |
+| **A2A** | via arifOS MCP (`mcp.arif-fazil.com`) |
+| **Governance** | 000–999 loop, L0–L5 autonomy ladder, F1–F13 floors |
 
-### Cross-Bot Options (How Axiom talks to AGI_ASI_bot)
+### Cross-Bot Options (How Axiom talks to OPENCLAW)
 
 | Method | Status | Notes |
 | :--- | :--- | :--- |
 | **arifOS MCP** | ✅ Both call arifosmcp | Primary path |
 | **Shared workspace** | ✅ `axiom_inbox/` | File relay |
 | **A2A via AAA** | 🔜 Pending | Requires AAA A2A gateway |
-| **ACP same Gateway** | ❌ Different instances | Not possible |
+
+---
+
+## Hermes Agent
+
+> **Name first.** Hermes Agent is the ASI bot. OPENCLAW is the AGI bot. These are distinct agents with distinct roles.
+
+| Field | Value |
+| :--- | :--- |
+| **Agent Name** | `Hermes Agent` |
+| **Role** | ASI Bot — Strategic Judgment / ASI Layer |
+| **Status** | 🔜 Pending deployment |
+| **Platform** | TBD |
+| **Governance** | 888 ASI judgment, strategic deliberation |
+
+### Relationship to OPENCLAW
+
+| Dimension | OPENCLAW (AGI) | Hermes Agent (ASI) |
+| :--- | :--- | :--- |
+| **Role** | Tactical execution | Strategic judgment |
+| **Stage** | 000–777 | 888 |
+| **Autonomy** | L0–L5 bounded | Governance deliberation |
+| **Niat** | Instrument, not sovereign | Strategic advisor |
+| **To Arif** | Proposes and executes | Judges and deliberates |
 
 ---
 
