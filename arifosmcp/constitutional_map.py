@@ -1,5 +1,5 @@
 """
-ARIFOS CONSTITUTIONAL MAP (v2026.04.26-KANON)
+ARIFOS CONSTITUTIONAL MAP (v2026.05.01)
 ═══════════════════════════════════════════════
 
 Single source of truth for the active MCP surface: 13 canonical tools.
