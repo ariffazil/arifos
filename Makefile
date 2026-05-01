@@ -60,10 +60,12 @@ publish-pypi:
 ## GHCR: Build + push Docker image
 publish-ghcr:
 	@echo "🐳 Publishing to GHCR..."
-	docker build -t ghcr.io/ariffazil/arifos:$(shell grep '^version' pyproject.toml | cut -d'\"' -f2) .
-	docker push ghcr.io/ariffazil/arifos:$(shell grep '^version' pyproject.toml | cut -d'\"' -f2)
-	docker tag ghcr.io/ariffazil/arifos:$(shell grep '^version' pyproject.toml | cut -d'\"' -f2) ghcr.io/ariffazil/arifos:latest
-	docker push ghcr.io/ariffazil/arifos:latest
+	@VERSION=2026.05.01; \
+	docker build -t ghcr.io/ariffazil/arifos:$$VERSION . && \
+	docker push ghcr.io/ariffazil/arifos:$$VERSION && \
+	docker tag ghcr.io/ariffazil/arifos:$$VERSION ghcr.io/ariffazil/arifos:latest && \
+	docker push ghcr.io/ariffazil/arifos:latest && \
+	echo "✅ GHCR: arifos:$$VERSION and latest pushed"
 
 ## GitGist: Sync 000_LAW.md to public gist
 publish-law:
