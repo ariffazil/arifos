@@ -4,6 +4,7 @@ import os
 from typing import Any
 
 from arifosmcp.constitutional_map import list_canonical_tools, list_constitutional_tools
+from arifosmcp.runtime.build_info import get_build_info
 
 try:
     from arifosmcp.tools_canonical import TOOL_ALIAS_MAP
@@ -174,8 +175,6 @@ PUBLIC_STATUS_VALUES: set[str] = {"ok", "degraded", "down", "missing", "unknown"
 
 
 # Build-time truth — derived at import from build_info
-from arifosmcp.runtime.build_info import get_build_info
-
 _BUILD_INFO = get_build_info()
 
 VERSION: str = _BUILD_INFO["version"]

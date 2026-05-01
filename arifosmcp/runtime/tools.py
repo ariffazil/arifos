@@ -3272,7 +3272,7 @@ def _arif_memory_recall(
     # Helper: run a memory op, degrade gracefully on any DB error.
     def _memory_op(fn):
         """Wrap a lambda that returns (ok_payload_dict,).
-           On DB error: return SABAR/empty result instead of crashing."""
+        On DB error: return SABAR/empty result instead of crashing."""
         try:
             return fn()
         except Exception as err:
@@ -3285,10 +3285,23 @@ def _arif_memory_recall(
     # ── recall ──────────────────────────────────────────────
     if mode == "recall":
         if _memory_engine is None:
-            return _ok("arif_memory_recall", {"query": query, "memories": [], "confidence": 0.0, "_degraded": "DB unavailable"})
-        _result = _memory_op(lambda: _run_async(_memory_engine.retrieve(query or "", tier=None, limit=10)))
+            return _ok(
+                "arif_memory_recall",
+                {"query": query, "memories": [], "confidence": 0.0, "_degraded": "DB unavailable"},
+            )
+        _result = _memory_op(
+            lambda: _run_async(_memory_engine.retrieve(query or "", tier=None, limit=10))
+        )
         if _result is None:
-            return _ok("arif_memory_recall", {"query": query, "memories": [], "confidence": 0.0, "_degraded": "DB connection failed"})
+            return _ok(
+                "arif_memory_recall",
+                {
+                    "query": query,
+                    "memories": [],
+                    "confidence": 0.0,
+                    "_degraded": "DB connection failed",
+                },
+            )
         memories = _result.get("memories", [])
         confidence = 0.85 if memories else 0.0
         return _ok(
@@ -3303,21 +3316,40 @@ def _arif_memory_recall(
         if not text:
             return _hold("arif_memory_recall", "store mode requires metadata.text")
         if _memory_engine is None:
-            return _ok("arif_memory_recall", {"stored": True, "memory_id": None, "_degraded": "DB unavailable"}, delta_S=0.002)
-        _result = _memory_op(lambda: _run_async(
-            _memory_engine.store(
-                {"text": text, "session_id": session_id, "metadata": metadata or {}},
-                tier=(metadata or {}).get("tier", "working"),
+            return _ok(
+                "arif_memory_recall",
+                {"stored": True, "memory_id": None, "_degraded": "DB unavailable"},
+                delta_S=0.002,
             )
-        ))
+        _result = _memory_op(
+            lambda: _run_async(
+                _memory_engine.store(
+                    {"text": text, "session_id": session_id, "metadata": metadata or {}},
+                    tier=(metadata or {}).get("tier", "working"),
+                )
+            )
+        )
         if _result is None:
-            return _ok("arif_memory_recall", {"stored": True, "memory_id": None, "_degraded": "DB connection failed"}, delta_S=0.002)
+            return _ok(
+                "arif_memory_recall",
+                {"stored": True, "memory_id": None, "_degraded": "DB connection failed"},
+                delta_S=0.002,
+            )
         return _ok("arif_memory_recall", {"stored": True, **_result}, delta_S=0.002)
 
     # ── get ──────────────────────────────────────────────────
     if mode == "get":
         if _memory_engine is None:
-            return _ok("arif_memory_recall", {"memory_id": memory_id, "entry": None, "found": False, "_degraded": "DB unavailable"}, delta_S=0.0)
+            return _ok(
+                "arif_memory_recall",
+                {
+                    "memory_id": memory_id,
+                    "entry": None,
+                    "found": False,
+                    "_degraded": "DB unavailable",
+                },
+                delta_S=0.0,
+            )
 
         async def _do_get():
             pool = await _memory_engine._get_pg_pool()
@@ -3334,7 +3366,16 @@ def _arif_memory_recall(
 
         _row = _memory_op(lambda: _run_async(_do_get()))
         if _row is None:
-            return _ok("arif_memory_recall", {"memory_id": memory_id, "entry": None, "found": False, "_degraded": "DB connection failed"}, delta_S=0.0)
+            return _ok(
+                "arif_memory_recall",
+                {
+                    "memory_id": memory_id,
+                    "entry": None,
+                    "found": False,
+                    "_degraded": "DB connection failed",
+                },
+                delta_S=0.0,
+            )
         if _row:
             _row["created_at"] = _row["created_at"].isoformat() if _row.get("created_at") else None
             return _ok(
@@ -3351,7 +3392,16 @@ def _arif_memory_recall(
     # ── list ────────────────────────────────────────────────
     if mode == "list":
         if _memory_engine is None:
-            return _ok("arif_memory_recall", {"session_id": session_id, "entries": [], "count": 0, "_degraded": "DB unavailable"}, delta_S=0.0)
+            return _ok(
+                "arif_memory_recall",
+                {
+                    "session_id": session_id,
+                    "entries": [],
+                    "count": 0,
+                    "_degraded": "DB unavailable",
+                },
+                delta_S=0.0,
+            )
 
         async def _do_list():
             pool = await _memory_engine._get_pg_pool()
@@ -3369,7 +3419,16 @@ def _arif_memory_recall(
 
         _rows = _memory_op(lambda: _run_async(_do_list()))
         if _rows is None:
-            return _ok("arif_memory_recall", {"session_id": session_id, "entries": [], "count": 0, "_degraded": "DB connection failed"}, delta_S=0.0)
+            return _ok(
+                "arif_memory_recall",
+                {
+                    "session_id": session_id,
+                    "entries": [],
+                    "count": 0,
+                    "_degraded": "DB connection failed",
+                },
+                delta_S=0.0,
+            )
         for r in _rows:
             r["created_at"] = r["created_at"].isoformat() if r.get("created_at") else None
         return _ok(
@@ -3392,7 +3451,15 @@ def _arif_memory_recall(
     # ── prune ────────────────────────────────────────────────
     if mode == "prune":
         if _memory_engine is None:
-            return _ok("arif_memory_recall", {"pruned": memory_id, "reason": "DB unavailable — no-op", "_degraded": "DB unavailable"}, delta_S=0.001)
+            return _ok(
+                "arif_memory_recall",
+                {
+                    "pruned": memory_id,
+                    "reason": "DB unavailable — no-op",
+                    "_degraded": "DB unavailable",
+                },
+                delta_S=0.001,
+            )
 
         async def _do_prune():
             pool = await _memory_engine._get_pg_pool()
@@ -3420,7 +3487,15 @@ def _arif_memory_recall(
 
         _result = _memory_op(lambda: _run_async(_do_prune()))
         if _result is None:
-            return _ok("arif_memory_recall", {"pruned": memory_id, "reason": "DB connection failed — no-op", "_degraded": "DB connection failed"}, delta_S=0.001)
+            return _ok(
+                "arif_memory_recall",
+                {
+                    "pruned": memory_id,
+                    "reason": "DB connection failed — no-op",
+                    "_degraded": "DB connection failed",
+                },
+                delta_S=0.001,
+            )
         if _result.get("status") == "888_HOLD":
             return _hold("arif_memory_recall", _result["reason"])
         return _ok(
@@ -5666,6 +5741,7 @@ __all__ = [
     "_runtime_ping",
     "_runtime_selftest",
     "register_tools",
+    "LEGACY_TOOL_ALIASES",
 ]
 
 # ── Server.py compatibility shims ──────────────────────────────────────────
@@ -5676,3 +5752,28 @@ FINAL_TOOL_IMPLEMENTATIONS = _CANONICAL_HANDLERS
 def register_v2_tools(mcp: FastMCP, **kwargs: Any) -> list[str]:
     """Compatibility shim — delegates to register_tools."""
     return register_tools(mcp, **kwargs)
+
+
+# ── Legacy alias map ─────────────────────────────────────────────────────────
+# arifos_* → arif_* canonical name mapping for backward compatibility.
+# Used by tools_hardened_dispatch.get_tool_handler to route legacy calls.
+_LEGACY_ALIASES: dict[str, str] = {
+    "arifos_init": "arif_session_init",
+    "arifos_kernel": "arif_kernel_route",
+    "arifos_judge": "arif_judge_deliberate",
+    "arifos_vault": "arif_vault_seal",
+    "arifos_mind": "arif_mind_reason",
+    "arifos_heart": "arif_heart_critique",
+    "arifos_memory": "arif_memory_recall",
+    "arifos_sense": "arif_sense_observe",
+    "arifos_ops": "arif_ops_measure",
+    "arifos_forge": "arif_forge_execute",
+    "arifos_gateway": "arif_gateway_connect",
+    "arifos_evidence": "arif_evidence_fetch",
+    "arifos_health": "arif_ops_measure",  # health folded into ops
+    "arifos_reply": "arif_reply_compose",
+}
+
+LEGACY_TOOL_ALIASES = _LEGACY_ALIASES
+# Backward-compat alias map: arifos_* tool names → canonical arif_* names.
+# Used by tools_hardened_dispatch.get_tool_handler to route legacy calls.
