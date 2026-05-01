@@ -2290,6 +2290,167 @@ def register_rest_routes(
     async def version(request: Request) -> Response:
         return JSONResponse(BUILD_INFO)
 
+    async def _probe_tcp_port(host: str, port: int, timeout: float = 1.0) -> dict[str, Any]:
+        """Probe a single TCP port. Returns status and latency_ms."""
+        import asyncio
+        import socket
+        start = time.perf_counter()
+        try:
+            reader, writer = await asyncio.wait_for(
+                asyncio.open_connection(host, port), timeout=timeout
+            )
+            writer.close()
+            await writer.wait_closed()
+            latency_ms = (time.perf_counter() - start) * 1000
+            return {"host": host, "port": port, "status": "ON", "latency_ms": round(latency_ms, 2)}
+        except Exception as e:
+            return {"host": host, "port": port, "status": "OFF", "error": str(e)[:80], "latency_ms": None}
+
+    async def _probe_http(path: str = "/health", timeout: float = 2.0) -> dict[str, Any]:
+        """Probe an internal HTTP endpoint. Returns status, response_ms, and parsed JSON."""
+        import httpx
+        base = os.getenv("INTERNAL_BASE", "http://arifosmcp:8080")
+        url = f"{base}{path}"
+        start = time.perf_counter()
+        try:
+            async with httpx.AsyncClient(timeout=timeout) as client:
+                r = await client.get(url, follow_redirects=True)
+                response_ms = (time.perf_counter() - start) * 1000
+                try:
+                    data = r.json()
+                except Exception:
+                    data = {"raw": r.text[:200]}
+                return {"url": url, "status_code": r.status_code, "response_ms": round(response_ms, 2), "data": data}
+        except Exception as e:
+            return {"url": url, "status": "OFF", "error": str(e)[:120], "response_ms": None}
+
+    @route("/components", methods=["GET"])
+    async def components(request: Request) -> Response:
+        """
+        arifOS Component Map — full audit of all connected systems.
+
+        Returns a layered topology map:
+          Layer 0: Infrastructure  (Postgres, Redis, Qdrant, Vault999)
+          Layer 1: MCP Servers      (arifOS, GEOX, WEALTH, WELL, A-FORGE, AAA, Hermes)
+          Layer 2: AI Providers     (Ollama, SEA-LION, Langfuse, Supabase)
+          Layer 3: Edge / Routing   (Caddy, Cloudflare)
+        Each entry: name, type, host, port, status, latency_ms, version (if available).
+        """
+        import httpx
+
+        # --- Layer 0: Infrastructure ---
+        infra_tasks = [
+            _probe_tcp_port("postgres", 5432),
+            _probe_tcp_port("redis", 6379),
+            _probe_tcp_port("qdrant", 6333),
+            _probe_tcp_port("vault999", 8100),
+            _probe_tcp_port("vault999-writer", 5001),
+        ]
+
+        # --- Layer 1: MCP Servers ---
+        mcp_tasks = [
+            _probe_http("/health", timeout=3.0),          # arifOS self
+            _probe_http("/health", timeout=3.0, path="http://geox:8081/health"),
+            _probe_http("/health", timeout=3.0, path="http://wealth-organ:8082/health"),
+            _probe_http("/health", timeout=3.0, path="http://well:8083/health"),
+            _probe_http("/health", timeout=3.0, path="http://af-bridge-prod:7071/health"),
+            _probe_http("/health", timeout=3.0, path="http://aaa-a2a:3001/health"),
+            _probe_http("/health", timeout=3.0, path="http://hermes-agent:3002/health"),
+            _probe_tcp_port("ollama", 11434),
+        ]
+
+        # --- Layer 2: AI / External ---
+        sea_lion_base = os.getenv("SEA_LION_BASE_URL", "https://api.sea-lion.ai/v1")
+        langfuse_base = os.getenv("LANGFUSE_BASE_URL", "https://jp.cloud.langfuse.com")
+
+        external_tasks = [
+            _probe_tcp_port("ollama", 11434),
+            _probe_http("/health", timeout=5.0, path=sea_lion_base),
+            _probe_http("/api/public/health", timeout=5.0, path=langfuse_base),
+        ]
+
+        infra_results = await asyncio.gather(*infra_tasks)
+
+        mcp_http = await asyncio.gather(*mcp_tasks[:7])
+        ollama_result = await mcp_tasks[7]
+        mcp_results = [
+            {"name": "arifOS",       "type": "mcp", "host": "arifosmcp",        "port": 8080, **mcp_http[0]},
+            {"name": "GEOX",          "type": "mcp", "host": "geox",             "port": 8081, **mcp_http[1]},
+            {"name": "WEALTH",        "type": "mcp", "host": "wealth-organ",     "port": 8082, **mcp_http[2]},
+            {"name": "WELL",          "type": "mcp", "host": "well",             "port": 8083, **mcp_http[3]},
+            {"name": "A-FORGE",       "type": "mcp", "host": "af-bridge-prod",   "port": 7071, **mcp_http[4]},
+            {"name": "AAA",           "type": "mcp", "host": "aaa-a2a",           "port": 3001, **mcp_http[5]},
+            {"name": "Hermes",        "type": "mcp", "host": "hermes-agent",      "port": 3002, **mcp_http[6]},
+            {**ollama_result, "name": "Ollama", "type": "llm", "host": "ollama"},
+        ]
+
+        external_results = await asyncio.gather(*external_tasks)
+
+        def build_component(name: str, ctype: str, host: str, port: int | None, info: dict) -> dict:
+            status = info.get("status", "ON") if info.get("status") in ("ON", "OFF") else ("ON" if info.get("status_code", 0) == 200 else "OFF")
+            return {
+                "name": name,
+                "type": ctype,
+                "host": host,
+                "port": port,
+                "status": status,
+                "latency_ms": info.get("latency_ms") or info.get("response_ms"),
+                "version": (info.get("data", {}).get("version")
+                            or info.get("data", {}).get("service")
+                            or info.get("data", {}).get("build", {}).get("commit", "")[:8]),
+                "detail": info.get("data", {}).get("version", ""),
+                "error": info.get("error"),
+            }
+
+        infra_layer = [
+            build_component("PostgreSQL",     "db",      "postgres",        5432,  infra_results[0]),
+            build_component("Redis",          "cache",   "redis",           6379,  infra_results[1]),
+            build_component("Qdrant",         "vector",  "qdrant",          6333,  infra_results[2]),
+            build_component("Vault999",       "ledger",  "vault999",        8100,  infra_results[3]),
+            build_component("Vault999-Writer", "ledger",  "vault999-writer", 5001, infra_results[4]),
+        ]
+
+        # Ollama model list
+        ollama_models = None
+        try:
+            async with httpx.AsyncClient(timeout=5.0) as client:
+                r = await client.get("http://ollama:11434/api/tags")
+                if r.status_code == 200:
+                    ollama_models = [m["name"] for m in r.json().get("models", [])]
+        except Exception:
+            pass
+
+        external_layer = [
+            build_component("Ollama",   "llm",        "ollama",             11434, external_results[0]),
+            build_component("SEA-LION", "llm",        "api.sea-lion.ai",    443,   external_results[1]),
+            build_component("Langfuse", "observability", "jp.cloud.langfuse.com", 443, external_results[2]),
+            build_component("Supabase JWKS", "auth",   "arifos.supabase.co", 443,   {}),  # static config
+        ]
+
+        layers = {
+            "infrastructure": infra_layer,
+            "mcp_servers": mcp_results,
+            "ai_external": external_layer,
+        }
+
+        summary = {
+            "total": sum(len(v) for v in layers.values()),
+            "online": sum(1 for v in layers.values() for c in v if c["status"] == "ON"),
+            "offline": sum(1 for v in layers.values() for c in v if c["status"] == "OFF"),
+        }
+
+        return JSONResponse(
+            {
+                "service": "arifOS Component Map",
+                "version": BUILD_INFO["version"],
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "summary": summary,
+                "ollama_models": ollama_models,
+                "layers": layers,
+            },
+            headers={"Access-Control-Allow-Origin": "*"},
+        )
+
     @route("/runtime_fingerprint", methods=["GET"])
     async def runtime_fingerprint(request: Request) -> Response:
         """
