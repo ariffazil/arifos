@@ -3252,23 +3252,44 @@ def _arif_memory_recall(
     if gate is not None:
         return gate
 
-    # Lazy MemoryEngine singleton
+    # Lazy MemoryEngine singleton — wrapped in try/except so DB failures
+    # degrade gracefully instead of crashing the tool for all users.
     global _memory_engine
     if _memory_engine is None:
         import os
 
         from arifosmcp.memory_engine import MemoryEngine
 
-        _memory_engine = MemoryEngine(
-            postgres_url=os.getenv("DATABASE_URL") or os.getenv("POSTGRES_URL"),
-            qdrant_url=os.getenv("QDRANT_URL", "http://qdrant:6333"),
-            ollama_url=os.getenv("OLLAMA_URL", "http://ollama:11434"),
-        )
+        try:
+            _memory_engine = MemoryEngine(
+                postgres_url=os.getenv("DATABASE_URL") or os.getenv("POSTGRES_URL"),
+                qdrant_url=os.getenv("QDRANT_URL", "http://qdrant:6333"),
+                ollama_url=os.getenv("OLLAMA_URL", "http://ollama:11434"),
+            )
+        except Exception:
+            _memory_engine = None
+
+    # Helper: run a memory op, degrade gracefully on any DB error.
+    def _memory_op(fn):
+        """Wrap a lambda that returns (ok_payload_dict,).
+           On DB error: return SABAR/empty result instead of crashing."""
+        try:
+            return fn()
+        except Exception as err:
+            # Log but don't expose internal errors to caller
+            import logging as _log
+
+            _log.warning(f"MemoryEngine degraded: {err}")
+            return None
 
     # ── recall ──────────────────────────────────────────────
     if mode == "recall":
-        result = _run_async(_memory_engine.retrieve(query or "", tier=None, limit=10))
-        memories = result.get("memories", [])
+        if _memory_engine is None:
+            return _ok("arif_memory_recall", {"query": query, "memories": [], "confidence": 0.0, "_degraded": "DB unavailable"})
+        _result = _memory_op(lambda: _run_async(_memory_engine.retrieve(query or "", tier=None, limit=10)))
+        if _result is None:
+            return _ok("arif_memory_recall", {"query": query, "memories": [], "confidence": 0.0, "_degraded": "DB connection failed"})
+        memories = _result.get("memories", [])
         confidence = 0.85 if memories else 0.0
         return _ok(
             "arif_memory_recall",
@@ -3281,16 +3302,22 @@ def _arif_memory_recall(
         text = (metadata or {}).get("text", "")
         if not text:
             return _hold("arif_memory_recall", "store mode requires metadata.text")
-        result = _run_async(
+        if _memory_engine is None:
+            return _ok("arif_memory_recall", {"stored": True, "memory_id": None, "_degraded": "DB unavailable"}, delta_S=0.002)
+        _result = _memory_op(lambda: _run_async(
             _memory_engine.store(
                 {"text": text, "session_id": session_id, "metadata": metadata or {}},
                 tier=(metadata or {}).get("tier", "working"),
             )
-        )
-        return _ok("arif_memory_recall", {"stored": True, **result}, delta_S=0.002)
+        ))
+        if _result is None:
+            return _ok("arif_memory_recall", {"stored": True, "memory_id": None, "_degraded": "DB connection failed"}, delta_S=0.002)
+        return _ok("arif_memory_recall", {"stored": True, **_result}, delta_S=0.002)
 
     # ── get ──────────────────────────────────────────────────
     if mode == "get":
+        if _memory_engine is None:
+            return _ok("arif_memory_recall", {"memory_id": memory_id, "entry": None, "found": False, "_degraded": "DB unavailable"}, delta_S=0.0)
 
         async def _do_get():
             pool = await _memory_engine._get_pg_pool()
@@ -3305,12 +3332,14 @@ def _arif_memory_recall(
                 )
                 return dict(row) if row else None
 
-        row = _run_async(_do_get())
-        if row:
-            row["created_at"] = row["created_at"].isoformat() if row.get("created_at") else None
+        _row = _memory_op(lambda: _run_async(_do_get()))
+        if _row is None:
+            return _ok("arif_memory_recall", {"memory_id": memory_id, "entry": None, "found": False, "_degraded": "DB connection failed"}, delta_S=0.0)
+        if _row:
+            _row["created_at"] = _row["created_at"].isoformat() if _row.get("created_at") else None
             return _ok(
                 "arif_memory_recall",
-                {"memory_id": memory_id, "entry": row, "found": True},
+                {"memory_id": memory_id, "entry": _row, "found": True},
                 delta_S=0.0,
             )
         return _ok(
@@ -3321,6 +3350,8 @@ def _arif_memory_recall(
 
     # ── list ────────────────────────────────────────────────
     if mode == "list":
+        if _memory_engine is None:
+            return _ok("arif_memory_recall", {"session_id": session_id, "entries": [], "count": 0, "_degraded": "DB unavailable"}, delta_S=0.0)
 
         async def _do_list():
             pool = await _memory_engine._get_pg_pool()
@@ -3336,12 +3367,14 @@ def _arif_memory_recall(
                     )
                 return [dict(r) for r in rows]
 
-        rows = _run_async(_do_list())
-        for r in rows:
+        _rows = _memory_op(lambda: _run_async(_do_list()))
+        if _rows is None:
+            return _ok("arif_memory_recall", {"session_id": session_id, "entries": [], "count": 0, "_degraded": "DB connection failed"}, delta_S=0.0)
+        for r in _rows:
             r["created_at"] = r["created_at"].isoformat() if r.get("created_at") else None
         return _ok(
             "arif_memory_recall",
-            {"session_id": session_id, "entries": rows, "count": len(rows)},
+            {"session_id": session_id, "entries": _rows, "count": len(_rows)},
             delta_S=0.0,
         )
 
@@ -3358,6 +3391,8 @@ def _arif_memory_recall(
 
     # ── prune ────────────────────────────────────────────────
     if mode == "prune":
+        if _memory_engine is None:
+            return _ok("arif_memory_recall", {"pruned": memory_id, "reason": "DB unavailable — no-op", "_degraded": "DB unavailable"}, delta_S=0.001)
 
         async def _do_prune():
             pool = await _memory_engine._get_pg_pool()
@@ -3383,12 +3418,14 @@ def _arif_memory_recall(
                 )
                 return {"status": "success", "pruned": memory_id}
 
-        result = _run_async(_do_prune())
-        if result.get("status") == "888_HOLD":
-            return _hold("arif_memory_recall", result["reason"])
+        _result = _memory_op(lambda: _run_async(_do_prune()))
+        if _result is None:
+            return _ok("arif_memory_recall", {"pruned": memory_id, "reason": "DB connection failed — no-op", "_degraded": "DB connection failed"}, delta_S=0.001)
+        if _result.get("status") == "888_HOLD":
+            return _hold("arif_memory_recall", _result["reason"])
         return _ok(
             "arif_memory_recall",
-            {"pruned": memory_id, "reason": result.get("reason", "entropy")},
+            {"pruned": memory_id, "reason": _result.get("reason", "entropy")},
             delta_S=0.001,
         )
 

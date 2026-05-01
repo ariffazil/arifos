@@ -2431,7 +2431,12 @@ def register_rest_routes(
                 }
                 filtered = {k: v for k, v in normalized.items() if k in valid_params}
 
-            result = await tool_fn(**filtered)
+            # Handle both sync and async tool functions
+            import asyncio as _asyncio
+            if _asyncio.iscoroutinefunction(tool_fn):
+                result = await tool_fn(**filtered)
+            else:
+                result = tool_fn(**filtered)
         except Exception:
             logger.exception(f"Tool call failed: {incoming_name}")
             return _rest_error(
