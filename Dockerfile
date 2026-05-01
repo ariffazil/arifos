@@ -1,7 +1,7 @@
 # ── arifOS AAA MCP Server ──────────────────────────────────────────────
 # Single process, single port. Runs FastMCP streamable-HTTP transport
 # with REST endpoints (/health, /tools, /version) as custom routes.
-# Hardened for Production (v2026.04.28-HORIZON)
+# Hardened for Production (v2026.05.01-KANON)
 # ───────────────────────────────────────────────────────────────────────
 
 FROM python:3.12-slim AS build
