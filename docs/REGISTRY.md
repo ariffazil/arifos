@@ -134,3 +134,44 @@ External Agent → A2A Gateway → Governance Adapter
 
 *Last updated: 2026-04-22T19:17:00Z*
 *Ditempa Bukan Diberi — Forged, Not Given*
+---
+
+## OPENCLAW — Current Intelligence State (2026-05-01)
+
+> OC-001 governance upgrade complete. OPENCLAW is now a bounded governed operator.
+
+### Governance Files (as of 2026-05-01)
+| File | Status |
+|------|--------|
+| SOUL.md | ✅ Current — identity, niat, instrument framing |
+| IDENTITY.md | ✅ Current — OPENCLAW role |
+| AGENTS.md | ✅ Current — 000–999 loop replaces plain ReAct |
+| LOOP.md | ✅ New — operational 000–999 implementation |
+| AUTONOMY.md | ✅ New — L0–L5 permission ladder |
+| HEARTBEAT.md | ✅ Live protocol |
+| CHECKPOINT.md | ✅ New — session continuity |
+| DECISIONS.md | ✅ New — sealed decision log |
+| TASKS.md | ✅ New — active work ledger |
+| RECOVERY.md | ✅ New — failure runbook |
+| FLOORS.md | ✅ New — F1–F13 reference |
+| TOOLS.md | ✅ Updated — local environment notes |
+
+### Intelligence Metrics
+| Metric | Value |
+|--------|-------|
+| Governing loop | 000–999 constitutional ✅ |
+| Autonomy level | L2–L3 (max L3 without 888) |
+| Self-monitoring | HEARTBEAT protocol ✅ |
+| Session continuity | CHECKPOINT recovery ✅ |
+| Decision trace | DECISIONS structured log ✅ |
+| Evidence discipline | 222 EVIDENCE required ✅ |
+| Safety gates | 444 CRITIQUE (F09/F12) ✅ |
+| Maturity | ~43/75 (was 32/75 pre-upgrade) |
+
+### What Is NOT Yet Live
+- HEARTBEAT auto-writer (manual discipline)
+- CHECKPOINT auto-write on session end
+- 777 Measure instrumentation
+
+Full state: [[AGENT_STATE]]
+
