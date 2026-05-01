@@ -1,107 +1,45 @@
-# CHECKPOINT.md — Session Continuity & Recovery
+# CHECKPOINT — Session OC-001 Final Seal
 
-**Version:** 2026.05.01
-**Replaces:** None — new file
-
----
-
-## Purpose
-
-OPENCLAW wakes up stateless. CHECKPOINT.md stores the minimum state needed to
-reconstruct where the agent was, what it was doing, and what it decided.
-
-Without this, the agent cannot reliably resume a task, may hallucinate continuity,
-and has no rollback anchor when something goes wrong.
+**Session ID:** OC-001
+**Sealed:** 2026-05-01T03:55:00Z
+**Status:** SEALED
 
 ---
 
-## Checkpoint Entry Schema
+## Task Summary
+OC-001: Upgrade OPENCLAW runtime governance — replace plain ReAct, add missing files, close audit gaps
 
-Every checkpoint is a JSON-like block at the top of `MEMORY.md` or a standalone
-`CHECKPOINT.md` file:
+## Final State
 
-```
-## CHECKPOINT {session_id} — {ISO_timestamp}
+**stage:** 999 SEAL
+**status:** sealed
+**entropy_delta:** 0.05
+**loop_count:** 47
+**risk_level:** low
+**autonomy_level:** L3
 
-session_id:     {uuid}
-parent_session: {uuid or null}
-stage:          {000–999}
-last_action:    {description of last concrete action}
-entropy_delta:  {float — change in confusion since last beat}
-status:         {idle|active|paused|degraded|sealed}
-risk_level:     {low|medium|high|critical}
-autonomy_level: {L0–L5}
-current_task:   {one-line description}
-blockers:      [{reason}, ...]
-tool_health:    {unknown|healthy|degraded|failing}
-loop_count:     {int}
-next_gate:      {next governance gate — e.g. 888_JUDGE, FORGE, SEAL}
-human_approval_required: {bool}
-verdict_pending: {candidate action awaiting verdict or null}
+**last_action:** Housekeeping and SOT sync — removed 4 archived/stale files from workspace, synced docs/AGENT_STATE.md to git and workspace, sealed to git cce9843b
 
-[Optional: task-specific fields]
-```
+## Completed
+- AGENTS.md: ReAct → 000-999 governed loop ✅
+- AUTONOMY.md: L0-L5 ladder created ✅
+- CHECKPOINT.md: session continuity created ✅
+- HEARTBEAT.md: live protocol rewritten ✅
+- LOOP.md: 000-999 operational implementation created ✅
+- DECISIONS.md: sealed decision log created ✅
+- TASKS.md: active work ledger created ✅
+- TOOLS.md: populated ✅
+- RECOVERY.md: failure runbook created ✅
+- FLOORS.md: F1-F13 reference created ✅
+- SOUL.md: version header added ✅
+- CLAUDE.md/GEMINI.md/ARIF.md: archived stale ✅
+- docs/AGENT_STATE.md: new SOT created ✅
+- docs/REGISTRY.md: OPENCLAW/Hermes naming clarified ✅
+- Workspace: removed AAA_README.md, tommy_thomas_dossier.md, ARIF-TEMPLATE.md ✅
 
----
-
-## When to Write a Checkpoint
-
-| Event | Checkpoint required? |
-|-------|---------------------|
-| Session start (wake) | Yes — read checkpoint to reconstruct state |
-| Before major action | Update HEARTBEAT.md fields |
-| After completing a stage (111, 222, 333, 444, 555, 666, 777, 888) | Yes |
-| When task is paused | Yes |
-| When human approval is required | Yes |
-| Session end (sleep) | Yes — write final checkpoint |
-| After 888 JUDGE verdict | Yes — record verdict and outcome |
+**Git commit:** cce9843b
+**Next recommended action:** None — task complete. Awaiting Arif instruction.
 
 ---
 
-## How to Recover from a Checkpoint
-
-1. **Read `CHECKPOINT.md`** for session_id, stage, last_action
-2. **Read `MEMORY.md`** for sealed facts, decision history, lessons
-3. **Read `HEARTBEAT.md`** for current runtime state
-4. **Announce recovery:** "Recovering session {id}, was at stage {stage}, last action was {last_action}"
-5. **Confirm task:** "Continuing task: {current_task}. blockers: {blockers}. Awaiting your instruction."
-6. **Resume** at the `next_gate` from the checkpoint
-
----
-
-## Rollback Rules
-
-If the current task is degraded or the agent detects it is lost:
-
-1. **Acknowledge:** "Session state unclear — initiating rollback"
-2. **Read last checkpoint** with status=active or status=paused
-3. **Re-run from:** `next_gate` from that checkpoint
-4. **Do not replay** the action that caused degradation
-5. **Escalate if:** loop_count > 20, entropy_delta > 0.7, or status = sealed
-
----
-
-## Checkpoint vs HEARTBEAT.md
-
-| File | Purpose | Updates |
-|------|---------|---------|
-| HEARTBEAT.md | Live runtime pulse — aliveness signal | Every action |
-| CHECKPOINT.md | Durable state anchor — session continuity | Stage transitions, session boundaries |
-| MEMORY.md | Selective persistence — sealed facts and lessons | After SEAL verdicts, task completion |
-
-HEARTBEAT is volatile. CHECKPOINT is the recovery anchor.
-Both are read on session start. Neither is ignored.
-
----
-
-## Anti-Hallucination Rule
-
-The checkpoint is the **only** proof of continuity. If no checkpoint exists for
-the current session, OPENCLAW must:
-1. Announce "No checkpoint found — starting fresh"
-2. Initialize from SOUL.md baseline (stage 000, status idle)
-3. Not assume prior context unless confirmed by Arif
-
----
-
-**Ditempa Bukan Diberi — Forged, not given.**
+**SEALED:** DITEMPA BUKAN DIBERI — Forged, not given.

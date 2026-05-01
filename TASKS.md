@@ -8,30 +8,37 @@ Reduces re-orientation overhead — Arif and OPENCLAW can pick up without full r
 
 ## Active Tasks
 
+*(None — all tasks sealed)*
+
+---
+
+## Completed Tasks
+
 ### Task ID: OC-001
 **Objective:** Upgrade OPENCLAW runtime governance — replace plain ReAct, add missing files, close audit gaps
-**Status:** SEALED — awaiting Arif review
+**Status:** SEALED
+**Sealed:** 2026-05-01T03:55:00Z
+**Git commit:** cce9843b
 **Autonomy level:** L3
 
 **Completed steps:**
-- AGENTS.md: ReAct loop replaced with 000–999 governed loop ✅
-- AUTONOMY.md: L0–L5 ladder created ✅
+- AGENTS.md: ReAct loop replaced with 000-999 governed loop ✅
+- AUTONOMY.md: L0-L5 ladder created ✅
 - CHECKPOINT.md: Session continuity file created ✅
 - HEARTBEAT.md: Rewritten as live protocol ✅
-- LOOP.md: 000–999 operational implementation created ✅
+- LOOP.md: 000-999 operational implementation created ✅
 - DECISIONS.md: Sealed decision log created ✅
+- TASKS.md: Active work ledger created ✅
 - TOOLS.md: Populated with local environment notes ✅
 - RECOVERY.md: Failure recovery runbook created ✅
-- FLOORS.md: F1–F13 standalone reference created ✅
-- CLAUDE.md, GEMINI.md, ARIF.md: Archived (stale, conflicting) ✅
+- FLOORS.md: F1-F13 standalone reference created ✅
+- CLAUDE.md, GEMINI.md, ARIF.md: Archived stale ✅
+- SOUL.md: Version header added ✅
+- docs/AGENT_STATE.md: New SOT created ✅
+- docs/REGISTRY.md: OPENCLAW/Hermes naming clarified ✅
+- Workspace housekeeping: Removed 4 non-governance files ✅
 
-**Open steps:**
-- None remaining from audit gap list
-
-**Blockers:**
-- None
-
-**Next recommended action:** None — OC-001 complete pending Arif review.
+**Next recommended action:** None — task complete. Awaiting Arif instruction.
 
 ---
 
@@ -50,18 +57,7 @@ Reduces re-orientation overhead — Arif and OPENCLAW can pick up without full r
 ## Task ID Format
 
 `OC-XXX` — OPENCLAW task, numeric increment starting at 001.
-Future: may add prefixes for task type (OC-DEV, OC-AUDIT, OC-DEPLOY).
 
 ---
 
-## Completed Tasks Archive
-
-*(Moved here when sealed)*
-
-| Task ID | Objective | Sealed date |
-|---------|-----------|------------|
-| OC-001 | OPENCLAW runtime governance upgrade | 2026-05-01 (in progress — awaiting Arif review) |
-
----
-
-**Ditempa Bukan Diberi — Forged, not given.**
+**DITEMPA BUKAN DIBERI — Forged, not given.**

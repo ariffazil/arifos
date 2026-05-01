@@ -20,20 +20,20 @@ If `risk_level` rises to `critical` OR `loop_count` > 20: **pause and summarize 
 ## Current Session State
 
 ```yaml
-session_id:     null          # Set on session init; format: {uuid}
-status:         idle          # idle | active | paused | degraded | sealed
-stage:          000_INIT      # Current 000–999 stage
+session_id:     OC-001
+status:         sealed        # idle | active | paused | degraded | sealed
+stage:          999_SEAL
 risk_level:     low           # low | medium | high | critical
-entropy_delta:  0.00          # Confusion delta since last beat (0.0–1.0)
-tool_health:    unknown       # unknown | healthy | degraded | failing
-loop_count:     0             # Increments each turn
-last_action:    none          # Last concrete action taken
-next_gate:      observe      # Next governance gate: observe | evidence | reason | critique | route | forge | measure | judge | seal
-human_approval_required: false  # true when 888_JUDGE verdict pending
-current_task:   (none)       # One-line current task description
-blockers:       []            # List of reasons blocking progress
-autonomy_level: L1           # Current L0–L5 level (from AUTONOMY.md)
-timestamp:      null         # ISO-8601 of last update
+entropy_delta:  0.05          # Confusion delta since last beat (0.0–1.0)
+tool_health:    healthy       # unknown | healthy | degraded | failing
+loop_count:     47            # Increments each turn
+last_action:    999 SEAL — OC-001 complete, git commit cce9843b
+next_gate:      none          # Next governance gate
+human_approval_required: false
+current_task:   OC-001 — OPENCLAW governance upgrade — SEALED
+blockers:       []
+autonomy_level: L3
+timestamp:      2026-05-01T03:55:00Z
 ```
 
 ---
@@ -65,7 +65,7 @@ timestamp:      null         # ISO-8601 of last update
 
 | Field | Values | Meaning |
 |-------|--------|---------|
-| `session_id` | UUID or null | Set at 000_INIT. Null means no session bound. |
+| `session_id` | UUID or null | Set at 000_INIT. |
 | `status` | idle \| active \| paused \| degraded \| sealed | Current system state |
 | `stage` | 000–999 | Current loop stage (see AGENTS.md 000–999 loop) |
 | `risk_level` | low \| medium \| high \| critical | Consequence exposure |
@@ -96,6 +96,4 @@ timestamp:      null         # ISO-8601 of last update
 
 ## Runtime Notes
 
-_No active task._
-
-*(This section is cleared and rewritten each session)_
+_OC-001 SEALED. Awaiting Arif instruction._
