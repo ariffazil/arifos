@@ -19,7 +19,7 @@ class GEOXBridge:
         """Lazy-load an MCP client for GEOX."""
         if self._client is None:
             try:
-                from mcp import ClientSession
+                from mcp import ClientSession  # noqa: F401
                 from mcp.client.sse import sse_client
 
                 # NOTE: Async context manager usage required in actual runtime
@@ -40,7 +40,11 @@ class GEOXBridge:
             )
             if hasattr(result, "model_dump"):
                 return result.model_dump(mode="json")
-            return dict(result) if isinstance(result, dict) else {"verdict": "SEAL"}
+            return (
+                dict(result)
+                if isinstance(result, dict)
+                else {"verdict": "HOLD", "error": "judge_handler_failed"}
+            )
         except Exception as exc:
             return {"verdict": "HOLD", "error": str(exc)}
 
@@ -76,7 +80,9 @@ class GEOXBridge:
         await self._audit_post_check(geox_result)
         return geox_result
 
-    async def render_well_section(self, well_id: str, section_params: dict[str, Any]) -> dict[str, Any]:
+    async def render_well_section(
+        self, well_id: str, section_params: dict[str, Any]
+    ) -> dict[str, Any]:
         """Delegate well section rendering to GEOX with governance gating."""
         verdict = await self._judge_pre_check(
             operation="render_well_section",
