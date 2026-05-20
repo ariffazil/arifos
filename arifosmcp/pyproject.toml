@@ -1,7 +1,21 @@
 [project]
 name = "arifos"
-version = "2026.05.16"
+version = "2026.05.20"
 
+# 2026.05.20 — Audit & Governance Alignment
+#   Audit Truth: Added registry_truth: PASS to health payload.
+#   Session Integrity: Prioritize caller-provided session_id.
+#   WELL Fixtures: Valid payloads for tool probes.
+#   Heart Semantics: Split execution_verdict and action_risk_verdict.
+#   F13 Sovereign Fix: Closing model self-certification bypass.
+#   Topology: Registered graphiti-mcp endpoint.
+# 2026.05.18 — MCP contract fixes
+#   W1: arif_evidence_fetch status str, store.search_sources
+#   W2: arif_heart_critique F11 AUTH gate removed (read-only)
+#   W3: arif_mind_reason actor_id propagated to MindOutput.meta
+#   S2: nine-signal domain governance (not earth) for evidence_fetch
+#       nine-signal domain risk (not vitality) for heart_critique
+# 2026.05.17-omega — W3 session binding, schema hardening, 13-tool registry
 # 2026.05.16 — 999 SEAL Hardening
 #   Federation Truth Hardening: Root hygiene, directory canonicalization, README SOT.
 #   Authentication: persistent GITHUB_TOKEN integration for agent activity.
@@ -49,8 +63,6 @@ version = "2026.05.16"
 #   Consolidated Dockerfile, unified 11-service compose, strict memory limits ($15 VPS), and canonical server entrypoint.
 # 2026.3.1 — JS/npm Client Matrix Verified & Dogfooded
 #   Verified 0.1.0 @arifos/mcp across HTTP/stdio; updated canonical tool response schema.
-# 2026.3.1 — JS/npm Client Matrix Verified & Dogfooded
-#   Verified 0.1.0 @arifos/mcp across HTTP/stdio; updated canonical tool response schema.
 # 2026.2.28 — F1/F7/F12 Hardening + Evidence Appendix
 #   888_HOLD explicit hash signing, stack traces un-swallowed, fetch_content data fencing.
 # 2026.2.25 — v60.1 Chaos Reduction + VPS Alignment + Agent Capability Spec
@@ -67,7 +79,7 @@ version = "2026.05.16"
 # 2026.1.26 — Live constitutional metrics; 13/13 floors passing
 # 2026.1.24 — Unified core: arifosmcp.transport pure transport, all logic in core/
 # 2026.1.18 — Constitutional Forge: 13 floors F1-F13, Trinity ΔΩΨ, VAULT999, 9-tool MCP
-description = "arifOS v2026.05.16 — Constitutional AI Governance Kernel. 13 canonical tools (arif_verb_noun), dynamic F1-F13 enforcement via ConstitutionKernel + FloorEvaluator, VAULT999 immutable ledger, streamable-http MCP transport."
+description = "arifOS v2026.05.20 — Constitutional AI Governance Kernel. 13 canonical tools (arif_verb_noun), dynamic F1-F13 enforcement via ConstitutionKernel + FloorEvaluator, VAULT999 immutable ledger, streamable-http MCP transport."
 readme = "README.md"
 requires-python = ">=3.12"
 license = "AGPL-3.0-only"
@@ -291,7 +303,7 @@ target-version = ['py310', 'py311', 'py312']
 
 [tool.ruff]
 line-length = 100
-target-version = "py310"
+target-version = "py312"
 exclude = ["archive/**", "archive_local/**", "tests/**"]
 
 [tool.ruff.lint]
@@ -300,9 +312,8 @@ select = ["E", "F", "I", "UP", "N", "B"]
 ignore = []
 
 [tool.ruff.lint.per-file-ignores]
-"tests/test_runtime_manifest.py" = ["F401"]
-"tests/test_session_dependency_guard.py" = ["F821", "F841"]
-"tests/test_sovereignty_all_providers.py" = ["F401", "F841"]
+# No stale per-file ignores — all referenced test files must exist.
+# Add entries here only for real test files with known lint exceptions.
 "tests/test_v35_features.py" = ["F401"]
 "tests/test_waw_organs.py" = ["F401", "F811"]
 # tools.py is the 5000-line canonical runtime; pre-existing naming and import

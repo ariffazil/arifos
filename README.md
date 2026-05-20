@@ -11,6 +11,9 @@ The central governance kernel of the arifOS federation. It defines the 13 Consti
 
 **Every tool call is stateful, governed, and pipeline-aware.**
 
+> **MCP Surface (live test 2026-05-17):** 14 tools — 13 canonical + 1 governance extra (`arif_stack_health_probe`).
+> `smithery.yaml` tracks the 13 constitutional tools only. `tool_registry.json` canonical surface = 15 (13 + `arif_ping` + `arif_selftest` probes).
+
 ## 📦 Ownership
 
 - **Owns**: Constitutional Law (F1–F13), `arifosmcp` core logic, VAULT999 ledger, `smithery.yaml` registry.

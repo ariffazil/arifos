@@ -2156,7 +2156,7 @@ def _probe_langfuse_tracing() -> dict[str, Any]:
         try:
             from dotenv import load_dotenv
 
-            load_dotenv("/app/.env", override=True)
+            load_dotenv("/app/.env", override=False)
         except Exception:
             pass
 
@@ -2413,6 +2413,8 @@ def register_rest_routes(
                 "deployment_source": "ghcr",
                 "transport": "streamable-http",
                 "tools_loaded": getattr(mcp, "_tool_count", len(tool_registry)),
+                "floors_active": get_floor_count(),
+                "floors_enforcement": "active",
                 "tool_registry_hash": _compute_tool_registry_hash(tool_registry),
                 "schema_hash": _compute_schema_hash(mcp, tool_registry),
                 **_compute_runtime_drift(),
@@ -4588,7 +4590,7 @@ def register_rest_routes(
         No inference. No stale cache. Direct from live runtime contracts.
         """
         try:
-            mcp_tools = getattr(mcp, "_tool_registry", []) or []
+            mcp_tools = list(tool_registry.keys())
             tools_list = []
             for tool in mcp_tools:
                 name = tool.name if hasattr(tool, "name") else str(tool)
@@ -4934,7 +4936,7 @@ def register_rest_routes(
         base = _public_base_url(request)
         from starlette.responses import PlainTextResponse
 
-        mcp_tools = getattr(mcp, "_tool_registry", []) or []
+        mcp_tools = list(tool_registry.keys())
 
         lines = [
             "# arifOS MCP — Constitutional AI Gateway",

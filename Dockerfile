@@ -36,7 +36,8 @@ COPY . .
 # Install dependencies in build stage to keep runtime image clean.
 # The ML floor runtime is part of the image truth and must be reproducible.
 RUN python -m pip install --upgrade pip && \
-    if [ -f requirements.txt ]; then pip install -r requirements.txt; fi && \
+    # requirements.txt removed — pyproject.toml is sole source of truth
+    
     pip install .
 RUN python -c "import numpy, scipy, sklearn, torch, transformers, sentence_transformers"
 
@@ -134,7 +135,7 @@ LABEL io.modelcontextprotocol.server.name="io.github.ariffazil/arifosmcp" \
       org.opencontainers.image.revision="${DEPLOY_GIT_COMMIT}" \
       org.opencontainers.image.created="${DEPLOY_BUILD_TIME}" \
       org.opencontainers.image.source="https://github.com/ariffazil/arifOS" \
-      org.opencontainers.image.licenses="MIT"
+      org.opencontainers.image.licenses="AGPL-3.0"
 
 # Execute consolidated entrypoint
 CMD ["uvicorn", "arifosmcp.runtime.server:app", "--host", "0.0.0.0", "--port", "8080"]

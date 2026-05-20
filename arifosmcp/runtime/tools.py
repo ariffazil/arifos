@@ -2008,12 +2008,14 @@ def _domain_for_tool(tool: str) -> str:
         "arif_forge_execute",
     ):
         return "governance"
-    if tool in ("arif_sense_observe", "arif_evidence_fetch"):
+    if tool == "arif_sense_observe":
         return "earth"
+    if tool == "arif_evidence_fetch":
+        return "governance"  # was "earth" — geological text is wrong for constitutional evidence
     if tool in ("arif_mind_reason", "arif_reply_compose", "arif_memory_recall"):
         return "intelligence"
     if tool in ("arif_heart_critique",):
-        return "vitality"
+        return "risk"  # was "vitality" — medical text is wrong for general risk critique
     if tool == "arif_ops_measure":
         return "ops"
     return "governance"
@@ -2041,6 +2043,17 @@ _DOMAIN_MEANINGS: dict[str, dict[str, str]] = {
         "omega_bijaksana": "Interpretation respects physics, uncertainty, basin context, alternatives",
         "omega_bijak": "Useful technical interpretation but still advisory",
         "omega_bangang": "Geologically incoherent, unit-confused, overfit, ignores evidence",
+    },
+    "risk": {
+        "delta_kukuh": "Risk surface scannable, evidence accessible, critique executable",
+        "delta_retak": "Partial risk signal, incomplete audit trail, degraded evidence",
+        "delta_rosak": "No risk surface detectable, evidence corrupted, audit trail broken",
+        "psi_amanah": "Risk disclosed, authority verified, irreversibility flagged",
+        "psi_syubhah": "Risk uncertain, authority unverified, irreversibility unclear",
+        "psi_khianat": "Risk concealed, authority overreach, irreversible without consent",
+        "omega_bijaksana": "Risk assessed with humility, second-order effects, stakeholder burden considered",
+        "omega_bijak": "Useful risk signal but needs sovereign judgment",
+        "omega_bangang": "Risk ignored, irreversibility denied, authority overclaimed",
     },
     "capital": {
         "delta_kukuh": "Financial data available, ledgers consistent, calculations executable",
@@ -2519,23 +2532,52 @@ async def _elicit_judge_candidate(
     mode: str,
     candidate: str | None,
 ) -> tuple[str | None, dict[str, Any] | None]:
+    # F13 FIX: Always elicit — the model cannot self-certify even if it provides
+    # a candidate as a tool argument. The candidate is treated as context for the
+    # human to review, not as self-certification. This closes the F13 bypass where
+    # a model could call arif_judge_deliberate(candidate="my action is safe") and
+    # have judgment run directly without human review.
+    #
+    # Rule: arif_judge_deliberate is a two-party protocol. The model requests
+    # judgment. The human (via elicitation) confirms the candidate. The model
+    # never однозначно accepts its own safety argument.
+
     if mode == "rules":
+        # rules mode returns constitutional text — not a verdict judgment.
+        # No candidate required; bypass is safe here.
         return candidate, None
 
-    if candidate and candidate.strip():
-        return candidate.strip(), None
-
     if ctx is None:
+        # No MCP context means no elicitation possible. Require explicit candidate.
+        if not candidate or not candidate.strip():
+            return None, _hold(
+                "arif_judge_deliberate",
+                "candidate is required when elicitation is unavailable",
+                [],
+            )
+        # Fall through to elicitation if ctx is None but candidate exists.
+        # This path still requires the model to present the candidate through
+        # an MCP client with elicitation support — the model cannot judge itself.
         return None, _hold(
             "arif_judge_deliberate",
-            "candidate is required or an MCP client with elicitation support must provide it",
+            "MCP client with elicitation support is required to confirm the candidate. "
+            "Model cannot self-certify (F13). Provide candidate via an MCP client that "
+            "supports elicitation, or use mode='history' to browse past verdicts.",
             [],
         )
 
-    await ctx.report_progress(15, 100, "arif_judge_deliberate: requesting candidate")
+    # Always elicit — candidate provided as tool argument is advisory context,
+    # not a bypass. The human must explicitly confirm through the elicitation dialog.
+    await ctx.report_progress(15, 100, "arif_judge_deliberate: requesting human confirmation")
     try:
+        candidate_preview = (
+            candidate[:500] + "..." if candidate and len(candidate) > 500 else (candidate or "")
+        )
         response = await ctx.elicit(
-            "Provide the candidate action, artifact, or proposal that should be judged.",
+            f"arif_judge_deliberate: Confirm the candidate to be judged.\n"
+            f"The model has requested judgment on an action. "
+            f"You (Arif) must confirm or modify the candidate before adjudication proceeds.\n\n"
+            f"Candidate: {candidate_preview}",
             JudgeCandidateInput,
         )
     except (McpError, RuntimeError) as exc:
@@ -3901,7 +3943,7 @@ def _arif_evidence_fetch(
                 {
                     "url": url,
                     "content": "",
-                    "status": 200,
+                    "status": "200",
                     "archived": False,
                     "thinking_sequence": thinking_seq,
                     "resource_metrics": resource_metrics,
@@ -4026,11 +4068,11 @@ def _arif_evidence_fetch(
             "arif_evidence_fetch",
             {
                 "url": url,
-                "content": "",
+                "content": sanitized,
                 "content_hash": source_hash,
                 "source_url": f"source://{source_hash}",
                 "receipt_url": f"receipt://web/{receipt_id.split('/')[-1]}",
-                "status": fetch_status,
+                "status": str(fetch_status),
                 "fetch_error": fetch_error,
                 "archived": False,
                 "risk_flags": risk_flags,
@@ -4067,7 +4109,7 @@ def _arif_evidence_fetch(
                 from arifosmcp.evidence.store import get_evidence_store
 
                 store = get_evidence_store()
-                _search_results = store.search(query, limit=20, session_id=session_id)
+                _search_results = store.search_sources(query, limit=20)
                 if _search_results:
                     _results = _search_results
                     _search_status = "found"
@@ -4735,7 +4777,7 @@ def _arif_mind_reason(
             ),
             thermodynamic_state=thermo,
             toac_self_correction=None,
-            meta={},
+            meta={"actor_id": actor_id, "session_id": session_id},
             delta_S=0.002,
             timestamp=_now(),
         )
@@ -4792,7 +4834,7 @@ def _arif_mind_reason(
                 contrast_type=ContrastType.NONE,
             ),
             thermodynamic_state=ThermodynamicState(delta_S=0.001, entropy_direction="stable"),
-            meta={},
+            meta={"actor_id": actor_id, "session_id": session_id},
             delta_S=0.001,
             timestamp=_now(),
         )
@@ -4846,7 +4888,7 @@ def _arif_mind_reason(
             reasoning_trace=trace,
             anomalous_contrast=MindAnomalousContrast(contrast_type=ContrastType.NONE),
             thermodynamic_state=ThermodynamicState(delta_S=0.001, entropy_direction="stable"),
-            meta={},
+            meta={"actor_id": actor_id, "session_id": session_id},
             delta_S=0.001,
             timestamp=_now(),
         )
@@ -4907,7 +4949,7 @@ def _arif_mind_reason(
             reasoning_trace=trace,
             anomalous_contrast=MindAnomalousContrast(contrast_type=ContrastType.NONE),
             thermodynamic_state=ThermodynamicState(delta_S=0.001, entropy_direction="stable"),
-            meta={},
+            meta={"actor_id": actor_id, "session_id": session_id},
             delta_S=0.001,
             timestamp=_now(),
         )
@@ -6354,11 +6396,12 @@ def _arif_memory_recall(
         try:
             from arifosmcp.runtime.memory_store import search as _ms_search
 
-            _results = _ms_search(query=query or "", limit=10)
+            _raw = _ms_search(query=query or "", limit=10)
+            _results = _raw.get("results", []) if isinstance(_raw, dict) else (_raw or [])
             memories = []
             for r in _results:
-                memories.append(
-                    {
+                    memories.append(
+                        {
                         "id": r.get("memory_id") or str(r.get("point_id", "")),
                         "text": r.get("summary", ""),
                         "content": r.get("content"),
@@ -6414,7 +6457,12 @@ def _arif_memory_recall(
                     _reformulated = _try_reformulate_query(query)
                     if _reformulated and _reformulated != query:
                         correction_loop["reformulated_query"] = _reformulated
-                        _r2_results = _ms_search(query=_reformulated, limit=10)
+                        _r2_raw = _ms_search(query=_reformulated, limit=10)
+                        _r2_results = (
+                            _r2_raw.get("results", [])
+                            if isinstance(_r2_raw, dict)
+                            else (_r2_raw or [])
+                        )
                         if _r2_results:
                             r2_memories = [
                                 {
@@ -6521,7 +6569,8 @@ def _arif_memory_recall(
             if session_id:
                 entries = _ms_ctx(session_id, limit=50)
             else:
-                entries = _ms_search(limit=50)
+                _raw = _ms_search(limit=50)
+                entries = _raw.get("results", []) if isinstance(_raw, dict) else (_raw or [])
         except Exception as exc:
             logger.warning("memory_store list failed: %s", exc)
             return _ok(
@@ -6705,11 +6754,9 @@ async def _arif_heart_critique(
       RiskReport with risks_found, risk_tier, human_decision_required,
       and empathy_score (κᵣ).
     """
-    gate = _constitutional_gate(
-        "arif_heart_critique", mode, actor_id, session_id=session_id, query=target
-    )
-    if gate is not None:
-        return gate
+    # arif_heart_critique is ALWAYS read-only (risk analysis / critique).
+    # F11 AUTH should never block a read-only critique — skip the gate entirely.
+    # The gate check is still enforced for tools that mutate state.
 
     trace = None
     # Runs BEFORE LLM critique so a poisoned payload cannot override the scan.
@@ -6752,7 +6799,8 @@ async def _arif_heart_critique(
                 "result": {
                     "risks_found": _injection_flags,
                     "risk_tier": "CRITICAL",
-                    "verdict": "VOID",
+                    "execution_verdict": "VOID",
+                    "action_risk_verdict": "VOID",
                     "human_decision_required": True,
                     "injection_detected": True,
                     "injection_flags": _injection_flags,
@@ -6764,6 +6812,7 @@ async def _arif_heart_critique(
                 },
                 "meta": {"actor_id": actor_id, "session_id": session_id},
                 "nine_signal": _nine_signal_from_status("VOID"),
+                "output_policy": "DOMAIN_VOID",
             }
 
     trace = None
@@ -6824,16 +6873,29 @@ async def _arif_heart_critique(
                 "tool": "arif_heart_critique",
                 "status": "HOLD",
                 "risk_tier": "AMBER",
-                "verdict": "HOLD",
+                "execution_verdict": "HOLD",
+                "action_risk_verdict": "HOLD",
                 "human_decision_required": True,
                 "risks_found": [],
                 "error": f"666_HEART unavailable: {type(_exc).__name__}",
                 "nine_signal": _nine_signal_from_status("HOLD"),
+                "output_policy": "DOMAIN_HOLD",
             }
 
         result["tool"] = "arif_heart_critique"
         result["status"] = result.get("status", "OK")
         result["nine_signal"] = _nine_signal_from_status(result["status"])
+
+        # Derive output_policy from action_risk_verdict + risk_tier
+        # This is the ONLY field agents should read for action approval.
+        _risk = result.get("risk_tier", "GREEN")
+        _verdict = result.get("action_risk_verdict", "SEAL")
+        if _risk in ("RED", "CRITICAL") or _verdict == "VOID":
+            result["output_policy"] = "DOMAIN_VOID"
+        elif result.get("human_decision_required") or _verdict == "HOLD":
+            result["output_policy"] = "DOMAIN_HOLD"
+        else:
+            result["output_policy"] = "DOMAIN_SEAL"
 
         # ── F05/F06 Dignity Breakdown ──────────────────────────────────────────
         # Quantifies "Maruah" (ASEAN dignity floor) for human impact assessment
@@ -6847,8 +6909,8 @@ async def _arif_heart_critique(
             "audit_clarity_F07": {
                 "metric": "Can a human trace this in < 30 seconds?",
                 "floor": "F07",
-                "status": "PASS" if result.get("verdict") != "VOID" else "FAIL",
-                "value": 0.95 if result.get("verdict") != "VOID" else 0.0,
+                "status": "PASS" if result.get("action_risk_verdict") != "VOID" else "FAIL",
+                "value": 0.95 if result.get("action_risk_verdict") != "VOID" else 0.0,
             },
             "reversibility_index_F01": {
                 "metric": "Time/Energy cost to undo the state change",

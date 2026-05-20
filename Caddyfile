@@ -55,14 +55,6 @@ arif-fazil.com {
 		file_server
 	}
 
-	@genesis path /000/*
-	handle @genesis {
-		uri strip_prefix /000
-		root * /var/www/html/arif/000
-		try_files {path} /index.html
-		file_server
-	}
-
 	@validation path /999/*
 	handle @validation {
 		uri strip_prefix /999
@@ -148,6 +140,10 @@ aaa.arif-fazil.com {
 	handle /a2a/agents.json {
 		root * /var/www/html/aaa
 		file_server
+	}
+	handle /a2a {
+		rewrite * /a2a/
+		reverse_proxy 127.0.0.1:3001
 	}
 	handle /a2a/* {
 		reverse_proxy 127.0.0.1:3001
@@ -325,7 +321,6 @@ well.arif-fazil.com {
 	}
 	handle /ready {
 		import cors_public
-		rewrite * /health
 		reverse_proxy 127.0.0.1:8083
 	}
 	handle /sse* {
@@ -333,15 +328,14 @@ well.arif-fazil.com {
 	}
 	handle /.well-known/* {
 		import cors_public
-		root * /var/www/html/well
-		file_server
+		reverse_proxy 127.0.0.1:8083
 	}
 	handle /tools {
 		import cors_public
 		reverse_proxy 127.0.0.1:8083
 	}
 	handle {
-		redir https://arifos.arif-fazil.com permanent
+		reverse_proxy 127.0.0.1:8083
 	}
 }
 
@@ -379,6 +373,14 @@ copilot.arif-fazil.com {
 	handle {
 		respond "Copilot Governance Gateway — use /copilot/ingest or /health" 200
 	}
+}
+
+# ═══════════════════════════════════════════════════════════════════════
+# TRAVEL SITE — travel.arif-fazil.com (placeholder; points to main site)
+# ═══════════════════════════════════════════════════════════════════════
+travel.arif-fazil.com {
+	import tls_origin
+	redir https://arif-fazil.com/travel permanent
 }
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -463,4 +465,23 @@ metrics.arif-fazil.com {
 	import tls_origin
 	encode zstd gzip
 	reverse_proxy 127.0.0.1:19999
+}
+
+# ═══════════════════════════════════════════════════════════════════════
+# OPENCLAW GATEWAY
+# Telegram webhook: /telegram-webhook → port 8787 (monitor-webhook process)
+# UI + everything else → port 18789 (gateway)
+# ═══════════════════════════════════════════════════════════════════════
+openclaw.arif-fazil.com {
+	import tls_origin
+	encode zstd gzip
+	handle /telegram-webhook {
+		reverse_proxy 127.0.0.1:8787
+	}
+	handle /.well-known/agent-card.json {
+		reverse_proxy 127.0.0.1:18795
+	}
+	handle {
+		reverse_proxy 127.0.0.1:18789
+	}
 }
