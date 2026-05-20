@@ -46,7 +46,7 @@ dependencies = [
     "scikit-learn==1.8.0",
     "torch==2.11.0",
     "transformers==4.46.3",
-    "sentence-transformers==5.4.1",
+    "sentence-transformers==5.5.0",
     "google-api-python-client>=2.160.0",
     "google-auth-httplib2>=0.2.0",
     "google-auth-oauthlib>=1.2.1",
