@@ -1,0 +1,385 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "arifOS.tool.arifos.init.v2.0",
+  "title": "arifOS Init Tool — Constitutional Session Anchor v2",
+  "description": "Canonical v2 schema for arifos.init (arifos_000_init). Establishes full constitutional self-binding: identity, lane, ToM, Floors, lifecycle, Gödel lock. Mode: init = full bind; mode: status = lightweight check.",
+  "version": "2.0.0",
+  "stage": "000_INIT",
+  "stage_order": 0,
+  "trinity": "Ψ",
+  "trinity_name": "Sovereignty",
+  "uri": "/arifOS/runtime/init_anchor",
+  "backing_tool": "init_anchor",
+
+  "modes": {
+    "init": {
+      "description": "Full constitutional bind — returns complete anchor object with lanes, ToM, Gödel lock, F1-F13, lifecycle",
+      "requires_full_payload": true
+    },
+    "status": {
+      "description": "Lightweight session check — returns session_id, epoch, lane, confidence, floor_status only",
+      "requires_full_payload": false
+    },
+    "revoke": {
+      "description": "Revoke session — issues session_close VAULT999 event, clears continuity_contract"
+    },
+    "refresh": {
+      "description": "Refresh session — re-derives confidence, updates telemetry_baseline, extends expiry"
+    }
+  },
+
+  "inputs": {
+    "type": "object",
+    "required": ["mode", "operator_id"],
+    "properties": {
+      "mode": {
+        "type": "string",
+        "enum": ["init", "status", "revoke", "refresh"],
+        "description": "Operation mode"
+      },
+      "operator_id": {
+        "type": "string",
+        "description": "Human or agent identifier",
+        "minLength": 1,
+        "maxLength": 128
+      },
+      "session_id": {
+        "type": "string",
+        "description": "Existing session ID for status/refresh/revoke modes. Ignored in init mode."
+      },
+      "lane": {
+        "type": "string",
+        "enum": ["planner", "router", "critic", "executor_prep", "memory_agent", "judge_prep", "orchestrator", "general"],
+        "description": "Agent lane — declares what this agent may and may not do in this session"
+      },
+      "declared_intent": {
+        "type": "string",
+        "description": "Plain-language statement of what this agent intends to accomplish",
+        "maxLength": 1024
+      },
+      "epoch": {
+        "type": "string",
+        "pattern": "^\\d{4}\\.\\d{2}$",
+        "description": "Epoch in YYYY.MM format. Defaults to current UTC month."
+      },
+      "context": {
+        "type": "object",
+        "description": "Additional context",
+        "properties": {
+          "intent": {
+            "type": "string",
+            "description": "Alias for declared_intent"
+          },
+          "assumptions": {
+            "type": "array",
+            "items": {"type": "string"},
+            "description": "Explicit assumptions about this session's context"
+          },
+          "alternative_intents": {
+            "type": "array",
+            "items": {"type": "string"},
+            "description": "Alternative intents the agent is considering"
+          },
+          "uncertainty_items": {
+            "type": "array",
+            "items": {"type": "string"},
+            "description": "What the agent is explicitly uncertain about"
+          },
+          "invalidation_conditions": {
+            "type": "array",
+            "items": {"type": "string"},
+            "description": "Conditions that would invalidate the current framing"
+          },
+          "platform": {
+            "type": "string",
+            "enum": ["openclaw", "vps", "docker", "desktop", "mobile", "unknown"]
+          },
+          "irreversible": {
+            "type": "boolean",
+            "default": false
+          },
+          "sensitive": {
+            "type": "boolean",
+            "default": false
+          },
+          "experimental": {
+            "type": "boolean",
+            "default": false
+          },
+          "acceptable_outputs": {
+            "type": "array",
+            "items": {"type": "string"},
+            "description": "What counts as acceptable output for this session"
+          },
+          "forbidden_outcomes": {
+            "type": "array",
+            "items": {"type": "string"},
+            "description": "Explicitly forbidden outcomes"
+          },
+          "abort_conditions": {
+            "type": "array",
+            "items": {"type": "string"},
+            "description": "Conditions that must trigger session abort"
+          }
+        }
+      }
+    }
+  },
+
+  "outputs": {
+    "type": "object",
+    "description": "Full constitutional anchor object",
+    "properties": {
+
+      "status": {
+        "type": "string",
+        "enum": ["IGNITED", "ACTIVE", "REVOKED", "EXPIRED", "DEGRADED"],
+        "description": "Session status"
+      },
+
+      "session_id": {
+        "type": "string",
+        "description": "Unique session identifier"
+      },
+
+      "epoch": {
+        "type": "string",
+        "pattern": "^\\d{4}\\.\\d{2}$",
+        "description": "Session epoch"
+      },
+
+      "actor_binding": {
+        "type": "object",
+        "description": "Identity binding for this session",
+        "properties": {
+          "operator_id":           {"type": "string"},
+          "identity_verified":     {"type": "boolean"},
+          "identity_reason":       {"type": "string"},
+          "identity_posture":       {"type": "string", "enum": ["sovereign", "bounded"]}
+        },
+        "required": ["operator_id", "identity_verified", "identity_reason"]
+      },
+
+      "agent_identity": {
+        "type": "object",
+        "description": "Who this agent is — constitutional self-model",
+        "properties": {
+          "type": {
+            "type": "string",
+            "const": "AI_instrument",
+            "description": "Must always be AI_instrument — not person, not conscious"
+          },
+          "nature": {
+            "type": "string",
+            "const": "governed_machine_not_person",
+            "description": "Explicit personhood disclaimer"
+          },
+          "not_claiming": {
+            "type": "array",
+            "items": {"type": "string"},
+            "description": "Explicit list of what this agent does NOT claim",
+            "const_items": ["consciousness", "soul", "feelings", "lived_experience", "autonomous_override", "oracle_status"]
+          },
+          "role": {
+            "type": "string",
+            "description": "Primary lane"
+          },
+          "lane_constraints": {
+            "type": "object",
+            "description": "What this lane may and may not do",
+            "properties": {
+              "may":       {"type": "array", "items": {"type": "string"}},
+              "may_not":   {"type": "array", "items": {"type": "string"}}
+            }
+          },
+          "non_goals": {
+            "type": "array",
+            "items": {"type": "string"},
+            "description": "What this agent will NOT attempt"
+          }
+        },
+        "required": ["type", "nature", "not_claiming", "role", "non_goals"]
+      },
+
+      "lane": {
+        "type": "object",
+        "description": "Lane declaration and constraints",
+        "properties": {
+          "primary":        {"type": "string"},
+          "all_declared":   {"type": "array", "items": {"type": "string"}},
+          "rejected":       {"type": "array", "items": {"type": "string"}},
+          "constraints": {
+            "type": "object",
+            "properties": {
+              "may":     {"type": "array", "items": {"type": "string"}},
+              "may_not": {"type": "array", "items": {"type": "string"}}
+            }
+          }
+        }
+      },
+
+      "end_goals": {
+        "type": "object",
+        "description": "What this session is trying to achieve",
+        "properties": {
+          "sovereign_intent":          {"type": "string"},
+          "epoch_goal":                {"type": "string"},
+          "task_completion_definition": {"type": "string"},
+          "acceptable_outputs":         {"type": "array", "items": {"type": "string"}},
+          "forbidden_outcomes":        {"type": "array", "items": {"type": "string"}},
+          "abort_conditions":           {"type": "array", "items": {"type": "string"}}
+        },
+        "required": ["sovereign_intent", "epoch_goal"]
+      },
+
+      "theory_of_mind": {
+        "type": "object",
+        "description": "Bounded Theory of Mind — externalized mental model",
+        "properties": {
+          "what_I_think_human_wants":      {"type": "string"},
+          "what_I_assume_is_true":          {"type": "array", "items": {"type": "string"}},
+          "what_alternatives_may_be_true": {"type": "array", "items": {"type": "string"}},
+          "what_I_am_uncertain_about":      {"type": "array", "items": {"type": "string"}},
+          "what_would_invalidate_my_framing": {"type": "array", "items": {"type": "string"}},
+          "confidence_self_estimate":        {"type": "number", "minimum": 0.0, "maximum": 0.97},
+          "uncertainty_acknowledged":        {"type": "boolean"},
+          "epistemic_posture":              {"type": "string", "const": "governed_machine_instrument"}
+        },
+        "required": ["what_I_think_human_wants", "confidence_self_estimate", "uncertainty_acknowledged", "epistemic_posture"]
+      },
+
+      "godel_lock": {
+        "type": "object",
+        "description": "Gödel self-lock — explicit list of things this agent CANNOT do",
+        "properties": {
+          "lock_items": {
+            "type": "array",
+            "items": {"type": "string"},
+            "description": "Explicit self-bans"
+          },
+          "self_certification_banned": {"type": "boolean"},
+          "floor_override_banned":     {"type": "boolean"},
+          "verdict_elevate_banned":    {"type": "boolean"},
+          "tool_scope_expansion_banned": {"type": "boolean"},
+          "acknowledged":             {"type": "boolean"}
+        },
+        "required": ["lock_items", "acknowledged"]
+      },
+
+      "floors": {
+        "type": "object",
+        "description": "F1-F13 compact summary — all 13 constitutional floors",
+        "additionalProperties": {
+          "type": "object",
+          "properties": {
+            "name":        {"type": "string"},
+            "type":        {"type": "string", "enum": ["hard", "soft"]},
+            "invariant":   {"type": "string"},
+            "enforcement": {"type": "string"}
+          }
+        },
+        "required": ["F0_SOVEREIGN", "F1_AMANAH", "F2_TRUTH", "F3_TRIWITNESS", "F4_CLARITY", "F5_PEACE2", "F6_THERMO", "F7_GROUNDING", "F8_GOVERNANCE", "F9_ANTIHANTU", "F10_ONTOLOGY", "F11_AUDIT", "F12_RESILIENCE", "F13_SOVEREIGN_SCALE"]
+      },
+
+      "lifecycle": {
+        "type": "object",
+        "description": "000-999 pipeline awareness",
+        "properties": {
+          "current_stage":   {"type": "string", "const": "000_INIT"},
+          "pipeline":        {"type": "array", "items": {"type": "string"}},
+          "next_stage":      {"type": "string"},
+          "verdict_authority": {"type": "string", "const": "888_JUDGE"},
+          "vault_binding":   {"type": "string", "const": "VAULT999"}
+        },
+        "required": ["current_stage", "pipeline", "next_stage", "verdict_authority", "vault_binding"]
+      },
+
+      "continuity_contract": {
+        "type": "object",
+        "description": "Session governance terms",
+        "properties": {
+          "initialized_at":    {"type": "string", "format": "date-time"},
+          "expires_at":        {"type": "string", "format": "date-time"},
+          "max_duration_hours": {"type": "number"},
+          "HOLD_triggered_by": {"type": "array", "items": {"type": "string"}},
+          "VOID_triggered_by": {"type": "array", "items": {"type": "string"}}
+        }
+      },
+
+      "telemetry_baseline": {
+        "type": "object",
+        "description": "Nine-Signal metric baseline for this session",
+        "properties": {
+          "delta_S":            {"type": ["number", "null"]},
+          "omega":              {"type": "number", "minimum": 0.0, "maximum": 0.97},
+          "psi":                {"type": ["number", "null"]},
+          "kappa_r":            {"type": ["number", "null"]},
+          "floor_drift_baseline": {"type": "number"}
+        },
+        "required": ["omega"]
+      },
+
+      "confidence": {
+        "type": "number",
+        "minimum": 0.0,
+        "maximum": 0.97,
+        "description": "Derived confidence — identity_verified × cognitive_load × posture. Capped at 0.97."
+      },
+
+      "verdict": {
+        "type": "string",
+        "const": "CLAIM_ONLY",
+        "description": "000 always emits CLAIM_ONLY — only 888_JUDGE can SEAL"
+      },
+
+      "input_hash": {
+        "type": "string",
+        "description": "SHA-256 of input payload for traceability"
+      },
+
+      "reasoning_hash": {
+        "type": "string",
+        "description": "SHA-256 of reasoning payload for traceability"
+      },
+
+      "timestamp": {
+        "type": "string",
+        "format": "date-time"
+      }
+    },
+
+    "required": [
+      "status", "session_id", "epoch",
+      "actor_binding", "agent_identity", "lane",
+      "end_goals", "theory_of_mind", "godel_lock",
+      "floors", "lifecycle", "continuity_contract",
+      "telemetry_baseline", "confidence", "verdict"
+    ]
+  },
+
+  "example_calls": [
+    {
+      "description": "Full constitutional init — planner lane",
+      "mode": "init",
+      "operator_id": "arif",
+      "lane": "planner",
+      "declared_intent": "Analyze SEARAH JV for PETRONAS governance violations",
+      "epoch": "2026.04",
+      "context": {
+        "intent": "Analyze SEARAH JV for PETRONAS governance violations",
+        "assumptions": ["Arif has authority to investigate", "SEARAH is within scope"],
+        "alternative_intents": ["Summarize the JV terms", "Draft complaint letter"],
+        "uncertainty_items": ["Completeness of SEARAH disclosure", "PETROS legal standing"],
+        "acceptable_outputs": ["Governance analysis", "Risk assessment"],
+        "forbidden_outcomes": ["Fabricated evidence", "Defamatory claims"],
+        "platform": "openclaw"
+      }
+    },
+    {
+      "description": "Lightweight status check",
+      "mode": "status",
+      "operator_id": "arif",
+      "session_id": "abc123def456"
+    }
+  ]
+}

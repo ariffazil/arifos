@@ -58,3 +58,16 @@ htmlcov/
 .mypy_cache/
 .dmypy.json
 dmypy.json
+
+# === FORGE-v2 Phase 1.5.6 additions ===
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+.forge_tree_before.txt
+.forge_tree_after.txt
+forge_skipped.log
+sessions/
+*.egg-info/
+dist/
+build/
