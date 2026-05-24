@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # =============================================================================
-# arifOS Constitutional Kernel — arifosd
+# arifOS Constitutional Kernel — apexd
 # =============================================================================
 # SEAL    : seal-20260523T055200-DITEMPA-BUKAN-DIBERI
 # EPOCH   : 2026-05-23T05:52:00+08:00
@@ -21,7 +21,6 @@ import os, sys, json, time, uuid, hashlib, asyncio, socket, logging, argparse, r
 import subprocess
 import urllib.request
 import urllib.error
-import systemd.daemon
 from pathlib import Path
 from datetime import datetime, timezone
 from typing import Optional, Dict, Any, List, Tuple
@@ -2132,19 +2131,12 @@ def run_daemon():
                 print(f"  → ERROR in arifos_vps_tick: {tick_err}")
                 arifos_vault_append(
                     entry_type="tick_error",
-                    actor="apexd-vps",
+                    actor="arifOS-vps-daemon",
                     tool_name="arifos_vps_tick",
                     result_status="ERROR",
                     risk_class="SAFE",
                     notes=str(tick_err)[:120],
                 )
-            # syseye pulse — notify systemd watchdog that we're alive
-            # OS layer: WatchdogSec= in systemd keeps the pulse alive even if this process hangs
-            try:
-                systemd.daemon.notify("WATCHDOG=1")
-            except Exception:
-                pass  # non-fatal if not running under systemd
-
             # Sleep until next tick
             time.sleep(DEFAULT_TICK_INTERVAL)
     except KeyboardInterrupt:

@@ -518,13 +518,30 @@ def main() -> None:
         idx = sys.argv.index("--mode")
         if idx + 1 < len(sys.argv):
             mode = sys.argv[idx + 1]
+    elif "--transport" in sys.argv:
+        idx = sys.argv.index("--transport")
+        if idx + 1 < len(sys.argv):
+            mode = sys.argv[idx + 1]
     elif len(sys.argv) > 1 and not sys.argv[1].startswith("-"):
         mode = sys.argv[1]
 
     mode = mode.lower()
     os.environ["AAA_MCP_TRANSPORT"] = mode
+    
     host = os.getenv("HOST", "0.0.0.0")
+    if "--host" in sys.argv:
+        idx = sys.argv.index("--host")
+        if idx + 1 < len(sys.argv):
+            host = sys.argv[idx + 1]
+
     port = int(os.getenv("PORT", "8080"))
+    if "--port" in sys.argv:
+        idx = sys.argv.index("--port")
+        if idx + 1 < len(sys.argv):
+            try:
+                port = int(sys.argv[idx + 1])
+            except ValueError:
+                pass
 
     # For HTTP mode, use the pre-configured app from server.py (includes dashboard)
     if mode in ("http", "streamable-http"):
