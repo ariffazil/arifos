@@ -57,8 +57,8 @@ EXPANDED_45: tuple[str, ...] = tuple(
 DIAGNOSTIC_TOOLS: tuple[str, ...] = (
     "arif_stack_health_probe",
     "arif_scan_local_instructions",
-    "arif_organ_consensus",
-    "arif_session_budget",
+    "arif_consensus",
+    "arif_budget",
 )
 
 

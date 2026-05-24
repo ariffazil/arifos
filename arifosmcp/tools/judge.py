@@ -413,7 +413,7 @@ def arif_judge_deliberate(
         try:
             import asyncio
 
-            from arifosmcp.tools.governance_scan import arif_scan_local_instructions
+            from arifosmcp.tools.scan import arif_scan_local_instructions
 
             root_dir = candidate if isinstance(candidate, str) else None
             raw = arif_scan_local_instructions(
@@ -449,7 +449,7 @@ def arif_judge_deliberate(
             return VerdictOutput(
                 verdict=VerdictCode.HOLD,
                 reasons=[f"scan_instructions failed: {exc}"],
-                next_safe_action="Check governance_scan module availability.",
+                next_safe_action="Check scan module availability.",
                 meta={"error": str(exc)},
             )
 

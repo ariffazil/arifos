@@ -7,9 +7,9 @@ Truth Substrate package for arifOS.
 Modules:
   engine              — Core A-RIF logic (W, ΔS, C, L)
   models              — Unified Pydantic schemas
-  search_worthiness   — Search gate
+  search_gate   — Search gate
   entropy             — Entropy stopping law
-  anomalous_contrast  — Anomaly routing
+  contrast  — Anomaly routing
   source_rank         — Source authority ranking
   attestation         — Proof of custody
   abduction           — Hypothesis generation
@@ -28,9 +28,9 @@ from __future__ import annotations
 __all__ = [
     "engine",
     "models",
-    "search_worthiness",
+    "search_gate",
     "entropy",
-    "anomalous_contrast",
+    "contrast",
     "source_rank",
     "attestation",
     "abduction",

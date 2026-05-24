@@ -1,5 +1,5 @@
 """
-arifosmcp/runtime/a_rif/search_worthiness.py — Search Worthiness Gate
+arifosmcp/runtime/a_rif/search_gate.py — Search Worthiness Gate
 ═════════════════════════════════════════════════════════════════════
 
 Decides whether a search is worth executing.
@@ -10,10 +10,10 @@ DITEMPA BUKAN DIBERI — Forged, Not Given
 
 from __future__ import annotations
 
-from arifosmcp.runtime.a_rif.engine import calculate_search_worthiness
+from arifosmcp.runtime.a_rif.engine import calculate_search_gate
 from arifosmcp.runtime.a_rif.models import SearchDecisionReceipt
 
-__all__ = ["calculate_search_worthiness", "evaluate_search_decision"]
+__all__ = ["calculate_search_gate", "evaluate_search_decision"]
 
 
 DEFAULT_THRESHOLD = 1.0
@@ -30,7 +30,7 @@ def evaluate_search_decision(
     threshold: float = DEFAULT_THRESHOLD,
 ) -> SearchDecisionReceipt:
     """Evaluate whether a search should execute based on worthiness score."""
-    w_score = calculate_search_worthiness(
+    w_score = calculate_search_gate(
         uncertainty=uncertainty,
         importance=importance,
         freshness=freshness,

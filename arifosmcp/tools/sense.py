@@ -64,7 +64,7 @@ def _calculate_discovery_physics(
     if query and any(k in query.lower() for k in ("current", "latest", "now", "today", "2026")):
         freshness = 2.0
     uncertainty = 0.8 if not (local_wiki_matches or repo_index_matches) else 0.4
-    w_score = engine.calculate_search_worthiness(
+    w_score = engine.calculate_search_gate(
         uncertainty=uncertainty,
         importance=1.0,
         freshness=freshness,
@@ -130,7 +130,7 @@ def _calculate_discovery_physics(
         "delta_s": delta_s,
         "omega_0": omega_0,
         "w4": round(w4, 3),
-        "search_worthiness": w_score,
+        "search_gate": w_score,
         "witness": {"human": h_val, "ai": a_val, "evidence": e_val, "verifier": v_val},
         "contradiction_state": audit.status,
         "quarantine_clean": quarantine.clean,

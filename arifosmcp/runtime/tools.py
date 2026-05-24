@@ -3624,7 +3624,7 @@ def _arif_sense_observe(
     # ── A-RIF: Search Worthiness Gate ──
     from arifosmcp.runtime.a_rif.engine import (
         build_a_rif_receipt,
-        calculate_search_worthiness,
+        calculate_search_gate,
         evaluate_entropy_delta,
     )
     from arifosmcp.runtime.a_rif.scorecard import track_evidence, track_search
@@ -3642,7 +3642,7 @@ def _arif_sense_observe(
     importance = 0.3 if is_stable else 0.8
     freshness = 0.01 if is_stable else 0.9
 
-    w_score = calculate_search_worthiness(
+    w_score = calculate_search_gate(
         uncertainty=0.1,
         importance=importance,
         freshness=freshness if mode == "search" else 0.5,
@@ -4370,12 +4370,12 @@ def _arif_evidence_fetch(
     from arifosmcp.runtime.a_rif.contradiction import audit_for_contradictions
     from arifosmcp.runtime.a_rif.engine import (
         build_a_rif_receipt,
-        calculate_search_worthiness,
+        calculate_search_gate,
     )
     from arifosmcp.runtime.a_rif.scorecard import track_evidence
 
     # FETCH usually implies higher importance than broad sensing
-    w_score = calculate_search_worthiness(
+    w_score = calculate_search_gate(
         uncertainty=0.8,
         importance=0.9,
         freshness=1.0 if mode == "search" else 0.5,
@@ -5395,7 +5395,7 @@ def _arif_mind_reason(
             omega_0=0.04,
             axioms_used=default_axioms,
             reasoning_trace=trace,
-            anomalous_contrast=MindAnomalousContrast(
+            contrast=MindAnomalousContrast(
                 baseline_reasoning_pattern="constitutional_inductive",
                 observed_deviation="none",
                 magnitude=0.0,
@@ -5457,7 +5457,7 @@ def _arif_mind_reason(
                 axiom_diversity=0.5,
             ),
             reasoning_trace=trace,
-            anomalous_contrast=MindAnomalousContrast(
+            contrast=MindAnomalousContrast(
                 contrast_type=ContrastType.NONE,
             ),
             thermodynamic_state=ThermodynamicState(delta_S=0.001, entropy_direction="stable"),
@@ -5513,7 +5513,7 @@ def _arif_mind_reason(
             omega_0=0.04,
             axioms_used=default_axioms,
             reasoning_trace=trace,
-            anomalous_contrast=MindAnomalousContrast(contrast_type=ContrastType.NONE),
+            contrast=MindAnomalousContrast(contrast_type=ContrastType.NONE),
             thermodynamic_state=ThermodynamicState(delta_S=0.001, entropy_direction="stable"),
             meta={"actor_id": actor_id, "session_id": session_id},
             delta_S=0.001,
@@ -5574,7 +5574,7 @@ def _arif_mind_reason(
                 axiom_diversity=0.5,
             ),
             reasoning_trace=trace,
-            anomalous_contrast=MindAnomalousContrast(contrast_type=ContrastType.NONE),
+            contrast=MindAnomalousContrast(contrast_type=ContrastType.NONE),
             thermodynamic_state=ThermodynamicState(delta_S=0.001, entropy_direction="stable"),
             meta={"actor_id": actor_id, "session_id": session_id},
             delta_S=0.001,
@@ -10304,7 +10304,7 @@ def _arif_forge_execute(
 
     # ── Self-Authorization Guard (F01/F13 invariant) ──
     if mode in ("engineer", "write", "generate", "commit"):
-        from arifosmcp.tools.self_authorize_guard import detect_self_authorize
+        from arifosmcp.tools.guard import detect_self_authorize
 
         guard_result = detect_self_authorize(manifest)
         if guard_result["verdict"] in ("HOLD", "VOID"):

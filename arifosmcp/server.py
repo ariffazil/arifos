@@ -248,9 +248,9 @@ try:
             tags={"utility", "read-only"},
         )(_map_repo)
 
-        # arif_wiki_search — lexical evidence retrieval
+        # arif_wiki — lexical evidence retrieval
         mcp.tool(
-            name="arif_wiki_search",
+            name="arif_wiki",
             description=(
                 "Search the local wiki index and return scored evidence chunks: "
                 "file path, line range, detected symbols, and contextual excerpt. "
@@ -274,7 +274,7 @@ try:
         )(_ask_repo)
 
         logger.info(
-            "Registered arifOS Wiki Tools Forge: arif_wiki_ingest, arif_wiki_map, arif_wiki_search, arif_wiki_ask"
+            "Registered arifOS Wiki Tools Forge: arif_wiki_ingest, arif_wiki_map, arif_wiki, arif_wiki_ask"
         )
     except Exception as e:
         logger.warning(f"Failed to register arifOS Wiki Tools: {e}")
@@ -291,17 +291,17 @@ try:
             tags={"diagnostic", "read-only"},
         )(_arif_stack_health_probe)
 
-        from arifosmcp.tools.organ_consensus import arif_organ_consensus as _arif_organ_consensus
+        from arifosmcp.tools.consensus import arif_consensus as _arif_consensus
         mcp.tool(
-            name="arif_organ_consensus",
+            name="arif_consensus",
             description=(
                 "F3 WITNESS: Cross-organ Tri-Witness consensus for proposed actions.\n"
                 "Calls WELL, WEALTH, and GEOX as independent witnesses and aggregates their signals."
             ),
             tags={"diagnostic", "read-only"},
-        )(_arif_organ_consensus)
+        )(_arif_consensus)
 
-        from arifosmcp.tools.governance_scan import arif_scan_local_instructions as _arif_scan_local_instructions
+        from arifosmcp.tools.scan import arif_scan_local_instructions as _arif_scan_local_instructions
         mcp.tool(
             name="arif_scan_local_instructions",
             description=(
@@ -310,18 +310,18 @@ try:
             tags={"diagnostic", "read-only"},
         )(_arif_scan_local_instructions)
 
-        from arifosmcp.tools.session_budget import arif_session_budget as _arif_session_budget
+        from arifosmcp.tools.budget import arif_budget as _arif_budget
         mcp.tool(
-            name="arif_session_budget",
+            name="arif_budget",
             description=(
                 "777_OPS: Computes and monitors token, computation, and financial budget for the active session."
             ),
             tags={"diagnostic", "read-only"},
-        )(_arif_session_budget)
+        )(_arif_budget)
 
         logger.info(
-            "Registered diagnostic tools: arif_stack_health_probe, arif_organ_consensus, "
-            "arif_scan_local_instructions, arif_session_budget"
+            "Registered diagnostic tools: arif_stack_health_probe, arif_consensus, "
+            "arif_scan_local_instructions, arif_budget"
         )
     except Exception as e:
         logger.warning(f"Failed to register arifOS diagnostic tools: {e}")

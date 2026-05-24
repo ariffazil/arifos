@@ -171,7 +171,7 @@ def _compute_consensus(
     }
 
 
-async def arif_organ_consensus(
+async def arif_consensus(
     action_description: str = "",
     organs: list[str] | None = None,
     session_id: str | None = None,
@@ -203,7 +203,7 @@ async def arif_organ_consensus(
     consensus = _compute_consensus(list(organ_results), action_description)
 
     logger.info(
-        "arif_organ_consensus action='%s' score=%.2f verdict=%s organs=%s",
+        "arif_consensus action='%s' score=%.2f verdict=%s organs=%s",
         action_description,
         consensus["consensus_score"],
         consensus["consensus_verdict"],
@@ -229,4 +229,4 @@ async def arif_organ_consensus(
     }
 
 
-__all__ = ["arif_organ_consensus"]
+__all__ = ["arif_consensus"]

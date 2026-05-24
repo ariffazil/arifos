@@ -214,7 +214,7 @@ class MindOutput(BaseModel):
     Every field affects reasoning behavior:
     - axioms_used: grounds reasoning in constitution, prevents drift
     - reasoning_trace: makes derivation replay-auditable
-    - anomalous_contrast: detects manipulation / wrong abstraction
+    - contrast: detects manipulation / wrong abstraction
     - thermodynamic_state: tracks energy cost of reasoning
     - ToAC_self_correction: enables self-correction before output
 
@@ -258,7 +258,7 @@ class MindOutput(BaseModel):
     )
 
     # ToAC — manipulation / wrong abstraction detection
-    anomalous_contrast: MindAnomalousContrast = Field(
+    contrast: MindAnomalousContrast = Field(
         default_factory=MindAnomalousContrast,
         description="Anomalous contrast detection (ToAC)",
     )

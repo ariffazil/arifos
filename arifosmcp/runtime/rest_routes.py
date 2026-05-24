@@ -4948,7 +4948,7 @@ def register_rest_routes(
         """Submit A2A task for agent-to-agent coordination."""
         try:
             from arifosmcp.runtime.a2a.models import SubmitTaskRequest, TaskMessage
-            from arifosmcp.runtime.a2a.server import create_a2a_server
+            from arifosmcp.runtime.a2a.endpoint import create_a2a_server
 
             a2a = create_a2a_server(mcp)
             body = await request.json()
@@ -4980,7 +4980,7 @@ def register_rest_routes(
     async def a2a_status(request: Request) -> Response:
         """Get A2A task status."""
         try:
-            from arifosmcp.runtime.a2a.server import create_a2a_server
+            from arifosmcp.runtime.a2a.endpoint import create_a2a_server
 
             a2a = create_a2a_server(mcp)
             task_id = request.path_params.get("task_id", "")
@@ -5008,7 +5008,7 @@ def register_rest_routes(
     async def a2a_subscribe(request: Request) -> Response:
         """SSE subscribe to A2A task updates."""
         try:
-            from arifosmcp.runtime.a2a.server import create_a2a_server
+            from arifosmcp.runtime.a2a.endpoint import create_a2a_server
 
             a2a = create_a2a_server(mcp)
             task_id = request.path_params.get("task_id", "")

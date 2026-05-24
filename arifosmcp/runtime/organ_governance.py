@@ -73,7 +73,7 @@ TOOL_RISK_MAP: dict[str, dict[str, RiskTier]] = {
         "geox_contradiction_registry_status": RiskTier.READONLY,
         "geox_test_receipt_status": RiskTier.READONLY,
         "geox_mcp_health_check": RiskTier.READONLY,
-        "geox_anomalous_contrast_detector": RiskTier.READONLY,
+        "geox_contrast_detector": RiskTier.READONLY,
         "geox_vision_time_to_depth": RiskTier.READONLY,
         "geox_time4d_analyze_system": RiskTier.READONLY,
         "geox_prospect_evaluate": RiskTier.C1_ADVISORY,

@@ -300,19 +300,19 @@ def arif_ops_measure(
 
     if mode == "budget":
         # F1/F07 BUDGET: Session-cumulative metabolic budget tracking.
-        # Delegates to tools/session_budget.py.
+        # Delegates to tools/budget.py.
         # Modes: status | record | check | reset (passed via sub_mode param).
         try:
             import inspect
 
-            from arifosmcp.tools.session_budget import arif_session_budget
+            from arifosmcp.tools.budget import arif_budget
 
-            sig = inspect.signature(arif_session_budget)
+            sig = inspect.signature(arif_budget)
             call_kwargs: dict = {"session_id": session_id, "actor_id": actor_id}
             raw_result = (
-                arif_session_budget(**call_kwargs)
-                if asyncio.iscoroutinefunction(arif_session_budget)
-                else arif_session_budget(**call_kwargs)
+                arif_budget(**call_kwargs)
+                if asyncio.iscoroutinefunction(arif_budget)
+                else arif_budget(**call_kwargs)
             )
             if asyncio.iscoroutine(raw_result):
                 # If running in an async context, schedule; otherwise get the sync path
@@ -326,7 +326,7 @@ def arif_ops_measure(
                 **_ok(
                     "arif_ops_measure",
                     payload,
-                    meta={**drift_metrics, "source": "arif_session_budget", "mode": "budget"},
+                    meta={**drift_metrics, "source": "arif_budget", "mode": "budget"},
                     session_id=session_id,
                 )
             )

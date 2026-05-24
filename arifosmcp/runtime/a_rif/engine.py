@@ -30,7 +30,7 @@ class ARIFReceipt:
     void: list[str]
 
 
-def calculate_search_worthiness(
+def calculate_search_gate(
     uncertainty: float,
     importance: float,
     freshness: float,
@@ -57,7 +57,7 @@ def calculate_search_worthiness(
     return round(numerator / denominator, 3)
 
 
-def detect_anomalous_contrast(new_claims: list[str], background_claims: list[str]) -> float:
+def detect_contrast(new_claims: list[str], background_claims: list[str]) -> float:
     """
     Measures deviation of new claims from the background field.
 

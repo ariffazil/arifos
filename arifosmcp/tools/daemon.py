@@ -1,5 +1,5 @@
 """
-arifosmcp/tools/daemon_tools.py — Canonical arifos_* Internal Daemon Tools
+arifosmcp/tools/daemon.py — Canonical arifos_* Internal Daemon Tools
 =======================================================================
 SEAL    : 999-SEAL-TOOL-AUDIT-20260523-DITEMPA-BUKAN-DIBERI
 EPOCH   : 2026-05-23T10:28:00+08:00

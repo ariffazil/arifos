@@ -28,7 +28,7 @@ from .embodied_resources import register_embodied_resources
 from .evidence import register_evidence_resources
 from .forge import register_forge
 from .schema import register_schema
-from .tree777 import register_tree777_resources
+from .tree import register_tree_resources
 from .vitals import register_vitals
 
 CANONICAL_RESOURCES = (
@@ -40,11 +40,11 @@ CANONICAL_RESOURCES = (
 )
 
 TREE777_RESOURCES = (
-    "tree777://index",
-    "tree777://search",
-    "tree777://skills/{category}/{name}",
-    "tree777://concepts/{name}",
-    "tree777://scars/{name}",
+    "tree://index",
+    "tree://search",
+    "tree://skills/{category}/{name}",
+    "tree://concepts/{name}",
+    "tree://scars/{name}",
 )
 
 EMBODIED_RESOURCES = (
@@ -76,5 +76,5 @@ def register_resources(mcp: FastMCP) -> list[str]:
     registered.extend(register_civilization(mcp))
     registered.extend(register_evidence_resources(mcp))
     registered.extend(register_embodied_resources(mcp))
-    registered.extend(register_tree777_resources(mcp))
+    registered.extend(register_tree_resources(mcp))
     return registered

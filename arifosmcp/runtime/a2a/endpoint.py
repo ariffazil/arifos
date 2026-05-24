@@ -24,7 +24,7 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import StreamingResponse
 
 from arifosmcp.runtime.build import get_build_info
-from arifosmcp.runtime.mcp_util import call_mcp_tool
+from arifosmcp.runtime.mcp_helper import call_mcp_tool
 from arifosmcp.runtime.optional_deps import aiofiles
 from arifosmcp.server import mcp as _FAST_MCP_
 

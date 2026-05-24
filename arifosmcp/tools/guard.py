@@ -98,7 +98,7 @@ def detect_self_authorize(manifest_text: str) -> dict[str, Any]:
         summary = "No self-authorization patterns detected in manifest."
 
     logger.info(
-        "self_authorize_guard findings=%d critical=%d verdict=%s",
+        "guard findings=%d critical=%d verdict=%s",
         len(findings),
         len(critical),
         verdict,

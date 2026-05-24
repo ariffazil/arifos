@@ -524,7 +524,7 @@ class VerdictOutput(BaseModel):
     )
 
     # ── TOAC Layer ──
-    anomalous_contrast: AnomalousContrast | None = Field(
+    contrast: AnomalousContrast | None = Field(
         default=None,
         description="Contrast detection for manipulation/deception identification",
     )

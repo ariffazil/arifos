@@ -77,17 +77,17 @@ def arif_gateway_connect(
 
     if mode == "consensus":
         # F3 WITNESS: Cross-organ Tri-Witness consensus for proposed actions.
-        # Delegates to tools/organ_consensus.py.
+        # Delegates to tools/consensus.py.
         # target_agent is used as the proposed_action description.
         try:
-            from arifosmcp.tools.organ_consensus import arif_organ_consensus
+            from arifosmcp.tools.consensus import arif_consensus
 
-            raw = arif_organ_consensus(
+            raw = arif_consensus(
                 proposed_action=target_agent or "unspecified",
                 session_id=None,
                 actor_id=actor_id,
             )
-            # arif_organ_consensus is async — handle both sync/async returns
+            # arif_consensus is async — handle both sync/async returns
             import asyncio
 
             if asyncio.iscoroutine(raw):

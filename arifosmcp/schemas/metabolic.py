@@ -574,7 +574,7 @@ class MetabolicOutput(BaseModel):
     )
 
     # ── Contrast layer ────────────────────────────────────────────────────────
-    anomalous_contrasts: list[AnomalousContrast] = Field(
+    contrasts: list[AnomalousContrast] = Field(
         default_factory=list, description="Deviations from expected background"
     )
 
@@ -704,7 +704,7 @@ class MetabolicCycle(BaseModel):
     # Steps in order
     witness_ingest: list[Witness] = Field(default_factory=list)
     visual_decode: list[DecodedEntity] = Field(default_factory=list)
-    anomalous_contrast: list[AnomalousContrast] = Field(default_factory=list)
+    contrast: list[AnomalousContrast] = Field(default_factory=list)
     meaning_generate: list[CandidateMeaning] = Field(default_factory=list)
     constraint_verify: list[ConstraintCheck] = Field(default_factory=list)
     model_update: list[ModelUpdate] = Field(default_factory=list)

@@ -241,7 +241,7 @@ METABOLIZE_SCHEMA = {
                 "required": ["entity_id", "entity_type", "detection_confidence"],
             },
         },
-        "anomalous_contrasts": {
+        "contrasts": {
             "type": "array",
             "items": {
                 "type": "object",
@@ -385,7 +385,7 @@ METABOLIZE_SCHEMA = {
     "required": [
         "witnesses_ingested",
         "decoded_entities",
-        "anomalous_contrasts",
+        "contrasts",
         "candidate_meanings",
         "claim_state",
     ],
@@ -630,7 +630,7 @@ def _fallback_metabolic_processing(user_prompt: str) -> dict[str, Any]:
         "break",
     ]
     decoded_entities = []
-    anomalous_contrasts = []
+    contrasts = []
     candidate_meanings = []
     required_next_tests = []
 
@@ -651,8 +651,8 @@ def _fallback_metabolic_processing(user_prompt: str) -> dict[str, Any]:
                     }
                 )
 
-                cid = f"AC-{len(anomalous_contrasts) + 1:03d}"
-                anomalous_contrasts.append(
+                cid = f"AC-{len(contrasts) + 1:03d}"
+                contrasts.append(
                     {
                         "contrast_id": cid,
                         "contrast_domain": "system",
@@ -691,7 +691,7 @@ def _fallback_metabolic_processing(user_prompt: str) -> dict[str, Any]:
     return {
         "witnesses_ingested": witnesses,
         "decoded_entities": decoded_entities,
-        "anomalous_contrasts": anomalous_contrasts,
+        "contrasts": contrasts,
         "candidate_meanings": candidate_meanings,
         "constraints_checked": [
             {
@@ -766,10 +766,10 @@ def _build_metabolic_output(
             continue
 
     # ── Parse anomalous contrasts ─────────────────────────────────────────────
-    anomalous_contrasts = []
-    for c in parsed.get("anomalous_contrasts", []):
+    contrasts = []
+    for c in parsed.get("contrasts", []):
         try:
-            anomalous_contrasts.append(
+            contrasts.append(
                 AnomalousContrast(
                     contrast_id=c.get("contrast_id", f"AC-{uuid.uuid4().hex[:6]}"),
                     contrast_domain=c.get("contrast_domain", "system"),
@@ -782,7 +782,7 @@ def _build_metabolic_output(
                 )
             )
         except (ValueError, TypeError):
-            anomalous_contrasts.append(
+            contrasts.append(
                 AnomalousContrast(
                     contrast_id=f"AC-{uuid.uuid4().hex[:6]}",
                     contrast_domain="system",
@@ -884,7 +884,7 @@ def _build_metabolic_output(
     # HIGH/CRITICAL contrasts require judge
     requires_888 = any(
         c.severity in (ContrastSeverity.HIGH, ContrastSeverity.CRITICAL)
-        for c in anomalous_contrasts
+        for c in contrasts
     )
 
     # ── Abstraction guard ───────────────────────────────────────────────────
@@ -913,7 +913,7 @@ def _build_metabolic_output(
         witnesses_ingested=witnesses,
         witness_type=witnesses[0].witness_type if witnesses else None,
         decoded_entities=decoded_entities,
-        anomalous_contrasts=anomalous_contrasts,
+        contrasts=contrasts,
         candidate_meanings=candidate_meanings,
         constraints_checked=constraints_checked,
         model_updates=model_updates,
@@ -947,7 +947,7 @@ def _build_metabolic_hold_dict(
         session_id=session_id,
         witnesses_ingested=[],
         decoded_entities=[],
-        anomalous_contrasts=[],
+        contrasts=[],
         candidate_meanings=[],
         constraints_checked=[],
         model_updates=[],

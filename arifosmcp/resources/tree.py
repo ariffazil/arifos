@@ -10,16 +10,16 @@ expose deliberative rituals as Prompts, and retain only existing
 gated backend actuators as Tools.
 
 URI scheme:
-  tree777://skills/arifos/*       — governance skills
-  tree777://skills/geox/*        — geoscience skills
-  tree777://skills/well/*        — vitality skills
-  tree777://skills/wealth/*      — capital skills
-  tree777://skills/federation/*  — federation skills
-  tree777://skills/infrastructure/* — infra skills
-  tree777://concepts/*          — knowledge concept pages
-  tree777://scars/*             — scar/incident records
-  tree777://schemas/*           — schema pages
-  tree777://registry/tools       — live tool registry (13 sealed + diagnostics)
+  tree://skills/arifos/*       — governance skills
+  tree://skills/geox/*        — geoscience skills
+  tree://skills/well/*        — vitality skills
+  tree://skills/wealth/*      — capital skills
+  tree://skills/federation/*  — federation skills
+  tree://skills/infrastructure/* — infra skills
+  tree://concepts/*          — knowledge concept pages
+  tree://scars/*             — scar/incident records
+  tree://schemas/*           — schema pages
+  tree://registry/tools       — live tool registry (13 sealed + diagnostics)
 
 DITEMPA BUKAN DIBERI — Forged, Not Given
 """
@@ -68,7 +68,7 @@ def _list_wiki_skills() -> list[dict[str, str]]:
                     "category": category,
                     "name": skill_file.stem,
                     "file": str(skill_file),
-                    "uri": f"tree777://skills/{category}/{skill_file.stem}",
+                    "uri": f"tree://skills/{category}/{skill_file.stem}",
                 }
             )
     return skills
@@ -85,7 +85,7 @@ def _list_wiki_concepts() -> list[dict[str, str]]:
             {
                 "name": concept_file.stem,
                 "file": str(concept_file),
-                "uri": f"tree777://concepts/{concept_file.stem}",
+                "uri": f"tree://concepts/{concept_file.stem}",
             }
         )
     return concepts
@@ -102,7 +102,7 @@ def _list_wiki_scars() -> list[dict[str, str]]:
             {
                 "name": scar_file.stem,
                 "file": str(scar_file),
-                "uri": f"tree777://scars/{scar_file.stem}",
+                "uri": f"tree://scars/{scar_file.stem}",
             }
         )
     return scars
@@ -165,7 +165,7 @@ def _build_index() -> dict[str, Any]:
     scars = _list_wiki_scars()
 
     index = {
-        "uri": "tree777://index",
+        "uri": "tree://index",
         "wiki_root": str(WIKI_ROOT),
         "total_skills": len(skills),
         "total_concepts": len(concepts),
@@ -189,17 +189,17 @@ def _build_index() -> dict[str, Any]:
 # ── Resource Handlers ─────────────────────────────────────────────────────────
 
 
-def get_tree777_index_resource() -> dict[str, Any]:
-    """MCP resource: tree777://index — full wiki index."""
+def get_tree_index_resource() -> dict[str, Any]:
+    """MCP resource: tree://index — full wiki index."""
     return {
-        "uri": "tree777://index",
+        "uri": "tree://index",
         "mime_type": "application/json",
         "body": _build_index(),
     }
 
 
-def get_tree777_skill_resource(category: str, name: str) -> dict[str, Any]:
-    """MCP resource: tree777://skills/{category}/{name}"""
+def get_tree_skill_resource(category: str, name: str) -> dict[str, Any]:
+    """MCP resource: tree://skills/{category}/{name}"""
     # Try direct name first, then skill-{name} variant (for skills whose
     # filenames include a domain prefix like skill-well-governance-ops)
     direct = SKILLS_DIR / category / f"{name}.md"
@@ -209,7 +209,7 @@ def get_tree777_skill_resource(category: str, name: str) -> dict[str, Any]:
     content = _read_wiki_file(file_path)
 
     return {
-        "uri": f"tree777://skills/{category}/{name}",
+        "uri": f"tree://skills/{category}/{name}",
         "mime_type": "text/markdown",
         "body": content,
         "metadata": {
@@ -227,14 +227,14 @@ def get_tree777_skill_resource(category: str, name: str) -> dict[str, Any]:
     }
 
 
-def get_tree777_concept_resource(name: str) -> dict[str, Any]:
-    """MCP resource: tree777://concepts/{name}"""
+def get_tree_concept_resource(name: str) -> dict[str, Any]:
+    """MCP resource: tree://concepts/{name}"""
     file_path = CONCEPTS_DIR / f"{name}.md"
     fm = _get_frontmatter(file_path)
     content = _read_wiki_file(file_path)
 
     return {
-        "uri": f"tree777://concepts/{name}",
+        "uri": f"tree://concepts/{name}",
         "mime_type": "text/markdown",
         "body": content,
         "metadata": {
@@ -249,14 +249,14 @@ def get_tree777_concept_resource(name: str) -> dict[str, Any]:
     }
 
 
-def get_tree777_scar_resource(name: str) -> dict[str, Any]:
-    """MCP resource: tree777://scars/{name}"""
+def get_tree_scar_resource(name: str) -> dict[str, Any]:
+    """MCP resource: tree://scars/{name}"""
     file_path = SCARS_DIR / f"{name}.md"
     fm = _get_frontmatter(file_path)
     content = _read_wiki_file(file_path)
 
     return {
-        "uri": f"tree777://scars/{name}",
+        "uri": f"tree://scars/{name}",
         "mime_type": "text/markdown",
         "body": content,
         "metadata": {
@@ -271,8 +271,8 @@ def get_tree777_scar_resource(name: str) -> dict[str, Any]:
     }
 
 
-def get_tree777_search_resource(query: str = "", type_filter: str = "all") -> dict[str, Any]:
-    """MCP resource: tree777://search — search wiki content."""
+def get_tree_search_resource(query: str = "", type_filter: str = "all") -> dict[str, Any]:
+    """MCP resource: tree://search — search wiki content."""
     results = {"skills": [], "concepts": [], "scars": []}
     query_lower = query.lower()
 
@@ -298,7 +298,7 @@ def get_tree777_search_resource(query: str = "", type_filter: str = "all") -> di
                 results["scars"].append(scar["uri"])
 
     return {
-        "uri": "tree777://search",
+        "uri": "tree://search",
         "mime_type": "application/json",
         "body": {
             "query": query,
@@ -314,45 +314,45 @@ def get_tree777_search_resource(query: str = "", type_filter: str = "all") -> di
 # ── FastMCP Resource Registration ───────────────────────────────────────────
 
 
-def register_tree777_resources(mcp: FastMCP) -> list[str]:
+def register_tree_resources(mcp: FastMCP) -> list[str]:
     """
     Register TREE777 wiki as MCP Resources.
 
     Exposes:
-      tree777://index                    — full wiki index
-      tree777://skills/{category}/{name} — individual skills
-      tree777://concepts/{name}         — concept pages
-      tree777://scars/{name}            — scar records
-      tree777://search                  — search wiki content
+      tree://index                    — full wiki index
+      tree://skills/{category}/{name} — individual skills
+      tree://concepts/{name}         — concept pages
+      tree://scars/{name}            — scar records
+      tree://search                  — search wiki content
     """
     registered: list[str] = []
 
     # Index resource
     @mcp.resource(
-        "tree777://index",
+        "tree://index",
         description=(
             "TREE777 wiki full index. Lists all skills (by category), "
             "concepts, and scars in the canonical wiki. Use this to discover "
             "what resources are available before fetching individual pages."
         ),
     )
-    async def get_tree777_index() -> str:
+    async def get_tree_index() -> str:
         index = _build_index()
         return json.dumps(index, indent=2)
 
-    registered.append("tree777://index")
+    registered.append("tree://index")
 
     # Search resource
     @mcp.resource(
-        "tree777://search",
+        "tree://search",
         description=(
             "TREE777 wiki full-text index for client-side search. Returns all "
             "skill/concept/scar URIs with their names and categories. "
-            "To find a specific item, read tree777://index for the full map, "
+            "To find a specific item, read tree://index for the full map, "
             "then fetch the specific resource URI."
         ),
     )
-    async def search_tree777() -> str:
+    async def search_tree() -> str:
         index = _build_index()
         search_index = {
             "skills": [
@@ -364,13 +364,13 @@ def register_tree777_resources(mcp: FastMCP) -> list[str]:
         }
         return json.dumps(search_index, indent=2)
 
-    registered.append("tree777://search")
+    registered.append("tree://search")
 
     # Dynamic skill resources — registered as template resources
-    # tree777://skills/{category}/{name}
+    # tree://skills/{category}/{name}
 
     @mcp.resource(
-        "tree777://skills/{category}/{name}",
+        "tree://skills/{category}/{name}",
         description=(
             "Individual TREE777 skill page. Returns the full skill content "
             "(markdown, frontmatter-stripped) with metadata including version, "
@@ -378,8 +378,8 @@ def register_tree777_resources(mcp: FastMCP) -> list[str]:
             "Categories: arifos, geox, well, wealth, federation, infrastructure."
         ),
     )
-    async def get_tree777_skill(category: str, name: str) -> str:
-        result = get_tree777_skill_resource(category, name)
+    async def get_tree_skill(category: str, name: str) -> str:
+        result = get_tree_skill_resource(category, name)
         if "ERROR" in result["body"]:
             return json.dumps({"error": result["body"], "uri": result["uri"]})
         output = {
@@ -389,19 +389,19 @@ def register_tree777_resources(mcp: FastMCP) -> list[str]:
         }
         return json.dumps(output, indent=2)
 
-    registered.append("tree777://skills/{category}/{name}")
+    registered.append("tree://skills/{category}/{name}")
 
     # Concept resources
     @mcp.resource(
-        "tree777://concepts/{name}",
+        "tree://concepts/{name}",
         description=(
             "TREE777 concept page. Returns the full concept content "
             "(markdown, frontmatter-stripped) with metadata. "
             "Concepts include: TREE777, intelligence-tree, concept-tools-and-embodiment, etc."
         ),
     )
-    async def get_tree777_concept(name: str) -> str:
-        result = get_tree777_concept_resource(name)
+    async def get_tree_concept(name: str) -> str:
+        result = get_tree_concept_resource(name)
         if "ERROR" in result["body"]:
             return json.dumps({"error": result["body"], "uri": result["uri"]})
         output = {
@@ -411,11 +411,11 @@ def register_tree777_resources(mcp: FastMCP) -> list[str]:
         }
         return json.dumps(output, indent=2)
 
-    registered.append("tree777://concepts/{name}")
+    registered.append("tree://concepts/{name}")
 
     # Scar resources
     @mcp.resource(
-        "tree777://scars/{name}",
+        "tree://scars/{name}",
         description=(
             "TREE777 scar/incident record. Returns the full scar content "
             "(markdown, frontmatter-stripped) with metadata. "
@@ -423,8 +423,8 @@ def register_tree777_resources(mcp: FastMCP) -> list[str]:
             "Example: scar-hermes-fabrication-2026-05-17."
         ),
     )
-    async def get_tree777_scar(name: str) -> str:
-        result = get_tree777_scar_resource(name)
+    async def get_tree_scar(name: str) -> str:
+        result = get_tree_scar_resource(name)
         if "ERROR" in result["body"]:
             return json.dumps({"error": result["body"], "uri": result["uri"]})
         output = {
@@ -434,7 +434,7 @@ def register_tree777_resources(mcp: FastMCP) -> list[str]:
         }
         return json.dumps(output, indent=2)
 
-    registered.append("tree777://scars/{name}")
+    registered.append("tree://scars/{name}")
 
     return registered
 
@@ -442,14 +442,14 @@ def register_tree777_resources(mcp: FastMCP) -> list[str]:
 # ── Unified resource registry ───────────────────────────────────────────────
 
 RESOURCE_HANDLERS = {
-    "tree777://index": lambda: get_tree777_index_resource()["body"],
-    "tree777://registry/tools": lambda: get_tree777_registry_resource("tools")["body"],
+    "tree://index": lambda: get_tree_index_resource()["body"],
+    "tree://registry/tools": lambda: get_tree_registry_resource("tools")["body"],
 }
 
 
-def get_tree777_registry_resource(name: str) -> dict[str, Any]:
+def get_tree_registry_resource(name: str) -> dict[str, Any]:
     """Return a tool registry resource by name. Currently supports 'tools'."""
-    uri = f"tree777://registry/{name}"
+    uri = f"tree://registry/{name}"
     if name != "tools":
         return {"uri": uri, "error": f"Unknown registry resource: {name}. Available: tools"}
     if not TOOL_REGISTRY_PATH.exists():
@@ -466,54 +466,54 @@ def handle_resource(uri: str, params: dict[str, Any] | None = None) -> dict[str,
     Handle a TREE777 resource request.
 
     Usage:
-        resource = handle_resource("tree777://index")
-        resource = handle_resource("tree777://skills/arifos/constitutional-reasoning")
+        resource = handle_resource("tree://index")
+        resource = handle_resource("tree://skills/arifos/constitutional-reasoning")
     """
-    if uri == "tree777://index":
-        return get_tree777_index_resource()
+    if uri == "tree://index":
+        return get_tree_index_resource()
 
-    parts = uri.replace("tree777://", "").split("/")
+    parts = uri.replace("tree://", "").split("/")
 
     if len(parts) == 2 and parts[0] == "search":
         query = (params or {}).get("query", "")
         type_filter = (params or {}).get("type_filter", "all")
-        return get_tree777_search_resource(query, type_filter)
+        return get_tree_search_resource(query, type_filter)
 
     if len(parts) == 3 and parts[0] == "skills":
         category, name = parts[1], parts[2]
-        return get_tree777_skill_resource(category, name)
+        return get_tree_skill_resource(category, name)
 
     if len(parts) == 2 and parts[0] == "concepts":
-        return get_tree777_concept_resource(parts[1])
+        return get_tree_concept_resource(parts[1])
 
     if len(parts) == 2 and parts[0] == "scars":
-        return get_tree777_scar_resource(parts[1])
+        return get_tree_scar_resource(parts[1])
 
     if len(parts) == 2 and parts[0] == "registry":
-        return get_tree777_registry_resource(parts[1])
+        return get_tree_registry_resource(parts[1])
 
     return {
         "uri": uri,
         "error": f"Unknown TREE777 resource URI: {uri}",
         "available": [
-            "tree777://index",
-            "tree777://search",
-            "tree777://skills/{category}/{name}",
-            "tree777://concepts/{name}",
-            "tree777://scars/{name}",
-            "tree777://registry/tools",
+            "tree://index",
+            "tree://search",
+            "tree://skills/{category}/{name}",
+            "tree://concepts/{name}",
+            "tree://scars/{name}",
+            "tree://registry/tools",
         ],
     }
 
 
 __all__ = [
-    "register_tree777_resources",
-    "get_tree777_index_resource",
-    "get_tree777_skill_resource",
-    "get_tree777_concept_resource",
-    "get_tree777_scar_resource",
-    "get_tree777_search_resource",
-    "get_tree777_registry_resource",
+    "register_tree_resources",
+    "get_tree_index_resource",
+    "get_tree_skill_resource",
+    "get_tree_concept_resource",
+    "get_tree_scar_resource",
+    "get_tree_search_resource",
+    "get_tree_registry_resource",
     "RESOURCE_HANDLERS",
     "handle_resource",
 ]

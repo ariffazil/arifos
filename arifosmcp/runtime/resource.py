@@ -30,7 +30,7 @@ def manifest_resources() -> list[str]:
 
     Includes all 5 URI families:
       - CANONICAL (arifos://doctrine, vitals, schema, forge, civilization)
-      - TREE777 (tree777://index, search, skills/{cat}/{name}, concepts/{name}, scars/{name})
+      - TREE777 (tree://index, search, skills/{cat}/{name}, concepts/{name}, scars/{name})
       - EMBODIED (arifos://tools/self-model/{view}, witness/{filter}, boundaries/{domain})
       - EVIDENCE (source://{hash}, receipt://..., contrast://..., void://...)
     """
@@ -47,7 +47,7 @@ async def read_resource_content(uri: str) -> str:
     Resolve a resource URI and return its content.
 
     Handles:
-      - tree777:// URIs         → TREE777 wiki pages
+      - tree:// URIs         → TREE777 wiki pages
       - arifos:// URIs          → arifOS canonical resources
       - source://, receipt://,
         contrast://, void://    → F-WEB evidence resources
@@ -55,7 +55,7 @@ async def read_resource_content(uri: str) -> str:
     Returns the resource content as a string, or an error message
     if the URI cannot be resolved.
     """
-    from arifosmcp.resources.tree777 import handle_resource
+    from arifosmcp.resources.tree import handle_resource
 
     result = handle_resource(uri)
     body = result.get("body", "")

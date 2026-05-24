@@ -73,7 +73,7 @@ def _class_to_numeric(decision_class: str) -> int:
     return mapping.get(decision_class.upper(), 0)
 
 
-async def arif_session_budget(
+async def arif_budget(
     mode: str = "status",
     decision_class: str = "C1",
     delta_s: float = 0.0,
@@ -195,7 +195,7 @@ async def arif_session_budget(
         next_safe_action = "Proceed with standard governance."
 
     logger.info(
-        "arif_session_budget mode=%s session=%s total=%.4f ceiling=%.4f verdict=%s",
+        "arif_budget mode=%s session=%s total=%.4f ceiling=%.4f verdict=%s",
         mode,
         session_id,
         total,
@@ -226,4 +226,4 @@ async def arif_session_budget(
     }
 
 
-__all__ = ["arif_session_budget"]
+__all__ = ["arif_budget"]
