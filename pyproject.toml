@@ -45,7 +45,7 @@ dependencies = [
     "structlog>=24.4.0",
     "rich>=15.0.0",
     "psutil>=7.2.2",
-    "numpy==2.4.5",
+    "numpy==2.4.6",
     "scipy==1.17.1",
     "scikit-learn==1.8.0",
     "torch==2.12.0",
