@@ -18,7 +18,7 @@ scipy==1.14.1
 scikit-learn==1.8.0
 torch==2.12.0
 transformers==5.8.1
-sentence-transformers==5.5.0
+sentence-transformers==5.5.1
 qdrant-client>=1.18.0
 google-api-python-client>=2.160.0
 google-auth-httplib2>=0.2.0
