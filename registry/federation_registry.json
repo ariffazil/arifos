@@ -3,11 +3,11 @@
   "version": "2026.05.26",
   "tool_count": {
     "arifOS": 13,
-    "WEALTH": 33,
+    "WEALTH": 44,
     "GEOX": 11,
     "WELL": 13,
     "A-FORGE": 0,
-    "total": 70
+    "total": 81
   },
   "servers": [
     {
@@ -29,10 +29,7 @@
       "transport": "streamable-http",
       "role": "Capital Intelligence",
       "version": "2026.05.02",
-      "tools": 33,
-      "public_surface": 38,
-      "runtime_surface": 33,
-      "hidden_aliases": 34
+      "tools": 44
     },
     {
       "organ": "GEOX",

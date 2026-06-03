@@ -200,8 +200,8 @@
         "ready": "/ready"
       },
       "discovery_status": "mcp-only",
-      "discovery_note": "No REST discovery. 17 tools enumerable via MCP JSON-RPC with session (mcp-session-id header). 2 generic-name tools (vault_write, vault_query).",
-      "tool_count": 17,
+      "discovery_note": "No REST discovery. 44 tools enumerable via MCP JSON-RPC with session (mcp-session-id header). 2 generic-name tools (vault_write, vault_query).",
+      "tool_count": 44,
       "stack": {
         "runtime": "Python 3.12+",
         "framework": "FastMCP (single-file monolith)",
