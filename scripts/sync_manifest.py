@@ -116,7 +116,9 @@ def _update_federation_registry(path: Path, live_count: int, dry_run: bool) -> N
         path.write_text(
             json.dumps(data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
         )
-    print(f"  {'[dry-run] ' if dry_run else ''}federation_registry.json → WEALTH tools={live_count}, total={data['tool_count']['total']}")
+    prefix = "[dry-run] " if dry_run else ""
+    total = data["tool_count"]["total"]
+    print(f"  {prefix}federation_registry.json → WEALTH tools={live_count}, total={total}")
 
 
 def _update_federation_charter(path: Path, live_count: int, dry_run: bool) -> None:
@@ -144,7 +146,8 @@ def _update_federation_charter(path: Path, live_count: int, dry_run: bool) -> No
         path.write_text(
             json.dumps(data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
         )
-    print(f"  {'[dry-run] ' if dry_run else ''}federation.charter.json → WEALTH tool_count={live_count}")
+    prefix = "[dry-run] " if dry_run else ""
+    print(f"  {prefix}federation.charter.json → WEALTH tool_count={live_count}")
 
 
 def _update_mcp_discovery(path: Path, live_count: int, dry_run: bool) -> None:
@@ -166,7 +169,8 @@ def _update_mcp_discovery(path: Path, live_count: int, dry_run: bool) -> None:
         path.write_text(
             json.dumps(data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
         )
-    print(f"  {'[dry-run] ' if dry_run else ''}mcp-discovery-index.json → WEALTH verified_mcp_tool_count={live_count}")
+    prefix = "[dry-run] " if dry_run else ""
+    print(f"  {prefix}mcp-discovery-index.json → WEALTH verified_mcp_tool_count={live_count}")
 
 
 def main() -> None:
@@ -181,9 +185,11 @@ def main() -> None:
     live_count = _fetch_live_count(wealth_url)
 
     if live_count == 0:
-        sys.exit(
-            "SYNC_ABORT: runtime returned 0 tools — possible import failure, monolith.py not updated"
+        print(
+            "SYNC_ABORT: runtime returned 0 tools — possible import failure, monolith.py not updated",
+            file=sys.stderr,
         )
+        sys.exit(1)
 
     print(f"sync_manifest: live_count={live_count}")
     print("sync_manifest: updating manifests ...")
