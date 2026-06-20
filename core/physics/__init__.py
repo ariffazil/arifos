@@ -1,4 +1,18 @@
-"""arifosmcp.core.physics — Constitutional physics module."""
+"""core.physics — Constitutional physics invariants for arifOS.
+
+This package enforces the physical, thermodynamic, economic, and institutional
+constraints that bind AI-mediated institutional action. Every invariant here is
+a hard floor: if one breaks, the action is constitutional.
+
+Modules:
+  thermodynamics_hardened  — F1 energy/reversibility/entropy (invariants 1-5)
+  economic_invariants      — capital conservation, optionality, hysteresis (6-10)
+  institutional_evolution  — mortality/succession/absorption (invariant 15)
+  thermo_budget            — session thermodynamic budget tracker
+
+The pre_execution_gate imports from this package. Every module here runs BEFORE
+any mutation-class or irreversible action is allowed to proceed.
+"""
 
 from __future__ import annotations
 
@@ -10,7 +24,7 @@ __all__: list[str] = []
 # Thermodynamics (hardened)
 # ═══════════════════════════════════════════════════════
 try:
-    from arifosmcp.core.physics.thermodynamics_hardened import (
+    from core.physics.thermodynamics_hardened import (
         ThermodynamicError,
         ThermodynamicBudgetLedger,
         MaintenanceScaling,
@@ -45,7 +59,7 @@ __all__.extend([
 # Economic invariants
 # ═══════════════════════════════════════════════════════
 try:
-    from arifosmcp.core.physics.economic_invariants import (
+    from core.physics.economic_invariants import (
         EconomicInvariantError,
         MaintenanceScalingError,
         check_maintenance_scaling,
@@ -68,7 +82,7 @@ __all__.extend([
 # Institutional evolution
 # ═══════════════════════════════════════════════════════
 try:
-    from arifosmcp.core.physics.institutional_evolution import (
+    from core.physics.institutional_evolution import (
         # Exception types
         SuccessionError,
         InstitutionalEvolutionError,
