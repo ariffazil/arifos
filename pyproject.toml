@@ -113,7 +113,7 @@ geox = [
 wealth = [
     "supabase>=2.10.0",
     "numpy-financial>=1.0.0",
-    "psycopg[binary]>=3.1.0",
+    "psycopg[binary]>=3.3.4",
 ]
 federation = [
     "lasio>=0.32",
@@ -124,7 +124,7 @@ federation = [
     "setuptools<70",
     "supabase>=2.10.0",
     "numpy-financial>=1.0.0",
-    "psycopg[binary]>=3.1.0",
+    "psycopg[binary]>=3.3.4",
 ]
 
 [project.urls]
